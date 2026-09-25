@@ -7,7 +7,6 @@ void main() {
     const files = <String>[
       'lib/features/library/kinds/tv/config.dart',
       'lib/features/library/kinds/tv/page.dart',
-      'lib/features/library/kinds/tv/add_dialog.dart',
       'lib/features/library/kinds/tv/edit_dialog.dart',
       'lib/features/library/kinds/tv/presentation.dart',
       'lib/features/library/kinds/tv/presentation_builder.dart',

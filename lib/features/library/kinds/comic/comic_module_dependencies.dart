@@ -23,7 +23,6 @@ export 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result
 export 'package:collectarr_app/features/library/kinds/comic/add/comic_cover_scan_hints.dart';
 export 'package:collectarr_app/features/library/kinds/comic/add/comic_provider_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/comic/add/comic_provider_search.dart';
-export 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/comic/add_preview.dart';
 export 'package:collectarr_app/features/library/kinds/comic/add_shell.dart';
 export 'package:collectarr_app/features/library/kinds/comic/comic_physical_media_formats.dart';
@@ -59,7 +58,6 @@ export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
-export 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 export 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';

@@ -2,10 +2,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -25,7 +23,6 @@ import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
@@ -34,6 +31,7 @@ import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_track
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -91,7 +89,14 @@ void main() {
     );
     expect(comicKindTrackingProfile, comicTrackingProfile);
     expect(comicKindPresentation, comicLibraryMediaPresentation);
-    expect(comicKindAdd.dialogLauncher, same(showComicLibraryAddDialog));
+    expect(comicKindAdd.headerBuilder, isNotNull);
+    expect(comicKindAdd.modeBarBuilder, isNotNull);
+    expect(comicKindAdd.searchPaneBuilder, isNotNull);
+    expect(comicKindAdd.previewPaneBuilder, isNotNull);
+    expect(
+      comicKindAdd.bottomBarPresentation,
+      LibraryAddBottomBarPresentation.segmentedTarget,
+    );
     expect(
         comicKindEditCapabilities.presentationCapability.editRegistry
             .builderForScope(LibraryEntityScope.work),
@@ -145,8 +150,15 @@ void main() {
     expect(mangaKindIdentity.countLabel(2), 'Manga');
   });
 
-  test('movies library config uses the dedicated add dialog launcher', () {
-    expect(movieKindAdd.dialogLauncher, same(showMovieLibraryAddDialog));
+  test('movie Add panes use the kind capability with shared launch chrome', () {
+    expect(movieKindAdd.headerBuilder, isNotNull);
+    expect(movieKindAdd.modeBarBuilder, isNotNull);
+    expect(movieKindAdd.searchPaneBuilder, isNotNull);
+    expect(movieKindAdd.previewPaneBuilder, isNotNull);
+    expect(
+      movieKindAdd.bottomBarPresentation,
+      LibraryAddBottomBarPresentation.segmentedTarget,
+    );
     expect(movieKindIdentity.accent, const Color(0xFF42AA55));
     expect(
         libraryAccentForKind(CatalogMediaKind.anime), const Color(0xFFC94DFF));
@@ -547,7 +559,10 @@ void main() {
       defaultLibraryKindRegistry.tryGet(CatalogMediaKind.unknown),
       isNull,
     );
-    expect(movieKindAdd.dialogLauncher, same(showMovieLibraryAddDialog));
+    expect(
+      movieKindAdd.bottomBarPresentation,
+      LibraryAddBottomBarPresentation.segmentedTarget,
+    );
     expect(
       libraryEditPresentationForKind(CatalogMediaKind.movie)
           .editRegistry
@@ -772,10 +787,6 @@ void main() {
       _sort(const ComicRegistration(), 'comic.release_date'),
     );
     expect(
-      comicsTableColumnPresets.map((preset) => preset.label),
-      ['Essential', 'Ownership', 'Value', 'Full'],
-    );
-    expect(
       libraryKindWorkspaceForKind(comicRuntime.kind)
           .orderedTableColumns(const {}).first,
       _field(const ComicRegistration(), 'comic.cover'),
@@ -895,11 +906,11 @@ void main() {
     expect(
       comicKindPresentation.sortFavorites
           .map((LibrarySortFavorite favorite) => favorite.id),
-      ['series_issue', 'recent', 'publisher_date', 'value_desc'],
+      ['title_asc', 'release_latest', 'recent', 'value_desc'],
     );
     expect(
       comicKindPresentation.columnFavorites.map((preset) => preset.label),
-      comicsTableColumnPresets.map((preset) => preset.label),
+      ['Essential', 'Collection', 'Reference'],
     );
     expect(bookKindPresentation.compactBucketIcon, Icons.folder);
     expect(

@@ -70,12 +70,6 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.initialIdentifier,
     this.autoLookupInitialIdentifier = true,
     this.coverScanService = const LocalLibraryCoverScanService(),
-    this.manualPaneBuilder,
-    this.previewPaneBuilder,
-    this.headerBuilder,
-    this.modeBarBuilder,
-    this.searchPaneBuilder,
-    this.bottomBarBuilder,
     this.customFieldDefinitions = const [],
     this.customFieldValues = const [],
     this.itemImages = const [],
@@ -87,12 +81,6 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   final String? initialIdentifier;
   final bool autoLookupInitialIdentifier;
   final LibraryCoverScanService coverScanService;
-  final LibraryAddManualPaneBuilder? manualPaneBuilder;
-  final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
-  final LibraryAddHeaderBuilder? headerBuilder;
-  final LibraryAddModeBarBuilder? modeBarBuilder;
-  final LibraryAddSearchPaneBuilder? searchPaneBuilder;
-  final LibraryAddBottomBarBuilder? bottomBarBuilder;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
   final List<ItemImage> itemImages;
@@ -665,8 +653,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           (_dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight) + delta,
         );
       }),
-      header: widget.headerBuilder?.call(context, headerRequest) ??
-          addCapability.headerBuilder?.call(context, headerRequest) ??
+      header: addCapability.headerBuilder?.call(context, headerRequest) ??
           AccentDialogHeader(
             title: 'Add ${widget.type.identity.pluralLabel}',
             icon: widget.type.identity.icon,
@@ -685,7 +672,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             ),
           Builder(
             builder: (scopedContext) =>
-                widget.modeBarBuilder?.call(scopedContext, modeBarRequest) ??
                 addCapability.modeBarBuilder
                     ?.call(scopedContext, modeBarRequest) ??
                 LibraryAddModeBar(
@@ -807,9 +793,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 onSearchCore: _controller.executeSearch,
               );
 
-              final searchPaneWidget = widget.searchPaneBuilder
-                      ?.call(context, searchPaneRequest) ??
-                  addCapability.searchPaneBuilder
+              final searchPaneWidget = addCapability.searchPaneBuilder
                       ?.call(context, searchPaneRequest) ??
                   LibraryAddSearchPane(
                     type: searchPaneRequest.type,
@@ -855,8 +839,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 type: widget.type,
                 accent: accent,
                 isWideLayout: isWideLayout,
-                previewPaneBuilder: widget.previewPaneBuilder ??
-                    addCapability.previewPaneBuilder,
+                previewPaneBuilder: addCapability.previewPaneBuilder,
                 item: selectedItem,
                 candidate: selectedCandidate,
                 candidatePreview: selectedCandidate == null
@@ -940,14 +923,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               );
             },
           ),
-        LibraryAddDialogMode.manual => widget.manualPaneBuilder?.call(
-              context,
-              _buildManualPaneRequest(state, accent),
-            ) ??
-            addCapability.buildManualPane(
-              context,
-              _buildManualPaneRequest(state, accent),
-            ),
+        LibraryAddDialogMode.manual => addCapability.buildManualPane(
+            context,
+            _buildManualPaneRequest(state, accent),
+          ),
       },
       footer: () {
         final bottomBarRequest = LibraryAddBottomBarRequest(
@@ -999,62 +978,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           onPropose: selectedCandidate != null
               ? () => _proposeCandidate(selectedCandidate)
               : null,
+          isWideLayout: isWideLayout,
         );
-        return widget.bottomBarBuilder?.call(context, bottomBarRequest) ??
-            addCapability.bottomBarBuilder?.call(context, bottomBarRequest) ??
-            LibraryAddBottomBar(
-              type: widget.type,
-              isWideLayout: isWideLayout,
-              conditions: _conditionOptions,
-              defaultTags: state.defaultTags,
-              accent: accent,
-              selectedItem: selectedItem,
-              selectedCandidate: selectedCandidate,
-              selectedQueuedIngest: selectedCandidate != null
-                  ? state.preview
-                      .queuedProviderIngests[selectedCandidate.localCatalogId]
-                  : null,
-              providerLabel: selectedCandidate == null
-                  ? libraryMetadataForKind(widget.type.kind).providerLabel(
-                      state.search.selectedProvider,
-                    )
-                  : libraryMetadataForKind(widget.type.kind).providerLabel(
-                      selectedCandidate.provider,
-                    ),
-              addTarget: state.target,
-              addCount: checkedSelectionCount > 0 ? checkedSelectionCount : 1,
-              hasCheckedSelection: hasCheckedSelection,
-              isAdding: state.isAdding || state.submitState.isLoading,
-              isQueueingIngest: state.preview.isQueueingIngest,
-              isAdmin: ref.watch(authControllerProvider).isAdmin,
-              defaultCondition: state.defaultCondition,
-              defaultLocationLabel: locationPathForId(
-                  _availableLocations, state.defaultLocationId),
-              defaultPurchaseDate: state.defaultPurchaseDate,
-              onAddTargetChanged: _controller.setTarget,
-              onDefaultConditionChanged: _controller.setDefaultCondition,
-              onEditDefaultTagsPressed: _showDefaultTagsEditor,
-              onDefaultLocationPressed: _pickDefaultLocation,
-              onDefaultPurchaseDateChanged: _controller.setDefaultPurchaseDate,
-              onAdd: () async {
-                final success = await _controller.submitCurrentSelection(
-                  context: context,
-                  isAdmin: ref.read(authControllerProvider).isAdmin,
-                );
-                if (success && mounted) {
-                  _closeDialog(_addResult(_currentSubmissionItemIds()));
-                }
-              },
-              onQueueIngest: selectedCandidate != null
-                  ? () => _controller.queueProviderIngest(
-                        selectedCandidate,
-                        context: context,
-                      )
-                  : null,
-              onPropose: selectedCandidate != null
-                  ? () => _proposeCandidate(selectedCandidate)
-                  : null,
-            );
+        return LibraryAddBottomBar(
+          request: bottomBarRequest,
+          presentation: addCapability.bottomBarPresentation,
+        );
       }(),
     );
   }

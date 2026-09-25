@@ -148,7 +148,17 @@ class LibraryWorkspaceViewProfile {
     final registration = registrationResolver();
     final preferences = await LibraryWorkspacePreferences(registration).read(
       defaultCoverSize: defaultCoverSize,
+      minCoverSize: minCoverSize,
+      maxCoverSize: maxCoverSize,
       defaultDensityPreset: registration.identity.defaultDensityPreset,
+      defaultViewMode: defaultViewMode,
+      defaultDetailsLayout: defaultDetailsLayout,
+      defaultSidebarVisible: defaultSidebarVisible,
+      defaultSortAscending: defaultSortAscending,
+      defaultSortAscendingForColumn: sortAscendingForColumn,
+      defaultSidebarWidth: defaultSidebarWidth,
+      defaultDetailsWidth: defaultDetailsWidth,
+      defaultDetailsHeight: defaultDetailsHeight,
     );
     return fromPreferenceSnapshot(preferences);
   }

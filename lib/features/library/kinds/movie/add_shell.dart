@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dar
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_kind_bottom_bar.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -338,13 +337,6 @@ Widget buildMovieAddSearchPane(
       ],
     ),
   );
-}
-
-Widget buildMovieAddBottomBar(
-  BuildContext context,
-  LibraryAddBottomBarRequest request,
-) {
-  return buildLibraryAddKindBottomBar(context, request);
 }
 
 class _MovieSearchGridEntry {

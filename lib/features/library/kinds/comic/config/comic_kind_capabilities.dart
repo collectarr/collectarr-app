@@ -5,6 +5,7 @@ import '../actions/comic_missing_issues_action.dart';
 import '../add/comic_add_contribution.dart';
 import 'package:collectarr_app/features/library/kinds/comic/release/comic_release_projection_capability.dart'
     as comic_release;
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 
 final comicKindPresentation = comicLibraryMediaPresentation;
 
@@ -16,7 +17,10 @@ final comicKindWorkCapability = const DefaultWorkProjectionCapability();
 
 final comicKindCatalogTarget = const ComicCatalogTargetCapability();
 
-final comicKindViewProfile = comicsWorkspaceViewProfile;
+final comicKindViewProfile = standardMediaWorkspaceViewProfile(
+  CatalogMediaKind.comic,
+  comicKindUiPolicy,
+);
 
 final comicKindReleaseCapability = comic_release.comicKindReleaseCapability;
 

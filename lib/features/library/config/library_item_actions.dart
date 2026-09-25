@@ -161,11 +161,6 @@ class LibraryAddDialogResult {
   final List<String> itemIds;
 }
 
-typedef LibraryAddDialogLauncher = Future<LibraryAddDialogResult?> Function(
-  BuildContext context,
-  LibraryAddDialogRequest request,
-);
-
 class LibraryEditDialogRequest {
   LibraryEditDialogRequest({
     required this.type,

@@ -29,7 +29,6 @@ class LibraryMediaPresentation {
     required this.bucketLabelBuilder,
     this.cardPresentationBuilder,
     this.quickViewMatcher,
-    this.usesCompactTableLayout = false,
     this.compactBucketIcon = Icons.folder,
     this.emptyStateProviderSummarySuffix = '',
     this.previewLabels = const LibraryMediaPreviewLabels(),
@@ -50,7 +49,6 @@ class LibraryMediaPresentation {
   final LibraryBucketLabelBuilder bucketLabelBuilder;
   final LibraryCardPresentationBuilder? cardPresentationBuilder;
   final LibraryQuickViewMatcher? quickViewMatcher;
-  final bool usesCompactTableLayout;
   final IconData compactBucketIcon;
   final String emptyStateProviderSummarySuffix;
   final LibraryMediaPreviewLabels previewLabels;

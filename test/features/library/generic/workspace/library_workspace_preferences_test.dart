@@ -123,7 +123,7 @@ void main() {
       maxCoverSize: 188,
     );
 
-    expect(restored.detailsLayout, LibraryDetailsLayout.right);
+    expect(restored.detailsLayout, LibraryDetailsLayout.bottom);
     expect(restored.sidebarWidth, kLibrarySidebarDefaultWidth);
     expect(restored.detailsWidth, kLibraryDetailsDefaultWidth);
     expect(restored.detailsHeight, kLibraryDetailsDefaultHeight);

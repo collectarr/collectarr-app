@@ -99,9 +99,10 @@ class LibraryWorkspacePreferences {
     double? minCoverSize,
     double? maxCoverSize,
     LibraryViewMode defaultViewMode = LibraryViewMode.grid,
-    LibraryDetailsLayout defaultDetailsLayout = LibraryDetailsLayout.right,
+    LibraryDetailsLayout defaultDetailsLayout = LibraryDetailsLayout.bottom,
     bool defaultSidebarVisible = true,
     bool defaultSortAscending = true,
+    bool Function(LibrarySortIdRuntime column)? defaultSortAscendingForColumn,
     double defaultSidebarWidth = kLibrarySidebarDefaultWidth,
     double defaultDetailsWidth = kLibraryDetailsDefaultWidth,
     double defaultDetailsHeight = kLibraryDetailsDefaultHeight,
@@ -167,8 +168,9 @@ class LibraryWorkspacePreferences {
       isSidebarVisible:
           prefs.getBool(_key('sidebar_visible')) ?? defaultSidebarVisible,
       sortColumn: sortColumn,
-      sortAscending:
-          prefs.getBool(_key('sort_ascending')) ?? defaultSortAscending,
+      sortAscending: prefs.getBool(_key('sort_ascending')) ??
+          (defaultSortAscendingForColumn?.call(fields.defaultSort) ??
+              defaultSortAscending),
       sortRules: sortRules,
       coverSize: _clamp(coverSize, minCoverSize, maxCoverSize),
       sidebarWidth: clampLibraryPaneWidth(

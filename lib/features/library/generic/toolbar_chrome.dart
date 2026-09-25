@@ -124,6 +124,15 @@ Set<String> libraryDefaultPinnedSortFavoriteIdsForType(
   };
 }
 
+Set<String> sanitizeLibraryPinnedSortFavoriteIds(
+  LibraryKindRegistration type,
+  Iterable<String> ids,
+) {
+  final availableIds =
+      librarySortFavoritesForType(type).map((favorite) => favorite.id).toSet();
+  return ids.where(availableIds.contains).toSet();
+}
+
 List<LibraryTableColumnPreset> libraryColumnFavoritesForType(
   LibraryKindRegistration type,
 ) {
@@ -137,4 +146,16 @@ Set<String> libraryDefaultPinnedColumnFavoriteKeysForType(
   return {
     for (final preset in presets.take(2)) libraryColumnFavoriteKey(preset),
   };
+}
+
+Set<String> sanitizeLibraryPinnedColumnFavoriteKeys(
+  LibraryKindRegistration type,
+  Iterable<String> keys,
+) {
+  final availableBuiltInKeys =
+      libraryColumnFavoritesForType(type).map(libraryColumnFavoriteKey).toSet();
+  return keys
+      .where((key) =>
+          !key.startsWith('builtin:') || availableBuiltInKeys.contains(key))
+      .toSet();
 }

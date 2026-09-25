@@ -4,7 +4,6 @@ import 'movie_manual_candidate.dart';
 
 final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   kind: CatalogMediaKind.movie,
-  dialogLauncher: showMovieLibraryAddDialog,
   initialDraftBuilder: MovieAddDraft.new,
   typedProviderCandidateProjectionBuilder: (candidate) =>
       movieCatalogTransportFromTypedCandidate(
@@ -21,7 +20,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   modeBarBuilder: buildMovieAddModeBar,
   previewPaneBuilder: buildMovieAddPreviewPane,
   searchPaneBuilder: buildMovieAddSearchPane,
-  bottomBarBuilder: buildMovieAddBottomBar,
+  bottomBarPresentation: LibraryAddBottomBarPresentation.segmentedTarget,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MovieOwnedItemCreatePayload(
     catalogRef: item.reference,

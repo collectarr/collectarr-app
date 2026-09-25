@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -18,9 +17,7 @@ Future<LibraryAddDialogResult?> showLibraryAddDialog({
     initialQuery: initialQuery,
     initialIdentifier: initialIdentifier,
   );
-  final launcher = libraryAddForKind(type.kind).dialogLauncher ??
-      _showDefaultLibraryAddDialog;
-  return launcher(context, request);
+  return _showDefaultLibraryAddDialog(context, request);
 }
 
 Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(

@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_unsupported_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
@@ -428,8 +427,7 @@ abstract interface class LibraryAddCapability<
   LibraryAddModeBarBuilder? get modeBarBuilder;
   LibraryAddPreviewPaneBuilder? get previewPaneBuilder;
   LibraryAddSearchPaneBuilder? get searchPaneBuilder;
-  LibraryAddBottomBarBuilder? get bottomBarBuilder;
-  LibraryAddDialogLauncher? get dialogLauncher;
+  LibraryAddBottomBarPresentation get bottomBarPresentation;
   LibraryAddChromeConfig get chrome;
   LibraryAddSearchCapability get search;
   LibraryAddResultPolicy get resultPolicy;
@@ -489,8 +487,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.modeBarBuilder,
     this.previewPaneBuilder,
     this.searchPaneBuilder,
-    this.bottomBarBuilder,
-    this.dialogLauncher,
+    this.bottomBarPresentation = LibraryAddBottomBarPresentation.responsiveMenu,
     this.chrome = const LibraryAddChromeConfig(),
     required this.search,
     this.ownedPayloadBuilder,
@@ -518,9 +515,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   @override
   final LibraryAddSearchPaneBuilder? searchPaneBuilder;
   @override
-  final LibraryAddBottomBarBuilder? bottomBarBuilder;
-  @override
-  final LibraryAddDialogLauncher? dialogLauncher;
+  final LibraryAddBottomBarPresentation bottomBarPresentation;
   @override
   final LibraryAddChromeConfig chrome;
   @override

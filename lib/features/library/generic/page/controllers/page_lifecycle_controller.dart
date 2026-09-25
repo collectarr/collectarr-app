@@ -80,6 +80,30 @@ abstract final class _LibraryPageLifecycleControllerOps {
         return;
       }
 
+      final validPinnedSortFavoriteIds = sanitizeLibraryPinnedSortFavoriteIds(
+        state.widget.type,
+        pinnedSortFavoriteIds,
+      );
+      final validPinnedColumnFavoriteKeys =
+          sanitizeLibraryPinnedColumnFavoriteKeys(
+        state.widget.type,
+        pinnedColumnFavoriteKeys,
+      );
+      if (!setEquals(validPinnedSortFavoriteIds, pinnedSortFavoriteIds)) {
+        unawaited(
+          state._viewPrefs.writePinnedSortFavoriteIds(
+            validPinnedSortFavoriteIds,
+          ),
+        );
+      }
+      if (!setEquals(validPinnedColumnFavoriteKeys, pinnedColumnFavoriteKeys)) {
+        unawaited(
+          state._viewPrefs.writePinnedColumnFavoriteKeys(
+            validPinnedColumnFavoriteKeys,
+          ),
+        );
+      }
+
       final nextGroupMode = folderPreset?.primaryMode;
       final effectiveFolderPreset = folderPreset ??
           (nextGroupMode == null
@@ -108,9 +132,9 @@ abstract final class _LibraryPageLifecycleControllerOps {
           !setEquals(state._session.preferences.pinnedViewPresets,
               pinnedViewPresets) ||
           !setEquals(state._session.preferences.pinnedSortFavoriteIds,
-              pinnedSortFavoriteIds) ||
+              validPinnedSortFavoriteIds) ||
           !setEquals(state._session.preferences.pinnedColumnFavoriteKeys,
-              pinnedColumnFavoriteKeys);
+              validPinnedColumnFavoriteKeys);
 
       if (!preferencesChanged) {
         unawaited(state._loadFolderTreePreferencesForActivePreset());
@@ -131,9 +155,9 @@ abstract final class _LibraryPageLifecycleControllerOps {
         state._session.preferences.pinnedFolderPresets = pinnedPresets;
         state._session.preferences.pinnedViewPresets = pinnedViewPresets;
         state._session.preferences.pinnedSortFavoriteIds =
-            pinnedSortFavoriteIds;
+            validPinnedSortFavoriteIds;
         state._session.preferences.pinnedColumnFavoriteKeys =
-            pinnedColumnFavoriteKeys;
+            validPinnedColumnFavoriteKeys;
         state._applyRouteStateFromUri(state.widget.routeUri);
       });
       unawaited(state._loadFolderTreePreferencesForActivePreset());
@@ -180,13 +204,19 @@ abstract final class _LibraryPageLifecycleControllerOps {
             ? state._viewPrefs.cachedPinnedViewPresets
             : libraryDefaultPinnedViewPresetsForType(state.widget.type);
     state._session.preferences.pinnedSortFavoriteIds =
-        state._viewPrefs.cachedPinnedSortFavoriteIds.isNotEmpty
-            ? state._viewPrefs.cachedPinnedSortFavoriteIds
-            : libraryDefaultPinnedSortFavoriteIdsForType(state.widget.type);
+        sanitizeLibraryPinnedSortFavoriteIds(
+      state.widget.type,
+      state._viewPrefs.cachedPinnedSortFavoriteIds.isNotEmpty
+          ? state._viewPrefs.cachedPinnedSortFavoriteIds
+          : libraryDefaultPinnedSortFavoriteIdsForType(state.widget.type),
+    );
     state._session.preferences.pinnedColumnFavoriteKeys =
-        state._viewPrefs.cachedPinnedColumnFavoriteKeys.isNotEmpty
-            ? state._viewPrefs.cachedPinnedColumnFavoriteKeys
-            : libraryDefaultPinnedColumnFavoriteKeysForType(state.widget.type);
+        sanitizeLibraryPinnedColumnFavoriteKeys(
+      state.widget.type,
+      state._viewPrefs.cachedPinnedColumnFavoriteKeys.isNotEmpty
+          ? state._viewPrefs.cachedPinnedColumnFavoriteKeys
+          : libraryDefaultPinnedColumnFavoriteKeysForType(state.widget.type),
+    );
   }
 
   static void didUpdateWidget(

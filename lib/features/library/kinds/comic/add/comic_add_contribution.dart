@@ -6,7 +6,6 @@ import 'comic_manual_candidate.dart';
 
 final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   kind: CatalogMediaKind.comic,
-  dialogLauncher: showComicLibraryAddDialog,
   initialDraftBuilder: ComicAddDraft.new,
   typedProviderCandidateProjectionBuilder: (candidate) =>
       comicCatalogTransportFromTypedCandidate(
@@ -20,7 +19,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   modeBarBuilder: buildComicAddModeBar,
   previewPaneBuilder: buildComicAddPreviewPane,
   searchPaneBuilder: buildComicAddSearchPane,
-  bottomBarBuilder: buildComicAddBottomBar,
+  bottomBarPresentation: LibraryAddBottomBarPresentation.segmentedTarget,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       ComicOwnedItemCreatePayload(
     catalogRef: item.reference,

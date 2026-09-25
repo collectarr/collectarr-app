@@ -154,7 +154,6 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   builder: mangaLibraryMediaBuilder,
   bucketLabelBuilder: mangaLibraryBucketLabelBuilder,
   cardPresentationBuilder: buildMangaCardPresentation,
-  usesCompactTableLayout: true,
   previewLabels: mangaPreviewLabels,
   statsLabels: mangaStatsLabels,
   filterDefinitions: mangaLibraryFilterDefinitions,

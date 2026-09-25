@@ -5,10 +5,7 @@ import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:flutter/material.dart';
 
 const comicsMetadataLabels = LibraryMetadataLabels(
   values: {
@@ -164,47 +161,6 @@ String comicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   );
 }
 
-const comicLibrarySortFavorites = [
-  LibrarySortFavorite(
-    id: 'series_issue',
-    label: 'Series + issue',
-    icon: Icons.format_list_numbered,
-    rules: [
-      LibrarySortRule(column: 'title', ascending: true),
-      LibrarySortRule(column: 'comic.issue', ascending: true),
-      LibrarySortRule(column: 'variant', ascending: true),
-    ],
-  ),
-  LibrarySortFavorite(
-    id: 'recent',
-    label: 'Recently added',
-    icon: Icons.update,
-    rules: [
-      LibrarySortRule(column: 'updated', ascending: false),
-      LibrarySortRule(column: 'title', ascending: true),
-    ],
-  ),
-  LibrarySortFavorite(
-    id: 'publisher_date',
-    label: 'Publisher + date',
-    icon: Icons.business_outlined,
-    rules: [
-      LibrarySortRule(column: 'publisher', ascending: true),
-      LibrarySortRule(column: 'release_date', ascending: true),
-      LibrarySortRule(column: 'comic.issue', ascending: true),
-    ],
-  ),
-  LibrarySortFavorite(
-    id: 'value_desc',
-    label: 'Value high to low',
-    icon: Icons.attach_money,
-    rules: [
-      LibrarySortRule(column: 'price', ascending: false),
-      LibrarySortRule(column: 'title', ascending: true),
-    ],
-  ),
-];
-
 final comicLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
@@ -225,11 +181,8 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: comicLibraryBucketLabelBuilder,
   cardPresentationBuilder: buildComicCardPresentation,
   quickViewMatcher: comicQuickViewMatcher,
-  usesCompactTableLayout: true,
   previewLabels: comicsPreviewLabels,
   filterDefinitions: comicLibraryFilterDefinitions,
-  sortFavorites: comicLibrarySortFavorites,
-  columnFavorites: comicsTableColumnPresets,
 );
 
 bool? comicQuickViewMatcher(

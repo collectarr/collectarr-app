@@ -22,11 +22,6 @@ import 'package:collectarr_app/features/library/bundles/models/library_bundle_de
 // library add dialog. Extracted from library_add_dialog.dart to keep the
 // dialog state file focused on behavior.
 
-typedef LibraryAddManualPaneBuilder = Widget Function(
-  BuildContext context,
-  LibraryAddManualPaneRequest request,
-);
-
 typedef LibraryAddPreviewPaneBuilder = Widget Function(
   BuildContext context,
   LibraryAddPreviewPaneRequest request,
@@ -47,10 +42,10 @@ typedef LibraryAddSearchPaneBuilder = Widget Function(
   LibraryAddSearchPaneRequest request,
 );
 
-typedef LibraryAddBottomBarBuilder = Widget Function(
-  BuildContext context,
-  LibraryAddBottomBarRequest request,
-);
+enum LibraryAddBottomBarPresentation {
+  responsiveMenu,
+  segmentedTarget,
+}
 
 class LibraryAddManualPaneRequest {
   const LibraryAddManualPaneRequest({
@@ -342,6 +337,7 @@ class LibraryAddBottomBarRequest {
     required this.onAdd,
     required this.onQueueIngest,
     required this.onPropose,
+    required this.isWideLayout,
   });
 
   final LibraryKindRegistration type;
@@ -369,4 +365,5 @@ class LibraryAddBottomBarRequest {
   final VoidCallback? onAdd;
   final VoidCallback? onQueueIngest;
   final VoidCallback? onPropose;
+  final bool isWideLayout;
 }

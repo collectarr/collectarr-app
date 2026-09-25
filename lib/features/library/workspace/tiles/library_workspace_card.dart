@@ -1,7 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -19,70 +17,6 @@ typedef LibraryDateFormatter = String Function(DateTime value);
 typedef LibraryMoneyFormatter = String Function(int? cents, String? currency);
 
 enum LibraryCardLayout { vertical, horizontal }
-
-class _LibraryWorkspaceCardDelegateImpl
-    implements LibraryWorkspaceCardDelegate {
-  _LibraryWorkspaceCardDelegateImpl({
-    required this.item,
-    required this.selected,
-    required this.onTap,
-    required this.onDoubleTap,
-    required this.onSecondaryTapUp,
-    required this.selectedColor,
-    required this.accentColor,
-    required this.mutedTextColor,
-    required this.coverWidth,
-    required this.cardLayout,
-    required this.selectionMode,
-    required this.onSelectionToggleTap,
-    required this.onEditTap,
-    required this.customFieldBadges,
-    required this.selectedTitleColor,
-    required this.mutedColor,
-    required this.coverCacheWidth,
-    required this.metadataPresentation,
-    required this.referenceHierarchy,
-  });
-
-  @override
-  final LibraryProjectionView item;
-  @override
-  final bool selected;
-  @override
-  final VoidCallback onTap;
-  @override
-  final VoidCallback? onDoubleTap;
-  @override
-  final GestureTapUpCallback? onSecondaryTapUp;
-  @override
-  final Color selectedColor;
-  @override
-  final Color accentColor;
-  @override
-  final Color mutedTextColor;
-  @override
-  final double coverWidth;
-  final LibraryCardLayout cardLayout;
-  @override
-  final bool selectionMode;
-  @override
-  final VoidCallback? onSelectionToggleTap;
-  @override
-  final VoidCallback? onEditTap;
-  @override
-  final List<String> customFieldBadges;
-
-  @override
-  final Color selectedTitleColor;
-  @override
-  final Color mutedColor;
-  @override
-  final int? coverCacheWidth;
-  @override
-  final LibraryMetadataPresentation? metadataPresentation;
-  @override
-  final List<String> referenceHierarchy;
-}
 
 class LibraryWorkspaceCard extends StatelessWidget {
   const LibraryWorkspaceCard({
@@ -124,7 +58,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final metadataPresentation = _metadataPresentationForEntry(item);
     final palette = appPalette(context);
     final resolvedSelectedColor = selectedColor == kAppSelection
         ? libraryWorkspaceSelectionBackground(
@@ -169,32 +102,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
 
     final strongSelection = selected && item.node is! LibraryWorkRef;
     final coverCacheWidth = _targetCacheWidth(context);
-
-    final delegate = _LibraryWorkspaceCardDelegateImpl(
-      item: item,
-      selected: selected,
-      onTap: onTap,
-      onDoubleTap: onDoubleTap,
-      onSecondaryTapUp: onSecondaryTapUp,
-      selectedColor: selectedColor,
-      accentColor: accentColor,
-      mutedTextColor: mutedTextColor,
-      coverWidth: coverWidth,
-      cardLayout: cardLayout,
-      selectionMode: selectionMode,
-      onSelectionToggleTap: onSelectionToggleTap,
-      onEditTap: onEditTap,
-      customFieldBadges: customFieldBadges,
-      selectedTitleColor: selectedTitleColor,
-      mutedColor: resolvedMutedTextColor,
-      coverCacheWidth: coverCacheWidth,
-      metadataPresentation: metadataPresentation,
-      referenceHierarchy: referenceHierarchy,
-    );
-
-    if (presentation.customCardBuilder != null) {
-      return presentation.customCardBuilder!(context, delegate);
-    }
 
     if (cardLayout == LibraryCardLayout.vertical) {
       return _buildStandardVerticalCard(
@@ -648,6 +555,22 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     ),
                               ),
                             ],
+                            if (presentation.compactBadges.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Wrap(
+                                spacing: 4,
+                                runSpacing: 4,
+                                children: [
+                                  for (final badge
+                                      in presentation.compactBadges)
+                                    LibraryCompactMetaPill(
+                                      icon: badge.icon,
+                                      label: badge.label,
+                                      accentColor: accentColor,
+                                    ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -775,23 +698,6 @@ String? _coverGradeLabel(LibraryCardPresentation presentation) {
 // ---------------------------------------------------------------------------
 // Module-level helpers (previously in the file-level scope).
 // ---------------------------------------------------------------------------
-
-LibraryMetadataPresentation? _metadataPresentationForEntry(
-  LibraryProjectionView item,
-) {
-  final kind = item.source.mediaKind.apiValue;
-  final registration =
-      defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(kind));
-  if (registration == null) return null;
-  return libraryPresentationForKind(registration.kind)
-      .builder
-      .buildMetadataPresentation(
-        singularLabel: registration.identity.singularLabel,
-        item: item,
-        includeIdentityFacts: true,
-        tapFor: (_) => null,
-      );
-}
 
 String? _compactNotesLabel(String? notes) {
   final trimmed = notes?.trim();

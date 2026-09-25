@@ -691,7 +691,6 @@ final animeLibraryMediaPresentation = LibraryMediaPresentation(
   builder: animeLibraryMediaBuilder,
   bucketLabelBuilder: animeLibraryBucketLabelBuilder,
   cardPresentationBuilder: buildAnimeCardPresentation,
-  usesCompactTableLayout: true,
   compactBucketIcon: Icons.tv_outlined,
   previewLabels: animePreviewLabels,
   statsLabels: animeStatsLabels,
