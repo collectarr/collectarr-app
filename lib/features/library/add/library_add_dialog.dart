@@ -403,6 +403,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   @override
   void dispose() {
+    _controller.removeListener(_onControllerStateChanged);
     _manualDraft.dispose();
     _queryController.dispose();
     _identifierController.dispose();
