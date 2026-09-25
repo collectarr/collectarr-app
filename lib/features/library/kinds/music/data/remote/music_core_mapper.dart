@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
@@ -18,80 +18,58 @@ final class MusicCoreMapper {
   const MusicCoreMapper._();
 
   static MusicReleaseGroup fromReleaseGroupDto(MusicReleaseGroupDto dto) {
-    _validateKind(dto.kind, 'release group', dto.raw);
-    final rawReleases = _maps(dto.raw['releases']);
+    _validateKind(dto.kind, 'release group');
     return MusicReleaseGroup(
       id: MusicReleaseGroupId(dto.id),
       title: dto.title,
       sortTitle: dto.sortTitle,
       originalTitle: dto.originalTitle,
       artist: dto.artist,
-      originalReleaseDate: dto.originalReleaseDate,
-      originalReleaseDateParts: _partialDate(
-        dto.raw['original_release_date_parts'] ??
-            dto.raw['original_release_date'],
+      originalReleaseDate: _fullDate(
+        dto.originalReleaseDateParts ?? dto.originalReleaseDateValue,
       ),
-      recordingDate: dto.recordingDate,
-      recordingDateParts: _partialDate(
-        dto.raw['recording_date_parts'] ?? dto.raw['recording_date'],
+      originalReleaseDateParts:
+          dto.originalReleaseDateParts ?? dto.originalReleaseDateValue,
+      recordingDate: _fullDate(
+        dto.recordingDateParts ?? dto.recordingDateValue,
       ),
-      artistCredits: _artistCredits(dto.raw['artist_credits']),
+      recordingDateParts: dto.recordingDateParts ?? dto.recordingDateValue,
+      artistCredits: [
+        for (final credit in dto.artistCredits) _artistCredit(credit),
+      ],
       studio: dto.studio,
       isLive: dto.isLive,
       genres: dto.genres,
       coverImageUrl: dto.coverImageUrlValue,
       coverImageKey: dto.coverImageKey,
-      externalLinks: _externalLinks(dto.raw),
-      localCoverImagePath: _text(dto.raw['local_cover_image_path']),
-      localBackImagePath: _text(dto.raw['local_back_image_path']),
-      localThumbnailImagePath: _text(dto.raw['local_thumbnail_image_path']),
+      externalLinks: _externalLinks(dto.externalLinks),
       releases: [
-        for (final release in dto.releases)
-          _fromReleaseSummary(release, rawReleases),
+        for (final release in dto.releases) _fromReleaseSummary(release),
       ],
     );
   }
 
-  static MusicRelease _fromReleaseSummary(
-    MusicReleaseSummaryDto release,
-    List<Map<String, dynamic>> rawReleases,
-  ) {
-    final rawRelease = rawReleases.firstWhere(
-      (raw) => raw['id']?.toString() == release.id,
-      orElse: () => const <String, dynamic>{},
-    );
+  static MusicRelease _fromReleaseSummary(MusicReleaseSummaryDto dto) {
+    final date = dto.releaseDateParts ?? dto.releaseDateValue;
     return MusicRelease(
-      id: MusicReleaseId(release.id),
-      releaseGroupId: MusicReleaseGroupId(release.releaseGroupId),
-      title: release.title,
-      releaseDate: _partialDate(rawRelease['release_date_parts'] ??
-                  rawRelease['release_date'])
-              ?.asDateTime ??
-          release.releaseDate,
-      releaseDateParts: _partialDate(
-        rawRelease['release_date_parts'] ?? rawRelease['release_date'],
-      ),
-      releaseType: release.releaseType,
-      releaseStatus: release.releaseStatus,
-      publisher: release.publisher,
-      packaging: _text(rawRelease['packaging']),
-      barcode: release.barcode,
-      catalogNumber: release.catalogNumber,
-      coverImageUrl: release.coverImageUrl,
-      externalLinks: _externalLinks(rawRelease),
-      boxSetMembership: musicBoxSetMembershipFromJson(rawRelease),
-      physicalFormat: _text(rawRelease['physical_format']),
-      physicalFormatLabel: _text(rawRelease['physical_format_label']),
-      boxSetName: _text(
-        rawRelease['box_set_name'] ?? rawRelease['box_set_title'],
-      ),
-      artistCredits: _artistCredits(rawRelease['artist_credits']),
-      labels: _labels(rawRelease['labels'] ?? rawRelease['label_info']),
+      id: MusicReleaseId(dto.id),
+      releaseGroupId: MusicReleaseGroupId(dto.releaseGroupId),
+      title: dto.title,
+      releaseDate: _fullDate(date),
+      releaseDateParts: date,
+      releaseType: dto.releaseType,
+      releaseStatus: dto.releaseStatus,
+      publisher: dto.publisher,
+      barcode: dto.barcodeValue,
+      catalogNumber: dto.catalogNumber,
+      coverImageUrl: dto.coverImageUrlValue,
+      mediumTypesSummary: dto.mediumTypes,
     );
   }
 
   static MusicRelease fromReleaseDto(MusicReleaseDto dto) {
-    _validateKind(dto.kind, 'release', dto.raw);
+    _validateKind(dto.kind, 'release');
+    final date = dto.releaseDateParts ?? dto.releaseDateValue;
     return MusicRelease(
       id: MusicReleaseId(dto.id),
       releaseGroupId: MusicReleaseGroupId(dto.releaseGroupId),
@@ -100,13 +78,8 @@ final class MusicCoreMapper {
       subtitle: dto.subtitle,
       releaseType: dto.releaseType,
       releaseStatus: dto.releaseStatus,
-      releaseDate:
-          _partialDate(dto.raw['release_date_parts'] ?? dto.raw['release_date'])
-                  ?.asDateTime ??
-              dto.releaseDateValue,
-      releaseDateParts: _partialDate(
-        dto.raw['release_date_parts'] ?? dto.raw['release_date'],
-      ),
+      releaseDate: _fullDate(date),
+      releaseDateParts: date,
       publisher: dto.publisher,
       countryCode: dto.countryCode,
       language: dto.language,
@@ -116,52 +89,41 @@ final class MusicCoreMapper {
       packaging: dto.packaging,
       coverImageUrl: dto.coverImageUrlValue,
       coverImageKey: dto.coverImageKey,
-      externalLinks: _externalLinks(dto.raw),
-      boxSetMembership: musicBoxSetMembershipFromJson(dto.raw),
-      physicalFormat: _text(dto.raw['physical_format']),
-      physicalFormatLabel: _text(dto.raw['physical_format_label']),
-      boxSetName: _text(
-        dto.raw['box_set_name'] ?? dto.raw['box_set_title'],
-      ),
-      contributions: _contributions(dto.contributions),
-      artistCredits: _artistCredits(dto.raw['artist_credits']),
-      labels: _labels(dto.raw['labels'] ?? dto.raw['label_info']),
-      identifiers: _identifiers(dto.identifiers),
+      contributions: [
+        for (var index = 0; index < dto.contributions.length; index++)
+          _contribution(dto.id, dto.contributions[index], index),
+      ],
+      artistCredits: [
+        for (final credit in dto.artistCredits) _artistCredit(credit),
+      ],
+      labels: [for (final label in dto.labels) _label(label)],
+      identifiers: [
+        for (final identifier in dto.identifiers)
+          _identifier(dto.id, identifier),
+      ],
       mediums: dto.mediums.map(fromMediumDto).toList(growable: false),
     );
   }
 
   static MusicReleaseGroup releaseGroupFromReleaseDto(MusicReleaseDto dto) {
     final release = fromReleaseDto(dto);
-    final group = MusicReleaseGroup(
+    final artist = _artistFromCredits(release.artistCredits) ??
+        _artistFromContributions(release.contributions);
+    return MusicReleaseGroup(
       id: release.releaseGroupId,
-      title: _text(dto.raw['release_group_title']) ?? release.title,
-      artist: _text(dto.raw['artist']) ??
-          _artistFromContributions(release.contributions),
-      originalTitle: _text(dto.raw['original_title']),
-      originalReleaseDate:
-          _date(dto.raw['original_release_date']) ?? release.releaseDate,
-      originalReleaseDateParts: _partialDate(
-        dto.raw['original_release_date_parts'] ??
-            dto.raw['original_release_date'],
-      ),
-      recordingDate: _date(dto.raw['recording_date']),
-      recordingDateParts: _partialDate(
-        dto.raw['recording_date_parts'] ?? dto.raw['recording_date'],
-      ),
-      artistCredits: _artistCredits(dto.raw['artist_credits']),
-      studio: _text(dto.raw['studio']),
-      isLive: dto.raw['is_live'] is bool ? dto.raw['is_live'] as bool : null,
-      genres: _strings(dto.raw['genres']),
+      title: release.title,
+      artist: artist,
+      originalReleaseDate: release.releaseDate,
+      originalReleaseDateParts: release.releaseDateParts,
+      artistCredits: release.artistCredits,
       coverImageUrl: release.coverImageUrl,
       coverImageKey: release.coverImageKey,
       releases: [release],
     );
-    return group;
   }
 
   static MusicMedium fromMediumDto(MusicMediumDto dto) {
-    _validateKind(dto.kind, 'medium', dto.raw);
+    _validateKind(dto.kind, 'medium');
     return MusicMedium(
       id: MusicMediumId(dto.id),
       releaseId: MusicReleaseId(dto.releaseId),
@@ -176,7 +138,6 @@ final class MusicCoreMapper {
       cddbId: dto.cddbId,
       leadoutOffset: dto.leadoutOffset,
       bpDiscId: dto.bpDiscId,
-      mediaCondition: dto.mediaCondition,
       soundType: dto.soundType,
       vinylColor: dto.vinylColor,
       vinylWeight: dto.vinylWeight,
@@ -187,12 +148,12 @@ final class MusicCoreMapper {
   }
 
   static MusicTrack fromTrackDto(MusicTrackDto dto) {
-    _validateKind(dto.kind, 'track', dto.raw);
+    _validateKind(dto.kind, 'track');
     return MusicTrack(
       id: MusicTrackId(dto.id),
       mediumId: MusicMediumId(dto.mediumId),
       position: dto.position,
-      title: dto.titleValue,
+      title: dto.title,
       artist: dto.artist,
       composition: dto.composition,
       durationMs: dto.durationMs,
@@ -201,71 +162,91 @@ final class MusicCoreMapper {
       fileSizeBytes: dto.fileSizeBytes,
       trackHash: dto.trackHash,
       instrument: dto.instrument,
-      isHeader: dto.isHeader || dto.raw['entry_type']?.toString() == 'header',
+      isHeader: dto.isHeader,
       indentLevel: dto.indentLevel,
       parentHeaderId: dto.parentHeaderId,
-      recordingId: _text(
-        (dto.raw['recording'] as Map?)?['id'] ?? dto.raw['recording_id'],
-      ),
+      recordingId: dto.recordingId,
     );
   }
 
-  static void _validateKind(
-      String? kind, String entity, Map<String, dynamic> raw) {
-    final value = raw['kind']?.toString() ?? kind;
-    if (value != null && value != 'music') {
-      throw StateError('Expected Music $entity DTO, received $value');
+  static MusicArtistCredit _artistCredit(MusicArtistCreditDto dto) =>
+      MusicArtistCredit(
+        id: dto.id,
+        creditedName: dto.creditedName,
+        artistId: dto.artistId,
+        joinPhrase: dto.joinPhrase,
+        sequence: dto.sequence,
+        source: dto.source,
+      );
+
+  static MusicReleaseLabel _label(MusicReleaseLabelDto dto) =>
+      MusicReleaseLabel(
+        id: dto.id,
+        labelId: dto.labelId,
+        labelName: dto.labelName,
+        catalogNumber: dto.catalogNumber,
+        sequence: dto.sequence,
+        source: dto.source,
+      );
+
+  static MusicReleaseContribution _contribution(
+    String releaseId,
+    MusicContributorDto dto,
+    int index,
+  ) =>
+      MusicReleaseContribution(
+        id: MusicReleaseContributionId(
+          '$releaseId:contribution:${dto.sequence ?? index}:${dto.personId}',
+        ),
+        releaseId: MusicReleaseId(releaseId),
+        personId: dto.personId,
+        role: dto.role,
+        roleId: dto.roleId,
+        sequence: dto.sequence,
+        displayName: dto.name,
+        imageUrl: dto.imageUrl,
+      );
+
+  static MusicReleaseIdentifier _identifier(
+    String releaseId,
+    MusicIdentifierDto dto,
+  ) =>
+      MusicReleaseIdentifier(
+        id: MusicReleaseIdentifierId(dto.id),
+        releaseId: MusicReleaseId(releaseId),
+        identifierType: dto.identifierType,
+        value: dto.value,
+        normalizedValue: dto.normalizedValue,
+        isPrimary: dto.isPrimary,
+        sourceProvider: dto.sourceProvider,
+      );
+
+  static DateTime? _fullDate(PartialDate? value) => value?.asDateTime;
+
+  static void _validateKind(String? kind, String entity) {
+    if (kind != null && kind != 'music') {
+      throw StateError('Expected Music $entity DTO, received $kind');
     }
   }
 
-  static String? _text(Object? value) {
-    final text = value?.toString().trim();
-    return text == null || text.isEmpty ? null : text;
-  }
-
-  static PartialDate? _partialDate(Object? value) =>
-      PartialDate.tryParse(value);
-
-  static DateTime? _date(Object? value) => _partialDate(value)?.asDateTime;
-
-  static List<MusicArtistCredit> _artistCredits(Object? value) => [
-        for (final entry in _maps(value)) MusicArtistCredit.fromJson(entry),
-      ];
-
-  static List<MusicReleaseLabel> _labels(Object? value) => [
-        for (final entry in _maps(value)) MusicReleaseLabel.fromJson(entry),
-      ];
-
-  static List<String> _strings(Object? value) => value is Iterable
-      ? [
-          for (final entry in value)
-            if (_text(entry) case final text?) text
-        ]
-      : const <String>[];
-
-  static List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
-      ? [
-          for (final entry in value)
-            if (entry is Map) Map<String, dynamic>.from(entry),
-        ]
-      : const <Map<String, dynamic>>[];
-
-  static List<MusicExternalLink> _externalLinks(Map<String, dynamic> raw) {
+  static List<MusicExternalLink> _externalLinks(
+    Iterable<Map<String, dynamic>> source,
+  ) {
     final values = <MusicExternalLink>[];
     final seen = <String>{};
-    for (final source in [raw['external_links'], raw['trailer_urls']]) {
-      if (source is! Iterable) continue;
-      for (final entry in source) {
-        if (entry is! Map) continue;
-        final value = Map<String, dynamic>.from(entry);
-        final url = value['url']?.toString().trim() ?? '';
-        if (url.isEmpty || !seen.add(url)) {
-          continue;
-        }
-        values.add(MusicExternalLink.fromJson(value));
-      }
+    for (final entry in source) {
+      final url = entry['url']?.toString().trim() ?? '';
+      if (url.isEmpty || !seen.add(url)) continue;
+      values.add(MusicExternalLink.fromJson(entry));
     }
     return values;
+  }
+
+  static String? _artistFromCredits(Iterable<MusicArtistCredit> credits) {
+    for (final credit in credits) {
+      if (credit.creditedName.trim().isNotEmpty) return credit.creditedName;
+    }
+    return null;
   }
 
   static String? _artistFromContributions(
@@ -280,14 +261,4 @@ final class MusicCoreMapper {
     }
     return null;
   }
-
-  static List<MusicReleaseContribution> _contributions(Object? value) => [
-        for (final entry in _maps(value))
-          MusicReleaseContribution.fromJson(entry),
-      ];
-
-  static List<MusicReleaseIdentifier> _identifiers(Object? value) => [
-        for (final entry in _maps(value))
-          MusicReleaseIdentifier.fromJson(entry),
-      ];
 }

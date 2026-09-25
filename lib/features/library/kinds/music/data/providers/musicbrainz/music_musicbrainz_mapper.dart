@@ -112,8 +112,8 @@ final class MusicMusicBrainzMapper {
             barcode: summary.barcode,
             packaging: summary.packaging,
             countryCode: summary.country,
-            physicalFormat: summary.format,
-            physicalFormatLabel: summary.format,
+            mediumTypesSummary:
+                summary.format == null ? const [] : [summary.format!],
             coverImageUrl: summary.images.isEmpty
                 ? null
                 : summary.images.first.url.toString(),

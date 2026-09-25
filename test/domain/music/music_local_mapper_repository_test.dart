@@ -246,7 +246,7 @@ void main() {
   test('Music schema exposes dedicated graph tables at schema version 3', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 3);
+    expect(db.schemaVersion, 5);
   });
 }
 
@@ -271,8 +271,6 @@ MusicReleaseGroup _group() {
         title: 'The Wall',
         publisher: 'Harvest',
         catalogNumber: 'SHDW 804',
-        physicalFormat: 'vinyl',
-        physicalFormatLabel: 'Vinyl',
         boxSetName: 'The Wall collection',
         externalLinks: const [
           MusicExternalLink(

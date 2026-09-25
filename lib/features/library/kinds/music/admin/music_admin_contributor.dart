@@ -192,13 +192,6 @@ class MusicAdminContributor implements LibraryAdminContributor {
               item.primaryVariant?.thumbnailImageUrl ??
               item.canonicalFieldValues['thumbnail_image_url'],
         ),
-        adminPhysicalFormatCorrectionField(
-          key: 'physical_format',
-          read: (item) =>
-              item.primaryEdition?.physicalFormat ??
-              item.primaryEdition?.physicalFormatLabel ??
-              item.canonicalFieldValues['physical_format'],
-        ),
         adminRelatedListCorrectionField(
           key: 'series_tags',
           label: 'Series tags',

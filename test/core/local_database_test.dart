@@ -7,7 +7,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 3);
+    expect(db.schemaVersion, 5);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
     expect(version.data.values.single, 3);
 

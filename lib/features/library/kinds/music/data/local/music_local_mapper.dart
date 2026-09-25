@@ -106,16 +106,23 @@ final class MusicLocalMapper {
       coverImageKey: Value(release.coverImageKey),
       upc: Value(release.upc),
       packaging: Value(release.packaging),
-      physicalFormat: Value(release.physicalFormat),
-      physicalFormatLabel: Value(release.physicalFormatLabel),
-      boxSetName: Value(release.boxSetName),
+      mediumTypesJson: Value(jsonEncode(release.mediumTypes)),
       createdAt: release.createdAt,
       updatedAt: release.updatedAt,
     );
   }
 
+  static MusicReleaseLocalDetailsRowsCompanion toReleaseLocalDetailsRow(
+    MusicRelease release,
+  ) =>
+      MusicReleaseLocalDetailsRowsCompanion.insert(
+        releaseId: release.id.value,
+        boxSetName: Value(release.boxSetName),
+      );
+
   static MusicRelease fromReleaseRow(
     MusicReleaseRow row, {
+    String? boxSetName,
     List<MusicExternalLink> externalLinks = const <MusicExternalLink>[],
     MusicBoxSetMembership? boxSetMembership,
     List<MusicMedium> mediums = const <MusicMedium>[],
@@ -146,9 +153,8 @@ final class MusicLocalMapper {
       boxSetMembership: boxSetMembership,
       upc: row.upc,
       packaging: row.packaging,
-      physicalFormat: row.physicalFormat,
-      physicalFormatLabel: row.physicalFormatLabel,
-      boxSetName: row.boxSetName,
+      mediumTypesSummary: _decodeStrings(row.mediumTypesJson),
+      boxSetName: boxSetName,
       contributions: contributions,
       artistCredits: artistCredits,
       labels: labels,
@@ -378,7 +384,6 @@ final class MusicLocalMapper {
       cddbId: Value(medium.cddbId),
       leadoutOffset: Value(medium.leadoutOffset),
       bpDiscId: Value(medium.bpDiscId),
-      mediaCondition: Value(medium.mediaCondition),
       createdAt: medium.createdAt,
       updatedAt: medium.updatedAt,
     );
@@ -408,7 +413,6 @@ final class MusicLocalMapper {
       cddbId: row.cddbId,
       leadoutOffset: row.leadoutOffset,
       bpDiscId: row.bpDiscId,
-      mediaCondition: row.mediaCondition,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );

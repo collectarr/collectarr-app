@@ -22,6 +22,7 @@ New-Item -ItemType Directory -Force -Path $TargetDir | Out-Null
 
 $files = @(
   "openapi.json",
+  "music-catalog-v1.json",
   "metadata-field-schema.json",
   "active-kinds.json",
   "provider-support.json",
@@ -44,6 +45,7 @@ $manifestPath = Join-Path $TargetDir "contract-manifest.json"
 $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
 $hashKeyByFile = @{
   "openapi.json"                     = "openApiHash"
+  "music-catalog-v1.json"            = "musicCatalogHash"
   "metadata-field-schema.json"       = "fieldSchemaHash"
   "active-kinds.json"                = "activeKindsHash"
   "provider-support.json"            = "providerSupportHash"

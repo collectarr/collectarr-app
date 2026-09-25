@@ -111,7 +111,7 @@ final class MusicReleaseEditDraft {
         ),
         releaseId: original.id,
         mediumNumber: nextNumber,
-        mediumType: original.physicalFormat,
+        mediumType: original.mediumTypes.firstOrNull,
         tracks: const [],
       ),
     );
@@ -573,7 +573,6 @@ MusicMedium _copyMedium(
     cddbId: medium.cddbId,
     leadoutOffset: medium.leadoutOffset,
     bpDiscId: medium.bpDiscId,
-    mediaCondition: medium.mediaCondition,
     soundType: replaceSoundType ? soundType : soundType ?? medium.soundType,
     vinylColor:
         replaceVinylColor ? vinylColor : vinylColor ?? medium.vinylColor,

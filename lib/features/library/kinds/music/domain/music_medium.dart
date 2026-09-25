@@ -20,7 +20,6 @@ final class MusicMedium {
     this.cddbId,
     this.leadoutOffset,
     this.bpDiscId,
-    this.mediaCondition,
     this.soundType,
     this.vinylColor,
     this.vinylWeight,
@@ -47,7 +46,6 @@ final class MusicMedium {
   final String? cddbId;
   final int? leadoutOffset;
   final String? bpDiscId;
-  final String? mediaCondition;
   final String? soundType;
   final String? vinylColor;
   final String? vinylWeight;
@@ -81,7 +79,6 @@ final class MusicMedium {
       cddbId: _text(json['cddb_id']),
       leadoutOffset: _int(json['leadout_offset']),
       bpDiscId: _text(json['bp_disc_id']),
-      mediaCondition: _text(json['media_condition']),
       soundType: _text(json['sound_type']),
       vinylColor: _text(json['vinyl_color']),
       vinylWeight: _text(json['vinyl_weight']),
@@ -112,7 +109,6 @@ final class MusicMedium {
         if (cddbId != null) 'cddb_id': cddbId,
         if (leadoutOffset != null) 'leadout_offset': leadoutOffset,
         if (bpDiscId != null) 'bp_disc_id': bpDiscId,
-        if (mediaCondition != null) 'media_condition': mediaCondition,
         if (soundType != null) 'sound_type': soundType,
         if (vinylColor != null) 'vinyl_color': vinylColor,
         if (vinylWeight != null) 'vinyl_weight': vinylWeight,

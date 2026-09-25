@@ -29,8 +29,6 @@ final class MusicRelease implements JsonEncodable {
     this.upc,
     this.catalogNumber,
     this.packaging,
-    this.physicalFormat,
-    this.physicalFormatLabel,
     this.coverImageUrl,
     this.coverImageKey,
     this.externalLinks = const [],
@@ -40,6 +38,7 @@ final class MusicRelease implements JsonEncodable {
     this.labels = const [],
     this.identifiers = const [],
     this.mediums = const [],
+    this.mediumTypesSummary = const [],
     this.boxSetName,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -67,8 +66,6 @@ final class MusicRelease implements JsonEncodable {
   final String? upc;
   final String? catalogNumber;
   final String? packaging;
-  final String? physicalFormat;
-  final String? physicalFormatLabel;
   final String? coverImageUrl;
   final String? coverImageKey;
   final List<MusicExternalLink> externalLinks;
@@ -78,11 +75,50 @@ final class MusicRelease implements JsonEncodable {
   final List<MusicReleaseLabel> labels;
   final List<MusicReleaseIdentifier> identifiers;
   final List<MusicMedium> mediums;
+
+  /// Medium types carried by release summaries when full medium rows are not
+  /// loaded. When [mediums] are present, their values take precedence.
+  final List<String> mediumTypesSummary;
   final String? boxSetName;
   final DateTime createdAt;
   final DateTime updatedAt;
 
   String? get boxSetTitle => boxSetName ?? boxSetMembership?.boxSetRef.id;
+
+  List<String> get mediumTypes {
+    final source = mediums.isEmpty
+        ? mediumTypesSummary
+        : [
+            for (final medium in mediums)
+              if (medium.mediumType case final type?) type
+          ];
+    final seen = <String>{};
+    return [
+      for (final value in source)
+        if (value.trim().isNotEmpty && seen.add(value.trim().toLowerCase()))
+          value.trim(),
+    ];
+  }
+
+  String? get physicalFormat {
+    final value = mediumTypes.firstOrNull;
+    if (value == null) return null;
+    final normalized = value.trim().toLowerCase();
+    if (normalized.contains('vinyl') ||
+        normalized == 'lp' ||
+        normalized == 'record') {
+      return 'vinyl';
+    }
+    if (normalized == 'cd' || normalized.contains('compact disc')) return 'cd';
+    if (normalized.contains('cassette') || normalized == 'tape') {
+      return 'cassette';
+    }
+    if (normalized.contains('digital')) return 'digital-audio';
+    return value;
+  }
+
+  String? get physicalFormatLabel =>
+      mediumTypes.isEmpty ? null : mediumTypes.join(' + ');
 
   int get trackCount => mediums.fold<int>(
       0, (total, medium) => total + medium.effectiveTrackCount);
@@ -116,8 +152,6 @@ final class MusicRelease implements JsonEncodable {
       upc: _text(json['upc']),
       catalogNumber: _text(json['catalog_number']),
       packaging: _text(json['packaging']),
-      physicalFormat: _text(json['physical_format']),
-      physicalFormatLabel: _text(json['physical_format_label']),
       coverImageUrl: _text(json['cover_image_url']),
       coverImageKey: _text(json['cover_image_key']),
       externalLinks: _externalLinks(json),
@@ -139,6 +173,7 @@ final class MusicRelease implements JsonEncodable {
           MusicReleaseIdentifier.fromJson(value),
       ],
       mediums: mediums,
+      mediumTypesSummary: _strings(json['medium_types']),
       boxSetName: _text(
         json['box_set_name'] ??
             json['box_set_title'] ??
@@ -175,9 +210,7 @@ final class MusicRelease implements JsonEncodable {
         if (upc != null) 'upc': upc,
         if (catalogNumber != null) 'catalog_number': catalogNumber,
         if (packaging != null) 'packaging': packaging,
-        if (physicalFormat != null) 'physical_format': physicalFormat,
-        if (physicalFormatLabel != null)
-          'physical_format_label': physicalFormatLabel,
+        if (mediumTypes.isNotEmpty) 'medium_types': mediumTypes,
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (coverImageKey != null) 'cover_image_key': coverImageKey,
         if (externalLinks.isNotEmpty)
@@ -258,6 +291,13 @@ List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
           if (entry is Map) Map<String, dynamic>.from(entry)
       ]
     : const <Map<String, dynamic>>[];
+
+List<String> _strings(Object? value) => value is Iterable
+    ? [
+        for (final entry in value)
+          if (_text(entry) case final text?) text,
+      ]
+    : const <String>[];
 
 List<MusicExternalLink> _externalLinks(Map<String, dynamic> json) {
   final values = <MusicExternalLink>[];

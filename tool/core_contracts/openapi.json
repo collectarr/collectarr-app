@@ -8356,17 +8356,6 @@
             ],
             "title": "Leadout Offset"
           },
-          "media_condition": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Media Condition"
-          },
           "medium_number": {
             "title": "Medium Number",
             "type": "integer"
@@ -8666,17 +8655,6 @@
             ],
             "title": "Studio"
           },
-          "synopsis": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Synopsis"
-          },
           "title": {
             "title": "Title",
             "type": "string"
@@ -8792,6 +8770,13 @@
             "format": "uuid",
             "title": "Id",
             "type": "string"
+          },
+          "medium_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Medium Types",
+            "type": "array"
           },
           "publisher": {
             "anyOf": [
@@ -9208,6 +9193,17 @@
           "position": {
             "title": "Position",
             "type": "string"
+          },
+          "recording_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recording Id"
           },
           "title": {
             "title": "Title",
@@ -10434,6 +10430,17 @@
               }
             ],
             "title": "Position"
+          },
+          "recording_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recording Id"
           },
           "title": {
             "title": "Title",

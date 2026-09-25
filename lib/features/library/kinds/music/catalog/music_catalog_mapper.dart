@@ -162,12 +162,23 @@ final class MusicCatalogMapper {
   }) {
     final rawMediums = _maps(source['mediums']);
     if (rawMediums.isNotEmpty) {
+      final fallbackType = _releaseMediumType(source, fallbackGroup);
       return MusicRelease.fromJson(
         _releasePayload(
           source,
           groupId: groupId,
           fallbackId: fallbackId,
           fallbackGroup: fallbackGroup,
+          mediums: [
+            for (var index = 0; index < rawMediums.length; index++)
+              {
+                ...rawMediums[index],
+                if (index == 0 &&
+                    _text(rawMediums[index]['medium_type']) == null &&
+                    fallbackType != null)
+                  'medium_type': fallbackType,
+              },
+          ],
         ),
       );
     }
@@ -177,27 +188,16 @@ final class MusicCatalogMapper {
     final groupedTracks = _groupTracksByMedium(rawTracks);
     final trackCount =
         _int(source['track_count'] ?? fallbackGroup['track_count']);
-    final mediumType = _text(
-      source['medium_type'] ??
-          source['format'] ??
-          source['physical_format'] ??
-          source['physical_format_label'] ??
-          source['variant'] ??
-          fallbackGroup['medium_type'] ??
-          fallbackGroup['format'] ??
-          fallbackGroup['physical_format'] ??
-          fallbackGroup['physical_format_label'] ??
-          fallbackGroup['variant'],
-    );
+    final mediumType = _releaseMediumType(source, fallbackGroup);
     final mediumSource = rawDiscs.isNotEmpty
         ? rawDiscs
         : groupedTracks.isNotEmpty
             ? groupedTracks
-            : trackCount == null
+            : trackCount == null && mediumType == null
                 ? const <Map<String, dynamic>>[]
                 : [
                     {
-                      'track_count': trackCount,
+                      if (trackCount != null) 'track_count': trackCount,
                       if (mediumType != null) 'medium_type': mediumType,
                     },
                   ];
@@ -224,26 +224,35 @@ final class MusicCatalogMapper {
     });
   }
 
+  static String? _releaseMediumType(
+    Map<String, dynamic> source,
+    Map<String, dynamic> fallbackGroup,
+  ) =>
+      _text(
+        source['medium_type'] ??
+            source['format'] ??
+            source['physical_format'] ??
+            source['physical_format_label'] ??
+            source['variant'] ??
+            fallbackGroup['medium_type'] ??
+            fallbackGroup['format'] ??
+            fallbackGroup['physical_format'] ??
+            fallbackGroup['physical_format_label'] ??
+            fallbackGroup['variant'],
+      );
+
   static Map<String, dynamic> _releasePayload(
     Map<String, dynamic> source, {
     required String groupId,
     required String fallbackId,
     required Map<String, dynamic> fallbackGroup,
+    List<Map<String, dynamic>>? mediums,
   }) {
-    final releaseType = _text(
-      source['release_type'] ?? source['type'] ?? source['format'],
-    );
+    final releaseType = _text(source['release_type'] ?? source['type']);
     final releaseStatus = _text(
       source['release_status'] ?? fallbackGroup['release_status'],
     );
-    final packaging = _text(
-      source['packaging'] ??
-          source['physical_format'] ??
-          fallbackGroup['physical_format'],
-    );
-    final physicalFormatLabel = _text(
-      source['physical_format_label'] ?? fallbackGroup['physical_format_label'],
-    );
+    final packaging = _text(source['packaging'] ?? fallbackGroup['packaging']);
     final releaseDate = _date(
       source['release_date'] ?? fallbackGroup['release_date'],
     );
@@ -275,8 +284,10 @@ final class MusicCatalogMapper {
       if (releaseStatus != null) 'release_status': releaseStatus,
       if (releaseDate != null) 'release_date': releaseDate.toIso8601String(),
       if (packaging != null) 'packaging': packaging,
-      if (physicalFormatLabel != null)
-        'physical_format_label': physicalFormatLabel,
+      if (mediums != null) 'mediums': mediums,
+      if (mediums != null)
+        'medium_types':
+            _strings(mediums.map((medium) => medium['medium_type'])),
       if (_text(source['publisher'] ??
               source['label'] ??
               fallbackGroup['publisher'])
@@ -367,11 +378,8 @@ final class MusicCatalogMapper {
       if (edition.releaseDate != null)
         'release_date': edition.releaseDate!.toIso8601String(),
       if (edition.language != null) 'language': edition.language,
-      if (edition.physicalFormat != null) 'packaging': edition.physicalFormat,
       if (edition.physicalFormat != null)
-        'physical_format': edition.physicalFormat,
-      if (edition.physicalFormatLabel != null)
-        'physical_format_label': edition.physicalFormatLabel,
+        'medium_types': [edition.physicalFormat],
       'mediums': mediums.map((medium) => medium.toJson()).toList(),
       if (_text(fallbackGroup['country_code'] ?? fallbackGroup['country']) !=
           null)

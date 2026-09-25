@@ -40408,24 +40408,14 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
   late final GeneratedColumn<String> packaging = GeneratedColumn<String>(
       'packaging', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _physicalFormatMeta =
-      const VerificationMeta('physicalFormat');
+  static const VerificationMeta _mediumTypesJsonMeta =
+      const VerificationMeta('mediumTypesJson');
   @override
-  late final GeneratedColumn<String> physicalFormat = GeneratedColumn<String>(
-      'physical_format', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _physicalFormatLabelMeta =
-      const VerificationMeta('physicalFormatLabel');
-  @override
-  late final GeneratedColumn<String> physicalFormatLabel =
-      GeneratedColumn<String>('physical_format_label', aliasedName, true,
-          type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _boxSetNameMeta =
-      const VerificationMeta('boxSetName');
-  @override
-  late final GeneratedColumn<String> boxSetName = GeneratedColumn<String>(
-      'box_set_name', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> mediumTypesJson = GeneratedColumn<String>(
+      'medium_types_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
   static const VerificationMeta _coverImageUrlMeta =
       const VerificationMeta('coverImageUrl');
   @override
@@ -40468,9 +40458,7 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
         upc,
         catalogNumber,
         packaging,
-        physicalFormat,
-        physicalFormatLabel,
-        boxSetName,
+        mediumTypesJson,
         coverImageUrl,
         coverImageKey,
         createdAt,
@@ -40569,23 +40557,11 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
       context.handle(_packagingMeta,
           packaging.isAcceptableOrUnknown(data['packaging']!, _packagingMeta));
     }
-    if (data.containsKey('physical_format')) {
+    if (data.containsKey('medium_types_json')) {
       context.handle(
-          _physicalFormatMeta,
-          physicalFormat.isAcceptableOrUnknown(
-              data['physical_format']!, _physicalFormatMeta));
-    }
-    if (data.containsKey('physical_format_label')) {
-      context.handle(
-          _physicalFormatLabelMeta,
-          physicalFormatLabel.isAcceptableOrUnknown(
-              data['physical_format_label']!, _physicalFormatLabelMeta));
-    }
-    if (data.containsKey('box_set_name')) {
-      context.handle(
-          _boxSetNameMeta,
-          boxSetName.isAcceptableOrUnknown(
-              data['box_set_name']!, _boxSetNameMeta));
+          _mediumTypesJsonMeta,
+          mediumTypesJson.isAcceptableOrUnknown(
+              data['medium_types_json']!, _mediumTypesJsonMeta));
     }
     if (data.containsKey('cover_image_url')) {
       context.handle(
@@ -40653,12 +40629,8 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
           .read(DriftSqlType.string, data['${effectivePrefix}catalog_number']),
       packaging: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}packaging']),
-      physicalFormat: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}physical_format']),
-      physicalFormatLabel: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}physical_format_label']),
-      boxSetName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}box_set_name']),
+      mediumTypesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}medium_types_json'])!,
       coverImageUrl: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
       coverImageKey: attachedDatabase.typeMapping
@@ -40693,9 +40665,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
   final String? upc;
   final String? catalogNumber;
   final String? packaging;
-  final String? physicalFormat;
-  final String? physicalFormatLabel;
-  final String? boxSetName;
+  final String mediumTypesJson;
   final String? coverImageUrl;
   final String? coverImageKey;
   final DateTime createdAt;
@@ -40717,9 +40687,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       this.upc,
       this.catalogNumber,
       this.packaging,
-      this.physicalFormat,
-      this.physicalFormatLabel,
-      this.boxSetName,
+      required this.mediumTypesJson,
       this.coverImageUrl,
       this.coverImageKey,
       required this.createdAt,
@@ -40769,15 +40737,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
     if (!nullToAbsent || packaging != null) {
       map['packaging'] = Variable<String>(packaging);
     }
-    if (!nullToAbsent || physicalFormat != null) {
-      map['physical_format'] = Variable<String>(physicalFormat);
-    }
-    if (!nullToAbsent || physicalFormatLabel != null) {
-      map['physical_format_label'] = Variable<String>(physicalFormatLabel);
-    }
-    if (!nullToAbsent || boxSetName != null) {
-      map['box_set_name'] = Variable<String>(boxSetName);
-    }
+    map['medium_types_json'] = Variable<String>(mediumTypesJson);
     if (!nullToAbsent || coverImageUrl != null) {
       map['cover_image_url'] = Variable<String>(coverImageUrl);
     }
@@ -40831,15 +40791,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       packaging: packaging == null && nullToAbsent
           ? const Value.absent()
           : Value(packaging),
-      physicalFormat: physicalFormat == null && nullToAbsent
-          ? const Value.absent()
-          : Value(physicalFormat),
-      physicalFormatLabel: physicalFormatLabel == null && nullToAbsent
-          ? const Value.absent()
-          : Value(physicalFormatLabel),
-      boxSetName: boxSetName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(boxSetName),
+      mediumTypesJson: Value(mediumTypesJson),
       coverImageUrl: coverImageUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(coverImageUrl),
@@ -40872,10 +40824,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       upc: serializer.fromJson<String?>(json['upc']),
       catalogNumber: serializer.fromJson<String?>(json['catalogNumber']),
       packaging: serializer.fromJson<String?>(json['packaging']),
-      physicalFormat: serializer.fromJson<String?>(json['physicalFormat']),
-      physicalFormatLabel:
-          serializer.fromJson<String?>(json['physicalFormatLabel']),
-      boxSetName: serializer.fromJson<String?>(json['boxSetName']),
+      mediumTypesJson: serializer.fromJson<String>(json['mediumTypesJson']),
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
       coverImageKey: serializer.fromJson<String?>(json['coverImageKey']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -40902,9 +40851,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       'upc': serializer.toJson<String?>(upc),
       'catalogNumber': serializer.toJson<String?>(catalogNumber),
       'packaging': serializer.toJson<String?>(packaging),
-      'physicalFormat': serializer.toJson<String?>(physicalFormat),
-      'physicalFormatLabel': serializer.toJson<String?>(physicalFormatLabel),
-      'boxSetName': serializer.toJson<String?>(boxSetName),
+      'mediumTypesJson': serializer.toJson<String>(mediumTypesJson),
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
       'coverImageKey': serializer.toJson<String?>(coverImageKey),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -40929,9 +40876,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           Value<String?> upc = const Value.absent(),
           Value<String?> catalogNumber = const Value.absent(),
           Value<String?> packaging = const Value.absent(),
-          Value<String?> physicalFormat = const Value.absent(),
-          Value<String?> physicalFormatLabel = const Value.absent(),
-          Value<String?> boxSetName = const Value.absent(),
+          String? mediumTypesJson,
           Value<String?> coverImageUrl = const Value.absent(),
           Value<String?> coverImageKey = const Value.absent(),
           DateTime? createdAt,
@@ -40957,12 +40902,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
         catalogNumber:
             catalogNumber.present ? catalogNumber.value : this.catalogNumber,
         packaging: packaging.present ? packaging.value : this.packaging,
-        physicalFormat:
-            physicalFormat.present ? physicalFormat.value : this.physicalFormat,
-        physicalFormatLabel: physicalFormatLabel.present
-            ? physicalFormatLabel.value
-            : this.physicalFormatLabel,
-        boxSetName: boxSetName.present ? boxSetName.value : this.boxSetName,
+        mediumTypesJson: mediumTypesJson ?? this.mediumTypesJson,
         coverImageUrl:
             coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
         coverImageKey:
@@ -40999,14 +40939,9 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           ? data.catalogNumber.value
           : this.catalogNumber,
       packaging: data.packaging.present ? data.packaging.value : this.packaging,
-      physicalFormat: data.physicalFormat.present
-          ? data.physicalFormat.value
-          : this.physicalFormat,
-      physicalFormatLabel: data.physicalFormatLabel.present
-          ? data.physicalFormatLabel.value
-          : this.physicalFormatLabel,
-      boxSetName:
-          data.boxSetName.present ? data.boxSetName.value : this.boxSetName,
+      mediumTypesJson: data.mediumTypesJson.present
+          ? data.mediumTypesJson.value
+          : this.mediumTypesJson,
       coverImageUrl: data.coverImageUrl.present
           ? data.coverImageUrl.value
           : this.coverImageUrl,
@@ -41037,9 +40972,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           ..write('upc: $upc, ')
           ..write('catalogNumber: $catalogNumber, ')
           ..write('packaging: $packaging, ')
-          ..write('physicalFormat: $physicalFormat, ')
-          ..write('physicalFormatLabel: $physicalFormatLabel, ')
-          ..write('boxSetName: $boxSetName, ')
+          ..write('mediumTypesJson: $mediumTypesJson, ')
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('coverImageKey: $coverImageKey, ')
           ..write('createdAt: $createdAt, ')
@@ -41066,9 +40999,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
         upc,
         catalogNumber,
         packaging,
-        physicalFormat,
-        physicalFormatLabel,
-        boxSetName,
+        mediumTypesJson,
         coverImageUrl,
         coverImageKey,
         createdAt,
@@ -41094,9 +41025,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           other.upc == this.upc &&
           other.catalogNumber == this.catalogNumber &&
           other.packaging == this.packaging &&
-          other.physicalFormat == this.physicalFormat &&
-          other.physicalFormatLabel == this.physicalFormatLabel &&
-          other.boxSetName == this.boxSetName &&
+          other.mediumTypesJson == this.mediumTypesJson &&
           other.coverImageUrl == this.coverImageUrl &&
           other.coverImageKey == this.coverImageKey &&
           other.createdAt == this.createdAt &&
@@ -41120,9 +41049,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
   final Value<String?> upc;
   final Value<String?> catalogNumber;
   final Value<String?> packaging;
-  final Value<String?> physicalFormat;
-  final Value<String?> physicalFormatLabel;
-  final Value<String?> boxSetName;
+  final Value<String> mediumTypesJson;
   final Value<String?> coverImageUrl;
   final Value<String?> coverImageKey;
   final Value<DateTime> createdAt;
@@ -41145,9 +41072,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     this.upc = const Value.absent(),
     this.catalogNumber = const Value.absent(),
     this.packaging = const Value.absent(),
-    this.physicalFormat = const Value.absent(),
-    this.physicalFormatLabel = const Value.absent(),
-    this.boxSetName = const Value.absent(),
+    this.mediumTypesJson = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
     this.coverImageKey = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -41171,9 +41096,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     this.upc = const Value.absent(),
     this.catalogNumber = const Value.absent(),
     this.packaging = const Value.absent(),
-    this.physicalFormat = const Value.absent(),
-    this.physicalFormatLabel = const Value.absent(),
-    this.boxSetName = const Value.absent(),
+    this.mediumTypesJson = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
     this.coverImageKey = const Value.absent(),
     required DateTime createdAt,
@@ -41201,9 +41124,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     Expression<String>? upc,
     Expression<String>? catalogNumber,
     Expression<String>? packaging,
-    Expression<String>? physicalFormat,
-    Expression<String>? physicalFormatLabel,
-    Expression<String>? boxSetName,
+    Expression<String>? mediumTypesJson,
     Expression<String>? coverImageUrl,
     Expression<String>? coverImageKey,
     Expression<DateTime>? createdAt,
@@ -41228,10 +41149,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
       if (upc != null) 'upc': upc,
       if (catalogNumber != null) 'catalog_number': catalogNumber,
       if (packaging != null) 'packaging': packaging,
-      if (physicalFormat != null) 'physical_format': physicalFormat,
-      if (physicalFormatLabel != null)
-        'physical_format_label': physicalFormatLabel,
-      if (boxSetName != null) 'box_set_name': boxSetName,
+      if (mediumTypesJson != null) 'medium_types_json': mediumTypesJson,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
       if (coverImageKey != null) 'cover_image_key': coverImageKey,
       if (createdAt != null) 'created_at': createdAt,
@@ -41257,9 +41175,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
       Value<String?>? upc,
       Value<String?>? catalogNumber,
       Value<String?>? packaging,
-      Value<String?>? physicalFormat,
-      Value<String?>? physicalFormatLabel,
-      Value<String?>? boxSetName,
+      Value<String>? mediumTypesJson,
       Value<String?>? coverImageUrl,
       Value<String?>? coverImageKey,
       Value<DateTime>? createdAt,
@@ -41282,9 +41198,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
       upc: upc ?? this.upc,
       catalogNumber: catalogNumber ?? this.catalogNumber,
       packaging: packaging ?? this.packaging,
-      physicalFormat: physicalFormat ?? this.physicalFormat,
-      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
-      boxSetName: boxSetName ?? this.boxSetName,
+      mediumTypesJson: mediumTypesJson ?? this.mediumTypesJson,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       coverImageKey: coverImageKey ?? this.coverImageKey,
       createdAt: createdAt ?? this.createdAt,
@@ -41345,15 +41259,8 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     if (packaging.present) {
       map['packaging'] = Variable<String>(packaging.value);
     }
-    if (physicalFormat.present) {
-      map['physical_format'] = Variable<String>(physicalFormat.value);
-    }
-    if (physicalFormatLabel.present) {
-      map['physical_format_label'] =
-          Variable<String>(physicalFormatLabel.value);
-    }
-    if (boxSetName.present) {
-      map['box_set_name'] = Variable<String>(boxSetName.value);
+    if (mediumTypesJson.present) {
+      map['medium_types_json'] = Variable<String>(mediumTypesJson.value);
     }
     if (coverImageUrl.present) {
       map['cover_image_url'] = Variable<String>(coverImageUrl.value);
@@ -41392,13 +41299,547 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
           ..write('upc: $upc, ')
           ..write('catalogNumber: $catalogNumber, ')
           ..write('packaging: $packaging, ')
-          ..write('physicalFormat: $physicalFormat, ')
-          ..write('physicalFormatLabel: $physicalFormatLabel, ')
-          ..write('boxSetName: $boxSetName, ')
+          ..write('mediumTypesJson: $mediumTypesJson, ')
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('coverImageKey: $coverImageKey, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MusicReleaseLocalDetailsRowsTable extends MusicReleaseLocalDetailsRows
+    with
+        TableInfo<$MusicReleaseLocalDetailsRowsTable,
+            MusicReleaseLocalDetailsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicReleaseLocalDetailsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _releaseIdMeta =
+      const VerificationMeta('releaseId');
+  @override
+  late final GeneratedColumn<String> releaseId = GeneratedColumn<String>(
+      'release_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _boxSetNameMeta =
+      const VerificationMeta('boxSetName');
+  @override
+  late final GeneratedColumn<String> boxSetName = GeneratedColumn<String>(
+      'box_set_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [releaseId, boxSetName];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_release_local_details_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MusicReleaseLocalDetailsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('release_id')) {
+      context.handle(_releaseIdMeta,
+          releaseId.isAcceptableOrUnknown(data['release_id']!, _releaseIdMeta));
+    } else if (isInserting) {
+      context.missing(_releaseIdMeta);
+    }
+    if (data.containsKey('box_set_name')) {
+      context.handle(
+          _boxSetNameMeta,
+          boxSetName.isAcceptableOrUnknown(
+              data['box_set_name']!, _boxSetNameMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {releaseId};
+  @override
+  MusicReleaseLocalDetailsRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicReleaseLocalDetailsRow(
+      releaseId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_id'])!,
+      boxSetName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}box_set_name']),
+    );
+  }
+
+  @override
+  $MusicReleaseLocalDetailsRowsTable createAlias(String alias) {
+    return $MusicReleaseLocalDetailsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicReleaseLocalDetailsRow extends DataClass
+    implements Insertable<MusicReleaseLocalDetailsRow> {
+  final String releaseId;
+  final String? boxSetName;
+  const MusicReleaseLocalDetailsRow({required this.releaseId, this.boxSetName});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['release_id'] = Variable<String>(releaseId);
+    if (!nullToAbsent || boxSetName != null) {
+      map['box_set_name'] = Variable<String>(boxSetName);
+    }
+    return map;
+  }
+
+  MusicReleaseLocalDetailsRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicReleaseLocalDetailsRowsCompanion(
+      releaseId: Value(releaseId),
+      boxSetName: boxSetName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxSetName),
+    );
+  }
+
+  factory MusicReleaseLocalDetailsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicReleaseLocalDetailsRow(
+      releaseId: serializer.fromJson<String>(json['releaseId']),
+      boxSetName: serializer.fromJson<String?>(json['boxSetName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'releaseId': serializer.toJson<String>(releaseId),
+      'boxSetName': serializer.toJson<String?>(boxSetName),
+    };
+  }
+
+  MusicReleaseLocalDetailsRow copyWith(
+          {String? releaseId,
+          Value<String?> boxSetName = const Value.absent()}) =>
+      MusicReleaseLocalDetailsRow(
+        releaseId: releaseId ?? this.releaseId,
+        boxSetName: boxSetName.present ? boxSetName.value : this.boxSetName,
+      );
+  MusicReleaseLocalDetailsRow copyWithCompanion(
+      MusicReleaseLocalDetailsRowsCompanion data) {
+    return MusicReleaseLocalDetailsRow(
+      releaseId: data.releaseId.present ? data.releaseId.value : this.releaseId,
+      boxSetName:
+          data.boxSetName.present ? data.boxSetName.value : this.boxSetName,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicReleaseLocalDetailsRow(')
+          ..write('releaseId: $releaseId, ')
+          ..write('boxSetName: $boxSetName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(releaseId, boxSetName);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicReleaseLocalDetailsRow &&
+          other.releaseId == this.releaseId &&
+          other.boxSetName == this.boxSetName);
+}
+
+class MusicReleaseLocalDetailsRowsCompanion
+    extends UpdateCompanion<MusicReleaseLocalDetailsRow> {
+  final Value<String> releaseId;
+  final Value<String?> boxSetName;
+  final Value<int> rowid;
+  const MusicReleaseLocalDetailsRowsCompanion({
+    this.releaseId = const Value.absent(),
+    this.boxSetName = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicReleaseLocalDetailsRowsCompanion.insert({
+    required String releaseId,
+    this.boxSetName = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : releaseId = Value(releaseId);
+  static Insertable<MusicReleaseLocalDetailsRow> custom({
+    Expression<String>? releaseId,
+    Expression<String>? boxSetName,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (releaseId != null) 'release_id': releaseId,
+      if (boxSetName != null) 'box_set_name': boxSetName,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicReleaseLocalDetailsRowsCompanion copyWith(
+      {Value<String>? releaseId,
+      Value<String?>? boxSetName,
+      Value<int>? rowid}) {
+    return MusicReleaseLocalDetailsRowsCompanion(
+      releaseId: releaseId ?? this.releaseId,
+      boxSetName: boxSetName ?? this.boxSetName,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (releaseId.present) {
+      map['release_id'] = Variable<String>(releaseId.value);
+    }
+    if (boxSetName.present) {
+      map['box_set_name'] = Variable<String>(boxSetName.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicReleaseLocalDetailsRowsCompanion(')
+          ..write('releaseId: $releaseId, ')
+          ..write('boxSetName: $boxSetName, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MusicLegacyMediumConditionArchiveRowsTable
+    extends MusicLegacyMediumConditionArchiveRows
+    with
+        TableInfo<$MusicLegacyMediumConditionArchiveRowsTable,
+            MusicLegacyMediumConditionArchiveRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicLegacyMediumConditionArchiveRowsTable(this.attachedDatabase,
+      [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _releaseIdMeta =
+      const VerificationMeta('releaseId');
+  @override
+  late final GeneratedColumn<String> releaseId = GeneratedColumn<String>(
+      'release_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _mediumNumberMeta =
+      const VerificationMeta('mediumNumber');
+  @override
+  late final GeneratedColumn<int> mediumNumber = GeneratedColumn<int>(
+      'medium_number', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _conditionMeta =
+      const VerificationMeta('condition');
+  @override
+  late final GeneratedColumn<String> condition = GeneratedColumn<String>(
+      'condition', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _archivedAtMeta =
+      const VerificationMeta('archivedAt');
+  @override
+  late final GeneratedColumn<DateTime> archivedAt = GeneratedColumn<DateTime>(
+      'archived_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, releaseId, mediumNumber, condition, archivedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_legacy_medium_condition_archive_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MusicLegacyMediumConditionArchiveRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('release_id')) {
+      context.handle(_releaseIdMeta,
+          releaseId.isAcceptableOrUnknown(data['release_id']!, _releaseIdMeta));
+    } else if (isInserting) {
+      context.missing(_releaseIdMeta);
+    }
+    if (data.containsKey('medium_number')) {
+      context.handle(
+          _mediumNumberMeta,
+          mediumNumber.isAcceptableOrUnknown(
+              data['medium_number']!, _mediumNumberMeta));
+    } else if (isInserting) {
+      context.missing(_mediumNumberMeta);
+    }
+    if (data.containsKey('condition')) {
+      context.handle(_conditionMeta,
+          condition.isAcceptableOrUnknown(data['condition']!, _conditionMeta));
+    } else if (isInserting) {
+      context.missing(_conditionMeta);
+    }
+    if (data.containsKey('archived_at')) {
+      context.handle(
+          _archivedAtMeta,
+          archivedAt.isAcceptableOrUnknown(
+              data['archived_at']!, _archivedAtMeta));
+    } else if (isInserting) {
+      context.missing(_archivedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MusicLegacyMediumConditionArchiveRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicLegacyMediumConditionArchiveRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      releaseId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_id'])!,
+      mediumNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}medium_number'])!,
+      condition: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}condition'])!,
+      archivedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}archived_at'])!,
+    );
+  }
+
+  @override
+  $MusicLegacyMediumConditionArchiveRowsTable createAlias(String alias) {
+    return $MusicLegacyMediumConditionArchiveRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicLegacyMediumConditionArchiveRow extends DataClass
+    implements Insertable<MusicLegacyMediumConditionArchiveRow> {
+  final String id;
+  final String releaseId;
+  final int mediumNumber;
+  final String condition;
+  final DateTime archivedAt;
+  const MusicLegacyMediumConditionArchiveRow(
+      {required this.id,
+      required this.releaseId,
+      required this.mediumNumber,
+      required this.condition,
+      required this.archivedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['release_id'] = Variable<String>(releaseId);
+    map['medium_number'] = Variable<int>(mediumNumber);
+    map['condition'] = Variable<String>(condition);
+    map['archived_at'] = Variable<DateTime>(archivedAt);
+    return map;
+  }
+
+  MusicLegacyMediumConditionArchiveRowsCompanion toCompanion(
+      bool nullToAbsent) {
+    return MusicLegacyMediumConditionArchiveRowsCompanion(
+      id: Value(id),
+      releaseId: Value(releaseId),
+      mediumNumber: Value(mediumNumber),
+      condition: Value(condition),
+      archivedAt: Value(archivedAt),
+    );
+  }
+
+  factory MusicLegacyMediumConditionArchiveRow.fromJson(
+      Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicLegacyMediumConditionArchiveRow(
+      id: serializer.fromJson<String>(json['id']),
+      releaseId: serializer.fromJson<String>(json['releaseId']),
+      mediumNumber: serializer.fromJson<int>(json['mediumNumber']),
+      condition: serializer.fromJson<String>(json['condition']),
+      archivedAt: serializer.fromJson<DateTime>(json['archivedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'releaseId': serializer.toJson<String>(releaseId),
+      'mediumNumber': serializer.toJson<int>(mediumNumber),
+      'condition': serializer.toJson<String>(condition),
+      'archivedAt': serializer.toJson<DateTime>(archivedAt),
+    };
+  }
+
+  MusicLegacyMediumConditionArchiveRow copyWith(
+          {String? id,
+          String? releaseId,
+          int? mediumNumber,
+          String? condition,
+          DateTime? archivedAt}) =>
+      MusicLegacyMediumConditionArchiveRow(
+        id: id ?? this.id,
+        releaseId: releaseId ?? this.releaseId,
+        mediumNumber: mediumNumber ?? this.mediumNumber,
+        condition: condition ?? this.condition,
+        archivedAt: archivedAt ?? this.archivedAt,
+      );
+  MusicLegacyMediumConditionArchiveRow copyWithCompanion(
+      MusicLegacyMediumConditionArchiveRowsCompanion data) {
+    return MusicLegacyMediumConditionArchiveRow(
+      id: data.id.present ? data.id.value : this.id,
+      releaseId: data.releaseId.present ? data.releaseId.value : this.releaseId,
+      mediumNumber: data.mediumNumber.present
+          ? data.mediumNumber.value
+          : this.mediumNumber,
+      condition: data.condition.present ? data.condition.value : this.condition,
+      archivedAt:
+          data.archivedAt.present ? data.archivedAt.value : this.archivedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicLegacyMediumConditionArchiveRow(')
+          ..write('id: $id, ')
+          ..write('releaseId: $releaseId, ')
+          ..write('mediumNumber: $mediumNumber, ')
+          ..write('condition: $condition, ')
+          ..write('archivedAt: $archivedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, releaseId, mediumNumber, condition, archivedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicLegacyMediumConditionArchiveRow &&
+          other.id == this.id &&
+          other.releaseId == this.releaseId &&
+          other.mediumNumber == this.mediumNumber &&
+          other.condition == this.condition &&
+          other.archivedAt == this.archivedAt);
+}
+
+class MusicLegacyMediumConditionArchiveRowsCompanion
+    extends UpdateCompanion<MusicLegacyMediumConditionArchiveRow> {
+  final Value<String> id;
+  final Value<String> releaseId;
+  final Value<int> mediumNumber;
+  final Value<String> condition;
+  final Value<DateTime> archivedAt;
+  final Value<int> rowid;
+  const MusicLegacyMediumConditionArchiveRowsCompanion({
+    this.id = const Value.absent(),
+    this.releaseId = const Value.absent(),
+    this.mediumNumber = const Value.absent(),
+    this.condition = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicLegacyMediumConditionArchiveRowsCompanion.insert({
+    required String id,
+    required String releaseId,
+    required int mediumNumber,
+    required String condition,
+    required DateTime archivedAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        releaseId = Value(releaseId),
+        mediumNumber = Value(mediumNumber),
+        condition = Value(condition),
+        archivedAt = Value(archivedAt);
+  static Insertable<MusicLegacyMediumConditionArchiveRow> custom({
+    Expression<String>? id,
+    Expression<String>? releaseId,
+    Expression<int>? mediumNumber,
+    Expression<String>? condition,
+    Expression<DateTime>? archivedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (releaseId != null) 'release_id': releaseId,
+      if (mediumNumber != null) 'medium_number': mediumNumber,
+      if (condition != null) 'condition': condition,
+      if (archivedAt != null) 'archived_at': archivedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicLegacyMediumConditionArchiveRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? releaseId,
+      Value<int>? mediumNumber,
+      Value<String>? condition,
+      Value<DateTime>? archivedAt,
+      Value<int>? rowid}) {
+    return MusicLegacyMediumConditionArchiveRowsCompanion(
+      id: id ?? this.id,
+      releaseId: releaseId ?? this.releaseId,
+      mediumNumber: mediumNumber ?? this.mediumNumber,
+      condition: condition ?? this.condition,
+      archivedAt: archivedAt ?? this.archivedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (releaseId.present) {
+      map['release_id'] = Variable<String>(releaseId.value);
+    }
+    if (mediumNumber.present) {
+      map['medium_number'] = Variable<int>(mediumNumber.value);
+    }
+    if (condition.present) {
+      map['condition'] = Variable<String>(condition.value);
+    }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<DateTime>(archivedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicLegacyMediumConditionArchiveRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('releaseId: $releaseId, ')
+          ..write('mediumNumber: $mediumNumber, ')
+          ..write('condition: $condition, ')
+          ..write('archivedAt: $archivedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -43588,12 +44029,6 @@ class $MusicMediumRowsTable extends MusicMediumRows
   late final GeneratedColumn<String> bpDiscId = GeneratedColumn<String>(
       'bp_disc_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _mediaConditionMeta =
-      const VerificationMeta('mediaCondition');
-  @override
-  late final GeneratedColumn<String> mediaCondition = GeneratedColumn<String>(
-      'media_condition', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _soundTypeMeta =
       const VerificationMeta('soundType');
   @override
@@ -43649,7 +44084,6 @@ class $MusicMediumRowsTable extends MusicMediumRows
         cddbId,
         leadoutOffset,
         bpDiscId,
-        mediaCondition,
         soundType,
         vinylColor,
         vinylWeight,
@@ -43740,12 +44174,6 @@ class $MusicMediumRowsTable extends MusicMediumRows
       context.handle(_bpDiscIdMeta,
           bpDiscId.isAcceptableOrUnknown(data['bp_disc_id']!, _bpDiscIdMeta));
     }
-    if (data.containsKey('media_condition')) {
-      context.handle(
-          _mediaConditionMeta,
-          mediaCondition.isAcceptableOrUnknown(
-              data['media_condition']!, _mediaConditionMeta));
-    }
     if (data.containsKey('sound_type')) {
       context.handle(_soundTypeMeta,
           soundType.isAcceptableOrUnknown(data['sound_type']!, _soundTypeMeta));
@@ -43818,8 +44246,6 @@ class $MusicMediumRowsTable extends MusicMediumRows
           .read(DriftSqlType.int, data['${effectivePrefix}leadout_offset']),
       bpDiscId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}bp_disc_id']),
-      mediaCondition: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}media_condition']),
       soundType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}sound_type']),
       vinylColor: attachedDatabase.typeMapping
@@ -43857,7 +44283,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
   final String? cddbId;
   final int? leadoutOffset;
   final String? bpDiscId;
-  final String? mediaCondition;
   final String? soundType;
   final String? vinylColor;
   final String? vinylWeight;
@@ -43879,7 +44304,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
       this.cddbId,
       this.leadoutOffset,
       this.bpDiscId,
-      this.mediaCondition,
       this.soundType,
       this.vinylColor,
       this.vinylWeight,
@@ -43921,9 +44345,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
     }
     if (!nullToAbsent || bpDiscId != null) {
       map['bp_disc_id'] = Variable<String>(bpDiscId);
-    }
-    if (!nullToAbsent || mediaCondition != null) {
-      map['media_condition'] = Variable<String>(mediaCondition);
     }
     if (!nullToAbsent || soundType != null) {
       map['sound_type'] = Variable<String>(soundType);
@@ -43974,9 +44395,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
       bpDiscId: bpDiscId == null && nullToAbsent
           ? const Value.absent()
           : Value(bpDiscId),
-      mediaCondition: mediaCondition == null && nullToAbsent
-          ? const Value.absent()
-          : Value(mediaCondition),
       soundType: soundType == null && nullToAbsent
           ? const Value.absent()
           : Value(soundType),
@@ -44012,7 +44430,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
       cddbId: serializer.fromJson<String?>(json['cddbId']),
       leadoutOffset: serializer.fromJson<int?>(json['leadoutOffset']),
       bpDiscId: serializer.fromJson<String?>(json['bpDiscId']),
-      mediaCondition: serializer.fromJson<String?>(json['mediaCondition']),
       soundType: serializer.fromJson<String?>(json['soundType']),
       vinylColor: serializer.fromJson<String?>(json['vinylColor']),
       vinylWeight: serializer.fromJson<String?>(json['vinylWeight']),
@@ -44040,7 +44457,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
       'cddbId': serializer.toJson<String?>(cddbId),
       'leadoutOffset': serializer.toJson<int?>(leadoutOffset),
       'bpDiscId': serializer.toJson<String?>(bpDiscId),
-      'mediaCondition': serializer.toJson<String?>(mediaCondition),
       'soundType': serializer.toJson<String?>(soundType),
       'vinylColor': serializer.toJson<String?>(vinylColor),
       'vinylWeight': serializer.toJson<String?>(vinylWeight),
@@ -44065,7 +44481,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
           Value<String?> cddbId = const Value.absent(),
           Value<int?> leadoutOffset = const Value.absent(),
           Value<String?> bpDiscId = const Value.absent(),
-          Value<String?> mediaCondition = const Value.absent(),
           Value<String?> soundType = const Value.absent(),
           Value<String?> vinylColor = const Value.absent(),
           Value<String?> vinylWeight = const Value.absent(),
@@ -44093,8 +44508,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
         leadoutOffset:
             leadoutOffset.present ? leadoutOffset.value : this.leadoutOffset,
         bpDiscId: bpDiscId.present ? bpDiscId.value : this.bpDiscId,
-        mediaCondition:
-            mediaCondition.present ? mediaCondition.value : this.mediaCondition,
         soundType: soundType.present ? soundType.value : this.soundType,
         vinylColor: vinylColor.present ? vinylColor.value : this.vinylColor,
         vinylWeight: vinylWeight.present ? vinylWeight.value : this.vinylWeight,
@@ -44130,9 +44543,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
           ? data.leadoutOffset.value
           : this.leadoutOffset,
       bpDiscId: data.bpDiscId.present ? data.bpDiscId.value : this.bpDiscId,
-      mediaCondition: data.mediaCondition.present
-          ? data.mediaCondition.value
-          : this.mediaCondition,
       soundType: data.soundType.present ? data.soundType.value : this.soundType,
       vinylColor:
           data.vinylColor.present ? data.vinylColor.value : this.vinylColor,
@@ -44161,7 +44571,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
           ..write('cddbId: $cddbId, ')
           ..write('leadoutOffset: $leadoutOffset, ')
           ..write('bpDiscId: $bpDiscId, ')
-          ..write('mediaCondition: $mediaCondition, ')
           ..write('soundType: $soundType, ')
           ..write('vinylColor: $vinylColor, ')
           ..write('vinylWeight: $vinylWeight, ')
@@ -44174,29 +44583,27 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
   }
 
   @override
-  int get hashCode => Object.hashAll([
-        id,
-        releaseId,
-        mediumNumber,
-        mediumType,
-        title,
-        trackCount,
-        expectedTrackCount,
-        missingTrackCount,
-        missingTrackPositionsJson,
-        toc,
-        cddbId,
-        leadoutOffset,
-        bpDiscId,
-        mediaCondition,
-        soundType,
-        vinylColor,
-        vinylWeight,
-        rpm,
-        spars,
-        createdAt,
-        updatedAt
-      ]);
+  int get hashCode => Object.hash(
+      id,
+      releaseId,
+      mediumNumber,
+      mediumType,
+      title,
+      trackCount,
+      expectedTrackCount,
+      missingTrackCount,
+      missingTrackPositionsJson,
+      toc,
+      cddbId,
+      leadoutOffset,
+      bpDiscId,
+      soundType,
+      vinylColor,
+      vinylWeight,
+      rpm,
+      spars,
+      createdAt,
+      updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -44214,7 +44621,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
           other.cddbId == this.cddbId &&
           other.leadoutOffset == this.leadoutOffset &&
           other.bpDiscId == this.bpDiscId &&
-          other.mediaCondition == this.mediaCondition &&
           other.soundType == this.soundType &&
           other.vinylColor == this.vinylColor &&
           other.vinylWeight == this.vinylWeight &&
@@ -44238,7 +44644,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
   final Value<String?> cddbId;
   final Value<int?> leadoutOffset;
   final Value<String?> bpDiscId;
-  final Value<String?> mediaCondition;
   final Value<String?> soundType;
   final Value<String?> vinylColor;
   final Value<String?> vinylWeight;
@@ -44261,7 +44666,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
     this.cddbId = const Value.absent(),
     this.leadoutOffset = const Value.absent(),
     this.bpDiscId = const Value.absent(),
-    this.mediaCondition = const Value.absent(),
     this.soundType = const Value.absent(),
     this.vinylColor = const Value.absent(),
     this.vinylWeight = const Value.absent(),
@@ -44285,7 +44689,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
     this.cddbId = const Value.absent(),
     this.leadoutOffset = const Value.absent(),
     this.bpDiscId = const Value.absent(),
-    this.mediaCondition = const Value.absent(),
     this.soundType = const Value.absent(),
     this.vinylColor = const Value.absent(),
     this.vinylWeight = const Value.absent(),
@@ -44313,7 +44716,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
     Expression<String>? cddbId,
     Expression<int>? leadoutOffset,
     Expression<String>? bpDiscId,
-    Expression<String>? mediaCondition,
     Expression<String>? soundType,
     Expression<String>? vinylColor,
     Expression<String>? vinylWeight,
@@ -44339,7 +44741,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
       if (cddbId != null) 'cddb_id': cddbId,
       if (leadoutOffset != null) 'leadout_offset': leadoutOffset,
       if (bpDiscId != null) 'bp_disc_id': bpDiscId,
-      if (mediaCondition != null) 'media_condition': mediaCondition,
       if (soundType != null) 'sound_type': soundType,
       if (vinylColor != null) 'vinyl_color': vinylColor,
       if (vinylWeight != null) 'vinyl_weight': vinylWeight,
@@ -44365,7 +44766,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
       Value<String?>? cddbId,
       Value<int?>? leadoutOffset,
       Value<String?>? bpDiscId,
-      Value<String?>? mediaCondition,
       Value<String?>? soundType,
       Value<String?>? vinylColor,
       Value<String?>? vinylWeight,
@@ -44389,7 +44789,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
       cddbId: cddbId ?? this.cddbId,
       leadoutOffset: leadoutOffset ?? this.leadoutOffset,
       bpDiscId: bpDiscId ?? this.bpDiscId,
-      mediaCondition: mediaCondition ?? this.mediaCondition,
       soundType: soundType ?? this.soundType,
       vinylColor: vinylColor ?? this.vinylColor,
       vinylWeight: vinylWeight ?? this.vinylWeight,
@@ -44444,9 +44843,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
     if (bpDiscId.present) {
       map['bp_disc_id'] = Variable<String>(bpDiscId.value);
     }
-    if (mediaCondition.present) {
-      map['media_condition'] = Variable<String>(mediaCondition.value);
-    }
     if (soundType.present) {
       map['sound_type'] = Variable<String>(soundType.value);
     }
@@ -44490,7 +44886,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
           ..write('cddbId: $cddbId, ')
           ..write('leadoutOffset: $leadoutOffset, ')
           ..write('bpDiscId: $bpDiscId, ')
-          ..write('mediaCondition: $mediaCondition, ')
           ..write('soundType: $soundType, ')
           ..write('vinylColor: $vinylColor, ')
           ..write('vinylWeight: $vinylWeight, ')
@@ -58258,6 +58653,11 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $MusicReleaseGroupRowsTable(this);
   late final $MusicReleaseRowsTable musicReleaseRows =
       $MusicReleaseRowsTable(this);
+  late final $MusicReleaseLocalDetailsRowsTable musicReleaseLocalDetailsRows =
+      $MusicReleaseLocalDetailsRowsTable(this);
+  late final $MusicLegacyMediumConditionArchiveRowsTable
+      musicLegacyMediumConditionArchiveRows =
+      $MusicLegacyMediumConditionArchiveRowsTable(this);
   late final $MusicReleaseImagesRowsTable musicReleaseImagesRows =
       $MusicReleaseImagesRowsTable(this);
   late final $MusicReleaseExternalLinksRowsTable musicReleaseExternalLinksRows =
@@ -58361,6 +58761,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         movieTrackingRows,
         musicReleaseGroupRows,
         musicReleaseRows,
+        musicReleaseLocalDetailsRows,
+        musicLegacyMediumConditionArchiveRows,
         musicReleaseImagesRows,
         musicReleaseExternalLinksRows,
         musicReleaseBoxSetMembershipRows,
@@ -76453,9 +76855,7 @@ typedef $$MusicReleaseRowsTableCreateCompanionBuilder
   Value<String?> upc,
   Value<String?> catalogNumber,
   Value<String?> packaging,
-  Value<String?> physicalFormat,
-  Value<String?> physicalFormatLabel,
-  Value<String?> boxSetName,
+  Value<String> mediumTypesJson,
   Value<String?> coverImageUrl,
   Value<String?> coverImageKey,
   required DateTime createdAt,
@@ -76480,9 +76880,7 @@ typedef $$MusicReleaseRowsTableUpdateCompanionBuilder
   Value<String?> upc,
   Value<String?> catalogNumber,
   Value<String?> packaging,
-  Value<String?> physicalFormat,
-  Value<String?> physicalFormatLabel,
-  Value<String?> boxSetName,
+  Value<String> mediumTypesJson,
   Value<String?> coverImageUrl,
   Value<String?> coverImageKey,
   Value<DateTime> createdAt,
@@ -76549,16 +76947,9 @@ class $$MusicReleaseRowsTableFilterComposer
   ColumnFilters<String> get packaging => $composableBuilder(
       column: $table.packaging, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get physicalFormat => $composableBuilder(
-      column: $table.physicalFormat,
+  ColumnFilters<String> get mediumTypesJson => $composableBuilder(
+      column: $table.mediumTypesJson,
       builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get physicalFormatLabel => $composableBuilder(
-      column: $table.physicalFormatLabel,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get boxSetName => $composableBuilder(
-      column: $table.boxSetName, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get coverImageUrl => $composableBuilder(
       column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
@@ -76634,16 +77025,9 @@ class $$MusicReleaseRowsTableOrderingComposer
   ColumnOrderings<String> get packaging => $composableBuilder(
       column: $table.packaging, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get physicalFormat => $composableBuilder(
-      column: $table.physicalFormat,
+  ColumnOrderings<String> get mediumTypesJson => $composableBuilder(
+      column: $table.mediumTypesJson,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get physicalFormatLabel => $composableBuilder(
-      column: $table.physicalFormatLabel,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get boxSetName => $composableBuilder(
-      column: $table.boxSetName, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get coverImageUrl => $composableBuilder(
       column: $table.coverImageUrl,
@@ -76717,14 +77101,8 @@ class $$MusicReleaseRowsTableAnnotationComposer
   GeneratedColumn<String> get packaging =>
       $composableBuilder(column: $table.packaging, builder: (column) => column);
 
-  GeneratedColumn<String> get physicalFormat => $composableBuilder(
-      column: $table.physicalFormat, builder: (column) => column);
-
-  GeneratedColumn<String> get physicalFormatLabel => $composableBuilder(
-      column: $table.physicalFormatLabel, builder: (column) => column);
-
-  GeneratedColumn<String> get boxSetName => $composableBuilder(
-      column: $table.boxSetName, builder: (column) => column);
+  GeneratedColumn<String> get mediumTypesJson => $composableBuilder(
+      column: $table.mediumTypesJson, builder: (column) => column);
 
   GeneratedColumn<String> get coverImageUrl => $composableBuilder(
       column: $table.coverImageUrl, builder: (column) => column);
@@ -76782,9 +77160,7 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             Value<String?> upc = const Value.absent(),
             Value<String?> catalogNumber = const Value.absent(),
             Value<String?> packaging = const Value.absent(),
-            Value<String?> physicalFormat = const Value.absent(),
-            Value<String?> physicalFormatLabel = const Value.absent(),
-            Value<String?> boxSetName = const Value.absent(),
+            Value<String> mediumTypesJson = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> coverImageKey = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -76808,9 +77184,7 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             upc: upc,
             catalogNumber: catalogNumber,
             packaging: packaging,
-            physicalFormat: physicalFormat,
-            physicalFormatLabel: physicalFormatLabel,
-            boxSetName: boxSetName,
+            mediumTypesJson: mediumTypesJson,
             coverImageUrl: coverImageUrl,
             coverImageKey: coverImageKey,
             createdAt: createdAt,
@@ -76834,9 +77208,7 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             Value<String?> upc = const Value.absent(),
             Value<String?> catalogNumber = const Value.absent(),
             Value<String?> packaging = const Value.absent(),
-            Value<String?> physicalFormat = const Value.absent(),
-            Value<String?> physicalFormatLabel = const Value.absent(),
-            Value<String?> boxSetName = const Value.absent(),
+            Value<String> mediumTypesJson = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> coverImageKey = const Value.absent(),
             required DateTime createdAt,
@@ -76860,9 +77232,7 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             upc: upc,
             catalogNumber: catalogNumber,
             packaging: packaging,
-            physicalFormat: physicalFormat,
-            physicalFormatLabel: physicalFormatLabel,
-            boxSetName: boxSetName,
+            mediumTypesJson: mediumTypesJson,
             coverImageUrl: coverImageUrl,
             coverImageKey: coverImageKey,
             createdAt: createdAt,
@@ -76891,6 +77261,330 @@ typedef $$MusicReleaseRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     MusicReleaseRow,
     PrefetchHooks Function()>;
+typedef $$MusicReleaseLocalDetailsRowsTableCreateCompanionBuilder
+    = MusicReleaseLocalDetailsRowsCompanion Function({
+  required String releaseId,
+  Value<String?> boxSetName,
+  Value<int> rowid,
+});
+typedef $$MusicReleaseLocalDetailsRowsTableUpdateCompanionBuilder
+    = MusicReleaseLocalDetailsRowsCompanion Function({
+  Value<String> releaseId,
+  Value<String?> boxSetName,
+  Value<int> rowid,
+});
+
+class $$MusicReleaseLocalDetailsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseLocalDetailsRowsTable> {
+  $$MusicReleaseLocalDetailsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicReleaseLocalDetailsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseLocalDetailsRowsTable> {
+  $$MusicReleaseLocalDetailsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicReleaseLocalDetailsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseLocalDetailsRowsTable> {
+  $$MusicReleaseLocalDetailsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get releaseId =>
+      $composableBuilder(column: $table.releaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => column);
+}
+
+class $$MusicReleaseLocalDetailsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MusicReleaseLocalDetailsRowsTable,
+    MusicReleaseLocalDetailsRow,
+    $$MusicReleaseLocalDetailsRowsTableFilterComposer,
+    $$MusicReleaseLocalDetailsRowsTableOrderingComposer,
+    $$MusicReleaseLocalDetailsRowsTableAnnotationComposer,
+    $$MusicReleaseLocalDetailsRowsTableCreateCompanionBuilder,
+    $$MusicReleaseLocalDetailsRowsTableUpdateCompanionBuilder,
+    (
+      MusicReleaseLocalDetailsRow,
+      BaseReferences<_$LocalDatabase, $MusicReleaseLocalDetailsRowsTable,
+          MusicReleaseLocalDetailsRow>
+    ),
+    MusicReleaseLocalDetailsRow,
+    PrefetchHooks Function()> {
+  $$MusicReleaseLocalDetailsRowsTableTableManager(
+      _$LocalDatabase db, $MusicReleaseLocalDetailsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicReleaseLocalDetailsRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicReleaseLocalDetailsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicReleaseLocalDetailsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> releaseId = const Value.absent(),
+            Value<String?> boxSetName = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicReleaseLocalDetailsRowsCompanion(
+            releaseId: releaseId,
+            boxSetName: boxSetName,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String releaseId,
+            Value<String?> boxSetName = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicReleaseLocalDetailsRowsCompanion.insert(
+            releaseId: releaseId,
+            boxSetName: boxSetName,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicReleaseLocalDetailsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MusicReleaseLocalDetailsRowsTable,
+        MusicReleaseLocalDetailsRow,
+        $$MusicReleaseLocalDetailsRowsTableFilterComposer,
+        $$MusicReleaseLocalDetailsRowsTableOrderingComposer,
+        $$MusicReleaseLocalDetailsRowsTableAnnotationComposer,
+        $$MusicReleaseLocalDetailsRowsTableCreateCompanionBuilder,
+        $$MusicReleaseLocalDetailsRowsTableUpdateCompanionBuilder,
+        (
+          MusicReleaseLocalDetailsRow,
+          BaseReferences<_$LocalDatabase, $MusicReleaseLocalDetailsRowsTable,
+              MusicReleaseLocalDetailsRow>
+        ),
+        MusicReleaseLocalDetailsRow,
+        PrefetchHooks Function()>;
+typedef $$MusicLegacyMediumConditionArchiveRowsTableCreateCompanionBuilder
+    = MusicLegacyMediumConditionArchiveRowsCompanion Function({
+  required String id,
+  required String releaseId,
+  required int mediumNumber,
+  required String condition,
+  required DateTime archivedAt,
+  Value<int> rowid,
+});
+typedef $$MusicLegacyMediumConditionArchiveRowsTableUpdateCompanionBuilder
+    = MusicLegacyMediumConditionArchiveRowsCompanion Function({
+  Value<String> id,
+  Value<String> releaseId,
+  Value<int> mediumNumber,
+  Value<String> condition,
+  Value<DateTime> archivedAt,
+  Value<int> rowid,
+});
+
+class $$MusicLegacyMediumConditionArchiveRowsTableFilterComposer
+    extends Composer<_$LocalDatabase,
+        $MusicLegacyMediumConditionArchiveRowsTable> {
+  $$MusicLegacyMediumConditionArchiveRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get mediumNumber => $composableBuilder(
+      column: $table.mediumNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get condition => $composableBuilder(
+      column: $table.condition, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get archivedAt => $composableBuilder(
+      column: $table.archivedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicLegacyMediumConditionArchiveRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase,
+        $MusicLegacyMediumConditionArchiveRowsTable> {
+  $$MusicLegacyMediumConditionArchiveRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get mediumNumber => $composableBuilder(
+      column: $table.mediumNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get condition => $composableBuilder(
+      column: $table.condition, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get archivedAt => $composableBuilder(
+      column: $table.archivedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicLegacyMediumConditionArchiveRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase,
+        $MusicLegacyMediumConditionArchiveRowsTable> {
+  $$MusicLegacyMediumConditionArchiveRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get releaseId =>
+      $composableBuilder(column: $table.releaseId, builder: (column) => column);
+
+  GeneratedColumn<int> get mediumNumber => $composableBuilder(
+      column: $table.mediumNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get condition =>
+      $composableBuilder(column: $table.condition, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get archivedAt => $composableBuilder(
+      column: $table.archivedAt, builder: (column) => column);
+}
+
+class $$MusicLegacyMediumConditionArchiveRowsTableTableManager
+    extends RootTableManager<
+        _$LocalDatabase,
+        $MusicLegacyMediumConditionArchiveRowsTable,
+        MusicLegacyMediumConditionArchiveRow,
+        $$MusicLegacyMediumConditionArchiveRowsTableFilterComposer,
+        $$MusicLegacyMediumConditionArchiveRowsTableOrderingComposer,
+        $$MusicLegacyMediumConditionArchiveRowsTableAnnotationComposer,
+        $$MusicLegacyMediumConditionArchiveRowsTableCreateCompanionBuilder,
+        $$MusicLegacyMediumConditionArchiveRowsTableUpdateCompanionBuilder,
+        (
+          MusicLegacyMediumConditionArchiveRow,
+          BaseReferences<
+              _$LocalDatabase,
+              $MusicLegacyMediumConditionArchiveRowsTable,
+              MusicLegacyMediumConditionArchiveRow>
+        ),
+        MusicLegacyMediumConditionArchiveRow,
+        PrefetchHooks Function()> {
+  $$MusicLegacyMediumConditionArchiveRowsTableTableManager(
+      _$LocalDatabase db, $MusicLegacyMediumConditionArchiveRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicLegacyMediumConditionArchiveRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicLegacyMediumConditionArchiveRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicLegacyMediumConditionArchiveRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> releaseId = const Value.absent(),
+            Value<int> mediumNumber = const Value.absent(),
+            Value<String> condition = const Value.absent(),
+            Value<DateTime> archivedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicLegacyMediumConditionArchiveRowsCompanion(
+            id: id,
+            releaseId: releaseId,
+            mediumNumber: mediumNumber,
+            condition: condition,
+            archivedAt: archivedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String releaseId,
+            required int mediumNumber,
+            required String condition,
+            required DateTime archivedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicLegacyMediumConditionArchiveRowsCompanion.insert(
+            id: id,
+            releaseId: releaseId,
+            mediumNumber: mediumNumber,
+            condition: condition,
+            archivedAt: archivedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicLegacyMediumConditionArchiveRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MusicLegacyMediumConditionArchiveRowsTable,
+        MusicLegacyMediumConditionArchiveRow,
+        $$MusicLegacyMediumConditionArchiveRowsTableFilterComposer,
+        $$MusicLegacyMediumConditionArchiveRowsTableOrderingComposer,
+        $$MusicLegacyMediumConditionArchiveRowsTableAnnotationComposer,
+        $$MusicLegacyMediumConditionArchiveRowsTableCreateCompanionBuilder,
+        $$MusicLegacyMediumConditionArchiveRowsTableUpdateCompanionBuilder,
+        (
+          MusicLegacyMediumConditionArchiveRow,
+          BaseReferences<
+              _$LocalDatabase,
+              $MusicLegacyMediumConditionArchiveRowsTable,
+              MusicLegacyMediumConditionArchiveRow>
+        ),
+        MusicLegacyMediumConditionArchiveRow,
+        PrefetchHooks Function()>;
 typedef $$MusicReleaseImagesRowsTableCreateCompanionBuilder
     = MusicReleaseImagesRowsCompanion Function({
   required String id,
@@ -78000,7 +78694,6 @@ typedef $$MusicMediumRowsTableCreateCompanionBuilder = MusicMediumRowsCompanion
   Value<String?> cddbId,
   Value<int?> leadoutOffset,
   Value<String?> bpDiscId,
-  Value<String?> mediaCondition,
   Value<String?> soundType,
   Value<String?> vinylColor,
   Value<String?> vinylWeight,
@@ -78025,7 +78718,6 @@ typedef $$MusicMediumRowsTableUpdateCompanionBuilder = MusicMediumRowsCompanion
   Value<String?> cddbId,
   Value<int?> leadoutOffset,
   Value<String?> bpDiscId,
-  Value<String?> mediaCondition,
   Value<String?> soundType,
   Value<String?> vinylColor,
   Value<String?> vinylWeight,
@@ -78086,10 +78778,6 @@ class $$MusicMediumRowsTableFilterComposer
 
   ColumnFilters<String> get bpDiscId => $composableBuilder(
       column: $table.bpDiscId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get mediaCondition => $composableBuilder(
-      column: $table.mediaCondition,
-      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get soundType => $composableBuilder(
       column: $table.soundType, builder: (column) => ColumnFilters(column));
@@ -78166,10 +78854,6 @@ class $$MusicMediumRowsTableOrderingComposer
   ColumnOrderings<String> get bpDiscId => $composableBuilder(
       column: $table.bpDiscId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get mediaCondition => $composableBuilder(
-      column: $table.mediaCondition,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get soundType => $composableBuilder(
       column: $table.soundType, builder: (column) => ColumnOrderings(column));
 
@@ -78240,9 +78924,6 @@ class $$MusicMediumRowsTableAnnotationComposer
   GeneratedColumn<String> get bpDiscId =>
       $composableBuilder(column: $table.bpDiscId, builder: (column) => column);
 
-  GeneratedColumn<String> get mediaCondition => $composableBuilder(
-      column: $table.mediaCondition, builder: (column) => column);
-
   GeneratedColumn<String> get soundType =>
       $composableBuilder(column: $table.soundType, builder: (column) => column);
 
@@ -78305,7 +78986,6 @@ class $$MusicMediumRowsTableTableManager extends RootTableManager<
             Value<String?> cddbId = const Value.absent(),
             Value<int?> leadoutOffset = const Value.absent(),
             Value<String?> bpDiscId = const Value.absent(),
-            Value<String?> mediaCondition = const Value.absent(),
             Value<String?> soundType = const Value.absent(),
             Value<String?> vinylColor = const Value.absent(),
             Value<String?> vinylWeight = const Value.absent(),
@@ -78329,7 +79009,6 @@ class $$MusicMediumRowsTableTableManager extends RootTableManager<
             cddbId: cddbId,
             leadoutOffset: leadoutOffset,
             bpDiscId: bpDiscId,
-            mediaCondition: mediaCondition,
             soundType: soundType,
             vinylColor: vinylColor,
             vinylWeight: vinylWeight,
@@ -78353,7 +79032,6 @@ class $$MusicMediumRowsTableTableManager extends RootTableManager<
             Value<String?> cddbId = const Value.absent(),
             Value<int?> leadoutOffset = const Value.absent(),
             Value<String?> bpDiscId = const Value.absent(),
-            Value<String?> mediaCondition = const Value.absent(),
             Value<String?> soundType = const Value.absent(),
             Value<String?> vinylColor = const Value.absent(),
             Value<String?> vinylWeight = const Value.absent(),
@@ -78377,7 +79055,6 @@ class $$MusicMediumRowsTableTableManager extends RootTableManager<
             cddbId: cddbId,
             leadoutOffset: leadoutOffset,
             bpDiscId: bpDiscId,
-            mediaCondition: mediaCondition,
             soundType: soundType,
             vinylColor: vinylColor,
             vinylWeight: vinylWeight,
@@ -84620,6 +85297,14 @@ class $LocalDatabaseManager {
       $$MusicReleaseGroupRowsTableTableManager(_db, _db.musicReleaseGroupRows);
   $$MusicReleaseRowsTableTableManager get musicReleaseRows =>
       $$MusicReleaseRowsTableTableManager(_db, _db.musicReleaseRows);
+  $$MusicReleaseLocalDetailsRowsTableTableManager
+      get musicReleaseLocalDetailsRows =>
+          $$MusicReleaseLocalDetailsRowsTableTableManager(
+              _db, _db.musicReleaseLocalDetailsRows);
+  $$MusicLegacyMediumConditionArchiveRowsTableTableManager
+      get musicLegacyMediumConditionArchiveRows =>
+          $$MusicLegacyMediumConditionArchiveRowsTableTableManager(
+              _db, _db.musicLegacyMediumConditionArchiveRows);
   $$MusicReleaseImagesRowsTableTableManager get musicReleaseImagesRows =>
       $$MusicReleaseImagesRowsTableTableManager(
           _db, _db.musicReleaseImagesRows);

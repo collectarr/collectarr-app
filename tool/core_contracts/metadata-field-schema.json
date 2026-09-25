@@ -1,5 +1,5 @@
 {
-  "contractVersion": "1.0.0",
+  "contractVersion": "2.0.0",
   "fields": [
     {
       "common": true,
@@ -2446,6 +2446,22 @@
       "sourceEntityType": "tv_release",
       "sourceTable": "tv_releases",
       "typed": false,
+      "valueType": "string",
+      "writeTarget": "core_canonical"
+    },
+    {
+      "common": false,
+      "editable": true,
+      "input": "text",
+      "key": "recording_id",
+      "kind": "music",
+      "label": "Recording ID",
+      "normalized": true,
+      "scope": "track",
+      "section": "technical",
+      "sourceEntityType": "music_track",
+      "sourceTable": "music_tracks",
+      "typed": true,
       "valueType": "string",
       "writeTarget": "core_canonical"
     },
@@ -6534,22 +6550,6 @@
       "editable": true,
       "input": "multiline",
       "key": "synopsis",
-      "kind": "music",
-      "label": "Synopsis",
-      "normalized": false,
-      "scope": "work",
-      "section": "artwork",
-      "sourceEntityType": "music_release_group",
-      "sourceTable": "music_release_groups",
-      "typed": false,
-      "valueType": "string",
-      "writeTarget": "core_canonical"
-    },
-    {
-      "common": false,
-      "editable": true,
-      "input": "multiline",
-      "key": "synopsis",
       "kind": "tv",
       "label": "Synopsis",
       "normalized": false,
@@ -7090,5 +7090,5 @@
       "writeTarget": "core_canonical_relation"
     }
   ],
-  "generatedAt": "2026-09-22T19:05:26.935180Z"
+  "generatedAt": "2026-09-25T14:37:00.421370Z"
 }

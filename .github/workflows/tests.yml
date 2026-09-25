@@ -32,6 +32,12 @@ jobs:
       - name: Generate kind field ownership manifest
         run: dart run tool/generate_kind_field_ownership.dart
 
+      - name: Verify pinned Music catalog DTOs
+        run: dart run tool/generate_music_catalog_dto.dart --check
+
+      - name: Verify Music catalog field ownership
+        run: dart run tool/check_music_catalog_field_ownership.dart
+
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
 

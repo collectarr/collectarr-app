@@ -107,7 +107,7 @@ void main() {
   test('TV schema exposes dedicated graph tables at schema version 3', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 3);
+    expect(db.schemaVersion, 5);
   });
 }
 

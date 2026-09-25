@@ -167,8 +167,6 @@ String _mediumText(Map<String, dynamic>? value) {
   if (title != null) lines.add('Title: $title');
   if (type != null) lines.add('Type: $type');
   lines.add('Tracks: ${_int(value['track_count']) ?? tracks.length}');
-  final condition = _text(value['media_condition']);
-  if (condition != null) lines.add('Condition: $condition');
   return lines.join('\n');
 }
 

@@ -49,11 +49,11 @@ Core response fields are nullable unless listed as required. Collection properti
 | `artist_credits` | array of artist-credit responses, required | `artistCredits` / `music_artist_credits_rows` | `core_catalog` |
 | `labels` | array of release-label responses, required | `labels` / `music_release_labels_rows` | `core_catalog` |
 | `identifiers` | array of identifier responses, required | `identifiers` / `music_release_identifiers_rows` | `core_catalog` |
-| release external links | Not currently in the typed Core response | typed links / `music_release_external_links_rows` | `core_catalog` relation currently represented in App storage; include it in the Music response contract |
+| release external links | Not currently in the typed Core response | typed links / `music_release_external_links_rows` | `app_personal`; user-managed links stay in a dedicated App relation table and outside the canonical Core DTO |
 | `box_set` membership | Not currently in Core's typed Music response | `boxSetMembership` / `music_release_box_set_membership_rows` | `app_personal`; a locally managed relationship to a box-set reference, not a Core catalog field |
-| `box_set_name` | Not in Core | currently a release property and release-row column | `app_personal`; display label for the local box-set relationship. Move it beside that relationship instead of storing it in the canonical release row. |
-| `physical_format` | Not in Core | currently stored beside release metadata | `derived`; derive the release-level value from its ordered `medium_type` values. Do not persist a duplicate release field. |
-| `physical_format_label` | Not in Core | currently stored beside release metadata | `derived`; derive from the format value and its presentation vocabulary. Do not persist a duplicate release field. |
+| `box_set_name` | Not in Core | `MusicRelease.boxSetName` / `music_release_local_details_rows.box_set_name` | `app_personal`; display label for the locally managed box-set relationship. |
+| `physical_format` | Not in Core | Derived from `MusicRelease.mediumTypes` | `derived`; do not persist a duplicate release field. `medium_types_json` is only a summary cache when full medium rows are not loaded. |
+| `physical_format_label` | Not in Core | Derived from ordered `MusicRelease.mediumTypes` | `derived`; use the medium type labels directly instead of storing a second release field. |
 | created/updated timestamps | SQLAlchemy mixin fields; not part of the typed response | App timestamps / local columns | Local synchronization metadata; not part of the catalog DTO field mapping. |
 
 ## Medium
@@ -67,7 +67,7 @@ Core response fields are nullable unless listed as required. Collection properti
 | `missing_track_positions` | array of strings, required | `missingTrackPositions` / `missing_track_positions_json` | `core_catalog`; relation rows in Core flatten to an ordered array in the API, App stores the same values as JSON |
 | `toc`, `cddb_id`, `leadout_offset`, `bp_disc_id` | nullable string/integer/string/string | same fields / same columns | `core_catalog` |
 | `sound_type`, `vinyl_color`, `vinyl_weight`, `rpm`, `spars` | nullable string/string/string/integer/string | same fields / same columns | `core_catalog` |
-| `media_condition` | Previously nullable string in Core and App medium | User-owned medium detail in `MusicOwnedMediumDetails.mediaCondition` / `music_owned_items_rows.medium_details_json` | `app_personal`; remove it from the canonical medium model, API, and Drift medium row. Migrate saved App values to matching owned copies by release and medium number. |
+| `media_condition` | Removed from the Core medium model and API | User-owned medium detail in `MusicOwnedMediumDetails.mediaCondition` / `music_owned_items_rows.medium_details_json` | `app_personal`; absent from the canonical medium domain and Drift row. Existing App values move to matching owned copies by release and medium number. |
 | `tracks` | array of track responses, required | `tracks` / `music_track_rows` | `core_catalog`; nested catalog graph |
 
 ## Track
@@ -80,7 +80,7 @@ Core response fields are nullable unless listed as required. Collection properti
 | `is_header`, `indent_level`, `parent_header_id` | required boolean/integer and nullable string | same fields / same columns | `core_catalog`; structural track-list metadata |
 | `duration_ms`, `offset_ms`, `bitrate_kbps`, `file_size_bytes` | nullable integers | same fields / same columns | `core_catalog` |
 | `track_hash`, `instrument`, `composition` | nullable strings | same fields / same columns | `core_catalog` |
-| `recording_id` | Missing from Core model and API | `recordingId` / `recording_id` | `core_catalog`; add to Core's normalized track, database model, Music response, and ingestion/update mappings |
+| `recording_id` | Nullable string | `recordingId` / `music_track_rows.recording_id` | `core_catalog`; represented in Core's normalized track, database model, Music response, and ingestion/update mappings |
 
 ## Nested release relations
 
@@ -94,8 +94,9 @@ Core response fields are nullable unless listed as required. Collection properti
 
 ## Contract and persistence expectations
 
-- `music-catalog-v1.json` is generated from the Pydantic response schemas and is the pinned App input for Music DTO generation.
+- Core exports `music-catalog-v1.json` from its Pydantic response schemas; App pins it as the input for `tool/generate_music_catalog_dto.dart`.
+- `tool/music_catalog_field_ownership.json` maps every contract property to a domain member and Drift location, or states why a discriminator/value object is not stored independently.
+- App's schema version 5 migration moves box-set names to their App-local table, transfers existing medium conditions to owned copies, preserves derived format values, and rebuilds the affected tables.
 - App may use JSON columns for ordered collections where Core uses relation tables, provided the field meaning, order, nullability, and values match.
-- The App ownership manifest maps every canonical contract field to a domain property and persistence location, or records an explicit reason when it is intentionally not persisted.
-- Core's synopsis and media-condition columns require an explicit PostgreSQL migration because `bootstrap_schema` only creates missing tables and columns; it does not remove columns.
-- The App SQLite migration transfers medium condition values into matching owned-copy medium details before removing the old medium column.
+- Core's Music synopsis and medium-condition columns are archived and removed by an explicit PostgreSQL migration because `bootstrap_schema` only creates missing schema objects; it does not remove columns.
+- See [Music Catalog Contract](music-catalog-contract.md) for generation, pinned contract checks, field ownership validation, and migration commands.

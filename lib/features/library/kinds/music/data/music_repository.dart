@@ -203,6 +203,13 @@ final class MusicRepository
     return row == null ? null : MusicLocalMapper.fromBoxSetMembershipRow(row);
   }
 
+  Future<String?> boxSetNameFor(MusicReleaseId releaseId) async {
+    final row = await (_db.select(_db.musicReleaseLocalDetailsRows)
+          ..where((table) => table.releaseId.equals(releaseId.value)))
+        .getSingleOrNull();
+    return row?.boxSetName;
+  }
+
   Future<void> updateReleaseGroup(MusicReleaseGroup group) async {
     _require(group.id.value, 'MusicReleaseGroup');
     final existing = await getReleaseGroup(group.id);
@@ -262,7 +269,7 @@ final class MusicRepository
       }
       for (final release in group.releases) {
         await _deleteReleaseGraph(release.id);
-        await _writeReleaseGraph(release);
+        await _writeReleaseGraph(release, preserveLocalDetails: true);
       }
     });
   }
@@ -313,6 +320,7 @@ final class MusicRepository
   Future<MusicRelease> _hydrateRelease(MusicReleaseRow row) async {
     return MusicLocalMapper.fromReleaseRow(
       row,
+      boxSetName: await boxSetNameFor(MusicReleaseId(row.id)),
       externalLinks: await externalLinksFor(MusicReleaseId(row.id)),
       boxSetMembership: await boxSetMembershipFor(MusicReleaseId(row.id)),
       mediums: await mediumsFor(MusicReleaseId(row.id)),
@@ -399,10 +407,18 @@ final class MusicRepository
     return rows.map(MusicLocalMapper.fromIdentifierRow).toList(growable: false);
   }
 
-  Future<void> _writeReleaseGraph(MusicRelease release) async {
+  Future<void> _writeReleaseGraph(
+    MusicRelease release, {
+    bool preserveLocalDetails = false,
+  }) async {
     await _db
         .into(_db.musicReleaseRows)
         .insertOnConflictUpdate(MusicLocalMapper.toReleaseRow(release));
+    if (!preserveLocalDetails || release.boxSetName != null) {
+      await _db.into(_db.musicReleaseLocalDetailsRows).insertOnConflictUpdate(
+            MusicLocalMapper.toReleaseLocalDetailsRow(release),
+          );
+    }
     for (var index = 0; index < release.externalLinks.length; index++) {
       await _db.into(_db.musicReleaseExternalLinksRows).insert(
             MusicLocalMapper.toExternalLinkRow(

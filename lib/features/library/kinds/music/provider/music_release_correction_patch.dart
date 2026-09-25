@@ -18,7 +18,6 @@ final class MusicReleaseCorrectionPatch implements ProviderCorrectionPatch {
     this.barcode = const ProviderPatch.unchanged(),
     this.coverImageUrl = const ProviderPatch.unchanged(),
     this.releaseDate = const ProviderPatch.unchanged(),
-    this.physicalFormat = const ProviderPatch.unchanged(),
   });
 
   final ProviderPatch<String> title;
@@ -27,7 +26,6 @@ final class MusicReleaseCorrectionPatch implements ProviderCorrectionPatch {
   final ProviderPatch<String> barcode;
   final ProviderPatch<String> coverImageUrl;
   final ProviderPatch<DateTime> releaseDate;
-  final ProviderPatch<String> physicalFormat;
 
   @override
   bool get isEmpty => [
@@ -37,7 +35,6 @@ final class MusicReleaseCorrectionPatch implements ProviderCorrectionPatch {
         barcode,
         coverImageUrl,
         releaseDate,
-        physicalFormat,
       ].every(_isUnchanged);
 }
 
@@ -78,10 +75,6 @@ MusicReleaseCorrectionPatch buildMusicReleaseCorrectionPatch({
       preview.musicCatalogFields.releaseDate,
       edited.musicCatalogFields.releaseDate,
     ),
-    physicalFormat: _stringPatch(
-      _musicRelease(preview)?.physicalFormat,
-      _musicRelease(edited)?.physicalFormat,
-    ),
   );
 }
 
@@ -109,7 +102,6 @@ Map<String, Object?> encodeMusicProviderCorrectionsForWire(
         music.releaseDate,
         encode: (value) => value.toUtc().toIso8601String(),
       ),
-      _musicWireField('physical_format', music.physicalFormat),
     ])
       if (field.isChanged) field.field: field.wireValue,
   };

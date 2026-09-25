@@ -30,7 +30,6 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
               'title',
               'sort_title',
               'subtitle',
-              'format',
               'release_type',
               'release_status',
               'release_date',

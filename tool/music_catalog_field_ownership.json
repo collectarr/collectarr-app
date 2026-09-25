@@ -1,0 +1,1985 @@
+{
+  "schemaVersion": 1,
+  "contractHash": "68bcdc29e4700857d9d675e87a8765cfba128ee583ef189e6cd837fd4bda5eab",
+  "fields": {
+    "MusicArtistCreditResponse.artist_id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "artistId"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_artist_credits_rows"
+        ],
+        "columns": [
+          "artistId"
+        ]
+      }
+    },
+    "MusicArtistCreditResponse.credited_name": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "creditedName"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_artist_credits_rows"
+        ],
+        "columns": [
+          "creditedName"
+        ]
+      }
+    },
+    "MusicArtistCreditResponse.id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "id"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_artist_credits_rows"
+        ],
+        "columns": [
+          "id"
+        ]
+      }
+    },
+    "MusicArtistCreditResponse.join_phrase": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "joinPhrase"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_artist_credits_rows"
+        ],
+        "columns": [
+          "joinPhrase"
+        ]
+      }
+    },
+    "MusicArtistCreditResponse.sequence": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "sequence"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_artist_credits_rows"
+        ],
+        "columns": [
+          "sequence"
+        ]
+      }
+    },
+    "MusicArtistCreditResponse.source": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "source"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_artist_credits_rows"
+        ],
+        "columns": [
+          "source"
+        ]
+      }
+    },
+    "MusicContributorResponse.image_url": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "imageUrl"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_contributions_rows"
+        ],
+        "columns": [
+          "imageUrl"
+        ]
+      }
+    },
+    "MusicContributorResponse.name": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "displayName"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_contributions_rows"
+        ],
+        "columns": [
+          "displayName"
+        ]
+      }
+    },
+    "MusicContributorResponse.person_id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "personId"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_contributions_rows"
+        ],
+        "columns": [
+          "personId"
+        ]
+      }
+    },
+    "MusicContributorResponse.role": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "role"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_contributions_rows"
+        ],
+        "columns": [
+          "role"
+        ]
+      }
+    },
+    "MusicContributorResponse.role_id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "roleId"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_contributions_rows"
+        ],
+        "columns": [
+          "roleId"
+        ]
+      }
+    },
+    "MusicContributorResponse.sequence": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "sequence"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_contributions_rows"
+        ],
+        "columns": [
+          "sequence"
+        ]
+      }
+    },
+    "MusicIdentifierResponse.id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "id"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_identifiers_rows"
+        ],
+        "columns": [
+          "id"
+        ]
+      }
+    },
+    "MusicIdentifierResponse.identifier_type": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "identifierType"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_identifiers_rows"
+        ],
+        "columns": [
+          "identifierType"
+        ]
+      }
+    },
+    "MusicIdentifierResponse.is_primary": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "isPrimary"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_identifiers_rows"
+        ],
+        "columns": [
+          "isPrimary"
+        ]
+      }
+    },
+    "MusicIdentifierResponse.normalized_value": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "normalizedValue"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_identifiers_rows"
+        ],
+        "columns": [
+          "normalizedValue"
+        ]
+      }
+    },
+    "MusicIdentifierResponse.source_provider": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "sourceProvider"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_identifiers_rows"
+        ],
+        "columns": [
+          "sourceProvider"
+        ]
+      }
+    },
+    "MusicIdentifierResponse.value": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "value"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_identifiers_rows"
+        ],
+        "columns": [
+          "value"
+        ]
+      }
+    },
+    "MusicMediumV1Response.bp_disc_id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "bpDiscId"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "bpDiscId"
+        ]
+      }
+    },
+    "MusicMediumV1Response.cddb_id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "cddbId"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "cddbId"
+        ]
+      }
+    },
+    "MusicMediumV1Response.expected_track_count": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "expectedTrackCount"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "expectedTrackCount"
+        ]
+      }
+    },
+    "MusicMediumV1Response.id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "id"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "id"
+        ]
+      }
+    },
+    "MusicMediumV1Response.leadout_offset": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "leadoutOffset"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "leadoutOffset"
+        ]
+      }
+    },
+    "MusicMediumV1Response.medium_number": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "mediumNumber"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "mediumNumber"
+        ]
+      }
+    },
+    "MusicMediumV1Response.medium_type": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "mediumType"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "mediumType"
+        ]
+      }
+    },
+    "MusicMediumV1Response.missing_track_count": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "missingTrackCount"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "missingTrackCount"
+        ]
+      }
+    },
+    "MusicMediumV1Response.missing_track_positions": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "missingTrackPositions"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "missingTrackPositionsJson"
+        ]
+      }
+    },
+    "MusicMediumV1Response.release_id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "releaseId"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "releaseId"
+        ]
+      }
+    },
+    "MusicMediumV1Response.rpm": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "rpm"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "rpm"
+        ]
+      }
+    },
+    "MusicMediumV1Response.sound_type": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "soundType"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "soundType"
+        ]
+      }
+    },
+    "MusicMediumV1Response.spars": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "spars"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "spars"
+        ]
+      }
+    },
+    "MusicMediumV1Response.title": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "title"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "title"
+        ]
+      }
+    },
+    "MusicMediumV1Response.toc": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "toc"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "toc"
+        ]
+      }
+    },
+    "MusicMediumV1Response.track_count": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "trackCount"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "trackCount"
+        ]
+      }
+    },
+    "MusicMediumV1Response.tracks": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "tracks"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "medium_id"
+        ]
+      }
+    },
+    "MusicMediumV1Response.vinyl_color": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "vinylColor"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "vinylColor"
+        ]
+      }
+    },
+    "MusicMediumV1Response.vinyl_weight": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_medium.dart",
+        "members": [
+          "vinylWeight"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "vinylWeight"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.artist": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "artist"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "artist"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.artist_credits": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "artistCredits"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_artist_credits_rows"
+        ],
+        "columns": [
+          "target_id"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.cover_image_key": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "coverImageKey"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "coverImageKey"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.cover_image_url": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "coverImageUrl"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "coverImageUrl"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.external_links": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "externalLinks"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "externalLinksJson"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.genres": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "genres"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "genresJson"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "id"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "id"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.is_live": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "isLive"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "isLive"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.original_release_date": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "originalReleaseDate",
+          "originalReleaseDateParts"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "originalReleaseDate",
+          "originalReleaseDatePartsJson"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.original_release_date_parts": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "originalReleaseDateParts"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "originalReleaseDatePartsJson"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.original_title": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "originalTitle"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "originalTitle"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.recording_date": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "recordingDate",
+          "recordingDateParts"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "recordingDate",
+          "recordingDatePartsJson"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.recording_date_parts": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "recordingDateParts"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "recordingDatePartsJson"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.releases": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "releases"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "release_group_id"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.sort_title": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "sortTitle"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "sortTitle"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.studio": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "studio"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "studio"
+        ]
+      }
+    },
+    "MusicReleaseGroupV1Response.title": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_group.dart",
+        "members": [
+          "title"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_group_rows"
+        ],
+        "columns": [
+          "title"
+        ]
+      }
+    },
+    "MusicReleaseLabelResponse.catalog_number": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "catalogNumber"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_labels_rows"
+        ],
+        "columns": [
+          "catalogNumber"
+        ]
+      }
+    },
+    "MusicReleaseLabelResponse.id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "id"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_labels_rows"
+        ],
+        "columns": [
+          "id"
+        ]
+      }
+    },
+    "MusicReleaseLabelResponse.label_id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "labelId"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_labels_rows"
+        ],
+        "columns": [
+          "labelId"
+        ]
+      }
+    },
+    "MusicReleaseLabelResponse.label_name": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "labelName"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_labels_rows"
+        ],
+        "columns": [
+          "labelName"
+        ]
+      }
+    },
+    "MusicReleaseLabelResponse.sequence": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "sequence"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_labels_rows"
+        ],
+        "columns": [
+          "sequence"
+        ]
+      }
+    },
+    "MusicReleaseLabelResponse.source": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release_relations.dart",
+        "members": [
+          "source"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_labels_rows"
+        ],
+        "columns": [
+          "source"
+        ]
+      }
+    },
+    "MusicReleaseSummaryV1Response.barcode": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "barcode"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "barcode"
+        ]
+      }
+    },
+    "MusicReleaseSummaryV1Response.catalog_number": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "catalogNumber"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "catalogNumber"
+        ]
+      }
+    },
+    "MusicReleaseSummaryV1Response.cover_image_url": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "coverImageUrl"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "coverImageUrl"
+        ]
+      }
+    },
+    "MusicReleaseSummaryV1Response.id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "id"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "id"
+        ]
+      }
+    },
+    "MusicReleaseSummaryV1Response.medium_types": {
+      "owner": "derived",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "mediumTypesSummary",
+          "mediumTypes"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "mediumTypesJson"
+        ],
+        "reason": "Derived cache from the canonical ordered MusicMedium.mediumType values."
+      }
+    },
+    "MusicReleaseSummaryV1Response.publisher": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "publisher"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "publisher"
+        ]
+      }
+    },
+    "MusicReleaseSummaryV1Response.release_date": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "releaseDate",
+          "releaseDateParts"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "releaseDate",
+          "releaseDatePartsJson"
+        ]
+      }
+    },
+    "MusicReleaseSummaryV1Response.release_date_parts": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "releaseDateParts"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "releaseDatePartsJson"
+        ]
+      }
+    },
+    "MusicReleaseSummaryV1Response.release_group_id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "releaseGroupId"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "releaseGroupId"
+        ]
+      }
+    },
+    "MusicReleaseSummaryV1Response.release_status": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "releaseStatus"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "releaseStatus"
+        ]
+      }
+    },
+    "MusicReleaseSummaryV1Response.release_type": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "releaseType"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "releaseType"
+        ]
+      }
+    },
+    "MusicReleaseSummaryV1Response.title": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "title"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "title"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.artist_credits": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "artistCredits"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_artist_credits_rows"
+        ],
+        "columns": [
+          "target_id"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.barcode": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "barcode"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "barcode"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.catalog_number": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "catalogNumber"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "catalogNumber"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.contributions": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "contributions"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_contributions_rows"
+        ],
+        "columns": [
+          "release_id"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.country_code": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "countryCode"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "countryCode"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.cover_image_key": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "coverImageKey"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "coverImageKey"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.cover_image_url": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "coverImageUrl"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "coverImageUrl"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "id"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "id"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.identifiers": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "identifiers"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_identifiers_rows"
+        ],
+        "columns": [
+          "release_id"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.kind": {
+      "owner": "derived",
+      "domain": {
+        "file": "lib/core/api/generated/music_catalog.models.g.dart",
+        "members": [
+          "kind"
+        ]
+      },
+      "persistence": {
+        "tables": [],
+        "columns": [],
+        "reason": "Transport discriminator only; Music owns the kind value."
+      }
+    },
+    "MusicReleaseV1Response.labels": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "labels"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_labels_rows"
+        ],
+        "columns": [
+          "release_id"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.language": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "language"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "language"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.mediums": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "mediums"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_medium_rows"
+        ],
+        "columns": [
+          "release_id"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.packaging": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "packaging"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "packaging"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.publisher": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "publisher"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "publisher"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.release_date": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "releaseDate",
+          "releaseDateParts"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "releaseDate",
+          "releaseDatePartsJson"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.release_date_parts": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "releaseDateParts"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "releaseDatePartsJson"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.release_group_id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "releaseGroupId"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "releaseGroupId"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.release_status": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "releaseStatus"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "releaseStatus"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.release_type": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "releaseType"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "releaseType"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.sort_title": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "sortTitle"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "sortTitle"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.subtitle": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "subtitle"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "subtitle"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.title": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "title"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "title"
+        ]
+      }
+    },
+    "MusicReleaseV1Response.upc": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_release.dart",
+        "members": [
+          "upc"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_release_rows"
+        ],
+        "columns": [
+          "upc"
+        ]
+      }
+    },
+    "MusicTrackV1Response.artist": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "artist"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "artist"
+        ]
+      }
+    },
+    "MusicTrackV1Response.bitrate_kbps": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "bitrateKbps"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "bitrateKbps"
+        ]
+      }
+    },
+    "MusicTrackV1Response.composition": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "composition"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "composition"
+        ]
+      }
+    },
+    "MusicTrackV1Response.duration_ms": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "durationMs"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "durationMs"
+        ]
+      }
+    },
+    "MusicTrackV1Response.file_size_bytes": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "fileSizeBytes"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "fileSizeBytes"
+        ]
+      }
+    },
+    "MusicTrackV1Response.id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "id"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "id"
+        ]
+      }
+    },
+    "MusicTrackV1Response.indent_level": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "indentLevel"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "indentLevel"
+        ]
+      }
+    },
+    "MusicTrackV1Response.instrument": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "instrument"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "instrument"
+        ]
+      }
+    },
+    "MusicTrackV1Response.is_header": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "isHeader"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "isHeader"
+        ]
+      }
+    },
+    "MusicTrackV1Response.medium_id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "mediumId"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "mediumId"
+        ]
+      }
+    },
+    "MusicTrackV1Response.offset_ms": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "offsetMs"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "offsetMs"
+        ]
+      }
+    },
+    "MusicTrackV1Response.parent_header_id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "parentHeaderId"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "parentHeaderId"
+        ]
+      }
+    },
+    "MusicTrackV1Response.position": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "position"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "position"
+        ]
+      }
+    },
+    "MusicTrackV1Response.recording_id": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "recordingId"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "recordingId"
+        ]
+      }
+    },
+    "MusicTrackV1Response.title": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "title"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "title"
+        ]
+      }
+    },
+    "MusicTrackV1Response.track_hash": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/features/library/kinds/music/domain/music_track.dart",
+        "members": [
+          "trackHash"
+        ]
+      },
+      "persistence": {
+        "tables": [
+          "music_track_rows"
+        ],
+        "columns": [
+          "trackHash"
+        ]
+      }
+    },
+    "PartialDateValue.day": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/core/models/partial_date.dart",
+        "members": [
+          "day"
+        ]
+      },
+      "persistence": {
+        "tables": [],
+        "columns": [],
+        "reason": "Serialized in the relevant date-parts JSON column."
+      }
+    },
+    "PartialDateValue.month": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/core/models/partial_date.dart",
+        "members": [
+          "month"
+        ]
+      },
+      "persistence": {
+        "tables": [],
+        "columns": [],
+        "reason": "Serialized in the relevant date-parts JSON column."
+      }
+    },
+    "PartialDateValue.year": {
+      "owner": "core_catalog",
+      "domain": {
+        "file": "lib/core/models/partial_date.dart",
+        "members": [
+          "year"
+        ]
+      },
+      "persistence": {
+        "tables": [],
+        "columns": [],
+        "reason": "Serialized in the relevant date-parts JSON column."
+      }
+    }
+  },
+  "enums": {
+    "ExternalProvider": [
+      "anilist",
+      "bgg",
+      "comicvine",
+      "gcd",
+      "hardcover",
+      "igdb",
+      "mangadex",
+      "musicbrainz",
+      "openlibrary",
+      "tmdb"
+    ],
+    "ItemKind": [
+      "anime",
+      "boardgame",
+      "book",
+      "collection",
+      "comic",
+      "game",
+      "manga",
+      "movie",
+      "music",
+      "tv"
+    ]
+  }
+}

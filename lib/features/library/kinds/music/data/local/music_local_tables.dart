@@ -46,13 +46,32 @@ class MusicReleaseRows extends Table {
   TextColumn get upc => text().nullable()();
   TextColumn get catalogNumber => text().nullable()();
   TextColumn get packaging => text().nullable()();
-  TextColumn get physicalFormat => text().nullable()();
-  TextColumn get physicalFormatLabel => text().nullable()();
-  TextColumn get boxSetName => text().nullable()();
+  TextColumn get mediumTypesJson => text().withDefault(const Constant('[]'))();
   TextColumn get coverImageUrl => text().nullable()();
   TextColumn get coverImageKey => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// User-managed release metadata that does not belong to the Core catalog.
+class MusicReleaseLocalDetailsRows extends Table {
+  TextColumn get releaseId => text()();
+  TextColumn get boxSetName => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {releaseId};
+}
+
+/// Recovery copy of medium conditions migrated to owned-copy details.
+class MusicLegacyMediumConditionArchiveRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get releaseId => text()();
+  IntColumn get mediumNumber => integer()();
+  TextColumn get condition => text()();
+  DateTimeColumn get archivedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -146,7 +165,6 @@ class MusicMediumRows extends Table {
   TextColumn get cddbId => text().nullable()();
   IntColumn get leadoutOffset => integer().nullable()();
   TextColumn get bpDiscId => text().nullable()();
-  TextColumn get mediaCondition => text().nullable()();
   TextColumn get soundType => text().nullable()();
   TextColumn get vinylColor => text().nullable()();
   TextColumn get vinylWeight => text().nullable()();

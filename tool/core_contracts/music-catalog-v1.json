@@ -1,0 +1,1197 @@
+{
+  "$defs": {
+    "ExternalProvider": {
+      "enum": [
+        "anilist",
+        "bgg",
+        "comicvine",
+        "gcd",
+        "hardcover",
+        "igdb",
+        "mangadex",
+        "musicbrainz",
+        "openlibrary",
+        "tmdb"
+      ],
+      "title": "ExternalProvider",
+      "type": "string"
+    },
+    "ItemKind": {
+      "enum": [
+        "anime",
+        "boardgame",
+        "book",
+        "collection",
+        "comic",
+        "game",
+        "manga",
+        "movie",
+        "music",
+        "tv"
+      ],
+      "title": "ItemKind",
+      "type": "string"
+    },
+    "MusicArtistCreditResponse": {
+      "properties": {
+        "artist_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Artist Id"
+        },
+        "credited_name": {
+          "title": "Credited Name",
+          "type": "string"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "join_phrase": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Join Phrase"
+        },
+        "sequence": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sequence"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source"
+        }
+      },
+      "required": [
+        "id",
+        "credited_name"
+      ],
+      "title": "MusicArtistCreditResponse",
+      "type": "object"
+    },
+    "MusicContributorResponse": {
+      "properties": {
+        "image_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Image Url"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "person_id": {
+          "format": "uuid",
+          "title": "Person Id",
+          "type": "string"
+        },
+        "role": {
+          "title": "Role",
+          "type": "string"
+        },
+        "role_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Role Id"
+        },
+        "sequence": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sequence"
+        }
+      },
+      "required": [
+        "person_id",
+        "name",
+        "role"
+      ],
+      "title": "MusicContributorResponse",
+      "type": "object"
+    },
+    "MusicIdentifierResponse": {
+      "properties": {
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "identifier_type": {
+          "title": "Identifier Type",
+          "type": "string"
+        },
+        "is_primary": {
+          "title": "Is Primary",
+          "type": "boolean"
+        },
+        "normalized_value": {
+          "title": "Normalized Value",
+          "type": "string"
+        },
+        "source_provider": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExternalProvider"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "identifier_type",
+        "value",
+        "normalized_value",
+        "is_primary"
+      ],
+      "title": "MusicIdentifierResponse",
+      "type": "object"
+    },
+    "MusicMediumV1Response": {
+      "properties": {
+        "bp_disc_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Bp Disc Id"
+        },
+        "cddb_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cddb Id"
+        },
+        "expected_track_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Expected Track Count"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "leadout_offset": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Leadout Offset"
+        },
+        "medium_number": {
+          "title": "Medium Number",
+          "type": "integer"
+        },
+        "medium_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Medium Type"
+        },
+        "missing_track_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Missing Track Count"
+        },
+        "missing_track_positions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing Track Positions",
+          "type": "array"
+        },
+        "release_id": {
+          "format": "uuid",
+          "title": "Release Id",
+          "type": "string"
+        },
+        "rpm": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rpm"
+        },
+        "sound_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sound Type"
+        },
+        "spars": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Spars"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Title"
+        },
+        "toc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Toc"
+        },
+        "track_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Track Count"
+        },
+        "tracks": {
+          "items": {
+            "$ref": "#/$defs/MusicTrackV1Response"
+          },
+          "title": "Tracks",
+          "type": "array"
+        },
+        "vinyl_color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Vinyl Color"
+        },
+        "vinyl_weight": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Vinyl Weight"
+        }
+      },
+      "required": [
+        "id",
+        "release_id",
+        "medium_number"
+      ],
+      "title": "MusicMediumV1Response",
+      "type": "object"
+    },
+    "MusicReleaseGroupV1Response": {
+      "properties": {
+        "artist": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Artist"
+        },
+        "artist_credits": {
+          "items": {
+            "$ref": "#/$defs/MusicArtistCreditResponse"
+          },
+          "title": "Artist Credits",
+          "type": "array"
+        },
+        "cover_image_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cover Image Key"
+        },
+        "cover_image_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cover Image Url"
+        },
+        "external_links": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "External Links",
+          "type": "array"
+        },
+        "genres": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Genres",
+          "type": "array"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "is_live": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Is Live"
+        },
+        "original_release_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Original Release Date"
+        },
+        "original_release_date_parts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "original_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Original Title"
+        },
+        "recording_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Recording Date"
+        },
+        "recording_date_parts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "releases": {
+          "items": {
+            "$ref": "#/$defs/MusicReleaseSummaryV1Response"
+          },
+          "title": "Releases",
+          "type": "array"
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "studio": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Studio"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "title": "MusicReleaseGroupV1Response",
+      "type": "object"
+    },
+    "MusicReleaseLabelResponse": {
+      "properties": {
+        "catalog_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Catalog Number"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "label_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Label Id"
+        },
+        "label_name": {
+          "title": "Label Name",
+          "type": "string"
+        },
+        "sequence": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sequence"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source"
+        }
+      },
+      "required": [
+        "id",
+        "label_name"
+      ],
+      "title": "MusicReleaseLabelResponse",
+      "type": "object"
+    },
+    "MusicReleaseSummaryV1Response": {
+      "properties": {
+        "barcode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Barcode"
+        },
+        "catalog_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Catalog Number"
+        },
+        "cover_image_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cover Image Url"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "medium_types": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Medium Types",
+          "type": "array"
+        },
+        "publisher": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Publisher"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Release Date"
+        },
+        "release_date_parts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_group_id": {
+          "format": "uuid",
+          "title": "Release Group Id",
+          "type": "string"
+        },
+        "release_status": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Release Status"
+        },
+        "release_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Release Type"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "release_group_id",
+        "title"
+      ],
+      "title": "MusicReleaseSummaryV1Response",
+      "type": "object"
+    },
+    "MusicReleaseV1Response": {
+      "properties": {
+        "artist_credits": {
+          "items": {
+            "$ref": "#/$defs/MusicArtistCreditResponse"
+          },
+          "title": "Artist Credits",
+          "type": "array"
+        },
+        "barcode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Barcode"
+        },
+        "catalog_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Catalog Number"
+        },
+        "contributions": {
+          "items": {
+            "$ref": "#/$defs/MusicContributorResponse"
+          },
+          "title": "Contributions",
+          "type": "array"
+        },
+        "country_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Country Code"
+        },
+        "cover_image_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cover Image Key"
+        },
+        "cover_image_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cover Image Url"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "identifiers": {
+          "items": {
+            "$ref": "#/$defs/MusicIdentifierResponse"
+          },
+          "title": "Identifiers",
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/ItemKind",
+          "default": "music"
+        },
+        "labels": {
+          "items": {
+            "$ref": "#/$defs/MusicReleaseLabelResponse"
+          },
+          "title": "Labels",
+          "type": "array"
+        },
+        "language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Language"
+        },
+        "mediums": {
+          "items": {
+            "$ref": "#/$defs/MusicMediumV1Response"
+          },
+          "title": "Mediums",
+          "type": "array"
+        },
+        "packaging": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Packaging"
+        },
+        "publisher": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Publisher"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Release Date"
+        },
+        "release_date_parts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_group_id": {
+          "format": "uuid",
+          "title": "Release Group Id",
+          "type": "string"
+        },
+        "release_status": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Release Status"
+        },
+        "release_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Release Type"
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "upc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Upc"
+        }
+      },
+      "required": [
+        "id",
+        "release_group_id",
+        "title"
+      ],
+      "title": "MusicReleaseV1Response",
+      "type": "object"
+    },
+    "MusicTrackV1Response": {
+      "properties": {
+        "artist": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Artist"
+        },
+        "bitrate_kbps": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Bitrate Kbps"
+        },
+        "composition": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Composition"
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Duration Ms"
+        },
+        "file_size_bytes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "File Size Bytes"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "indent_level": {
+          "default": 0,
+          "title": "Indent Level",
+          "type": "integer"
+        },
+        "instrument": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Instrument"
+        },
+        "is_header": {
+          "default": false,
+          "title": "Is Header",
+          "type": "boolean"
+        },
+        "medium_id": {
+          "format": "uuid",
+          "title": "Medium Id",
+          "type": "string"
+        },
+        "offset_ms": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Offset Ms"
+        },
+        "parent_header_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Parent Header Id"
+        },
+        "position": {
+          "title": "Position",
+          "type": "string"
+        },
+        "recording_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Recording Id"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "track_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Track Hash"
+        }
+      },
+      "required": [
+        "id",
+        "medium_id",
+        "position",
+        "title"
+      ],
+      "title": "MusicTrackV1Response",
+      "type": "object"
+    },
+    "PartialDateValue": {
+      "additionalProperties": false,
+      "description": "A catalog date with independently optional components.",
+      "properties": {
+        "day": {
+          "anyOf": [
+            {
+              "maximum": 31.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Day"
+        },
+        "month": {
+          "anyOf": [
+            {
+              "maximum": 12.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Month"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "maximum": 9999.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Year"
+        }
+      },
+      "title": "PartialDateValue",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.collectarr.app/music-catalog/v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contractVersion": "2.0.0",
+  "coreCommit": "9cacc2ae28c5a6dc9389aa25ea000eee5e371828",
+  "generatedAt": "2026-09-25T14:37:00.421370Z",
+  "roots": {
+    "medium": {
+      "$ref": "#/$defs/MusicMediumV1Response"
+    },
+    "release": {
+      "$ref": "#/$defs/MusicReleaseV1Response"
+    },
+    "releaseGroup": {
+      "$ref": "#/$defs/MusicReleaseGroupV1Response"
+    },
+    "releaseSummary": {
+      "$ref": "#/$defs/MusicReleaseSummaryV1Response"
+    },
+    "track": {
+      "$ref": "#/$defs/MusicTrackV1Response"
+    }
+  },
+  "schemaVersion": 1,
+  "title": "Collectarr Music Catalog API Graph"
+}
