@@ -27,7 +27,7 @@ List<LibraryFieldSpec<TDraft>> musicReleaseGroupFields<TDraft>({
       ),
       _text<TDraft>(
         id: 'sort_title',
-        label: 'Sort title',
+        label: 'Sort Title',
         read: (draft) => values(draft).sortTitle,
         write: (draft, value) => values(draft).sortTitle = value,
       ),
@@ -110,7 +110,7 @@ List<LibraryFieldSpec<TDraft>> musicReleaseFields<TDraft>({
       ),
       _text<TDraft>(
         id: 'sort_title',
-        label: 'Sort title',
+        label: 'Sort Title',
         read: (draft) => values(draft).sortTitle,
         write: (draft, value) => values(draft).sortTitle = value,
       ),
