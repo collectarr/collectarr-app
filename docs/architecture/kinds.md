@@ -6,10 +6,13 @@ Movie, TV, Anime, and Music. Each kind is rooted at
 provider semantic mapping, local mapping, workspace, editing, and tracking
 behavior.
 
-The registry composes kind modules at
-`lib/features/library/kinds/registry/collectarr_kind_modules.dart`. It is a
-composition boundary; after dispatch, callers use the concrete kind-owned
-capability or model.
+The manually maintained application registry at
+`lib/features/library/kinds/registry/collectarr_kind_registry.dart` composes
+kind modules and other explicit registrations. It is a composition boundary;
+after dispatch, callers use the concrete kind-owned capability or model.
+
+Mechanical Drift table and development seed composition is generated
+separately. See [kind registration and generated artifacts](kind-registration-codegen.md).
 
 ## Architecture rules
 
