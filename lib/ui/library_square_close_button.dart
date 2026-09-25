@@ -36,7 +36,7 @@ class LibrarySquareCloseButton extends StatelessWidget {
             ),
             side: BorderSide(color: resolvedBorderColor),
             foregroundColor: resolvedForegroundColor,
-          ),
+          ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
           child: const Icon(Icons.close, size: 18),
         ),
       ),

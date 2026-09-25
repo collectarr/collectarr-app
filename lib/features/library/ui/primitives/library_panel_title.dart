@@ -92,6 +92,9 @@ class LibraryPanelTitle extends StatelessWidget {
           if (onClose != null) ...[
             const SizedBox(width: 8),
             IconButton(
+              style: const ButtonStyle(
+                mouseCursor: WidgetStateMouseCursor.clickable,
+              ),
               icon: const Icon(Icons.close, size: 18),
               onPressed: onClose,
               tooltip: 'Close',

@@ -111,22 +111,25 @@ ThemeData editDialogTheme({
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-      ),
+      ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-      ),
+      ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-      ),
+      ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-      ),
+      ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
+    ),
+    iconButtonTheme: const IconButtonThemeData(
+      style: ButtonStyle(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     textTheme: base.textTheme.apply(
       bodyColor: palette.textPrimary,
