@@ -1,52 +1,17 @@
+import 'package:collectarr_app/features/library/domain/library_entity_id.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-final class BoardGameMediaId {
-  const BoardGameMediaId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is BoardGameMediaId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class BoardGameMediaId extends LibraryEntityId {
+  const BoardGameMediaId(super.value);
 }
 
 @immutable
-final class BoardGameEditionId {
-  const BoardGameEditionId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is BoardGameEditionId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class BoardGameEditionId extends LibraryEntityId {
+  const BoardGameEditionId(super.value);
 }
 
 @immutable
-final class BoardGameOwnedItemId {
-  const BoardGameOwnedItemId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is BoardGameOwnedItemId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class BoardGameOwnedItemId extends LibraryEntityId {
+  const BoardGameOwnedItemId(super.value);
 }

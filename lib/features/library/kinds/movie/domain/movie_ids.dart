@@ -1,69 +1,22 @@
+import 'package:collectarr_app/features/library/domain/library_entity_id.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-final class MovieMediaId {
-  const MovieMediaId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is MovieMediaId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class MovieMediaId extends LibraryEntityId {
+  const MovieMediaId(super.value);
 }
 
 @immutable
-final class MovieReleaseId {
-  const MovieReleaseId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is MovieReleaseId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class MovieReleaseId extends LibraryEntityId {
+  const MovieReleaseId(super.value);
 }
 
 @immutable
-final class MovieReleaseMediaId {
-  const MovieReleaseMediaId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is MovieReleaseMediaId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class MovieReleaseMediaId extends LibraryEntityId {
+  const MovieReleaseMediaId(super.value);
 }
 
 @immutable
-final class MovieOwnedItemId {
-  const MovieOwnedItemId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is MovieOwnedItemId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class MovieOwnedItemId extends LibraryEntityId {
+  const MovieOwnedItemId(super.value);
 }

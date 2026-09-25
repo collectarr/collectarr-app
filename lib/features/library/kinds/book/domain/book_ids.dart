@@ -1,52 +1,17 @@
+import 'package:collectarr_app/features/library/domain/library_entity_id.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-final class BookMediaId {
-  const BookMediaId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is BookMediaId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class BookMediaId extends LibraryEntityId {
+  const BookMediaId(super.value);
 }
 
 @immutable
-final class BookReleaseId {
-  const BookReleaseId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is BookReleaseId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class BookReleaseId extends LibraryEntityId {
+  const BookReleaseId(super.value);
 }
 
 @immutable
-final class BookOwnedItemId {
-  const BookOwnedItemId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is BookOwnedItemId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class BookOwnedItemId extends LibraryEntityId {
+  const BookOwnedItemId(super.value);
 }

@@ -1,112 +1,37 @@
+import 'package:collectarr_app/features/library/domain/library_entity_id.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-final class TvSeriesId {
-  const TvSeriesId(this.value);
-  final String value;
-
-  @override
-  bool operator ==(Object other) => other is TvSeriesId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class TvSeriesId extends LibraryEntityId {
+  const TvSeriesId(super.value);
 }
 
 @immutable
-final class TvSeasonId {
-  const TvSeasonId(this.value);
-  final String value;
-
-  @override
-  bool operator ==(Object other) => other is TvSeasonId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class TvSeasonId extends LibraryEntityId {
+  const TvSeasonId(super.value);
 }
 
 @immutable
-final class TvEpisodeId {
-  const TvEpisodeId(this.value);
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is TvEpisodeId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class TvEpisodeId extends LibraryEntityId {
+  const TvEpisodeId(super.value);
 }
 
 @immutable
-final class TvReleaseId {
-  const TvReleaseId(this.value);
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is TvReleaseId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class TvReleaseId extends LibraryEntityId {
+  const TvReleaseId(super.value);
 }
 
 @immutable
-final class TvReleaseMediaId {
-  const TvReleaseMediaId(this.value);
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is TvReleaseMediaId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class TvReleaseMediaId extends LibraryEntityId {
+  const TvReleaseMediaId(super.value);
 }
 
 @immutable
-final class TvOwnedItemId {
-  const TvOwnedItemId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is TvOwnedItemId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class TvOwnedItemId extends LibraryEntityId {
+  const TvOwnedItemId(super.value);
 }
 
 @immutable
-final class TvReleaseEpisodeMapId {
-  const TvReleaseEpisodeMapId(this.value);
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      other is TvReleaseEpisodeMapId && other.value == value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
+final class TvReleaseEpisodeMapId extends LibraryEntityId {
+  const TvReleaseEpisodeMapId(super.value);
 }
