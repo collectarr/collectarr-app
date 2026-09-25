@@ -99,7 +99,7 @@ void main() {
                     }
                   });
                 },
-                onActivateItem: (_) {},
+                onTapItem: (_) {},
                 onToggleSelectionItem: (_) {},
                 onOpenItem: (_) {},
                 onEditItem: (_) {},
@@ -163,7 +163,7 @@ void main() {
               onOpenGroupDetails: (_) {},
               collapsedGroupBuckets: const {},
               onGroupBucketCollapsedToggled: (_) {},
-              onActivateItem: (_) {},
+              onTapItem: (_) {},
               onToggleSelectionItem: (_) {},
               onOpenItem: (_) {},
               onEditItem: (_) {},

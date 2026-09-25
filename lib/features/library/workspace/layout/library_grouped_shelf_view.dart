@@ -31,7 +31,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
     required this.collapsedGroupBuckets,
     required this.onGroupBucketCollapsedToggled,
     this.onSetCollapsedGroupBuckets,
-    required this.onActivateItem,
+    required this.onTapItem,
     required this.onToggleSelectionItem,
     required this.onOpenItem,
     required this.onEditItem,
@@ -52,7 +52,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
   final Set<String> collapsedGroupBuckets;
   final ValueChanged<String> onGroupBucketCollapsedToggled;
   final ValueChanged<Set<String>>? onSetCollapsedGroupBuckets;
-  final ValueChanged<String> onActivateItem;
+  final ValueChanged<LibraryProjectionItem> onTapItem;
   final ValueChanged<String> onToggleSelectionItem;
   final ValueChanged<LibraryProjectionItem> onOpenItem;
   final ValueChanged<LibraryProjectionItem> onEditItem;
@@ -60,11 +60,10 @@ class LibraryGroupedShelfView extends StatelessWidget {
   final LibraryGroupItemContextMenuCallback? onItemContextMenu;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
 
-  bool _isActive(LibraryProjectionItem item) =>
-      item.source.itemId == selectedId;
+  bool _isActive(LibraryProjectionItem item) => item.node.id == selectedId;
 
   bool _isSelected(LibraryProjectionItem item) =>
-      selectedIds.contains(item.source.itemId);
+      selectedIds.contains(item.node.id);
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +200,6 @@ class LibraryGroupedShelfView extends StatelessWidget {
           accent: accent,
           isExpanded: isExpanded,
           onToggleExpanded: () => onGroupBucketCollapsedToggled(group.bucket),
-          onOpenDetails: () => onOpenGroupDetails(group),
         ),
       ),
       if (isExpanded)
@@ -221,22 +219,22 @@ class LibraryGroupedShelfView extends StatelessWidget {
                 mainAxisExtent: mainAxisExtent,
                 selectionEnabled: selectionEnabled,
                 selectedIds: selectedIds,
-                itemIdOf: (item) => item.item.source.itemId,
+                itemIdOf: (item) => item.item.node.id,
                 onSelectionChanged: onBoxSelectionChanged,
                 shrinkWrap: true,
                 scrollable: false,
                 itemBuilder: (context, shelfItem) {
                   final item = shelfItem.item;
                   final child = LibraryCoverTile(
-                    key: ValueKey(item.source.itemId),
+                    key: ValueKey(item.node.id),
                     item: item,
                     customFieldBadges: item.customFieldBadges,
                     active: _isActive(item),
                     selected: _isSelected(item),
                     selectionMode: selectionEnabled,
-                    onTap: () => onActivateItem(item.source.itemId),
+                    onTap: () => onTapItem(item),
                     onSelectionToggleTap: () =>
-                        onToggleSelectionItem(item.source.itemId),
+                        onToggleSelectionItem(item.node.id),
                     onDoubleTap: () => onOpenItem(item),
                     onEditTap: () => onEditItem(item),
                     onSecondaryTapUp: onItemContextMenu == null
@@ -266,7 +264,6 @@ class _GroupHeader extends StatelessWidget {
     required this.accent,
     required this.isExpanded,
     required this.onToggleExpanded,
-    required this.onOpenDetails,
   });
 
   final String title;
@@ -274,7 +271,6 @@ class _GroupHeader extends StatelessWidget {
   final Color accent;
   final bool isExpanded;
   final VoidCallback onToggleExpanded;
-  final VoidCallback onOpenDetails;
 
   @override
   Widget build(BuildContext context) {
@@ -317,11 +313,6 @@ class _GroupHeader extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-          IconButton(
-            tooltip: 'Open details',
-            onPressed: onOpenDetails,
-            icon: const Icon(Icons.open_in_new),
           ),
         ],
       ),

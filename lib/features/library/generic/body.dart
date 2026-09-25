@@ -1,10 +1,10 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'dart:math' as math;
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -46,9 +46,7 @@ double resolveLibraryWorkspaceMinWidth({
     LibraryViewMode.grid ||
     LibraryViewMode.horizontalCards ||
     LibraryViewMode.shelves =>
-      (viewState.coverSize + 36)
-          .clamp(160.0, kLibraryWorkspaceMinWidth)
-          .toDouble(),
+      math.max(160.0, viewState.coverSize + 36),
     _ => kLibraryWorkspaceMinWidth,
   };
 }
@@ -346,17 +344,6 @@ class LibraryBody extends StatelessWidget {
                 onColumnWidthChanged: onColumnWidthChanged,
                 onColumnReordered: onColumnReordered,
                 onItemContextMenu: onItemContextMenu,
-                initialCrossAxisCount: _estimateGridColumnCount(
-                  workspaceWidth: constraints.maxWidth -
-                      (showSidebar
-                          ? sidebarWidth + kLibraryPaneDividerWidth
-                          : 0) -
-                      (detailsLayout == LibraryDetailsLayout.right
-                          ? requestedDetailsWidth + kLibraryPaneDividerWidth
-                          : 0),
-                  coverSize: viewState.coverSize,
-                  viewMode: viewState.viewMode,
-                ),
               ),
             );
         final details = LibraryInspector(
@@ -539,21 +526,6 @@ void _postLayoutSnapshotIfNeeded(
     }
     onLayoutSnapshotChanged(snapshot);
   });
-}
-
-int _estimateGridColumnCount({
-  required double workspaceWidth,
-  required double coverSize,
-  required LibraryViewMode viewMode,
-}) {
-  if (workspaceWidth <= 0) {
-    return 1;
-  }
-  if (!viewMode.supportsCoverSize) {
-    return 1;
-  }
-  final tileWidth = coverSize + 10;
-  return math.max(1, ((workspaceWidth + 10) / tileWidth).floor());
 }
 
 class _LibrarySidebarResizableLayout extends StatefulWidget {

@@ -190,6 +190,7 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
               padding: effectivePadding,
               crossAxisCount: crossAxisCount,
               tileWidth: tileWidth,
+              mainAxisExtent: mainAxisExtent,
               crossAxisSpacing: crossAxisSpacing,
             );
             _selectionRectNotifier.value = rect;
@@ -279,6 +280,7 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
     required EdgeInsets padding,
     required int crossAxisCount,
     required double tileWidth,
+    required double mainAxisExtent,
     required double crossAxisSpacing,
   }) {
     final selected = <String>{};
@@ -289,13 +291,13 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
       final column = index % crossAxisCount;
       final left = padding.left + (column * (tileWidth + crossAxisSpacing));
       final top = padding.top +
-          (row * (widget.mainAxisExtent + widget.mainAxisSpacing)) -
+          (row * (mainAxisExtent + widget.mainAxisSpacing)) -
           scrollOffset;
       final tileRect = Rect.fromLTWH(
         left,
         top,
         tileWidth,
-        widget.mainAxisExtent,
+        mainAxisExtent,
       );
       if (tileRect.overlaps(rect)) {
         selected.add(widget.itemIdOf!(widget.items[index]));

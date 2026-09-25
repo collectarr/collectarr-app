@@ -221,7 +221,7 @@ class LibraryWorkspace extends ConsumerWidget {
         onGroupBucketCollapsedToggled: onGroupBucketCollapsedToggled,
         onSetCollapsedGroupBuckets: onSetCollapsedGroupBuckets,
         onOpenGroupDetails: (group) => onOpenItem(group.representativeItem),
-        onActivateItem: onActivateItem,
+        onTapItem: (item) => _selectionTap(item)(),
         onToggleSelectionItem: onToggleSelectionItem,
         onOpenItem: onOpenItem,
         onEditItem: onEditItem,
@@ -369,8 +369,6 @@ class LibraryWorkspace extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final palette = appPalette(context);
-        final compact =
-            libraryPresentationForKind(type.kind).usesCompactTableLayout;
         final density = viewState.densityPreset;
         final registration = type;
         final workspace = libraryKindWorkspaceForKind(registration.kind);
@@ -447,9 +445,9 @@ class LibraryWorkspace extends ConsumerWidget {
                   ),
                   headerHeight: density.tableHeaderHeight,
                   rowHeight: density.tableRowHeight,
-                  columnSpacing: compact ? 6 : 8,
-                  horizontalMargin: compact ? 4 : 6,
-                  selectionRailWidth: compact ? 1 : 2,
+                  columnSpacing: 8,
+                  horizontalMargin: 6,
+                  selectionRailWidth: 2,
                   headerColor: palette.surface,
                   dividerColor: palette.divider,
                   selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
