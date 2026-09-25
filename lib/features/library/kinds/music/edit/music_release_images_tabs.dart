@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_p
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_cover_crop_editor.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:dio/dio.dart';
 import 'package:file_selector/file_selector.dart';
@@ -13,8 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import 'package:uuid/uuid.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-enum _CoverTransformAction { crop, rotate }
 
 final Dio _coverImageClient = Dio(
   BaseOptions(
@@ -151,8 +150,7 @@ final class _CoverEditor extends StatefulWidget {
 }
 
 final class _CoverEditorState extends State<_CoverEditor> {
-  Uint8List? _stagedBytes;
-  String? _stagedForId;
+  Uint8List? _cropEditorBytes;
   bool _transforming = false;
 
   String? get _sourceKey => _sourceKeyFor(widget.image, widget.coreCoverUrl);
@@ -170,8 +168,7 @@ final class _CoverEditorState extends State<_CoverEditor> {
   void didUpdateWidget(covariant _CoverEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (_sourceKeyFor(oldWidget.image, oldWidget.coreCoverUrl) != _sourceKey) {
-      _stagedBytes = null;
-      _stagedForId = null;
+      _cropEditorBytes = null;
     }
   }
 
@@ -179,7 +176,14 @@ final class _CoverEditorState extends State<_CoverEditor> {
   Widget build(BuildContext context) {
     final image = widget.image;
     final sourceKey = _sourceKey;
-    final previewBytes = _stagedForId == sourceKey ? _stagedBytes : null;
+    final cropEditorBytes = _cropEditorBytes;
+    if (cropEditorBytes != null) {
+      return MusicCoverCropEditor(
+        title: widget.title,
+        imageBytes: cropEditorBytes,
+        onApply: _applyEditedBytes,
+      );
+    }
     final canEditCover = sourceKey != null && !_transforming;
     final hasCurrentCoreCover = widget.coreCoverUrl?.trim().isNotEmpty == true;
     final canRestoreCoreCover =
@@ -257,57 +261,14 @@ final class _CoverEditorState extends State<_CoverEditor> {
                             }
                           },
                         ),
-                      if (previewBytes != null)
-                        _toolbarAction(
-                          context,
-                          icon: Icons.undo,
-                          label: 'Reset',
-                          onPressed: () => setState(() {
-                            _stagedBytes = null;
-                            _stagedForId = null;
-                          }),
-                        ),
-                      if (previewBytes != null)
-                        _toolbarAction(
-                          context,
-                          icon: Icons.check,
-                          label: 'Apply',
-                          onPressed: _apply,
-                        ),
                     ],
                   ),
                 ),
-                PopupMenuButton<_CoverTransformAction>(
-                  padding: EdgeInsets.zero,
-                  tooltip: 'Crop or rotate cover',
-                  onSelected: (action) => unawaited(_transform(action)),
-                  enabled: canEditCover,
-                  itemBuilder: (context) => const [
-                    PopupMenuItem(
-                      value: _CoverTransformAction.crop,
-                      child: ListTile(
-                        leading: Icon(Icons.crop),
-                        title: Text('Crop to square'),
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: _CoverTransformAction.rotate,
-                      child: ListTile(
-                        leading: Icon(Icons.rotate_right),
-                        title: Text('Rotate 90 degrees'),
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ],
-                  child: _toolbarActionLabel(
-                    context,
-                    icon: Icons.edit_outlined,
-                    label: 'Crop / Rotate',
-                    enabled: canEditCover,
-                  ),
+                _toolbarAction(
+                  context,
+                  icon: Icons.crop_rotate,
+                  label: 'Crop / Rotate',
+                  onPressed: canEditCover ? _openCropEditor : null,
                 ),
               ],
             ),
@@ -320,18 +281,16 @@ final class _CoverEditorState extends State<_CoverEditor> {
                 aspectRatio: 1.08,
                 child: ColoredBox(
                   color: const Color(0xFFE3E3E1),
-                  child: previewBytes != null
-                      ? Image.memory(previewBytes, fit: BoxFit.contain)
-                      : image != null
-                          ? Image.memory(image.imageData, fit: BoxFit.contain)
-                          : widget.coreCoverUrl?.trim().isNotEmpty == true
-                              ? Image.network(
-                                  widget.coreCoverUrl!,
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (_, __, ___) =>
-                                      const _NoCoverPreview(),
-                                )
-                              : const _NoCoverPreview(),
+                  child: image != null
+                      ? Image.memory(image.imageData, fit: BoxFit.contain)
+                      : widget.coreCoverUrl?.trim().isNotEmpty == true
+                          ? Image.network(
+                              widget.coreCoverUrl!,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) =>
+                                  const _NoCoverPreview(),
+                            )
+                          : const _NoCoverPreview(),
                 ),
               ),
             ),
@@ -357,30 +316,6 @@ final class _CoverEditorState extends State<_CoverEditor> {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           visualDensity: VisualDensity.compact,
-        ),
-      );
-
-  Widget _toolbarActionLabel(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required bool enabled,
-  }) =>
-      SizedBox(
-        height: 38,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Opacity(
-            opacity: enabled ? 1 : 0.38,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, size: 18),
-                const SizedBox(width: 8),
-                Text(label),
-              ],
-            ),
-          ),
         ),
       );
 
@@ -410,26 +345,19 @@ final class _CoverEditorState extends State<_CoverEditor> {
     );
   }
 
-  Future<void> _transform(_CoverTransformAction action) async {
+  Future<void> _openCropEditor() async {
     final sourceKey = _sourceKey;
     if (sourceKey == null || _transforming) return;
 
     setState(() => _transforming = true);
     try {
-      final decoded = img.decodeImage(await _loadSourceBytes(sourceKey));
+      final bytes = await _loadSourceBytes();
+      final decoded = img.decodeImage(bytes);
       if (decoded == null) {
         throw const FormatException('The cover image could not be decoded.');
       }
-
-      final transformed = switch (action) {
-        _CoverTransformAction.rotate => img.copyRotate(decoded, angle: 90),
-        _CoverTransformAction.crop => _cropSquare(decoded),
-      };
       if (!mounted || sourceKey != _sourceKey) return;
-      setState(() {
-        _stagedForId = sourceKey;
-        _stagedBytes = Uint8List.fromList(img.encodePng(transformed));
-      });
+      setState(() => _cropEditorBytes = Uint8List.fromList(bytes));
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.maybeOf(context)?.showSnackBar(
@@ -442,18 +370,7 @@ final class _CoverEditorState extends State<_CoverEditor> {
     }
   }
 
-  img.Image _cropSquare(img.Image decoded) {
-    final side =
-        decoded.width < decoded.height ? decoded.width : decoded.height;
-    final x = (decoded.width - side) ~/ 2;
-    final y = (decoded.height - side) ~/ 2;
-    return img.copyCrop(decoded, x: x, y: y, width: side, height: side);
-  }
-
-  Future<Uint8List> _loadSourceBytes(String sourceKey) async {
-    if (_stagedForId == sourceKey && _stagedBytes != null) {
-      return _stagedBytes!;
-    }
+  Future<Uint8List> _loadSourceBytes() async {
     final image = widget.image;
     if (image != null) return image.imageData;
 
@@ -470,32 +387,26 @@ final class _CoverEditorState extends State<_CoverEditor> {
     return Uint8List.fromList(bytes);
   }
 
-  void _apply() {
+  Future<void> _applyEditedBytes(Uint8List bytes) async {
     final image = widget.image;
     final sourceKey = _sourceKey;
-    final stagedBytes = _stagedBytes;
-    if (sourceKey == null || _stagedForId != sourceKey || stagedBytes == null) {
-      return;
-    }
+    if (sourceKey == null) return;
     final now = DateTime.now().toUtc();
     widget.onChanged(
-      image?.copyWith(imageData: stagedBytes) ??
+      image?.copyWith(imageData: bytes) ??
           MusicReleaseImage(
             id: const Uuid().v4(),
             releaseId: widget.releaseId,
             purpose: MusicReleaseImagePurpose.cover,
             imageType:
                 widget.title == 'Front Cover' ? 'front_cover' : 'back_cover',
-            imageData: stagedBytes,
+            imageData: bytes,
             description: null,
             sortOrder: 0,
             createdAt: now,
           ),
     );
-    setState(() {
-      _stagedBytes = null;
-      _stagedForId = null;
-    });
+    if (mounted) setState(() => _cropEditorBytes = null);
   }
 }
 

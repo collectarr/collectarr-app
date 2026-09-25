@@ -43,7 +43,6 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
               'recording_date',
               'studio',
               'genres',
-              'cover_image_url',
             },
           ),
         ),
