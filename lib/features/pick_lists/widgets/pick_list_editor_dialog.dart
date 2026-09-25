@@ -18,6 +18,7 @@ Future<void> showPickListEditorDialog({
 }) {
   return showDialog<void>(
     context: context,
+    barrierDismissible: false,
     builder: (_) => _PickListEditorDialog(
       db: db,
       listName: listName,
@@ -107,6 +108,7 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
       title: AccentDialogHeader(
         title: 'Edit ${widget.label} Values',
         icon: Icons.list,
+        onClose: () => Navigator.of(context).pop(),
       ),
       content: SizedBox(
         width: 320,

@@ -14,6 +14,7 @@ Future<PickListValue?> showPickListValueEditorDialog({
 }) {
   return showDialog<PickListValue>(
     context: context,
+    barrierDismissible: false,
     builder: (context) => _PickListValueEditorDialog(
       listName: listName,
       label: label,
@@ -84,6 +85,7 @@ class _PickListValueEditorDialogState
   Widget build(BuildContext context) {
     return AccentAlertDialog(
       backgroundColor: appPalette(context).panel,
+      headerOnClose: () => Navigator.of(context).pop(),
       title: Text(widget.title ??
           (widget.existing == null
               ? 'Add ${widget.label} value'

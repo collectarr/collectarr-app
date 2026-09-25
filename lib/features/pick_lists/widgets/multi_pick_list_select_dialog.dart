@@ -25,6 +25,7 @@ Future<Set<String>?> showMultiPickListSelectDialog({
 }) {
   return showDialog<Set<String>>(
     context: context,
+    barrierDismissible: false,
     builder: (context) => _MultiPickListSelectDialog(
       label: label,
       options: options,
@@ -163,8 +164,12 @@ class _MultiPickListSelectDialogState
       final controller = TextEditingController();
       value = await showDialog<String>(
         context: context,
+        barrierDismissible: false,
         builder: (context) => AccentAlertDialog(
-          title: AccentDialogHeader(title: 'New ${widget.label}'),
+          title: AccentDialogHeader(
+            title: 'New ${widget.label}',
+            onClose: () => Navigator.of(context).pop(),
+          ),
           content: TextField(
             controller: controller,
             autofocus: true,
@@ -245,6 +250,7 @@ class _MultiPickListSelectDialogState
       title: AccentDialogHeader(
         title: 'Select ${widget.pluralLabel ?? widget.label}',
         icon: Icons.list_alt_outlined,
+        onClose: () => Navigator.of(context).pop(),
       ),
       content: SizedBox(
         width: 720,

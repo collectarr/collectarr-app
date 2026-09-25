@@ -24,6 +24,7 @@ Future<void> showPickListManagerDialog({
 }) {
   return showDialog<void>(
     context: context,
+    barrierDismissible: false,
     builder: (context) => AccentAlertDialog(
       backgroundColor: appPalette(context).panel,
       title: Text(title ?? 'Manage pick lists'),
