@@ -245,7 +245,7 @@ TvAddResultScope tvAddProviderResultScope(
   if (candidate.searchRole == ProviderSearchRole.season) {
     return TvAddResultScope.season;
   }
-  if (candidate.searchRole.isCollectibleRelease) {
+  if (candidate.searchRole.isCatalogItem) {
     return TvAddResultScope.release;
   }
   return TvAddResultScope.media;

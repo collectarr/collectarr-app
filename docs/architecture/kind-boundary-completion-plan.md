@@ -1,5 +1,9 @@
 # Active Kind Boundary Plan
 
+> **Superseded:** its Work/Release/Copy ownership boundaries are historical.
+> The current target is the coordinated all-kind Catalog Item v1 cutover in
+> [catalog-item-v1-cutover.md](catalog-item-v1-cutover.md).
+
 ## Ownership rule
 
 Code under `lib/features/library/kinds/<kind>/` owns that kind's fields, values, validation, and semantic interpretation. Shared code may know `CatalogMediaKind`, structural Work/Release/Copy references, and display projections. Core DTOs and provider payloads are transport contracts; kind-owned mappers interpret them. Registries compose contributions without deciding field semantics.

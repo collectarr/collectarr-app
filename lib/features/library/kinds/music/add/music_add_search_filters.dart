@@ -89,14 +89,6 @@ bool musicAddProviderCandidateMatchesMedium(
 ) {
   final filter = musicAddMediumFilterFor(context);
   if (filter == MusicAddMediumFilter.all) return true;
-  if (candidate case final MusicReleaseGroupCandidate group) {
-    final types = [
-      for (final release in group.releases)
-        if (release.format?.trim() case final format? when format.isNotEmpty)
-          format,
-    ];
-    return types.isEmpty || musicAddMediumFilterMatchesTypes(types, filter);
-  }
   if (candidate case final MusicReleaseCandidate release) {
     final types = [
       for (final medium in release.mediums)

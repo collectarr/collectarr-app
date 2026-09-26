@@ -1,4 +1,12 @@
-﻿# Kind Workspace and Form Inventory
+# Kind Workspace and Form Inventory
+
+> **Historical implementation inventory, not a CLZ field ledger.** This file
+> describes the former Work/Release/Copy workspace schemas. Its Add/Edit IDs
+> are evidence of fields in Collectarr only; they do not prove CLZ parity or
+> define the Catalog Item v1 target. Use the per-kind
+> [Catalog Item field ledgers](catalog-item-v1-field-ledgers/README.md) for the
+> v1 field review and [cutover plan](catalog-item-v1-cutover.md) for the new
+> ownership structure.
 
 Captured from the workspace field declarations, identifier modules, scope contributions, and Add/Edit schema IDs present on 2026-09-24. This ledger records the fields, identifiers, defaults, and persistence consumers inventoried before schema extraction. The semantic rows remain valid; each kind section links to the explicit live Work, Release, and Copy schema files after migration.
 

@@ -4,13 +4,96 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 
-/// Converts MusicBrainz-native DTOs and typed candidates into Music's
-/// release-group -> release -> medium -> track graph.
+/// Maps typed MusicBrainz provider candidates into MusicAlbum catalog values.
+/// The remaining hierarchy conversion methods support the old local catalog
+/// path while that persistence is moved to Catalog Item v1.
 final class MusicMusicBrainzMapper {
   const MusicMusicBrainzMapper._();
+
+  /// Maps one concrete provider release to the v1 catalog item shape.
+  ///
+  /// The release-group ID is provider provenance only; a collectible album
+  /// remains addressable without a parent entity.
+  static MusicAlbum albumFromCandidate(MusicReleaseCandidate candidate) {
+    final albumId = MusicAlbumId(
+      _providerScopedIdForProvider(
+        candidate.identity.provider,
+        candidate.identity.externalId,
+      ),
+    );
+    final formats = candidate.mediums
+        .map((medium) => _text(medium.format))
+        .whereType<String>()
+        .toSet()
+        .toList(growable: false);
+
+    return MusicAlbum(
+      id: albumId,
+      title: candidate.title,
+      artists: [
+        if (_text(candidate.artist) case final artist?)
+          MusicAlbumArtist(name: artist),
+      ],
+      releaseDate: candidate.releaseDate == null
+          ? null
+          : PartialDate.fromDateTime(candidate.releaseDate!),
+      labels: [
+        if (_text(candidate.publisher) case final label?)
+          MusicAlbumLabel(
+            name: label,
+            catalogNumber: _text(candidate.catalogNumber),
+          ),
+      ],
+      format: formats.isEmpty ? candidate.releaseType : formats.join(', '),
+      barcode: _text(candidate.barcode),
+      catalogNumber: _text(candidate.catalogNumber),
+      genres: candidate.genres,
+      packaging: _text(candidate.packaging),
+      country: _text(candidate.country),
+      coverImageUrl: candidate.primaryImageUrl?.toString(),
+      discTitles: [
+        for (final medium in candidate.mediums)
+          if (_text(medium.title) case final title?)
+            MusicAlbumDiscTitle(
+              discNumber: medium.mediumNumber,
+              title: title,
+            ),
+      ],
+      tracks: _albumTracks(candidate, albumId),
+    );
+  }
+
+  static List<MusicAlbumTrack> _albumTracks(
+    MusicReleaseCandidate candidate,
+    MusicAlbumId albumId,
+  ) {
+    final tracks = <MusicAlbumTrack>[];
+    for (final medium in candidate.mediums) {
+      var fallbackPosition = 0;
+      for (final track in medium.tracks) {
+        if (track.isHeader) continue;
+        final title = _text(track.title);
+        if (title == null) continue;
+        fallbackPosition++;
+        tracks.add(
+          MusicAlbumTrack(
+            albumId: albumId,
+            discNumber: medium.mediumNumber,
+            position: track.position > 0 ? track.position : fallbackPosition,
+            title: title,
+            artist: _text(track.artist),
+            durationMs: track.durationMs,
+          ),
+        );
+      }
+    }
+    return List<MusicAlbumTrack>.unmodifiable(tracks);
+  }
 
   static MusicRelease fromNative(MusicBrainzRelease release) {
     final releaseId = _releaseId(release.id, 'MusicBrainz release');

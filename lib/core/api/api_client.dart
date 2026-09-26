@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/auth_session.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_search_hit.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
@@ -159,6 +160,35 @@ class ApiClient {
     return _catalogApi.getTypedMetadataItem(kind: kind, id: id);
   }
 
+  Future<List<CatalogItemSummaryV1Dto>> searchCatalogItems({
+    CatalogMediaKind? kind,
+    String? query,
+    String? identifier,
+    int limit = 50,
+  }) {
+    return _catalogApi.searchCatalogItems(
+      kind: kind,
+      query: query,
+      identifier: identifier,
+      limit: limit,
+    );
+  }
+
+  Future<CatalogItemV1Dto> getCatalogItem(CatalogItemRef reference) {
+    return _catalogApi.getCatalogItem(reference);
+  }
+
+  Future<CatalogItemV1Dto> createCatalogItem(CatalogItemWriteV1Dto payload) {
+    return _catalogApi.createCatalogItem(payload);
+  }
+
+  Future<CatalogItemV1Dto> updateCatalogItem(
+    CatalogItemRef reference,
+    CatalogItemWriteV1Dto payload,
+  ) {
+    return _catalogApi.updateCatalogItem(reference, payload);
+  }
+
   Future<ComicWorkDto> getComicWorkDto(String id) {
     return _catalogApi.getComicWorkDto(id);
   }
@@ -231,20 +261,33 @@ class ApiClient {
     return _catalogApi.getBoardGameEditionDto(id);
   }
 
-  Future<MusicReleaseGroupDto> getMusicReleaseGroupDto(String id) {
-    return _catalogApi.getMusicReleaseGroupDto(id);
+  Future<MusicAlbumDto> getMusicAlbumDto(String id) {
+    return _catalogApi.getMusicAlbumDto(id);
   }
 
-  Future<MusicReleaseDto> getMusicReleaseDto(String id) {
-    return _catalogApi.getMusicReleaseDto(id);
+  Future<List<Map<String, dynamic>>> searchMusicAlbums({
+    String? query,
+    String? barcode,
+    String? catalogNumber,
+    int limit = 50,
+  }) {
+    return _catalogApi.searchMusicAlbums(
+      query: query,
+      barcode: barcode,
+      catalogNumber: catalogNumber,
+      limit: limit,
+    );
   }
 
-  Future<MusicMediumDto> getMusicMediumDto(String id) {
-    return _catalogApi.getMusicMediumDto(id);
+  Future<MusicAlbumDto> createMusicAlbum(MusicAlbumWriteDto payload) {
+    return _catalogApi.createMusicAlbum(payload);
   }
 
-  Future<MusicTrackDto> getMusicTrackDto(String id) {
-    return _catalogApi.getMusicTrackDto(id);
+  Future<MusicAlbumDto> updateMusicAlbum(
+    String id,
+    MusicAlbumWriteDto payload,
+  ) {
+    return _catalogApi.updateMusicAlbum(id, payload);
   }
 
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {

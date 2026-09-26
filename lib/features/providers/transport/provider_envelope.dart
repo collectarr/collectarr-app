@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import '../domain/models/provider_attribution.dart';
 import '../domain/models/provider_image_candidate.dart';
 import '../domain/models/provider_provenance.dart';
@@ -13,7 +12,6 @@ final class ProviderEnvelope<TPayload> {
     this.schemaVersion = 'v1',
     required this.provider,
     required this.providerItemId,
-    required this.entityScope,
     required this.payload,
     required this.provenance,
     this.images = const <ProviderImageCandidate>[],
@@ -23,7 +21,6 @@ final class ProviderEnvelope<TPayload> {
   final String schemaVersion;
   final String provider;
   final String providerItemId;
-  final LibraryEntityScope entityScope;
   final TPayload payload;
   final ProviderProvenance provenance;
   final List<ProviderImageCandidate> images;

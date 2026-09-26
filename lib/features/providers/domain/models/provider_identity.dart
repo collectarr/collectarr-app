@@ -1,18 +1,14 @@
 import 'package:flutter/foundation.dart';
 
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
-
 @immutable
 final class ProviderEntityIdentity {
   const ProviderEntityIdentity({
     required this.provider,
     required this.externalId,
-    required this.scope,
   });
 
   final String provider;
   final String externalId;
-  final LibraryEntityScope scope;
 
   bool get isValid =>
       provider.trim().isNotEmpty && externalId.trim().isNotEmpty;
@@ -22,9 +18,8 @@ final class ProviderEntityIdentity {
       identical(this, other) ||
       other is ProviderEntityIdentity &&
           provider == other.provider &&
-          externalId == other.externalId &&
-          scope == other.scope;
+          externalId == other.externalId;
 
   @override
-  int get hashCode => Object.hash(provider, externalId, scope);
+  int get hashCode => Object.hash(provider, externalId);
 }

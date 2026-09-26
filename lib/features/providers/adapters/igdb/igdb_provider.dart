@@ -3,7 +3,6 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 
 import '../../../../core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 import '../../credentials/models/igdb_credentials.dart';
 import '../../transport/provider_raw_envelope.dart';
@@ -254,8 +253,7 @@ class IGDBProvider extends ProviderAdapter {
       providerItemId: igdbId,
       title: title,
       kind: CatalogMediaKind.game,
-      entityScope: LibraryEntityScope.work,
-      searchRole: ProviderSearchRole.work,
+      searchRole: ProviderSearchRole.catalogItem,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' / ') : null,
       imageUrl: _extractCoverUrl(item.cover),
     );

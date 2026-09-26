@@ -1,6 +1,7 @@
 import '../music_module_dependencies.dart';
 import '../config/music_kind_configuration.dart';
 import '../edit/music_edit_contribution.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 
 final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   kind: CatalogMediaKind.music,
@@ -70,11 +71,8 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
               return [group.artist];
             },
             typedProviderValues: (candidate) => [
-              switch (candidate) {
-                MusicReleaseCandidate release => release.artist,
-                MusicReleaseGroupCandidate group => group.artist,
-                _ => null,
-              },
+              if (candidate case final MusicReleaseCandidate release)
+                release.artist,
             ],
           ),
           LibraryAddSearchRankField(
@@ -87,14 +85,8 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
               return [group.primaryRelease?.publisher];
             },
             typedProviderValues: (candidate) => [
-              switch (candidate) {
-                MusicReleaseCandidate release => release.publisher,
-                MusicReleaseGroupCandidate group => group.releases
-                    .map((release) => release.publisher)
-                    .whereType<String>()
-                    .firstOrNull,
-                _ => null,
-              },
+              if (candidate case final MusicReleaseCandidate release)
+                release.publisher,
             ],
           ),
           LibraryAddSearchRankField(
@@ -110,12 +102,8 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
               ];
             },
             typedProviderValues: (candidate) => [
-              switch (candidate) {
-                MusicReleaseCandidate release => release.releaseDate?.year,
-                MusicReleaseGroupCandidate group =>
-                  group.originalReleaseDate?.year,
-                _ => null,
-              },
+              if (candidate case final MusicReleaseCandidate release)
+                release.releaseDate?.year,
             ],
           ),
         ],
@@ -123,17 +111,6 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
       strategy: LibraryAddContextualProviderSearchStrategy(
           searchMusicProviderCandidatesWithContext),
       candidatePreviewLoader: loadMusicProviderCandidatePreview,
-      resultPolicy: LibraryAddProviderResultPolicy(
-        filter: (candidates, context) => [
-          for (final candidate in candidates)
-            if (musicAddProviderCandidateMatchesMedium(candidate, context))
-              candidate,
-        ],
-        hydrationPredicate: (context) =>
-            musicAddProviderMediumQuery(context) == null &&
-            context.identifierCode.trim().isEmpty,
-        removeGroupsWithoutVisibleChildren: true,
-      ),
     ),
     presentation: LibraryAddSearchPresentationCapability(
       controlsBuilder: buildMusicAddSearchControls,
@@ -144,7 +121,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   chrome: musicAddChrome,
 );
 
-String musicChildrenTitle(int count) => 'Discs ($count)';
+String musicChildrenTitle(int count) => 'Discs and tracks ($count)';
 
 Future<List<LibraryHierarchyNode>> fetchMusicTracks({
   required ApiClient api,
@@ -152,17 +129,11 @@ Future<List<LibraryHierarchyNode>> fetchMusicTracks({
   String? provider,
   String? providerItemId,
 }) async {
-  final groupDto = await api
-      .getMusicReleaseGroupDto(itemId)
-      .timeout(const Duration(seconds: 60));
-  final group = MusicCoreMapper.fromReleaseGroupDto(groupDto);
-  final summary = group.primaryRelease;
-  if (summary == null) return const <LibraryHierarchyNode>[];
   final dto = await api
-      .getMusicReleaseDto(summary.id.value)
+      .getCatalogItem(CatalogItemRef(kind: CatalogMediaKind.music, id: itemId))
       .timeout(const Duration(seconds: 60));
-  final release = MusicCoreMapper.fromReleaseDto(dto);
-  return MusicHierarchyMapper.toLibraryNodes(release);
+  final album = MusicCoreMapper.fromCatalogItemV1(dto);
+  return MusicHierarchyMapper.toAlbumLibraryNodes(album);
 }
 
 List<LibraryAddAdvancedFilterField<String>> buildMusicAddAdvancedFilterFields(

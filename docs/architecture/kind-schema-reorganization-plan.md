@@ -1,5 +1,11 @@
 # Kind Form and Workspace Schema Reorganization Plan
 
+> **Superseded:** this plan records the former Work/Release/Copy implementation
+> and is not the current target. The all-kind Catalog Item v1 cutover in
+> [catalog-item-v1-cutover.md](catalog-item-v1-cutover.md) replaces its scopes,
+> preference migration, and completion claims. Do not use this document as
+> evidence that the Catalog Item v1 cutover is complete.
+
 ## Goal and boundaries
 
 Organize all nine kinds by the entity that owns a value, then by the operation that uses it. Add and Edit should share a typed form field definition when they edit the same value. Workspace fields, columns, sorts, and groups should be explicit for each entity scope. The generic host continues to consume structural schemas; kind modules own field meaning, projection, validation, and mapping.

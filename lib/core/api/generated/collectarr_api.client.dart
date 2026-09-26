@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'collectarr_api.models.dart';
@@ -11,6 +12,93 @@ class CollectarrApiClient {
 
   final Dio _dio;
   final Map<String, dynamic> Function(Map<String, dynamic>) _resolveImageUrls;
+
+  Future<List<CatalogItemSummaryV1Dto>> searchCatalogItems({
+    CatalogMediaKind? kind,
+    String? query,
+    String? identifier,
+    int limit = 50,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/api/v1/metadata/catalog/items',
+      queryParameters: {
+        if (kind != null) 'kind': kind.apiValue,
+        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+        if (identifier != null && identifier.trim().isNotEmpty)
+          'identifier': identifier.trim(),
+        'limit': limit,
+      },
+    );
+    return response.data!
+        .cast<Map<String, dynamic>>()
+        .map((row) => CatalogItemSummaryV1Dto.fromJson(_resolveImageUrls(row)))
+        .toList(growable: false);
+  }
+
+  Future<CatalogItemV1Dto> getCatalogItem(CatalogItemRef reference) async {
+    final path =
+        '/api/v1/metadata/catalog/items/${Uri.encodeComponent(reference.id)}';
+    final response = await _dio.get<Map<String, dynamic>>(path);
+    final data = response.data;
+    if (data == null) throw StateError('$path returned an empty response body');
+    final item = CatalogItemV1Dto.fromJson(_resolveImageUrls(data));
+    if (item.reference != reference) {
+      throw StateError(
+        'Catalog Item $reference resolved to a different identity: ${item.reference}.',
+      );
+    }
+    return item;
+  }
+
+  Future<CatalogItemV1Dto> createCatalogItem(
+    CatalogItemWriteV1Dto payload,
+  ) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/metadata/catalog/items',
+      data: payload.toJson(),
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/api/v1/metadata/catalog/items returned an empty response body');
+    }
+    final item = CatalogItemV1Dto.fromJson(_resolveImageUrls(data));
+    if (item.kind != payload.details.kind) {
+      throw StateError(
+        'Catalog Item create requested kind ${payload.details.kind}, '
+        'but the server returned ${item.kind}.',
+      );
+    }
+    return item;
+  }
+
+  Future<CatalogItemV1Dto> updateCatalogItem(
+    CatalogItemRef reference,
+    CatalogItemWriteV1Dto payload,
+  ) async {
+    if (payload.details.kind != reference.kind.apiValue) {
+      throw ArgumentError.value(
+        payload.details.kind,
+        'payload.details.kind',
+        'Must match Catalog Item reference kind ${reference.kind.apiValue}.',
+      );
+    }
+    final path =
+        '/api/v1/metadata/catalog/items/${Uri.encodeComponent(reference.id)}';
+    final response = await _dio.put<Map<String, dynamic>>(
+      path,
+      data: payload.toJson(),
+    );
+    final data = response.data;
+    if (data == null) throw StateError('$path returned an empty response body');
+    final item = CatalogItemV1Dto.fromJson(_resolveImageUrls(data));
+    if (item.reference != reference) {
+      throw StateError(
+        'Catalog Item update for $reference returned ${item.reference}.',
+      );
+    }
+    return item;
+  }
 
   Future<List<Map<String, dynamic>>> search(
     String query, {
@@ -73,7 +161,7 @@ class CollectarrApiClient {
       case CatalogMediaKind.boardgame:
         return getBoardGameWorkDto(id);
       case CatalogMediaKind.music:
-        return getMusicReleaseGroupDto(id);
+        return getMusicAlbumDto(id);
       default:
         throw UnsupportedError(
           'Unsupported metadata kind: ${kind.apiValue}',
@@ -236,32 +324,58 @@ class CollectarrApiClient {
     );
   }
 
-  Future<MusicReleaseGroupDto> getMusicReleaseGroupDto(String id) {
+  Future<List<Map<String, dynamic>>> searchMusicAlbums({
+    String? query,
+    String? barcode,
+    String? catalogNumber,
+    int limit = 50,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/api/v1/metadata/music/albums',
+      queryParameters: {
+        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+        if (barcode != null && barcode.trim().isNotEmpty)
+          'barcode': barcode.trim(),
+        if (catalogNumber != null && catalogNumber.trim().isNotEmpty)
+          'catalog_number': catalogNumber.trim(),
+        'limit': limit,
+      },
+    );
+    return (response.data ?? const <dynamic>[])
+        .whereType<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
+        .toList(growable: false);
+  }
+
+  Future<MusicAlbumDto> getMusicAlbumDto(String id) {
     return _fetchTypedMetadataItem(
-      '/api/v1/metadata/music/release-groups/${Uri.encodeComponent(id)}',
-      MusicReleaseGroupDto.fromJson,
+      '/api/v1/metadata/music/albums/${Uri.encodeComponent(id)}',
+      MusicAlbumDto.fromJson,
     );
   }
 
-  Future<MusicReleaseDto> getMusicReleaseDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/music/releases/${Uri.encodeComponent(id)}',
-      MusicReleaseDto.fromJson,
+  Future<MusicAlbumDto> createMusicAlbum(MusicAlbumWriteDto payload) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/metadata/music/albums',
+      data: payload.toJson(),
     );
+    final data = response.data;
+    if (data == null) throw StateError('Music album create returned no body');
+    return MusicAlbumDto.fromJson(_resolveImageUrls(data));
   }
 
-  Future<MusicMediumDto> getMusicMediumDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/music/mediums/${Uri.encodeComponent(id)}',
-      MusicMediumDto.fromJson,
+  Future<MusicAlbumDto> updateMusicAlbum(
+    String id,
+    MusicAlbumWriteDto payload,
+  ) async {
+    final path = '/api/v1/metadata/music/albums/${Uri.encodeComponent(id)}';
+    final response = await _dio.put<Map<String, dynamic>>(
+      path,
+      data: payload.toJson(),
     );
-  }
-
-  Future<MusicTrackDto> getMusicTrackDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/music/tracks/${Uri.encodeComponent(id)}',
-      MusicTrackDto.fromJson,
-    );
+    final data = response.data;
+    if (data == null) throw StateError('$path returned no body');
+    return MusicAlbumDto.fromJson(_resolveImageUrls(data));
   }
 
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {

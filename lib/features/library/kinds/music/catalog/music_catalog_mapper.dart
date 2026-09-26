@@ -39,6 +39,7 @@ final class MusicCatalogMapper {
             ...Map<String, dynamic>.from(nestedMusic),
           }
         : payload;
+    _normalizeAlbumDetails(sourcePayload);
     final groupId = _text(sourcePayload['release_group_id']) ??
         _text(sourcePayload['id']) ??
         item.id;
@@ -185,7 +186,10 @@ final class MusicCatalogMapper {
 
     final rawDiscs = _maps(source['discs']);
     final rawTracks = _maps(source['tracks']);
-    final groupedTracks = _groupTracksByMedium(rawTracks);
+    final groupedTracks = _groupTracksByMedium(
+      rawTracks,
+      discTitles: _maps(source['disc_titles']),
+    );
     final trackCount =
         _int(source['track_count'] ?? fallbackGroup['track_count']);
     final mediumType = _releaseMediumType(source, fallbackGroup);
@@ -438,20 +442,53 @@ final class MusicCatalogMapper {
   }
 
   static List<Map<String, dynamic>> _groupTracksByMedium(
-    List<Map<String, dynamic>> tracks,
-  ) {
+    List<Map<String, dynamic>> tracks, {
+    List<Map<String, dynamic>> discTitles = const [],
+  }) {
     final grouped = <int, List<Map<String, dynamic>>>{};
+    final titlesByDisc = <int, String>{
+      for (final value in discTitles)
+        if (_int(value['disc_number']) case final number?)
+          if (_text(value['title']) case final title?) number: title,
+    };
+    for (final number in titlesByDisc.keys) {
+      grouped.putIfAbsent(number, () => <Map<String, dynamic>>[]);
+    }
     for (final track in tracks) {
       final medium = _int(track['medium_number'] ?? track['disc_number']) ?? 1;
       grouped.putIfAbsent(medium, () => []).add(track);
     }
+    final orderedDiscNumbers = grouped.keys.toList()..sort();
     return [
-      for (final entry in grouped.entries)
+      for (final discNumber in orderedDiscNumbers)
         {
-          'medium_number': entry.key,
-          'tracks': entry.value,
+          'medium_number': discNumber,
+          if (titlesByDisc[discNumber] case final title?) 'title': title,
+          'tracks': grouped[discNumber]!,
         },
     ];
+  }
+
+  /// Accepts the flattened MusicAlbum v1 details at the old local catalog
+  /// boundary while the remaining Music persistence/workspace path is being
+  /// moved off release-group aggregates.
+  static void _normalizeAlbumDetails(Map<String, dynamic> source) {
+    final artists = _maps(source['artists']);
+    final labels = _maps(source['labels']);
+    if (_text(source['artist']) == null && artists.isNotEmpty) {
+      source['artist'] = artists
+          .map((artist) => _text(artist['name']))
+          .whereType<String>()
+          .where((name) => name.isNotEmpty)
+          .join(', ');
+    }
+    final primaryLabel = labels.firstOrNull;
+    if (_text(source['publisher']) == null && primaryLabel != null) {
+      source['publisher'] = primaryLabel['name'];
+    }
+    if (_text(source['catalog_number']) == null && primaryLabel != null) {
+      source['catalog_number'] = primaryLabel['catalog_number'];
+    }
   }
 
   static MusicReleaseGroup _groupFromRelease(

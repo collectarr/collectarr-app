@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/providers/musicbrainz/music_musicbrainz_mapper.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
@@ -20,60 +19,30 @@ CatalogSearchCandidate musicCatalogTransportFromTypedProviderCandidate(
   ProviderSearchCandidate candidate,
 ) {
   if (candidate case final MusicReleaseCandidate releaseCandidate) {
-    final release = MusicMusicBrainzMapper.fromCandidate(releaseCandidate);
-    final group = MusicReleaseGroup(
-      id: release.releaseGroupId,
-      title: releaseCandidate.releaseGroupTitle ?? release.title,
-      artist: releaseCandidate.artist,
-      originalReleaseDate: release.releaseDate,
-      genres: releaseCandidate.genres,
-      coverImageUrl:
-          releaseCandidate.releaseGroupImages.firstOrNull?.url.toString(),
-      releases: [release],
-    );
+    final album = MusicMusicBrainzMapper.albumFromCandidate(releaseCandidate);
     return CatalogSearchCandidate.fromSummary(
       summary: CatalogDisplaySummary.root(
-        id: group.id.value,
+        id: album.id.value,
         kind: CatalogMediaKind.music,
-        primaryLabel: group.title,
-        imageUrl: group.coverImageUrl,
+        primaryLabel: album.title,
+        subtitle: album.format,
+        imageUrl: album.coverImageUrl,
       ),
       transport: CatalogItemDto.raw(
-        id: group.id.value,
+        id: album.id.value,
         mediaKind: CatalogMediaKind.music,
         common: CatalogCommonDto(
-          title: group.title,
-          coverImageUrl: group.coverImageUrl,
-          releaseDate: group.releaseDate,
+          title: album.title,
+          coverImageUrl: album.coverImageUrl,
+          releaseDate: album.releaseDateTime,
+          releaseYear: album.releaseDate?.year,
         ),
-        kindMetadata: group,
-      ),
-    );
-  }
-  if (candidate case final MusicReleaseGroupCandidate groupCandidate) {
-    final group = MusicMusicBrainzMapper.releaseGroupFromCandidate(
-      groupCandidate,
-    );
-    return CatalogSearchCandidate.fromSummary(
-      summary: CatalogDisplaySummary.root(
-        id: group.id.value,
-        kind: CatalogMediaKind.music,
-        primaryLabel: group.title,
-        imageUrl: group.coverImageUrl,
-      ),
-      transport: CatalogItemDto.raw(
-        id: group.id.value,
-        mediaKind: CatalogMediaKind.music,
-        common: CatalogCommonDto(
-          title: group.title,
-          coverImageUrl: group.coverImageUrl,
-          releaseDate: group.releaseDate,
-        ),
-        kindMetadata: group,
+        payload: album.toJson(),
+        kindMetadata: album,
       ),
     );
   }
   throw StateError(
-    'Music provider candidates must be mapped by a kind-owned typed mapper.',
+    'Music Add requires one concrete album release candidate.',
   );
 }

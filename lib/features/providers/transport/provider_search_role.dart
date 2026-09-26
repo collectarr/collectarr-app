@@ -1,12 +1,11 @@
-/// Explicit semantic role of a provider search hit.
+/// Describes the provider record returned by search.
 ///
-/// Entity ownership and provider search role are deliberately separate. A
-/// comic issue can be a Work candidate while a variant is a Release
-/// candidate, and a TV season is neither a Library Work nor a Library Copy.
+/// Catalog items are selected directly. A series can be supplied as grouping
+/// context, while seasons, episodes, issues, variants, volumes, and editions
+/// describe kind-specific catalog shapes without creating a generic
+/// Work/Release hierarchy.
 enum ProviderSearchRole {
-  work,
-  release,
-  releaseGroup,
+  catalogItem,
   series,
   season,
   episode,
@@ -18,9 +17,7 @@ enum ProviderSearchRole {
 
 extension ProviderSearchRoleApi on ProviderSearchRole {
   String get apiValue => switch (this) {
-        ProviderSearchRole.work => 'work',
-        ProviderSearchRole.release => 'release',
-        ProviderSearchRole.releaseGroup => 'release_group',
+        ProviderSearchRole.catalogItem => 'catalog_item',
         ProviderSearchRole.series => 'series',
         ProviderSearchRole.season => 'season',
         ProviderSearchRole.episode => 'episode',
@@ -30,23 +27,13 @@ extension ProviderSearchRoleApi on ProviderSearchRole {
         ProviderSearchRole.edition => 'edition',
       };
 
-  bool get isWorkLike => switch (this) {
-        ProviderSearchRole.work ||
-        ProviderSearchRole.releaseGroup ||
-        ProviderSearchRole.series ||
+  /// Whether the hit can directly become a top-level Catalog Item.
+  bool get isCatalogItem => switch (this) {
+        ProviderSearchRole.catalogItem ||
+        ProviderSearchRole.season ||
         ProviderSearchRole.issue ||
-        ProviderSearchRole.volume =>
-          true,
-        _ => false,
-      };
-
-  /// A collectible release role, excluding content/navigation containers.
-  ///
-  /// Seasons and episodes deliberately do not match this predicate. They are
-  /// provider content roles, not library release identities.
-  bool get isCollectibleRelease => switch (this) {
-        ProviderSearchRole.release ||
         ProviderSearchRole.variant ||
+        ProviderSearchRole.volume ||
         ProviderSearchRole.edition =>
           true,
         _ => false,

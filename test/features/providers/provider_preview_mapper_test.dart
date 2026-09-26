@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
@@ -12,7 +11,6 @@ void main() {
         identity: const ProviderEntityIdentity(
           provider: 'musicbrainz',
           externalId: 'release-1',
-          scope: LibraryEntityScope.release,
         ),
         title: 'Multidisc album',
         releaseGroupId: 'group-1',

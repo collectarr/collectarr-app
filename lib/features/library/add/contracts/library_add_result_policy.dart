@@ -11,6 +11,10 @@ typedef LibraryAddCoreGroupTitleBuilder = String Function(
   CatalogSearchCandidate item,
 );
 
+typedef LibraryAddCoreResultKeyBuilder = String Function(
+  CatalogSearchCandidate item,
+);
+
 typedef LibraryAddCoreGroupArtistBuilder = String? Function(
   CatalogSearchCandidate item,
 );
@@ -102,6 +106,7 @@ class LibraryAddResultPolicy {
     this.useGridResults = false,
     this.coreResultVisibility,
     this.coreGroupTitleBuilder,
+    this.coreResultKeyBuilder,
     this.coreGroupArtistBuilder,
     this.typedProviderResultVisibility,
     this.typedProviderCandidateIsGroup,
@@ -121,6 +126,7 @@ class LibraryAddResultPolicy {
   final bool useGridResults;
   final LibraryAddCoreResultVisibilityPredicate? coreResultVisibility;
   final LibraryAddCoreGroupTitleBuilder? coreGroupTitleBuilder;
+  final LibraryAddCoreResultKeyBuilder? coreResultKeyBuilder;
   final LibraryAddCoreGroupArtistBuilder? coreGroupArtistBuilder;
   final LibraryAddTypedProviderResultVisibilityPredicate?
       typedProviderResultVisibility;
@@ -203,6 +209,11 @@ class LibraryAddResultPolicy {
     final builder = coreGroupTitleBuilder;
     final title = builder == null ? null : builder(item).trim();
     return title == null || title.isEmpty ? item.summary.primaryLabel : title;
+  }
+
+  String coreResultKey(CatalogSearchCandidate item) {
+    final key = coreResultKeyBuilder?.call(item).trim();
+    return key == null || key.isEmpty ? item.reference.id : key;
   }
 
   String providerGroupTitle(ProviderSearchCandidate candidate) {

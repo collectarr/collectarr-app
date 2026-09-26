@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
@@ -99,7 +98,6 @@ sealed class ComicProviderCandidate extends ProviderSearchCandidateBase {
     super.imageUrl,
     super.parent,
     super.previewOnly,
-    required super.entityScope,
     super.identity,
     this.issueNumber,
     this.series,
@@ -131,7 +129,6 @@ sealed class ComicProviderCandidate extends ProviderSearchCandidateBase {
     final common = ProviderEntityIdentity(
       provider: provider ?? result.provider,
       externalId: result.providerItemId,
-      scope: isVariant ? LibraryEntityScope.release : LibraryEntityScope.work,
     );
     if (isVariant) {
       return ComicVariantCandidate(
@@ -209,7 +206,8 @@ final class ComicIssueCandidate extends ComicProviderCandidate {
     super.storyArcPreview,
     this.searchRoleOverride,
   }) : super(
-            kind: CatalogMediaKind.comic, entityScope: LibraryEntityScope.work);
+          kind: CatalogMediaKind.comic,
+        );
 
   final ProviderSearchRole? searchRoleOverride;
 
@@ -236,8 +234,8 @@ final class ComicVariantCandidate extends ComicProviderCandidate {
     super.characterPreview,
     super.storyArcPreview,
   }) : super(
-            kind: CatalogMediaKind.comic,
-            entityScope: LibraryEntityScope.release);
+          kind: CatalogMediaKind.comic,
+        );
 
   @override
   ProviderSearchRole get searchRole => ProviderSearchRole.variant;

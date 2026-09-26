@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
@@ -93,7 +92,6 @@ sealed class BoardGameProviderCandidate extends ProviderSearchCandidateBase {
     super.imageUrl,
     super.parent,
     super.previewOnly,
-    required super.entityScope,
     super.identity,
     this.issueNumber,
     this.series,
@@ -120,10 +118,9 @@ sealed class BoardGameProviderCandidate extends ProviderSearchCandidateBase {
     final common = ProviderEntityIdentity(
       provider: provider ?? result.provider,
       externalId: result.providerItemId,
-      scope: result.entityScope,
     );
-    if (result.entityScope == LibraryEntityScope.work) {
-      return BoardGameWorkCandidate(
+    if (result.searchRole == ProviderSearchRole.catalogItem) {
+      return BoardGameCatalogItemCandidate(
         provider: provider ?? result.provider,
         providerItemId: result.providerItemId,
         title: result.title,
@@ -160,8 +157,8 @@ int? _payloadInt(Object? value) {
   return int.tryParse(value?.toString() ?? '');
 }
 
-final class BoardGameWorkCandidate extends BoardGameProviderCandidate {
-  const BoardGameWorkCandidate({
+final class BoardGameCatalogItemCandidate extends BoardGameProviderCandidate {
+  const BoardGameCatalogItemCandidate({
     required super.provider,
     required super.providerItemId,
     required super.title,
@@ -172,11 +169,10 @@ final class BoardGameWorkCandidate extends BoardGameProviderCandidate {
     super.identity,
   }) : super(
           kind: CatalogMediaKind.boardgame,
-          entityScope: LibraryEntityScope.work,
         );
 
   @override
-  ProviderSearchRole get searchRole => ProviderSearchRole.work;
+  ProviderSearchRole get searchRole => ProviderSearchRole.catalogItem;
 }
 
 final class BoardGameEditionCandidate extends BoardGameProviderCandidate {
@@ -196,7 +192,6 @@ final class BoardGameEditionCandidate extends BoardGameProviderCandidate {
     super.issueCount,
   }) : super(
           kind: CatalogMediaKind.boardgame,
-          entityScope: LibraryEntityScope.release,
         );
 
   @override

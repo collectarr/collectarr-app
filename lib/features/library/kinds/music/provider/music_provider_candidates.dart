@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_candidate.dart';
@@ -138,10 +137,6 @@ final class MusicReleaseCandidate extends MusicProviderCandidate {
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;
-
-  @override
-  LibraryEntityScope get entityScope => LibraryEntityScope.release;
-
   @override
   String get provider => identity.provider;
 
@@ -152,15 +147,14 @@ final class MusicReleaseCandidate extends MusicProviderCandidate {
   String? get imageUrl => primaryImageUrl?.toString();
 
   @override
-  ProviderSearchRole get searchRole => ProviderSearchRole.release;
+  ProviderSearchRole get searchRole => ProviderSearchRole.edition;
 
   @override
-  ProviderSearchParentHint? get parent => releaseGroupId == null
-      ? null
-      : ProviderSearchParentHint(
-          id: releaseGroupId!,
-          title: releaseGroupTitle ?? title,
-        );
+  // A Music provider result is already a concrete Catalog Item. Keep the
+  // release-group ID on the candidate for provider provenance and hydration,
+  // but do not expose it as a parent in Add search: that would recreate the
+  // Work -> Release navigation the catalog model is removing.
+  ProviderSearchParentHint? get parent => null;
 
   @override
   bool get previewOnly => false;
@@ -174,12 +168,24 @@ final class MusicReleaseCandidate extends MusicProviderCandidate {
 
   @override
   String? get summary {
-    final values = <String>[
-      if (artist?.trim() case final value? when value.isNotEmpty) value,
-      if (releaseDate case final value?)
-        value.toIso8601String().split('T').first,
-      if (country?.trim() case final value? when value.isNotEmpty) value,
-    ];
+    final values = <String>[];
+    void add(String? value) {
+      final trimmed = value?.trim();
+      if (trimmed != null && trimmed.isNotEmpty) values.add(trimmed);
+    }
+
+    add(artist);
+    if (releaseDate case final value?) add(value.year.toString());
+    final formats = mediums
+        .map((medium) => medium.format?.trim())
+        .whereType<String>()
+        .where((format) => format.isNotEmpty)
+        .toSet();
+    if (formats.isNotEmpty) add(formats.join(', '));
+    add(country);
+    add(publisher);
+    add(catalogNumber);
+    add(barcode);
     return values.isEmpty ? null : values.join(' / ');
   }
 
@@ -218,10 +224,6 @@ final class MusicReleaseGroupCandidate extends MusicProviderCandidate {
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;
-
-  @override
-  LibraryEntityScope get entityScope => LibraryEntityScope.work;
-
   @override
   String get provider => identity.provider;
 
@@ -232,7 +234,7 @@ final class MusicReleaseGroupCandidate extends MusicProviderCandidate {
   String? get imageUrl => primaryImageUrl?.toString();
 
   @override
-  ProviderSearchRole get searchRole => ProviderSearchRole.releaseGroup;
+  ProviderSearchRole get searchRole => ProviderSearchRole.series;
 
   @override
   ProviderSearchParentHint get parent => ProviderSearchParentHint(

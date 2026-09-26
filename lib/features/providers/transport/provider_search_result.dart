@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/models/catalog_media_kind.dart';
 import '../domain/models/provider_value_semantics.dart';
-import '../../library/domain/library_entity_scope.dart';
 import 'provider_search_parent_hint.dart';
 import 'provider_search_role.dart';
 
@@ -20,7 +19,6 @@ class ProviderSearchResult {
     required this.title,
     required this.kind,
     required this.searchRole,
-    required this.entityScope,
     this.summary,
     this.imageUrl,
     Map<String, Object?> payload = const {},
@@ -39,9 +37,13 @@ class ProviderSearchResult {
   /// selected kind integrations own its schema and decoding.
   final Map<String, Object?> payload;
   final ProviderSearchParentHint? parent;
-  final LibraryEntityScope entityScope;
 
   factory ProviderSearchResult.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('entity_scope')) {
+      throw const FormatException(
+        'Provider search results cannot declare a generic entity scope.',
+      );
+    }
     final rawKind = json['kind']?.toString().trim() ?? '';
     if (rawKind.isEmpty) {
       throw const FormatException(
@@ -78,7 +80,6 @@ class ProviderSearchResult {
       searchRole: providerSearchRoleFromApiValue(json['search_role']),
       payload: payload,
       parent: parent?.isValid == true ? parent : null,
-      entityScope: LibraryEntityScope.fromApiValue(json['entity_scope']),
     );
   }
 
@@ -93,7 +94,6 @@ class ProviderSearchResult {
       'search_role': searchRole.apiValue,
       ...mutableProviderPayloadCopy(payload),
       if (parent != null) 'parent': parent!.toJson(),
-      'entity_scope': entityScope.apiValue,
     };
   }
 
@@ -110,8 +110,7 @@ class ProviderSearchResult {
           imageUrl == other.imageUrl &&
           searchRole == other.searchRole &&
           providerValueEquals(payload, other.payload) &&
-          parent == other.parent &&
-          entityScope == other.entityScope;
+          parent == other.parent;
 
   @override
   int get hashCode => Object.hash(
@@ -124,7 +123,6 @@ class ProviderSearchResult {
         searchRole,
         providerValueHashCode(payload),
         parent,
-        entityScope,
       );
 }
 
@@ -137,5 +135,4 @@ const _structuralKeys = <String>{
   'image_url',
   'search_role',
   'parent',
-  'entity_scope',
 };

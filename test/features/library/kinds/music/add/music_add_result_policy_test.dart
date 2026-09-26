@@ -154,7 +154,7 @@ void main() {
     ]);
     expect(
       children.every(
-        (candidate) => candidate.searchRole == ProviderSearchRole.release,
+        (candidate) => candidate.searchRole == ProviderSearchRole.edition,
       ),
       isTrue,
     );

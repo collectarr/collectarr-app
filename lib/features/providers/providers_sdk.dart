@@ -40,7 +40,6 @@ export 'domain/models/provider_exception.dart';
 export 'domain/models/provider_image_ref.dart';
 export 'domain/models/provider_history_snapshot.dart';
 export 'domain/models/provider_provenance.dart';
-export 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 export 'domain/models/provider_identity.dart';
 export 'domain/models/provider_image_candidate.dart';
 export 'transport/provider_search_result.dart';

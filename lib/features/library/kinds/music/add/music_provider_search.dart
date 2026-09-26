@@ -6,61 +6,42 @@ import 'package:collectarr_app/features/library/kinds/music/provider/music_provi
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_preview_mapper.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_image_candidate.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 
 Future<LibraryAddProviderCandidatePreview?> loadMusicProviderCandidatePreview(
   ProviderConnector provider,
   ProviderSearchCandidate candidate,
 ) async {
   final typedMetadata = provider.typedMetadata;
-  if (typedMetadata is! MusicProviderMetadataCapability) {
+  if (typedMetadata is! MusicProviderMetadataCapability ||
+      candidate is! MusicReleaseCandidate) {
     return null;
   }
-  final musicMetadata = typedMetadata;
-  if (candidate case final MusicReleaseCandidate release) {
-    if (release.isHydrated) {
-      return LibraryAddProviderCandidatePreview(
-        candidate: candidate,
-        preview: providerPreviewFromMusicReleaseCandidate(release),
-      );
-    }
-    final envelope = await musicMetadata.fetchCandidate(release.providerItemId);
-    final hydrated = envelope.payload;
-    if (hydrated is MusicReleaseCandidate) {
-      return LibraryAddProviderCandidatePreview(
-        candidate: hydrated,
-        preview: providerPreviewFromMusicReleaseCandidate(hydrated),
-      );
-    }
+  if (candidate.isHydrated) {
     return LibraryAddProviderCandidatePreview(
       candidate: candidate,
-      preview: providerPreviewFromMusicReleaseCandidate(release),
+      preview: providerPreviewFromMusicReleaseCandidate(candidate),
     );
   }
-  if (candidate case final MusicReleaseGroupCandidate group) {
-    final envelope = await musicMetadata.fetchCandidate(group.providerItemId);
-    final hydrated = envelope.payload;
-    if (hydrated is MusicReleaseGroupCandidate) {
-      return LibraryAddProviderCandidatePreview(
-        candidate: hydrated,
-        preview: providerPreviewFromMusicReleaseGroupCandidate(hydrated),
-      );
-    }
+
+  final envelope = await typedMetadata.fetchCandidate(candidate.providerItemId);
+  final hydrated = envelope.payload;
+  if (hydrated is MusicReleaseCandidate) {
     return LibraryAddProviderCandidatePreview(
-      candidate: candidate,
-      preview: providerPreviewFromMusicReleaseGroupCandidate(group),
+      candidate: hydrated,
+      preview: providerPreviewFromMusicReleaseCandidate(hydrated),
     );
   }
-  return null;
+  return LibraryAddProviderCandidatePreview(
+    candidate: candidate,
+    preview: providerPreviewFromMusicReleaseCandidate(candidate),
+  );
 }
 
-/// Routes Music search through the provider's typed candidate capability.
-/// Music never reconstructs a candidate from the erased ProviderSearchResult
-/// transport.
+/// Searches Music providers for concrete releases, the catalog unit selected
+/// by the Add flow. Release groups remain provider metadata used for
+/// attribution, but are never emitted as selectable Add results.
 Future<List<ProviderSearchCandidate>> searchMusicProviderCandidatesWithContext(
   ProviderConnector provider, {
   required String query,
@@ -76,67 +57,29 @@ Future<List<ProviderSearchCandidate>> searchMusicProviderCandidatesWithContext(
   if (typedMetadata is! MusicProviderMetadataCapability) {
     return const <ProviderSearchCandidate>[];
   }
-  final musicMetadata = typedMetadata;
 
-  // Release groups are the default Music search unit. A selected medium filter
-  // may use matching releases as its index, but results are still grouped by
-  // their canonical release group before they reach Add.
-  final releaseGroupSearch = musicAddProviderMediumQuery(context) == null &&
-      context.identifierCode.trim().isEmpty;
-  final searchQuery = releaseGroupSearch
-      ? _musicReleaseGroupQuery(context, fallback: query)
-      : query;
-  final typedResults = await musicMetadata.searchCandidates(
-    searchQuery,
+  final typedResults = await typedMetadata.searchCandidates(
+    query,
     kind: CatalogMediaKind.music,
-    entityScope: releaseGroupSearch
-        ? LibraryEntityScope.work
-        : LibraryEntityScope.release,
     limit: limit,
     cancellationToken: cancellationToken,
   );
-  final matchQuery = query.replaceAll(RegExp(r'\bformat:\S+'), '').trim();
-
-  if (releaseGroupSearch) {
-    final expanded = <ProviderSearchCandidate>[];
-    final seen = <String>{};
-    for (final result in typedResults) {
-      if (result case final MusicReleaseGroupCandidate group
-          when _matchesMusicCandidate(group, matchQuery)) {
-        if (seen.add(group.localCatalogId)) expanded.add(group);
-        for (final summary in group.releases) {
-          final release = _releaseCandidateFromSummary(group, summary);
-          if (seen.add(release.localCatalogId)) expanded.add(release);
-        }
-      }
-    }
-    return expanded;
-  }
-  final grouped = _groupReleaseCandidates(
-    typedResults.whereType<MusicReleaseCandidate>(),
-    matchQuery: matchQuery,
-  );
-  return grouped;
+  final localMatchQuery = [
+    context.query,
+    context.textValueFor(musicAddArtistFilterId),
+  ].where((value) => value.trim().isNotEmpty).join(' ');
+  final seenReleaseIds = <String>{};
+  return [
+    for (final candidate in typedResults)
+      if (candidate is MusicReleaseCandidate &&
+          _matchesMusicCandidate(candidate, localMatchQuery) &&
+          musicAddProviderCandidateMatchesMedium(candidate, context) &&
+          seenReleaseIds.add(candidate.providerItemId))
+        candidate,
+  ];
 }
 
-String _musicReleaseGroupQuery(
-  LibraryAddSearchContext context, {
-  required String fallback,
-}) {
-  final title = context.query.trim();
-  final artist = context.textValueFor(musicAddArtistFilterId);
-  final year = context.textValueFor(musicAddYearFilterId);
-  final query = buildLibraryAddSearchQuery([
-    if (title.isNotEmpty) 'releasegroup:"${title.replaceAll('"', '')}"',
-    if (artist.isNotEmpty) 'artist:"${artist.replaceAll('"', '')}"',
-    if (year.isNotEmpty) 'firstreleasedate:${year.replaceAll(' ', '')}*',
-  ]);
-  return query.isEmpty ? fallback : query;
-}
-
-/// Searches only the typed Music release boundary, then builds a typed Work
-/// candidate from the concrete releases so the UI can render one group with
-/// exactly the releases returned by the provider.
+/// Searches and returns one typed candidate per concrete Music release.
 Future<List<ProviderSearchCandidate>> searchMusicProviderCandidates(
   ProviderConnector provider, {
   required String query,
@@ -152,160 +95,45 @@ Future<List<ProviderSearchCandidate>> searchMusicProviderCandidates(
   if (typedMetadata is! MusicProviderMetadataCapability) {
     return const <ProviderSearchCandidate>[];
   }
-  final musicMetadata = typedMetadata;
-  final typedResults = await musicMetadata.searchCandidates(
+
+  final typedResults = await typedMetadata.searchCandidates(
     query,
     kind: CatalogMediaKind.music,
-    entityScope: LibraryEntityScope.release,
     limit: limit,
     cancellationToken: cancellationToken,
   );
-  return _groupReleaseCandidates(
-    typedResults.whereType<MusicReleaseCandidate>(),
-    matchQuery: matchQuery ?? query,
-  );
-}
-
-List<ProviderSearchCandidate> _groupReleaseCandidates(
-  Iterable<MusicReleaseCandidate> source, {
-  required String matchQuery,
-}) {
-  final groups = <String, List<MusicReleaseSummaryCandidate>>{};
-  final groupTitles = <String, String>{};
-  final groupArtists = <String, String?>{};
-  final groupImages = <String, List<ProviderImageCandidate>>{};
-  final releases = <MusicReleaseCandidate>[];
-  final releaseIds = <String>{};
-
-  for (final candidate in source) {
-    if (!_matchesMusicCandidate(candidate, matchQuery)) continue;
-    if (!releaseIds.add(candidate.providerItemId)) continue;
-
-    final parentId = candidate.releaseGroupId?.trim();
-    if (parentId != null && parentId.isNotEmpty) {
-      final summaries = groups.putIfAbsent(
-        parentId,
-        () => <MusicReleaseSummaryCandidate>[],
-      );
-      if (!summaries.any(
-        (release) => release.providerItemId == candidate.providerItemId,
-      )) {
-        summaries.add(_summaryFromRelease(candidate));
-      }
-      groupTitles.putIfAbsent(
-        parentId,
-        () => candidate.releaseGroupTitle ?? candidate.title,
-      );
-      groupArtists.putIfAbsent(parentId, () => candidate.artist);
-      if (candidate.releaseGroupImages.isNotEmpty) {
-        groupImages.putIfAbsent(parentId, () => candidate.releaseGroupImages);
-      }
-    }
-    releases.add(candidate);
-  }
-
-  final groupCandidates = [
-    for (final entry in groups.entries)
-      if (entry.value.isNotEmpty)
-        MusicReleaseGroupCandidate(
-          identity: ProviderEntityIdentity(
-            provider: releases.first.identity.provider,
-            externalId: entry.key,
-            scope: LibraryEntityScope.work,
-          ),
-          title: groupTitles[entry.key] ?? entry.key,
-          artist: groupArtists[entry.key],
-          releases: entry.value,
-          provenance: releases.first.provenance,
-          images: groupImages[entry.key] ?? const <ProviderImageCandidate>[],
-        ),
+  final seenReleaseIds = <String>{};
+  return [
+    for (final candidate in typedResults)
+      if (candidate is MusicReleaseCandidate &&
+          _matchesMusicCandidate(candidate, matchQuery ?? query) &&
+          seenReleaseIds.add(candidate.providerItemId))
+        candidate,
   ];
-  return [...groupCandidates, ...releases];
 }
 
-MusicReleaseSummaryCandidate _summaryFromRelease(MusicReleaseCandidate value) {
-  final format = value.mediums
-      .map((medium) => medium.format)
-      .whereType<String>()
-      .map((format) => format.trim())
-      .firstWhere((format) => format.isNotEmpty, orElse: () => '');
-  return MusicReleaseSummaryCandidate(
-    providerItemId: value.providerItemId,
-    title: value.title,
-    releaseDate: value.releaseDate,
-    country: value.country,
-    status: value.releaseStatus,
-    packaging: value.packaging,
-    format: format.isEmpty ? null : format,
-    publisher: value.publisher,
-    catalogNumber: value.catalogNumber,
-    barcode: value.barcode,
-    images: value.images,
-  );
-}
-
-MusicReleaseCandidate _releaseCandidateFromSummary(
-  MusicReleaseGroupCandidate group,
-  MusicReleaseSummaryCandidate summary,
-) {
-  final medium = summary.format == null
-      ? const <MusicMediumCandidate>[]
-      : [
-          MusicMediumCandidate(
-            mediumNumber: 1,
-            format: summary.format,
-          ),
-        ];
-  return MusicReleaseCandidate(
-    identity: ProviderEntityIdentity(
-      provider: group.identity.provider,
-      externalId: summary.providerItemId,
-      scope: LibraryEntityScope.release,
-    ),
-    title: summary.title,
-    releaseGroupId: group.identity.externalId,
-    releaseGroupTitle: group.title,
-    artist: group.artist,
-    releaseDate: summary.releaseDate,
-    country: summary.country,
-    barcode: summary.barcode,
-    publisher: summary.publisher,
-    catalogNumber: summary.catalogNumber,
-    releaseStatus: summary.status,
-    packaging: summary.packaging,
-    mediums: medium,
-    provenance: group.provenance,
-    images: summary.images,
-  );
-}
-
-bool _matchesMusicCandidate(ProviderSearchCandidate result, String query) {
-  final queryTokens = _musicSearchTokens(_stripMusicSearchOperators(query));
-  if (queryTokens.isEmpty) return true;
-  final searchableText = [
-    result.title,
-    if (result case final MusicReleaseCandidate release) release.artist,
-    if (result case final MusicReleaseGroupCandidate group) group.artist,
-  ].whereType<String>().join(' ');
+bool _matchesMusicCandidate(MusicReleaseCandidate candidate, String query) {
+  final tokens = _musicSearchTokens(_stripMusicSearchOperators(query));
+  if (tokens.isEmpty) return true;
+  final searchableText =
+      [candidate.title, candidate.artist].whereType<String>().join(' ');
   final searchableTokens = _musicSearchTokens(
     searchableText,
     ignoreStopWords: false,
   ).toSet();
-  return queryTokens.every(searchableTokens.contains);
+  return tokens.every(searchableTokens.contains);
 }
 
-String _stripMusicSearchOperators(String value) {
-  return value
-      .replaceAllMapped(
-        RegExp(r'\b[a-z-]+:"([^"]*)"'),
-        (match) => match.group(1) ?? '',
-      )
-      .replaceAllMapped(
-        RegExp(r'\b[a-z-]+:([^\s]+)'),
-        (match) => match.group(1) ?? '',
-      )
-      .replaceAll('"', '');
-}
+String _stripMusicSearchOperators(String value) => value
+    .replaceAllMapped(
+      RegExp(r'\b[a-z-]+:"([^"]*)"'),
+      (match) => match.group(1) ?? '',
+    )
+    .replaceAllMapped(
+      RegExp(r'\b[a-z-]+:([^\s]+)'),
+      (match) => match.group(1) ?? '',
+    )
+    .replaceAll('"', '');
 
 List<String> _musicSearchTokens(
   String value, {
@@ -320,20 +148,15 @@ List<String> _musicSearchTokens(
 
   final tokens = normalized.split(' ');
   final meaningful = tokens
-      .where((token) {
-        if (token.length <= 1) return false;
-        return !ignoreStopWords || !_musicSearchStopWords.contains(token);
-      })
+      .where((token) =>
+          token.length > 1 &&
+          (!ignoreStopWords || !_musicSearchStopWords.contains(token)))
       .toSet()
       .toList(growable: false);
   if (meaningful.isNotEmpty || !ignoreStopWords) return meaningful;
 
-  // A query such as "si" must remain selective rather than turning into an
-  // empty query after stop-word removal.
-  return tokens
-      .where((token) => token.length > 1)
-      .toSet()
-      .toList(growable: false);
+  // Keep short stop-word-only searches selective.
+  return tokens.where((token) => token.length > 1).toSet().toList();
 }
 
 const _musicSearchStopWords = <String>{

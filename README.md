@@ -19,16 +19,26 @@ Collectarr keeps your personal library local, fast, and offline-friendly, while
 using `collectarr-core` for canonical metadata and `collectarr-sync` for
 optional multi-device sync.
 
-The app keeps semantic behavior inside the owning kind: Comic, Manga, Book,
-Game, Board Game, Movie, TV, Anime, and Music each provide their typed domain,
-edit flows, persistence integration, and applicable actions.
+> **Coordinated all-kind Catalog Item v1 cutover in progress:** the target is
+> one Catalog Item per collectible edition/version/release and zero or more
+> separate Owned Copy records. Music has a Core Album API slice, but App storage
+> and the other eight kinds still need the coordinated reset. Do not deploy or
+> reset existing databases yet. The completed cutover requires fresh App and
+> Core databases and a rebuilt Core search index; old database and backup
+> formats will not be supported by the final v1 baseline. See the
+> [cutover plan](docs/architecture/catalog-item-v1-cutover.md) and
+> [field ledgers](docs/architecture/catalog-item-v1-field-ledgers/README.md).
+
+The target keeps kind-specific catalog details and child editors inside the
+owning kind, while sharing one Catalog Item / Owned Copy structure across all
+nine kinds. The cross-repository cutover is not complete yet.
 
 ## ✨ Why Collectarr
 
 - 🗂️ **Local-first ownership** — your owned/wishlist state lives in the app
 - 🧩 **9 active media kinds** — comics, manga, anime, books, games, board games, movies, TV, music
 - 🛠️ **Collector workflows** — variants, barcode, bulk edit, custom fields, import/export
-- 🔍 **Provider-backed metadata** — rich metadata via Core provider integrations
+- 🔍 **Provider-backed metadata** — source mapping and imports owned by App adapters
 - 🧪 **Power-user/admin tooling** — ingest, proposals, provider health, image cache controls
 
 ## 🚀 Highlights

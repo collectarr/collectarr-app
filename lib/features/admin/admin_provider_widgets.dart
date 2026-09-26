@@ -925,7 +925,7 @@ class _ProviderResultTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isReleaseResult = candidate.searchRole.isCollectibleRelease;
+    final isReleaseResult = candidate.searchRole.isCatalogItem;
     final entityLabel = isReleaseResult ? 'Release result' : 'Media result';
     final releaseLinkHint = isReleaseResult ? _releaseLinkHint() : null;
     return LayoutBuilder(

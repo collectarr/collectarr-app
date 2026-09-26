@@ -2,7 +2,10 @@ import 'package:flutter/foundation.dart';
 
 import 'collectarr_api.enums.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 
+part 'catalog_item_v1.models.g.dart';
 part 'music_catalog.models.g.dart';
 
 @immutable

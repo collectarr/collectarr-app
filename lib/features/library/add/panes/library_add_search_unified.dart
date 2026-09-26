@@ -112,12 +112,14 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   }
 
   // 2. Process Core results and merge into a matching Provider group when the
-  //    titles match, otherwise create a Core-only group at the front.
+  //    titles match, otherwise create a Core-only group at the front. Kinds
+  //    with a concrete result key can keep each catalog item as its own row.
   final coreOnlyKeys = <String>[];
   for (final item in coreResults) {
     final groupTitle = resultPolicy.coreGroupTitle(item);
     final lowerTitle = groupTitle.toLowerCase();
-    final existingKey = titleIndex[lowerTitle];
+    final hasConcreteResultKey = resultPolicy.coreResultKeyBuilder != null;
+    final existingKey = hasConcreteResultKey ? null : titleIndex[lowerTitle];
 
     if (existingKey != null) {
       coreItems[existingKey]!.add(item);
@@ -126,7 +128,9 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       coverUrls[existingKey] ??= item.summary.imageUrl;
       setArtist(existingKey, resultPolicy.coreGroupArtist(item));
     } else {
-      final key = 'core::$lowerTitle';
+      final key = hasConcreteResultKey
+          ? 'core::${resultPolicy.coreResultKey(item)}'
+          : 'core::$lowerTitle';
       if (!titles.containsKey(key)) {
         coreOnlyKeys.add(key);
       }

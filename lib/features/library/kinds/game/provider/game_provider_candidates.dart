@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
@@ -89,7 +88,6 @@ sealed class GameProviderCandidate extends ProviderSearchCandidateBase {
     super.imageUrl,
     super.parent,
     super.previewOnly,
-    required super.entityScope,
     super.identity,
     this.issueNumber,
     this.series,
@@ -116,10 +114,9 @@ sealed class GameProviderCandidate extends ProviderSearchCandidateBase {
     final common = ProviderEntityIdentity(
       provider: provider ?? result.provider,
       externalId: result.providerItemId,
-      scope: result.entityScope,
     );
-    if (result.entityScope == LibraryEntityScope.work) {
-      return GameWorkCandidate(
+    if (result.searchRole == ProviderSearchRole.catalogItem) {
+      return GameCatalogItemCandidate(
         provider: provider ?? result.provider,
         providerItemId: result.providerItemId,
         title: result.title,
@@ -129,7 +126,7 @@ sealed class GameProviderCandidate extends ProviderSearchCandidateBase {
         identity: common,
       );
     }
-    return GameReleaseCandidate(
+    return GameEditionCandidate(
       provider: provider ?? result.provider,
       providerItemId: result.providerItemId,
       title: result.title,
@@ -156,8 +153,8 @@ int? _payloadInt(Object? value) {
   return int.tryParse(value?.toString() ?? '');
 }
 
-final class GameWorkCandidate extends GameProviderCandidate {
-  const GameWorkCandidate({
+final class GameCatalogItemCandidate extends GameProviderCandidate {
+  const GameCatalogItemCandidate({
     required super.provider,
     required super.providerItemId,
     required super.title,
@@ -166,14 +163,16 @@ final class GameWorkCandidate extends GameProviderCandidate {
     super.parent,
     super.previewOnly,
     super.identity,
-  }) : super(kind: CatalogMediaKind.game, entityScope: LibraryEntityScope.work);
+  }) : super(
+          kind: CatalogMediaKind.game,
+        );
 
   @override
-  ProviderSearchRole get searchRole => ProviderSearchRole.work;
+  ProviderSearchRole get searchRole => ProviderSearchRole.catalogItem;
 }
 
-final class GameReleaseCandidate extends GameProviderCandidate {
-  const GameReleaseCandidate({
+final class GameEditionCandidate extends GameProviderCandidate {
+  const GameEditionCandidate({
     required super.provider,
     required super.providerItemId,
     required super.title,
@@ -188,9 +187,9 @@ final class GameReleaseCandidate extends GameProviderCandidate {
     super.publisher,
     super.issueCount,
   }) : super(
-            kind: CatalogMediaKind.game,
-            entityScope: LibraryEntityScope.release);
+          kind: CatalogMediaKind.game,
+        );
 
   @override
-  ProviderSearchRole get searchRole => ProviderSearchRole.release;
+  ProviderSearchRole get searchRole => ProviderSearchRole.edition;
 }

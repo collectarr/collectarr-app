@@ -3,7 +3,6 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 
 import '../../../../core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 import '../../credentials/models/tmdb_credentials.dart';
 import '../../transport/provider_raw_envelope.dart';
@@ -303,8 +302,7 @@ class TMDbProvider extends ProviderAdapter {
       providerItemId: tmdbId != null ? '$kind:$tmdbId' : '',
       title: title,
       kind: catalogMediaKindFromApiValue(kind),
-      entityScope: LibraryEntityScope.work,
-      searchRole: ProviderSearchRole.work,
+      searchRole: ProviderSearchRole.catalogItem,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' / ') : null,
       imageUrl: _extractPosterUrl(item.posterPath),
     );

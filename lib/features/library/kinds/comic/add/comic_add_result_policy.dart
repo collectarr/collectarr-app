@@ -88,18 +88,5 @@ String _comicProviderGroupTitle(ComicProviderCandidate candidate) {
 }
 
 bool _comicProviderCandidateIsGroup(ComicProviderCandidate candidate) {
-  return switch (candidate.searchRole) {
-    ProviderSearchRole.work ||
-    ProviderSearchRole.releaseGroup ||
-    ProviderSearchRole.series ||
-    ProviderSearchRole.volume =>
-      true,
-    ProviderSearchRole.issue ||
-    ProviderSearchRole.variant ||
-    ProviderSearchRole.release ||
-    ProviderSearchRole.edition ||
-    ProviderSearchRole.season ||
-    ProviderSearchRole.episode =>
-      false,
-  };
+  return candidate.searchRole == ProviderSearchRole.series;
 }

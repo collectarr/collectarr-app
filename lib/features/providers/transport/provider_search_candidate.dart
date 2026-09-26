@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_parent_hint.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
@@ -21,7 +20,6 @@ abstract base class ProviderSearchCandidateBase
     this.imageUrl,
     this.parent,
     this.previewOnly = false,
-    required this.entityScope,
     this.identity,
   });
 
@@ -41,8 +39,6 @@ abstract base class ProviderSearchCandidateBase
   final ProviderSearchParentHint? parent;
   @override
   final bool previewOnly;
-  @override
-  final LibraryEntityScope entityScope;
   @override
   final ProviderEntityIdentity? identity;
 
@@ -70,7 +66,6 @@ final class ProviderSearchHitCandidate extends ProviderSearchCandidateBase {
           provider: provider ?? hit.providerId.value,
           providerItemId: hit.remoteId,
           title: hit.title,
-          entityScope: hit.entityScope,
           kind: hit.kind,
           summary: hit.subtitle,
           imageUrl: hit.imageUrl,
@@ -78,7 +73,6 @@ final class ProviderSearchHitCandidate extends ProviderSearchCandidateBase {
           identity: ProviderEntityIdentity(
             provider: provider ?? hit.providerId.value,
             externalId: hit.remoteId,
-            scope: hit.entityScope,
           ),
         );
 
@@ -102,7 +96,6 @@ abstract interface class ProviderSearchCandidate {
   ProviderSearchRole get searchRole;
   ProviderSearchParentHint? get parent;
   bool get previewOnly;
-  LibraryEntityScope get entityScope;
   ProviderEntityIdentity? get identity;
   String get localCatalogId;
   bool get isStub;

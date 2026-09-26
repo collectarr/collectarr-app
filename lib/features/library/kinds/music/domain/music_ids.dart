@@ -2,6 +2,32 @@ import 'package:collectarr_app/features/library/domain/library_entity_id.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
+final class MusicAlbumId extends LibraryEntityId {
+  const MusicAlbumId(super.value);
+}
+
+@immutable
+final class MusicAlbumTrackPosition {
+  const MusicAlbumTrackPosition({
+    required this.discNumber,
+    required this.position,
+  })  : assert(discNumber > 0),
+        assert(position > 0);
+
+  final int discNumber;
+  final int position;
+
+  @override
+  bool operator ==(Object other) =>
+      other is MusicAlbumTrackPosition &&
+      discNumber == other.discNumber &&
+      position == other.position;
+
+  @override
+  int get hashCode => Object.hash(discNumber, position);
+}
+
+@immutable
 final class MusicReleaseGroupId extends LibraryEntityId {
   const MusicReleaseGroupId(super.value);
 }

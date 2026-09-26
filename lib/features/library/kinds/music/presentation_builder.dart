@@ -26,7 +26,6 @@ import 'package:collectarr_app/features/library/kinds/music/music_physical_media
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter/material.dart';
 
 class MusicLibraryMediaPresentationBuilder
@@ -449,7 +448,7 @@ class MusicLibraryMediaPresentationBuilder
       candidate: candidate,
     );
     final isReleaseGroup = candidate != null
-        ? candidate.searchRole == ProviderSearchRole.releaseGroup
+        ? candidate.searchRole == ProviderSearchRole.series
         : _musicItemIsReleaseGroup(item) ||
             preview?.music?['entity_type'] == 'music_release_group';
     final tracks = _musicPreviewTracks(
@@ -1897,7 +1896,6 @@ MusicReleaseCandidate _musicReleaseCandidateFromSummary({
     identity: ProviderEntityIdentity(
       provider: group.provider,
       externalId: release.providerItemId,
-      scope: LibraryEntityScope.release,
     ),
     title: release.title,
     releaseGroupId: group.identity.externalId,
@@ -1932,7 +1930,6 @@ MusicReleaseCandidate? _musicReleaseCandidateFromPreview({
     identity: ProviderEntityIdentity(
       provider: group.provider,
       externalId: providerItemId,
-      scope: LibraryEntityScope.release,
     ),
     title: title,
     releaseGroupId: group.identity.externalId,
@@ -1978,7 +1975,6 @@ List<ProviderImageCandidate> _musicPreviewImages({
       source: ProviderEntityIdentity(
         provider: provider,
         externalId: releaseId,
-        scope: LibraryEntityScope.release,
       ),
       role: 'cover',
     ),

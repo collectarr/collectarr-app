@@ -1,5 +1,10 @@
 # Add and Edit Form Unification Plan
 
+> **Superseded:** this plan's scoped Work/Release forms describe the previous
+> implementation. The target is one Catalog Add/Edit form and a separate Owned
+> Copy form per kind, as defined in
+> [catalog-item-v1-cutover.md](catalog-item-v1-cutover.md).
+
 The [all-kind schema reorganization plan](kind-schema-reorganization-plan.md)
 provides the per-kind file layout, workspace scope migration, and identifier
 migration sequence. This document focuses on Add/Edit behavior and field reuse.

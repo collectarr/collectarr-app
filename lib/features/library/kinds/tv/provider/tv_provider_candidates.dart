@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
@@ -106,7 +105,6 @@ sealed class TvProviderCandidate extends ProviderSearchCandidateBase {
     super.imageUrl,
     super.parent,
     super.previewOnly,
-    required super.entityScope,
     super.identity,
     this.issueNumber,
     this.series,
@@ -133,9 +131,8 @@ sealed class TvProviderCandidate extends ProviderSearchCandidateBase {
     final common = ProviderEntityIdentity(
       provider: provider ?? result.provider,
       externalId: result.providerItemId,
-      scope: result.entityScope,
     );
-    if (result.entityScope == LibraryEntityScope.work) {
+    if (result.searchRole == ProviderSearchRole.catalogItem) {
       return TvSeriesCandidate(
         provider: provider ?? result.provider,
         providerItemId: result.providerItemId,
@@ -146,7 +143,7 @@ sealed class TvProviderCandidate extends ProviderSearchCandidateBase {
         identity: common,
       );
     }
-    return TvReleaseCandidate(
+    return TvSeasonCandidate(
       provider: provider ?? result.provider,
       providerItemId: result.providerItemId,
       title: result.title,
@@ -183,14 +180,16 @@ final class TvSeriesCandidate extends TvProviderCandidate {
     super.parent,
     super.previewOnly,
     super.identity,
-  }) : super(kind: CatalogMediaKind.tv, entityScope: LibraryEntityScope.work);
+  }) : super(
+          kind: CatalogMediaKind.tv,
+        );
 
   @override
   ProviderSearchRole get searchRole => ProviderSearchRole.series;
 }
 
-final class TvReleaseCandidate extends TvProviderCandidate {
-  const TvReleaseCandidate({
+final class TvSeasonCandidate extends TvProviderCandidate {
+  const TvSeasonCandidate({
     required super.provider,
     required super.providerItemId,
     required super.title,
@@ -205,8 +204,9 @@ final class TvReleaseCandidate extends TvProviderCandidate {
     super.publisher,
     super.issueCount,
   }) : super(
-            kind: CatalogMediaKind.tv, entityScope: LibraryEntityScope.release);
+          kind: CatalogMediaKind.tv,
+        );
 
   @override
-  ProviderSearchRole get searchRole => ProviderSearchRole.release;
+  ProviderSearchRole get searchRole => ProviderSearchRole.season;
 }

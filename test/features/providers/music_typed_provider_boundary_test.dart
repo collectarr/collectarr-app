@@ -6,10 +6,10 @@ import 'package:collectarr_app/features/library/kinds/music/provider/music_relea
 import 'package:collectarr_app/features/library/kinds/music/integrations/musicbrainz/musicbrainz_music_mapper.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:collectarr_app/features/providers/transport/provider_patch.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _provenance = ProviderProvenance(
@@ -68,7 +68,7 @@ void main() {
     );
     final candidate = envelope.payload;
 
-    expect(envelope.entityScope.apiValue, 'release');
+    expect(candidate.searchRole, ProviderSearchRole.edition);
     expect(envelope.providerItemId, 'release-1');
     expect(candidate.releaseGroupId, 'group-1');
     expect(candidate.artist, 'Artist One');
@@ -84,7 +84,6 @@ void main() {
       identity: ProviderEntityIdentity(
         provider: 'musicbrainz',
         externalId: 'release-1',
-        scope: LibraryEntityScope.release,
       ),
       title: 'Multidisc Album',
       releaseGroupId: 'group-1',
@@ -161,7 +160,7 @@ void main() {
       attribution: _attribution,
     );
 
-    expect(candidate.entityScope, LibraryEntityScope.work);
+    expect(candidate.searchRole, ProviderSearchRole.series);
     expect(candidate.title, 'Multidisc Album');
     expect(candidate.artist, 'Artist One');
     expect(candidate.releases.single.providerItemId, 'release-1');

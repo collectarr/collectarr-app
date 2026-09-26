@@ -158,7 +158,6 @@ final class ProviderConnector implements ProviderRawMetadataCapability {
             kind: result.kind,
             remoteId: result.providerItemId,
             title: result.title,
-            entityScope: result.entityScope,
             searchRole: result.searchRole,
             subtitle: result.summary,
             imageUrl: result.imageUrl,

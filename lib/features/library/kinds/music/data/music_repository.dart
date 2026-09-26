@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/remote/music_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
@@ -16,10 +15,9 @@ import 'package:drift/drift.dart';
 /// graph. A group and a concrete release intentionally have separate APIs.
 final class MusicRepository
     implements ReadRepository<MusicReleaseGroupId, MusicReleaseGroup> {
-  MusicRepository(this._db, {MusicRemoteSource? remote}) : _remote = remote;
+  MusicRepository(this._db);
 
   final LocalDatabase _db;
-  final MusicRemoteSource? _remote;
 
   @override
   Future<MusicReleaseGroup?> findById(MusicReleaseGroupId id) =>
@@ -29,13 +27,8 @@ final class MusicRepository
     final row = await (_db.select(_db.musicReleaseRows)
           ..where((table) => table.id.equals(id.value)))
         .getSingleOrNull();
-    if (row != null) return _hydrateRelease(row);
-
-    final remote = _remote;
-    if (remote == null) return null;
-    final release = await remote.fetchRelease(id);
-    await updateRelease(release);
-    return release;
+    if (row == null) return null;
+    return _hydrateRelease(row);
   }
 
   Future<MusicReleaseGroup?> getReleaseGroup(MusicReleaseGroupId id) async {

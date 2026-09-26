@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/music/provider/music_provi
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
@@ -21,21 +20,23 @@ const _provenance = ProviderProvenance(
 );
 
 void main() {
-  test('release-group search exposes every typed child release', () async {
+  test('Add search returns concrete releases without a group parent', () async {
     final provider = _provider([
       _group(
         id: 'group-1',
         title: 'Kind of Blue',
-        releases: const [
-          MusicReleaseSummaryCandidate(
-            providerItemId: 'release-1',
-            title: 'Kind of Blue',
-          ),
-          MusicReleaseSummaryCandidate(
-            providerItemId: 'release-2',
-            title: 'Kind of Blue (Deluxe)',
-          ),
-        ],
+      ),
+      _release(
+        id: 'release-1',
+        title: 'Kind of Blue',
+        releaseGroupId: 'group-1',
+        releaseGroupTitle: 'Kind of Blue',
+      ),
+      _release(
+        id: 'release-2',
+        title: 'Kind of Blue (Deluxe)',
+        releaseGroupId: 'group-1',
+        releaseGroupTitle: 'Kind of Blue',
       ),
     ]);
 
@@ -47,10 +48,7 @@ void main() {
       context: LibraryAddSearchContext(query: 'Kind of Blue'),
     );
 
-    expect(
-      results.whereType<MusicReleaseGroupCandidate>(),
-      hasLength(1),
-    );
+    expect(results.whereType<MusicReleaseGroupCandidate>(), isEmpty);
     expect(
       results.whereType<MusicReleaseCandidate>().map(
             (candidate) => candidate.providerItemId,
@@ -84,7 +82,7 @@ void main() {
     );
     final releases = results
         .where(
-          (candidate) => candidate.searchRole == ProviderSearchRole.release,
+          (candidate) => candidate.searchRole == ProviderSearchRole.edition,
         )
         .toList(growable: false);
 
@@ -92,9 +90,9 @@ void main() {
     expect(releases.single.providerItemId, 'matching-release');
     expect(
       results.any(
-        (candidate) => candidate.searchRole == ProviderSearchRole.releaseGroup,
+        (candidate) => candidate.searchRole == ProviderSearchRole.series,
       ),
-      isTrue,
+      isFalse,
     );
   });
 
@@ -158,7 +156,7 @@ void main() {
 
     expect(
       results.where(
-        (candidate) => candidate.searchRole == ProviderSearchRole.release,
+        (candidate) => candidate.searchRole == ProviderSearchRole.edition,
       ),
       hasLength(1),
     );
@@ -183,7 +181,6 @@ MusicProviderCandidate _group({
     identity: ProviderEntityIdentity(
       provider: 'musicbrainz',
       externalId: id,
-      scope: LibraryEntityScope.work,
     ),
     title: title,
     releases: releases,
@@ -202,7 +199,6 @@ MusicReleaseCandidate _release({
     identity: ProviderEntityIdentity(
       provider: 'musicbrainz',
       externalId: id,
-      scope: LibraryEntityScope.release,
     ),
     title: title,
     releaseGroupId: releaseGroupId,
@@ -225,16 +221,13 @@ final class _FakeTypedMusicCapability
   Future<List<MusicProviderCandidate>> searchCandidates(
     String query, {
     required CatalogMediaKind kind,
-    required LibraryEntityScope entityScope,
     int limit = 25,
     ProviderCancellationToken? cancellationToken,
   }) async {
     if (kind != CatalogMediaKind.music) {
       return const <MusicProviderCandidate>[];
     }
-    final candidates = entityScope == LibraryEntityScope.work
-        ? results.whereType<MusicReleaseGroupCandidate>()
-        : results.whereType<MusicReleaseCandidate>();
+    final candidates = results.whereType<MusicReleaseCandidate>();
     return candidates.take(limit).toList(growable: false);
   }
 
@@ -248,7 +241,6 @@ final class _FakeTypedMusicCapability
     return ProviderEnvelope<MusicProviderCandidate>(
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
-      entityScope: candidate.entityScope,
       payload: candidate,
       provenance: switch (candidate) {
         MusicReleaseCandidate(:final provenance) => provenance,

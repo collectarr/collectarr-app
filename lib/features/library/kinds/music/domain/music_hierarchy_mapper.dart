@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
+import 'music_album.dart';
 
 import 'music_medium.dart';
 import 'music_release.dart';
@@ -7,6 +8,58 @@ import 'music_track.dart';
 /// Projects Music's release -> medium -> track graph into renderer nodes.
 final class MusicHierarchyMapper {
   const MusicHierarchyMapper._();
+
+  /// Builds display-only disc groups from the album's contained track values.
+  /// The synthetic node keys are UI grouping keys, not catalog identities.
+  static List<LibraryHierarchyNode> toAlbumLibraryNodes(MusicAlbum album) {
+    if (album.tracks.isEmpty) return const <LibraryHierarchyNode>[];
+    final tracksByDisc = <int, List<MusicAlbumTrack>>{};
+    for (final track in album.tracks) {
+      tracksByDisc.putIfAbsent(track.discNumber, () => []).add(track);
+    }
+    final discTitles = {
+      for (final value in album.discTitles) value.discNumber: value.title,
+    };
+    return [
+      for (final discNumber in (tracksByDisc.keys.toList()..sort()))
+        LibraryHierarchyNode(
+          id: 'album:${album.id.value}:disc:$discNumber',
+          label: discTitles[discNumber]?.trim().isNotEmpty == true
+              ? discTitles[discNumber]!.trim()
+              : 'Disc $discNumber',
+          secondaryLabel: '${tracksByDisc[discNumber]!.length} tracks',
+          level: LibraryHierarchyLevel.container,
+          imageUrl: album.coverImageUrl,
+          totalCount: tracksByDisc[discNumber]!.length,
+          children: [
+            for (final track in (tracksByDisc[discNumber]!
+              ..sort((a, b) => a.position.compareTo(b.position))))
+              LibraryHierarchyNode(
+                id: 'album:${album.id.value}:disc:${track.discNumber}:track:${track.position}',
+                label: '${track.position}. ${track.title}',
+                secondaryLabel: track.durationMs == null
+                    ? track.artist
+                    : _durationLabel(track.durationMs! ~/ 1000),
+                level: LibraryHierarchyLevel.leaf,
+                imageUrl: album.coverImageUrl,
+                extras: {
+                  'kind': 'music_track',
+                  'albumId': album.id.value,
+                  'discNumber': track.discNumber,
+                  'position': track.position,
+                  if (track.artist != null) 'artist': track.artist,
+                  if (track.durationMs != null) 'durationMs': track.durationMs,
+                },
+              ),
+          ],
+          extras: {
+            'kind': 'music_disc_group',
+            'albumId': album.id.value,
+            'discNumber': discNumber,
+          },
+        ),
+    ];
+  }
 
   static List<LibraryHierarchyNode> toLibraryNodes(MusicRelease release) {
     final mediums = release.mediums;

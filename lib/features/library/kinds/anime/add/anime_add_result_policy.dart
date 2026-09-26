@@ -96,18 +96,5 @@ String _animeProviderGroupTitle(AnimeProviderCandidate candidate) {
 }
 
 bool animeAddProviderCandidateIsGroup(AnimeProviderCandidate candidate) {
-  return switch (candidate.searchRole) {
-    ProviderSearchRole.work ||
-    ProviderSearchRole.releaseGroup ||
-    ProviderSearchRole.series =>
-      true,
-    ProviderSearchRole.release ||
-    ProviderSearchRole.variant ||
-    ProviderSearchRole.edition ||
-    ProviderSearchRole.season ||
-    ProviderSearchRole.episode ||
-    ProviderSearchRole.issue ||
-    ProviderSearchRole.volume =>
-      false,
-  };
+  return candidate.searchRole == ProviderSearchRole.series;
 }

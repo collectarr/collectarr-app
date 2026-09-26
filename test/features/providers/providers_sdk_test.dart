@@ -33,8 +33,7 @@ class _FakeTestProvider implements ProviderRawMetadataCapability {
         providerItemId: 'item-1',
         title: 'Search Result: $query',
         kind: kind ?? descriptor.kind,
-        entityScope: LibraryEntityScope.release,
-        searchRole: ProviderSearchRole.release,
+        searchRole: ProviderSearchRole.edition,
       ),
     ];
   }
@@ -86,7 +85,6 @@ void main() {
         providerItemId: 'OL123W',
         title: 'The Hobbit',
         kind: CatalogMediaKind.book,
-        entityScope: LibraryEntityScope.release,
         searchRole: ProviderSearchRole.edition,
         payload: {
           'character_preview': ['Bilbo', 'Gandalf'],

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
@@ -113,7 +112,6 @@ sealed class AnimeProviderCandidate extends ProviderSearchCandidateBase {
     super.imageUrl,
     super.parent,
     super.previewOnly,
-    required super.entityScope,
     super.identity,
     this.issueNumber,
     this.series,
@@ -140,10 +138,9 @@ sealed class AnimeProviderCandidate extends ProviderSearchCandidateBase {
     final common = ProviderEntityIdentity(
       provider: provider ?? result.provider,
       externalId: result.providerItemId,
-      scope: result.entityScope,
     );
-    if (result.entityScope == LibraryEntityScope.work) {
-      return AnimeWorkCandidate(
+    if (result.searchRole == ProviderSearchRole.catalogItem) {
+      return AnimeCatalogItemCandidate(
         provider: provider ?? result.provider,
         providerItemId: result.providerItemId,
         title: result.title,
@@ -153,7 +150,7 @@ sealed class AnimeProviderCandidate extends ProviderSearchCandidateBase {
         identity: common,
       );
     }
-    return AnimeReleaseCandidate(
+    return AnimeEditionCandidate(
       provider: provider ?? result.provider,
       providerItemId: result.providerItemId,
       title: result.title,
@@ -180,8 +177,8 @@ int? _payloadInt(Object? value) {
   return int.tryParse(value?.toString() ?? '');
 }
 
-final class AnimeWorkCandidate extends AnimeProviderCandidate {
-  const AnimeWorkCandidate({
+final class AnimeCatalogItemCandidate extends AnimeProviderCandidate {
+  const AnimeCatalogItemCandidate({
     required super.provider,
     required super.providerItemId,
     required super.title,
@@ -192,15 +189,14 @@ final class AnimeWorkCandidate extends AnimeProviderCandidate {
     super.identity,
   }) : super(
           kind: CatalogMediaKind.anime,
-          entityScope: LibraryEntityScope.work,
         );
 
   @override
-  ProviderSearchRole get searchRole => ProviderSearchRole.work;
+  ProviderSearchRole get searchRole => ProviderSearchRole.catalogItem;
 }
 
-final class AnimeReleaseCandidate extends AnimeProviderCandidate {
-  const AnimeReleaseCandidate({
+final class AnimeEditionCandidate extends AnimeProviderCandidate {
+  const AnimeEditionCandidate({
     required super.provider,
     required super.providerItemId,
     required super.title,
@@ -216,9 +212,8 @@ final class AnimeReleaseCandidate extends AnimeProviderCandidate {
     super.issueCount,
   }) : super(
           kind: CatalogMediaKind.anime,
-          entityScope: LibraryEntityScope.release,
         );
 
   @override
-  ProviderSearchRole get searchRole => ProviderSearchRole.release;
+  ProviderSearchRole get searchRole => ProviderSearchRole.edition;
 }

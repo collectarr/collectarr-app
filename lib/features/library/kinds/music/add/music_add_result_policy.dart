@@ -4,75 +4,32 @@ import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalo
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 
-/// Music search is rooted at the MusicBrainz release-group boundary.
-///
-/// Core results already represent groups. Provider results are concrete
-/// releases, so their parent hint is used to render the same group -> release
-/// tree in Add.
+/// Music Add presents each concrete album/release as an independent result.
+/// The release-group relationship remains available on the provider
+/// candidate for provenance and hydration, but it does not control grouping.
 final musicAddResultPolicy = LibraryAddResultPolicy(
-  coreGroupTitleBuilder: _musicCoreGroupTitle,
+  coreGroupTitleBuilder: (item) => item.summary.primaryLabel,
+  coreResultKeyBuilder: (item) => item.reference.id,
   coreGroupArtistBuilder: _musicCoreGroupArtist,
-  // The expanded group header is the MusicReleaseGroup result itself. The
-  // synthetic group candidate remains selectable from that header so its
-  // details can be shown, but it must not be duplicated as a child beside
-  // the concrete MusicRelease rows.
-  showProviderGroupCandidateAsChild: false,
-  typedProviderGroupTitleBuilder: _musicTypedProviderGroupTitle,
-  typedProviderGroupArtistBuilder: _musicTypedProviderGroupArtist,
-  typedProviderGroupKeyBuilder: _musicTypedProviderGroupKey,
-  typedProviderCandidateIsGroup: (candidate) =>
-      candidate is MusicReleaseGroupCandidate,
-  typedProviderGroupCandidateLabelBuilder: (candidate) =>
-      '${candidate.title} (release group)',
-  typedProviderGroupCandidateBadgeBuilder: (_) => 'release group',
-  typedProviderCandidateComparator: _compareMusicTypedCandidates,
+  typedProviderGroupTitleBuilder: (candidate) => candidate.title,
+  typedProviderGroupArtistBuilder: _musicTypedProviderArtist,
+  typedProviderGroupKeyBuilder: (candidate) => candidate.providerItemId,
+  typedProviderCandidateComparator: _compareMusicCandidates,
 );
 
-String _musicCoreGroupTitle(CatalogSearchCandidate item) {
-  final group = item.kindCapability
-      .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-  final title = group.title.trim();
-  return title.isEmpty ? item.summary.primaryLabel : title;
-}
-
 String? _musicCoreGroupArtist(CatalogSearchCandidate item) {
-  final group = item.kindCapability
+  final album = item.kindCapability
       .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-  return group.artist;
+  return album.artist;
 }
 
-String _musicTypedProviderGroupTitle(ProviderSearchCandidate candidate) {
-  final title = switch (candidate) {
-    MusicReleaseGroupCandidate group => group.title,
-    MusicReleaseCandidate release => release.releaseGroupTitle ?? release.title,
-    _ => candidate.title,
-  }
-      .trim();
-  return title.isEmpty ? 'Untitled release group' : title;
-}
+String? _musicTypedProviderArtist(ProviderSearchCandidate candidate) =>
+    candidate is MusicReleaseCandidate ? candidate.artist : null;
 
-String? _musicTypedProviderGroupArtist(ProviderSearchCandidate candidate) =>
-    switch (candidate) {
-      MusicReleaseGroupCandidate group => group.artist,
-      MusicReleaseCandidate release => release.artist,
-      _ => null,
-    };
-
-String _musicTypedProviderGroupKey(ProviderSearchCandidate candidate) =>
-    switch (candidate) {
-      MusicReleaseGroupCandidate group => group.identity.externalId,
-      MusicReleaseCandidate release =>
-        release.releaseGroupId ?? release.providerItemId,
-      _ => candidate.providerItemId,
-    };
-
-int _compareMusicTypedCandidates(
+int _compareMusicCandidates(
   ProviderSearchCandidate left,
   ProviderSearchCandidate right,
 ) {
-  final leftIsGroup = left is MusicReleaseGroupCandidate;
-  final rightIsGroup = right is MusicReleaseGroupCandidate;
-  if (leftIsGroup != rightIsGroup) return leftIsGroup ? -1 : 1;
   final titleComparison = left.title.toLowerCase().compareTo(
         right.title.toLowerCase(),
       );

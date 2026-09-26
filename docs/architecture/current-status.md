@@ -1,85 +1,28 @@
-# Current architecture status
+# Current Architecture Status
 
-Authoritative status for the typed library boundary. Historical audit files
-remain design history; this document describes the current implementation.
+The active cross-repository target is the [Catalog Item v1 coordinated cutover](catalog-item-v1-cutover.md), with [one field ledger per kind](catalog-item-v1-field-ledgers/README.md). This file describes the current state against that target; it does not describe the old topology as the desired architecture.
 
-Active work is tracked in the [kind boundary plan](kind-boundary-completion-plan.md),
-the [Add/Edit form plan](add-edit-form-unification-plan.md), the
-[all-kind schema reorganization plan](kind-schema-reorganization-plan.md), and
-the [UI readability plan](ui-readability-plan.md). This document
-does not treat an old audit checkpoint as verification of the current working tree.
-
-## Entity contract
-
-Every library kind is addressed structurally as:
+## Target entity contract
 
 ```text
-Work -> Release -> Copy
+Catalog Item -> Owned Copy 0..N
 ```
 
-The shared contracts use only `LibraryEntityScope.work`, `.release`, and
-`.copy`. Browser and editor behavior lives in separate policies.
+Every kind's Catalog Item represents its concrete collectible edition/version/release. Series and similar data may group items, and repeated tracks, episodes, credits, variants, and components remain contained typed data. Catalog data is shared; owned-copy data is per copy.
 
-Entity references carry the complete parent chain. A copy reference therefore
-cannot be constructed without its work and release identity.
+## Current implementation gaps
 
-## Workspace and edit boundaries
+- App still exposes `LibraryEntityScope.work`, `.release`, and `.copy` and has 3-level library entity refs. Its Drift schema remains v5 with the old kind tables and upgrade history.
+- Most kinds still split workspace and edit schemas across work/release/copy. Music's Core model/API has an Album v1 slice, but App's local persistence and generic workspace have not been cut over.
+- Core still stores most kinds using per-kind work/release/edition graphs. Provider integrations were removed from Core during the preceding architecture change; they remain owned by App.
+- App Add/Admin still has callers for the removed Core provider-ingest, ingest-job, and proposal routes. Those flows must move provider mapping, provenance, and job state into App and write source-neutral `CatalogItemV1` records; until then, provider Add/Admin is incomplete end to end.
+- The Music field ledger records the supplied saved CLZ page. Other kind ledgers are explicitly provisional and cannot certify full CLZ parity.
+- The all-kind typed Catalog Item v1 contract is now exported by Core and pinned in `tool/core_contracts/`; App generates Dart transport classes and exposes the source-neutral read/write/search endpoints. The old Music and per-kind API paths remain active, and no Add/Edit or workspace flow has switched to the new endpoints yet.
+- The new App client now requires `CatalogItemRef` for Catalog Item reads and updates, checks that returned identity matches the requested kind and ID, and checks the kind returned by creates. Music's contained-track hierarchy reads through this endpoint; its Add/Edit persistence and workspace projection still use the old graph.
+- Provider search results and provider identities no longer carry generic `work/release/copy` scopes. Search results use provider record roles, and Music Add search emits concrete release results without a selectable release-group parent. This is limited to provider search; per-kind domain models, persistence, editing, and workspace still need the coordinated Catalog Item cutover.
 
-Each kind registers independent work, release, and copy workspace registries
-from an explicit kind-owned schema. Fields, columns, sorts, groups, and defaults
-live beside the schema for their scope; there is no aggregate field catalog or
-runtime `forScope` filter. Edit UI owns shell/controller lifecycle only; kind
-semantics are implemented by split work/release/copy edit-session contracts
-and kind-owned mutation payloads.
+## Required close-out
 
-Music additionally has dedicated Release Group and Release editors. Owned
-Copies and Listening are release-level contributors, not fields on the Music
-Release Group aggregate.
+All nine kinds must use `CatalogItemRef(kind, id)` and `OwnedCopyRef(kind, itemId, copyId)`, one Catalog Add/Edit form, a separate Owned Copy form, typed contained child data, and field definitions shared by forms and workspace projections. Core and App must switch together to clean v1 schemas and pinned generated contracts. Old references, tables, APIs, compatibility paths, and migrations are removed as part of that one cutover; they are not retained as aliases.
 
-## Provider boundary
-
-Provider adapters expose structural search records and normalized raw envelopes.
-Kind mappers decode provider attributes into kind-owned candidates/models. The
-shared search record does not expose Book, Comic, Music, or other kind-specific
-fields as public members. Preview chrome is common, while series, publishing,
-video and game details are assembled by the selected kind mapper.
-
-Music uses its typed provider capability directly and does not use the erased
-provider metadata envelope. MusicBrainz protocol DTOs remain in the provider
-adapter; Music candidate mapping is owned by the Music integration.
-
-## Remaining implementation work
-
-All nine kinds provide manual candidate builders and typed catalog Add plus
-dedicated Edit forms. Each kind's Add and Edit schemas share the same
-kind-owned, scope-specific field specifications and typed form values. Workspace
-schemas are explicit for Work, Release, and Copy across all nine kinds; Music
-keeps Release Group, Release, and Owned Copy as separate workspace scopes.
-
-The older combined Core-candidate edit shell remains active for Core correction
-proposals and for its existing links, images, relations, and personal/tracking
-panels. Its kind-owned edit sessions edit `CatalogSearchCandidate` transport
-values, while dedicated forms edit persisted kind domain entities. The two paths
-have different write targets, so their similarly labeled fields are not shared
-through a second typed-field alias.
-
-The generic Add/provider controller still handles search, hydration, selection,
-and submit concerns. Other cross-kind surfaces need focused review before the
-boundary plan can close.
-
-## Verification
-
-Add/Edit schema contracts for all nine kinds and both schema-renderer suites pass
-(93 tests). Targeted analysis of the changed form schemas, renderers, and tests
-reports no issues, and the Windows debug build succeeds. Whole-repository
-analysis has no errors; it reports existing warning and info diagnostics
-elsewhere. Historical counts in older audit files do not certify the current
-working tree.
-
-## External Core dependency
-
-Core exposes canonical release layers for Comic Issue -> Variant, Manga Volume
-Work -> Edition, and Anime Work -> Release -> Media with episode coverage. App
-mappings consume those Core-owned identifiers and keep work-only payloads
-release-less; they do not fabricate release identities when Core has no
-canonical release.
+See the cutover document for ordered gates, database reset implications, and deployment restrictions.

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
@@ -125,7 +124,6 @@ sealed class MangaProviderCandidate extends ProviderSearchCandidateBase {
     super.imageUrl,
     super.parent,
     super.previewOnly,
-    required super.entityScope,
     super.identity,
     this.issueNumber,
     this.series,
@@ -152,9 +150,8 @@ sealed class MangaProviderCandidate extends ProviderSearchCandidateBase {
     final common = ProviderEntityIdentity(
       provider: provider ?? result.provider,
       externalId: result.providerItemId,
-      scope: result.entityScope,
     );
-    if (result.entityScope == LibraryEntityScope.work) {
+    if (result.searchRole == ProviderSearchRole.catalogItem) {
       return MangaVolumeCandidate(
         provider: provider ?? result.provider,
         providerItemId: result.providerItemId,
@@ -203,7 +200,8 @@ final class MangaVolumeCandidate extends MangaProviderCandidate {
     super.previewOnly,
     super.identity,
   }) : super(
-            kind: CatalogMediaKind.manga, entityScope: LibraryEntityScope.work);
+          kind: CatalogMediaKind.manga,
+        );
 
   @override
   ProviderSearchRole get searchRole => ProviderSearchRole.volume;
@@ -225,8 +223,8 @@ final class MangaEditionCandidate extends MangaProviderCandidate {
     super.publisher,
     super.issueCount,
   }) : super(
-            kind: CatalogMediaKind.manga,
-            entityScope: LibraryEntityScope.release);
+          kind: CatalogMediaKind.manga,
+        );
 
   @override
   ProviderSearchRole get searchRole => ProviderSearchRole.edition;

@@ -1,0 +1,2979 @@
+{
+  "$defs": {
+    "AnimeCatalogDetailsV1": {
+      "additionalProperties": false,
+      "properties": {
+        "credits": {
+          "items": {
+            "$ref": "#/$defs/CatalogCreditV1"
+          },
+          "title": "Credits",
+          "type": "array"
+        },
+        "edition_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Edition Title"
+        },
+        "episodes": {
+          "items": {
+            "$ref": "#/$defs/CatalogEpisodeV1"
+          },
+          "title": "Episodes",
+          "type": "array"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Format"
+        },
+        "genres": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Genres",
+          "type": "array"
+        },
+        "identifiers": {
+          "items": {
+            "$ref": "#/$defs/CatalogIdentifierV1"
+          },
+          "title": "Identifiers",
+          "type": "array"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/CatalogImageV1"
+          },
+          "title": "Images",
+          "type": "array"
+        },
+        "kind": {
+          "const": "anime",
+          "title": "Kind",
+          "type": "string"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Region"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "studios": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Studios",
+          "type": "array"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "kind"
+      ],
+      "title": "AnimeCatalogDetailsV1",
+      "type": "object"
+    },
+    "BoardGameCatalogDetailsV1": {
+      "additionalProperties": false,
+      "properties": {
+        "categories": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/CatalogComponentV1"
+          },
+          "title": "Components",
+          "type": "array"
+        },
+        "designers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Designers",
+          "type": "array"
+        },
+        "edition": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Edition"
+        },
+        "identifiers": {
+          "items": {
+            "$ref": "#/$defs/CatalogIdentifierV1"
+          },
+          "title": "Identifiers",
+          "type": "array"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/CatalogImageV1"
+          },
+          "title": "Images",
+          "type": "array"
+        },
+        "kind": {
+          "const": "boardgame",
+          "title": "Kind",
+          "type": "string"
+        },
+        "mechanics": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Mechanics",
+          "type": "array"
+        },
+        "play_time_minutes": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Play Time Minutes"
+        },
+        "player_counts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Player Counts",
+          "type": "array"
+        },
+        "publishers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Publishers",
+          "type": "array"
+        },
+        "related_items": {
+          "items": {
+            "$ref": "#/$defs/CatalogRelatedItemV1"
+          },
+          "title": "Related Items",
+          "type": "array"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "kind"
+      ],
+      "title": "BoardGameCatalogDetailsV1",
+      "type": "object"
+    },
+    "BookCatalogDetailsV1": {
+      "additionalProperties": false,
+      "properties": {
+        "contributors": {
+          "items": {
+            "$ref": "#/$defs/CatalogCreditV1"
+          },
+          "title": "Contributors",
+          "type": "array"
+        },
+        "edition": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Edition"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Format"
+        },
+        "genres": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Genres",
+          "type": "array"
+        },
+        "identifiers": {
+          "items": {
+            "$ref": "#/$defs/CatalogIdentifierV1"
+          },
+          "title": "Identifiers",
+          "type": "array"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/CatalogImageV1"
+          },
+          "title": "Images",
+          "type": "array"
+        },
+        "kind": {
+          "const": "book",
+          "title": "Kind",
+          "type": "string"
+        },
+        "original_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Original Title"
+        },
+        "publication_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "publisher": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Publisher"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "series_membership": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogSeriesMembershipV1"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "subjects": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Subjects",
+          "type": "array"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "kind"
+      ],
+      "title": "BookCatalogDetailsV1",
+      "type": "object"
+    },
+    "CatalogComponentV1": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "position": {
+          "default": 0,
+          "minimum": 0.0,
+          "title": "Position",
+          "type": "integer"
+        },
+        "quantity": {
+          "default": 1,
+          "minimum": 1.0,
+          "title": "Quantity",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "CatalogComponentV1",
+      "type": "object"
+    },
+    "CatalogCreditV1": {
+      "additionalProperties": false,
+      "properties": {
+        "character_name": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Character Name"
+        },
+        "name": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "role": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        },
+        "sort_name": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Name"
+        }
+      },
+      "required": [
+        "name",
+        "role"
+      ],
+      "title": "CatalogCreditV1",
+      "type": "object"
+    },
+    "CatalogEpisodeV1": {
+      "additionalProperties": false,
+      "properties": {
+        "air_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 10000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Description"
+        },
+        "episode_number": {
+          "anyOf": [
+            {
+              "maxLength": 32,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Episode Number"
+        },
+        "runtime_minutes": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Runtime Minutes"
+        },
+        "season_number": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Season Number"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "title": "CatalogEpisodeV1",
+      "type": "object"
+    },
+    "CatalogIdentifierV1": {
+      "additionalProperties": false,
+      "properties": {
+        "identifier_type": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Identifier Type",
+          "type": "string"
+        },
+        "is_primary": {
+          "default": false,
+          "title": "Is Primary",
+          "type": "boolean"
+        },
+        "value": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier_type",
+        "value"
+      ],
+      "title": "CatalogIdentifierV1",
+      "type": "object"
+    },
+    "CatalogImageV1": {
+      "additionalProperties": false,
+      "properties": {
+        "image_key": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Image Key"
+        },
+        "image_type": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Image Type",
+          "type": "string"
+        },
+        "position": {
+          "default": 0,
+          "minimum": 0.0,
+          "title": "Position",
+          "type": "integer"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Url"
+        }
+      },
+      "required": [
+        "image_type"
+      ],
+      "title": "CatalogImageV1",
+      "type": "object"
+    },
+    "CatalogItemDetailsV1": {
+      "discriminator": {
+        "mapping": {
+          "anime": "#/components/schemas/AnimeCatalogDetailsV1",
+          "boardgame": "#/components/schemas/BoardGameCatalogDetailsV1",
+          "book": "#/components/schemas/BookCatalogDetailsV1",
+          "comic": "#/components/schemas/ComicCatalogDetailsV1",
+          "game": "#/components/schemas/GameCatalogDetailsV1",
+          "manga": "#/components/schemas/MangaCatalogDetailsV1",
+          "movie": "#/components/schemas/MovieCatalogDetailsV1-Output",
+          "music": "#/components/schemas/MusicCatalogDetailsV1",
+          "tv": "#/components/schemas/TVCatalogDetailsV1"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/AnimeCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/BoardGameCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/BookCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/ComicCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/GameCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/MangaCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/MovieCatalogDetailsV1-Output"
+        },
+        {
+          "$ref": "#/$defs/MusicCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/TVCatalogDetailsV1"
+        }
+      ]
+    },
+    "CatalogItemSummaryV1": {
+      "additionalProperties": false,
+      "properties": {
+        "cover_image_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cover Image Url"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "anime",
+            "boardgame",
+            "book",
+            "comic",
+            "game",
+            "manga",
+            "movie",
+            "music",
+            "tv"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "title"
+      ],
+      "title": "CatalogItemSummaryV1",
+      "type": "object"
+    },
+    "CatalogItemV1": {
+      "additionalProperties": false,
+      "properties": {
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "details": {
+          "$ref": "#/$defs/CatalogItemDetailsV1"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "details",
+        "created_at",
+        "updated_at"
+      ],
+      "title": "CatalogItemV1",
+      "type": "object"
+    },
+    "CatalogItemWriteDetailsV1": {
+      "discriminator": {
+        "mapping": {
+          "anime": "#/components/schemas/AnimeCatalogDetailsV1",
+          "boardgame": "#/components/schemas/BoardGameCatalogDetailsV1",
+          "book": "#/components/schemas/BookCatalogDetailsV1",
+          "comic": "#/components/schemas/ComicCatalogDetailsV1",
+          "game": "#/components/schemas/GameCatalogDetailsV1",
+          "manga": "#/components/schemas/MangaCatalogDetailsV1",
+          "movie": "#/components/schemas/MovieCatalogDetailsV1-Input",
+          "music": "#/components/schemas/MusicCatalogWriteDetailsV1",
+          "tv": "#/components/schemas/TVCatalogDetailsV1"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/AnimeCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/BoardGameCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/BookCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/ComicCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/GameCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/MangaCatalogDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/MovieCatalogDetailsV1-Input"
+        },
+        {
+          "$ref": "#/$defs/MusicCatalogWriteDetailsV1"
+        },
+        {
+          "$ref": "#/$defs/TVCatalogDetailsV1"
+        }
+      ]
+    },
+    "CatalogItemWriteV1": {
+      "additionalProperties": false,
+      "properties": {
+        "details": {
+          "$ref": "#/$defs/CatalogItemWriteDetailsV1"
+        }
+      },
+      "required": [
+        "details"
+      ],
+      "title": "CatalogItemWriteV1",
+      "type": "object"
+    },
+    "CatalogMediaTrackV1": {
+      "additionalProperties": false,
+      "properties": {
+        "aspect_ratio": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Aspect Ratio"
+        },
+        "audio_tracks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Audio Tracks",
+          "type": "array"
+        },
+        "media_number": {
+          "default": 1,
+          "minimum": 1.0,
+          "title": "Media Number",
+          "type": "integer"
+        },
+        "media_type": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Media Type"
+        },
+        "subtitles": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Subtitles",
+          "type": "array"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Title"
+        }
+      },
+      "title": "CatalogMediaTrackV1",
+      "type": "object"
+    },
+    "CatalogRelatedItemV1": {
+      "additionalProperties": false,
+      "properties": {
+        "item_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Item Id"
+        },
+        "relation": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Relation",
+          "type": "string"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Title"
+        }
+      },
+      "required": [
+        "relation"
+      ],
+      "title": "CatalogRelatedItemV1",
+      "type": "object"
+    },
+    "CatalogSeasonV1": {
+      "additionalProperties": false,
+      "properties": {
+        "episodes": {
+          "items": {
+            "$ref": "#/$defs/CatalogEpisodeV1"
+          },
+          "title": "Episodes",
+          "type": "array"
+        },
+        "season_number": {
+          "minimum": 0.0,
+          "title": "Season Number",
+          "type": "integer"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Title"
+        }
+      },
+      "required": [
+        "season_number"
+      ],
+      "title": "CatalogSeasonV1",
+      "type": "object"
+    },
+    "CatalogSeriesMembershipV1": {
+      "additionalProperties": false,
+      "properties": {
+        "position": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Position"
+        },
+        "series_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Series Id"
+        },
+        "series_title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Series Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "series_title"
+      ],
+      "title": "CatalogSeriesMembershipV1",
+      "type": "object"
+    },
+    "ComicCatalogDetailsV1": {
+      "additionalProperties": false,
+      "properties": {
+        "characters": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Characters",
+          "type": "array"
+        },
+        "creators": {
+          "items": {
+            "$ref": "#/$defs/CatalogCreditV1"
+          },
+          "title": "Creators",
+          "type": "array"
+        },
+        "identifiers": {
+          "items": {
+            "$ref": "#/$defs/CatalogIdentifierV1"
+          },
+          "title": "Identifiers",
+          "type": "array"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/CatalogImageV1"
+          },
+          "title": "Images",
+          "type": "array"
+        },
+        "issue_number": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Issue Number"
+        },
+        "key_issue": {
+          "default": false,
+          "title": "Key Issue",
+          "type": "boolean"
+        },
+        "kind": {
+          "const": "comic",
+          "title": "Kind",
+          "type": "string"
+        },
+        "plot": {
+          "anyOf": [
+            {
+              "maxLength": 10000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Plot"
+        },
+        "publisher": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Publisher"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "series": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogSeriesMembershipV1"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "story_arcs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Story Arcs",
+          "type": "array"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "variant": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Variant"
+        }
+      },
+      "required": [
+        "title",
+        "kind"
+      ],
+      "title": "ComicCatalogDetailsV1",
+      "type": "object"
+    },
+    "GameCatalogDetailsV1": {
+      "additionalProperties": false,
+      "properties": {
+        "edition": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Edition"
+        },
+        "identifiers": {
+          "items": {
+            "$ref": "#/$defs/CatalogIdentifierV1"
+          },
+          "title": "Identifiers",
+          "type": "array"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/CatalogImageV1"
+          },
+          "title": "Images",
+          "type": "array"
+        },
+        "kind": {
+          "const": "game",
+          "title": "Kind",
+          "type": "string"
+        },
+        "platform": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Platform"
+        },
+        "publisher": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Publisher"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Region"
+        },
+        "related_items": {
+          "items": {
+            "$ref": "#/$defs/CatalogRelatedItemV1"
+          },
+          "title": "Related Items",
+          "type": "array"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "kind"
+      ],
+      "title": "GameCatalogDetailsV1",
+      "type": "object"
+    },
+    "MangaCatalogDetailsV1": {
+      "additionalProperties": false,
+      "properties": {
+        "chapters": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Chapters",
+          "type": "array"
+        },
+        "contributors": {
+          "items": {
+            "$ref": "#/$defs/CatalogCreditV1"
+          },
+          "title": "Contributors",
+          "type": "array"
+        },
+        "edition_format": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Edition Format"
+        },
+        "identifiers": {
+          "items": {
+            "$ref": "#/$defs/CatalogIdentifierV1"
+          },
+          "title": "Identifiers",
+          "type": "array"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/CatalogImageV1"
+          },
+          "title": "Images",
+          "type": "array"
+        },
+        "kind": {
+          "const": "manga",
+          "title": "Kind",
+          "type": "string"
+        },
+        "publisher": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Publisher"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "series_membership": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogSeriesMembershipV1"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "volume_number": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Volume Number"
+        }
+      },
+      "required": [
+        "title",
+        "kind"
+      ],
+      "title": "MangaCatalogDetailsV1",
+      "type": "object"
+    },
+    "MovieCatalogDetailsV1-Input": {
+      "additionalProperties": false,
+      "properties": {
+        "audience_rating": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,3}|(?=[\\d.]{1,6}0*$)\\d{0,3}\\.\\d{0,2}0*$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Audience Rating"
+        },
+        "box_set": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Box Set"
+        },
+        "credits": {
+          "items": {
+            "$ref": "#/$defs/CatalogCreditV1"
+          },
+          "title": "Credits",
+          "type": "array"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Format"
+        },
+        "genres": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Genres",
+          "type": "array"
+        },
+        "identifiers": {
+          "items": {
+            "$ref": "#/$defs/CatalogIdentifierV1"
+          },
+          "title": "Identifiers",
+          "type": "array"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/CatalogImageV1"
+          },
+          "title": "Images",
+          "type": "array"
+        },
+        "kind": {
+          "const": "movie",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_tracks": {
+          "items": {
+            "$ref": "#/$defs/CatalogMediaTrackV1"
+          },
+          "title": "Media Tracks",
+          "type": "array"
+        },
+        "plot": {
+          "anyOf": [
+            {
+              "maxLength": 10000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Plot"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Region"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_year": {
+          "anyOf": [
+            {
+              "maximum": 9999.0,
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Release Year"
+        },
+        "runtime_minutes": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Runtime Minutes"
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "studios": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Studios",
+          "type": "array"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "kind"
+      ],
+      "title": "MovieCatalogDetailsV1",
+      "type": "object"
+    },
+    "MovieCatalogDetailsV1-Output": {
+      "additionalProperties": false,
+      "properties": {
+        "audience_rating": {
+          "anyOf": [
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,3}|(?=[\\d.]{1,6}0*$)\\d{0,3}\\.\\d{0,2}0*$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Audience Rating"
+        },
+        "box_set": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Box Set"
+        },
+        "credits": {
+          "items": {
+            "$ref": "#/$defs/CatalogCreditV1"
+          },
+          "title": "Credits",
+          "type": "array"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Format"
+        },
+        "genres": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Genres",
+          "type": "array"
+        },
+        "identifiers": {
+          "items": {
+            "$ref": "#/$defs/CatalogIdentifierV1"
+          },
+          "title": "Identifiers",
+          "type": "array"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/CatalogImageV1"
+          },
+          "title": "Images",
+          "type": "array"
+        },
+        "kind": {
+          "const": "movie",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_tracks": {
+          "items": {
+            "$ref": "#/$defs/CatalogMediaTrackV1"
+          },
+          "title": "Media Tracks",
+          "type": "array"
+        },
+        "plot": {
+          "anyOf": [
+            {
+              "maxLength": 10000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Plot"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Region"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_year": {
+          "anyOf": [
+            {
+              "maximum": 9999.0,
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Release Year"
+        },
+        "runtime_minutes": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Runtime Minutes"
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "studios": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Studios",
+          "type": "array"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "kind"
+      ],
+      "title": "MovieCatalogDetailsV1",
+      "type": "object"
+    },
+    "MusicAlbumArtistV1": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "sort_name": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Name"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "MusicAlbumArtistV1",
+      "type": "object"
+    },
+    "MusicAlbumCreditV1": {
+      "additionalProperties": false,
+      "properties": {
+        "credited_name": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Credited Name",
+          "type": "string"
+        },
+        "instrument": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Instrument"
+        },
+        "join_phrase": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Join Phrase"
+        },
+        "role": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        },
+        "sequence": {
+          "minimum": 0.0,
+          "title": "Sequence",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "role",
+        "sequence",
+        "credited_name"
+      ],
+      "title": "MusicAlbumCreditV1",
+      "type": "object"
+    },
+    "MusicAlbumDiscTitleV1": {
+      "additionalProperties": false,
+      "properties": {
+        "disc_number": {
+          "minimum": 1.0,
+          "title": "Disc Number",
+          "type": "integer"
+        },
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "disc_number",
+        "title"
+      ],
+      "title": "MusicAlbumDiscTitleV1",
+      "type": "object"
+    },
+    "MusicAlbumLabelV1": {
+      "additionalProperties": false,
+      "properties": {
+        "catalog_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Catalog Number"
+        },
+        "name": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "MusicAlbumLabelV1",
+      "type": "object"
+    },
+    "MusicAlbumLinkV1": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Description"
+        },
+        "position": {
+          "minimum": 0.0,
+          "title": "Position",
+          "type": "integer"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Title"
+        },
+        "url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "position",
+        "url"
+      ],
+      "title": "MusicAlbumLinkV1",
+      "type": "object"
+    },
+    "MusicAlbumTrackInputV1": {
+      "additionalProperties": false,
+      "properties": {
+        "artist": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Artist"
+        },
+        "disc_number": {
+          "minimum": 1.0,
+          "title": "Disc Number",
+          "type": "integer"
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Duration Ms"
+        },
+        "position": {
+          "minimum": 1.0,
+          "title": "Position",
+          "type": "integer"
+        },
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "disc_number",
+        "position",
+        "title"
+      ],
+      "title": "MusicAlbumTrackInputV1",
+      "type": "object"
+    },
+    "MusicAlbumTrackV1": {
+      "additionalProperties": false,
+      "properties": {
+        "album_id": {
+          "format": "uuid",
+          "title": "Album Id",
+          "type": "string"
+        },
+        "artist": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Artist"
+        },
+        "disc_number": {
+          "minimum": 1.0,
+          "title": "Disc Number",
+          "type": "integer"
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Duration Ms"
+        },
+        "position": {
+          "minimum": 1.0,
+          "title": "Position",
+          "type": "integer"
+        },
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "album_id",
+        "disc_number",
+        "position",
+        "title"
+      ],
+      "title": "MusicAlbumTrackV1",
+      "type": "object"
+    },
+    "MusicCatalogDetailsV1": {
+      "additionalProperties": false,
+      "properties": {
+        "artists": {
+          "items": {
+            "$ref": "#/$defs/MusicAlbumArtistV1"
+          },
+          "title": "Artists",
+          "type": "array"
+        },
+        "back_cover_image_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Back Cover Image Url"
+        },
+        "barcode": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Barcode"
+        },
+        "box_set": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Box Set"
+        },
+        "catalog_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Catalog Number"
+        },
+        "country": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Country"
+        },
+        "cover_image_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cover Image Url"
+        },
+        "credits": {
+          "items": {
+            "$ref": "#/$defs/MusicAlbumCreditV1"
+          },
+          "title": "Credits",
+          "type": "array"
+        },
+        "disc_titles": {
+          "items": {
+            "$ref": "#/$defs/MusicAlbumDiscTitleV1"
+          },
+          "title": "Disc Titles",
+          "type": "array"
+        },
+        "extras": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Extras",
+          "type": "array"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Format"
+        },
+        "genres": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Genres",
+          "type": "array"
+        },
+        "is_live": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Is Live"
+        },
+        "kind": {
+          "const": "music",
+          "title": "Kind",
+          "type": "string"
+        },
+        "labels": {
+          "items": {
+            "$ref": "#/$defs/MusicAlbumLabelV1"
+          },
+          "title": "Labels",
+          "type": "array"
+        },
+        "links": {
+          "items": {
+            "$ref": "#/$defs/MusicAlbumLinkV1"
+          },
+          "title": "Links",
+          "type": "array"
+        },
+        "matrix_number_side_a": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Matrix Number Side A"
+        },
+        "matrix_number_side_b": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Matrix Number Side B"
+        },
+        "original_release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "packaging": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Packaging"
+        },
+        "recording_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rpm": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rpm"
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "sound_types": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sound Types",
+          "type": "array"
+        },
+        "spars_code": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Spars Code"
+        },
+        "studio": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Studio",
+          "type": "array"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "tracks": {
+          "items": {
+            "$ref": "#/$defs/MusicAlbumTrackV1"
+          },
+          "title": "Tracks",
+          "type": "array"
+        },
+        "vinyl_color": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Vinyl Color"
+        },
+        "vinyl_weight": {
+          "anyOf": [
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,6}|(?=[\\d.]{1,9}0*$)\\d{0,6}\\.\\d{0,2}0*$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Vinyl Weight"
+        }
+      },
+      "required": [
+        "title",
+        "kind"
+      ],
+      "title": "MusicCatalogDetailsV1",
+      "type": "object"
+    },
+    "MusicCatalogWriteDetailsV1": {
+      "additionalProperties": false,
+      "properties": {
+        "artists": {
+          "items": {
+            "$ref": "#/$defs/MusicAlbumArtistV1"
+          },
+          "title": "Artists",
+          "type": "array"
+        },
+        "back_cover_image_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Back Cover Image Url"
+        },
+        "barcode": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Barcode"
+        },
+        "box_set": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Box Set"
+        },
+        "catalog_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Catalog Number"
+        },
+        "country": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Country"
+        },
+        "cover_image_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cover Image Url"
+        },
+        "credits": {
+          "items": {
+            "$ref": "#/$defs/MusicAlbumCreditV1"
+          },
+          "title": "Credits",
+          "type": "array"
+        },
+        "disc_titles": {
+          "items": {
+            "$ref": "#/$defs/MusicAlbumDiscTitleV1"
+          },
+          "title": "Disc Titles",
+          "type": "array"
+        },
+        "extras": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Extras",
+          "type": "array"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Format"
+        },
+        "genres": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Genres",
+          "type": "array"
+        },
+        "is_live": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Is Live"
+        },
+        "kind": {
+          "const": "music",
+          "title": "Kind",
+          "type": "string"
+        },
+        "labels": {
+          "items": {
+            "$ref": "#/$defs/MusicAlbumLabelV1"
+          },
+          "title": "Labels",
+          "type": "array"
+        },
+        "links": {
+          "items": {
+            "$ref": "#/$defs/MusicAlbumLinkV1"
+          },
+          "title": "Links",
+          "type": "array"
+        },
+        "matrix_number_side_a": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Matrix Number Side A"
+        },
+        "matrix_number_side_b": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Matrix Number Side B"
+        },
+        "original_release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "packaging": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Packaging"
+        },
+        "recording_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rpm": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rpm"
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "sound_types": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sound Types",
+          "type": "array"
+        },
+        "spars_code": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Spars Code"
+        },
+        "studio": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Studio",
+          "type": "array"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "tracks": {
+          "items": {
+            "$ref": "#/$defs/MusicAlbumTrackInputV1"
+          },
+          "title": "Tracks",
+          "type": "array"
+        },
+        "vinyl_color": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Vinyl Color"
+        },
+        "vinyl_weight": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,6}|(?=[\\d.]{1,9}0*$)\\d{0,6}\\.\\d{0,2}0*$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Vinyl Weight"
+        }
+      },
+      "required": [
+        "title",
+        "kind"
+      ],
+      "title": "MusicCatalogWriteDetailsV1",
+      "type": "object"
+    },
+    "PartialDateValue": {
+      "additionalProperties": false,
+      "description": "A catalog date with independently optional components.",
+      "properties": {
+        "day": {
+          "anyOf": [
+            {
+              "maximum": 31.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Day"
+        },
+        "month": {
+          "anyOf": [
+            {
+              "maximum": 12.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Month"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "maximum": 9999.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Year"
+        }
+      },
+      "title": "PartialDateValue",
+      "type": "object"
+    },
+    "TVCatalogDetailsV1": {
+      "additionalProperties": false,
+      "properties": {
+        "credits": {
+          "items": {
+            "$ref": "#/$defs/CatalogCreditV1"
+          },
+          "title": "Credits",
+          "type": "array"
+        },
+        "edition_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Edition Title"
+        },
+        "episodes": {
+          "items": {
+            "$ref": "#/$defs/CatalogEpisodeV1"
+          },
+          "title": "Episodes",
+          "type": "array"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Format"
+        },
+        "genres": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Genres",
+          "type": "array"
+        },
+        "identifiers": {
+          "items": {
+            "$ref": "#/$defs/CatalogIdentifierV1"
+          },
+          "title": "Identifiers",
+          "type": "array"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/CatalogImageV1"
+          },
+          "title": "Images",
+          "type": "array"
+        },
+        "kind": {
+          "const": "tv",
+          "title": "Kind",
+          "type": "string"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Region"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDateValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "seasons": {
+          "items": {
+            "$ref": "#/$defs/CatalogSeasonV1"
+          },
+          "title": "Seasons",
+          "type": "array"
+        },
+        "sort_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Title"
+        },
+        "studios": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Studios",
+          "type": "array"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "kind"
+      ],
+      "title": "TVCatalogDetailsV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.collectarr.app/catalog-item/v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contractVersion": "1.0.0",
+  "coreCommit": "f57205692d34d521ab8a2091dd527dd6c5da1ca4",
+  "generatedAt": "2026-09-25T21:34:23.715591Z",
+  "roots": {
+    "item": {
+      "$ref": "#/$defs/CatalogItemV1"
+    },
+    "itemSummary": {
+      "$ref": "#/$defs/CatalogItemSummaryV1"
+    },
+    "itemWrite": {
+      "$ref": "#/$defs/CatalogItemWriteV1"
+    }
+  },
+  "schemaVersion": 1,
+  "title": "Collectarr Catalog Item API"
+}

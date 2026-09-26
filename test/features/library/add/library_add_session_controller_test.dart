@@ -461,7 +461,7 @@ void main() {
             title: 'Good Result for $query',
             kind: CatalogMediaKind.comic,
             entityScope: LibraryEntityScope.release,
-            searchRole: ProviderSearchRole.release,
+            searchRole: ProviderSearchRole.edition,
           ),
         ],
       );

@@ -35,6 +35,9 @@ jobs:
       - name: Verify pinned Music catalog DTOs
         run: dart run tool/generate_music_catalog_dto.dart --check
 
+      - name: Verify pinned Catalog Item DTOs
+        run: dart run tool/generate_catalog_item_v1_dto.dart --check
+
       - name: Verify Music catalog field ownership
         run: dart run tool/check_music_catalog_field_ownership.dart
 

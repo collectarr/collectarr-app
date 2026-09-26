@@ -3,7 +3,6 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 
 import '../../../../core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 import '../../credentials/models/hardcover_credentials.dart';
 import '../../transport/provider_raw_envelope.dart';
@@ -195,7 +194,6 @@ class HardcoverProvider extends ProviderAdapter {
           providerItemId: _formatProviderItemId(targetKind, bookId.toString()),
           title: title,
           kind: catalogMediaKindFromApiValue(targetKind),
-          entityScope: LibraryEntityScope.release,
           searchRole: ProviderSearchRole.edition,
           summary: summaryParts.isNotEmpty ? summaryParts.join(' / ') : null,
           imageUrl: imageUrl,

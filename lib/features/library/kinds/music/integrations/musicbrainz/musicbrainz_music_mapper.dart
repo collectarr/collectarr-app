@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_candidate.dart';
@@ -23,7 +22,7 @@ final class MusicBrainzMusicMapper {
     bool isHydrated = false,
   }) {
     final id = _required(release.id, 'MusicBrainz release');
-    final identity = _identity(id, LibraryEntityScope.release);
+    final identity = _identity(id);
     final images = _releaseImages(
       id,
       coverArtArchiveBaseUrl: coverArtArchiveBaseUrl,
@@ -68,7 +67,7 @@ final class MusicBrainzMusicMapper {
     required ProviderAttribution attribution,
   }) {
     final id = _required(group.id, 'MusicBrainz release group');
-    final identity = _identity(id, LibraryEntityScope.work);
+    final identity = _identity(id);
     return MusicReleaseGroupCandidate(
       identity: identity,
       title: _text(group.title) ?? 'Unknown release group',
@@ -122,7 +121,6 @@ final class MusicBrainzMusicMapper {
     return ProviderEnvelope(
       provider: candidate.identity.provider,
       providerItemId: candidate.identity.externalId,
-      entityScope: candidate.entityScope,
       payload: candidate,
       provenance: provenance,
       images: candidate.images,
@@ -146,7 +144,6 @@ final class MusicBrainzMusicMapper {
     return ProviderEnvelope(
       provider: candidate.identity.provider,
       providerItemId: providerItemId,
-      entityScope: candidate.entityScope,
       payload: candidate,
       provenance: provenance,
       images: candidate.images,
@@ -184,21 +181,16 @@ final class MusicBrainzMusicMapper {
     );
   }
 
-  static ProviderEntityIdentity _identity(
-    String id,
-    LibraryEntityScope scope,
-  ) =>
-      ProviderEntityIdentity(
+  static ProviderEntityIdentity _identity(String id) => ProviderEntityIdentity(
         provider: 'musicbrainz',
         externalId: id,
-        scope: scope,
       );
 
   static List<ProviderImageCandidate> _releaseImages(
     String id, {
     required String coverArtArchiveBaseUrl,
   }) {
-    final source = _identity(id, LibraryEntityScope.release);
+    final source = _identity(id);
     return [
       ProviderImageCandidate(
         url: Uri.parse('$coverArtArchiveBaseUrl/release/$id/front'),
@@ -212,7 +204,7 @@ final class MusicBrainzMusicMapper {
     String id, {
     required String coverArtArchiveBaseUrl,
   }) {
-    final source = _identity(id, LibraryEntityScope.work);
+    final source = _identity(id);
     return [
       ProviderImageCandidate(
         url: Uri.parse('$coverArtArchiveBaseUrl/release-group/$id/front'),

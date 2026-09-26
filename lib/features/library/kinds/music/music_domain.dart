@@ -1,4 +1,5 @@
 export 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
+export 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
@@ -11,7 +12,6 @@ export 'package:collectarr_app/features/library/kinds/music/domain/music_track.d
 export 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/music/data/remote/music_remote_source.dart';
 export 'package:collectarr_app/features/library/kinds/music/data/providers/musicbrainz/music_musicbrainz_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/music/data/providers/musicbrainz/music_musicbrainz_integration.dart';
 export 'package:collectarr_app/features/library/kinds/music/data/local/music_local_mapper.dart';

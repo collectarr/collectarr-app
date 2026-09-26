@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:xml/xml.dart';
 
 import '../../../../core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 import '../../credentials/models/bgg_credentials.dart';
 import '../../transport/provider_raw_envelope.dart';
@@ -122,8 +121,7 @@ class BGGProvider extends ProviderAdapter {
           providerItemId: id,
           title: title,
           kind: CatalogMediaKind.boardgame,
-          entityScope: LibraryEntityScope.work,
-          searchRole: ProviderSearchRole.work,
+          searchRole: ProviderSearchRole.catalogItem,
           summary: year,
         ),
       );
