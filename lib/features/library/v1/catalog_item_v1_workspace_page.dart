@@ -4,6 +4,8 @@ import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
+import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/data/catalog_item_v1_workspace_repository.dart';
 import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
 import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
@@ -884,6 +886,7 @@ final class _CatalogItemV1AddDialogState
       OwnedCopyV1FormDraft.empty(widget.kind);
   bool _manual = false;
   bool _busy = false;
+  bool _searchIdentifierOnly = false;
   String? _error;
   Map<String, dynamic> _kindDetails = {};
 
@@ -962,10 +965,16 @@ final class _CatalogItemV1AddDialogState
                                 labelText: 'Title or identifier',
                                 prefixIcon: Icon(Icons.search),
                               ),
+                              onChanged: (_) => _searchIdentifierOnly = false,
                               onSubmitted: (_) => _search(),
                             ),
                           ),
                           const SizedBox(width: 8),
+                          IconButton(
+                            tooltip: 'Scan barcode',
+                            onPressed: _busy ? null : _scanBarcode,
+                            icon: const Icon(Icons.qr_code_scanner),
+                          ),
                           FilledButton(
                             onPressed: _busy ? null : _search,
                             child: const Text('Search'),
@@ -1064,6 +1073,8 @@ final class _CatalogItemV1AddDialogState
   Future<void> _search() async {
     final query = _queryController.text.trim();
     if (query.isEmpty) return;
+    final identifierOnly =
+        _searchIdentifierOnly || RegExp(r'^\d{8,14}$').hasMatch(query);
     setState(() {
       _busy = true;
       _error = null;
@@ -1073,13 +1084,12 @@ final class _CatalogItemV1AddDialogState
       _selectedDetailsError = null;
     });
     try {
-      final results = await ref
-          .read(libraryCatalogItemV1AddServiceProvider)
-          .search(
-            kind: widget.kind,
-            query: RegExp(r'^\d{8,14}$').hasMatch(query) ? null : query,
-            identifier: RegExp(r'^\d{8,14}$').hasMatch(query) ? query : null,
-          );
+      final results =
+          await ref.read(libraryCatalogItemV1AddServiceProvider).search(
+                kind: widget.kind,
+                query: identifierOnly ? null : query,
+                identifier: identifierOnly ? query : null,
+              );
       if (!mounted) return;
       setState(() => _results = results);
     } catch (error) {
@@ -1087,6 +1097,24 @@ final class _CatalogItemV1AddDialogState
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _scanBarcode() async {
+    final scanned = await showModalBottomSheet<ScannedCode>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => const BarcodeScanSheet(
+        title: 'Search by barcode',
+        description:
+            'Scan or enter an identifier to search the shared catalog.',
+        manualLabel: 'Barcode / ISBN / identifier',
+        submitLabel: 'Search catalog',
+      ),
+    );
+    if (!mounted || scanned == null) return;
+    _queryController.text = scanned.value;
+    _searchIdentifierOnly = true;
+    await _search();
   }
 
   Future<void> _selectSearchResult(CatalogItemSummaryV1Dto result) async {
