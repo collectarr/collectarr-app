@@ -49,7 +49,6 @@ extension _AdminPageSections on _AdminPageState {
                 actionItemId: _duplicateActionItemId,
                 onInspect: _inspectDuplicateCandidate,
                 onIgnore: _ignoreDuplicateCandidate,
-                onMerge: _mergeDuplicateCandidate,
               ),
             ],
           ),

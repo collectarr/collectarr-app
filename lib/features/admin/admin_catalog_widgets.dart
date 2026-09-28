@@ -70,7 +70,6 @@ class _SearchHistoryList extends StatelessWidget {
   }
 }
 
-
 class _AdminAuditLogList extends StatelessWidget {
   const _AdminAuditLogList({required this.logs});
 
@@ -139,7 +138,6 @@ class _AdminAuditLogList extends StatelessWidget {
   }
 }
 
-
 class _DuplicateCandidateList extends StatelessWidget {
   const _DuplicateCandidateList({
     required this.candidates,
@@ -147,7 +145,6 @@ class _DuplicateCandidateList extends StatelessWidget {
     required this.actionItemId,
     required this.onInspect,
     required this.onIgnore,
-    required this.onMerge,
   });
 
   final List<AdminDuplicateCandidate> candidates;
@@ -155,7 +152,6 @@ class _DuplicateCandidateList extends StatelessWidget {
   final String? actionItemId;
   final ValueChanged<AdminDuplicateCandidate> onInspect;
   final ValueChanged<AdminDuplicateCandidate> onIgnore;
-  final ValueChanged<AdminDuplicateCandidate> onMerge;
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +173,6 @@ class _DuplicateCandidateList extends StatelessWidget {
               isActing: candidate.itemIds.contains(actionItemId),
               onInspect: () => onInspect(candidate),
               onIgnore: () => onIgnore(candidate),
-              onMerge: () => onMerge(candidate),
             ),
           ),
       ],
@@ -192,7 +187,6 @@ class _DuplicateCandidateTile extends StatelessWidget {
     required this.isActing,
     required this.onInspect,
     required this.onIgnore,
-    required this.onMerge,
   });
 
   final AdminDuplicateCandidate candidate;
@@ -200,7 +194,6 @@ class _DuplicateCandidateTile extends StatelessWidget {
   final bool isActing;
   final VoidCallback onInspect;
   final VoidCallback onIgnore;
-  final VoidCallback onMerge;
 
   @override
   Widget build(BuildContext context) {
@@ -234,16 +227,6 @@ class _DuplicateCandidateTile extends StatelessWidget {
             _MiniChip(label: candidate.reason),
             if (candidate.hasCoverConflicts)
               const _MiniChip(label: 'cover conflict'),
-            for (final factor in candidate.confidenceFactors.take(3))
-              if (!factor.startsWith('provider_'))
-              _MiniChip(label: _duplicateSignalLabel(factor)),
-            for (final warning in candidate.mergeWarnings.take(2))
-              if (!warning.startsWith('provider_'))
-              _MiniChip(label: _duplicateSignalLabel(warning)),
-            if (candidate.preferredTargetItemId != null)
-              _MiniChip(
-                label: 'Target ${_shortId(candidate.preferredTargetItemId!)}',
-              ),
             OutlinedButton.icon(
               onPressed: isInspecting || isActing || candidate.itemIds.isEmpty
                   ? null
@@ -262,31 +245,9 @@ class _DuplicateCandidateTile extends StatelessWidget {
               icon: const Icon(Icons.visibility_off_outlined),
               label: const Text('Ignore'),
             ),
-            FilledButton.tonalIcon(
-              onPressed:
-                  isActing || candidate.itemIds.length < 2 ? null : onMerge,
-              icon: isActing
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.merge_type_outlined),
-              label: const Text('Merge into first'),
-            ),
           ],
         ),
       ),
     );
   }
 }
-
-String _duplicateSignalLabel(String signal) {
-  return switch (signal) {
-    'cover_images_consistent' => 'cover assets aligned',
-    'publisher_aligned' => 'publisher aligned',
-    'release_markers_aligned' => 'release markers aligned',
-    'cover_asset_conflict' => 'warning: cover conflict',
-    _ => signal.replaceAll('_', ' '),
-  };
-}
-

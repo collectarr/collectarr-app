@@ -39,7 +39,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'admin_item_inspection.dart';
 part 'admin_metadata_correction_dialog.dart';
-part 'admin_duplicate_merge_dialog.dart';
 part 'admin_page_sections.dart';
 part 'admin_catalog_widgets.dart';
 part 'admin_shared_widgets.dart';
@@ -590,55 +589,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             'Ignored ${result.affectedItems} duplicate items.';
       });
       await _loadDashboard();
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _duplicateActionItemId = null;
-        _duplicateErrorMessage = _adminErrorMessage(error);
-      });
-    }
-  }
-
-  Future<void> _mergeDuplicateCandidate(
-    AdminDuplicateCandidate candidate,
-  ) async {
-    if (candidate.itemIds.length < 2) {
-      return;
-    }
-    final selection = await showDialog<_DuplicateMergeSelection>(
-      context: context,
-      builder: (context) => _DuplicateMergeReviewDialog(candidate: candidate),
-    );
-    if (selection == null || !mounted || selection.sourceItemIds.isEmpty) {
-      return;
-    }
-    final targetItemId = selection.targetItemId;
-    final sourceItemIds = selection.sourceItemIds;
-    setState(() {
-      _duplicateActionItemId = targetItemId;
-      _duplicateStatusMessage = null;
-      _duplicateErrorMessage = null;
-    });
-    try {
-      final result =
-          await ref.read(apiClientProvider).adminMergeDuplicateCandidate(
-                targetItemId: targetItemId,
-                sourceItemIds: sourceItemIds,
-              );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _duplicateActionItemId = null;
-        _duplicateStatusMessage =
-            'Merged ${result.affectedItems} duplicate items.';
-      });
-      await _loadDashboard();
-      if (result.item != null) {
-        await _inspectCatalogItem(result.item!);
-      }
     } catch (error) {
       if (!mounted) {
         return;

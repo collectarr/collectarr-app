@@ -6,21 +6,15 @@ class AdminDuplicateActionResult {
   const AdminDuplicateActionResult({
     required this.ok,
     required this.affectedItems,
-    this.item,
   });
 
   final bool ok;
   final int affectedItems;
-  final AdminMetadataItem? item;
 
   factory AdminDuplicateActionResult.fromJson(Map<String, dynamic> json) {
-    final item = json['item'];
     return AdminDuplicateActionResult(
       ok: json['ok'] as bool? ?? false,
       affectedItems: json['affected_items'] as int? ?? 0,
-      item: item is Map<String, dynamic>
-          ? AdminMetadataItem.fromJson(item)
-          : null,
     );
   }
 }

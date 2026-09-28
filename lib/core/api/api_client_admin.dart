@@ -276,25 +276,6 @@ class _AdminApiClient {
     return AdminDuplicateActionResult.fromJson(data);
   }
 
-  Future<AdminDuplicateActionResult> adminMergeDuplicateCandidate({
-    required String targetItemId,
-    required List<String> sourceItemIds,
-  }) async {
-    final response = await _client._dio.post<Map<String, dynamic>>(
-      '/api/v1/admin/duplicates/merge',
-      data: {
-        'target_item_id': targetItemId,
-        'source_item_ids': sourceItemIds,
-      },
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-          '/api/v1/admin/duplicates/merge returned an empty response body');
-    }
-    return AdminDuplicateActionResult.fromJson(data);
-  }
-
   Future<AdminMetadataItem> adminGetMetadataItem({
     required String kind,
     required String id,

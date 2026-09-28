@@ -427,16 +427,6 @@ class ApiClient {
     return _adminApi.adminIgnoreDuplicateCandidate(itemIds: itemIds);
   }
 
-  Future<AdminDuplicateActionResult> adminMergeDuplicateCandidate({
-    required String targetItemId,
-    required List<String> sourceItemIds,
-  }) async {
-    return _adminApi.adminMergeDuplicateCandidate(
-      targetItemId: targetItemId,
-      sourceItemIds: sourceItemIds,
-    );
-  }
-
   Future<AdminMetadataItem> adminGetMetadataItem({
     required String kind,
     required String id,
