@@ -277,25 +277,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   Future<List<LibraryAdminCorrectionField>> _adminMetadataFields(
     AdminMetadataItem item,
   ) async {
-    try {
-      final fieldSchema = await ref
-          .read(apiClientProvider)
-          .metadataFieldSchema(editableOnly: true);
-      final kind = catalogMediaKindFromApiValue(item.kind);
-      final contributor = libraryAdminContributorForKind(kind);
-      if (contributor == null) return const [];
-      final detailsKeys = item.canonicalFieldValues.keys.toSet();
-      return adminCorrectionFieldsForKind(
-        schema: fieldSchema,
-        kind: kind,
-        contributor: contributor,
-      )
-          .where((field) => detailsKeys.contains(field.key))
-          .toList(growable: false);
-    } catch (_) {
-      // Inspection remains available if the optional field schema is down.
-      return const [];
-    }
+    final kind = catalogMediaKindFromApiValue(item.kind);
+    final contributor = libraryAdminContributorForKind(kind);
+    if (contributor == null) return const [];
+    return adminCorrectionFieldsForCatalogItem(
+      canonicalValues: item.canonicalFieldValues,
+      contributor: contributor,
+    );
   }
 
   Future<void> _showMetadataCorrectionDialog(AdminMetadataItem item) async {
@@ -308,25 +296,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       });
       return;
     }
-    late final MetadataFieldSchema fieldSchema;
-    try {
-      fieldSchema = await ref.read(apiClientProvider).metadataFieldSchema(
-            editableOnly: true,
-          );
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _catalogSearchController.errorMessage = _adminErrorMessage(error);
-      });
-      return;
-    }
-    if (!mounted) return;
-    final detailsKeys = item.canonicalFieldValues.keys.toSet();
-    final correctionFields = adminCorrectionFieldsForKind(
-      schema: fieldSchema,
-      kind: kind,
+    final correctionFields = adminCorrectionFieldsForCatalogItem(
+      canonicalValues: item.canonicalFieldValues,
       contributor: contributor,
-    ).where((field) => detailsKeys.contains(field.key)).toList(growable: false);
+    );
     if (correctionFields.isEmpty) {
       setState(() {
         _catalogSearchController.errorMessage =

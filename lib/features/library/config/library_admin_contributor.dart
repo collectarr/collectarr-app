@@ -399,6 +399,24 @@ List<LibraryAdminCorrectionField> adminCorrectionFieldsForKind({
   return fields;
 }
 
+/// Returns this kind's declared correction fields that are present in a
+/// Catalog Item v1 summary or details map.
+///
+/// Admin previously filtered these fields through Core's Work/Release field
+/// registry. The Catalog Item payload is now the source of truth for which
+/// keys exist on an item; kind contributors remain the source of labels,
+/// presentation and codecs.
+List<LibraryAdminCorrectionField> adminCorrectionFieldsForCatalogItem({
+  required Map<String, Object?> canonicalValues,
+  required LibraryAdminContributor contributor,
+}) {
+  final availableKeys = canonicalValues.keys.toSet();
+  return [
+    for (final field in contributor.correctionFields)
+      if (field.save == null && availableKeys.contains(field.key)) field,
+  ];
+}
+
 SharedMetadataFieldDescriptor _adminCorrectionPresentationFromSchema(
   MetadataFieldSpec field,
 ) {
