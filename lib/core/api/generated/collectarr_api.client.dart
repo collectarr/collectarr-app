@@ -358,19 +358,6 @@ class CollectarrApiClient {
         .toList(growable: false);
   }
 
-  Future<MetadataNormalizedManifest> metadataNormalizedManifest() async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/api/v1/metadata/normalized-manifest',
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-        '/api/v1/metadata/normalized-manifest returned an empty response body',
-      );
-    }
-    return MetadataNormalizedManifest.fromJson(data);
-  }
-
   Future<MetadataFieldSchema> metadataFieldSchema({
     bool editableOnly = true,
   }) async {

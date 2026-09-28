@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
-import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -47,53 +46,5 @@ void main() {
       byKey('title').valueType,
       SharedMetadataFieldValueType.text,
     );
-  });
-
-  test('normalized contract comparator reports in-sync manifest', () {
-    final manifest = const MetadataNormalizedManifest(
-      schemaVersion: 1,
-      commonFields: ['audience_rating'],
-      kindFields: {
-        'comic': ['genres'],
-        'game': ['platforms'],
-        'movie': [
-          'color',
-          'nr_discs',
-          'screen_ratio',
-          'audio_tracks',
-          'subtitles',
-          'layers'
-        ],
-      },
-      valueTypes: {
-        'audience_rating': 'string',
-        'genres': 'string_list',
-        'platforms': 'string_list',
-        'color': 'string',
-      },
-    );
-
-    final drift = compareSharedContractWithManifest(manifest);
-    expect(drift.isInSync, isTrue);
-    expect(drift.mismatchCount, 0);
-  });
-
-  test('normalized contract comparator reports extra core keys', () {
-    final manifest = const MetadataNormalizedManifest(
-      schemaVersion: 1,
-      commonFields: ['audience_rating', 'unknown_new_field'],
-      kindFields: {
-        'comic': ['genres'],
-      },
-      valueTypes: {
-        'audience_rating': 'string',
-        'genres': 'string_list',
-        'unknown_new_field': 'string',
-      },
-    );
-
-    final drift = compareSharedContractWithManifest(manifest);
-    expect(drift.isInSync, isFalse);
-    expect(drift.extraInCore, contains('unknown_new_field'));
   });
 }

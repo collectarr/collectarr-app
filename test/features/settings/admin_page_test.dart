@@ -628,25 +628,6 @@ class _FakeAdminApiClient extends ApiClient {
   }
 
   @override
-  Future<MetadataNormalizedManifest> metadataNormalizedManifest() async {
-    return const MetadataNormalizedManifest(
-      schemaVersion: 1,
-      commonFields: ['audience_rating'],
-      kindFields: {
-        'comic': ['genres'],
-        'game': ['platforms'],
-        'movie': ['color'],
-      },
-      valueTypes: {
-        'audience_rating': 'string',
-        'genres': 'string_list',
-        'platforms': 'string_list',
-        'color': 'string',
-      },
-    );
-  }
-
-  @override
   Future<List<AdminProviderStatus>> adminProviderStatuses() async {
     return const [
       AdminProviderStatus(

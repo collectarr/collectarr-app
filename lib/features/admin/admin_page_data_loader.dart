@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 
 /// Loads the independent Admin page datasets without owning widget state.
 class AdminPageDataLoader {
@@ -12,7 +11,6 @@ class AdminPageDataLoader {
     final results = await Future.wait<Object>([
       api.adminCatalogSummary(),
       api.adminCatalogItemIntegrity(),
-      api.metadataNormalizedManifest(),
       api.adminImageCacheStats(),
       api.adminSearchStatus(),
       api.adminSearchHistory(),
@@ -22,12 +20,11 @@ class AdminPageDataLoader {
     return AdminDashboardData(
       summary: results[0] as AdminCatalogSummary,
       catalogItemIntegrity: results[1] as AdminCatalogItemIntegrityReport,
-      normalizedManifest: results[2] as MetadataNormalizedManifest,
-      imageCacheStats: results[3] as AdminImageCacheStats,
-      searchStatus: results[4] as AdminSearchStatus,
-      searchHistory: results[5] as List<AdminSearchHistoryEntry>,
-      auditLogs: results[6] as List<AdminAuditLogEntry>,
-      duplicateCandidates: results[7] as List<AdminDuplicateCandidate>,
+      imageCacheStats: results[2] as AdminImageCacheStats,
+      searchStatus: results[3] as AdminSearchStatus,
+      searchHistory: results[4] as List<AdminSearchHistoryEntry>,
+      auditLogs: results[5] as List<AdminAuditLogEntry>,
+      duplicateCandidates: results[6] as List<AdminDuplicateCandidate>,
     );
   }
 }
@@ -36,7 +33,6 @@ class AdminDashboardData {
   const AdminDashboardData({
     required this.summary,
     required this.catalogItemIntegrity,
-    required this.normalizedManifest,
     required this.imageCacheStats,
     required this.searchStatus,
     required this.searchHistory,
@@ -46,7 +42,6 @@ class AdminDashboardData {
 
   final AdminCatalogSummary summary;
   final AdminCatalogItemIntegrityReport catalogItemIntegrity;
-  final MetadataNormalizedManifest normalizedManifest;
   final AdminImageCacheStats imageCacheStats;
   final AdminSearchStatus searchStatus;
   final List<AdminSearchHistoryEntry> searchHistory;

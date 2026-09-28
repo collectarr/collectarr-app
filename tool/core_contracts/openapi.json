@@ -2933,49 +2933,6 @@
         "title": "MetadataFieldSpecResponse",
         "type": "object"
       },
-      "MetadataNormalizedManifestResponse": {
-        "properties": {
-          "common_fields": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Common Fields",
-            "type": "array"
-          },
-          "kind_fields": {
-            "additionalProperties": {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "propertyNames": {
-              "$ref": "#/components/schemas/ItemKind"
-            },
-            "title": "Kind Fields",
-            "type": "object"
-          },
-          "schema_version": {
-            "title": "Schema Version",
-            "type": "integer"
-          },
-          "value_types": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "title": "Value Types",
-            "type": "object"
-          }
-        },
-        "required": [
-          "schema_version",
-          "common_fields",
-          "kind_fields",
-          "value_types"
-        ],
-        "title": "MetadataNormalizedManifestResponse",
-        "type": "object"
-      },
       "MovieCatalogDetailsV1-Input": {
         "additionalProperties": false,
         "properties": {
@@ -6471,28 +6428,6 @@
           }
         },
         "summary": "Media Type Catalog",
-        "tags": [
-          "metadata",
-          "metadata"
-        ]
-      }
-    },
-    "/api/v1/metadata/normalized-manifest": {
-      "get": {
-        "operationId": "metadata_normalized_manifest_api_v1_metadata_normalized_manifest_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MetadataNormalizedManifestResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Metadata Normalized Manifest",
         "tags": [
           "metadata",
           "metadata"

@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/admin/admin_primitives.dart';
 import 'package:collectarr_app/features/admin/admin_kind_labels.dart';
-import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:flutter/material.dart';
 
@@ -64,7 +63,6 @@ class _DashboardSummary extends StatelessWidget {
     required this.searchStatus,
     required this.lastReindex,
     required this.catalogItemIntegrity,
-    required this.metadataContractDrift,
     required this.errorMessage,
   });
 
@@ -72,7 +70,6 @@ class _DashboardSummary extends StatelessWidget {
   final AdminSearchStatus? searchStatus;
   final AdminSearchReindexResult? lastReindex;
   final AdminCatalogItemIntegrityReport? catalogItemIntegrity;
-  final SharedMetadataContractDrift? metadataContractDrift;
   final String? errorMessage;
 
   @override
@@ -164,20 +161,8 @@ class _DashboardSummary extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _DashboardSection(
-          title: 'Metadata contract',
+          title: 'Catalog Item integrity',
           children: [
-            AdminStatusChip(
-              icon: metadataContractDrift == null
-                  ? Icons.hourglass_empty
-                  : metadataContractDrift!.isInSync
-                      ? Icons.check_circle_outline
-                      : Icons.warning_amber_outlined,
-              label: metadataContractDrift == null
-                  ? 'Loading…'
-                  : metadataContractDrift!.isInSync
-                      ? 'Shared contract in sync'
-                      : 'Drift: ${metadataContractDrift!.mismatchCount}',
-            ),
             AdminStatusChip(
               icon: catalogItemIntegrity == null
                   ? Icons.hourglass_empty
@@ -368,7 +353,6 @@ class AdminDashboardTab extends StatelessWidget {
     required this.searchStatus,
     required this.lastReindex,
     required this.catalogItemIntegrity,
-    required this.metadataContractDrift,
     required this.dashboardErrorMessage,
     required this.onReindexSearch,
     required this.onRefreshDashboard,
@@ -381,7 +365,6 @@ class AdminDashboardTab extends StatelessWidget {
   final AdminSearchStatus? searchStatus;
   final AdminSearchReindexResult? lastReindex;
   final AdminCatalogItemIntegrityReport? catalogItemIntegrity;
-  final SharedMetadataContractDrift? metadataContractDrift;
   final String? dashboardErrorMessage;
   final VoidCallback onReindexSearch;
   final VoidCallback onRefreshDashboard;
@@ -424,7 +407,6 @@ class AdminDashboardTab extends StatelessWidget {
             searchStatus: searchStatus,
             lastReindex: lastReindex,
             catalogItemIntegrity: catalogItemIntegrity,
-            metadataContractDrift: metadataContractDrift,
             errorMessage: dashboardErrorMessage,
           ),
         ),

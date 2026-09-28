@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_fields.g.dart';
 
 enum SharedMetadataEditTab {
@@ -174,52 +173,4 @@ TextInputType? sharedFieldKeyboardType(SharedMetadataFieldDescriptor field) {
     SharedMetadataFieldInputType.number => TextInputType.number,
     _ => null,
   };
-}
-
-@immutable
-class SharedMetadataContractDrift {
-  const SharedMetadataContractDrift({
-    required this.missingInCore,
-    required this.extraInCore,
-    required this.typeMismatches,
-  });
-
-  final Set<String> missingInCore;
-  final Set<String> extraInCore;
-  final Set<String> typeMismatches;
-
-  bool get isInSync =>
-      missingInCore.isEmpty && extraInCore.isEmpty && typeMismatches.isEmpty;
-
-  int get mismatchCount =>
-      missingInCore.length + extraInCore.length + typeMismatches.length;
-}
-
-SharedMetadataContractDrift compareSharedContractWithManifest(
-  MetadataNormalizedManifest manifest,
-) {
-  final expectedTypes = <String, String>{
-    for (final field in kAdminMetadataScalarFields)
-      if (field.normalizedValueType != null)
-        field.key: field.normalizedValueType!,
-  };
-  final expectedKeys = expectedTypes.keys.toSet();
-  final manifestKeys = <String>{
-    ...manifest.commonFields,
-    ...manifest.kindFields.values.expand((fields) => fields),
-  };
-  final missingInCore = expectedKeys.difference(manifestKeys);
-  final extraInCore = manifest.valueTypes.keys.toSet().difference(expectedKeys);
-  final typeMismatches = <String>{};
-  for (final entry in expectedTypes.entries) {
-    final actual = manifest.valueTypes[entry.key];
-    if (actual != null && actual != entry.value) {
-      typeMismatches.add(entry.key);
-    }
-  }
-  return SharedMetadataContractDrift(
-    missingInCore: missingInCore,
-    extraInCore: extraInCore,
-    typeMismatches: typeMismatches,
-  );
 }

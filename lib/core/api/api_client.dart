@@ -277,10 +277,6 @@ class ApiClient {
     return _catalogApi.metadataMediaTypes();
   }
 
-  Future<MetadataNormalizedManifest> metadataNormalizedManifest() async {
-    return _catalogApi.metadataNormalizedManifest();
-  }
-
   Future<MetadataFieldSchema> metadataFieldSchema({
     bool editableOnly = true,
   }) async {

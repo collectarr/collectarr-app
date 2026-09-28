@@ -59,7 +59,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   var _mediaTypes = const <CatalogMediaType>[];
   AdminCatalogSummary? _summary;
   AdminCatalogItemIntegrityReport? _catalogItemIntegrity;
-  SharedMetadataContractDrift? _metadataContractDrift;
   AdminImageCacheStats? _dashboardImageCacheStats;
   AdminSearchStatus? _searchStatus;
   AdminSearchReindexResult? _lastReindex;
@@ -152,7 +151,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       searchStatus: _searchStatus,
       lastReindex: _lastReindex,
       catalogItemIntegrity: _catalogItemIntegrity,
-      metadataContractDrift: _metadataContractDrift,
       dashboardErrorMessage: _dashboardErrorMessage,
       onReindexSearch: _reindexSearch,
       onRefreshDashboard: _loadDashboard,
@@ -180,15 +178,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final dashboard = await AdminPageDataLoader(
         ref.read(apiClientProvider),
       ).loadDashboard();
-      final contractDrift =
-          compareSharedContractWithManifest(dashboard.normalizedManifest);
       if (!mounted) {
         return;
       }
       setState(() {
         _summary = dashboard.summary;
         _catalogItemIntegrity = dashboard.catalogItemIntegrity;
-        _metadataContractDrift = contractDrift;
         _dashboardImageCacheStats = dashboard.imageCacheStats;
         _searchStatus = dashboard.searchStatus;
         _searchHistory = dashboard.searchHistory;
