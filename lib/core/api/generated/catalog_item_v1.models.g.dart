@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND.
 // Source: tool/core_contracts/catalog-item-v1.json
-// Contract SHA-256: 354f0ee87d12b9a5c0c6421e9201918c9804a9942c5b118decf3a0ac95ed8400
+// Contract SHA-256: 2e8ecf0392ac7868fa162b1890faf2b8ba39ad59e5ed753a65cb53b511fff2cb
 part of 'collectarr_api.models.dart';
 
 abstract interface class CatalogItemKindDetailsV1Dto {
