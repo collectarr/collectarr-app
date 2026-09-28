@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -89,8 +90,8 @@ final class AnimeRegistration implements LibraryKindRegistration {
     required Uri routeUri,
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
-    return AnimeLibraryPage(
-      type: const AnimeRegistration(),
+    return buildLibraryKindPage(
+      kind: kind,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -115,8 +116,8 @@ final class BoardgameRegistration implements LibraryKindRegistration {
     required Uri routeUri,
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
-    return BoardGameLibraryPage(
-      type: const BoardgameRegistration(),
+    return buildLibraryKindPage(
+      kind: kind,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -141,8 +142,8 @@ final class BookRegistration implements LibraryKindRegistration {
     required Uri routeUri,
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
-    return BookLibraryPage(
-      type: const BookRegistration(),
+    return buildLibraryKindPage(
+      kind: kind,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -167,8 +168,8 @@ final class ComicRegistration implements LibraryKindRegistration {
     required Uri routeUri,
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
-    return ComicLibraryPage(
-      type: const ComicRegistration(),
+    return buildLibraryKindPage(
+      kind: kind,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -193,8 +194,8 @@ final class GameRegistration implements LibraryKindRegistration {
     required Uri routeUri,
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
-    return GameLibraryPage(
-      type: const GameRegistration(),
+    return buildLibraryKindPage(
+      kind: kind,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -219,8 +220,8 @@ final class MangaRegistration implements LibraryKindRegistration {
     required Uri routeUri,
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
-    return MangaLibraryPage(
-      type: const MangaRegistration(),
+    return buildLibraryKindPage(
+      kind: kind,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -245,8 +246,8 @@ final class MovieRegistration implements LibraryKindRegistration {
     required Uri routeUri,
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
-    return MovieLibraryPage(
-      type: const MovieRegistration(),
+    return buildLibraryKindPage(
+      kind: kind,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -271,8 +272,8 @@ final class MusicRegistration implements LibraryKindRegistration {
     required Uri routeUri,
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
-    return MusicLibraryPage(
-      type: const MusicRegistration(),
+    return buildLibraryKindPage(
+      kind: kind,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -297,8 +298,8 @@ final class TvRegistration implements LibraryKindRegistration {
     required Uri routeUri,
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
-    return TvLibraryPage(
-      type: const TvRegistration(),
+    return buildLibraryKindPage(
+      kind: kind,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
