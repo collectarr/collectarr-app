@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/data/catalog_item_v1_workspace_repository.dart';
+import 'package:collectarr_app/features/library/csv/catalog_item_v1_csv_exporter.dart';
 import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
 import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -70,12 +71,11 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     final entries = legacyState == null
         ? const <LibraryWorkspaceSource>[]
         : _filteredEntries(legacyState.entries, overdueOwnedRefs);
-    final catalogRows = _filteredCatalogItemRows(
-      catalogItemsV1.maybeWhen(
-        data: (rows) => rows,
-        orElse: () => const <CatalogItemV1WorkspaceItem>[],
-      ),
+    final allCatalogItemRows = catalogItemsV1.maybeWhen(
+      data: (rows) => rows,
+      orElse: () => const <CatalogItemV1WorkspaceItem>[],
     );
+    final catalogRows = _filteredCatalogItemRows(allCatalogItemRows);
     final accent = LibraryAccentScope.accentOf(context);
     final animationDuration = LibraryAccentScope.animationDurationOf(context);
     return Scaffold(
@@ -101,13 +101,13 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
           ),
           IconButton(
             tooltip: 'Export…',
-            onPressed: shelf.maybeWhen(
-              data: (state) => () => _showImportExportWizard(
-                    state.entries,
-                    initialIndex: 0,
-                  ),
-              orElse: () => null,
-            ),
+            onPressed: legacyState != null || catalogItemsV1.hasValue
+                ? () => _showImportExportWizard(
+                      legacyState?.entries ?? const [],
+                      catalogItemRows: allCatalogItemRows,
+                      initialIndex: 0,
+                    )
+                : null,
             icon: const Icon(Icons.download),
           ),
         ],
@@ -269,6 +269,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
 
   Future<void> _showImportExportWizard(
     List<LibraryWorkspaceSource> entries, {
+    List<CatalogItemV1WorkspaceItem> catalogItemRows = const [],
     required int initialIndex,
   }) async {
     final db = ref.read(localDatabaseProvider);
@@ -286,7 +287,11 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         initialIndex: initialIndex,
         customFieldDefinitions: cfDefs,
         customFieldValuesByItem: cfValues,
-        additionalExports: libraryExportPreviewArtifacts(entries),
+        additionalExports: [
+          ...libraryExportPreviewArtifacts(entries),
+          if (catalogItemRows.isNotEmpty)
+            const CatalogItemV1CsvExporter().export(catalogItemRows),
+        ],
       ),
     );
     if (!mounted || imported == null) {

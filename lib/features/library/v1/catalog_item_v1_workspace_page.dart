@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/data/catalog_item_v1_workspace_repository.dart';
 import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
+import 'package:collectarr_app/features/library/domain/catalog_item_v1_schema.dart';
 import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
 import 'package:collectarr_app/features/library/v1/owned_copy_v1_form.dart';
 import 'package:collectarr_app/features/library/config/library_kind_identity.dart';
@@ -625,7 +626,7 @@ final class _CatalogItemWorkspaceListState
 
 bool _isScalarCatalogSchema(Map<String, dynamic> schema) {
   if (schema[r'$ref'] case final String ref) {
-    final definition = _catalogItemSchemaDefinitions[ref.split('/').last];
+    final definition = catalogItemV1SchemaDefinitions[ref.split('/').last];
     return definition is Map<String, dynamic> &&
         _isScalarCatalogSchema(definition);
   }
@@ -1478,29 +1479,8 @@ String? _summaryText(Object? value) {
   return null;
 }
 
-const _writeDetailsSchemaByKind = <String, String>{
-  'anime': 'AnimeCatalogDetailsV1',
-  'boardgame': 'BoardGameCatalogDetailsV1',
-  'book': 'BookCatalogDetailsV1',
-  'comic': 'ComicCatalogDetailsV1',
-  'game': 'GameCatalogDetailsV1',
-  'manga': 'MangaCatalogDetailsV1',
-  'movie': 'MovieCatalogDetailsV1-Input',
-  'music': 'MusicCatalogWriteDetailsV1',
-  'tv': 'TVCatalogDetailsV1',
-};
-
-final Map<String, dynamic> _catalogItemSchemaDefinitions =
-    (jsonDecode(catalogItemV1ContractSchemaJson)
-        as Map<String, dynamic>)[r'$defs'] as Map<String, dynamic>;
-
 Map<String, dynamic> _kindDetailsSchema(CatalogMediaKind kind) {
-  final name = _writeDetailsSchemaByKind[kind.apiValue];
-  final schema = name == null ? null : _catalogItemSchemaDefinitions[name];
-  if (schema is! Map<String, dynamic>) {
-    throw StateError('Missing Catalog Item v1 write schema for $kind.');
-  }
-  return schema;
+  return catalogItemV1WriteSchemaForKind(kind);
 }
 
 Map<String, dynamic> _kindDetailValues(
@@ -1576,7 +1556,7 @@ Object? _sanitizeCatalogValue(
   Object? value,
   Map<String, dynamic> schema,
 ) {
-  final defs = _catalogItemSchemaDefinitions;
+  final defs = catalogItemV1SchemaDefinitions;
   if (schema[r'$ref'] case final String ref) {
     final definition = defs[ref.split('/').last];
     if (definition is Map<String, dynamic>) {
@@ -1921,7 +1901,7 @@ final class _CatalogItemSchemaFieldState
 }
 
 Map<String, dynamic> _resolvedSchema(Map<String, dynamic> schema) {
-  final defs = _catalogItemSchemaDefinitions;
+  final defs = catalogItemV1SchemaDefinitions;
   if (schema[r'$ref'] case final String ref) {
     final definition = defs[ref.split('/').last];
     if (definition is Map<String, dynamic>) return definition;
