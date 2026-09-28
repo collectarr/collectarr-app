@@ -299,6 +299,7 @@ final class _CatalogItemWorkspaceListState
   bool _ascending = true;
   late Set<String> _visibleColumns = _defaultVisibleColumns();
   bool _columnsLoaded = false;
+  bool _tableMode = false;
 
   @override
   void initState() {
@@ -423,6 +424,11 @@ final class _CatalogItemWorkspaceListState
                 icon: const Icon(Icons.view_column_outlined),
               ),
               IconButton(
+                tooltip: _tableMode ? 'Show cards' : 'Show table',
+                onPressed: () => setState(() => _tableMode = !_tableMode),
+                icon: Icon(_tableMode ? Icons.grid_view : Icons.table_rows),
+              ),
+              IconButton(
                 tooltip: _ascending ? 'Sort descending' : 'Sort ascending',
                 onPressed: () => setState(() => _ascending = !_ascending),
                 icon: Icon(
@@ -451,40 +457,167 @@ final class _CatalogItemWorkspaceListState
                       ? 'No ${widget.identity.pluralLabel.toLowerCase()} in your collection yet.'
                       : 'No Catalog Items match this search.',
                 )
-              : ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 20),
-                  itemCount: workspaceRows.length,
-                  itemBuilder: (context, index) {
-                    final row = workspaceRows[index];
-                    final item = row.item;
-                    if (item == null) {
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
-                        child: Text(
-                          row.groupLabel!,
-                          style: Theme.of(context).textTheme.titleSmall,
+              : _tableMode
+                  ? _catalogTable(workspaceRows)
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 20),
+                      itemCount: workspaceRows.length,
+                      itemBuilder: (context, index) {
+                        final row = workspaceRows[index];
+                        final item = row.item;
+                        if (item == null) {
+                          return Padding(
+                            padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
+                            child: Text(
+                              row.groupLabel!,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                          );
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: _CatalogItemCard(
+                            key: ValueKey(item.reference),
+                            item: item,
+                            identity: widget.identity,
+                            accent: widget.accent,
+                            canEditCatalog: widget.canEditCatalog,
+                            visibleColumns: _visibleColumns,
+                            onEditCatalog: item.catalogItem == null
+                                ? null
+                                : () => widget.onEditCatalog(item),
+                            onEditCopy: widget.onEditCopy,
+                            onAddCopy: () => widget.onAddCopy(item),
+                            onDeleteCopy: widget.onDeleteCopy,
+                          ),
+                        );
+                      },
+                    ),
+        ),
+      ],
+    );
+  }
+
+  Widget _catalogTable(
+    List<({CatalogItemV1WorkspaceItem? item, String? groupLabel})> rows,
+  ) {
+    final detailColumns = [
+      for (final field in _availableColumnFields())
+        if (_visibleColumns.contains(field)) field,
+    ];
+    return Scrollbar(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(12, 4, 12, 20),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: [
+              const DataColumn(label: Text('Catalog Item')),
+              for (final field in detailColumns)
+                DataColumn(label: Text(_fieldLabel(field))),
+              const DataColumn(label: Text('Owned Copies')),
+              const DataColumn(label: Text('Actions')),
+            ],
+            rows: [
+              for (final row in rows)
+                if (row.item == null)
+                  DataRow(
+                    cells: [
+                      DataCell(Text(
+                        row.groupLabel!,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      )),
+                      for (var index = 0;
+                          index < detailColumns.length + 2;
+                          index++)
+                        const DataCell(SizedBox.shrink()),
+                    ],
+                  )
+                else
+                  _catalogDataRow(row.item!, detailColumns),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  DataRow _catalogDataRow(
+    CatalogItemV1WorkspaceItem item,
+    List<String> detailColumns,
+  ) {
+    final details = item.catalogItem?.details.toJson() ?? const {};
+    return DataRow(
+      cells: [
+        DataCell(
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 240),
+            child: Text(item.title, overflow: TextOverflow.ellipsis),
+          ),
+        ),
+        for (final field in detailColumns)
+          DataCell(Text(_summaryText(details[field]) ?? '—')),
+        DataCell(
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 210),
+            child: item.copies.isEmpty
+                ? const Text('Wishlist')
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final copy in item.copies)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                '${_ownedCopySummary(copy)} · ${_ownedCopyDetails(copy)}',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            PopupMenuButton<String>(
+                              tooltip: 'Owned copy actions',
+                              onSelected: (action) {
+                                if (action == 'edit') {
+                                  widget.onEditCopy(copy);
+                                } else if (action == 'remove') {
+                                  widget.onDeleteCopy(copy);
+                                }
+                              },
+                              itemBuilder: (context) => const [
+                                PopupMenuItem(
+                                  value: 'edit',
+                                  child: Text('Edit copy'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'remove',
+                                  child: Text('Remove copy'),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      );
-                    }
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: _CatalogItemCard(
-                        key: ValueKey(item.reference),
-                        item: item,
-                        identity: widget.identity,
-                        accent: widget.accent,
-                        canEditCatalog: widget.canEditCatalog,
-                        visibleColumns: _visibleColumns,
-                        onEditCatalog: item.catalogItem == null
-                            ? null
-                            : () => widget.onEditCatalog(item),
-                        onEditCopy: widget.onEditCopy,
-                        onAddCopy: () => widget.onAddCopy(item),
-                        onDeleteCopy: widget.onDeleteCopy,
-                      ),
-                    );
-                  },
+                    ],
+                  ),
+          ),
+        ),
+        DataCell(
+          Wrap(
+            children: [
+              IconButton(
+                tooltip: 'Add owned copy',
+                onPressed: () => widget.onAddCopy(item),
+                icon: const Icon(Icons.add_circle_outline),
+              ),
+              if (widget.canEditCatalog && item.catalogItem != null)
+                IconButton(
+                  tooltip: 'Edit catalog details',
+                  onPressed: () => widget.onEditCatalog(item),
+                  icon: const Icon(Icons.edit_outlined),
                 ),
+            ],
+          ),
         ),
       ],
     );
