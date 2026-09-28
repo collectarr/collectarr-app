@@ -10,10 +10,13 @@ import 'package:collectarr_app/features/library/tracking/tracking_storage_reposi
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:drift/drift.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/data/owned_copy_v1_repository.dart';
+import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
 import 'package:uuid/uuid.dart';
 
 class SyncRetryMapper {
@@ -26,6 +29,30 @@ class SyncRetryMapper {
     required Uuid uuid,
   }) async {
     switch (change.entityType) {
+      case 'owned_copy_v1':
+        final raw = change.localPayload;
+        if (raw == null) return null;
+        final copy = OwnedCopyV1.fromJson(raw);
+        final current = await OwnedCopyV1Repository(db).get(
+          copy.ref,
+          includeDeleted: true,
+        );
+        if (current == null) return null;
+        final row = await (db.select(db.ownedCopiesV1Cache)
+              ..where((table) =>
+                  table.kind.equals(copy.ref.kind.apiValue) &
+                  table.catalogItemId.equals(copy.ref.itemId) &
+                  table.id.equals(copy.ref.copyId)))
+            .getSingleOrNull();
+        if (row == null) return null;
+        return SyncChange(
+          id: uuid.v4(),
+          entityType: change.entityType,
+          entityId: copy.ref.copyId,
+          action: row.deletedAt == null ? 'upsert' : 'delete',
+          payload: Map<String, dynamic>.from(current.toJson()),
+          clientChangedAt: changedAt,
+        );
       case 'owned_item':
         final rawCatalogRef = change.localPayload?['catalog_ref'];
         if (rawCatalogRef is! Map) return null;

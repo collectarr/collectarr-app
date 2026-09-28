@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
+import 'package:collectarr_app/features/library/data/owned_copy_v1_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
@@ -53,6 +54,7 @@ class SyncRepository {
         codecs: libraryTrackingStorageCodecs,
       ),
       wishlistItems: WishlistItemsCacheRepository(_db),
+      ownedCopiesV1: OwnedCopyV1Repository(_db),
     ).syncNow(deviceId, since: since);
   }
 

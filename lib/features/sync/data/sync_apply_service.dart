@@ -9,6 +9,8 @@ import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/library/data/owned_copy_v1_repository.dart';
+import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -45,8 +47,10 @@ class SyncApplyService {
     required this.ownedPersistence,
     required this.trackingRecords,
     required this.wishlistItems,
+    OwnedCopyV1Repository? ownedCopiesV1,
     LocationRepository? locations,
-  }) : locations = locations ?? LocationRepository(db);
+  })  : ownedCopiesV1 = ownedCopiesV1 ?? OwnedCopyV1Repository(db),
+        locations = locations ?? LocationRepository(db);
 
   final CollectarrSyncClient client;
   final LocalDatabase db;
@@ -55,6 +59,7 @@ class SyncApplyService {
   final CollectarrOwnedItemPersistence ownedPersistence;
   final TrackingStorageRepository trackingRecords;
   final WishlistItemsCacheRepository wishlistItems;
+  final OwnedCopyV1Repository ownedCopiesV1;
   final LocationRepository locations;
 
   Future<SyncResult> syncNow(String deviceId, {DateTime? since}) async {
@@ -90,6 +95,7 @@ class SyncApplyService {
     final ownedPayloads = <_OwnedSyncPayload>[];
     final tracking = <TrackingStorageSyncInput>[];
     final wishlist = <WishlistItem>[];
+    final ownedCopiesV1Changes = <_OwnedCopyV1SyncInput>[];
     final watchSessions = <WatchSession>[];
     final metadataOverrides = <UserMetadataOverride>[];
     final customEpisodes = <_CustomEpisodeSyncInput>[];
@@ -117,6 +123,23 @@ class SyncApplyService {
       }
       if (type == 'owned_item') {
         ownedPayloads.add(_ownedPayloadFromEntity(entity));
+      }
+      if (type == 'owned_copy_v1') {
+        final payload = _payload(entity);
+        final copy = OwnedCopyV1.fromJson(payload);
+        if (copy.ref.copyId != entity['entity_id']) {
+          throw FormatException(
+            'Owned Copy v1 sync identity does not match payload ID '
+            '"${entity['entity_id']}".',
+          );
+        }
+        ownedCopiesV1Changes.add(
+          (
+            copy: copy,
+            action: entity['action'] as String,
+            changedAt: DateTime.parse(entity['client_changed_at'] as String),
+          ),
+        );
       }
       if (type == 'tracking_entry') {
         tracking.add(_trackingRecordFromEntity(entity));
@@ -154,6 +177,13 @@ class SyncApplyService {
       }
       await trackingRecords.upsertSyncPayloads(tracking);
       await wishlistItems.upsertAll(wishlist);
+      for (final change in ownedCopiesV1Changes) {
+        await ownedCopiesV1.applySyncedChange(
+          copy: change.copy,
+          action: change.action,
+          changedAt: change.changedAt,
+        );
+      }
       if (watchSessions.isNotEmpty) {
         await WatchSessionsRepository(
           db,
@@ -511,6 +541,12 @@ typedef _OwnedSyncPayload = ({
   CatalogMediaKind kind,
   OwnedItemRef ref,
   JsonMap payload,
+});
+
+typedef _OwnedCopyV1SyncInput = ({
+  OwnedCopyV1 copy,
+  String action,
+  DateTime changedAt,
 });
 
 final class _CustomEpisodeSyncInput {
