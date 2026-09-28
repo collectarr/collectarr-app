@@ -15,18 +15,14 @@ final class CatalogItemV1CsvExporter {
 
   ExportPreviewArtifact export(Iterable<CatalogItemV1WorkspaceItem> source) {
     final items = source.toList(growable: false);
-    final catalogFields = <String, String>{};
+    final catalogFields = <String>{};
     for (final kind
         in CatalogMediaKind.values.where((kind) => !kind.isUnknown)) {
       final properties = catalogItemV1WriteSchemaForKind(kind)['properties'];
       if (properties is! Map<String, dynamic>) continue;
       for (final entry in properties.entries) {
         if (entry.key == 'kind') continue;
-        final schema = entry.value;
-        final title =
-            schema is Map<String, dynamic> ? schema['title'] as String? : null;
-        catalogFields.putIfAbsent(
-            entry.key, () => title ?? _humanize(entry.key));
+        catalogFields.add(entry.key);
       }
     }
 
@@ -50,10 +46,10 @@ final class CatalogItemV1CsvExporter {
     final header = <String>[
       'catalog_item_id',
       'kind',
-      for (final entry in catalogFields.entries) 'catalog.${entry.value}',
-      for (final key in orderedCopyFields)
-        'copy.${key == 'id' ? 'copy_id' : _humanize(key)}',
-      for (final key in orderedKindFields) 'copy.details.${_humanize(key)}',
+      'schema_version',
+      for (final key in catalogFields) 'catalog.$key',
+      for (final key in orderedCopyFields) 'copy.$key',
+      for (final key in orderedKindFields) 'copy.details.$key',
     ];
     final rows = <List<Object?>>[
       header,
@@ -62,7 +58,8 @@ final class CatalogItemV1CsvExporter {
           [
             item.reference.id,
             item.reference.kind.apiValue,
-            for (final key in catalogFields.keys)
+            '1',
+            for (final key in catalogFields)
               _csvCell(item.catalogItem?.details.toJson()[key]),
             for (final key in orderedCopyFields) _csvCell(copy.toJson()[key]),
             for (final key in orderedKindFields)
@@ -85,9 +82,3 @@ Object _csvCell(Object? value) {
   if (value is Map || value is List) return jsonEncode(value);
   return value.toString();
 }
-
-String _humanize(String value) => value
-    .split('_')
-    .where((part) => part.isNotEmpty)
-    .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
-    .join(' ');

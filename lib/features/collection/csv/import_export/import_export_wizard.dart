@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
+import 'package:collectarr_app/features/library/csv/catalog_item_v1_csv_importer.dart';
+import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/theme/theme_primitives.dart';
 import 'package:flutter/material.dart';
@@ -37,15 +38,14 @@ class ImportExportWizardDialog extends ConsumerStatefulWidget {
 class _ImportExportWizardDialogState
     extends ConsumerState<ImportExportWizardDialog> {
   final _controller = TextEditingController();
-  late final CollectionCsvCodec _csv;
-  CollectionImportPreview? _preview;
+  List<CatalogItemV1CsvImportRow>? _preview;
+  CatalogItemV1CsvImportReport? _report;
   String? _error;
   bool _isWorking = false;
 
   @override
   void initState() {
     super.initState();
-    _csv = CollectionCsvCodec(profiles: widget.profiles);
   }
 
   @override
@@ -94,10 +94,12 @@ class _ImportExportWizardDialogState
                     _ImportWizardPane(
                       controller: _controller,
                       preview: _preview,
+                      report: _report,
                       error: _error,
                       isWorking: _isWorking,
                       onPreview: _previewRows,
                       onImport: _importRows,
+                      onChanged: _onImportTextChanged,
                     ),
                   ],
                 ),
@@ -121,12 +123,13 @@ class _ImportExportWizardDialogState
       _error = null;
     });
     try {
-      final rows = _csv.parse(_controller.text);
-      final preview = await ref
-          .read(collectionImportOrchestratorProvider)
-          .previewImportRows(rows);
+      final preview =
+          ref.read(catalogItemV1CsvImporterProvider).parse(_controller.text);
       if (mounted) {
-        setState(() => _preview = preview);
+        setState(() {
+          _preview = preview;
+          _report = null;
+        });
       }
     } catch (error) {
       if (mounted) {
@@ -139,6 +142,14 @@ class _ImportExportWizardDialogState
     }
   }
 
+  void _onImportTextChanged(String _) {
+    setState(() {
+      _preview = null;
+      _report = null;
+      _error = null;
+    });
+  }
+
   Future<void> _importRows() async {
     var preview = _preview;
     if (preview == null) {
@@ -148,9 +159,8 @@ class _ImportExportWizardDialogState
     if (preview == null) {
       return;
     }
-    final rows = [...preview.resolvedRows, ...preview.conflictRows];
-    if (rows.isEmpty) {
-      setState(() => _error = 'No matched rows are ready to import.');
+    if (preview.isEmpty) {
+      setState(() => _error = 'The CSV has no rows to import.');
       return;
     }
     setState(() {
@@ -158,11 +168,15 @@ class _ImportExportWizardDialogState
       _error = null;
     });
     try {
-      final imported =
-          await ref.read(collectionImportOrchestratorProvider).importRows(rows);
+      final report = await ref
+          .read(catalogItemV1CsvImporterProvider)
+          .importContent(_controller.text);
+      ref.invalidate(catalogItemV1AllWorkspacesProvider);
       ref.invalidate(shelfProvider);
-      if (mounted) {
-        Navigator.of(context).pop(imported);
+      if (mounted && report.failures.isEmpty) {
+        Navigator.of(context).pop(report.importedRows);
+      } else if (mounted) {
+        setState(() => _report = report);
       }
     } catch (error) {
       if (mounted) {
@@ -298,25 +312,27 @@ class _ImportWizardPane extends StatelessWidget {
   const _ImportWizardPane({
     required this.controller,
     required this.preview,
+    required this.report,
     required this.error,
     required this.isWorking,
     required this.onPreview,
     required this.onImport,
+    required this.onChanged,
   });
 
   final TextEditingController controller;
-  final CollectionImportPreview? preview;
+  final List<CatalogItemV1CsvImportRow>? preview;
+  final CatalogItemV1CsvImportReport? report;
   final String? error;
   final bool isWorking;
   final VoidCallback onPreview;
   final VoidCallback onImport;
+  final ValueChanged<String> onChanged;
 
   @override
   Widget build(BuildContext context) {
     final preview = this.preview;
-    final importable = preview == null
-        ? 0
-        : preview.resolvedRows.length + preview.conflictRows.length;
+    final importable = preview?.length ?? 0;
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
         child: ConstrainedBox(
@@ -336,7 +352,7 @@ class _ImportWizardPane extends StatelessWidget {
                     icon: Icons.fact_check_outlined,
                     label: preview == null
                         ? 'Preview pending'
-                        : '${preview.totalRows} rows',
+                        : '${preview.length} rows',
                   ),
                   _WizardStat(
                     icon: Icons.upload_file_outlined,
@@ -349,8 +365,9 @@ class _ImportWizardPane extends StatelessWidget {
                 controller: controller,
                 minLines: 7,
                 maxLines: 9,
+                onChanged: onChanged,
                 decoration: const InputDecoration(
-                  labelText: 'Paste Collectarr CSV or CLZ-friendly CSV',
+                  labelText: 'Paste Catalog Item v1 CSV',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -362,7 +379,8 @@ class _ImportWizardPane extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 12),
-              if (preview != null) _ImportPreviewSummary(preview: preview),
+              if (preview != null)
+                _ImportPreviewSummary(preview: preview, report: report),
               SizedBox(height: preview == null ? 0 : 12),
               Wrap(
                 spacing: 8,
@@ -396,9 +414,10 @@ class _ImportWizardPane extends StatelessWidget {
 }
 
 class _ImportPreviewSummary extends StatelessWidget {
-  const _ImportPreviewSummary({required this.preview});
+  const _ImportPreviewSummary({required this.preview, this.report});
 
-  final CollectionImportPreview preview;
+  final List<CatalogItemV1CsvImportRow> preview;
+  final CatalogItemV1CsvImportReport? report;
 
   @override
   Widget build(BuildContext context) {
@@ -417,28 +436,29 @@ class _ImportPreviewSummary extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _WizardStat(
-                    icon: Icons.check_circle_outline,
-                    label: '${preview.resolvedCount} matched'),
+                  icon: Icons.inventory_2_outlined,
+                  label: '${preview.length} copies',
+                ),
                 _WizardStat(
-                    icon: Icons.update_outlined,
-                    label: '${preview.conflictCount} updates'),
-                _WizardStat(
-                    icon: Icons.search_off_outlined,
-                    label: '${preview.unresolvedCount} unresolved'),
-                _WizardStat(
-                    icon: Icons.content_copy_outlined,
-                    label: '${preview.duplicateCount} duplicates'),
-                _WizardStat(
-                    icon: Icons.block_outlined,
-                    label: '${preview.skippedCount} skipped'),
+                  icon: Icons.add_box_outlined,
+                  label:
+                      '${preview.where((row) => row.catalogItemId == null).length} catalog items to create',
+                ),
+                for (final kind in preview.map((row) => row.kind).toSet())
+                  _WizardStat(
+                    icon: Icons.category_outlined,
+                    label:
+                        '${preview.where((row) => row.kind == kind).length} ${kind.apiValue}',
+                  ),
               ],
             ),
-            if (preview.unresolvedRows.isNotEmpty) ...[
+            if (report?.failures.isNotEmpty == true) ...[
               const SizedBox(height: 10),
-              Text(
-                'Unresolved rows stay out of this import until you match them in a later pass.',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              for (final failure in report!.failures.take(8))
+                Text(
+                  'Row ${failure.rowNumber}: ${failure.message}',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
             ],
           ],
         ),

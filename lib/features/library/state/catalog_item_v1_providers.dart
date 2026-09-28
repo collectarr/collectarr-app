@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/services/library_catalog_item_v1_add_service.dart';
+import 'package:collectarr_app/features/library/csv/catalog_item_v1_csv_importer.dart';
 import 'package:collectarr_app/features/library/data/catalog_item_v1_workspace_repository.dart';
 import 'package:collectarr_app/features/library/data/owned_copy_v1_repository.dart';
 import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
@@ -9,6 +10,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final ownedCopyV1RepositoryProvider = Provider<OwnedCopyV1Repository>((ref) {
   return OwnedCopyV1Repository(ref.watch(localDatabaseProvider));
+});
+
+final catalogItemV1CsvImporterProvider =
+    Provider<CatalogItemV1CsvImporter>((ref) {
+  return CatalogItemV1CsvImporter(
+    api: ref.watch(apiClientProvider),
+    ownedCopies: ref.watch(ownedCopyV1RepositoryProvider),
+  );
 });
 
 final libraryCatalogItemV1AddServiceProvider =

@@ -14,6 +14,8 @@ import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/csv/catalog_item_v1_csv_exporter.dart';
+import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
@@ -804,7 +806,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Import or export your local collection as Collectarr CSV, CLZ-friendly CSV, or ComicInfo.xml. Personal fields stored on this device stay in the exported data.',
+                'Import a Catalog Item v1 CSV backup, or export your collection in the current v1 format and legacy interchange formats.',
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -1082,7 +1084,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> _showImportExportWizard({required int initialIndex}) async {
-    final state = await ref.read(shelfProvider.future);
+    // The v1 import/export flow must remain usable even when the retired
+    // workspace-backed Shelf cannot load. Legacy exports are optional here.
+    final legacyEntries = ref.read(shelfProvider).asData?.value.entries ??
+        const <LibraryWorkspaceSource>[];
+    final catalogRows =
+        await ref.read(catalogItemV1AllWorkspacesProvider.future);
     final db = ref.read(localDatabaseProvider);
     final cfRepo = CustomFieldRepository(db);
     final cfDefs = await cfRepo.listDefinitions();
@@ -1093,11 +1100,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final imported = await showDialog<int>(
       context: context,
       builder: (context) => ImportExportWizardDialog(
-        entries: state.entries,
+        entries: legacyEntries,
         profiles: collectionCsvKindProfiles,
         initialIndex: initialIndex,
         customFieldDefinitions: cfDefs,
         customFieldValuesByItem: cfValues,
+        additionalExports: catalogRows.isEmpty
+            ? const []
+            : [const CatalogItemV1CsvExporter().export(catalogRows)],
       ),
     );
     if (imported != null && mounted) {

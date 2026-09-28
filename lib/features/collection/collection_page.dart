@@ -1,10 +1,6 @@
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/ui/error_card.dart';
@@ -15,21 +11,13 @@ import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.
 import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
-import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
-import 'package:dio/dio.dart';
-import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-part 'collection_page_import.dart';
 part 'collection_page_shelf.dart';
 
 enum _ShelfFilter { all, owned, wishlist, overdue, notes }
@@ -90,13 +78,13 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         actions: [
           IconButton(
             tooltip: 'Import…',
-            onPressed: shelf.maybeWhen(
-              data: (state) => () => _showImportExportWizard(
-                    state.entries,
-                    initialIndex: 1,
-                  ),
-              orElse: () => null,
-            ),
+            onPressed: legacyState != null || catalogItemsV1.hasValue
+                ? () => _showImportExportWizard(
+                      legacyState?.entries ?? const [],
+                      catalogItemRows: allCatalogItemRows,
+                      initialIndex: 1,
+                    )
+                : null,
             icon: const Icon(Icons.upload_file),
           ),
           IconButton(
