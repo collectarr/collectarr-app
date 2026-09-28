@@ -18,8 +18,6 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
   final Future<List<LibraryHierarchyNode>> Function({
     required ApiClient api,
     required String itemId,
-    String? provider,
-    String? providerItemId,
   })? fetchChildrenCallback;
   final LibraryKindBrowserDelegate Function()? browserDelegateBuilder;
   final String? Function(LibraryProjectionView item)?
@@ -33,15 +31,11 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
   Future<List<LibraryHierarchyNode>> fetchChildren({
     required ApiClient api,
     required String itemId,
-    String? provider,
-    String? providerItemId,
   }) async {
     if (fetchChildrenCallback != null) {
       return fetchChildrenCallback!(
         api: api,
         itemId: itemId,
-        provider: provider,
-        providerItemId: providerItemId,
       );
     }
     return const <LibraryHierarchyNode>[];

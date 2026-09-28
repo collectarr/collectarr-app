@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/config/workspace_presentation_su
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_preview_seasons_section.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -502,23 +501,6 @@ class AnimeLibraryMediaPresentationBuilder
                 ),
           ),
         ],
-      ),
-    ];
-  }
-
-  @override
-  List<Widget> buildAddPreviewSections({
-    required Color accent,
-    required CatalogMediaKind kind,
-    required String provider,
-    required String providerItemId,
-  }) {
-    return [
-      AnimeAddPreviewSeasonsSection(
-        kind: kind,
-        provider: provider,
-        providerItemId: providerItemId,
-        accent: accent,
       ),
     ];
   }

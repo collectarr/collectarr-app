@@ -149,8 +149,6 @@ String tvChildrenTitle(int count) => 'Seasons ($count)';
 Future<List<LibraryHierarchyNode>> fetchTvSeasons({
   required ApiClient api,
   required String itemId,
-  String? provider,
-  String? providerItemId,
 }) async {
   final seasons = await api
       .getTvSeriesSeasonsDto(itemId)

@@ -126,8 +126,6 @@ String musicChildrenTitle(int count) => 'Discs and tracks ($count)';
 Future<List<LibraryHierarchyNode>> fetchMusicTracks({
   required ApiClient api,
   required String itemId,
-  String? provider,
-  String? providerItemId,
 }) async {
   final dto = await api
       .getCatalogItem(CatalogItemRef(kind: CatalogMediaKind.music, id: itemId))

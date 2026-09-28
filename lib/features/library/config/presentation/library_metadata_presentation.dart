@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
@@ -365,15 +364,6 @@ abstract class LibraryMediaPresentationBuilder {
       isFetchingPreview: isFetchingPreview,
       providerLabel: providerLabel,
     );
-  }
-
-  List<Widget> buildAddPreviewSections({
-    required Color accent,
-    required CatalogMediaKind kind,
-    required String provider,
-    required String providerItemId,
-  }) {
-    return const [];
   }
 
   LibraryMetadataPresentation buildMetadataPresentation({

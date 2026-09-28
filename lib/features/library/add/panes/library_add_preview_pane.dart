@@ -142,14 +142,6 @@ class LibraryAddPreviewPane extends ConsumerWidget {
       candidate: selectedCandidate,
       preview: preview,
     );
-    final kindPreviewSections = selectedCandidate == null
-        ? const <Widget>[]
-        : libraryPresentationForKind(type.kind).builder.buildAddPreviewSections(
-              accent: accent,
-              kind: type.kind,
-              provider: selectedCandidate.provider,
-              providerItemId: selectedCandidate.providerItemId,
-            );
     final previewRequest = LibraryAddPreviewPaneRequest(
       type: type,
       accent: accent,
@@ -309,10 +301,6 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                               values: section.values,
                               accent: accent,
                             ),
-                        ],
-                        for (final section in kindPreviewSections) ...[
-                          const SizedBox(height: 22),
-                          section,
                         ],
                         if (selectedItem != null &&
                             referenceType ==

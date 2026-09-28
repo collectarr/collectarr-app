@@ -146,8 +146,6 @@ String animeChildrenTitle(int count) => 'Episodes ($count)';
 Future<List<LibraryHierarchyNode>> fetchAnimeEpisodes({
   required ApiClient api,
   required String itemId,
-  String? provider,
-  String? providerItemId,
 }) async {
   final dto =
       await api.getAnimeSeriesDto(itemId).timeout(const Duration(seconds: 60));

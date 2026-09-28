@@ -142,8 +142,6 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
 Future<List<LibraryHierarchyNode>> fetchBookVolumes({
   required ApiClient api,
   required String itemId,
-  String? provider,
-  String? providerItemId,
 }) async {
   final work =
       await api.getBookWorkDto(itemId).timeout(const Duration(seconds: 60));

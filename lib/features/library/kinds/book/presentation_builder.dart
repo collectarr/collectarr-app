@@ -571,7 +571,6 @@ class BookLibraryMediaPresentationBuilder
       sections.add(
         HierarchyChildrenSection(
           itemId: item.node.workId,
-          canHydrateFromCore: true,
           kind: CatalogMediaKind.book,
         ),
       );
@@ -749,7 +748,8 @@ class BookLibraryMediaPresentationBuilder
   }) {
     final typedCandidate =
         candidate is BookProviderCandidate ? candidate : null;
-    final title = item?.summary.primaryLabel ?? typedCandidate?.title ?? preview?.title;
+    final title =
+        item?.summary.primaryLabel ?? typedCandidate?.title ?? preview?.title;
     if (title == null || title.trim().isEmpty) {
       return null;
     }

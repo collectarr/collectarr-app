@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_ca
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
-import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_preview_seasons_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
@@ -504,23 +503,6 @@ class TvLibraryMediaPresentationBuilder
                 ),
           ),
         ],
-      ),
-    ];
-  }
-
-  @override
-  List<Widget> buildAddPreviewSections({
-    required Color accent,
-    required CatalogMediaKind kind,
-    required String provider,
-    required String providerItemId,
-  }) {
-    return [
-      TvAddPreviewSeasonsSection(
-        kind: kind,
-        provider: provider,
-        providerItemId: providerItemId,
-        accent: accent,
       ),
     ];
   }
