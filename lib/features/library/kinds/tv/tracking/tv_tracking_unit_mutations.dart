@@ -34,7 +34,6 @@ final class TvTrackingUnitMutations {
     final now = DateTime.now().toUtc();
     final unitId = 'ep:${seriesRef.id}:$seasonNumber:$episodeNumber';
     await mutationRunner.run(
-      localRef: seriesRef,
       action: () async {
         final existing = await trackingUnits.findByRef(
           TrackingUnitRef(kind: seriesRef.mediaKind, id: unitId),

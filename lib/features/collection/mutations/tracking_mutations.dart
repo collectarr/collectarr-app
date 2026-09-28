@@ -19,7 +19,6 @@ import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_r
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace_contributors.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
 export 'package:collectarr_app/core/models/tracking_target.dart';
@@ -56,7 +55,6 @@ final class TrackingMutations {
     DateTime? finishedAt,
     TrackingProgressSnapshot? progress,
     String? notes,
-    MutationOrigin origin = MutationOrigin.user,
   }) {
     final target = entry.ownedRef == null
         ? TrackingTarget.catalog(entry.catalogRef)
@@ -74,7 +72,6 @@ final class TrackingMutations {
       progressTotal: resolvedProgress.total,
       timesCompleted: resolvedProgress.timesCompleted,
       notes: notes,
-      origin: origin,
     );
   }
 
@@ -93,7 +90,6 @@ final class TrackingMutations {
     TrackingKindPatch? kindPatch,
     bool allowEmpty = false,
     bool notify = true,
-    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
     late CatalogEntityRef catalogRef;
@@ -133,8 +129,6 @@ final class TrackingMutations {
     final entryId = idGenerator();
 
     await mutationRunner.run(
-      origin: origin,
-      localRef: catalogRef,
       action: () async {
         final serialized = await trackingRecords.upsertMutation(
           id: entryId,
@@ -197,7 +191,6 @@ final class TrackingMutations {
     String? notes,
     TrackingSourceType? sourceType,
     TrackingKindPatch? kindPatch,
-    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
     final ownedSummary = catalogRef == null
@@ -237,13 +230,10 @@ final class TrackingMutations {
                 ? TrackingSourceType.digital
                 : TrackingSourceType.physical),
         kindPatch: kindPatch,
-        origin: origin,
       );
     }
     final entryId = idGenerator();
     await mutationRunner.run(
-      origin: origin,
-      localRef: resolvedCatalogRef,
       action: () async {
         final serialized = await trackingRecords.upsertMutation(
           id: entryId,
@@ -285,16 +275,11 @@ final class TrackingMutations {
     int? timesCompleted,
     TrackingKindPatch? kindPatch,
     bool allowEmpty = false,
-    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final itemId = catalogRef.id;
-    final isLocalItem = itemId.startsWith('tmdb-local:');
     final entryId = idGenerator();
     final resolvedCatalogRef = targetRef ?? catalogRef;
     await mutationRunner.run(
-      origin: origin,
-      localRef: resolvedCatalogRef,
       action: () async {
         final serialized = await trackingRecords.upsertMutation(
           id: entryId,
@@ -310,11 +295,9 @@ final class TrackingMutations {
           kindPatch: kindPatch,
           updatedAt: now,
         );
-        if (!isLocalItem) {
-          await syncQueue.enqueue(
-            _syncChangeForTrackingState(serialized, 'upsert', now),
-          );
-        }
+        await syncQueue.enqueue(
+          _syncChangeForTrackingState(serialized, 'upsert', now),
+        );
       },
       eventsToEmit: const [TrackingChanged()],
     );

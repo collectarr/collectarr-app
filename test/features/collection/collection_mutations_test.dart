@@ -34,7 +34,6 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
-import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 import 'package:drift/native.dart';
@@ -831,36 +830,6 @@ void main() {
     expect(container.read(syncControllerProvider).pendingCount, 2);
   });
 
-  test('collection import propagates file import origin', () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    MutationOrigin? observedOrigin;
-    final runner = CollectionMutationRunner(
-      database: db,
-      events: CollectionEventBus(),
-      mutationOriginHandler: (origin) => observedOrigin = origin,
-    );
-    final container = ProviderContainer(
-      overrides: [
-        localDatabaseProvider.overrideWithValue(db),
-        collectionMutationRunnerProvider.overrideWithValue(runner),
-      ],
-    );
-    addTearDown(container.dispose);
-
-    await container.read(collectionImportOrchestratorProvider).importRows(
-      const [
-        CollectionImportRow(
-          itemId: 'comic-import-1',
-          mediaKind: CatalogMediaKind.comic,
-          status: 'owned',
-        ),
-      ],
-    );
-
-    expect(observedOrigin, MutationOrigin.fileImport);
-  });
-
   test('collection import moves existing wishlist rows to owned in one batch',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
@@ -1471,132 +1440,6 @@ void main() {
     final owned = await _typedOwnedForCatalog<ComicOwnedItem>(db, 'comic-1');
     expect(imported, 1);
     expect(owned.locationId, 'loc-short-box-6');
-  });
-
-  test('collection mutations can keep unmatched tmdb items local-only',
-      () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    final container = ProviderContainer(
-      overrides: [localDatabaseProvider.overrideWithValue(db)],
-    );
-    addTearDown(container.dispose);
-
-    final snapshot = testCatalogItem(
-      id: 'tmdb-local:movie:603',
-      kind: 'movie',
-      title: 'The Matrix',
-      releaseYear: 1999,
-    );
-
-    await container.read(trackingMutationsProvider).addLocalOnlyTrackingState(
-          snapshot.catalogRef,
-          sourceType: TrackingSourceType.streaming,
-          status: MediaTrackingStatus.completed,
-          rating: 9,
-          timesCompleted: 1,
-        );
-    await container.read(wishlistMutationsProvider).addLocalOnlyCatalog(
-          CatalogSearchCandidate.fromItem(snapshot)
-              .kindCapability
-              .toImportTransport(),
-        );
-
-    final catalog = await CatalogSnapshotRepository(db).findAll();
-    final tracking = await readTrackingStates(db);
-    final wishlist = await db.select(db.wishlistItemsCache).get();
-    final queued = await db.select(db.syncQueue).get();
-
-    expect(catalog.single.id, 'tmdb-local:movie:603');
-    expect(
-      tracking.single.catalogRef.id,
-      'tmdb-local:movie:603',
-    );
-    expect(
-      CatalogEntityRef.fromJson(
-        jsonDecode(wishlist.single.catalogRefJson) as Map<String, dynamic>,
-      ).id,
-      'tmdb-local:movie:603',
-    );
-    expect(queued, isEmpty);
-  });
-
-  test('collection mutations can promote local-only tmdb items to core ids',
-      () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    final container = ProviderContainer(
-      overrides: [localDatabaseProvider.overrideWithValue(db)],
-    );
-    addTearDown(container.dispose);
-    final trackingMutations = container.read(trackingMutationsProvider);
-    final wishlistMutations = container.read(wishlistMutationsProvider);
-
-    final localSnapshot = testCatalogItem(
-      id: 'tmdb-local:movie:603',
-      kind: 'movie',
-      title: 'The Matrix',
-      releaseYear: 1999,
-    );
-    await trackingMutations.addLocalOnlyTrackingState(
-      localSnapshot.catalogRef,
-      sourceType: TrackingSourceType.streaming,
-      status: MediaTrackingStatus.completed,
-      rating: 9,
-      timesCompleted: 1,
-    );
-    await wishlistMutations.addLocalOnlyCatalog(
-      CatalogSearchCandidate.fromItem(localSnapshot)
-          .kindCapability
-          .toImportTransport(),
-    );
-
-    final promotedCount = await container
-        .read(catalogTransportMutationsProvider)
-        .promoteLocalOnlyItemToCatalog(
-          const CatalogEntityRef(
-            kind: CatalogMediaKind.movie,
-            entityType: CatalogEntityTypeId('work'),
-            id: 'tmdb-local:movie:603',
-          ),
-          CatalogSearchCandidate.fromItem(testCatalogItem(
-            id: 'movie-603',
-            kind: 'movie',
-            title: 'The Matrix',
-            releaseYear: 1999,
-          )).kindCapability.toImportTransport(),
-        );
-
-    final tracking = await readAllTrackingStates(db);
-    final wishlist = await db.select(db.wishlistItemsCache).get();
-    final queued = await db.select(db.syncQueue).get();
-
-    expect(promotedCount, 2);
-    expect(
-      tracking.where((row) => row.deletedAt == null).single.catalogRef.id,
-      'movie-603',
-    );
-    expect(
-      CatalogEntityRef.fromJson(
-        jsonDecode(wishlist
-            .where((row) => row.deletedAt == null)
-            .single
-            .catalogRefJson) as Map<String, dynamic>,
-      ).id,
-      'movie-603',
-    );
-    expect(
-      queued.where((row) => row.entityType == 'tracking_entry'),
-      hasLength(1),
-    );
-    expect(
-      queued.where((row) => row.entityType == 'wishlist_item'),
-      hasLength(1),
-    );
-    expect(
-      queued.where((row) => row.entityType == 'library_item_snapshot'),
-      hasLength(1),
-    );
   });
 }
 

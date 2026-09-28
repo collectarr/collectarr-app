@@ -20,7 +20,6 @@ import 'package:collectarr_app/features/collection/repositories/wishlist_items_c
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
-import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
 typedef IdGenerator = String Function();
@@ -53,10 +52,7 @@ final class CollectionImportOrchestrator {
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;
 
-  Future<int> importRows(
-    List<CollectionImportRow> rows, {
-    MutationOrigin origin = MutationOrigin.fileImport,
-  }) async {
+  Future<int> importRows(List<CollectionImportRow> rows) async {
     if (rows.isEmpty) return 0;
 
     final preview = await previewImportRows(rows);
@@ -213,7 +209,6 @@ final class CollectionImportOrchestrator {
     }
 
     await mutationRunner.run(
-      origin: origin,
       action: () async {
         if (importedCatalogItems.isNotEmpty) {
           await catalogTransport.upsertTransports(importedCatalogItems);

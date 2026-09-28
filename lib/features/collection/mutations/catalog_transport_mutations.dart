@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/tracking/tracking_storage_reposi
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 
 /// Catalog transport mutations are kept separate from Owned mutations.
 final class CatalogTransportMutations {
@@ -27,13 +26,9 @@ final class CatalogTransportMutations {
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
 
-  Future<void> upsertTransport(
-    CatalogImportTransport item, {
-    MutationOrigin origin = MutationOrigin.user,
-  }) async {
+  Future<void> upsertTransport(CatalogImportTransport item) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
-      origin: origin,
       action: () async {
         await catalogTransport.upsertTransports([item]);
         await syncQueue.enqueue(_syncChangeForItem(item, now));
