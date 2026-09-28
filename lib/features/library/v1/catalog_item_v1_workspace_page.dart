@@ -1028,6 +1028,7 @@ final class _CatalogItemV1AddDialogState
       _selectedDetails = null;
       _selectedDetailsError = null;
       _loadingSelectedDetails = true;
+      _error = null;
     });
     try {
       final details = await ref
@@ -1075,6 +1076,34 @@ final class _CatalogItemV1AddDialogState
           ..._kindDetails,
         };
         final typedDetails = catalogItemWriteDetailsFromJson(details);
+        final matchesById = <String, CatalogItemSummaryV1Dto>{};
+        for (final identifier in _catalogIdentitySearchValues(details)) {
+          final matches = await service.search(
+            kind: widget.kind,
+            identifier: identifier,
+            limit: 50,
+          );
+          for (final match in matches) {
+            matchesById.putIfAbsent(match.id, () => match);
+          }
+        }
+        if (matchesById.isNotEmpty) {
+          final matches = matchesById.values.toList(growable: false);
+          setState(() {
+            _manual = false;
+            _results = matches;
+            _selected = null;
+            _selectedDetails = null;
+            _selectedDetailsError = null;
+            _error = matches.length == 1
+                ? 'This identifier already exists in the catalog. Review the item below before adding a copy.'
+                : 'These identifiers match existing catalog items. Select the correct item below before adding a copy.';
+          });
+          if (matches.length == 1) {
+            await _selectSearchResult(matches.single);
+          }
+          return;
+        }
         final created = await service.create(
           CatalogItemWriteV1Dto(details: typedDetails),
         );
@@ -1400,6 +1429,39 @@ Map<String, dynamic> _sanitizeKindWriteDetails(
 }
 
 const _commonCatalogKeys = {'title', 'sort_title', 'subtitle', 'release_date'};
+
+List<String> _catalogIdentitySearchValues(Map<String, dynamic> details) {
+  const uniqueIdentifierTypes = {
+    'barcode',
+    'ean',
+    'gtin',
+    'isbn',
+    'isbn10',
+    'isbn13',
+    'upc',
+  };
+  final values = <String>{};
+  void add(Object? value) {
+    if (value is String && value.trim().isNotEmpty) values.add(value.trim());
+  }
+
+  add(details['barcode']);
+  final identifiers = details['identifiers'];
+  if (identifiers is List) {
+    for (final identifier in identifiers) {
+      if (identifier is! Map) continue;
+      final rawType = identifier['identifier_type'];
+      if (rawType is! String) continue;
+      final type = rawType
+          .trim()
+          .toLowerCase()
+          .replaceAll('-', '')
+          .replaceAll('_', '');
+      if (uniqueIdentifierTypes.contains(type)) add(identifier['value']);
+    }
+  }
+  return values.toList(growable: false);
+}
 
 Object? _sanitizeCatalogValue(
   Object? value,
