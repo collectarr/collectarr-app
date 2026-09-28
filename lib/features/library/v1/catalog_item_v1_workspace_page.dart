@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/config/library_kind_identity.dar
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Active Catalog Item + Owned Copy workspace shared by all library kinds.
 final class CatalogItemV1WorkspacePage extends ConsumerWidget {
@@ -287,6 +288,8 @@ final class _CatalogItemWorkspaceList extends StatefulWidget {
 
 final class _CatalogItemWorkspaceListState
     extends State<_CatalogItemWorkspaceList> {
+  static const _columnPreferencePrefix = 'catalog_item_v1.visible_columns.';
+
   final _searchController = TextEditingController();
   late List<({CatalogItemV1WorkspaceItem item, String searchText})>
       _searchIndex = _buildSearchIndex(widget.items);
@@ -294,12 +297,25 @@ final class _CatalogItemWorkspaceListState
   String _sortField = 'title';
   String _groupField = '';
   bool _ascending = true;
+  late Set<String> _visibleColumns = _defaultVisibleColumns();
+  bool _columnsLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVisibleColumns();
+  }
 
   @override
   void didUpdateWidget(covariant _CatalogItemWorkspaceList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.items, widget.items)) {
       _searchIndex = _buildSearchIndex(widget.items);
+    }
+    if (oldWidget.identity.kind != widget.identity.kind) {
+      _columnsLoaded = false;
+      _visibleColumns = _defaultVisibleColumns();
+      _loadVisibleColumns();
     }
   }
 
@@ -402,6 +418,11 @@ final class _CatalogItemWorkspaceListState
                 ],
               ),
               IconButton(
+                tooltip: 'Choose visible columns',
+                onPressed: _columnsLoaded ? _configureColumns : null,
+                icon: const Icon(Icons.view_column_outlined),
+              ),
+              IconButton(
                 tooltip: _ascending ? 'Sort descending' : 'Sort ascending',
                 onPressed: () => setState(() => _ascending = !_ascending),
                 icon: Icon(
@@ -453,6 +474,7 @@ final class _CatalogItemWorkspaceListState
                         identity: widget.identity,
                         accent: widget.accent,
                         canEditCatalog: widget.canEditCatalog,
+                        visibleColumns: _visibleColumns,
                         onEditCatalog: item.catalogItem == null
                             ? null
                             : () => widget.onEditCatalog(item),
@@ -561,6 +583,112 @@ final class _CatalogItemWorkspaceListState
       }
     }
     return fields.toList(growable: false);
+  }
+
+  List<String> _availableColumnFields() {
+    final properties = _kindDetailsSchema(widget.identity.kind)['properties'];
+    final fields = <String>[];
+    if (properties is! Map<String, dynamic>) return fields;
+    for (final entry in properties.entries) {
+      if (entry.key == 'title' ||
+          entry.key == 'sort_title' ||
+          entry.key == 'subtitle' ||
+          entry.key == 'images' ||
+          entry.key == 'tracks' ||
+          entry.key == 'episodes' ||
+          entry.key == 'credits' ||
+          entry.key == 'contributors' ||
+          entry.key == 'links' ||
+          entry.key == 'identifiers') {
+        continue;
+      }
+      final schema = entry.value;
+      if (schema is Map<String, dynamic> &&
+          (entry.key == 'release_date' || _isScalarCatalogSchema(schema))) {
+        fields.add(entry.key);
+      }
+    }
+    return fields;
+  }
+
+  Set<String> _defaultVisibleColumns() {
+    final available = _availableColumnFields();
+    return {
+      ...available.take(3),
+    };
+  }
+
+  Future<void> _loadVisibleColumns() async {
+    final preferences = await SharedPreferences.getInstance();
+    final available = _availableColumnFields().toSet();
+    final saved = preferences.getStringList(
+      '$_columnPreferencePrefix${widget.identity.kind.apiValue}',
+    );
+    if (!mounted) return;
+    setState(() {
+      _visibleColumns = saved == null
+          ? _defaultVisibleColumns()
+          : saved.where(available.contains).toSet();
+      _columnsLoaded = true;
+    });
+  }
+
+  Future<void> _configureColumns() async {
+    final available = _availableColumnFields();
+    final selected = Set<String>.of(_visibleColumns);
+    final result = await showDialog<Set<String>>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Visible Catalog Item columns'),
+          content: SizedBox(
+            width: 380,
+            height: 440,
+            child: ListView(
+              children: [
+                for (final field in available)
+                  CheckboxListTile(
+                    dense: true,
+                    value: selected.contains(field),
+                    title: Text(_fieldLabel(field)),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    onChanged: (visible) => setDialogState(() {
+                      visible == true
+                          ? selected.add(field)
+                          : selected.remove(field);
+                    }),
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(
+                dialogContext,
+                _defaultVisibleColumns(),
+              ),
+              child: const Text('Reset'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, selected),
+              child: const Text('Apply'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result == null || !mounted) return;
+    final normalized = result.intersection(available.toSet());
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setStringList(
+      '$_columnPreferencePrefix${widget.identity.kind.apiValue}',
+      normalized.toList()..sort(),
+    );
+    if (mounted) setState(() => _visibleColumns = normalized);
   }
 
   String _fieldLabel(String field) {
@@ -672,6 +800,7 @@ final class _CatalogItemCard extends StatelessWidget {
     required this.onAddCopy,
     required this.onDeleteCopy,
     required this.canEditCatalog,
+    required this.visibleColumns,
     this.onEditCatalog,
     super.key,
   });
@@ -680,6 +809,7 @@ final class _CatalogItemCard extends StatelessWidget {
   final LibraryKindIdentity identity;
   final Color accent;
   final bool canEditCatalog;
+  final Set<String> visibleColumns;
   final Future<void> Function(OwnedCopyV1 copy) onEditCopy;
   final VoidCallback onAddCopy;
   final Future<void> Function(OwnedCopyV1 copy) onDeleteCopy;
@@ -694,7 +824,7 @@ final class _CatalogItemCard extends StatelessWidget {
     final cover = _catalogCover(item.catalogItem);
     final metadata = item.catalogItem == null
         ? const <String>[]
-        : _summaryRows(item.catalogItem!);
+        : _visibleCatalogColumnRows(item.catalogItem!, visibleColumns);
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Padding(
@@ -729,7 +859,7 @@ final class _CatalogItemCard extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
-                            metadata.take(3).join(' · '),
+                            metadata.join(' · '),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.bodySmall,
@@ -1441,6 +1571,21 @@ List<String> _summaryRows(CatalogItemV1Dto item) {
     if (rows.length == 6) break;
   }
   return rows;
+}
+
+List<String> _visibleCatalogColumnRows(
+  CatalogItemV1Dto item,
+  Set<String> visibleColumns,
+) {
+  final details = item.details.toJson();
+  final schema = _kindDetailsSchema(catalogMediaKindFromApiValue(item.kind));
+  final properties = schema['properties'] as Map<String, dynamic>;
+  return [
+    for (final entry in properties.entries)
+      if (visibleColumns.contains(entry.key))
+        if (_summaryText(details[entry.key]) case final String value)
+          '${(entry.value as Map<String, dynamic>)['title'] as String? ?? _humanize(entry.key)} $value',
+  ];
 }
 
 List<String> _catalogNames(Object? value) {
