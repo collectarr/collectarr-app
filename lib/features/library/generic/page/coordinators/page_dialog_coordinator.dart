@@ -12,16 +12,14 @@ import 'package:collectarr_app/features/collection/repositories/loan_repository.
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
 import 'package:collectarr_app/features/library/generic/column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
-import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/dialogs/batch_loan_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/v1/catalog_item_v1_workspace_page.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
@@ -64,47 +62,21 @@ class LibraryPageDialogCoordinator {
 
   Future<void> showAddDialogFlow({String? identifierCode}) async {
     final context = _page.context;
-    final added = await showLibraryAddDialog(
+    final added = await showCatalogItemV1AddDialog(
       context: context,
-      type: _page.type,
+      kind: _page.type.kind,
+      singularLabel: _page.type.identity.singularLabel,
       accent: _page.accent,
-      initialQuery: _page.searchQuery,
+      initialQuery: identifierCode == null ? _page.searchQuery : null,
       initialIdentifier: identifierCode,
     );
-    if (added != null && _page.mounted && context.mounted) {
-      _page.invalidateShelf();
-      _revealAddedItems(added.itemIds);
+    if (added == true && _page.mounted && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            added.target == LibraryAddTarget.track
-                ? '${_page.type.identity.singularLabel} added to tracking'
-                : '${_page.type.identity.singularLabel} added',
-          ),
+          content: Text('${_page.type.identity.singularLabel} added'),
         ),
       );
     }
-  }
-
-  void _revealAddedItems(List<String> itemIds) {
-    if (itemIds.isEmpty) {
-      return;
-    }
-    _page.rebuild(() {
-      _page.selectedId = itemIds.first;
-      _page.selectedBucket = null;
-      _page.selectedLetter = null;
-      _page.linkedMetadataFilter = null;
-      _page.collectionStatusScope = LibraryCollectionStatusScope.all;
-      _page.bucketCompletionScope = LibraryBucketCompletionScope.all;
-      _page.quickView = null;
-      _page.filterSelection = LibraryFilterSelection.none;
-      _page.activeSmartListId = null;
-      _page.activeSmartListName = null;
-      _page.scopeHistory = const [];
-    });
-    _page.clearSearchQuery();
-    _page.syncRouteState();
   }
 
   // ---------------------------------------------------------------------------

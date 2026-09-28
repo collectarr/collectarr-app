@@ -819,13 +819,14 @@ String _ownedCopyDetails(OwnedCopyV1 copy) {
 }
 
 /// Opens the shared Catalog Item v1 Add flow from a workspace or a kind action.
-Future<void> showCatalogItemV1AddDialog({
+Future<bool?> showCatalogItemV1AddDialog({
   required BuildContext context,
   required CatalogMediaKind kind,
   required String singularLabel,
   required Color accent,
   bool? canEditCatalog,
   String? initialQuery,
+  String? initialIdentifier,
 }) async {
   final container = ProviderScope.containerOf(context, listen: false);
   final canEdit =
@@ -838,6 +839,7 @@ Future<void> showCatalogItemV1AddDialog({
       accent: accent,
       canEditCatalog: canEdit,
       initialQuery: initialQuery,
+      initialIdentifier: initialIdentifier,
     ),
   );
   if (added == true) {
@@ -846,6 +848,7 @@ Future<void> showCatalogItemV1AddDialog({
         .clearCatalogCache();
     container.invalidate(catalogItemV1WorkspaceByKindProvider(kind));
   }
+  return added;
 }
 
 final class _CatalogItemV1AddDialog extends ConsumerStatefulWidget {
@@ -855,6 +858,7 @@ final class _CatalogItemV1AddDialog extends ConsumerStatefulWidget {
     required this.accent,
     required this.canEditCatalog,
     this.initialQuery,
+    this.initialIdentifier,
   });
 
   final CatalogMediaKind kind;
@@ -862,6 +866,7 @@ final class _CatalogItemV1AddDialog extends ConsumerStatefulWidget {
   final Color accent;
   final bool canEditCatalog;
   final String? initialQuery;
+  final String? initialIdentifier;
 
   @override
   ConsumerState<_CatalogItemV1AddDialog> createState() =>
@@ -893,7 +898,17 @@ final class _CatalogItemV1AddDialogState
   @override
   void initState() {
     super.initState();
-    _queryController.text = widget.initialQuery ?? '';
+    final initialIdentifier = widget.initialIdentifier?.trim();
+    final hasInitialIdentifier =
+        initialIdentifier != null && initialIdentifier.isNotEmpty;
+    _queryController.text =
+        hasInitialIdentifier ? initialIdentifier : widget.initialQuery ?? '';
+    _searchIdentifierOnly = hasInitialIdentifier;
+    if (_searchIdentifierOnly) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _search();
+      });
+    }
   }
 
   @override
