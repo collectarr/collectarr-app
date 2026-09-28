@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 
 part 'catalog_item_v1.models.g.dart';
-part 'music_catalog.models.g.dart';
 
 @immutable
 abstract class TypedMetadataResponse {

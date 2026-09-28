@@ -260,11 +260,16 @@ class _AdminApiClient {
     required String kind,
     required String id,
   }) async {
-    final typed = await _client.getTypedMetadataItem(
-      kind: catalogMediaKindFromApiValue(kind),
-      id: id,
+    final item = await _client.getCatalogItem(
+      CatalogItemRef(kind: catalogMediaKindFromApiValue(kind), id: id),
     );
-    return AdminMetadataItem.fromJson(_client._resolveImageUrls(typed.raw));
+    return AdminMetadataItem.fromJson(
+      _client._resolveImageUrls({
+        'id': item.id,
+        'kind': item.kind,
+        ...item.details.toJson(),
+      }),
+    );
   }
 
   Future<List<Map<String, dynamic>>> adminProviderSearch({

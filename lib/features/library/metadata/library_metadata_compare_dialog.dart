@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
@@ -70,15 +71,13 @@ class _LibraryMetadataCompareDialogState
     });
     try {
       final api = ref.read(apiClientProvider);
-      final dto = await api.getTypedMetadataItem(
-        kind: widget.kind,
-        id: widget.itemId,
+      final item = await api.getCatalogItem(
+        CatalogItemRef(kind: widget.kind, id: widget.itemId),
       );
       final payload = JsonMap.from({
-        ...dto.raw,
-        'id': dto.id,
-        'title': dto.title,
-        if (dto.kind != null) 'kind': dto.kind,
+        'id': item.id,
+        'kind': item.kind,
+        ...item.details.toJson(),
       });
       if (!mounted) {
         return;

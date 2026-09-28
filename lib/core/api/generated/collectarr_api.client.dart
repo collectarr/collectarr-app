@@ -172,7 +172,9 @@ class CollectarrApiClient {
       case CatalogMediaKind.boardgame:
         return getBoardGameWorkDto(id);
       case CatalogMediaKind.music:
-        return getMusicAlbumDto(id);
+        throw UnsupportedError(
+          'Music metadata uses the unified Catalog Item API.',
+        );
       default:
         throw UnsupportedError(
           'Unsupported metadata kind: ${kind.apiValue}',
@@ -333,60 +335,6 @@ class CollectarrApiClient {
       '/api/v1/metadata/boardgames/editions/${Uri.encodeComponent(id)}',
       BoardGameEditionDto.fromJson,
     );
-  }
-
-  Future<List<Map<String, dynamic>>> searchMusicAlbums({
-    String? query,
-    String? barcode,
-    String? catalogNumber,
-    int limit = 50,
-  }) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/api/v1/metadata/music/albums',
-      queryParameters: {
-        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
-        if (barcode != null && barcode.trim().isNotEmpty)
-          'barcode': barcode.trim(),
-        if (catalogNumber != null && catalogNumber.trim().isNotEmpty)
-          'catalog_number': catalogNumber.trim(),
-        'limit': limit,
-      },
-    );
-    return (response.data ?? const <dynamic>[])
-        .whereType<Map<String, dynamic>>()
-        .map(_resolveImageUrls)
-        .toList(growable: false);
-  }
-
-  Future<MusicAlbumDto> getMusicAlbumDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/music/albums/${Uri.encodeComponent(id)}',
-      MusicAlbumDto.fromJson,
-    );
-  }
-
-  Future<MusicAlbumDto> createMusicAlbum(MusicAlbumWriteDto payload) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/api/v1/metadata/music/albums',
-      data: payload.toJson(),
-    );
-    final data = response.data;
-    if (data == null) throw StateError('Music album create returned no body');
-    return MusicAlbumDto.fromJson(_resolveImageUrls(data));
-  }
-
-  Future<MusicAlbumDto> updateMusicAlbum(
-    String id,
-    MusicAlbumWriteDto payload,
-  ) async {
-    final path = '/api/v1/metadata/music/albums/${Uri.encodeComponent(id)}';
-    final response = await _dio.put<Map<String, dynamic>>(
-      path,
-      data: payload.toJson(),
-    );
-    final data = response.data;
-    if (data == null) throw StateError('$path returned no body');
-    return MusicAlbumDto.fromJson(_resolveImageUrls(data));
   }
 
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {

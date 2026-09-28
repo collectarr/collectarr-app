@@ -261,35 +261,6 @@ class ApiClient {
     return _catalogApi.getBoardGameEditionDto(id);
   }
 
-  Future<MusicAlbumDto> getMusicAlbumDto(String id) {
-    return _catalogApi.getMusicAlbumDto(id);
-  }
-
-  Future<List<Map<String, dynamic>>> searchMusicAlbums({
-    String? query,
-    String? barcode,
-    String? catalogNumber,
-    int limit = 50,
-  }) {
-    return _catalogApi.searchMusicAlbums(
-      query: query,
-      barcode: barcode,
-      catalogNumber: catalogNumber,
-      limit: limit,
-    );
-  }
-
-  Future<MusicAlbumDto> createMusicAlbum(MusicAlbumWriteDto payload) {
-    return _catalogApi.createMusicAlbum(payload);
-  }
-
-  Future<MusicAlbumDto> updateMusicAlbum(
-    String id,
-    MusicAlbumWriteDto payload,
-  ) {
-    return _catalogApi.updateMusicAlbum(id, payload);
-  }
-
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     return _catalogApi.getBundleRelease(bundleReleaseId);
   }
