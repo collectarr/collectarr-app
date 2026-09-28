@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/kinds/comic/missing_comics_report.dart';
+import 'package:collectarr_app/features/library/v1/catalog_item_v1_workspace_page.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/material.dart';
@@ -343,9 +343,10 @@ Future<void> _quickAddComicIssue(
   required String issueLabel,
   required Color accent,
 }) async {
-  await showLibraryAddDialog(
+  await showCatalogItemV1AddDialog(
     context: context,
-    type: type,
+    kind: type.kind,
+    singularLabel: type.identity.singularLabel,
     accent: accent,
     initialQuery: '$seriesTitle $issueLabel',
   );

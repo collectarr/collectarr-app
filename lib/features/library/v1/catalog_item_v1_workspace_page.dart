@@ -63,7 +63,6 @@ final class CatalogItemV1WorkspacePage extends ConsumerWidget {
                     FilledButton.icon(
                       onPressed: () => _openAddDialog(
                         context,
-                        ref,
                         canEditCatalog: canEditCatalog,
                       ),
                       icon: const Icon(Icons.add),
@@ -108,22 +107,16 @@ final class CatalogItemV1WorkspacePage extends ConsumerWidget {
   }
 
   Future<void> _openAddDialog(
-    BuildContext context,
-    WidgetRef ref, {
+    BuildContext context, {
     required bool canEditCatalog,
   }) async {
-    await showDialog<void>(
+    await showCatalogItemV1AddDialog(
       context: context,
-      builder: (context) => _CatalogItemV1AddDialog(
-        kind: kind,
-        singularLabel: identity.singularLabel,
-        accent: accent,
-        canEditCatalog: canEditCatalog,
-      ),
+      kind: kind,
+      singularLabel: identity.singularLabel,
+      accent: accent,
+      canEditCatalog: canEditCatalog,
     );
-    if (context.mounted) {
-      ref.invalidate(catalogItemV1WorkspaceByKindProvider(kind));
-    }
   }
 
   Future<void> _editCatalogItem(
@@ -823,18 +816,50 @@ String _ownedCopyDetails(OwnedCopyV1 copy) {
   return values.join(' · ');
 }
 
+/// Opens the shared Catalog Item v1 Add flow from a workspace or a kind action.
+Future<void> showCatalogItemV1AddDialog({
+  required BuildContext context,
+  required CatalogMediaKind kind,
+  required String singularLabel,
+  required Color accent,
+  bool? canEditCatalog,
+  String? initialQuery,
+}) async {
+  final container = ProviderScope.containerOf(context, listen: false);
+  final canEdit =
+      canEditCatalog ?? container.read(authControllerProvider).canEditCatalog;
+  final added = await showDialog<bool>(
+    context: context,
+    builder: (context) => _CatalogItemV1AddDialog(
+      kind: kind,
+      singularLabel: singularLabel,
+      accent: accent,
+      canEditCatalog: canEdit,
+      initialQuery: initialQuery,
+    ),
+  );
+  if (added == true) {
+    container
+        .read(catalogItemV1WorkspaceRepositoryProvider)
+        .clearCatalogCache();
+    container.invalidate(catalogItemV1WorkspaceByKindProvider(kind));
+  }
+}
+
 final class _CatalogItemV1AddDialog extends ConsumerStatefulWidget {
   const _CatalogItemV1AddDialog({
     required this.kind,
     required this.singularLabel,
     required this.accent,
     required this.canEditCatalog,
+    this.initialQuery,
   });
 
   final CatalogMediaKind kind;
   final String singularLabel;
   final Color accent;
   final bool canEditCatalog;
+  final String? initialQuery;
 
   @override
   ConsumerState<_CatalogItemV1AddDialog> createState() =>
@@ -861,6 +886,12 @@ final class _CatalogItemV1AddDialogState
   bool _busy = false;
   String? _error;
   Map<String, dynamic> _kindDetails = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _queryController.text = widget.initialQuery ?? '';
+  }
 
   @override
   void dispose() {
@@ -1176,7 +1207,7 @@ final class _CatalogItemV1AddDialogState
         customFields: _copyDraft.customFields,
         kindDetails: _copyDraft.kindDetails,
       );
-      if (mounted) Navigator.pop(context);
+      if (mounted) Navigator.pop(context, true);
     } catch (error) {
       if (mounted) setState(() => _error = _catalogWriteError(error));
     } finally {
