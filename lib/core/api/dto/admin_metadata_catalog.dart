@@ -1,52 +1,28 @@
 part of 'admin_metadata.dart';
 
-// Catalog summary, ingest jobs, search, audit log models
+// Catalog summary, search, and audit log models
 
 class AdminCatalogSummary {
   const AdminCatalogSummary({
     required this.items,
     this.itemsByKind = const <String, int>{},
-    required this.series,
-    required this.volumes,
-    required this.editions,
-    required this.variants,
-    required this.providerLinks,
     required this.imageAssets,
     required this.imageCacheEntries,
-    required this.pendingProposals,
     required this.missingCoverItems,
-    required this.missingProviderLinkItems,
     required this.duplicateCandidateGroups,
-    this.providerIngestSuccesses = 0,
-    this.providerIngestFailures = 0,
   });
 
   final int items;
   final Map<String, int> itemsByKind;
-  final int series;
-  final int volumes;
-  final int editions;
-  final int variants;
-  final int providerLinks;
   final int imageAssets;
   final int imageCacheEntries;
-  final int pendingProposals;
   final int missingCoverItems;
-  final int missingProviderLinkItems;
   final int duplicateCandidateGroups;
-  final int providerIngestSuccesses;
-  final int providerIngestFailures;
 
   int get coverCoveragePercent =>
       items == 0 ? 100 : (((items - missingCoverItems) * 100) / items).round();
 
-  int get providerCoveragePercent => items == 0
-      ? 100
-      : (((items - missingProviderLinkItems) * 100) / items).round();
-
   String get coverCoverageLabel => '$coverCoveragePercent% covers';
-
-  String get providerCoverageLabel => '$providerCoveragePercent% provider IDs';
 
   factory AdminCatalogSummary.fromJson(Map<String, dynamic> json) {
     final byKind = json['items_by_kind'];
@@ -60,20 +36,10 @@ class AdminCatalogSummary {
               ),
             )
           : const <String, int>{},
-      series: json['series'] as int? ?? 0,
-      volumes: json['volumes'] as int? ?? 0,
-      editions: json['editions'] as int? ?? 0,
-      variants: json['variants'] as int? ?? 0,
-      providerLinks: json['provider_links'] as int? ?? 0,
       imageAssets: json['image_assets'] as int? ?? 0,
       imageCacheEntries: json['image_cache_entries'] as int? ?? 0,
-      pendingProposals: json['pending_proposals'] as int? ?? 0,
       missingCoverItems: json['missing_cover_items'] as int? ?? 0,
-      missingProviderLinkItems:
-          json['missing_provider_link_items'] as int? ?? 0,
       duplicateCandidateGroups: json['duplicate_candidate_groups'] as int? ?? 0,
-      providerIngestSuccesses: json['provider_ingest_successes'] as int? ?? 0,
-      providerIngestFailures: json['provider_ingest_failures'] as int? ?? 0,
     );
   }
 }

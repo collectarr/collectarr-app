@@ -143,8 +143,43 @@ class AdminMetadataItem {
 
   AdminEdition? get primaryEdition => editions.isEmpty ? null : editions.first;
 
-  String? get displayCoverUrl =>
-      primaryVariant?.thumbnailImageUrl ?? primaryVariant?.coverImageUrl;
+  String? get displayCoverUrl {
+    final legacyCover =
+        primaryVariant?.thumbnailImageUrl ?? primaryVariant?.coverImageUrl;
+    if (legacyCover != null && legacyCover.isNotEmpty) return legacyCover;
+    final directCover = canonicalFieldValues['cover_image_url']?.toString();
+    if (directCover != null && directCover.isNotEmpty) return directCover;
+    final images = canonicalFieldValues['images'];
+    if (images is! List) return null;
+    String? imageUrl(String type) {
+      for (final image in images) {
+        if (image is Map && image['image_type'] == type) {
+          final value = image['url']?.toString();
+          if (value != null && value.isNotEmpty) return value;
+        }
+      }
+      return null;
+    }
+
+    return imageUrl('front_cover') ??
+        imageUrl('cover') ??
+        imageUrl('poster') ??
+        imageUrl('thumbnail');
+  }
+
+  String? get displayThumbnailUrl {
+    final direct = canonicalFieldValues['thumbnail_image_url']?.toString();
+    if (direct != null && direct.isNotEmpty) return direct;
+    final images = canonicalFieldValues['images'];
+    if (images is! List) return displayCoverUrl;
+    for (final image in images) {
+      if (image is Map && image['image_type'] == 'thumbnail') {
+        final value = image['url']?.toString();
+        if (value != null && value.isNotEmpty) return value;
+      }
+    }
+    return displayCoverUrl;
+  }
 
   factory AdminMetadataItem.fromJson(Map<String, dynamic> json) {
     return AdminMetadataItem(
@@ -160,7 +195,9 @@ class AdminMetadataItem {
           if (entry.key != 'normalized' && entry.value != null)
             entry.key: entry.value,
       },
-      itemNumber: json['item_number'] as String?,
+      itemNumber:
+          (json['item_number'] ?? json['issue_number'] ?? json['volume_number'])
+              ?.toString(),
       providerLinks: [
         for (final link in (json['provider_links'] as List<dynamic>? ?? []))
           AdminProviderLink.fromJson(link as Map<String, dynamic>),

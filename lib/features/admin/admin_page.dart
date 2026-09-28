@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/admin/widgets/admin_catalog_item_list.da
 import 'package:collectarr_app/features/admin/admin_diagnostics_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
@@ -41,7 +40,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 part 'admin_item_inspection.dart';
 part 'admin_metadata_correction_dialog.dart';
 part 'admin_duplicate_merge_dialog.dart';
-part 'admin_bundle_correction_dialog.dart';
 part 'admin_page_sections.dart';
 part 'admin_catalog_widgets.dart';
 part 'admin_shared_widgets.dart';
@@ -228,7 +226,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         id: item.id,
       );
       final auditLogs = await api.adminAuditLogs(
-        entityType: 'item',
+        entityType: 'catalog_item',
         entityId: item.id,
         limit: 8,
       );
@@ -242,7 +240,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       await _showCanonicalItemInspectionDialog(
         fresh,
         auditLogs,
-        const <BundleReleaseSummary>[],
         metadataFields,
       );
     } catch (error) {
@@ -258,7 +255,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   Future<void> _showCanonicalItemInspectionDialog(
     AdminMetadataItem item,
     List<AdminAuditLogEntry> auditLogs,
-    List<BundleReleaseSummary> bundleReleases,
     List<LibraryAdminCorrectionField> metadataFields,
   ) async {
     final result = await showDialog<_CanonicalInspectResult>(
@@ -266,16 +262,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       builder: (context) => _CanonicalItemInspectionDialog(
         item: item,
         auditLogs: auditLogs,
-        bundleReleases: bundleReleases,
         metadataFields: metadataFields,
       ),
     );
     if (result == null || !mounted) {
-      return;
-    }
-    if (result.bundleReleaseId != null) {
-      await _showBundleCorrectionDialog(result.bundleReleaseId!);
-      await _inspectCatalogItem(item);
       return;
     }
     switch (result.action) {
@@ -300,54 +290,17 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final kind = catalogMediaKindFromApiValue(item.kind);
       final contributor = libraryAdminContributorForKind(kind);
       if (contributor == null) return const [];
+      final detailsKeys = item.canonicalFieldValues.keys.toSet();
       return adminCorrectionFieldsForKind(
         schema: fieldSchema,
         kind: kind,
         contributor: contributor,
-      );
+      )
+          .where((field) => detailsKeys.contains(field.key))
+          .toList(growable: false);
     } catch (_) {
       // Inspection remains available if the optional field schema is down.
       return const [];
-    }
-  }
-
-  Future<void> _showBundleCorrectionDialog(String bundleReleaseId) async {
-    try {
-      final api = ref.read(apiClientProvider);
-      final bundle = await api.getBundleRelease(bundleReleaseId);
-      if (!mounted) {
-        return;
-      }
-      final correction = await showDialog<AdminBundleReleaseCorrection>(
-        context: context,
-        builder: (context) => _BundleReleaseCorrectionDialog(bundle: bundle),
-      );
-      if (correction == null || !mounted) {
-        return;
-      }
-      setState(() {
-        _catalogSearchController.statusMessage = null;
-        _catalogSearchController.errorMessage = null;
-      });
-      await api.adminUpdateBundleRelease(
-        bundleReleaseId: bundleReleaseId,
-        correction: correction,
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _catalogSearchController.statusMessage =
-            'Bundle release correction saved.';
-      });
-      await _loadDashboard();
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _catalogSearchController.errorMessage = _adminErrorMessage(error);
-      });
     }
   }
 
@@ -374,11 +327,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       return;
     }
     if (!mounted) return;
+    final detailsKeys = item.canonicalFieldValues.keys.toSet();
     final correctionFields = adminCorrectionFieldsForKind(
       schema: fieldSchema,
       kind: kind,
       contributor: contributor,
-    );
+    ).where((field) => detailsKeys.contains(field.key)).toList(growable: false);
     if (correctionFields.isEmpty) {
       setState(() {
         _catalogSearchController.errorMessage =
@@ -547,7 +501,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             id: itemId,
           );
       final auditLogs = await ref.read(apiClientProvider).adminAuditLogs(
-            entityType: 'item',
+            entityType: 'catalog_item',
             entityId: itemId,
             limit: 8,
           );
@@ -560,7 +514,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       await _showCanonicalItemInspectionDialog(
         item,
         auditLogs,
-        const <BundleReleaseSummary>[],
         await _adminMetadataFields(item),
       );
     } catch (error) {
@@ -733,6 +686,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   List<String> _catalogKindOptions() => [
         for (final type in _mediaTypes)
           if (type.kind.isNotEmpty && type.isTopLevel) type.kind,
-      ]..sort((left, right) => compareAdminMediaKinds(
-          left, right, _catalogKindLabels()));
+      ]..sort((left, right) =>
+          compareAdminMediaKinds(left, right, _catalogKindLabels()));
 }

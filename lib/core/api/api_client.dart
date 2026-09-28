@@ -389,16 +389,6 @@ class ApiClient {
     );
   }
 
-  Future<BundleReleaseDetail> adminUpdateBundleRelease({
-    required String bundleReleaseId,
-    required AdminBundleReleaseCorrection correction,
-  }) async {
-    return _adminApi.adminUpdateBundleRelease(
-      bundleReleaseId: bundleReleaseId,
-      correction: correction,
-    );
-  }
-
   Future<AdminSearchStatus> adminSearchStatus() async {
     return _adminApi.adminSearchStatus();
   }

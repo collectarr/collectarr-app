@@ -3,29 +3,23 @@ part of 'admin_page.dart';
 enum _CanonicalInspectAction { edit, covers }
 
 class _CanonicalInspectResult {
-  const _CanonicalInspectResult._({this.action, this.bundleReleaseId});
+  const _CanonicalInspectResult._({this.action});
 
   const _CanonicalInspectResult.action(_CanonicalInspectAction action)
       : this._(action: action);
 
-  const _CanonicalInspectResult.bundle(String bundleReleaseId)
-      : this._(bundleReleaseId: bundleReleaseId);
-
   final _CanonicalInspectAction? action;
-  final String? bundleReleaseId;
 }
 
 class _CanonicalItemInspectionDialog extends StatelessWidget {
   const _CanonicalItemInspectionDialog({
     required this.item,
     required this.auditLogs,
-    required this.bundleReleases,
     required this.metadataFields,
   });
 
   final AdminMetadataItem item;
   final List<AdminAuditLogEntry> auditLogs;
-  final List<BundleReleaseSummary> bundleReleases;
   final List<LibraryAdminCorrectionField> metadataFields;
 
   @override
@@ -57,7 +51,6 @@ class _CanonicalItemInspectionDialog extends StatelessWidget {
               _CanonicalItemSummary(
                 item: item,
                 auditLogs: auditLogs,
-                bundleReleases: bundleReleases,
                 metadataFields: metadataFields,
               ),
               if (auditLogs.isEmpty) ...[
@@ -103,19 +96,16 @@ class _CanonicalItemSummary extends StatelessWidget {
   const _CanonicalItemSummary({
     required this.item,
     this.auditLogs = const [],
-    this.bundleReleases = const [],
     this.metadataFields = const [],
   });
 
   final AdminMetadataItem item;
   final List<AdminAuditLogEntry> auditLogs;
-  final List<BundleReleaseSummary> bundleReleases;
   final List<LibraryAdminCorrectionField> metadataFields;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final edition = item.primaryEdition;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.3),
@@ -162,8 +152,6 @@ class _CanonicalItemSummary extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     _MiniChip(label: item.kind),
-                    if (edition?.formatLabel != null)
-                      _MiniChip(label: edition!.formatLabel!),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -171,19 +159,6 @@ class _CanonicalItemSummary extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    _Fact(
-                      label: 'Editions',
-                      value: item.editions.length.toString(),
-                    ),
-                    _Fact(
-                      label: 'Variants',
-                      value: item.editions
-                          .fold<int>(
-                            0,
-                            (count, edition) => count + edition.variants.length,
-                          )
-                          .toString(),
-                    ),
                     for (final field in metadataFields.take(10))
                       if (field
                           .displayValue(field.read(item))
@@ -195,14 +170,6 @@ class _CanonicalItemSummary extends StatelessWidget {
                         ),
                   ],
                 ),
-                if (item.editions.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  _AdminItemVariantSummary(item: item),
-                ],
-                if (bundleReleases.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  _BundleReleaseSummaryList(bundleReleases: bundleReleases),
-                ],
                 if (auditLogs.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   _ItemAuditTimeline(logs: auditLogs),
@@ -226,74 +193,6 @@ class _CanonicalItemSummary extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-}
-
-class _BundleReleaseSummaryList extends StatelessWidget {
-  const _BundleReleaseSummaryList({required this.bundleReleases});
-
-  final List<BundleReleaseSummary> bundleReleases;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text('Bundle releases', style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 8),
-        for (final bundle in bundleReleases)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            bundle.title,
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          const SizedBox(height: 6),
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: [
-                              _MiniChip(
-                                label:
-                                    '${bundle.contentSummary.totalItems} members',
-                              ),
-                              if (bundle.bundleType != null)
-                                _MiniChip(label: bundle.bundleType!),
-                              if (bundle.publisher != null)
-                                _MiniChip(label: bundle.publisher!),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    OutlinedButton.icon(
-                      onPressed: () => Navigator.of(context).pop(
-                        _CanonicalInspectResult.bundle(bundle.id),
-                      ),
-                      icon: const Icon(Icons.inventory_2_outlined),
-                      label: const Text('Edit bundle'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-      ],
     );
   }
 }
@@ -329,10 +228,10 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
   void initState() {
     super.initState();
     _coverController = TextEditingController(
-      text: item.primaryVariant?.coverImageUrl ?? '',
+      text: item.displayCoverUrl ?? '',
     );
     _thumbnailController = TextEditingController(
-      text: item.primaryVariant?.thumbnailImageUrl ?? '',
+      text: item.displayThumbnailUrl ?? '',
     );
     _coverController.addListener(_urlFieldsChanged);
     _thumbnailController.addListener(_urlFieldsChanged);
@@ -349,9 +248,6 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final variants = [
-      for (final edition in item.editions) ...edition.variants,
-    ];
     return AccentAlertDialog(
       title: Text('Covers: ${item.displayTitle}'),
       content: SizedBox(
@@ -380,6 +276,7 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
                       child: LibraryCoverImage(
                         title: item.title,
                         itemNumber: item.itemNumber,
+                        imageUrl: item.displayThumbnailUrl,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -429,40 +326,6 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
                 ),
               ],
               const SizedBox(height: 12),
-              if (variants.isEmpty)
-                const Text('No variants attached to this item.')
-              else
-                for (final variant in variants)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          variant.name,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        SelectableText(
-                          [
-                            if (variant.physicalFormatLabel != null)
-                              'format: ${variant.physicalFormatLabel}',
-                            if (variant.coverImageUrl != null)
-                              'cover: ${variant.coverImageUrl}',
-                            if (variant.thumbnailImageUrl != null)
-                              'thumb: ${variant.thumbnailImageUrl}',
-                            if (variant.coverImageUrl == null &&
-                                variant.thumbnailImageUrl == null)
-                              'no cover URLs',
-                            'status: ${variant.coverStatus}',
-                            if (variant.coverStorage != null)
-                              'storage: ${variant.coverStorage}',
-                            if (variant.coverPolicy != null)
-                              'policy: ${variant.coverPolicy}',
-                          ].join('\n'),
-                        ),
-                      ],
-                    ),
-                  ),
             ],
           ),
         ),
@@ -533,128 +396,6 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
     if (mounted) {
       setState(() {});
     }
-  }
-}
-
-class _AdminItemVariantSummary extends StatelessWidget {
-  const _AdminItemVariantSummary({required this.item});
-
-  final AdminMetadataItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    final variants = [
-      for (final edition in item.editions)
-        for (final variant in edition.variants)
-          _EditionVariantPair(edition: edition, variant: variant),
-    ];
-    if (variants.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Variants and cover status',
-          style: Theme.of(context).textTheme.labelLarge,
-        ),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final pair in variants.take(6))
-              _VariantStatusCard(edition: pair.edition, variant: pair.variant),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _EditionVariantPair {
-  const _EditionVariantPair({required this.edition, required this.variant});
-
-  final AdminEdition edition;
-  final AdminVariant variant;
-}
-
-class _VariantStatusCard extends StatelessWidget {
-  const _VariantStatusCard({
-    required this.edition,
-    required this.variant,
-  });
-
-  final AdminEdition edition;
-  final AdminVariant variant;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final hasCover = variant.coverImageUrl != null ||
-        variant.thumbnailImageUrl != null ||
-        variant.coverStatus != 'missing';
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 360, minWidth: 240),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colorScheme.surface.withValues(alpha: 0.72),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: colorScheme.outlineVariant),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    hasCover ? Icons.image_outlined : Icons.hide_image_outlined,
-                    size: 18,
-                    color: hasCover ? colorScheme.primary : colorScheme.error,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      variant.name.isEmpty ? edition.title : variant.name,
-                      style: Theme.of(context).textTheme.labelLarge,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  _MiniChip(label: variant.coverStatus),
-                  if (variant.coverStorage != null)
-                    _MiniChip(label: variant.coverStorage!),
-                  if (variant.coverPolicy != null)
-                    _MiniChip(label: variant.coverPolicy!),
-                  if (variant.physicalFormatLabel != null)
-                    _MiniChip(label: variant.physicalFormatLabel!),
-                  if (variant.barcode != null)
-                    _MiniChip(label: variant.barcode!),
-                ],
-              ),
-              if (variant.coverSourceUrl != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  variant.coverSourceUrl!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
 

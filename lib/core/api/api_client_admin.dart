@@ -53,23 +53,17 @@ class _AdminApiClient {
     String? kind,
     int limit = 25,
   }) async {
-    final response = await _client._dio.get<List<dynamic>>(
-      '/api/v1/admin/catalog/items',
-      queryParameters: {
-        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
-        if (kind != null && kind.isNotEmpty) 'kind': kind,
-        'limit': limit,
-      },
+    final items = await _client.searchCatalogItems(
+      kind: kind == null || kind.isEmpty
+          ? null
+          : catalogMediaKindFromApiValue(kind),
+      query: query,
+      limit: limit,
     );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(_client._resolveImageUrls)
-        .map(AdminMetadataItem.fromJson)
-        .toList(growable: false);
+    return [
+      for (final item in items)
+        AdminMetadataItem.fromJson(_client._resolveImageUrls(item.toJson())),
+    ];
   }
 
   Future<AdminMetadataItem> adminUpdateCatalogItemFields({
@@ -77,19 +71,80 @@ class _AdminApiClient {
     required String id,
     required Map<String, Object?> fields,
   }) async {
-    final response = await _client._dio.patch<Map<String, dynamic>>(
-      '/api/v1/admin/catalog/items/$kind/$id',
-      data: {
-        for (final entry in fields.entries)
-          entry.key: _jsonSafeCatalogCorrectionValue(entry.value),
-      },
+    final reference = CatalogItemRef(
+      kind: catalogMediaKindFromApiValue(kind),
+      id: id,
     );
-    final body = response.data;
-    if (body == null) {
-      throw StateError(
-          '/api/v1/admin/catalog/items/$kind/$id returned an empty response body');
+    final current = await _client.getCatalogItem(reference);
+    final details = Map<String, dynamic>.from(current.details.toJson());
+    if (kind == 'music' && details['tracks'] is List) {
+      details['tracks'] = [
+        for (final track in details['tracks'] as List<dynamic>)
+          if (track is Map)
+            Map<String, dynamic>.from(track)..remove('album_id'),
+      ];
     }
-    return AdminMetadataItem.fromJson(_client._resolveImageUrls(body));
+    for (final entry in fields.entries) {
+      final value = _jsonSafeCatalogCorrectionValue(entry.value);
+      if (entry.key == 'cover_image_url' ||
+          entry.key == 'thumbnail_image_url') {
+        final imageType =
+            entry.key == 'cover_image_url' ? 'front_cover' : 'thumbnail';
+        if (details.containsKey(entry.key)) {
+          details[entry.key] = value;
+        } else if (details['images'] is List) {
+          _setCatalogImage(details, imageType, value);
+        } else {
+          throw StateError(
+            'Catalog Item kind "$kind" does not support ${entry.key}.',
+          );
+        }
+        continue;
+      }
+      if (!details.containsKey(entry.key)) {
+        throw StateError(
+          'Catalog Item kind "$kind" does not support ${entry.key}.',
+        );
+      }
+      details[entry.key] = value;
+    }
+    final updated = await _client.updateCatalogItem(
+      reference,
+      CatalogItemWriteV1Dto(
+        details: catalogItemWriteDetailsFromJson(details),
+      ),
+    );
+    return AdminMetadataItem.fromJson(
+      _client._resolveImageUrls({
+        'id': updated.id,
+        'kind': updated.kind,
+        ...updated.details.toJson(),
+      }),
+    );
+  }
+
+  void _setCatalogImage(
+    Map<String, dynamic> details,
+    String imageType,
+    Object? url,
+  ) {
+    final images = [
+      for (final image in details['images'] as List<dynamic>)
+        if (image is Map) Map<String, dynamic>.from(image),
+    ];
+    final existingIndex = images.indexWhere(
+      (image) => image['image_type'] == imageType,
+    );
+    if (existingIndex >= 0) {
+      images[existingIndex]['url'] = url;
+    } else {
+      images.add({
+        'image_type': imageType,
+        'url': url,
+        'position': images.length,
+      });
+    }
+    details['images'] = images;
   }
 
   Object? _jsonSafeCatalogCorrectionValue(Object? value) {
@@ -126,22 +181,6 @@ class _AdminApiClient {
           '/api/v1/admin/catalog/series/$seriesId/tags returned an empty response body');
     }
     return body;
-  }
-
-  Future<BundleReleaseDetail> adminUpdateBundleRelease({
-    required String bundleReleaseId,
-    required AdminBundleReleaseCorrection correction,
-  }) async {
-    final response = await _client._dio.patch<Map<String, dynamic>>(
-      '/api/v1/admin/catalog/bundle-releases/$bundleReleaseId',
-      data: correction.toJson(),
-    );
-    final body = response.data;
-    if (body == null) {
-      throw StateError(
-          '/api/v1/admin/catalog/bundle-releases/$bundleReleaseId returned an empty response body');
-    }
-    return BundleReleaseDetail.fromJson(_client._resolveImageUrls(body));
   }
 
   Future<AdminSearchStatus> adminSearchStatus() async {
