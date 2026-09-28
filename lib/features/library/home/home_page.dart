@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
@@ -259,9 +258,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     _cachedKindPages[selected.kind] = KeyedSubtree(
       key: ValueKey('library-kind-${selected.kind}'),
       child: buildLibraryKindPage(
-        registration: libraryKindRegistrationForKind(
-          catalogMediaKindFromApiValue(selected.kind),
-        ),
+        kind: catalogMediaKindFromApiValue(selected.kind),
         topBar: resolvedTopBar,
         accent: accent,
         routeUri: routeUri,
@@ -326,12 +323,9 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final catalogState = ref.watch(mediaCatalogProvider);
-    final catalog = catalogState.maybeWhen(
-      data: (value) => value,
-      orElse: () => fallbackMediaCatalog,
-    );
-    final isCatalogOffline = catalogState.hasError;
+    // The v1 workspace uses the App's registered kinds directly. Kind
+    // navigation does not depend on the legacy Core media catalog endpoint.
+    final catalog = fallbackMediaCatalog;
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final selectedKind = ref.watch(selectedLibraryKindProvider);
     final uiPreferences = ref.watch(uiPreferencesProvider);
@@ -392,27 +386,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       animationDuration:
           uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
     );
-    final offlineBanner = isCatalogOffline
-        ? Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: kAppSurfaceSubtle,
-            child: Row(
-              children: [
-                Icon(Icons.cloud_off,
-                    size: 14, color: appPalette(context).textSecondary),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Using offline catalog — server unreachable',
-                    style: TextStyle(
-                        fontSize: 12, color: appPalette(context).textSecondary),
-                  ),
-                ),
-              ],
-            ),
-          )
-        : null;
     final accent = LibraryAccentScope.of(context).accent;
     final resolvedTopBar = _CoverPrewarmTrigger(
       onIntent: loadedShelf == null
@@ -426,7 +399,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     );
     final content = Column(
       children: [
-        if (offlineBanner != null) offlineBanner,
         Expanded(
           child: _buildCachedKindBody(
             selected: selected,

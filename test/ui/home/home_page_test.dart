@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -205,8 +204,6 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    expect(
-        find.widgetWithText(MediaLibraryNavButton, 'Podcasts'), findsNothing);
     expect(find.text('The Library Feed'), findsNothing);
   });
 

@@ -10,7 +10,7 @@ class _ShelfHeader extends StatelessWidget {
     required this.onFilterChanged,
   });
 
-  final ShelfState state;
+  final ShelfState? state;
   final _ShelfFilter filter;
   final int overdueCount;
   final ValueChanged<_ShelfFilter> onFilterChanged;
@@ -18,43 +18,46 @@ class _ShelfHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final windowClass = AppWindowClass.of(context);
-    final stats = [
-      _ShelfStatCard(
-        icon: Icons.inventory_2_outlined,
-        label: 'Owned',
-        value: state.ownedCount.toString(),
-      ),
-      _ShelfStatCard(
-        icon: Icons.tag_outlined,
-        label: 'Quantity',
-        value: state.totalQuantity.toString(),
-      ),
-      _ShelfStatCard(
-        icon: Icons.star_border,
-        label: 'Wishlist',
-        value: state.wishlistCount.toString(),
-      ),
-      _ShelfStatCard(
-        icon: Icons.payments_outlined,
-        label: 'Paid',
-        value: _totalPaidLabel(state),
-      ),
-      _ShelfStatCard(
-        icon: Icons.cloud_off_outlined,
-        label: 'Missing metadata',
-        value: state.missingMetadataCount.toString(),
-      ),
-      _ShelfStatCard(
-        icon: Icons.trending_up_outlined,
-        label: 'Market value',
-        value: _totalMarketValueLabel(state),
-      ),
-      _ShelfStatCard(
-        icon: Icons.sell_outlined,
-        label: 'Sold',
-        value: _totalSoldLabel(state),
-      ),
-    ];
+    final shelfState = state;
+    final stats = shelfState == null
+        ? const <_ShelfStatCard>[]
+        : [
+            _ShelfStatCard(
+              icon: Icons.inventory_2_outlined,
+              label: 'Owned',
+              value: shelfState.ownedCount.toString(),
+            ),
+            _ShelfStatCard(
+              icon: Icons.tag_outlined,
+              label: 'Quantity',
+              value: shelfState.totalQuantity.toString(),
+            ),
+            _ShelfStatCard(
+              icon: Icons.star_border,
+              label: 'Wishlist',
+              value: shelfState.wishlistCount.toString(),
+            ),
+            _ShelfStatCard(
+              icon: Icons.payments_outlined,
+              label: 'Paid',
+              value: _totalPaidLabel(shelfState),
+            ),
+            _ShelfStatCard(
+              icon: Icons.cloud_off_outlined,
+              label: 'Missing metadata',
+              value: shelfState.missingMetadataCount.toString(),
+            ),
+            _ShelfStatCard(
+              icon: Icons.trending_up_outlined,
+              label: 'Market value',
+              value: _totalMarketValueLabel(shelfState),
+            ),
+            _ShelfStatCard(
+              icon: Icons.sell_outlined,
+              label: 'Sold',
+              value: _totalSoldLabel(shelfState),
+            ),
+          ];
 
     Widget statsWidget;
     if (windowClass.isCompact) {
@@ -83,10 +86,12 @@ class _ShelfHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          statsWidget,
-          const SizedBox(height: 12),
-          _ShelfDistributionPanel(state: state),
-          const SizedBox(height: 12),
+          if (shelfState != null) ...[
+            statsWidget,
+            const SizedBox(height: 12),
+            _ShelfDistributionPanel(state: shelfState),
+            const SizedBox(height: 12),
+          ],
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: SegmentedButton<_ShelfFilter>(
@@ -541,4 +546,37 @@ String _formatMoney(int cents, String currency) {
 String _formatDate(DateTime value) {
   final local = value.toLocal();
   return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+}
+
+class _CatalogItemV1ShelfRow extends StatelessWidget {
+  const _CatalogItemV1ShelfRow({required this.item, required this.onOpen});
+
+  final CatalogItemV1WorkspaceItem item;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final kind = item.reference.kind;
+    final identity = catalogItemV1KindIdentities[kind];
+    final activeCopies = item.copies
+        .where((copy) => copy.status != OwnedCopyStatusV1.sold)
+        .length;
+    final soldCopies = item.copyCount - activeCopies;
+    final subtitle = [
+      identity?.singularLabel ?? kind.apiValue,
+      '$activeCopies owned ${activeCopies == 1 ? 'copy' : 'copies'}',
+      if (soldCopies > 0) '$soldCopies sold',
+      if (item.catalogError != null) 'Catalog details unavailable',
+    ].join(' · ');
+
+    return Card(
+      child: ListTile(
+        leading: Icon(identity?.icon ?? Icons.inventory_2_outlined),
+        title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+        subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+        trailing: const Icon(Icons.arrow_forward),
+        onTap: onOpen,
+      ),
+    );
+  }
 }

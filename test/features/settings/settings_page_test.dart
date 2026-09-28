@@ -7,7 +7,6 @@ import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
@@ -84,25 +83,6 @@ void main() {
     expect(find.text('Copy Collectarr export'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly export'), findsOneWidget);
     expect(find.text('Copy sync backup guide'), findsOneWidget);
-    await _openSettingsTab(tester, 'Providers');
-    await _scrollToText(tester, 'Metadata proposals');
-    expect(find.text('Metadata proposals'), findsOneWidget);
-    expect(find.text('No local proposal submissions yet.'), findsOneWidget);
-    await _scrollToText(tester, 'Pending TMDB imports');
-    expect(find.text('Pending TMDB imports'), findsOneWidget);
-    expect(find.text('No queued local TMDB proposals.'), findsOneWidget);
-    await _scrollToText(tester, 'MyAnimeList');
-    expect(find.text('MyAnimeList'), findsOneWidget);
-    expect(
-        find.byType(CompactSearchDropdownFormField<String>), findsNWidgets(3));
-    expect(find.text('Link imported items to'), findsWidgets);
-    await tester.tap(find.byType(CompactSearchDropdownFormField<String>).first);
-    await pumpUntilSettled(tester);
-    expect(find.text('No account linking'), findsWidgets);
-    await tester.tap(find.text('No account linking').last);
-    await pumpUntilSettled(tester);
-    expect(find.text('Available'), findsWidgets);
-
     await _openSettingsTab(tester, 'Account');
     expect(find.text('Device identity'), findsOneWidget);
     expect(find.text('Session expiry unavailable'), findsNothing);
@@ -136,7 +116,6 @@ void main() {
     expect(find.text('Connection'), findsOneWidget);
     expect(find.text('Libraries'), findsOneWidget);
     expect(find.text('Appearance'), findsOneWidget);
-    expect(find.text('Providers'), findsOneWidget);
     expect(find.text('Data'), findsOneWidget);
     expect(find.text('Account'), findsOneWidget);
     expect(find.text('Logs'), findsOneWidget);

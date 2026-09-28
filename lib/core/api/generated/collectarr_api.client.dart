@@ -29,10 +29,21 @@ class CollectarrApiClient {
         'limit': limit,
       },
     );
-    return response.data!
-        .cast<Map<String, dynamic>>()
-        .map((row) => CatalogItemSummaryV1Dto.fromJson(_resolveImageUrls(row)))
-        .toList(growable: false);
+    final rows = response.data;
+    if (rows == null) {
+      throw StateError('/api/v1/metadata/catalog/items returned no body.');
+    }
+    return List.unmodifiable([
+      for (final raw in rows)
+        if (raw is Map)
+          CatalogItemSummaryV1Dto.fromJson(
+            _resolveImageUrls(Map<String, dynamic>.from(raw)),
+          )
+        else
+          throw const FormatException(
+            'Catalog Item search entries must be JSON objects.',
+          ),
+    ]);
   }
 
   Future<CatalogItemV1Dto> getCatalogItem(CatalogItemRef reference) async {

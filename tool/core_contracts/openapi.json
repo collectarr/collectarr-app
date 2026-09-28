@@ -2428,6 +2428,14 @@
       "BoardGameCatalogDetailsV1": {
         "additionalProperties": false,
         "properties": {
+          "best_players": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 32,
+            "title": "Best Players",
+            "type": "array"
+          },
           "categories": {
             "items": {
               "type": "string"
@@ -2480,12 +2488,36 @@
             "title": "Kind",
             "type": "string"
           },
+          "max_players": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Players"
+          },
           "mechanics": {
             "items": {
               "type": "string"
             },
             "title": "Mechanics",
             "type": "array"
+          },
+          "min_players": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Players"
           },
           "play_time_minutes": {
             "anyOf": [
@@ -2499,18 +2531,19 @@
             ],
             "title": "Play Time Minutes"
           },
-          "player_counts": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Player Counts",
-            "type": "array"
-          },
           "publishers": {
             "items": {
               "type": "string"
             },
             "title": "Publishers",
+            "type": "array"
+          },
+          "recommended_players": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 32,
+            "title": "Recommended Players",
             "type": "array"
           },
           "related_items": {
@@ -4430,18 +4463,6 @@
             ],
             "title": "Runtime Minutes"
           },
-          "season_number": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Season Number"
-          },
           "title": {
             "maxLength": 500,
             "minLength": 1,
@@ -4579,6 +4600,39 @@
       "CatalogItemSummaryV1": {
         "additionalProperties": false,
         "properties": {
+          "artist": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artist"
+          },
+          "barcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barcode"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
           "cover_image_url": {
             "anyOf": [
               {
@@ -4589,6 +4643,17 @@
               }
             ],
             "title": "Cover Image Url"
+          },
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format"
           },
           "id": {
             "format": "uuid",
@@ -4609,6 +4674,17 @@
             ],
             "title": "Kind",
             "type": "string"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
           },
           "release_date": {
             "anyOf": [
@@ -11482,13 +11558,6 @@
               }
             ],
             "title": "Edition Title"
-          },
-          "episodes": {
-            "items": {
-              "$ref": "#/components/schemas/CatalogEpisodeV1"
-            },
-            "title": "Episodes",
-            "type": "array"
           },
           "format": {
             "anyOf": [

@@ -82,7 +82,13 @@ Future<void> main(List<String> args) async {
       throw FormatException('Catalog Item contract is missing $schemaName.');
     }
   }
-  final source = await _formatSource(_generate(defs, actualHash));
+  final source = await _formatSource(
+    _generate(
+      defs,
+      actualHash,
+      schemaJson: jsonEncode({r'$defs': defs}),
+    ),
+  );
   final output = File(_outputPath);
   if (checkOnly) {
     if (!await output.exists() || await output.readAsString() != source) {
@@ -117,7 +123,11 @@ Future<String> _formatSource(String source) async {
   }
 }
 
-String _generate(Map<String, dynamic> defs, String hash) {
+String _generate(
+  Map<String, dynamic> defs,
+  String hash, {
+  required String schemaJson,
+}) {
   final out = StringBuffer()
     ..writeln('// GENERATED CODE - DO NOT MODIFY BY HAND.')
     ..writeln('// Source: $_contractPath')
@@ -136,25 +146,94 @@ String _generate(Map<String, dynamic> defs, String hash) {
     ..writeln('  Map<String, dynamic> toJson();')
     ..writeln('}')
     ..writeln()
-    ..writeln('String _catalogString(Object? value, String field) {')
-    ..writeln('  if (value is String) return value;')
+    ..writeln('String _catalogString(')
+    ..writeln('  Object? value, String field, {int? minLength, int? maxLength}')
+    ..writeln(') {')
+    ..writeln('  if (value is String &&')
+    ..writeln('      (minLength == null || value.length >= minLength) &&')
+    ..writeln('      (maxLength == null || value.length <= maxLength)) {')
+    ..writeln('    return value;')
+    ..writeln('  }')
     ..writeln(
         "  throw FormatException('Missing or invalid Catalog Item field: \$field');")
     ..writeln('}')
     ..writeln()
-    ..writeln('int _catalogInt(Object? value, String field) {')
-    ..writeln('  if (value is int) return value;')
-    ..writeln('  if (value is num) return value.toInt();')
+    ..writeln('String? _catalogNullableString(')
+    ..writeln('  Object? value, String field, {int? minLength, int? maxLength}')
+    ..writeln(') {')
+    ..writeln('  if (value == null) return null;')
+    ..writeln('  return _catalogString(')
+    ..writeln('    value, field, minLength: minLength, maxLength: maxLength,')
+    ..writeln('  );')
+    ..writeln('}')
+    ..writeln()
+    ..writeln('int _catalogInt(')
+    ..writeln('  Object? value, String field, {num? minimum, num? maximum}')
+    ..writeln(') {')
+    ..writeln('  if (value is int &&')
+    ..writeln('      (minimum == null || value >= minimum) &&')
+    ..writeln('      (maximum == null || value <= maximum)) {')
+    ..writeln('    return value;')
+    ..writeln('  }')
     ..writeln(
         "  throw FormatException('Missing or invalid Catalog Item field: \$field');")
     ..writeln('}')
     ..writeln()
-    ..writeln('double _catalogDouble(Object? value, String field) {')
-    ..writeln('  if (value is num) return value.toDouble();')
-    ..writeln('  final parsed = double.tryParse(value?.toString() ?? \'\');')
-    ..writeln('  if (parsed != null) return parsed;')
+    ..writeln('int? _catalogNullableInt(')
+    ..writeln('  Object? value, String field, {num? minimum, num? maximum}')
+    ..writeln(') {')
+    ..writeln('  if (value == null) return null;')
+    ..writeln('  return _catalogInt(')
+    ..writeln('    value, field, minimum: minimum, maximum: maximum,')
+    ..writeln('  );')
+    ..writeln('}')
+    ..writeln()
+    ..writeln('double _catalogDouble(')
+    ..writeln('  Object? value, String field, {num? minimum, num? maximum}')
+    ..writeln(') {')
+    ..writeln('  if (value is num && value.isFinite &&')
+    ..writeln('      (minimum == null || value >= minimum) &&')
+    ..writeln('      (maximum == null || value <= maximum)) {')
+    ..writeln('    return value.toDouble();')
+    ..writeln('  }')
     ..writeln(
         "  throw FormatException('Missing or invalid Catalog Item field: \$field');")
+    ..writeln('}')
+    ..writeln()
+    ..writeln('double? _catalogNullableDouble(')
+    ..writeln('  Object? value, String field, {num? minimum, num? maximum}')
+    ..writeln(') {')
+    ..writeln('  if (value == null) return null;')
+    ..writeln('  return _catalogDouble(')
+    ..writeln('    value, field, minimum: minimum, maximum: maximum,')
+    ..writeln('  );')
+    ..writeln('}')
+    ..writeln()
+    ..writeln('bool _catalogBool(Object? value, String field) {')
+    ..writeln('  if (value is bool) return value;')
+    ..writeln(
+        "  throw FormatException('Missing or invalid Catalog Item field: \$field');")
+    ..writeln('}')
+    ..writeln()
+    ..writeln('bool? _catalogNullableBool(Object? value, String field) {')
+    ..writeln('  if (value == null) return null;')
+    ..writeln('  return _catalogBool(value, field);')
+    ..writeln('}')
+    ..writeln()
+    ..writeln('String _catalogConstString(')
+    ..writeln('  Object? value, String field, String expected,')
+    ..writeln(') {')
+    ..writeln('  if (value == expected) return expected;')
+    ..writeln(
+        "  throw FormatException('Catalog Item field \$field must equal \$expected.');")
+    ..writeln('}')
+    ..writeln()
+    ..writeln('String _catalogEnumString(')
+    ..writeln('  Object? value, String field, Set<String> allowed,')
+    ..writeln(') {')
+    ..writeln('  if (value is String && allowed.contains(value)) return value;')
+    ..writeln(
+        "  throw FormatException('Catalog Item field \$field has unsupported value: \$value.');")
     ..writeln('}')
     ..writeln()
     ..writeln('DateTime _catalogDateTime(Object? value, String field) {')
@@ -165,18 +244,76 @@ String _generate(Map<String, dynamic> defs, String hash) {
         "  throw FormatException('Missing or invalid Catalog Item field: \$field');")
     ..writeln('}')
     ..writeln()
-    ..writeln('List<String> _catalogStrings(Object? value) {')
-    ..writeln('  if (value is! List) return const <String>[];')
-    ..writeln('  return value.whereType<String>().toList(growable: false);')
+    ..writeln('Map<String, dynamic> _catalogMap(Object? value, String field) {')
+    ..writeln('  if (value is Map) return Map<String, dynamic>.from(value);')
+    ..writeln(
+        "  throw FormatException('Catalog Item field \$field must be an object.');")
+    ..writeln('}')
+    ..writeln()
+    ..writeln('void _catalogCheckKeys(')
+    ..writeln('  Map<String, dynamic> json, String model, Set<String> allowed,')
+    ..writeln(') {')
+    ..writeln(
+        '  final unknown = json.keys.where((key) => !allowed.contains(key));')
+    ..writeln('  if (unknown.isNotEmpty) {')
+    ..writeln(
+        "    throw FormatException('Unsupported \$model field(s): \${unknown.join(', ')}.');")
+    ..writeln('  }')
+    ..writeln('}')
+    ..writeln()
+    ..writeln('void _catalogCheckPartialDateKeys(Map<String, dynamic> json) {')
+    ..writeln(
+        "  _catalogCheckKeys(json, 'PartialDateValue', const {'year', 'month', 'day'});")
+    ..writeln('}')
+    ..writeln()
+    ..writeln('PartialDate? _catalogPartialDate(Object? value, String field) {')
+    ..writeln('  if (value == null) return null;')
+    ..writeln('  final json = _catalogMap(value, field);')
+    ..writeln('  _catalogCheckPartialDateKeys(json);')
+    ..writeln(
+        "  final year = _catalogNullableInt(json['year'], '\$field.year');")
+    ..writeln(
+        "  final month = _catalogNullableInt(json['month'], '\$field.month');")
+    ..writeln("  final day = _catalogNullableInt(json['day'], '\$field.day');")
+    ..writeln('  if (year != null && (year < 1 || year > 9999) ||')
+    ..writeln('      month != null && (month < 1 || month > 12) ||')
+    ..writeln('      day != null && (day < 1 || day > 31)) {')
+    ..writeln(
+        "    throw FormatException('Invalid Catalog Item partial date: \$field');")
+    ..writeln('  }')
+    ..writeln('  return PartialDate(year: year, month: month, day: day);')
+    ..writeln('}')
+    ..writeln()
+    ..writeln('List<String> _catalogStrings(Object? value, String field) {')
+    ..writeln(
+        '  if (value is! List || value.any((entry) => entry is! String)) {')
+    ..writeln(
+        "    throw FormatException('Catalog Item field \$field must be a list of strings.');")
+    ..writeln('  }')
+    ..writeln('  return List<String>.unmodifiable(value.cast<String>());')
+    ..writeln('}')
+    ..writeln()
+    ..writeln('List<int> _catalogInts(Object? value, String field) {')
+    ..writeln('  if (value is! List || value.any((entry) => entry is! int)) {')
+    ..writeln(
+        "    throw FormatException('Catalog Item field \$field must be a list of integers.');")
+    ..writeln('  }')
+    ..writeln('  return List<int>.unmodifiable(value.cast<int>());')
     ..writeln('}')
     ..writeln()
     ..writeln('List<T> _catalogObjects<T>(')
     ..writeln('  Object? value,')
+    ..writeln('  String field,')
     ..writeln('  T Function(Map<String, dynamic>) decode,')
     ..writeln(') {')
-    ..writeln('  if (value is! List) return <T>[];')
-    ..writeln('  return [for (final row in value)')
-    ..writeln('    if (row is Map) decode(Map<String, dynamic>.from(row))];')
+    ..writeln('  if (value is! List || value.any((entry) => entry is! Map)) {')
+    ..writeln(
+        "    throw FormatException('Catalog Item field \$field must be a list of objects.');")
+    ..writeln('  }')
+    ..writeln('  return List<T>.unmodifiable([')
+    ..writeln(
+        '    for (final row in value) decode(Map<String, dynamic>.from(row as Map)),')
+    ..writeln('  ]);')
     ..writeln('}')
     ..writeln();
 
@@ -217,6 +354,9 @@ String _generate(Map<String, dynamic> defs, String hash) {
       ..writeln()
       ..writeln(
           '  factory ${entry.value}.fromJson(Map<String, dynamic> json) {')
+      ..writeln(
+        "    _catalogCheckKeys(json, '${entry.value}', const {${properties.keys.map(jsonEncode).join(', ')}});",
+      )
       ..writeln('    return ${entry.value}(');
     for (final property in properties.entries) {
       final key = property.key;
@@ -241,6 +381,11 @@ String _generate(Map<String, dynamic> defs, String hash) {
       ..writeln('}')
       ..writeln();
   }
+
+  final summarySchema = defs['CatalogItemSummaryV1'] as Map<String, dynamic>;
+  final summaryProperties = summarySchema['properties'] as Map<String, dynamic>;
+  final summaryKinds = (summaryProperties['kind']
+      as Map<String, dynamic>)['enum'] as List<dynamic>;
 
   out
     ..writeln('CatalogItemKindDetailsV1Dto catalogItemDetailsFromJson(')
@@ -293,17 +438,23 @@ String _generate(Map<String, dynamic> defs, String hash) {
     ..writeln('  CatalogItemRef get reference => CatalogItemRef(')
     ..writeln('        kind: catalogMediaKindFromApiValue(kind), id: id);')
     ..writeln(
-        '  factory CatalogItemV1Dto.fromJson(Map<String, dynamic> json) =>')
-    ..writeln('      CatalogItemV1Dto(')
-    ..writeln("        id: _catalogString(json['id'], 'id'),")
-    ..writeln("        details: catalogItemDetailsFromJson(")
-    ..writeln("          Map<String, dynamic>.from(json['details'] as Map),")
-    ..writeln('        ),')
+        '  factory CatalogItemV1Dto.fromJson(Map<String, dynamic> json) {')
     ..writeln(
-        "        createdAt: _catalogDateTime(json['created_at'], 'created_at'),")
+      "    _catalogCheckKeys(json, 'CatalogItemV1Dto', const {'id', 'details', 'created_at', 'updated_at'});",
+    )
+    ..writeln('    return CatalogItemV1Dto(')
+    ..writeln("      id: _catalogString(json['id'], 'id'),")
     ..writeln(
-        "        updatedAt: _catalogDateTime(json['updated_at'], 'updated_at'),")
-    ..writeln('      );')
+      "      details: catalogItemDetailsFromJson(_catalogMap(json['details'], 'details')),",
+    )
+    ..writeln(
+      "      createdAt: _catalogDateTime(json['created_at'], 'created_at'),",
+    )
+    ..writeln(
+      "      updatedAt: _catalogDateTime(json['updated_at'], 'updated_at'),",
+    )
+    ..writeln('    );')
+    ..writeln('  }')
     ..writeln('  Map<String, dynamic> toJson() => {')
     ..writeln("        'id': id,")
     ..writeln("        'details': details.toJson(),")
@@ -329,6 +480,11 @@ String _generate(Map<String, dynamic> defs, String hash) {
     ..writeln('    this.sortTitle,')
     ..writeln('    this.releaseDate,')
     ..writeln('    this.coverImageUrl,')
+    ..writeln('    this.artist,')
+    ..writeln('    this.format,')
+    ..writeln('    this.country,')
+    ..writeln('    this.label,')
+    ..writeln('    this.barcode,')
     ..writeln('  });')
     ..writeln('  final String id;')
     ..writeln('  final String kind;')
@@ -336,19 +492,41 @@ String _generate(Map<String, dynamic> defs, String hash) {
     ..writeln('  final String? sortTitle;')
     ..writeln('  final PartialDate? releaseDate;')
     ..writeln('  final String? coverImageUrl;')
+    ..writeln('  final String? artist;')
+    ..writeln('  final String? format;')
+    ..writeln('  final String? country;')
+    ..writeln('  final String? label;')
+    ..writeln('  final String? barcode;')
     ..writeln('  CatalogItemRef get reference => CatalogItemRef(')
     ..writeln('        kind: catalogMediaKindFromApiValue(kind), id: id);')
     ..writeln('  factory CatalogItemSummaryV1Dto.fromJson(')
     ..writeln('    Map<String, dynamic> json,')
-    ..writeln('  ) => CatalogItemSummaryV1Dto(')
-    ..writeln("        id: _catalogString(json['id'], 'id'),")
-    ..writeln("        kind: _catalogString(json['kind'], 'kind'),")
-    ..writeln("        title: _catalogString(json['title'], 'title'),")
-    ..writeln("        sortTitle: json['sort_title'] as String?,")
+    ..writeln('  ) {')
     ..writeln(
-        "        releaseDate: PartialDate.tryParse(json['release_date']),")
-    ..writeln("        coverImageUrl: json['cover_image_url'] as String?,")
-    ..writeln('      );')
+      "    _catalogCheckKeys(json, 'CatalogItemSummaryV1', const {${summaryProperties.keys.map(jsonEncode).join(', ')}});",
+    )
+    ..writeln('    return CatalogItemSummaryV1Dto(')
+    ..writeln("      id: _catalogString(json['id'], 'id'),")
+    ..writeln(
+      "      kind: _catalogEnumString(json['kind'], 'kind', const {${summaryKinds.map(jsonEncode).join(', ')}}),",
+    )
+    ..writeln("      title: _catalogString(json['title'], 'title'),")
+    ..writeln(
+      "      sortTitle: _catalogNullableString(json['sort_title'], 'sort_title'),",
+    )
+    ..writeln(
+      "      releaseDate: _catalogPartialDate(json['release_date'], 'release_date'),",
+    )
+    ..writeln(
+      "      coverImageUrl: _catalogNullableString(json['cover_image_url'], 'cover_image_url'),",
+    )
+    ..writeln("      artist: _catalogNullableString(json['artist'], 'artist'),")
+    ..writeln("      format: _catalogNullableString(json['format'], 'format'),")
+    ..writeln("      country: _catalogNullableString(json['country'], 'country'),")
+    ..writeln("      label: _catalogNullableString(json['label'], 'label'),")
+    ..writeln("      barcode: _catalogNullableString(json['barcode'], 'barcode'),")
+    ..writeln('    );')
+    ..writeln('  }')
     ..writeln('  Map<String, dynamic> toJson() => {')
     ..writeln("        'id': id,")
     ..writeln("        'kind': kind,")
@@ -356,8 +534,17 @@ String _generate(Map<String, dynamic> defs, String hash) {
     ..writeln("        'sort_title': sortTitle,")
     ..writeln("        'release_date': releaseDate?.toJson(),")
     ..writeln("        'cover_image_url': coverImageUrl,")
+    ..writeln("        'artist': artist,")
+    ..writeln("        'format': format,")
+    ..writeln("        'country': country,")
+    ..writeln("        'label': label,")
+    ..writeln("        'barcode': barcode,")
     ..writeln('      };')
     ..writeln('}')
+    ..writeln()
+    ..writeln(
+      'const String catalogItemV1ContractSchemaJson = ${jsonEncode(schemaJson).replaceAll(r'$', r'\$')};',
+    )
     ..writeln();
   return out.toString();
 }
@@ -366,6 +553,26 @@ String _camel(String value) => value.replaceAllMapped(
       RegExp(r'_([a-z])'),
       (match) => match.group(1)!.toUpperCase(),
     );
+
+String _numericConstraints(Map<String, dynamic> schema) {
+  final minimum = schema['minimum'];
+  final maximum = schema['maximum'];
+  final constraints = [
+    if (minimum is num) 'minimum: ${jsonEncode(minimum)}',
+    if (maximum is num) 'maximum: ${jsonEncode(maximum)}',
+  ];
+  return constraints.isEmpty ? '' : ', ${constraints.join(', ')}';
+}
+
+String _stringConstraints(Map<String, dynamic> schema) {
+  final minimum = schema['minLength'];
+  final maximum = schema['maxLength'];
+  final constraints = [
+    if (minimum is int) 'minLength: $minimum',
+    if (maximum is int) 'maxLength: $maximum',
+  ];
+  return constraints.isEmpty ? '' : ', ${constraints.join(', ')}';
+}
 
 String _dartType(Map<String, dynamic> schema) {
   if (schema['anyOf'] case final List<dynamic> variants) {
@@ -403,6 +610,12 @@ String _dartType(Map<String, dynamic> schema) {
 
 String _decode(Map<String, dynamic> schema, String field, bool required) {
   final value = "json['$field']";
+  if (!required && schema.containsKey('default')) {
+    final defaultedSchema = Map<String, dynamic>.from(schema)
+      ..remove('default');
+    final decodedValue = _decode(defaultedSchema, field, true);
+    return "(json.containsKey('$field') ? $decodedValue : ${jsonEncode(schema['default'])})";
+  }
   if (schema['anyOf'] case final List<dynamic> variants) {
     final inner = variants.cast<Map<String, dynamic>>().firstWhere(
           (variant) => variant['type'] != 'null',
@@ -417,51 +630,73 @@ String _decode(Map<String, dynamic> schema, String field, bool required) {
   }
   if (schema[r'$ref'] case final String ref) {
     final name = ref.split('/').last;
-    if (name == 'PartialDateValue') return 'PartialDate.tryParse($value)';
+    if (name == 'PartialDateValue') {
+      return "_catalogPartialDate($value, '$field')";
+    }
     final className = _schemas[name];
     if (className != null) {
-      return '$className.fromJson(Map<String, dynamic>.from($value as Map))';
+      return '$className.fromJson(_catalogMap($value, \'$field\'))';
     }
   }
   if (schema['type'] == 'array') {
     final item = schema['items'] as Map<String, dynamic>;
-    if (item['type'] == 'string') return '_catalogStrings($value)';
+    final arrayValue =
+        required ? value : "(json.containsKey('$field') ? $value : const [])";
+    if (item['type'] == 'string') {
+      return "_catalogStrings($arrayValue, '$field')";
+    }
+    if (item['type'] == 'integer') {
+      return "_catalogInts($arrayValue, '$field')";
+    }
     if (item[r'$ref'] case final String ref) {
       final className = _schemas[ref.split('/').last];
       if (className != null) {
-        return '_catalogObjects<$className>($value, $className.fromJson)';
+        return "_catalogObjects<$className>($arrayValue, '$field', $className.fromJson)";
       }
     }
-    final itemType = _dartType(item);
-    return '$value is List ? $value.whereType<$itemType>().toList() : <$itemType>[]';
+    throw FormatException(
+        'Unsupported Catalog Item array item schema for $field.');
+  }
+  if (schema.containsKey('const')) {
+    return "_catalogConstString($value, '$field', ${jsonEncode(schema['const'])})";
+  }
+  if (schema['enum'] case final List<dynamic> values) {
+    return "_catalogEnumString($value, '$field', const {${values.map(jsonEncode).join(', ')}})";
   }
   final type = schema['type'];
-  if (type == 'string') {
-    final decoded =
-        required ? "_catalogString($value, '$field')" : '$value as String?';
-    return _withDefault(decoded, schema);
-  }
-  if (type == 'integer') {
-    final decoded = required
-        ? "_catalogInt($value, '$field')"
-        : '($value as num?)?.toInt()';
-    return _withDefault(decoded, schema);
-  }
-  if (type == 'number') {
-    final decoded = required
-        ? "_catalogDouble($value, '$field')"
-        : '($value == null ? null : _catalogDouble($value, \'$field\'))';
-    return _withDefault(decoded, schema);
-  }
-  if (type == 'boolean') {
-    final decoded = required ? '$value as bool' : '$value as bool?';
-    return _withDefault(decoded, schema);
-  }
   if (schema['format'] == 'date-time') {
     return required
         ? "_catalogDateTime($value, '$field')"
-        : '($value is String ? DateTime.tryParse($value) : null)';
+        : "($value == null ? null : _catalogDateTime($value, '$field'))";
   }
+  if (type == 'string') {
+    final constraints = _stringConstraints(schema);
+    final decoded = required
+        ? "_catalogString($value, '$field'$constraints)"
+        : "_catalogNullableString($value, '$field'$constraints)";
+    return decoded;
+  }
+  if (type == 'integer') {
+    final constraints = _numericConstraints(schema);
+    final decoded = required
+        ? "_catalogInt($value, '$field'$constraints)"
+        : "_catalogNullableInt($value, '$field'$constraints)";
+    return decoded;
+  }
+  if (type == 'number') {
+    final constraints = _numericConstraints(schema);
+    final decoded = required
+        ? "_catalogDouble($value, '$field'$constraints)"
+        : "_catalogNullableDouble($value, '$field'$constraints)";
+    return decoded;
+  }
+  if (type == 'boolean') {
+    final decoded = required
+        ? "_catalogBool($value, '$field')"
+        : "_catalogNullableBool($value, '$field')";
+    return decoded;
+  }
+  if (type == 'object') return "_catalogMap($value, '$field')";
   return value;
 }
 
@@ -479,11 +714,6 @@ String _encode(String field, Map<String, dynamic> schema) {
     return field;
   }
   return _encodeValue(field, schema);
-}
-
-String _withDefault(String decoded, Map<String, dynamic> schema) {
-  if (!schema.containsKey('default')) return decoded;
-  return '($decoded ?? ${jsonEncode(schema['default'])})';
 }
 
 String _encodeValue(String field, Map<String, dynamic> schema) {

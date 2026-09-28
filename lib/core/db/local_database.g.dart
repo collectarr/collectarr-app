@@ -450,6 +450,326 @@ class WishlistItemsCacheCompanion
   }
 }
 
+class $OwnedCopiesV1CacheTable extends OwnedCopiesV1Cache
+    with TableInfo<$OwnedCopiesV1CacheTable, OwnedCopiesV1CacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OwnedCopiesV1CacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _catalogItemIdMeta =
+      const VerificationMeta('catalogItemId');
+  @override
+  late final GeneratedColumn<String> catalogItemId = GeneratedColumn<String>(
+      'catalog_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _payloadJsonMeta =
+      const VerificationMeta('payloadJson');
+  @override
+  late final GeneratedColumn<String> payloadJson = GeneratedColumn<String>(
+      'payload_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [kind, catalogItemId, id, payloadJson, deletedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'owned_copies_v1_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<OwnedCopiesV1CacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('catalog_item_id')) {
+      context.handle(
+          _catalogItemIdMeta,
+          catalogItemId.isAcceptableOrUnknown(
+              data['catalog_item_id']!, _catalogItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_catalogItemIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('payload_json')) {
+      context.handle(
+          _payloadJsonMeta,
+          payloadJson.isAcceptableOrUnknown(
+              data['payload_json']!, _payloadJsonMeta));
+    } else if (isInserting) {
+      context.missing(_payloadJsonMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {kind, catalogItemId, id};
+  @override
+  OwnedCopiesV1CacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OwnedCopiesV1CacheData(
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      catalogItemId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_item_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      payloadJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}payload_json'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $OwnedCopiesV1CacheTable createAlias(String alias) {
+    return $OwnedCopiesV1CacheTable(attachedDatabase, alias);
+  }
+}
+
+class OwnedCopiesV1CacheData extends DataClass
+    implements Insertable<OwnedCopiesV1CacheData> {
+  final String kind;
+  final String catalogItemId;
+  final String id;
+  final String payloadJson;
+  final DateTime? deletedAt;
+  const OwnedCopiesV1CacheData(
+      {required this.kind,
+      required this.catalogItemId,
+      required this.id,
+      required this.payloadJson,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['kind'] = Variable<String>(kind);
+    map['catalog_item_id'] = Variable<String>(catalogItemId);
+    map['id'] = Variable<String>(id);
+    map['payload_json'] = Variable<String>(payloadJson);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  OwnedCopiesV1CacheCompanion toCompanion(bool nullToAbsent) {
+    return OwnedCopiesV1CacheCompanion(
+      kind: Value(kind),
+      catalogItemId: Value(catalogItemId),
+      id: Value(id),
+      payloadJson: Value(payloadJson),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory OwnedCopiesV1CacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OwnedCopiesV1CacheData(
+      kind: serializer.fromJson<String>(json['kind']),
+      catalogItemId: serializer.fromJson<String>(json['catalogItemId']),
+      id: serializer.fromJson<String>(json['id']),
+      payloadJson: serializer.fromJson<String>(json['payloadJson']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'kind': serializer.toJson<String>(kind),
+      'catalogItemId': serializer.toJson<String>(catalogItemId),
+      'id': serializer.toJson<String>(id),
+      'payloadJson': serializer.toJson<String>(payloadJson),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  OwnedCopiesV1CacheData copyWith(
+          {String? kind,
+          String? catalogItemId,
+          String? id,
+          String? payloadJson,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      OwnedCopiesV1CacheData(
+        kind: kind ?? this.kind,
+        catalogItemId: catalogItemId ?? this.catalogItemId,
+        id: id ?? this.id,
+        payloadJson: payloadJson ?? this.payloadJson,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  OwnedCopiesV1CacheData copyWithCompanion(OwnedCopiesV1CacheCompanion data) {
+    return OwnedCopiesV1CacheData(
+      kind: data.kind.present ? data.kind.value : this.kind,
+      catalogItemId: data.catalogItemId.present
+          ? data.catalogItemId.value
+          : this.catalogItemId,
+      id: data.id.present ? data.id.value : this.id,
+      payloadJson:
+          data.payloadJson.present ? data.payloadJson.value : this.payloadJson,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OwnedCopiesV1CacheData(')
+          ..write('kind: $kind, ')
+          ..write('catalogItemId: $catalogItemId, ')
+          ..write('id: $id, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(kind, catalogItemId, id, payloadJson, deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OwnedCopiesV1CacheData &&
+          other.kind == this.kind &&
+          other.catalogItemId == this.catalogItemId &&
+          other.id == this.id &&
+          other.payloadJson == this.payloadJson &&
+          other.deletedAt == this.deletedAt);
+}
+
+class OwnedCopiesV1CacheCompanion
+    extends UpdateCompanion<OwnedCopiesV1CacheData> {
+  final Value<String> kind;
+  final Value<String> catalogItemId;
+  final Value<String> id;
+  final Value<String> payloadJson;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const OwnedCopiesV1CacheCompanion({
+    this.kind = const Value.absent(),
+    this.catalogItemId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.payloadJson = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  OwnedCopiesV1CacheCompanion.insert({
+    required String kind,
+    required String catalogItemId,
+    required String id,
+    required String payloadJson,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : kind = Value(kind),
+        catalogItemId = Value(catalogItemId),
+        id = Value(id),
+        payloadJson = Value(payloadJson);
+  static Insertable<OwnedCopiesV1CacheData> custom({
+    Expression<String>? kind,
+    Expression<String>? catalogItemId,
+    Expression<String>? id,
+    Expression<String>? payloadJson,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (kind != null) 'kind': kind,
+      if (catalogItemId != null) 'catalog_item_id': catalogItemId,
+      if (id != null) 'id': id,
+      if (payloadJson != null) 'payload_json': payloadJson,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  OwnedCopiesV1CacheCompanion copyWith(
+      {Value<String>? kind,
+      Value<String>? catalogItemId,
+      Value<String>? id,
+      Value<String>? payloadJson,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return OwnedCopiesV1CacheCompanion(
+      kind: kind ?? this.kind,
+      catalogItemId: catalogItemId ?? this.catalogItemId,
+      id: id ?? this.id,
+      payloadJson: payloadJson ?? this.payloadJson,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (catalogItemId.present) {
+      map['catalog_item_id'] = Variable<String>(catalogItemId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (payloadJson.present) {
+      map['payload_json'] = Variable<String>(payloadJson.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OwnedCopiesV1CacheCompanion(')
+          ..write('kind: $kind, ')
+          ..write('catalogItemId: $catalogItemId, ')
+          ..write('id: $id, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SyncQueueTable extends SyncQueue
     with TableInfo<$SyncQueueTable, SyncQueueData> {
   @override
@@ -58554,6 +58874,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
   late final $WishlistItemsCacheTable wishlistItemsCache =
       $WishlistItemsCacheTable(this);
+  late final $OwnedCopiesV1CacheTable ownedCopiesV1Cache =
+      $OwnedCopiesV1CacheTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
   late final $UserMetadataOverridesCacheTable userMetadataOverridesCache =
       $UserMetadataOverridesCacheTable(this);
@@ -58707,6 +59029,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
         wishlistItemsCache,
+        ownedCopiesV1Cache,
         syncQueue,
         userMetadataOverridesCache,
         userExternalLinksCache,
@@ -59015,6 +59338,184 @@ typedef $$WishlistItemsCacheTableProcessedTableManager = ProcessedTableManager<
           WishlistItemsCacheData>
     ),
     WishlistItemsCacheData,
+    PrefetchHooks Function()>;
+typedef $$OwnedCopiesV1CacheTableCreateCompanionBuilder
+    = OwnedCopiesV1CacheCompanion Function({
+  required String kind,
+  required String catalogItemId,
+  required String id,
+  required String payloadJson,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$OwnedCopiesV1CacheTableUpdateCompanionBuilder
+    = OwnedCopiesV1CacheCompanion Function({
+  Value<String> kind,
+  Value<String> catalogItemId,
+  Value<String> id,
+  Value<String> payloadJson,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$OwnedCopiesV1CacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $OwnedCopiesV1CacheTable> {
+  $$OwnedCopiesV1CacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogItemId => $composableBuilder(
+      column: $table.catalogItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payloadJson => $composableBuilder(
+      column: $table.payloadJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$OwnedCopiesV1CacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $OwnedCopiesV1CacheTable> {
+  $$OwnedCopiesV1CacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogItemId => $composableBuilder(
+      column: $table.catalogItemId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payloadJson => $composableBuilder(
+      column: $table.payloadJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$OwnedCopiesV1CacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $OwnedCopiesV1CacheTable> {
+  $$OwnedCopiesV1CacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogItemId => $composableBuilder(
+      column: $table.catalogItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get payloadJson => $composableBuilder(
+      column: $table.payloadJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$OwnedCopiesV1CacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $OwnedCopiesV1CacheTable,
+    OwnedCopiesV1CacheData,
+    $$OwnedCopiesV1CacheTableFilterComposer,
+    $$OwnedCopiesV1CacheTableOrderingComposer,
+    $$OwnedCopiesV1CacheTableAnnotationComposer,
+    $$OwnedCopiesV1CacheTableCreateCompanionBuilder,
+    $$OwnedCopiesV1CacheTableUpdateCompanionBuilder,
+    (
+      OwnedCopiesV1CacheData,
+      BaseReferences<_$LocalDatabase, $OwnedCopiesV1CacheTable,
+          OwnedCopiesV1CacheData>
+    ),
+    OwnedCopiesV1CacheData,
+    PrefetchHooks Function()> {
+  $$OwnedCopiesV1CacheTableTableManager(
+      _$LocalDatabase db, $OwnedCopiesV1CacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OwnedCopiesV1CacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OwnedCopiesV1CacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OwnedCopiesV1CacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> kind = const Value.absent(),
+            Value<String> catalogItemId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> payloadJson = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              OwnedCopiesV1CacheCompanion(
+            kind: kind,
+            catalogItemId: catalogItemId,
+            id: id,
+            payloadJson: payloadJson,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String kind,
+            required String catalogItemId,
+            required String id,
+            required String payloadJson,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              OwnedCopiesV1CacheCompanion.insert(
+            kind: kind,
+            catalogItemId: catalogItemId,
+            id: id,
+            payloadJson: payloadJson,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$OwnedCopiesV1CacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $OwnedCopiesV1CacheTable,
+    OwnedCopiesV1CacheData,
+    $$OwnedCopiesV1CacheTableFilterComposer,
+    $$OwnedCopiesV1CacheTableOrderingComposer,
+    $$OwnedCopiesV1CacheTableAnnotationComposer,
+    $$OwnedCopiesV1CacheTableCreateCompanionBuilder,
+    $$OwnedCopiesV1CacheTableUpdateCompanionBuilder,
+    (
+      OwnedCopiesV1CacheData,
+      BaseReferences<_$LocalDatabase, $OwnedCopiesV1CacheTable,
+          OwnedCopiesV1CacheData>
+    ),
+    OwnedCopiesV1CacheData,
     PrefetchHooks Function()>;
 typedef $$SyncQueueTableCreateCompanionBuilder = SyncQueueCompanion Function({
   required String id,
@@ -85179,6 +85680,8 @@ class $LocalDatabaseManager {
   $LocalDatabaseManager(this._db);
   $$WishlistItemsCacheTableTableManager get wishlistItemsCache =>
       $$WishlistItemsCacheTableTableManager(_db, _db.wishlistItemsCache);
+  $$OwnedCopiesV1CacheTableTableManager get ownedCopiesV1Cache =>
+      $$OwnedCopiesV1CacheTableTableManager(_db, _db.ownedCopiesV1Cache);
   $$SyncQueueTableTableManager get syncQueue =>
       $$SyncQueueTableTableManager(_db, _db.syncQueue);
   $$UserMetadataOverridesCacheTableTableManager

@@ -17,19 +17,14 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
-import 'package:collectarr_app/features/settings/settings_data_import_widgets.dart';
-import 'package:collectarr_app/features/settings/settings_provider_integrations.dart';
 import 'package:collectarr_app/features/settings/settings_library_nav_widgets.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
-import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings_widgets.dart';
-import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
-import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
@@ -54,11 +49,6 @@ import 'package:go_router/go_router.dart';
 
 part 'settings_connection_actions.dart';
 
-final _metadataProposalHistoryProvider =
-    FutureProvider.autoDispose<List<MetadataProposalRecord>>((ref) async {
-  return const MetadataProposalStore().read();
-});
-
 final _deviceIdentityProvider = FutureProvider.autoDispose<String>((ref) async {
   return DeviceIdentity().getOrCreate();
 });
@@ -67,7 +57,6 @@ enum SettingsSection {
   connection('Connection', Icons.route_outlined),
   libraries('Libraries', Icons.view_comfy_alt_outlined),
   appearance('Appearance', Icons.palette_outlined),
-  providers('Providers', Icons.hub_outlined),
   data('Data', Icons.backup_outlined),
   account('Account', Icons.account_circle_outlined),
   logs('Logs', Icons.bug_report_outlined);
@@ -120,14 +109,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final settings = ref.watch(connectionSettingsProvider);
     final auth = ref.watch(authControllerProvider);
     final sync = ref.watch(syncControllerProvider);
-    final mediaCatalog = ref.watch(mediaCatalogProvider).maybeWhen(
-          data: (catalog) => catalog,
-          orElse: () => fallbackMediaCatalog,
-        );
+    final mediaCatalog = fallbackMediaCatalog;
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final uiPreferences = ref.watch(uiPreferencesProvider);
-    final tmdbImportSettings = ref.watch(tmdbImportSettingsProvider);
-    final metadataProposalHistory = ref.watch(_metadataProposalHistoryProvider);
     final deviceId = ref.watch(_deviceIdentityProvider);
     final selectedLibraryKind = ref.watch(selectedLibraryKindProvider);
     final accentScope = LibraryAccentScope.maybeOf(context);
@@ -150,8 +134,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         mediaCatalog: mediaCatalog,
         navPreferences: navPreferences,
         uiPreferences: uiPreferences,
-        tmdbImportSettings: tmdbImportSettings,
-        metadataProposalHistory: metadataProposalHistory,
         deviceId: deviceId,
         isAndroidPlatform: isAndroidPlatform,
       );
@@ -316,8 +298,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     required List<CatalogMediaType> mediaCatalog,
     required LibraryNavPreferences navPreferences,
     required UiPreferences uiPreferences,
-    required TmdbImportSettings tmdbImportSettings,
-    required AsyncValue<List<MetadataProposalRecord>> metadataProposalHistory,
     required AsyncValue<String> deviceId,
     required bool isAndroidPlatform,
   }) {
@@ -329,9 +309,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             mediaCatalog, navPreferences, isAndroidPlatform);
       case SettingsSection.appearance:
         return _buildAppearanceSection(uiPreferences);
-      case SettingsSection.providers:
-        return _buildProvidersSection(
-            tmdbImportSettings, metadataProposalHistory);
       case SettingsSection.data:
         return _buildDataSection();
       case SettingsSection.account:
@@ -817,53 +794,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Widget _buildProvidersSection(
-    TmdbImportSettings tmdbImportSettings,
-    AsyncValue<List<MetadataProposalRecord>> metadataProposalHistory,
-  ) {
-    return _SettingsTabBody(
-      children: [
-        _SettingsPanel(
-          icon: Icons.link_outlined,
-          title: 'Personal list accounts',
-          child: const SettingsProviderAccountsPanel(),
-        ),
-        _SettingsPanel(
-          icon: Icons.hub_outlined,
-          title: 'Catalog providers',
-          child: const SettingsCatalogSourcesPanel(),
-        ),
-        _SettingsPanel(
-          icon: Icons.file_download_outlined,
-          title: 'Import from services and files',
-          child: SettingsImportSourcesGrid(
-            tmdbSettings: tmdbImportSettings,
-          ),
-        ),
-        _SettingsPanel(
-          icon: Icons.sync_outlined,
-          title: 'Import activity and review',
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TmdbImportJobsPanel(),
-              TmdbPendingImportsPanel(),
-            ],
-          ),
-        ),
-        _SettingsPanel(
-          icon: Icons.outbox_outlined,
-          title: 'Metadata proposals',
-          child: SettingsMetadataProposalHistory(
-            records: metadataProposalHistory.value ?? const [],
-            isLoading: metadataProposalHistory.isLoading,
-            onClear: _clearProposalHistory,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildDataSection() {
     return _SettingsTabBody(
       children: [
@@ -1020,20 +950,24 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   if (auth.isAuthenticated)
                     SettingsStatusChip(
-                      icon: auth.isAdmin
+                      icon: auth.canEditCatalog
                           ? Icons.admin_panel_settings_outlined
                           : Icons.person_outline,
-                      label: auth.isAdmin ? 'Core admin' : 'Standard account',
+                      label: auth.isAdmin
+                          ? 'Core admin'
+                          : auth.canEditCatalog
+                              ? 'Catalog editor'
+                              : 'Viewer account',
                     ),
                 ],
               ),
               const SizedBox(height: 12),
               Text(
                 auth.isAuthenticated
-                    ? auth.isAdmin
-                        ? 'Full admin access: dashboard, ingest jobs, logs, system management, and all catalog operations.'
-                        : 'Catalog search, proposals, corrections, and provider workflows are available. Admin-only tools (dashboard, ingest jobs, logs) are hidden.'
-                    : 'You can browse the app and send metadata proposals without signing in. Admin sign in is only needed for admin/server features.',
+                    ? auth.canEditCatalog
+                        ? 'You can search, create, and edit shared Catalog Items. Owned Copies and personal collection data remain local to this App.'
+                        : 'You can search the shared catalog and add local Owned Copies. Creating or editing shared Catalog Items requires a catalog editor or admin account.'
+                    : 'You can browse the app. Sign in to add Owned Copies; catalog editors and admins can also change shared Catalog Items.',
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -1198,15 +1132,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return;
     }
     _showToast('Sync backup guide copied', tone: AppToastTone.success);
-  }
-
-  Future<void> _clearProposalHistory() async {
-    await const MetadataProposalStore().clear();
-    if (mounted) {
-      ref.invalidate(_metadataProposalHistoryProvider);
-      setState(() {});
-      _showToast('Local proposal history cleared', tone: AppToastTone.success);
-    }
   }
 
   Future<void> _regenerateDeviceId() async {

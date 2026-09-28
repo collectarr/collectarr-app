@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
 import 'package:collectarr_app/features/settings/custom_fields_settings.dart';
 import 'package:collectarr_app/features/settings/location_management_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -157,12 +157,12 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
       return const ['All libraries: 0'];
     }
     final stats = <String>['All libraries: ${data.globalCustomFieldCount}'];
-    for (final type in defaultLibraryKindRegistry.allKinds) {
-      final count = data.customFieldCountsByKind[type.kind.apiValue];
+    for (final identity in catalogItemV1KindIdentities.values) {
+      final count = data.customFieldCountsByKind[identity.kind.apiValue];
       if (count == null || count == 0) {
         continue;
       }
-      stats.add('${type.identity.countLabel(count)}: $count');
+      stats.add('${identity.countLabel(count)}: $count');
     }
     return stats;
   }

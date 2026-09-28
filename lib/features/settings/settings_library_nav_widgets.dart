@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
+import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -125,12 +125,7 @@ class SettingsLibraryNavigationPanel extends StatelessWidget {
               ),
               title: Text(group.label),
               subtitle: Text(
-                [
-                  allVisible ? 'Visible' : 'Hidden',
-                  _groupProviders(group).isEmpty
-                      ? 'No provider'
-                      : 'Providers: ${_groupProviders(group).join(', ')}',
-                ].join(' | '),
+                allVisible ? 'Visible' : 'Hidden',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -424,13 +419,11 @@ List<CatalogMediaType> _orderedSettingsMediaTypes(
   };
   final topLevelByKind = {
     for (final type in catalog)
-      if (type.isTopLevel ||
-          defaultLibraryKindRegistry.tryGet(type.mediaKind) != null)
+      if (catalogItemV1KindIdentities.containsKey(type.mediaKind))
         type.kind: type,
   };
   final defaultKinds = [
-    for (final registration in defaultLibraryKindRegistry.allKinds)
-      registration.kind.apiValue,
+    for (final kind in catalogItemV1KindIdentities.keys) kind.apiValue,
   ];
   for (final kind in defaultKinds) {
     topLevelByKind.putIfAbsent(kind, () {
@@ -484,15 +477,6 @@ List<String> _expandSettingsGroupKinds(List<LibraryNavGroup> groups) {
     for (final group in groups)
       for (final type in group.types) type.kind,
   ];
-}
-
-List<String> _groupProviders(LibraryNavGroup group) {
-  final providers = <String>{};
-  for (final type in group.types) {
-    providers.addAll(type.providers);
-  }
-  final ordered = providers.toList()..sort();
-  return ordered;
 }
 
 String _settingsKindLabel(String kind) {

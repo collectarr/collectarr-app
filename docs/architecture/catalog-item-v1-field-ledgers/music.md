@@ -86,8 +86,8 @@ Each row in `OwnedCopyV1` represents one distinguishable copy. These values are 
 | Personal | Tags | `tags` | ordered string list | owned_copy | `tags` |
 | Collection footer | Collection Status | `status` | status enum | owned_copy | `status` |
 | Collection footer | Index | `indexnr` | integer | owned_copy | `index_number` |
-| Collection footer | Quantity | `quantity` | positive integer; retained as copy quantity only when those units are indistinguishable | owned_copy | `quantity` |
-| Collection footer | Location | `location` | optional location reference/name | owned_copy | `location` |
+| Collection footer | Quantity | `quantity` | positive integer in the CLZ form | App add command | create that many separate `OwnedCopyV1` rows; no quantity field is stored |
+| Collection footer | Location | `location` | optional location reference/name | owned_copy | `location_id` |
 | Tracks | Storage Device and Slot | `storagedevice`, `storagedeviceslot` | per-disc storage details | owned_copy | `disc_storage` |
 | Details | Package/Sleeve Condition | `condition` | vocabulary string | owned_copy | `package_condition` |
 | Details | Media Condition | `mediacondition` | vocabulary string | owned_copy | `media_condition` |
@@ -111,6 +111,6 @@ The page includes separate core-front/core-back image references and the ability
 
 ## v1 Boundary
 
-The new catalog contract contains only the catalog-owned rows above. Purchase/value, status, index, location, owner, conditions, rating, notes, tags, played-history events, personal images, and custom values are App-owned data and must not be added to Core's album contract. Provider IDs, provider envelopes, source snapshots, and import history are also not album fields; App owns that provenance separately.
+The new catalog contract contains only the catalog-owned rows above. Purchase/value, status, index, location, owner, conditions, rating, notes, tags, played-history events, personal images, and custom values are App-owned data and must not be added to Core's album contract. Provider identifiers, provider envelopes, source snapshots, and import history are excluded from the target architecture.
 
 The old Collectarr Music-only fields with no matching CLZ field in this ledger (including provider-internal recording IDs, file hashes/bitrates, TOC/CDDB data, missing-track bookkeeping, and app-only box-set membership projections) are not carried into the new catalog contract by default. Any later addition needs an explicit field-ledger decision.

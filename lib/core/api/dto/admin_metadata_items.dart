@@ -1,6 +1,6 @@
 part of 'admin_metadata.dart';
 
-// Duplicate, metadata item, edition, variant, provider link models
+// Duplicate, metadata item, edition, variant, and provider-link models
 
 class AdminDuplicateActionResult {
   const AdminDuplicateActionResult({
@@ -173,6 +173,32 @@ class AdminMetadataItem {
   }
 }
 
+class AdminProviderLink {
+  const AdminProviderLink({
+    required this.provider,
+    required this.entityType,
+    required this.providerItemId,
+    this.siteUrl,
+    this.apiUrl,
+  });
+
+  final String provider;
+  final String entityType;
+  final String providerItemId;
+  final String? siteUrl;
+  final String? apiUrl;
+
+  factory AdminProviderLink.fromJson(Map<String, dynamic> json) {
+    return AdminProviderLink(
+      provider: json['provider'] as String? ?? '',
+      entityType: json['entity_type'] as String? ?? '',
+      providerItemId: json['provider_item_id']?.toString() ?? '',
+      siteUrl: json['site_url'] as String?,
+      apiUrl: json['api_url'] as String?,
+    );
+  }
+}
+
 class AdminEdition {
   const AdminEdition({
     required this.id,
@@ -272,32 +298,6 @@ class AdminVariant {
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
-    );
-  }
-}
-
-class AdminProviderLink {
-  const AdminProviderLink({
-    required this.provider,
-    required this.entityType,
-    required this.providerItemId,
-    this.siteUrl,
-    this.apiUrl,
-  });
-
-  final String provider;
-  final String entityType;
-  final String providerItemId;
-  final String? siteUrl;
-  final String? apiUrl;
-
-  factory AdminProviderLink.fromJson(Map<String, dynamic> json) {
-    return AdminProviderLink(
-      provider: json['provider'] as String? ?? '',
-      entityType: json['entity_type'] as String? ?? '',
-      providerItemId: json['provider_item_id']?.toString() ?? '',
-      siteUrl: json['site_url'] as String?,
-      apiUrl: json['api_url'] as String?,
     );
   }
 }

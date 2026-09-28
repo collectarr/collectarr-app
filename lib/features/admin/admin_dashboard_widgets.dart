@@ -63,10 +63,6 @@ class _DashboardSummary extends StatelessWidget {
     required this.summary,
     required this.searchStatus,
     required this.lastReindex,
-    required this.configuredProviders,
-    required this.registeredProviders,
-    required this.selectedProviderLabel,
-    required this.lastIngest,
     required this.normalizedMetadataDrift,
     required this.metadataContractDrift,
     required this.errorMessage,
@@ -75,10 +71,6 @@ class _DashboardSummary extends StatelessWidget {
   final AdminCatalogSummary? summary;
   final AdminSearchStatus? searchStatus;
   final AdminSearchReindexResult? lastReindex;
-  final int configuredProviders;
-  final int registeredProviders;
-  final String selectedProviderLabel;
-  final AdminProviderIngestResult? lastIngest;
   final AdminNormalizedMetadataDriftReport? normalizedMetadataDrift;
   final SharedMetadataContractDrift? metadataContractDrift;
   final String? errorMessage;
@@ -94,23 +86,6 @@ class _DashboardSummary extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // ── Providers ──
-        _DashboardSection(
-          title: 'Providers',
-          children: [
-            AdminStatusChip(
-              icon: Icons.extension_outlined,
-              label: '$configuredProviders live',
-            ),
-            AdminStatusChip(
-              icon: Icons.manage_search_outlined,
-              label: '$registeredProviders registered',
-            ),
-            AdminStatusChip(
-              icon: Icons.source_outlined,
-              label: selectedProviderLabel,
-            ),
-          ],
-        ),
         if (summary != null) ...[
           const SizedBox(height: 12),
           // ── Catalog ──
@@ -120,14 +95,6 @@ class _DashboardSummary extends StatelessWidget {
               AdminStatusChip(
                 icon: Icons.library_books_outlined,
                 label: '${summary.items} items',
-              ),
-              AdminStatusChip(
-                icon: Icons.category_outlined,
-                label: '${summary.series} series',
-              ),
-              AdminStatusChip(
-                icon: Icons.link_outlined,
-                label: '${summary.providerLinks} provider links',
               ),
             ],
           ),
@@ -141,49 +108,20 @@ class _DashboardSummary extends StatelessWidget {
                 label: summary.coverCoverageLabel,
               ),
               AdminStatusChip(
-                icon: Icons.hub_outlined,
-                label: summary.providerCoverageLabel,
-              ),
-              AdminStatusChip(
                 icon: Icons.image_outlined,
                 label: '${summary.missingCoverItems} missing covers',
-              ),
-              AdminStatusChip(
-                icon: Icons.link_off_outlined,
-                label: '${summary.missingProviderLinkItems} missing IDs',
               ),
             ],
           ),
           const SizedBox(height: 12),
           // ── Ingests ──
           _DashboardSection(
-            title: 'Ingests',
+            title: 'Data quality',
             children: [
               AdminStatusChip(
                 icon: Icons.join_inner_outlined,
                 label: '${summary.duplicateCandidateGroups} duplicate groups',
               ),
-              AdminStatusChip(
-                icon: summary.providerIngestFailures == 0
-                    ? Icons.download_done_outlined
-                    : Icons.error_outline,
-                label: '${summary.providerIngestFailures} failures',
-              ),
-              AdminStatusChip(
-                icon: Icons.download_for_offline_outlined,
-                label: '${summary.providerIngestSuccesses} ok',
-              ),
-              AdminStatusChip(
-                icon: Icons.pending_actions_outlined,
-                label: '${summary.pendingProposals} pending',
-              ),
-              if (lastIngest != null)
-                AdminStatusChip(
-                  icon: lastIngest!.created
-                      ? Icons.add_circle_outline
-                      : Icons.fact_check_outlined,
-                  label: lastIngest!.created ? 'Last: new' : 'Last: exists',
-                ),
             ],
           ),
         ] else
@@ -405,176 +343,6 @@ class _DashboardStatsOverview extends StatelessWidget {
   }
 }
 
-class _ProposalSummaryChips extends StatelessWidget {
-  const _ProposalSummaryChips({required this.summary});
-
-  final AdminMetadataProposalSummary? summary;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        AdminStatusChip(
-          icon: Icons.pending_actions_outlined,
-          label: '${summary?.pending ?? 0} pending',
-        ),
-        AdminStatusChip(
-          icon: Icons.task_alt_outlined,
-          label: '${summary?.approved ?? 0} approved',
-        ),
-        AdminStatusChip(
-          icon: Icons.block_outlined,
-          label: '${summary?.rejected ?? 0} rejected',
-        ),
-        AdminStatusChip(
-          icon: Icons.insights_outlined,
-          label: '${summary?.total ?? 0} total',
-        ),
-      ],
-    );
-  }
-}
-
-class _DashboardProposalActivity extends StatelessWidget {
-  const _DashboardProposalActivity({
-    required this.summary,
-    required this.history,
-    required this.errorMessage,
-  });
-
-  final AdminMetadataProposalSummary? summary;
-  final List<AdminAuditLogEntry> history;
-  final String? errorMessage;
-
-  @override
-  Widget build(BuildContext context) {
-    if (errorMessage != null && summary == null && history.isEmpty) {
-      return AdminMessageRow(message: errorMessage!, isError: true);
-    }
-
-    final recentApprovals = history
-        .where((entry) => entry.action.contains('metadata_proposal.approve'))
-        .length;
-    final recentRejections = history
-        .where((entry) => entry.action.contains('metadata_proposal.reject'))
-        .length;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _DashboardSection(
-          title: 'Backlog',
-          children: [_ProposalSummaryChips(summary: summary)],
-        ),
-        const SizedBox(height: 12),
-        _DashboardSection(
-          title: 'Recent trend',
-          children: [
-            AdminStatusChip(
-              icon: Icons.trending_up_outlined,
-              label: '$recentApprovals recent approve',
-            ),
-            AdminStatusChip(
-              icon: Icons.trending_down_outlined,
-              label: '$recentRejections recent reject',
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        if (history.isEmpty)
-          const AdminMessageRow(
-            message: 'No proposal review activity recorded yet.',
-            isError: false,
-          )
-        else
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final entry in history)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest
-                          .withValues(alpha: 0.35),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Icon(
-                            entry.action.contains('reject')
-                                ? Icons.block_outlined
-                                : Icons.task_alt_outlined,
-                          ),
-                          Text(
-                            _dashboardProposalAuditActionLabel(entry.action),
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          _DashboardMiniChip(
-                            label: entry.actorEmail ?? 'unknown actor',
-                          ),
-                          _DashboardMiniChip(
-                            label: _dashboardFormatDateTime(entry.createdAt),
-                          ),
-                          if ((entry.entityId?.isNotEmpty ?? false))
-                            _DashboardMiniChip(
-                              label: _dashboardShortId(entry.entityId!),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-      ],
-    );
-  }
-}
-
-class _DashboardMiniChip extends StatelessWidget {
-  const _DashboardMiniChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Chip(
-        label: Text(label),
-        visualDensity: VisualDensity.compact,
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      );
-}
-
-String _dashboardProposalAuditActionLabel(String action) {
-  return switch (action) {
-    'metadata_proposal.approve' => 'Approved proposal',
-    'metadata_proposal.approve_provider' => 'Approved via provider',
-    'metadata_proposal.reject' => 'Rejected proposal',
-    _ => action,
-  };
-}
-
-String _dashboardShortId(String id) => id.length <= 8 ? id : id.substring(0, 8);
-
-String _dashboardFormatDateTime(DateTime value) {
-  final local = value.toLocal();
-  String twoDigits(int part) => part.toString().padLeft(2, '0');
-  return '${local.year.toString().padLeft(4, '0')}-'
-      '${twoDigits(local.month)}-${twoDigits(local.day)} '
-      '${twoDigits(local.hour)}:${twoDigits(local.minute)}';
-}
-
 String _statsKindLabel(String kind) {
   final mediaKind = catalogMediaKindFromApiValue(kind);
   return adminKindLabelForType(mediaKind, plural: true) ??
@@ -603,15 +371,9 @@ class AdminDashboardTab extends StatelessWidget {
     required this.summary,
     required this.searchStatus,
     required this.lastReindex,
-    required this.configuredProviders,
-    required this.registeredProviders,
-    required this.selectedProviderLabel,
-    required this.lastIngest,
     required this.normalizedMetadataDrift,
     required this.metadataContractDrift,
     required this.dashboardErrorMessage,
-    required this.proposalSummary,
-    required this.proposalHistory,
     required this.onReindexSearch,
     required this.onRefreshDashboard,
   });
@@ -622,15 +384,9 @@ class AdminDashboardTab extends StatelessWidget {
   final AdminCatalogSummary? summary;
   final AdminSearchStatus? searchStatus;
   final AdminSearchReindexResult? lastReindex;
-  final int configuredProviders;
-  final int registeredProviders;
-  final String selectedProviderLabel;
-  final AdminProviderIngestResult? lastIngest;
   final AdminNormalizedMetadataDriftReport? normalizedMetadataDrift;
   final SharedMetadataContractDrift? metadataContractDrift;
   final String? dashboardErrorMessage;
-  final AdminMetadataProposalSummary? proposalSummary;
-  final List<AdminAuditLogEntry> proposalHistory;
   final VoidCallback onReindexSearch;
   final VoidCallback onRefreshDashboard;
 
@@ -671,22 +427,8 @@ class AdminDashboardTab extends StatelessWidget {
             summary: summary,
             searchStatus: searchStatus,
             lastReindex: lastReindex,
-            configuredProviders: configuredProviders,
-            registeredProviders: registeredProviders,
-            selectedProviderLabel: selectedProviderLabel,
-            lastIngest: lastIngest,
             normalizedMetadataDrift: normalizedMetadataDrift,
             metadataContractDrift: metadataContractDrift,
-            errorMessage: dashboardErrorMessage,
-          ),
-        ),
-        const SizedBox(height: 12),
-        AdminPanel(
-          icon: Icons.pending_actions_outlined,
-          title: 'Metadata proposal activity',
-          child: _DashboardProposalActivity(
-            summary: proposalSummary,
-            history: proposalHistory,
             errorMessage: dashboardErrorMessage,
           ),
         ),

@@ -38,17 +38,17 @@ nine kinds. The cross-repository cutover is not complete yet.
 - 🗂️ **Local-first ownership** — your owned/wishlist state lives in the app
 - 🧩 **9 active media kinds** — comics, manga, anime, books, games, board games, movies, TV, music
 - 🛠️ **Collector workflows** — variants, barcode, bulk edit, custom fields, import/export
-- 🔍 **Provider-backed metadata** — source mapping and imports owned by App adapters
-- 🧪 **Power-user/admin tooling** — ingest, proposals, provider health, image cache controls
+- 🔍 **Core catalog search** — search and select canonical Catalog Items
+- 🧪 **Power-user/admin tooling** — catalog corrections and image cache controls
 
 ## 🚀 Highlights
 
 - 📦 Offline Drift database with cached catalog snapshots
 - 🖼️ CLZ-style workspace (grid/table/carousel, filters, sidebars, inspector)
-- ➕ Smart add/search flows with provider previews and bundle-aware anchors
+- ➕ Add flows that search Core, select or create a Catalog Item, then add an Owned Copy
 - 🎵 Media-aware edit/inspector UX (music/game/video specific fields)
 - 🔁 Optional sync support through `collectarr-sync`
-- 📊 CSV import/export and TMDB import
+- 📊 Collection CSV import/export
 - 🎨 Animated accent theming across libraries
 - ✨ Cleaner auth/login shell and platform-aware tooling placement
 - 🧭 Metadata compare flows in edit UX (including context entrypoints for supported kinds)
@@ -106,14 +106,14 @@ Collectarr App owns:
 - media-aware presentation + desktop ergonomics
 - canonical in-memory models and semantic behavior for each library kind
 
-`collectarr-core` owns the backend catalog/API contract, provider integrations,
-ingest/admin logic, and media services. Provider transport DTOs are decoded
-back into the owning kind before they enter app edit, workspace, or persistence
-flows.
+`collectarr-core` owns the canonical catalog/API contract and catalog
+administration. The target App has no metadata-provider integrations,
+credentials, provenance, or provider-specific import flows. Add searches the
+Core catalog; barcode scanning supplies an identifier to that search.
 
-After kind dispatch, app code keeps the concrete type (`ComicMedia`,
-`BookRelease`, `TvSeries`, etc.). Cross-kind screens use structural references
-and summaries instead of a universal semantic catalog model.
+Each kind keeps its typed Catalog Item details and child data. Cross-kind
+screens use `CatalogItemRef` and `OwnedCopyRef`; no editable Work or Release
+node is required.
 
 ## 🧭 Library parity contract
 
@@ -135,15 +135,14 @@ Active implementation plans:
 Current active tracks:
 
 - preserve the manual Add submission guard with contract checks
-- reduce generic Add/provider hosts to structural selection and orchestration
+- remove the App provider subsystem and make Add use Core Catalog Item search
 - remove obsolete draft, fallback, and widget paths after each migration
 - improve small text, accent contrast, and text scaling across Library screens
 - keep seed scripts, local Drift schemas, and contract tests synchronized
-- keep provider protocol code separate from kind-owned semantic mapping
+- keep each kind's field definitions and child editors inside its kind module
 - extend calendar support with a live subscribable ICS feed and reminders
 - add local notifications for loans, releases, sync conflicts, and imports
 - keep Plex/Jellyfin/Emby watched sync as a low-priority follow-up to the local watch-session flow
-- add a reusable importer framework for MAL, AniList, Trakt, Simkl, and Kitsu personal lists
 - simplify `LibraryAddDialog` and its session controller around search, preview, and submit responsibilities
 - keep admin proposal/editor UX and stats surfaces aligned with Core contracts
 
@@ -168,7 +167,7 @@ Published release assets include:
 
 | Repo | Purpose |
 |------|---------|
-| `collectarr-core` | Canonical metadata catalog, providers, image delivery, admin APIs |
+| `collectarr-core` | Canonical metadata catalog, image delivery, catalog administration |
 | `collectarr-sync` | Optional personal sync service |
 
 ## 💛 Support

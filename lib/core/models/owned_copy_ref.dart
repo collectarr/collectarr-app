@@ -38,6 +38,14 @@ final class OwnedCopyRef {
       };
 
   factory OwnedCopyRef.fromJson(Map<String, Object?> json) {
+    final unknownFields = json.keys.where(
+      (key) => key != 'kind' && key != 'item_id' && key != 'copy_id',
+    );
+    if (unknownFields.isNotEmpty) {
+      throw FormatException(
+        'Unsupported Owned Copy reference field(s): ${unknownFields.join(', ')}.',
+      );
+    }
     final rawKind = json['kind'];
     final kind =
         catalogMediaKindFromApiValue(rawKind is String ? rawKind : null);

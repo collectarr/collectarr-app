@@ -14,6 +14,7 @@ const _authTokenKey = 'collectarr.auth.token';
 const _authEmailKey = 'collectarr.auth.email';
 const _authUserIdKey = 'collectarr.auth.user_id';
 const _authIsAdminKey = 'collectarr.auth.is_admin';
+const _authRoleKey = 'collectarr.auth.role';
 const _authSecureStorage = FlutterSecureStorage();
 const _authRestoreTimeout = Duration(seconds: 3);
 const _secureStorageReadTimeout = Duration(seconds: 2);
@@ -32,6 +33,7 @@ class AuthState {
     this.error,
     this.isRestoring = false,
     this.isAdmin = false,
+    this.role = 'viewer',
   });
 
   final String? token;
@@ -42,6 +44,8 @@ class AuthState {
   final String? error;
   final bool isRestoring;
   final bool isAdmin;
+  final String role;
+  bool get canEditCatalog => role == 'editor' || role == 'admin';
 
   bool get isAuthenticated => token != null && !isExpired;
   bool get isExpired =>
@@ -56,6 +60,7 @@ class AuthState {
     String? error,
     bool? isRestoring,
     bool? isAdmin,
+    String? role,
   }) {
     return AuthState(
       token: token ?? this.token,
@@ -66,6 +71,7 @@ class AuthState {
       error: error,
       isRestoring: isRestoring ?? this.isRestoring,
       isAdmin: isAdmin ?? this.isAdmin,
+      role: role ?? this.role,
     );
   }
 }
@@ -210,6 +216,7 @@ class AuthController extends Notifier<AuthState> {
     final userId = user.id ?? state.userId;
     final email = user.email ?? state.email;
     final isAdmin = user.isAdmin;
+    final role = user.role;
     final prefs = await SharedPreferences.getInstance();
     if (userId != null && userId.isNotEmpty) {
       await prefs.setString(_authUserIdKey, userId);
@@ -218,12 +225,14 @@ class AuthController extends Notifier<AuthState> {
       await prefs.setString(_authEmailKey, email);
     }
     await prefs.setBool(_authIsAdminKey, isAdmin);
+    await prefs.setString(_authRoleKey, role);
     state = AuthState(
       token: token,
       userId: userId,
       email: email,
       expiresAt: state.expiresAt,
       isAdmin: isAdmin,
+      role: role,
     );
   }
 
@@ -234,6 +243,8 @@ class AuthController extends Notifier<AuthState> {
       final userId = prefs.getString(_authUserIdKey);
       final email = prefs.getString(_authEmailKey);
       final isAdmin = prefs.getBool(_authIsAdminKey) ?? false;
+      final role =
+          prefs.getString(_authRoleKey) ?? (isAdmin ? 'admin' : 'viewer');
       if (token != null && token.isNotEmpty) {
         final expiresAt = _jwtExpiresAt(token);
         if (_isExpired(expiresAt)) {
@@ -253,6 +264,7 @@ class AuthController extends Notifier<AuthState> {
           email: email,
           expiresAt: expiresAt,
           isAdmin: isAdmin,
+          role: role,
         );
       } else {
         if (kDebugMode && kIsWeb) {
@@ -266,6 +278,7 @@ class AuthController extends Notifier<AuthState> {
             email: debugEmail,
             expiresAt: debugExpiresAt,
             isAdmin: true,
+            role: 'admin',
           );
           return;
         }
@@ -288,6 +301,7 @@ class AuthController extends Notifier<AuthState> {
     final userId = session.user.id;
     final email = session.user.email;
     final isAdmin = session.user.isAdmin;
+    final role = session.user.role;
     final prefs = await SharedPreferences.getInstance();
     await _authSecureStorage.write(key: _authTokenKey, value: token);
     if (userId != null && userId.isNotEmpty) {
@@ -297,6 +311,7 @@ class AuthController extends Notifier<AuthState> {
       await prefs.setString(_authEmailKey, email);
     }
     await prefs.setBool(_authIsAdminKey, isAdmin);
+    await prefs.setString(_authRoleKey, role);
     ref.read(apiAuthTokenProvider.notifier).set(token);
     ref.read(apiClientProvider).setToken(token);
     state = AuthState(
@@ -305,6 +320,7 @@ class AuthController extends Notifier<AuthState> {
       email: email,
       expiresAt: _jwtExpiresAt(token),
       isAdmin: isAdmin,
+      role: role,
     );
   }
 
@@ -327,6 +343,7 @@ class AuthController extends Notifier<AuthState> {
     }
     await prefs.remove(_authTokenKey);
     await prefs.remove(_authIsAdminKey);
+    await prefs.remove(_authRoleKey);
     ref.read(apiAuthTokenProvider.notifier).set(null);
     ref.read(apiClientProvider).clearToken();
     state = AuthState(

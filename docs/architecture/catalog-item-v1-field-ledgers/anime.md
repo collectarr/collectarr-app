@@ -7,6 +7,8 @@
 | Reference label / key | Type | Reference form location | Target | Repeats | Core / App v1 key | Evidence/status |
 |---|---|---|---|---|---|---|
 | Title / `title` | Text | CLZ Movies form, exact tab unconfirmed | Catalog Item | No | `title` | Proxy concept |
+| Sort Title / `sort_title` | Text | Collectarr form | Catalog Item | No | `sort_title` | Collectarr-only; CLZ field unconfirmed |
+| Subtitle / `subtitle` | Text | Collectarr form | Catalog Item | No | `subtitle` | Collectarr-only; CLZ field unconfirmed |
 | Year / Release Date / `release_date` | Year/date | CLZ Movies form unconfirmed | Catalog Item | No | `release_date` | Proxy concept; exact split unconfirmed |
 | Studio / `studio` | Organization reference | CLZ Movies form unconfirmed | Catalog Item | Yes | `studios[]` | Proxy concept |
 | Genre / `genres` | Vocabulary list | CLZ Movies form unconfirmed | Catalog Item | Yes | `genres[]` | Proxy concept |
@@ -16,8 +18,12 @@
 | Season / Part / Box Set / `release_title` | Text/number | Collectarr form | Catalog Item | No | `edition_title` | **Collectarr-only** until confirmed |
 | Episodes / `episodes` | Ordered episode records | Collectarr form | Catalog Item | Yes | `episodes[]` | **Collectarr-only**; contained child data |
 | Cover / `cover` | Image reference | CLZ Movies form unconfirmed | Catalog Item | Yes | `images[]` | Proxy concept |
-| Condition / Location / `owned_details` | Vocabulary / location | CLZ Movies form unconfirmed | Owned Copy | No | `condition`, `location` | Proxy concepts |
+| Condition / Location / `owned_details` | Vocabulary / location | CLZ Movies form unconfirmed | Owned Copy | No | `condition`, `location_id` | Proxy concepts |
 | Purchase Date/Price / `purchase_*` | Date / money | CLZ Movies form unconfirmed | Owned Copy | No | `purchase_date`, `purchase_price` | Proxy concepts |
 | **Collectarr-only:** watch progress / `watch_progress` | Episode activity | Collectarr tracking UI | App activity (copy optional) | Yes | `watch_progress[]` | Not claimed as CLZ parity |
 
 **Reference:** [CLZ Movies features](https://app.clz.com/movies). Exact CLZ field list and Anime fields remain unconfirmed.
+
+## Legacy field disposition
+
+The following existing Anime fields are not part of this v1 catalog contract: native, romaji, English, and alternate titles; season enum; airing status and end date; separate episode-count totals; producers, licensors, source material, themes, country, and language; Anime relation graph; old series identity; physical-format labels, publisher, and variant; provider edition lists, trailers, links, and raw provider payload. Release media encoding, aspect ratio, resolution, HDR, per-disc audio/subtitle summaries, and release-to-episode mapping IDs are also excluded; the v1 episode list is the sole contained-content representation. The Catalog Item's partial `release_date`, `edition_title`, `format`, `region`, `studios`, `genres`, `credits`, `identifiers`, and `images` are the only corresponding v1 fields.

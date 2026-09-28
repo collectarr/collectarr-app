@@ -137,6 +137,14 @@
     "BoardGameCatalogDetailsV1": {
       "additionalProperties": false,
       "properties": {
+        "best_players": {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 32,
+          "title": "Best Players",
+          "type": "array"
+        },
         "categories": {
           "items": {
             "type": "string"
@@ -189,12 +197,36 @@
           "title": "Kind",
           "type": "string"
         },
+        "max_players": {
+          "anyOf": [
+            {
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Players"
+        },
         "mechanics": {
           "items": {
             "type": "string"
           },
           "title": "Mechanics",
           "type": "array"
+        },
+        "min_players": {
+          "anyOf": [
+            {
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Min Players"
         },
         "play_time_minutes": {
           "anyOf": [
@@ -208,18 +240,19 @@
           ],
           "title": "Play Time Minutes"
         },
-        "player_counts": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Player Counts",
-          "type": "array"
-        },
         "publishers": {
           "items": {
             "type": "string"
           },
           "title": "Publishers",
+          "type": "array"
+        },
+        "recommended_players": {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 32,
+          "title": "Recommended Players",
           "type": "array"
         },
         "related_items": {
@@ -560,18 +593,6 @@
           ],
           "title": "Runtime Minutes"
         },
-        "season_number": {
-          "anyOf": [
-            {
-              "minimum": 0.0,
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Season Number"
-        },
         "title": {
           "maxLength": 500,
           "minLength": 1,
@@ -709,6 +730,39 @@
     "CatalogItemSummaryV1": {
       "additionalProperties": false,
       "properties": {
+        "artist": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Artist"
+        },
+        "barcode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Barcode"
+        },
+        "country": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Country"
+        },
         "cover_image_url": {
           "anyOf": [
             {
@@ -719,6 +773,17 @@
             }
           ],
           "title": "Cover Image Url"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Format"
         },
         "id": {
           "format": "uuid",
@@ -739,6 +804,17 @@
           ],
           "title": "Kind",
           "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Label"
         },
         "release_date": {
           "anyOf": [
@@ -2838,13 +2914,6 @@
           ],
           "title": "Edition Title"
         },
-        "episodes": {
-          "items": {
-            "$ref": "#/$defs/CatalogEpisodeV1"
-          },
-          "title": "Episodes",
-          "type": "array"
-        },
         "format": {
           "anyOf": [
             {
@@ -2961,8 +3030,8 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "f57205692d34d521ab8a2091dd527dd6c5da1ca4",
-  "generatedAt": "2026-09-25T21:34:23.715591Z",
+  "coreCommit": "9db3379e411a68b01a135eed76b93beb436614d3",
+  "generatedAt": "2026-09-28T05:28:12.381986Z",
   "roots": {
     "item": {
       "$ref": "#/$defs/CatalogItemV1"

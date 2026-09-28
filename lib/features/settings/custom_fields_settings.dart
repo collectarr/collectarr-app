@@ -4,7 +4,8 @@ import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
@@ -444,10 +445,10 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
                     value: null,
                     child: Text('All libraries'),
                   ),
-                  for (final type in defaultLibraryKindRegistry.allKinds)
+                  for (final identity in catalogItemV1KindIdentities.values)
                     DropdownMenuItem<String>(
-                      value: type.kind.apiValue,
-                      child: Text(type.identity.singularLabel),
+                      value: identity.kind.apiValue,
+                      child: Text(identity.singularLabel),
                     ),
                 ],
                 onChanged: (value) => setState(() => _mediaKind = value),
@@ -541,12 +542,10 @@ String _mediaKindLabel(String? kind) {
     return 'All libraries';
   }
   final normalized = kind.trim().toLowerCase();
-  for (final type in defaultLibraryKindRegistry.allKinds) {
-    if (type.kind.apiValue == normalized) {
-      return type.identity.singularLabel;
-    }
-  }
-  return kind.trim();
+  final mediaKind = catalogMediaKindFromValue(normalized);
+  final identity = catalogItemV1KindIdentities[mediaKind];
+  if (identity != null) return identity.singularLabel;
+  return normalized;
 }
 
 String _editScopeLabel(String? scope) {

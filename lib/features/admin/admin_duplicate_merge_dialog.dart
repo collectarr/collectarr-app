@@ -70,8 +70,6 @@ class _DuplicateMergeReviewDialogState
                 children: [
                   _MiniChip(label: candidate.reason),
                   _MiniChip(label: '${candidate.duplicateScore}% match'),
-                  if (candidate.hasProviderConflicts)
-                    const _MiniChip(label: 'provider conflict'),
                   if (candidate.hasCoverConflicts)
                     const _MiniChip(label: 'cover conflict'),
                   if (candidate.preferredTargetItemId != null)
@@ -85,7 +83,7 @@ class _DuplicateMergeReviewDialogState
               const _DestructiveWarning(
                 icon: Icons.warning_amber_outlined,
                 message:
-                    'This moves provider links, editions, variants, relationships, and admin history onto the selected target. Source catalog records are removed after merge.',
+                    'This moves catalog relationships and admin history onto the selected target. Source catalog records are removed after merge.',
               ),
               const SizedBox(height: 12),
               for (final itemId in candidate.itemIds)

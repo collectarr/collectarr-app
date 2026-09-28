@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
+import 'package:collectarr_app/features/library/v1/catalog_item_v1_workspace_page.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/generic/kind_drilldown_library_page_state.dart';
@@ -206,7 +207,7 @@ void main() {
     expect(dialog.scope, LibraryEntityScope.work);
   });
 
-  test('library kind page builder dispatches known kinds', () {
+  test('library kind page builder uses the shared v1 workspace', () {
     expect(
       buildLibraryKindPage(
         registration: const ComicRegistration(),
@@ -214,7 +215,7 @@ void main() {
         accent: Colors.blue,
         routeUri: Uri(path: '/comic'),
       ),
-      isA<ComicLibraryPage>(),
+      isA<CatalogItemV1WorkspacePage>(),
     );
     expect(
       buildLibraryKindPage(
@@ -223,7 +224,7 @@ void main() {
         accent: Colors.blue,
         routeUri: Uri(path: '/movie'),
       ),
-      isA<MovieLibraryPage>(),
+      isA<CatalogItemV1WorkspacePage>(),
     );
     expect(
       buildLibraryKindPage(
@@ -232,7 +233,7 @@ void main() {
         accent: Colors.blue,
         routeUri: Uri(path: '/tv'),
       ),
-      isA<TvLibraryPage>(),
+      isA<CatalogItemV1WorkspacePage>(),
     );
     expect(
       () => defaultLibraryKindRegistry.require(CatalogMediaKind.unknown),

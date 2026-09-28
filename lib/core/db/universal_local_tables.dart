@@ -79,6 +79,21 @@ class WishlistItemsCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Shared local persistence for one row per App-owned copy.
+///
+/// Kind-specific data stays inside the typed `kind_details` object in the
+/// payload; catalog identity is indexed separately for workspace queries.
+class OwnedCopiesV1Cache extends Table {
+  TextColumn get kind => text()();
+  TextColumn get catalogItemId => text()();
+  TextColumn get id => text()();
+  TextColumn get payloadJson => text()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {kind, catalogItemId, id};
+}
+
 class SyncQueue extends Table {
   TextColumn get id => text()();
   TextColumn get entityType => text()();

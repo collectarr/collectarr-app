@@ -2,13 +2,16 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/data/catalog_item_v1_workspace_repository.dart';
+import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
+import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
@@ -23,6 +26,7 @@ import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 part 'collection_page_import.dart';
 part 'collection_page_shelf.dart';
@@ -53,11 +57,25 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
+    final catalogItemsV1 = ref.watch(catalogItemV1AllWorkspacesProvider);
     final overdueOwnedRefs =
         ref.watch(overdueLoanOwnedItemIdsProvider).maybeWhen(
               data: (value) => value,
               orElse: () => const <OwnedItemRef>{},
             );
+    final legacyState = shelf.maybeWhen(
+      data: (value) => value,
+      orElse: () => null,
+    );
+    final entries = legacyState == null
+        ? const <LibraryWorkspaceSource>[]
+        : _filteredEntries(legacyState.entries, overdueOwnedRefs);
+    final catalogRows = _filteredCatalogItemRows(
+      catalogItemsV1.maybeWhen(
+        data: (rows) => rows,
+        orElse: () => const <CatalogItemV1WorkspaceItem>[],
+      ),
+    );
     final accent = LibraryAccentScope.accentOf(context);
     final animationDuration = LibraryAccentScope.animationDurationOf(context);
     return Scaffold(
@@ -94,46 +112,98 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
           ),
         ],
       ),
-      body: shelf.when(
-        data: (state) {
-          final entries = _filteredEntries(state.entries, overdueOwnedRefs);
-          return CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: _ShelfHeader(
-                  state: state,
-                  filter: filter,
-                  overdueCount: overdueOwnedRefs.length,
-                  onFilterChanged: (value) => setState(() => filter = value),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: _ShelfHeader(
+              state: legacyState,
+              filter: filter,
+              overdueCount: overdueOwnedRefs.length,
+              onFilterChanged: (value) => setState(() => filter = value),
+            ),
+          ),
+          if (legacyState == null && shelf.isLoading)
+            const SliverToBoxAdapter(
+              child: LinearProgressIndicator(minHeight: 2),
+            ),
+          if (shelf.hasError)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: AppErrorCard(message: shelf.error.toString()),
+              ),
+            ),
+          if (catalogRows.isNotEmpty) ...[
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Text(
+                  'Catalog Item copies',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
-              if (entries.isEmpty)
-                const SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: _EmptyShelf(),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  sliver: SliverList.separated(
-                    itemCount: entries.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (context, index) {
-                      return _LibraryWorkspaceSourceRow(
-                        entry: entries[index],
-                        onRemoveOwned: () => _removeOwned(entries[index]),
-                        onRemoveWishlist: () => _removeWishlist(entries[index]),
-                      );
-                    },
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              sliver: SliverList.separated(
+                itemCount: catalogRows.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) => _CatalogItemV1ShelfRow(
+                  item: catalogRows[index],
+                  onOpen: () => context.go(
+                    Uri(
+                      path: '/libraries',
+                      queryParameters: {
+                        'kind': catalogRows[index].reference.kind.apiValue,
+                      },
+                    ).toString(),
                   ),
                 ),
-            ],
-          );
-        },
-        error: (error, stackTrace) => AppErrorCard(
-          message: error.toString(),
-        ),
-        loading: () => const SkeletonGrid(),
+              ),
+            ),
+          ],
+          if (catalogItemsV1.hasError)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: AppErrorCard(
+                  message:
+                      'Could not load Catalog Item copies: ${catalogItemsV1.error}',
+                ),
+              ),
+            ),
+          if (entries.isNotEmpty)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              sliver: SliverList.separated(
+                itemCount: entries.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) => _LibraryWorkspaceSourceRow(
+                  entry: entries[index],
+                  onRemoveOwned: () => _removeOwned(entries[index]),
+                  onRemoveWishlist: () => _removeWishlist(entries[index]),
+                ),
+              ),
+            ),
+          if (entries.isEmpty &&
+              catalogRows.isEmpty &&
+              legacyState != null &&
+              !catalogItemsV1.isLoading &&
+              !catalogItemsV1.hasError)
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: _EmptyShelf(),
+            ),
+          if (entries.isEmpty &&
+              catalogRows.isEmpty &&
+              (shelf.isLoading || catalogItemsV1.isLoading))
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -156,6 +226,26 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         entries.where((entry) => entry.hasNotes).toList(growable: false),
     };
   }
+
+  List<CatalogItemV1WorkspaceItem> _filteredCatalogItemRows(
+    List<CatalogItemV1WorkspaceItem> rows,
+  ) =>
+      switch (filter) {
+        _ShelfFilter.all => rows,
+        _ShelfFilter.owned => [
+            for (final row in rows)
+              if (row.copies
+                  .any((copy) => copy.status != OwnedCopyStatusV1.sold))
+                row,
+          ],
+        _ShelfFilter.notes => [
+            for (final row in rows)
+              if (row.copies
+                  .any((copy) => copy.notes?.trim().isNotEmpty == true))
+                row,
+          ],
+        _ShelfFilter.wishlist || _ShelfFilter.overdue => const [],
+      };
 
   Future<void> _removeOwned(LibraryWorkspaceSource entry) async {
     final ownedRef = entry.ownedSummary?.ref;

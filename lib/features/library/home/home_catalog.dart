@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 
 List<CatalogMediaType> orderedLibraryHomeTypes(
@@ -14,13 +14,12 @@ List<CatalogMediaType> orderedLibraryHomeTypes(
   final topLevelByKind = {
     for (final type in catalog)
       if (!type.mediaKind.isUnknown &&
-          (type.isTopLevel ||
-              defaultLibraryKindRegistry.tryGet(type.mediaKind) != null))
+          catalogItemV1KindIdentities.containsKey(type.mediaKind))
         type.kind: type,
   };
   final defaultKinds = [
-    for (final registration in defaultLibraryKindRegistry.allKinds)
-      if (!registration.kind.isUnknown) registration.kind.apiValue,
+    for (final kind in catalogItemV1KindIdentities.keys)
+      if (!kind.isUnknown) kind.apiValue,
   ];
   for (final kind in defaultKinds) {
     topLevelByKind.putIfAbsent(kind, () {
@@ -55,8 +54,7 @@ CatalogMediaType _fallbackTypeForKind(String kind) {
       return type;
     }
   }
-  // Safety fallback for unexpected kinds that are known by registry but absent
-  // from fallbackMediaCatalog.
+  // Safety fallback for a v1 kind that is absent from the static fallback.
   final title = catalogTitleFromToken(kind, emptyLabel: 'Library');
   return CatalogMediaType(
     kind: kind,

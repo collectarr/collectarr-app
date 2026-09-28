@@ -8,10 +8,12 @@
 |---|---|---|---|---|---|---|
 | Title / `title` | Text | Unconfirmed | Catalog Item | No | `title` | Publicly described |
 | Sort Title / `sort_title` | Text | Unconfirmed | Catalog Item | No | `sort_title` | Existing Collectarr inventory; CLZ detail unconfirmed |
+| Subtitle / `subtitle` | Text | Collectarr form | Catalog Item | No | `subtitle` | Collectarr-only; CLZ field unconfirmed |
 | Author / `author` | Person reference | Unconfirmed | Catalog Item | Yes | `contributors[]` | Publicly described |
 | Publisher / `publisher` | Organization reference | Unconfirmed | Catalog Item | No | `publisher` | Publicly described |
 | ISBN / `isbn` | Identifier text | Unconfirmed | Catalog Item | Yes | `identifiers[]` | Publicly described |
 | Publication Date / `publication_date` | Date/partial date | Unconfirmed | Catalog Item | No | `publication_date` | Publicly described through edition metadata; exact label unconfirmed |
+| Edition Release Date / `release_date` | Partial date | Collectarr form | Catalog Item | No | `release_date` | Collectarr-only; distinct from first publication date |
 | Edition / `edition` | Text/vocabulary | Unconfirmed | Catalog Item | No | `edition` | Existing Collectarr inventory; CLZ detail unconfirmed |
 | Format / `format` | Vocabulary | Unconfirmed | Catalog Item | No | `format` | Existing Collectarr inventory; CLZ detail unconfirmed |
 | Genres / `genres` | Vocabulary list | Unconfirmed | Catalog Item | Yes | `genres[]` | Publicly described |
@@ -20,7 +22,7 @@
 | Translator / `translator` | Person reference | Unconfirmed | Catalog Item | Yes | `contributors[]` | Public feature/release-note evidence |
 | Series / `series` | Series reference plus position | Unconfirmed | Catalog Item | No | `series_membership` | Existing Collectarr inventory; exact CLZ shape unconfirmed |
 | Cover images / `images` | Image reference | Unconfirmed | Catalog Item | Yes | `images[]` | Publicly described |
-| Location / `location` | Location reference | Unconfirmed | Owned Copy | No | `location` | Public feature descriptions/user documentation |
+| Location / `location` | Location reference | Unconfirmed | Owned Copy | No | `location_id` | Public feature descriptions/user documentation |
 | Condition / `condition` | Vocabulary | Unconfirmed | Owned Copy | No | `condition` | Public feature descriptions |
 | Purchase Date / `purchase_date` | Date | Unconfirmed | Owned Copy | No | `purchase_date` | Public feature descriptions/user reports |
 | Purchase Price / `purchase_price` | Money | Unconfirmed | Owned Copy | No | `purchase_price` | Public feature descriptions/user reports |
@@ -31,3 +33,9 @@
 | **Collectarr-only:** synopsis / `synopsis` | Text | Collectarr catalog UI | Catalog Item | No | `synopsis` | Not claimed as CLZ parity |
 
 **Source:** [CLZ Books overview](https://clz.com/books/book-collection), [CLZ Books field additions](https://clz.com/books/web/whatsnew/2023/01/16/v8-0-7-new-data-fields-2). Exact CLZ keys and locations remain unverified.
+
+Common App-owned fields use the shared Owned Copy v1 set in the [ledger index](README.md). Reading sessions are activity records, not Owned Copy state.
+
+## Legacy field disposition
+
+The v1 contract retains common title/sort title/subtitle/release date/identifiers/images, contributors, publisher, publication date, edition, format, genres, subjects, original title, and series membership. It excludes synopsis; original subtitle, country, language, publisher, and publication date; country/language per edition; binding, distributor, description, edition statement, age rating, imprint, page count, physical dimensions, printing, first-edition flag, number line, printer, paper type, Library of Congress identifiers, Dewey value, box-set name, audiobook narrator/duration/abridgement, audio length, release status, and edition-variant lists. A single Catalog Item is the concrete edition, so the old nested editions/variants are not retained as another edition graph. Cover and thumbnail URLs are represented only through `images[]`; provider payloads and external-link payloads are excluded.

@@ -3,12 +3,8 @@ import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/auth/auth_page.dart';
 import 'package:collectarr_app/features/calendar/calendar_page.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_routes.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/app/app_shell.dart';
@@ -136,70 +132,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       // Detail pages (outside shell Ã¢â‚¬â€ full-screen push).
       GoRoute(
-        path: AppRoutes.detail,
-        redirect: (context, state) {
-          return state.extra is LibraryDetailPageRequest
-              ? null
-              : AppRoutes.libraries;
-        },
-        pageBuilder: (context, state) {
-          final request = state.extra as LibraryDetailPageRequest?;
-          final Widget child;
-          if (request == null) {
-            child = LibraryHomePage(routeUri: state.uri);
-          } else {
-            final builder = libraryInspectorForKind(request.type.kind)
-                    .detailPageBuilderForScope(
-                  request.item.node.scope,
-                ) ??
-                _buildDefaultDetailPage;
-            child = builder(context, request);
-          }
-          return CustomTransitionPage<void>(
-            key: state.pageKey,
-            child: child,
-            transitionDuration: const Duration(milliseconds: 150),
-            reverseTransitionDuration: const Duration(milliseconds: 120),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                  reverseCurve: Curves.easeInCubic,
-                ),
-                child: child,
-              );
-            },
-          );
-        },
-      ),
-      GoRoute(
         path: AppRoutes.activity,
         builder: (context, state) => const GlobalActivityPage(),
       ),
-      ...collectarrKindRoutes,
     ],
   );
 });
-
-Widget _buildDefaultDetailPage(
-  BuildContext context,
-  LibraryDetailPageRequest request,
-) {
-  return LibraryDetailPage(
-    type: request.type,
-    item: request.item,
-    ownedSummary: request.ownedSummary,
-    accent: request.accent,
-    onAddOwned: request.onAddOwned,
-    onRemoveOwned: request.onRemoveOwned,
-    onAddWishlist: request.onAddWishlist,
-    onRemoveWishlist: request.onRemoveWishlist,
-    onEdit: request.onEdit,
-    onFilterByValue: request.onFilterByValue,
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Auth-state Ã¢â€ â€™ ChangeNotifier bridge for GoRouter.refreshListenable

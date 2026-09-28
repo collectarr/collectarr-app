@@ -9,6 +9,7 @@ part 'local_database.g.dart';
 
 @DriftDatabase(tables: [
   WishlistItemsCache,
+  OwnedCopiesV1Cache,
   SyncQueue,
   UserMetadataOverridesCache,
   UserExternalLinksCache,
@@ -32,7 +33,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -62,6 +63,9 @@ class LocalDatabase extends _$LocalDatabase {
           }
           if (from < 5) {
             await _migrateMusicFieldOwnership(m);
+          }
+          if (from < 6) {
+            await m.createTable(ownedCopiesV1Cache);
           }
         },
       );
