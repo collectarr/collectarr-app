@@ -9,7 +9,6 @@ export 'calendar/movie_calendar_contributor.dart';
 export 'data/movie_catalog_transport_codec.dart';
 export 'integrations/catalog/movie_catalog_lookup.dart';
 export 'integrations/collection_csv/movie_collection_csv_projection.dart';
-export 'integrations/tmdb/movie_tmdb_import_contribution.dart';
 export 'ownership/movie_owned_contributor.dart';
 export 'page.dart';
 export 'provider/movie_provider_correction_patch.dart';
