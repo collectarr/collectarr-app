@@ -5,9 +5,40 @@ import 'package:collectarr_app/features/library/data/catalog_item_v1_workspace_r
 import 'package:collectarr_app/features/library/data/catalog_item_wishlist_v1_repository.dart';
 import 'package:collectarr_app/features/library/data/owned_copy_v1_repository.dart';
 import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final ownedCopyV1OwnersProvider =
+    FutureProvider<List<OwnedCopyOwnerV1>>((ref) async {
+  final repository = ref.watch(ownedCopyV1RepositoryProvider);
+  final kinds = CatalogMediaKind.values.where((kind) => !kind.isUnknown);
+  final copies = await Future.wait(kinds.map(repository.listForKind));
+  final ownersById = <String, OwnedCopyOwnerV1>{};
+  for (final copy in copies.expand((rows) => rows)) {
+    final owner = copy.owner;
+    if (owner != null) ownersById[owner.id] = owner;
+  }
+  final owners = ownersById.values.toList()
+    ..sort((left, right) =>
+        left.label.toLowerCase().compareTo(right.label.toLowerCase()));
+  return List.unmodifiable(owners);
+});
+
+final ownedCopyV1CustomFieldsProvider =
+    FutureProvider.family<List<CustomFieldDefinition>, CatalogMediaKind>(
+  (ref, kind) async {
+    final db = ref.watch(localDatabaseProvider);
+    final definitions = await CustomFieldRepository(db).listDefinitions(
+      mediaKind: kind.apiValue,
+    );
+    return List.unmodifiable(definitions.where((definition) =>
+        definition.targetScope == CustomFieldTargetScope.ownedCopy ||
+        definition.targetScope == CustomFieldTargetScope.all));
+  },
+);
 
 final ownedCopyV1RepositoryProvider = Provider<OwnedCopyV1Repository>((ref) {
   return OwnedCopyV1Repository(ref.watch(localDatabaseProvider));

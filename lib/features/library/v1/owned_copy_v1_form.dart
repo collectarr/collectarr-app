@@ -1,10 +1,19 @@
-import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
+import 'package:collectarr_app/features/collection/repositories/location_provider.dart';
+import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_cover_crop_editor.dart';
+import 'package:collectarr_app/features/library/v1/owned_copy_v1_custom_fields_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
+
+const _ownedCopyImageUuid = Uuid();
 
 /// Editable App-owned copy values. Catalog Item data is intentionally absent.
 final class OwnedCopyV1FormDraft {
@@ -169,11 +178,19 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
   late OwnedCopyStatusV1 _status = widget.initial.status;
   late bool _isDigital = widget.initial.isDigital ?? false;
   late int _quantity = widget.initial.quantity;
+  late OwnedCopyOwnerV1? _owner = widget.initial.owner;
+  late String? _locationId = widget.initial.locationId;
+  late List<OwnedCopyPersonalImageV1> _personalImages =
+      List.of(widget.initial.personalImages);
+  late List<OwnedCopyCustomFieldV1> _customFields =
+      List.of(widget.initial.customFields);
+  late final Map<String, TextEditingController> _imageDescriptionControllers = {
+    for (final image in widget.initial.personalImages)
+      image.id: _controller(image.description),
+  };
+  String? _customFieldError;
   late final Map<String, TextEditingController> _fields = {
     'index_number': _controller(widget.initial.indexNumber?.toString()),
-    'location_id': _controller(widget.initial.locationId),
-    'owner_id': _controller(widget.initial.owner?.id),
-    'owner_label': _controller(widget.initial.owner?.label),
     'loaned_to': _controller(widget.initial.loanedTo),
     'loan_due_date': _controller(widget.initial.loanDueDate?.isoString),
     'condition': _controller(widget.initial.condition),
@@ -190,12 +207,6 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
     'rating': _controller(widget.initial.rating?.toString()),
     'notes': _controller(widget.initial.notes),
     'tags': _controller(widget.initial.tags.join('\n')),
-    'personal_images': _controller(jsonEncode([
-      for (final image in widget.initial.personalImages) image.toJson(),
-    ])),
-    'custom_fields': _controller(jsonEncode([
-      for (final field in widget.initial.customFields) field.toJson(),
-    ])),
     for (final entry in _ownedKindFieldValues(
       widget.initial.kind,
       widget.initial.kindDetails,
@@ -207,6 +218,9 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
   @override
   void dispose() {
     for (final field in _fields.values) {
+      field.dispose();
+    }
+    for (final field in _imageDescriptionControllers.values) {
       field.dispose();
     }
     super.dispose();
@@ -284,14 +298,8 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
                     ),
                   ],
                 ),
-              _textField('location_id', 'Location ID'),
-              Row(
-                children: [
-                  Expanded(child: _textField('owner_id', 'Owner ID')),
-                  const SizedBox(width: 8),
-                  Expanded(child: _textField('owner_label', 'Owner name')),
-                ],
-              ),
+              _locationSelector(),
+              _ownerSelector(),
               SwitchListTile.adaptive(
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Digital copy'),
@@ -382,10 +390,19 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
               ),
               _textField('notes', 'Notes', minLines: 2, maxLines: 4),
               if (widget.showAdvanced) ...[
-                _textField('personal_images', 'Personal images JSON',
-                    minLines: 3, maxLines: 6),
-                _textField('custom_fields', 'Custom fields JSON',
-                    minLines: 3, maxLines: 6),
+                _personalImagesEditor(),
+                OwnedCopyV1CustomFieldsEditor(
+                  kind: widget.initial.kind,
+                  initial: widget.initial.customFields,
+                  onChanged: (values) {
+                    _customFields = values;
+                    _emit();
+                  },
+                  onValidationChanged: (error) {
+                    _customFieldError = error;
+                    _emit();
+                  },
+                ),
               ],
               if (widget.showAdvanced) ..._kindDetailsFields(),
               if (_error != null)
@@ -423,6 +440,331 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
           onChanged: (_) => _emit(),
         ),
       );
+
+  Widget _locationSelector() => Consumer(
+        builder: (context, ref, _) => Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: ref.watch(allLocationsProvider).when(
+                loading: () => const LinearProgressIndicator(),
+                error: (error, _) => Text('Could not load locations: $error'),
+                data: (locations) {
+                  final selected =
+                      locations.any((item) => item.id == _locationId)
+                          ? _locationId
+                          : null;
+                  return DropdownButtonFormField<String?>(
+                    initialValue: selected,
+                    decoration: const InputDecoration(labelText: 'Location'),
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text('No location'),
+                      ),
+                      for (final location in locations)
+                        DropdownMenuItem<String?>(
+                          value: location.id,
+                          child: Text(location.fullPath(locations)),
+                        ),
+                    ],
+                    onChanged: (value) {
+                      setState(() => _locationId = value);
+                      _emit();
+                    },
+                  );
+                },
+              ),
+        ),
+      );
+
+  Widget _ownerSelector() => Consumer(
+        builder: (context, ref, _) => Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: ref.watch(ownedCopyV1OwnersProvider).when(
+                loading: () => const LinearProgressIndicator(),
+                error: (error, _) => Text('Could not load owners: $error'),
+                data: (owners) {
+                  final options = [
+                    ...owners,
+                    if (_owner != null &&
+                        !owners.any((owner) => owner.id == _owner!.id))
+                      _owner!,
+                  ];
+                  return DropdownButtonFormField<String?>(
+                    initialValue: _owner?.id,
+                    decoration: const InputDecoration(labelText: 'Owner'),
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text('No owner'),
+                      ),
+                      for (final owner in options)
+                        DropdownMenuItem<String?>(
+                          value: owner.id,
+                          child: Text(owner.label),
+                        ),
+                    ],
+                    onChanged: (id) {
+                      setState(() => _owner = id == null
+                          ? null
+                          : options.firstWhere((owner) => owner.id == id));
+                      _emit();
+                    },
+                  );
+                },
+              ),
+        ),
+      );
+
+  Widget _personalImagesEditor() => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: Text('Personal images',
+                    style: TextStyle(fontWeight: FontWeight.w700)),
+              ),
+              Text('${_personalImages.length}/5'),
+              IconButton(
+                tooltip: 'Add personal image',
+                onPressed:
+                    _personalImages.length >= 5 ? null : _pickPersonalImage,
+                icon: const Icon(Icons.add_photo_alternate_outlined),
+              ),
+            ],
+          ),
+          for (final image in _personalImages) _personalImageTile(image),
+        ],
+      );
+
+  Widget _personalImageTile(OwnedCopyPersonalImageV1 image) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Image.memory(
+                  image.data,
+                  width: 68,
+                  height: 68,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _imageDescriptionControllers.putIfAbsent(
+                        image.id,
+                        () => _controller(image.description),
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                        isDense: true,
+                      ),
+                      onChanged: (description) => _replacePersonalImage(
+                        image,
+                        description: description,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    DropdownButtonFormField<String>(
+                      initialValue:
+                          _personalImageTypes.contains(image.imageType)
+                              ? image.imageType
+                              : 'other',
+                      decoration: const InputDecoration(
+                        labelText: 'Image type',
+                        isDense: true,
+                      ),
+                      items: [
+                        for (final type in _personalImageTypes)
+                          DropdownMenuItem(
+                              value: type, child: Text(_humanize(type))),
+                      ],
+                      onChanged: (type) {
+                        if (type != null) {
+                          _replacePersonalImage(image, imageType: type);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                tooltip: 'Crop or rotate image',
+                onPressed: () => _cropPersonalImage(image),
+                icon: const Icon(Icons.crop_rotate),
+              ),
+              IconButton(
+                tooltip: 'Remove image',
+                onPressed: () => _removePersonalImage(image),
+                icon: const Icon(Icons.delete_outline),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  static const _personalImageTypes = [
+    'signature',
+    'booklet',
+    'disc',
+    'label',
+    'other',
+  ];
+
+  Future<void> _pickPersonalImage() async {
+    try {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 2000,
+        maxHeight: 2000,
+        imageQuality: 92,
+      );
+      if (picked == null || !mounted) return;
+      final bytes = await picked.readAsBytes();
+      if (!mounted) return;
+      final edited = await _showPersonalImageCropper(bytes);
+      if (edited == null || !mounted) return;
+      final details = await _askPersonalImageDetails();
+      if (details == null || !mounted) return;
+      final image = OwnedCopyPersonalImageV1(
+        id: _ownedCopyImageUuid.v4(),
+        data: edited,
+        description: details.$1.isEmpty ? null : details.$1,
+        imageType: details.$2,
+        position: _personalImages.length,
+      );
+      setState(() {
+        _personalImages = [..._personalImages, image];
+        _imageDescriptionControllers[image.id] =
+            TextEditingController(text: details.$1);
+      });
+      _emit();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(content: Text('Could not add the image: $error')),
+        );
+      }
+    }
+  }
+
+  Future<Uint8List?> _showPersonalImageCropper(Uint8List bytes) =>
+      showDialog<Uint8List>(
+        context: context,
+        builder: (dialogContext) => Dialog(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: MusicCoverCropEditor(
+                title: 'Personal Image',
+                imageBytes: bytes,
+                onApply: (edited) async =>
+                    Navigator.of(dialogContext).pop(edited),
+              ),
+            ),
+          ),
+        ),
+      );
+
+  Future<(String, String)?> _askPersonalImageDetails() async {
+    final description = TextEditingController();
+    var type = 'other';
+    try {
+      return await showDialog<(String, String)>(
+        context: context,
+        builder: (dialogContext) => StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: const Text('Personal image details'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: description,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  initialValue: type,
+                  decoration: const InputDecoration(labelText: 'Image type'),
+                  items: [
+                    for (final option in _personalImageTypes)
+                      DropdownMenuItem(
+                        value: option,
+                        child: Text(_humanize(option)),
+                      ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) setDialogState(() => type = value);
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(
+                  dialogContext,
+                  (description.text.trim(), type),
+                ),
+                child: const Text('Add image'),
+              ),
+            ],
+          ),
+        ),
+      );
+    } finally {
+      description.dispose();
+    }
+  }
+
+  Future<void> _cropPersonalImage(OwnedCopyPersonalImageV1 image) async {
+    final edited = await _showPersonalImageCropper(image.data);
+    if (edited != null) _replacePersonalImage(image, data: edited);
+  }
+
+  void _replacePersonalImage(
+    OwnedCopyPersonalImageV1 image, {
+    Uint8List? data,
+    String? description,
+    String? imageType,
+  }) {
+    final updated = OwnedCopyPersonalImageV1(
+      id: image.id,
+      data: data ?? image.data,
+      description: description ?? _imageDescriptionControllers[image.id]?.text,
+      imageType: imageType ?? image.imageType,
+      position: image.position,
+    );
+    setState(() {
+      _personalImages = [
+        for (final existing in _personalImages)
+          if (existing.id == image.id) updated else existing,
+      ];
+    });
+    _emit();
+  }
+
+  void _removePersonalImage(OwnedCopyPersonalImageV1 image) {
+    _imageDescriptionControllers.remove(image.id)?.dispose();
+    setState(() => _personalImages.removeWhere((item) => item.id == image.id));
+    _emit();
+  }
+
+  String _humanize(String value) => value
+      .split('_')
+      .map((part) =>
+          part.isEmpty ? part : '${part[0].toUpperCase()}${part.substring(1)}')
+      .join(' ');
 
   List<Widget> _kindDetailsFields() {
     final fields = <Widget>[];
@@ -500,6 +842,9 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
 
   void _emit() {
     try {
+      if (_customFieldError != null) {
+        throw FormatException(_customFieldError!);
+      }
       final index = _parseOptionalInt('index_number');
       if (index != null && index < 0) {
         throw const FormatException('Index cannot be negative.');
@@ -508,18 +853,6 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
       if (rating != null && rating < 0) {
         throw const FormatException('Rating cannot be negative.');
       }
-      final ownerId = _value('owner_id');
-      final ownerLabel = _value('owner_label');
-      if ((ownerId == null) != (ownerLabel == null)) {
-        throw const FormatException(
-            'Owner ID and owner name must be entered together.');
-      }
-      final images = _decodeJsonList('personal_images')
-          .map((row) => OwnedCopyPersonalImageV1.fromJson(row))
-          .toList(growable: false);
-      final customFields = _decodeJsonList('custom_fields')
-          .map((row) => OwnedCopyCustomFieldV1.fromJson(row))
-          .toList(growable: false);
       final loanDueDate = _parseDate('loan_due_date');
       if (loanDueDate != null && loanDueDate.day == null) {
         throw const FormatException('Loan due date must include a day.');
@@ -529,10 +862,8 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
         status: _status,
         quantity: _quantity,
         indexNumber: index,
-        locationId: _value('location_id'),
-        owner: ownerId == null
-            ? null
-            : OwnedCopyOwnerV1(id: ownerId, label: ownerLabel!),
+        locationId: _locationId,
+        owner: _owner,
         loanedTo: _value('loaned_to'),
         loanDueDate: loanDueDate,
         isDigital: _isDigital,
@@ -552,8 +883,8 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
             .map((tag) => tag.trim())
             .where((tag) => tag.isNotEmpty)
             .toList(growable: false),
-        personalImages: images,
-        customFields: customFields,
+        personalImages: List.unmodifiable(_personalImages),
+        customFields: List.unmodifiable(_customFields),
         kindDetails: _parseKindDetails(),
       );
       setState(() => _error = null);
@@ -595,14 +926,6 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
   String? _value(String key) {
     final value = _fields[key]!.text.trim();
     return value.isEmpty ? null : value;
-  }
-
-  List<Map<String, Object?>> _decodeJsonList(String key) {
-    final value = jsonDecode(_fields[key]!.text);
-    if (value is! List || value.any((row) => row is! Map)) {
-      throw FormatException('$key must be a JSON array of objects.');
-    }
-    return [for (final row in value) Map<String, Object?>.from(row as Map)];
   }
 
   OwnedCopyKindDetailsV1 _parseKindDetails() {
