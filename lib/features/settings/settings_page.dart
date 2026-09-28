@@ -20,7 +20,6 @@ import 'package:collectarr_app/features/settings/settings_connection_diagnostics
 import 'package:collectarr_app/features/settings/settings_library_nav_widgets.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -1067,8 +1066,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final imported = await showDialog<int>(
       context: context,
       builder: (context) => ImportExportWizardDialog(
-        entries: const [],
-        profiles: collectionCsvKindProfiles,
         initialIndex: initialIndex,
         additionalExports: [
           const CatalogItemV1CsvExporter().export(catalogRows)

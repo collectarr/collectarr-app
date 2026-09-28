@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
 import 'package:collectarr_app/features/library/csv/catalog_item_v1_csv_exporter.dart';
 import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
 import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -61,14 +60,14 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
             tooltip: 'Import Catalog Item v1 CSV',
             onPressed: catalogItems.isLoading
                 ? null
-                : () => _showImportExportWizard(allRows, initialIndex: 1),
+                : () => _showImportExportWizard(initialIndex: 1),
             icon: const Icon(Icons.upload_file),
           ),
           IconButton(
             tooltip: 'Export Catalog Item v1 CSV',
             onPressed: catalogItems.isLoading
                 ? null
-                : () => _showImportExportWizard(allRows, initialIndex: 0),
+                : () => _showImportExportWizard(initialIndex: 0),
             icon: const Icon(Icons.download),
           ),
         ],
@@ -183,16 +182,13 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     ref.invalidate(catalogItemV1WorkspaceByKindProvider(row.reference.kind));
   }
 
-  Future<void> _showImportExportWizard(
-    List<CatalogItemV1WorkspaceItem> rows, {
-    required int initialIndex,
-  }) async {
+  Future<void> _showImportExportWizard({required int initialIndex}) async {
+    final rows = await ref.read(catalogItemV1AllWorkspacesProvider.future);
+    if (!mounted) return;
     final exported = const CatalogItemV1CsvExporter().export(rows);
     final imported = await showDialog<int>(
       context: context,
       builder: (context) => ImportExportWizardDialog(
-        entries: const [],
-        profiles: collectionCsvKindProfiles,
         initialIndex: initialIndex,
         additionalExports: [exported],
       ),

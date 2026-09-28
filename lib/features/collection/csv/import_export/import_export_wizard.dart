@@ -1,7 +1,3 @@
-import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:collectarr_app/features/library/csv/catalog_item_v1_csv_importer.dart';
 import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
@@ -15,19 +11,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ImportExportWizardDialog extends ConsumerStatefulWidget {
   const ImportExportWizardDialog({
     super.key,
-    required this.entries,
-    required this.profiles,
     this.initialIndex = 0,
-    this.customFieldDefinitions = const [],
-    this.customFieldValuesByItem = const {},
     this.additionalExports = const [],
   });
 
-  final List<LibraryWorkspaceSource> entries;
-  final Iterable<CollectionCsvKindProfile> profiles;
   final int initialIndex;
-  final List<CustomFieldDefinition> customFieldDefinitions;
-  final Map<String, List<CustomFieldValue>> customFieldValuesByItem;
   final List<ExportPreviewArtifact> additionalExports;
 
   @override
@@ -85,11 +73,7 @@ class _ImportExportWizardDialogState
                 child: TabBarView(
                   children: [
                     _ExportWizardPane(
-                      entries: widget.entries,
-                      profiles: widget.profiles,
-                      customFieldDefinitions: widget.customFieldDefinitions,
-                      customFieldValuesByItem: widget.customFieldValuesByItem,
-                      additionalExports: widget.additionalExports,
+                      exports: widget.additionalExports,
                     ),
                     _ImportWizardPane(
                       controller: _controller,
@@ -172,7 +156,6 @@ class _ImportExportWizardDialogState
           .read(catalogItemV1CsvImporterProvider)
           .importContent(_controller.text);
       ref.invalidate(catalogItemV1AllWorkspacesProvider);
-      ref.invalidate(shelfProvider);
       if (mounted && report.failures.isEmpty) {
         Navigator.of(context).pop(report.importedRows);
       } else if (mounted) {
@@ -191,73 +174,19 @@ class _ImportExportWizardDialogState
 }
 
 class _ExportWizardPane extends StatelessWidget {
-  const _ExportWizardPane({
-    required this.entries,
-    required this.profiles,
-    this.customFieldDefinitions = const [],
-    this.customFieldValuesByItem = const {},
-    this.additionalExports = const [],
-  });
+  const _ExportWizardPane({required this.exports});
 
-  final List<LibraryWorkspaceSource> entries;
-  final Iterable<CollectionCsvKindProfile> profiles;
-  final List<CustomFieldDefinition> customFieldDefinitions;
-  final Map<String, List<CustomFieldValue>> customFieldValuesByItem;
-  final List<ExportPreviewArtifact> additionalExports;
+  final List<ExportPreviewArtifact> exports;
 
   @override
   Widget build(BuildContext context) {
-    final csv = CollectionCsvCodec(profiles: profiles);
-    final collectarr = csv.exportShelf(
-      entries,
-      customFieldDefinitions: customFieldDefinitions,
-      customFieldValuesByItem: customFieldValuesByItem,
-    );
-    final clz = csv.exportClzFriendlyShelf(
-      entries,
-      customFieldDefinitions: customFieldDefinitions,
-      customFieldValuesByItem: customFieldValuesByItem,
-    );
-    final exports = entries.isEmpty
-        ? additionalExports
-        : <ExportPreviewArtifact>[
-            ExportPreviewArtifact(
-              id: 'collection.collectarr_csv',
-              label: 'Collectarr CSV',
-              icon: Icons.copy_all_outlined,
-              filename: 'collectarr.csv',
-              mimeType: 'text/csv',
-              content: collectarr,
-            ),
-            ExportPreviewArtifact(
-              id: 'collection.clz_csv',
-              label: 'CLZ-friendly CSV',
-              icon: Icons.table_view_outlined,
-              filename: 'collectarr-clz.csv',
-              mimeType: 'text/csv',
-              content: clz,
-            ),
-            ...additionalExports,
-          ];
-    final owned = entries.where((entry) => entry.isOwned).length;
-    final wishlist = entries.where((entry) => entry.isWishlisted).length;
+    if (exports.isEmpty) {
+      return const Center(
+          child: Text('No Catalog Item v1 export is available.'));
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _WizardStat(
-                icon: Icons.table_rows_outlined,
-                label: '${entries.length} rows'),
-            _WizardStat(
-                icon: Icons.inventory_2_outlined, label: '$owned owned'),
-            _WizardStat(
-                icon: Icons.bookmark_border, label: '$wishlist wishlist'),
-          ],
-        ),
-        const SizedBox(height: 12),
         Expanded(
           child: DefaultTabController(
             length: exports.length,
