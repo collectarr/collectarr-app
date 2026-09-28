@@ -294,7 +294,7 @@ final class _CatalogItemWorkspaceListState
   late List<({CatalogItemV1WorkspaceItem item, String searchText})>
       _searchIndex = _buildSearchIndex(widget.items);
   String _query = '';
-  _CatalogItemWorkspaceSort _sort = _CatalogItemWorkspaceSort.title;
+  String _sortField = 'title';
   String _groupField = '';
   bool _ascending = true;
 
@@ -328,6 +328,7 @@ final class _CatalogItemWorkspaceListState
               .length,
     );
     final groupFields = _availableGroupFields();
+    final sortFields = _availableSortFields();
     final workspaceRows = _groupedWorkspaceRows(visibleItems);
     return Column(
       children: [
@@ -381,23 +382,23 @@ final class _CatalogItemWorkspaceListState
                     ),
                 ],
               ),
-              PopupMenuButton<_CatalogItemWorkspaceSort>(
+              PopupMenuButton<String>(
                 tooltip: 'Sort Catalog Items',
                 icon: const Icon(Icons.sort),
-                onSelected: (value) => setState(() => _sort = value),
+                onSelected: (value) => setState(() => _sortField = value),
                 itemBuilder: (context) => [
-                  for (final option in _CatalogItemWorkspaceSort.values)
+                  for (final field in sortFields)
                     PopupMenuItem(
-                      value: option,
+                      value: field,
                       child: Row(
                         children: [
                           SizedBox(
                             width: 24,
-                            child: _sort == option
+                            child: _sortField == field
                                 ? const Icon(Icons.check, size: 18)
                                 : null,
                           ),
-                          Text(option.label),
+                          Text(_fieldLabel(field)),
                         ],
                       ),
                     ),
@@ -507,41 +508,85 @@ final class _CatalogItemWorkspaceListState
     CatalogItemV1WorkspaceItem left,
     CatalogItemV1WorkspaceItem right,
   ) {
-    final result = switch (_sort) {
-      _CatalogItemWorkspaceSort.title =>
-        left.title.toLowerCase().compareTo(right.title.toLowerCase()),
-      _CatalogItemWorkspaceSort.releaseDate => _compareNullableText(
-          _catalogReleaseDate(left),
-          _catalogReleaseDate(right),
-        ),
-      _CatalogItemWorkspaceSort.copyCount =>
-        _activeCopyCount(left).compareTo(_activeCopyCount(right)),
-      _CatalogItemWorkspaceSort.recentlyUpdated =>
-        (left.catalogItem?.updatedAt ?? DateTime(0)).compareTo(
-          right.catalogItem?.updatedAt ?? DateTime(0),
-        ),
-    };
-    if (_sort == _CatalogItemWorkspaceSort.releaseDate &&
-        (_catalogReleaseDate(left) == null ||
-            _catalogReleaseDate(right) == null)) {
+    final leftValue = _sortValue(left, _sortField);
+    final rightValue = _sortValue(right, _sortField);
+    final result = _compareValues(leftValue, rightValue);
+    if (leftValue == null || rightValue == null) {
       return result;
     }
     return _ascending ? result : -result;
   }
 
-  int _compareNullableText(String? left, String? right) {
+  Object? _sortValue(CatalogItemV1WorkspaceItem item, String field) {
+    if (field == 'active_copy_count') return _activeCopyCount(item);
+    if (field == 'updated_at') return item.catalogItem?.updatedAt;
+    if (field == 'title') return item.title;
+    final details = item.catalogItem?.details.toJson();
+    final value = details?[field];
+    if (value is Map && value['year'] is int) {
+      final year = value['year'] as int;
+      final month = value['month'] is int ? value['month'] as int : 0;
+      final day = value['day'] is int ? value['day'] as int : 0;
+      return year * 10000 + month * 100 + day;
+    }
+    if (value is num || value is bool) return value;
+    return _summaryText(value);
+  }
+
+  int _compareValues(Object? left, Object? right) {
     if (left == null) return right == null ? 0 : 1;
     if (right == null) return -1;
-    return left.toLowerCase().compareTo(right.toLowerCase());
+    if (left is num && right is num) return left.compareTo(right);
+    if (left is DateTime && right is DateTime) return left.compareTo(right);
+    if (left is bool && right is bool) {
+      return (left ? 1 : 0).compareTo(right ? 1 : 0);
+    }
+    return left.toString().toLowerCase().compareTo(
+          right.toString().toLowerCase(),
+        );
+  }
+
+  List<String> _availableSortFields() {
+    final firstItem = widget.items.firstOrNull;
+    final fields = <String>{
+      'title',
+      'active_copy_count',
+      'updated_at',
+    };
+    if (firstItem == null) return fields.toList(growable: false);
+    final properties =
+        _kindDetailsSchema(firstItem.reference.kind)['properties']
+            as Map<String, dynamic>;
+    for (final entry in properties.entries) {
+      if (entry.key == 'release_date' ||
+          _isScalarCatalogSchema(entry.value as Map<String, dynamic>)) {
+        fields.add(entry.key);
+      }
+    }
+    return fields.toList(growable: false);
+  }
+
+  String _fieldLabel(String field) {
+    switch (field) {
+      case 'title':
+        return 'Title';
+      case 'active_copy_count':
+        return 'Active copy count';
+      case 'updated_at':
+        return 'Recently updated';
+    }
+    final properties = _kindDetailsSchema(widget.identity.kind)['properties'];
+    if (properties is Map<String, dynamic>) {
+      final schema = properties[field];
+      if (schema is Map<String, dynamic> && schema['title'] is String) {
+        return schema['title'] as String;
+      }
+    }
+    return _humanize(field);
   }
 
   int _activeCopyCount(CatalogItemV1WorkspaceItem item) =>
       item.copies.where((copy) => copy.status != OwnedCopyStatusV1.sold).length;
-
-  String? _catalogReleaseDate(CatalogItemV1WorkspaceItem item) {
-    final details = item.catalogItem?.details.toJson();
-    return details == null ? null : _summaryText(details['release_date']);
-  }
 
   List<String> _availableGroupFields() {
     final firstItem = widget.items.firstOrNull;
@@ -571,7 +616,9 @@ final class _CatalogItemWorkspaceListState
       final value = _summaryText(rawValue) ?? 'Not set';
       groups.putIfAbsent(value, () => []).add(item);
     }
-    final labels = groups.keys.toList()..sort(_compareNullableText);
+    final labels = groups.keys.toList()
+      ..sort(
+          (left, right) => left.toLowerCase().compareTo(right.toLowerCase()));
     return [
       for (final label in labels) ...[
         (item: null, groupLabel: '${_humanize(_groupField)}: $label'),
@@ -594,17 +641,6 @@ bool _isScalarCatalogSchema(Map<String, dynamic> schema) {
   }
   return const {'string', 'integer', 'number', 'boolean'}
       .contains(schema['type']);
-}
-
-enum _CatalogItemWorkspaceSort {
-  title('Title'),
-  releaseDate('Release date'),
-  copyCount('Active copy count'),
-  recentlyUpdated('Recently updated');
-
-  const _CatalogItemWorkspaceSort(this.label);
-
-  final String label;
 }
 
 final class _WorkspaceMessage extends StatelessWidget {
@@ -1452,11 +1488,8 @@ List<String> _catalogIdentitySearchValues(Map<String, dynamic> details) {
       if (identifier is! Map) continue;
       final rawType = identifier['identifier_type'];
       if (rawType is! String) continue;
-      final type = rawType
-          .trim()
-          .toLowerCase()
-          .replaceAll('-', '')
-          .replaceAll('_', '');
+      final type =
+          rawType.trim().toLowerCase().replaceAll('-', '').replaceAll('_', '');
       if (uniqueIdentifierTypes.contains(type)) add(identifier['value']);
     }
   }
