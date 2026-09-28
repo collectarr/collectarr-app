@@ -63,7 +63,7 @@ class _DashboardSummary extends StatelessWidget {
     required this.summary,
     required this.searchStatus,
     required this.lastReindex,
-    required this.normalizedMetadataDrift,
+    required this.catalogItemIntegrity,
     required this.metadataContractDrift,
     required this.errorMessage,
   });
@@ -71,7 +71,7 @@ class _DashboardSummary extends StatelessWidget {
   final AdminCatalogSummary? summary;
   final AdminSearchStatus? searchStatus;
   final AdminSearchReindexResult? lastReindex;
-  final AdminNormalizedMetadataDriftReport? normalizedMetadataDrift;
+  final AdminCatalogItemIntegrityReport? catalogItemIntegrity;
   final SharedMetadataContractDrift? metadataContractDrift;
   final String? errorMessage;
 
@@ -179,33 +179,31 @@ class _DashboardSummary extends StatelessWidget {
                       : 'Drift: ${metadataContractDrift!.mismatchCount}',
             ),
             AdminStatusChip(
-              icon: normalizedMetadataDrift == null
+              icon: catalogItemIntegrity == null
                   ? Icons.hourglass_empty
-                  : normalizedMetadataDrift!.releaseGateOk
+                  : catalogItemIntegrity!.isValid
                       ? Icons.verified_outlined
                       : Icons.warning_amber_outlined,
-              label: normalizedMetadataDrift == null
-                  ? 'Release gate loading…'
-                  : normalizedMetadataDrift!.releaseGateOk
-                      ? 'Release gate: pass'
-                      : 'Release gate: fail (${normalizedMetadataDrift!.driftedEntities + normalizedMetadataDrift!.typedDriftedItems})',
+              label: catalogItemIntegrity == null
+                  ? 'Catalog Item validation loading…'
+                  : catalogItemIntegrity!.isValid
+                      ? 'Catalog Item schemas valid'
+                      : 'Invalid Catalog Items: ${catalogItemIntegrity!.invalidItems}',
             ),
             AdminStatusChip(
-              icon: normalizedMetadataDrift == null
+              icon: catalogItemIntegrity == null
                   ? Icons.hourglass_empty
-                  : normalizedMetadataDrift!.hasDrift
+                  : catalogItemIntegrity!.invalidItems > 0
                       ? Icons.warning_amber_outlined
                       : Icons.check_circle_outline,
-              label: normalizedMetadataDrift == null
-                  ? 'Normalized drift loading…'
-                  : normalizedMetadataDrift!.hasDrift
-                      ? 'Normalized drift: ${normalizedMetadataDrift!.driftedEntities + normalizedMetadataDrift!.typedDriftedItems}'
-                      : 'Normalized drift clear',
+              label: catalogItemIntegrity == null
+                  ? 'Catalog Item validation loading…'
+                  : 'Validated ${catalogItemIntegrity!.scannedItems} Catalog Items',
             ),
-            if (normalizedMetadataDrift?.topIssue != null)
+            if (catalogItemIntegrity?.topIssue != null)
               AdminStatusChip(
                 icon: Icons.rule_folder_outlined,
-                label: 'Top issue: ${normalizedMetadataDrift!.topIssue}',
+                label: 'Top issue: ${catalogItemIntegrity!.topIssue}',
               ),
           ],
         ),
@@ -371,7 +369,7 @@ class AdminDashboardTab extends StatelessWidget {
     required this.summary,
     required this.searchStatus,
     required this.lastReindex,
-    required this.normalizedMetadataDrift,
+    required this.catalogItemIntegrity,
     required this.metadataContractDrift,
     required this.dashboardErrorMessage,
     required this.onReindexSearch,
@@ -384,7 +382,7 @@ class AdminDashboardTab extends StatelessWidget {
   final AdminCatalogSummary? summary;
   final AdminSearchStatus? searchStatus;
   final AdminSearchReindexResult? lastReindex;
-  final AdminNormalizedMetadataDriftReport? normalizedMetadataDrift;
+  final AdminCatalogItemIntegrityReport? catalogItemIntegrity;
   final SharedMetadataContractDrift? metadataContractDrift;
   final String? dashboardErrorMessage;
   final VoidCallback onReindexSearch;
@@ -427,7 +425,7 @@ class AdminDashboardTab extends StatelessWidget {
             summary: summary,
             searchStatus: searchStatus,
             lastReindex: lastReindex,
-            normalizedMetadataDrift: normalizedMetadataDrift,
+            catalogItemIntegrity: catalogItemIntegrity,
             metadataContractDrift: metadataContractDrift,
             errorMessage: dashboardErrorMessage,
           ),

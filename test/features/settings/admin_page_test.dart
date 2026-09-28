@@ -67,7 +67,7 @@ void main() {
     expect(find.text('5 ok'), findsOneWidget);
     expect(find.text('12 docs'), findsOneWidget);
     expect(find.text('Shared contract in sync'), findsOneWidget);
-    expect(find.text('Normalized drift clear'), findsOneWidget);
+    expect(find.text('Catalog Item schemas valid'), findsOneWidget);
     expect(find.text('GCD'), findsWidgets);
     expect(find.text('Metadata proposal activity'), findsOneWidget);
     expect(find.text('1 recent approve'), findsOneWidget);
@@ -712,33 +712,19 @@ class _FakeAdminApiClient extends ApiClient {
         'book': 3,
         'music': 2,
       },
-      series: 4,
-      volumes: 4,
-      editions: 12,
-      variants: 15,
-      providerLinks: 20,
       imageAssets: 0,
       imageCacheEntries: 0,
-      pendingProposals: 2,
       missingCoverItems: 3,
-      missingProviderLinkItems: 1,
       duplicateCandidateGroups: duplicateResolved ? 0 : 1,
-      providerIngestSuccesses: retryResolved ? 6 : 5,
-      providerIngestFailures: retryResolved ? 0 : 1,
     );
   }
 
   @override
-  Future<AdminNormalizedMetadataDriftReport> adminNormalizedMetadataDrift(
+  Future<AdminCatalogItemIntegrityReport> adminCatalogItemIntegrity(
       {int sampleLimit = 100}) async {
-    return const AdminNormalizedMetadataDriftReport(
-      expectedSchemaVersion: 1,
-      scannedEntities: 12,
-      entitiesWithNormalized: 10,
-      driftedEntities: 0,
-      typedScannedItems: 8,
-      typedDriftedItems: 0,
-      releaseGateOk: true,
+    return const AdminCatalogItemIntegrityReport(
+      scannedItems: 12,
+      invalidItems: 0,
       issueCounts: {},
     );
   }
@@ -1231,54 +1217,6 @@ class _FakeAdminApiClient extends ApiClient {
   }
 
   @override
-  Future<AdminDuplicateActionResult> adminMergeDuplicateCandidate({
-    required String targetItemId,
-    required List<String> sourceItemIds,
-  }) async {
-    lastMergeTargetItemId = targetItemId;
-    lastMergeSourceItemIds = sourceItemIds;
-    duplicateResolved = true;
-    return AdminDuplicateActionResult(
-      ok: true,
-      affectedItems: sourceItemIds.length,
-      item: const AdminMetadataItem(
-        id: 'item-1',
-        kind: 'comic',
-        title: 'Absolute Batman',
-        itemNumber: '1A',
-        canonicalFieldValues: {
-          'series_title': 'Absolute Batman',
-          'publisher': 'DC Comics',
-        },
-        editions: [
-          AdminEdition(
-            id: 'edition-1',
-            title: 'Standard Edition',
-            variants: [
-              AdminVariant(
-                id: 'variant-1',
-                name: 'Cover A',
-                isPrimary: true,
-              ),
-            ],
-          ),
-          AdminEdition(
-            id: 'edition-2',
-            title: 'Variant Edition',
-            variants: [
-              AdminVariant(
-                id: 'variant-2',
-                name: 'Variant Cover',
-                isPrimary: false,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
   Future<AdminMetadataItem> adminGetMetadataItem({
     required String kind,
     required String id,
@@ -1388,17 +1326,6 @@ class _FakeAdminApiClient extends ApiClient {
         },
       ],
     });
-  }
-
-  @override
-  Future<BundleReleaseDetail> adminUpdateBundleRelease({
-    required String bundleReleaseId,
-    required AdminBundleReleaseCorrection correction,
-  }) async {
-    lastBundleUpdateId = bundleReleaseId;
-    lastBundleUpdateTitle = correction.title;
-    bundleUpdated = true;
-    return getBundleRelease(bundleReleaseId);
   }
 
   @override

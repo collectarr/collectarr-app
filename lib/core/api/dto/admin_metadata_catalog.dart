@@ -44,32 +44,23 @@ class AdminCatalogSummary {
   }
 }
 
-class AdminNormalizedMetadataDriftReport {
-  const AdminNormalizedMetadataDriftReport({
-    required this.expectedSchemaVersion,
-    required this.scannedEntities,
-    required this.entitiesWithNormalized,
-    required this.driftedEntities,
-    required this.typedScannedItems,
-    required this.typedDriftedItems,
-    this.schemaIssueCount = 0,
-    this.blockingIssueCount = 0,
-    required this.releaseGateOk,
+class AdminCatalogItemIntegrityReport {
+  const AdminCatalogItemIntegrityReport({
+    required this.scannedItems,
+    required this.invalidItems,
+    this.scanLimit,
+    this.scanLimited = false,
     this.issueCounts = const <String, int>{},
   });
 
-  final int expectedSchemaVersion;
-  final int scannedEntities;
-  final int entitiesWithNormalized;
-  final int driftedEntities;
-  final int typedScannedItems;
-  final int typedDriftedItems;
-  final int schemaIssueCount;
-  final int blockingIssueCount;
-  final bool releaseGateOk;
+  final int scannedItems;
+  final int invalidItems;
+  final int? scanLimit;
+  final bool scanLimited;
   final Map<String, int> issueCounts;
 
-  bool get hasDrift => driftedEntities > 0 || typedDriftedItems > 0;
+  bool get isValid => invalidItems == 0;
+  int get issueCount => issueCounts.values.fold(0, (sum, count) => sum + count);
 
   String? get topIssue {
     if (issueCounts.isEmpty) {
@@ -86,21 +77,13 @@ class AdminNormalizedMetadataDriftReport {
     return entries.first.key;
   }
 
-  factory AdminNormalizedMetadataDriftReport.fromJson(
-      Map<String, dynamic> json) {
+  factory AdminCatalogItemIntegrityReport.fromJson(Map<String, dynamic> json) {
     final issueCounts = json['issue_counts'];
-    return AdminNormalizedMetadataDriftReport(
-      expectedSchemaVersion: json['expected_schema_version'] as int? ?? 0,
-      scannedEntities: json['scanned_entities'] as int? ?? 0,
-      entitiesWithNormalized: json['entities_with_normalized'] as int? ?? 0,
-      driftedEntities: json['drifted_entities'] as int? ?? 0,
-      typedScannedItems: json['typed_scanned_items'] as int? ?? 0,
-      typedDriftedItems: json['typed_drifted_items'] as int? ?? 0,
-      schemaIssueCount: json['schema_issue_count'] as int? ?? 0,
-      blockingIssueCount: json['blocking_issue_count'] as int? ?? 0,
-      releaseGateOk: json['release_gate_ok'] as bool? ??
-          ((json['blocking_issue_count'] as int? ?? 0) == 0 &&
-              (json['typed_drifted_items'] as int? ?? 0) == 0),
+    return AdminCatalogItemIntegrityReport(
+      scannedItems: json['scanned_items'] as int? ?? 0,
+      invalidItems: json['invalid_items'] as int? ?? 0,
+      scanLimit: json['scan_limit'] as int?,
+      scanLimited: json['scan_limited'] as bool? ?? false,
       issueCounts: issueCounts is Map<String, dynamic>
           ? issueCounts.map(
               (key, value) => MapEntry(key, (value as num?)?.toInt() ?? 0),

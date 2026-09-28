@@ -3030,8 +3030,8 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "cdb53d7c5fb5fbecee61c301820d0f473398c531",
-  "generatedAt": "2026-09-28T10:35:06.259503Z",
+  "coreCommit": "963bface5f77a16e3102759f53f8b0428f305517",
+  "generatedAt": "2026-09-28T10:48:41.310880Z",
   "roots": {
     "item": {
       "$ref": "#/$defs/CatalogItemV1"

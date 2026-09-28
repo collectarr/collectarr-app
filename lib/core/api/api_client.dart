@@ -348,9 +348,9 @@ class ApiClient {
     return _adminApi.adminCatalogSummary();
   }
 
-  Future<AdminNormalizedMetadataDriftReport> adminNormalizedMetadataDrift(
+  Future<AdminCatalogItemIntegrityReport> adminCatalogItemIntegrity(
       {int sampleLimit = 100}) async {
-    return _adminApi.adminNormalizedMetadataDrift(sampleLimit: sampleLimit);
+    return _adminApi.adminCatalogItemIntegrity(sampleLimit: sampleLimit);
   }
 
   Future<List<AdminMetadataItem>> adminCatalogItems({

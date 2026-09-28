@@ -11,7 +11,7 @@ class AdminPageDataLoader {
   Future<AdminDashboardData> loadDashboard() async {
     final results = await Future.wait<Object>([
       api.adminCatalogSummary(),
-      api.adminNormalizedMetadataDrift(),
+      api.adminCatalogItemIntegrity(),
       api.metadataNormalizedManifest(),
       api.adminImageCacheStats(),
       api.adminSearchStatus(),
@@ -21,7 +21,7 @@ class AdminPageDataLoader {
     ]);
     return AdminDashboardData(
       summary: results[0] as AdminCatalogSummary,
-      normalizedMetadataDrift: results[1] as AdminNormalizedMetadataDriftReport,
+      catalogItemIntegrity: results[1] as AdminCatalogItemIntegrityReport,
       normalizedManifest: results[2] as MetadataNormalizedManifest,
       imageCacheStats: results[3] as AdminImageCacheStats,
       searchStatus: results[4] as AdminSearchStatus,
@@ -35,7 +35,7 @@ class AdminPageDataLoader {
 class AdminDashboardData {
   const AdminDashboardData({
     required this.summary,
-    required this.normalizedMetadataDrift,
+    required this.catalogItemIntegrity,
     required this.normalizedManifest,
     required this.imageCacheStats,
     required this.searchStatus,
@@ -45,7 +45,7 @@ class AdminDashboardData {
   });
 
   final AdminCatalogSummary summary;
-  final AdminNormalizedMetadataDriftReport normalizedMetadataDrift;
+  final AdminCatalogItemIntegrityReport catalogItemIntegrity;
   final MetadataNormalizedManifest normalizedManifest;
   final AdminImageCacheStats imageCacheStats;
   final AdminSearchStatus searchStatus;

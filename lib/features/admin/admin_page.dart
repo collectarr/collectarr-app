@@ -58,7 +58,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   final _catalogQueryController = TextEditingController();
   var _mediaTypes = const <CatalogMediaType>[];
   AdminCatalogSummary? _summary;
-  AdminNormalizedMetadataDriftReport? _normalizedMetadataDrift;
+  AdminCatalogItemIntegrityReport? _catalogItemIntegrity;
   SharedMetadataContractDrift? _metadataContractDrift;
   AdminImageCacheStats? _dashboardImageCacheStats;
   AdminSearchStatus? _searchStatus;
@@ -151,7 +151,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       summary: _summary,
       searchStatus: _searchStatus,
       lastReindex: _lastReindex,
-      normalizedMetadataDrift: _normalizedMetadataDrift,
+      catalogItemIntegrity: _catalogItemIntegrity,
       metadataContractDrift: _metadataContractDrift,
       dashboardErrorMessage: _dashboardErrorMessage,
       onReindexSearch: _reindexSearch,
@@ -187,7 +187,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
       setState(() {
         _summary = dashboard.summary;
-        _normalizedMetadataDrift = dashboard.normalizedMetadataDrift;
+        _catalogItemIntegrity = dashboard.catalogItemIntegrity;
         _metadataContractDrift = contractDrift;
         _dashboardImageCacheStats = dashboard.imageCacheStats;
         _searchStatus = dashboard.searchStatus;

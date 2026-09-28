@@ -34,18 +34,18 @@ class _AdminApiClient {
     return AdminCatalogSummary.fromJson(data);
   }
 
-  Future<AdminNormalizedMetadataDriftReport> adminNormalizedMetadataDrift(
+  Future<AdminCatalogItemIntegrityReport> adminCatalogItemIntegrity(
       {int sampleLimit = 100}) async {
     final response = await _client._dio.get<Map<String, dynamic>>(
-      '/api/v1/admin/catalog/normalized-metadata-drift',
+      '/api/v1/admin/catalog/item-integrity',
       queryParameters: {'sample_limit': sampleLimit},
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/api/v1/admin/catalog/normalized-metadata-drift returned an empty response body');
+          '/api/v1/admin/catalog/item-integrity returned an empty response body');
     }
-    return AdminNormalizedMetadataDriftReport.fromJson(data);
+    return AdminCatalogItemIntegrityReport.fromJson(data);
   }
 
   Future<List<AdminMetadataItem>> adminCatalogItems({

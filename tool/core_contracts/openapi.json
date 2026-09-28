@@ -72,6 +72,85 @@
         "title": "AdminAuditLogResponse",
         "type": "object"
       },
+      "AdminCatalogItemIntegrityResponse": {
+        "properties": {
+          "invalid_items": {
+            "default": 0,
+            "title": "Invalid Items",
+            "type": "integer"
+          },
+          "issue_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Issue Counts",
+            "type": "object"
+          },
+          "samples": {
+            "items": {
+              "$ref": "#/components/schemas/AdminCatalogItemIntegritySample"
+            },
+            "title": "Samples",
+            "type": "array"
+          },
+          "scan_limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scan Limit"
+          },
+          "scan_limited": {
+            "default": false,
+            "title": "Scan Limited",
+            "type": "boolean"
+          },
+          "scanned_items": {
+            "default": 0,
+            "title": "Scanned Items",
+            "type": "integer"
+          }
+        },
+        "title": "AdminCatalogItemIntegrityResponse",
+        "type": "object"
+      },
+      "AdminCatalogItemIntegritySample": {
+        "properties": {
+          "detail_keys": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Detail Keys",
+            "type": "array"
+          },
+          "issues": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "item_id": {
+            "format": "uuid",
+            "title": "Item Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "item_id",
+          "kind"
+        ],
+        "title": "AdminCatalogItemIntegritySample",
+        "type": "object"
+      },
       "AdminCatalogSummaryResponse": {
         "properties": {
           "duplicate_candidate_groups": {
@@ -408,126 +487,6 @@
           "created_at"
         ],
         "title": "AdminDuplicateReviewEntryResponse",
-        "type": "object"
-      },
-      "AdminNormalizedMetadataDriftReportResponse": {
-        "properties": {
-          "blocking_issue_count": {
-            "default": 0,
-            "title": "Blocking Issue Count",
-            "type": "integer"
-          },
-          "drifted_entities": {
-            "default": 0,
-            "title": "Drifted Entities",
-            "type": "integer"
-          },
-          "entities_with_normalized": {
-            "default": 0,
-            "title": "Entities With Normalized",
-            "type": "integer"
-          },
-          "expected_schema_version": {
-            "title": "Expected Schema Version",
-            "type": "integer"
-          },
-          "issue_counts": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "title": "Issue Counts",
-            "type": "object"
-          },
-          "release_gate_ok": {
-            "default": true,
-            "title": "Release Gate Ok",
-            "type": "boolean"
-          },
-          "samples": {
-            "items": {
-              "$ref": "#/components/schemas/AdminNormalizedMetadataDriftSample"
-            },
-            "title": "Samples",
-            "type": "array"
-          },
-          "scan_limit": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Scan Limit"
-          },
-          "scan_limited": {
-            "default": false,
-            "title": "Scan Limited",
-            "type": "boolean"
-          },
-          "scanned_entities": {
-            "default": 0,
-            "title": "Scanned Entities",
-            "type": "integer"
-          },
-          "schema_issue_count": {
-            "default": 0,
-            "title": "Schema Issue Count",
-            "type": "integer"
-          },
-          "typed_drifted_items": {
-            "default": 0,
-            "title": "Typed Drifted Items",
-            "type": "integer"
-          },
-          "typed_scanned_items": {
-            "default": 0,
-            "title": "Typed Scanned Items",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "expected_schema_version"
-        ],
-        "title": "AdminNormalizedMetadataDriftReportResponse",
-        "type": "object"
-      },
-      "AdminNormalizedMetadataDriftSample": {
-        "properties": {
-          "entity_id": {
-            "format": "uuid",
-            "title": "Entity Id",
-            "type": "string"
-          },
-          "entity_type": {
-            "title": "Entity Type",
-            "type": "string"
-          },
-          "issues": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Issues",
-            "type": "array"
-          },
-          "kind": {
-            "$ref": "#/components/schemas/ItemKind"
-          },
-          "normalized_keys": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Normalized Keys",
-            "type": "array"
-          }
-        },
-        "required": [
-          "entity_type",
-          "entity_id",
-          "kind"
-        ],
-        "title": "AdminNormalizedMetadataDriftSample",
         "type": "object"
       },
       "AdminSearchHistoryEntry": {
@@ -4905,9 +4864,9 @@
         ]
       }
     },
-    "/api/v1/admin/catalog/normalized-metadata-drift": {
+    "/api/v1/admin/catalog/item-integrity": {
       "get": {
-        "operationId": "catalog_normalized_metadata_drift_api_v1_admin_catalog_normalized_metadata_drift_get",
+        "operationId": "catalog_item_integrity_api_v1_admin_catalog_item_integrity_get",
         "parameters": [
           {
             "in": "query",
@@ -4945,7 +4904,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AdminNormalizedMetadataDriftReportResponse"
+                  "$ref": "#/components/schemas/AdminCatalogItemIntegrityResponse"
                 }
               }
             },
@@ -4967,7 +4926,7 @@
             "HTTPBearer": []
           }
         ],
-        "summary": "Catalog Normalized Metadata Drift",
+        "summary": "Catalog Item Integrity",
         "tags": [
           "admin"
         ]
