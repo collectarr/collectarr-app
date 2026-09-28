@@ -924,7 +924,7 @@
         "title": "BoardGameCatalogDetailsV1",
         "type": "object"
       },
-      "Body_add_entity_image_api_v1_images_entity__entity_type___entity_id__post": {
+      "Body_add_catalog_item_image_api_v1_images_catalog_items__catalog_item_id__post": {
         "properties": {
           "image_data_base64": {
             "minLength": 1,
@@ -956,7 +956,7 @@
         "required": [
           "image_data_base64"
         ],
-        "title": "Body_add_entity_image_api_v1_images_entity__entity_type___entity_id__post",
+        "title": "Body_add_catalog_item_image_api_v1_images_catalog_items__catalog_item_id__post",
         "type": "object"
       },
       "Body_search_by_cover_upload_api_v1_images_search_by_cover_upload_post": {
@@ -1130,361 +1130,6 @@
           "kind"
         ],
         "title": "BookCatalogDetailsV1",
-        "type": "object"
-      },
-      "CanonicalCorrectionApprovalResponse": {
-        "properties": {
-          "approved_by": {
-            "anyOf": [
-              {
-                "format": "uuid",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Approved By"
-          },
-          "base_hash": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Base Hash"
-          },
-          "base_revision": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Base Revision"
-          },
-          "current_fields": {
-            "$ref": "#/components/schemas/JsonObject-Output"
-          },
-          "current_hash": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Current Hash"
-          },
-          "current_revision": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Current Revision"
-          },
-          "diff": {
-            "$ref": "#/components/schemas/JsonObject-Output"
-          },
-          "entity_id": {
-            "format": "uuid",
-            "title": "Entity Id",
-            "type": "string"
-          },
-          "entity_type": {
-            "title": "Entity Type",
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "title": "Id",
-            "type": "string"
-          },
-          "kind": {
-            "$ref": "#/components/schemas/ItemKind"
-          },
-          "proposed_fields": {
-            "$ref": "#/components/schemas/JsonObject-Output"
-          },
-          "scope": {
-            "title": "Scope",
-            "type": "string"
-          },
-          "status": {
-            "title": "Status",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "kind",
-          "entity_type",
-          "entity_id",
-          "scope",
-          "base_revision",
-          "base_hash",
-          "proposed_fields",
-          "status"
-        ],
-        "title": "CanonicalCorrectionApprovalResponse",
-        "type": "object"
-      },
-      "CanonicalCorrectionFieldResponse": {
-        "properties": {
-          "entity_type": {
-            "title": "Entity Type",
-            "type": "string"
-          },
-          "key": {
-            "title": "Key",
-            "type": "string"
-          },
-          "label": {
-            "title": "Label",
-            "type": "string"
-          },
-          "scope": {
-            "title": "Scope",
-            "type": "string"
-          },
-          "value_type": {
-            "title": "Value Type",
-            "type": "string"
-          },
-          "writable": {
-            "default": true,
-            "title": "Writable",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "key",
-          "label",
-          "value_type",
-          "scope",
-          "entity_type"
-        ],
-        "title": "CanonicalCorrectionFieldResponse",
-        "type": "object"
-      },
-      "CanonicalCorrectionProposalCreate": {
-        "additionalProperties": false,
-        "description": "A provider-independent proposal against one canonical entity.",
-        "properties": {
-          "base_hash": {
-            "anyOf": [
-              {
-                "maxLength": 128,
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Base Hash"
-          },
-          "base_revision": {
-            "anyOf": [
-              {
-                "maxLength": 128,
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Base Revision"
-          },
-          "entity_id": {
-            "format": "uuid",
-            "title": "Entity Id",
-            "type": "string"
-          },
-          "entity_type": {
-            "maxLength": 64,
-            "minLength": 1,
-            "title": "Entity Type",
-            "type": "string"
-          },
-          "kind": {
-            "$ref": "#/components/schemas/ItemKind"
-          },
-          "proposed_fields": {
-            "$ref": "#/components/schemas/JsonObject-Input"
-          },
-          "scope": {
-            "maxLength": 64,
-            "minLength": 1,
-            "title": "Scope",
-            "type": "string"
-          }
-        },
-        "required": [
-          "kind",
-          "entity_type",
-          "entity_id",
-          "scope",
-          "proposed_fields"
-        ],
-        "title": "CanonicalCorrectionProposalCreate",
-        "type": "object"
-      },
-      "CanonicalCorrectionProposalResponse": {
-        "properties": {
-          "base_hash": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Base Hash"
-          },
-          "base_revision": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Base Revision"
-          },
-          "current_fields": {
-            "$ref": "#/components/schemas/JsonObject-Output"
-          },
-          "current_hash": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Current Hash"
-          },
-          "current_revision": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Current Revision"
-          },
-          "diff": {
-            "$ref": "#/components/schemas/JsonObject-Output"
-          },
-          "entity_id": {
-            "format": "uuid",
-            "title": "Entity Id",
-            "type": "string"
-          },
-          "entity_type": {
-            "title": "Entity Type",
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "title": "Id",
-            "type": "string"
-          },
-          "kind": {
-            "$ref": "#/components/schemas/ItemKind"
-          },
-          "proposed_fields": {
-            "$ref": "#/components/schemas/JsonObject-Output"
-          },
-          "scope": {
-            "title": "Scope",
-            "type": "string"
-          },
-          "status": {
-            "title": "Status",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "kind",
-          "entity_type",
-          "entity_id",
-          "scope",
-          "base_revision",
-          "base_hash",
-          "proposed_fields",
-          "status"
-        ],
-        "title": "CanonicalCorrectionProposalResponse",
-        "type": "object"
-      },
-      "CanonicalCorrectionTargetResponse": {
-        "description": "Authoritative snapshot for one exact canonical correction target.",
-        "properties": {
-          "entity_id": {
-            "format": "uuid",
-            "title": "Entity Id",
-            "type": "string"
-          },
-          "entity_type": {
-            "title": "Entity Type",
-            "type": "string"
-          },
-          "field_schema": {
-            "items": {
-              "$ref": "#/components/schemas/CanonicalCorrectionFieldResponse"
-            },
-            "title": "Field Schema",
-            "type": "array"
-          },
-          "fields": {
-            "$ref": "#/components/schemas/JsonObject-Output"
-          },
-          "hash": {
-            "title": "Hash",
-            "type": "string"
-          },
-          "kind": {
-            "$ref": "#/components/schemas/ItemKind"
-          },
-          "revision": {
-            "title": "Revision",
-            "type": "string"
-          },
-          "scope": {
-            "title": "Scope",
-            "type": "string"
-          }
-        },
-        "required": [
-          "kind",
-          "entity_type",
-          "entity_id",
-          "scope",
-          "revision",
-          "hash",
-          "fields",
-          "field_schema"
-        ],
-        "title": "CanonicalCorrectionTargetResponse",
         "type": "object"
       },
       "CatalogComponentV1": {
@@ -2476,92 +2121,6 @@
         ],
         "title": "ImageCacheStatsResponse",
         "type": "object"
-      },
-      "ItemKind": {
-        "enum": [
-          "anime",
-          "boardgame",
-          "book",
-          "collection",
-          "comic",
-          "game",
-          "manga",
-          "movie",
-          "music",
-          "tv"
-        ],
-        "title": "ItemKind",
-        "type": "string"
-      },
-      "JsonObject-Input": {
-        "additionalProperties": {
-          "$ref": "#/components/schemas/JsonValue-Input"
-        },
-        "minProperties": 1,
-        "type": "object"
-      },
-      "JsonObject-Output": {
-        "additionalProperties": {
-          "$ref": "#/components/schemas/JsonValue-Output"
-        },
-        "type": "object"
-      },
-      "JsonScalar": {
-        "anyOf": [
-          {
-            "type": "boolean"
-          },
-          {
-            "type": "integer"
-          },
-          {
-            "type": "number"
-          },
-          {
-            "type": "string"
-          },
-          {
-            "type": "null"
-          }
-        ]
-      },
-      "JsonValue-Input": {
-        "anyOf": [
-          {
-            "$ref": "#/components/schemas/JsonScalar"
-          },
-          {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/JsonValue-Input"
-            },
-            "type": "object"
-          },
-          {
-            "items": {
-              "$ref": "#/components/schemas/JsonValue-Input"
-            },
-            "type": "array"
-          }
-        ]
-      },
-      "JsonValue-Output": {
-        "anyOf": [
-          {
-            "$ref": "#/components/schemas/JsonScalar"
-          },
-          {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/JsonValue-Output"
-            },
-            "type": "object"
-          },
-          {
-            "items": {
-              "$ref": "#/components/schemas/JsonValue-Output"
-            },
-            "type": "array"
-          }
-        ]
       },
       "LoginRequest": {
         "properties": {
@@ -5292,6 +4851,112 @@
         ]
       }
     },
+    "/api/v1/images/catalog-items/{catalog_item_id}": {
+      "get": {
+        "operationId": "list_catalog_item_images_api_v1_images_catalog_items__catalog_item_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "catalog_item_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Catalog Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Catalog Item Images Api V1 Images Catalog Items  Catalog Item Id  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Catalog Item Images",
+        "tags": [
+          "images"
+        ]
+      },
+      "post": {
+        "operationId": "add_catalog_item_image_api_v1_images_catalog_items__catalog_item_id__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "catalog_item_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Catalog Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_add_catalog_item_image_api_v1_images_catalog_items__catalog_item_id__post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Add Catalog Item Image Api V1 Images Catalog Items  Catalog Item Id  Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add Catalog Item Image",
+        "tags": [
+          "images"
+        ]
+      }
+    },
     "/api/v1/images/download": {
       "get": {
         "operationId": "download_image_api_v1_images_download_get",
@@ -5333,134 +4998,6 @@
           }
         },
         "summary": "Download Image",
-        "tags": [
-          "images"
-        ]
-      }
-    },
-    "/api/v1/images/entity/{entity_type}/{entity_id}": {
-      "get": {
-        "operationId": "list_entity_images_api_v1_images_entity__entity_type___entity_id__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "entity_type",
-            "required": true,
-            "schema": {
-              "maxLength": 64,
-              "minLength": 1,
-              "title": "Entity Type",
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "entity_id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "title": "Entity Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "additionalProperties": true,
-                    "type": "object"
-                  },
-                  "title": "Response List Entity Images Api V1 Images Entity  Entity Type   Entity Id  Get",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "List Entity Images",
-        "tags": [
-          "images"
-        ]
-      },
-      "post": {
-        "operationId": "add_entity_image_api_v1_images_entity__entity_type___entity_id__post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "entity_type",
-            "required": true,
-            "schema": {
-              "maxLength": 64,
-              "minLength": 1,
-              "title": "Entity Type",
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "entity_id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "title": "Entity Id",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Body_add_entity_image_api_v1_images_entity__entity_type___entity_id__post"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Add Entity Image Api V1 Images Entity  Entity Type   Entity Id  Post",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "summary": "Add Entity Image",
         "tags": [
           "images"
         ]
@@ -5957,158 +5494,6 @@
         "tags": [
           "metadata",
           "catalog-items"
-        ]
-      }
-    },
-    "/api/v1/metadata/correction-proposals": {
-      "post": {
-        "operationId": "create_canonical_correction_proposal_api_v1_metadata_correction_proposals_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CanonicalCorrectionProposalCreate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CanonicalCorrectionProposalResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Create Canonical Correction Proposal",
-        "tags": [
-          "metadata",
-          "metadata"
-        ]
-      }
-    },
-    "/api/v1/metadata/correction-proposals/{proposal_id}/approve": {
-      "post": {
-        "operationId": "approve_canonical_correction_proposal_api_v1_metadata_correction_proposals__proposal_id__approve_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "proposal_id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "title": "Proposal Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CanonicalCorrectionApprovalResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "summary": "Approve Canonical Correction Proposal",
-        "tags": [
-          "metadata",
-          "metadata"
-        ]
-      }
-    },
-    "/api/v1/metadata/correction-targets/{kind}/{entity_id}": {
-      "get": {
-        "operationId": "get_canonical_correction_target_api_v1_metadata_correction_targets__kind___entity_id__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "kind",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/ItemKind"
-            }
-          },
-          {
-            "in": "path",
-            "name": "entity_id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "title": "Entity Id",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "scope",
-            "required": true,
-            "schema": {
-              "title": "Scope",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CanonicalCorrectionTargetResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Get Canonical Correction Target",
-        "tags": [
-          "metadata",
-          "metadata"
         ]
       }
     }

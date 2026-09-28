@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
 import 'package:collectarr_app/features/collection/repositories/location_provider.dart';
 import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_cover_crop_editor.dart';
+import 'package:collectarr_app/features/library/ui/catalog_item_cover_crop_editor.dart';
 import 'package:collectarr_app/features/library/v1/owned_copy_v1_custom_fields_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -662,7 +662,7 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
             constraints: const BoxConstraints(maxWidth: 720),
             child: Padding(
               padding: const EdgeInsets.all(10),
-              child: MusicCoverCropEditor(
+              child: CatalogItemCoverCropEditor(
                 title: 'Personal Image',
                 imageBytes: bytes,
                 onApply: (edited) async =>

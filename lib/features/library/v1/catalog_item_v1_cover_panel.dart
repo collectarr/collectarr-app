@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_cover_crop_editor.dart';
+import 'package:collectarr_app/features/library/ui/catalog_item_cover_crop_editor.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,9 +41,8 @@ final class _CatalogItemV1CoverPanelState
   }
 
   Future<List<Map<String, dynamic>>> _loadImages() async =>
-      (await _api.listEntityImages(
-        entityType: 'catalog_item',
-        entityId: widget.reference.id,
+      (await _api.listCatalogItemImages(
+        catalogItemId: widget.reference.id,
       ))
           .where((image) => image['image_type'] == 'front_cover')
           .toList(growable: false);
@@ -170,7 +169,7 @@ final class _CatalogItemV1CoverPanelState
             constraints: const BoxConstraints(maxWidth: 720),
             child: Padding(
               padding: const EdgeInsets.all(10),
-              child: MusicCoverCropEditor(
+              child: CatalogItemCoverCropEditor(
                 title: 'Front Cover',
                 imageBytes: bytes,
                 onApply: (edited) async =>
@@ -187,16 +186,15 @@ final class _CatalogItemV1CoverPanelState
   }) async {
     setState(() => _busy = true);
     try {
-      final uploaded = await _api.addEntityImage(
-        entityType: 'catalog_item',
-        entityId: widget.reference.id,
+      final uploaded = await _api.addCatalogItemImage(
+        catalogItemId: widget.reference.id,
         imageType: 'front_cover',
         imageDataBase64: base64Encode(bytes),
         isPrimary: true,
       );
       final previousId = replacing?['id'];
       if (previousId is String && previousId != uploaded['id']) {
-        await _api.deleteEntityImage(previousId);
+        await _api.deleteCatalogItemImage(previousId);
       }
       if (mounted) _refresh();
     } catch (error) {
@@ -211,7 +209,7 @@ final class _CatalogItemV1CoverPanelState
     if (id is! String) return;
     setState(() => _busy = true);
     try {
-      await _api.deleteEntityImage(id);
+      await _api.deleteCatalogItemImage(id);
       if (mounted) _refresh();
     } catch (error) {
       _showError('Could not remove the catalog cover: $error');

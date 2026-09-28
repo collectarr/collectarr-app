@@ -10,7 +10,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_cover_crop_editor.dart';
+import 'package:collectarr_app/features/library/ui/catalog_item_cover_crop_editor.dart';
 
 final Dio _groupCoverImageClient = Dio(
   BaseOptions(
@@ -73,7 +73,7 @@ final class _MusicReleaseGroupCoverEditorState
     final sourceKey = _sourceKey;
     final cropEditorBytes = _cropEditorBytes;
     if (cropEditorBytes != null) {
-      return MusicCoverCropEditor(
+      return CatalogItemCoverCropEditor(
         title: 'Front Cover',
         imageBytes: cropEditorBytes,
         onApply: _saveEditedBytes,

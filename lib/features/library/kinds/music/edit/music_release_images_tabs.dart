@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_p
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_cover_crop_editor.dart';
+import 'package:collectarr_app/features/library/ui/catalog_item_cover_crop_editor.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:dio/dio.dart';
 import 'package:file_selector/file_selector.dart';
@@ -178,7 +178,7 @@ final class _CoverEditorState extends State<_CoverEditor> {
     final sourceKey = _sourceKey;
     final cropEditorBytes = _cropEditorBytes;
     if (cropEditorBytes != null) {
-      return MusicCoverCropEditor(
+      return CatalogItemCoverCropEditor(
         title: widget.title,
         imageBytes: cropEditorBytes,
         onApply: _applyEditedBytes,

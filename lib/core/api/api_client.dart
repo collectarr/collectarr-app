@@ -570,46 +570,41 @@ class ApiClient {
     return _assetsApi.batchDownloadImages(objectKeys);
   }
 
-  /// List all image assets for an entity.
-  Future<List<Map<String, dynamic>>> listEntityImages({
-    required String entityType,
-    required String entityId,
+  /// List image assets for a Catalog Item.
+  Future<List<Map<String, dynamic>>> listCatalogItemImages({
+    required String catalogItemId,
   }) async {
-    return _assetsApi.listEntityImages(
-      entityType: entityType,
-      entityId: entityId,
+    return _assetsApi.listCatalogItemImages(
+      catalogItemId: catalogItemId,
     );
   }
 
-  /// Upload a new image for an entity.
-  Future<Map<String, dynamic>> addEntityImage({
-    required String entityType,
-    required String entityId,
+  /// Upload a new image for a Catalog Item.
+  Future<Map<String, dynamic>> addCatalogItemImage({
+    required String catalogItemId,
     required String imageType,
     required String imageDataBase64,
     String? sourceUrl,
-    String? provider,
     bool isPrimary = false,
   }) async {
-    return _assetsApi.addEntityImage(
-      entityType: entityType,
-      entityId: entityId,
+    return _assetsApi.addCatalogItemImage(
+      catalogItemId: catalogItemId,
       imageType: imageType,
       imageDataBase64: imageDataBase64,
       sourceUrl: sourceUrl,
-      provider: provider,
       isPrimary: isPrimary,
     );
   }
 
-  /// Delete an image asset.
-  Future<void> deleteEntityImage(String imageId) async {
-    await _assetsApi.deleteEntityImage(imageId);
+  /// Delete a Catalog Item image asset.
+  Future<void> deleteCatalogItemImage(String imageId) async {
+    await _assetsApi.deleteCatalogItemImage(imageId);
   }
 
-  /// Set an image as primary for its type.
-  Future<Map<String, dynamic>> setImagePrimary(String imageId) async {
-    return _assetsApi.setImagePrimary(imageId);
+  /// Set a Catalog Item image as primary for its type.
+  Future<Map<String, dynamic>> setCatalogItemImagePrimary(
+      String imageId) async {
+    return _assetsApi.setCatalogItemImagePrimary(imageId);
   }
 
   /// Search for visually similar covers by uploading an image.

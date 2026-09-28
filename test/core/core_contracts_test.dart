@@ -12,8 +12,8 @@ void main() {
     final activeKinds = jsonDecode(
       File('tool/core_contracts/active-kinds.json').readAsStringSync(),
     ) as Map<String, dynamic>;
-    final fieldSchema = jsonDecode(
-      File('tool/core_contracts/metadata-field-schema.json').readAsStringSync(),
+    final catalogItem = jsonDecode(
+      File('tool/core_contracts/catalog-item-v1.json').readAsStringSync(),
     ) as Map<String, dynamic>;
 
     expect(manifest['contractVersion'], '1.0.0');
@@ -21,16 +21,12 @@ void main() {
     expect(
         manifest['openApiHash'], _fileHash('tool/core_contracts/openapi.json'));
     expect(
-      manifest['fieldSchemaHash'],
-      _fileHash('tool/core_contracts/metadata-field-schema.json'),
+      manifest['catalogItemHash'],
+      _fileHash('tool/core_contracts/catalog-item-v1.json'),
     );
     expect(
       manifest['activeKindsHash'],
       _fileHash('tool/core_contracts/active-kinds.json'),
-    );
-    expect(
-      manifest['providerSupportHash'],
-      _fileHash('tool/core_contracts/provider-support.json'),
     );
     final coreManifest =
         File(r'..\collectarr-core\contracts\contract-manifest.json');
@@ -52,22 +48,9 @@ void main() {
         'music',
       }),
     );
-    expect(fieldSchema['contractVersion'], '1.0.0');
-    expect(fieldSchema['fields'], isNotEmpty);
-    final fields =
-        (fieldSchema['fields'] as List<dynamic>).cast<Map<String, dynamic>>();
-    Map<String, dynamic>? fieldFor(String key, String kind) {
-      for (final field in fields) {
-        if (field['key'] == key && field['kind'] == kind) {
-          return field;
-        }
-      }
-      return null;
-    }
-
-    expect(fieldFor('title', 'game')?['writeTarget'], 'core_canonical');
-    expect(fieldFor('physical_format_label', 'game')?['writeTarget'],
-        'readonly_computed');
+    expect(catalogItem['schemaVersion'], 1);
+    expect(catalogItem['roots'], contains('itemWrite'));
+    expect(catalogItem[r'$defs'], isNotEmpty);
   });
 }
 
