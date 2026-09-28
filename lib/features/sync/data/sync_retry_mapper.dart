@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/data/owned_copy_v1_repository.dart';
+import 'package:collectarr_app/features/library/data/catalog_item_wishlist_v1_repository.dart';
 import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
 import 'package:uuid/uuid.dart';
 
@@ -29,11 +30,18 @@ class SyncRetryMapper {
     required Uuid uuid,
   }) async {
     switch (change.entityType) {
+      case 'catalog_item_wishlist_v1':
+        return CatalogItemWishlistV1Repository(db).currentSyncChange(
+          change.entityId,
+          changeId: uuid.v4(),
+          changedAt: changedAt,
+        );
       case 'owned_copy_v1':
         final raw = change.localPayload;
         if (raw == null) return null;
         final copy = OwnedCopyV1.fromJson(raw);
-        final current = await OwnedCopyV1Repository(db).get(
+        final repository = OwnedCopyV1Repository(db);
+        final current = await repository.get(
           copy.ref,
           includeDeleted: true,
         );
@@ -48,7 +56,7 @@ class SyncRetryMapper {
         return SyncChange(
           id: uuid.v4(),
           entityType: change.entityType,
-          entityId: copy.ref.copyId,
+          entityId: repository.syncEntityIdFor(copy.ref),
           action: row.deletedAt == null ? 'upsert' : 'delete',
           payload: Map<String, dynamic>.from(current.toJson()),
           clientChangedAt: changedAt,

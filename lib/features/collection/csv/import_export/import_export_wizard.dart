@@ -218,25 +218,27 @@ class _ExportWizardPane extends StatelessWidget {
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
     );
-    final exports = <ExportPreviewArtifact>[
-      ExportPreviewArtifact(
-        id: 'collection.collectarr_csv',
-        label: 'Collectarr CSV',
-        icon: Icons.copy_all_outlined,
-        filename: 'collectarr.csv',
-        mimeType: 'text/csv',
-        content: collectarr,
-      ),
-      ExportPreviewArtifact(
-        id: 'collection.clz_csv',
-        label: 'CLZ-friendly CSV',
-        icon: Icons.table_view_outlined,
-        filename: 'collectarr-clz.csv',
-        mimeType: 'text/csv',
-        content: clz,
-      ),
-      ...additionalExports,
-    ];
+    final exports = entries.isEmpty
+        ? additionalExports
+        : <ExportPreviewArtifact>[
+            ExportPreviewArtifact(
+              id: 'collection.collectarr_csv',
+              label: 'Collectarr CSV',
+              icon: Icons.copy_all_outlined,
+              filename: 'collectarr.csv',
+              mimeType: 'text/csv',
+              content: collectarr,
+            ),
+            ExportPreviewArtifact(
+              id: 'collection.clz_csv',
+              label: 'CLZ-friendly CSV',
+              icon: Icons.table_view_outlined,
+              filename: 'collectarr-clz.csv',
+              mimeType: 'text/csv',
+              content: clz,
+            ),
+            ...additionalExports,
+          ];
     final owned = entries.where((entry) => entry.isOwned).length;
     final wishlist = entries.where((entry) => entry.isWishlisted).length;
     return Column(

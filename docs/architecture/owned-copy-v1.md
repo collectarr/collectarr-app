@@ -16,6 +16,8 @@ The App stores the Catalog Item and copy identities together. A bulk Add operati
   "index_number": 1,
   "location_id": null,
   "owner": { "id": "owner-id", "label": "Owner name" },
+  "loaned_to": null,
+  "loan_due_date": null,
   "is_digital": false,
   "condition": null,
   "purchase_date": null,
@@ -40,7 +42,7 @@ The App stores the Catalog Item and copy identities together. A bulk Add operati
 }
 ```
 
-Money uses integer cents and a currency code. Dates use the shared partial-date object (`year`, `month`, `day`). `owner` is a typed `{id, label}` reference. Status is a closed v1 enum: `in_collection`, `loaned`, or `sold`.
+Money uses integer cents and a currency code. Dates use the shared partial-date object (`year`, `month`, `day`). `owner` is a typed `{id, label}` reference. Loan borrower and due date belong to this specific copy; due dates must include year, month, and day. Status is a closed v1 enum: `in_collection`, `loaned`, or `sold`.
 
 ## Kind-specific copy fields
 

@@ -250,6 +250,7 @@ final class CatalogItemV1CsvImporter {
       'index_number' || 'rating' => int.parse(value),
       'is_digital' => _parseBoolean(value),
       'owner' ||
+      'loan_due_date' ||
       'purchase_date' ||
       'purchase_price' ||
       'current_value' ||

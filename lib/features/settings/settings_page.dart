@@ -11,9 +11,7 @@ import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/csv/catalog_item_v1_csv_exporter.dart';
 import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
@@ -28,7 +26,6 @@ import 'package:collectarr_app/features/library/providers/library_nav_preference
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -806,7 +803,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Import a Catalog Item v1 CSV backup, or export your collection in the current v1 format and legacy interchange formats.',
+                'Import or export your collection in the stable Catalog Item v1 CSV format.',
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -824,14 +821,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     label: const Text('Export collection'),
                   ),
                   OutlinedButton.icon(
-                    onPressed: () => _copyBackup(clzFriendly: false),
+                    onPressed: _copyBackup,
                     icon: const Icon(Icons.copy_all),
-                    label: const Text('Copy Collectarr export'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () => _copyBackup(clzFriendly: true),
-                    icon: const Icon(Icons.table_view),
-                    label: const Text('Copy CLZ-friendly export'),
+                    label: const Text('Copy Catalog Item v1 CSV'),
                   ),
                   OutlinedButton.icon(
                     onPressed: _copySyncBackupGuide,
@@ -1053,61 +1045,34 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
   }
 
-  Future<void> _copyBackup({required bool clzFriendly}) async {
-    final state = await ref.read(shelfProvider.future);
-    final db = ref.read(localDatabaseProvider);
-    final cfRepo = CustomFieldRepository(db);
-    final cfDefs = await cfRepo.listDefinitions();
-    final cfValues = await cfRepo.listAllValues();
-    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
-    final data = clzFriendly
-        ? csv.exportClzFriendlyShelf(
-            state.entries,
-            customFieldDefinitions: cfDefs,
-            customFieldValuesByItem: cfValues,
-          )
-        : csv.exportShelf(
-            state.entries,
-            customFieldDefinitions: cfDefs,
-            customFieldValuesByItem: cfValues,
-          );
+  Future<void> _copyBackup() async {
+    final rows = await ref.read(catalogItemV1AllWorkspacesProvider.future);
+    final data = const CatalogItemV1CsvExporter().export(rows).content;
     await Clipboard.setData(ClipboardData(text: data));
     if (!mounted) {
       return;
     }
     _showToast(
-      clzFriendly
-          ? 'CLZ-friendly CSV backup copied'
-          : 'Collectarr CSV backup copied',
+      'Catalog Item v1 CSV copied',
       tone: AppToastTone.success,
     );
   }
 
   Future<void> _showImportExportWizard({required int initialIndex}) async {
-    // The v1 import/export flow must remain usable even when the retired
-    // workspace-backed Shelf cannot load. Legacy exports are optional here.
-    final legacyEntries = ref.read(shelfProvider).asData?.value.entries ??
-        const <LibraryWorkspaceSource>[];
     final catalogRows =
         await ref.read(catalogItemV1AllWorkspacesProvider.future);
-    final db = ref.read(localDatabaseProvider);
-    final cfRepo = CustomFieldRepository(db);
-    final cfDefs = await cfRepo.listDefinitions();
-    final cfValues = await cfRepo.listAllValues();
     if (!mounted) {
       return;
     }
     final imported = await showDialog<int>(
       context: context,
       builder: (context) => ImportExportWizardDialog(
-        entries: legacyEntries,
+        entries: const [],
         profiles: collectionCsvKindProfiles,
         initialIndex: initialIndex,
-        customFieldDefinitions: cfDefs,
-        customFieldValuesByItem: cfValues,
-        additionalExports: catalogRows.isEmpty
-            ? const []
-            : [const CatalogItemV1CsvExporter().export(catalogRows)],
+        additionalExports: [
+          const CatalogItemV1CsvExporter().export(catalogRows)
+        ],
       ),
     );
     if (imported != null && mounted) {

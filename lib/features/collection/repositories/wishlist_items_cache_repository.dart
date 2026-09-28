@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:drift/drift.dart';
@@ -113,9 +114,10 @@ class WishlistItemsCacheRepository {
         'Wishlist row ${row.id} contains an invalid catalog reference',
       );
     }
-    final catalogRef = CatalogEntityRef.fromJson(
-      Map<String, dynamic>.from(rawCatalogRef),
-    );
+    final referenceJson = Map<String, Object?>.from(rawCatalogRef);
+    final catalogRef = referenceJson.containsKey('entity_type')
+        ? CatalogEntityRef.fromJson(referenceJson)
+        : _catalogEntityRefFromV1(CatalogItemRef.fromJson(referenceJson));
     requireKnownCatalogRef(catalogRef, 'wishlist.catalogRef');
     return WishlistItem(
       id: row.id,
@@ -128,6 +130,13 @@ class WishlistItemsCacheRepository {
       deletedAt: row.deletedAt,
     );
   }
+
+  CatalogEntityRef _catalogEntityRefFromV1(CatalogItemRef reference) =>
+      CatalogEntityRef(
+        kind: reference.kind,
+        entityType: CatalogEntityTypeId.root,
+        id: reference.id,
+      );
 
   WishlistItemsCacheCompanion _toCompanion(WishlistItem item) {
     return WishlistItemsCacheCompanion.insert(

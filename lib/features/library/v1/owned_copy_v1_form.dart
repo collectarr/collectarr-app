@@ -15,6 +15,8 @@ final class OwnedCopyV1FormDraft {
     this.indexNumber,
     this.locationId,
     this.owner,
+    this.loanedTo,
+    this.loanDueDate,
     this.isDigital,
     this.condition,
     this.purchaseDate,
@@ -39,6 +41,8 @@ final class OwnedCopyV1FormDraft {
   final int? indexNumber;
   final String? locationId;
   final OwnedCopyOwnerV1? owner;
+  final String? loanedTo;
+  final PartialDate? loanDueDate;
   final bool? isDigital;
   final String? condition;
   final PartialDate? purchaseDate;
@@ -66,6 +70,8 @@ final class OwnedCopyV1FormDraft {
         indexNumber: copy.indexNumber,
         locationId: copy.locationId,
         owner: copy.owner,
+        loanedTo: copy.loanedTo,
+        loanDueDate: copy.loanDueDate,
         isDigital: copy.isDigital,
         condition: copy.condition,
         purchaseDate: copy.purchaseDate,
@@ -91,6 +97,8 @@ final class OwnedCopyV1FormDraft {
         indexNumber: indexNumber,
         locationId: locationId,
         owner: owner,
+        loanedTo: loanedTo,
+        loanDueDate: loanDueDate,
         isDigital: isDigital,
         condition: condition,
         purchaseDate: purchaseDate,
@@ -118,6 +126,8 @@ final class OwnedCopyV1FormDraft {
         indexNumber: indexNumber,
         locationId: locationId,
         owner: owner,
+        loanedTo: loanedTo,
+        loanDueDate: loanDueDate,
         isDigital: isDigital,
         condition: condition,
         purchaseDate: purchaseDate,
@@ -164,6 +174,8 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
     'location_id': _controller(widget.initial.locationId),
     'owner_id': _controller(widget.initial.owner?.id),
     'owner_label': _controller(widget.initial.owner?.label),
+    'loaned_to': _controller(widget.initial.loanedTo),
+    'loan_due_date': _controller(widget.initial.loanDueDate?.isoString),
     'condition': _controller(widget.initial.condition),
     'purchase_date': _controller(widget.initial.purchaseDate?.isoString),
     'purchase_price': _controller(_moneyAmount(widget.initial.purchasePrice)),
@@ -261,6 +273,17 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
             title: const Text('Owned copy details'),
             tilePadding: EdgeInsets.zero,
             children: [
+              if (_status == OwnedCopyStatusV1.loaned)
+                Row(
+                  children: [
+                    Expanded(child: _textField('loaned_to', 'Loaned to')),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child:
+                          _textField('loan_due_date', 'Due date (YYYY-MM-DD)'),
+                    ),
+                  ],
+                ),
               _textField('location_id', 'Location ID'),
               Row(
                 children: [
@@ -497,6 +520,10 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
       final customFields = _decodeJsonList('custom_fields')
           .map((row) => OwnedCopyCustomFieldV1.fromJson(row))
           .toList(growable: false);
+      final loanDueDate = _parseDate('loan_due_date');
+      if (loanDueDate != null && loanDueDate.day == null) {
+        throw const FormatException('Loan due date must include a day.');
+      }
       final draft = OwnedCopyV1FormDraft(
         kind: widget.initial.kind,
         status: _status,
@@ -506,6 +533,8 @@ final class _OwnedCopyV1FormState extends State<OwnedCopyV1Form> {
         owner: ownerId == null
             ? null
             : OwnedCopyOwnerV1(id: ownerId, label: ownerLabel!),
+        loanedTo: _value('loaned_to'),
+        loanDueDate: loanDueDate,
         isDigital: _isDigital,
         condition: _value('condition'),
         purchaseDate: _parseDate('purchase_date'),

@@ -11,6 +11,8 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/data/owned_copy_v1_repository.dart';
 import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
+import 'package:collectarr_app/features/library/data/catalog_item_wishlist_v1_repository.dart';
+import 'package:collectarr_app/features/library/domain/catalog_item_wishlist_v1.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -96,6 +98,7 @@ class SyncApplyService {
     final tracking = <TrackingStorageSyncInput>[];
     final wishlist = <WishlistItem>[];
     final ownedCopiesV1Changes = <_OwnedCopyV1SyncInput>[];
+    final wishlistV1Changes = <_WishlistV1SyncInput>[];
     final watchSessions = <WatchSession>[];
     final metadataOverrides = <UserMetadataOverride>[];
     final customEpisodes = <_CustomEpisodeSyncInput>[];
@@ -127,15 +130,31 @@ class SyncApplyService {
       if (type == 'owned_copy_v1') {
         final payload = _payload(entity);
         final copy = OwnedCopyV1.fromJson(payload);
-        if (copy.ref.copyId != entity['entity_id']) {
+        if (ownedCopiesV1.syncEntityIdFor(copy.ref) != entity['entity_id']) {
           throw FormatException(
-            'Owned Copy v1 sync identity does not match payload ID '
+            'Owned Copy v1 sync identity does not match its scoped reference '
             '"${entity['entity_id']}".',
           );
         }
         ownedCopiesV1Changes.add(
           (
             copy: copy,
+            action: entity['action'] as String,
+            changedAt: DateTime.parse(entity['client_changed_at'] as String),
+          ),
+        );
+      }
+      if (type == 'catalog_item_wishlist_v1') {
+        final entry = CatalogItemWishlistV1.fromJson(_payload(entity));
+        if (entry.id != entity['entity_id']) {
+          throw FormatException(
+            'Wishlist v1 sync identity does not match payload ID '
+            '"${entity['entity_id']}".',
+          );
+        }
+        wishlistV1Changes.add(
+          (
+            entry: entry,
             action: entity['action'] as String,
             changedAt: DateTime.parse(entity['client_changed_at'] as String),
           ),
@@ -180,6 +199,14 @@ class SyncApplyService {
       for (final change in ownedCopiesV1Changes) {
         await ownedCopiesV1.applySyncedChange(
           copy: change.copy,
+          action: change.action,
+          changedAt: change.changedAt,
+        );
+      }
+      final wishlistV1Repository = CatalogItemWishlistV1Repository(db);
+      for (final change in wishlistV1Changes) {
+        await wishlistV1Repository.applySyncedChange(
+          entry: change.entry,
           action: change.action,
           changedAt: change.changedAt,
         );
@@ -545,6 +572,12 @@ typedef _OwnedSyncPayload = ({
 
 typedef _OwnedCopyV1SyncInput = ({
   OwnedCopyV1 copy,
+  String action,
+  DateTime changedAt,
+});
+
+typedef _WishlistV1SyncInput = ({
+  CatalogItemWishlistV1 entry,
   String action,
   DateTime changedAt,
 });

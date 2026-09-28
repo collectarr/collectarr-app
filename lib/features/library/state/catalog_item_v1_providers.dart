@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/services/library_catalog_item_v1_add_service.dart';
 import 'package:collectarr_app/features/library/csv/catalog_item_v1_csv_importer.dart';
 import 'package:collectarr_app/features/library/data/catalog_item_v1_workspace_repository.dart';
+import 'package:collectarr_app/features/library/data/catalog_item_wishlist_v1_repository.dart';
 import 'package:collectarr_app/features/library/data/owned_copy_v1_repository.dart';
 import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -10,6 +11,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final ownedCopyV1RepositoryProvider = Provider<OwnedCopyV1Repository>((ref) {
   return OwnedCopyV1Repository(ref.watch(localDatabaseProvider));
+});
+
+final catalogItemWishlistV1RepositoryProvider =
+    Provider<CatalogItemWishlistV1Repository>((ref) {
+  return CatalogItemWishlistV1Repository(ref.watch(localDatabaseProvider));
 });
 
 final catalogItemV1CsvImporterProvider =
@@ -33,6 +39,7 @@ final catalogItemV1WorkspaceRepositoryProvider =
   return CatalogItemV1WorkspaceRepository(
     api: ref.watch(apiClientProvider),
     ownedCopies: ref.watch(ownedCopyV1RepositoryProvider),
+    wishlists: ref.watch(catalogItemWishlistV1RepositoryProvider),
   );
 });
 
@@ -59,6 +66,8 @@ final catalogItemV1AllWorkspacesProvider =
     FutureProvider.autoDispose<List<CatalogItemV1WorkspaceItem>>((ref) async {
   final repository = ref.watch(catalogItemV1WorkspaceRepositoryProvider);
   final kinds = CatalogMediaKind.values.where((kind) => !kind.isUnknown);
-  final workspaces = await Future.wait(kinds.map(repository.load));
+  final workspaces = await Future.wait(
+    kinds.map((kind) => repository.load(kind, includeWishlistOnly: true)),
+  );
   return List.unmodifiable(workspaces.expand((workspace) => workspace));
 });

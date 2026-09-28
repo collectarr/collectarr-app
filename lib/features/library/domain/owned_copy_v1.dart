@@ -632,6 +632,8 @@ final class OwnedCopyV1 {
     this.indexNumber,
     this.locationId,
     this.owner,
+    this.loanedTo,
+    this.loanDueDate,
     this.isDigital,
     this.condition,
     this.purchaseDate,
@@ -680,6 +682,8 @@ final class OwnedCopyV1 {
   final int? indexNumber;
   final String? locationId;
   final OwnedCopyOwnerV1? owner;
+  final String? loanedTo;
+  final PartialDate? loanDueDate;
   final bool? isDigital;
   final String? condition;
   final PartialDate? purchaseDate;
@@ -705,6 +709,8 @@ final class OwnedCopyV1 {
         'index_number': indexNumber,
         'location_id': locationId,
         'owner': owner?.toJson(),
+        'loaned_to': loanedTo,
+        'loan_due_date': loanDueDate?.toJson(),
         'is_digital': isDigital,
         'condition': condition,
         'purchase_date': purchaseDate?.toJson(),
@@ -736,6 +742,8 @@ final class OwnedCopyV1 {
         'index_number',
         'location_id',
         'owner',
+        'loaned_to',
+        'loan_due_date',
         'is_digital',
         'condition',
         'purchase_date',
@@ -781,6 +789,8 @@ final class OwnedCopyV1 {
       indexNumber: _optionalInt(json['index_number'], 'index_number'),
       locationId: _optionalString(json['location_id'], 'location_id'),
       owner: _ownerFromJson(json['owner']),
+      loanedTo: _optionalString(json['loaned_to'], 'loaned_to'),
+      loanDueDate: _optionalPartialDate(json['loan_due_date']),
       isDigital: _optionalBool(json['is_digital'], 'is_digital'),
       condition: _optionalString(json['condition'], 'condition'),
       purchaseDate: _optionalPartialDate(json['purchase_date']),

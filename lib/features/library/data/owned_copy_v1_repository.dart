@@ -15,6 +15,13 @@ final class OwnedCopyV1Repository {
 
   final LocalDatabase _database;
 
+  /// Sync IDs encode the complete scoped ref through a stable UUID so copies
+  /// with the same local ID under different Catalog Items do not collide.
+  String syncEntityIdFor(OwnedCopyRef ref) => _uuid.v5(
+        Namespace.url.value,
+        'owned-copy-v1:${ref.kind.apiValue}:${ref.itemId}:${ref.copyId}',
+      );
+
   Future<OwnedCopyV1?> get(
     OwnedCopyRef ref, {
     bool includeDeleted = false,
@@ -83,10 +90,12 @@ final class OwnedCopyV1Repository {
   }
 
   Future<void> upsert(OwnedCopyV1 copy) async {
-    await _database.into(_database.ownedCopiesV1Cache).insertOnConflictUpdate(
-          _companion(copy, deletedAt: null),
-        );
-    await _enqueue(copy, action: 'upsert', changedAt: copy.updatedAt);
+    await _database.transaction(() async {
+      await _database.into(_database.ownedCopiesV1Cache).insertOnConflictUpdate(
+            _companion(copy, deletedAt: null),
+          );
+      await _enqueue(copy, action: 'upsert', changedAt: copy.updatedAt);
+    });
   }
 
   Future<void> upsertAll(Iterable<OwnedCopyV1> copies) async {
@@ -105,7 +114,7 @@ final class OwnedCopyV1Repository {
           (copy) => SyncChange(
             id: const Uuid().v4(),
             entityType: _syncEntityType,
-            entityId: copy.ref.copyId,
+            entityId: syncEntityIdFor(copy.ref),
             action: 'upsert',
             payload: Map<String, dynamic>.from(copy.toJson()),
             clientChangedAt: copy.updatedAt,
@@ -120,17 +129,19 @@ final class OwnedCopyV1Repository {
     if (copy == null) {
       throw StateError('Owned Copy $ref does not exist.');
     }
-    final changed = await (_database.update(_database.ownedCopiesV1Cache)
-          ..where((row) => _matchesRef(row, ref)))
-        .write(
-      OwnedCopiesV1CacheCompanion(
-        deletedAt: Value(deletedAt.toUtc()),
-      ),
-    );
-    if (changed == 0) {
-      throw StateError('Owned Copy $ref does not exist.');
-    }
-    await _enqueue(copy, action: 'delete', changedAt: deletedAt);
+    await _database.transaction(() async {
+      final changed = await (_database.update(_database.ownedCopiesV1Cache)
+            ..where((row) => _matchesRef(row, ref)))
+          .write(
+        OwnedCopiesV1CacheCompanion(
+          deletedAt: Value(deletedAt.toUtc()),
+        ),
+      );
+      if (changed == 0) {
+        throw StateError('Owned Copy $ref does not exist.');
+      }
+      await _enqueue(copy, action: 'delete', changedAt: deletedAt);
+    });
   }
 
   /// Applies a server change without putting it back into the outgoing queue.
@@ -142,14 +153,12 @@ final class OwnedCopyV1Repository {
     if (action != 'upsert' && action != 'delete') {
       throw FormatException('Unsupported Owned Copy sync action: $action');
     }
-    await _database.transaction(() async {
-      await _database.into(_database.ownedCopiesV1Cache).insertOnConflictUpdate(
-            _companion(
-              copy,
-              deletedAt: action == 'delete' ? changedAt.toUtc() : null,
-            ),
-          );
-    });
+    await _database.into(_database.ownedCopiesV1Cache).insertOnConflictUpdate(
+          _companion(
+            copy,
+            deletedAt: action == 'delete' ? changedAt.toUtc() : null,
+          ),
+        );
   }
 
   Future<void> restore(OwnedCopyRef ref) async {
@@ -157,15 +166,17 @@ final class OwnedCopyV1Repository {
     if (copy == null) {
       throw StateError('Owned Copy $ref does not exist.');
     }
-    final changed = await (_database.update(_database.ownedCopiesV1Cache)
-          ..where((row) => _matchesRef(row, ref)))
-        .write(
-      const OwnedCopiesV1CacheCompanion(deletedAt: Value(null)),
-    );
-    if (changed == 0) {
-      throw StateError('Owned Copy $ref does not exist.');
-    }
-    await _enqueue(copy, action: 'upsert', changedAt: DateTime.now().toUtc());
+    await _database.transaction(() async {
+      final changed = await (_database.update(_database.ownedCopiesV1Cache)
+            ..where((row) => _matchesRef(row, ref)))
+          .write(
+        const OwnedCopiesV1CacheCompanion(deletedAt: Value(null)),
+      );
+      if (changed == 0) {
+        throw StateError('Owned Copy $ref does not exist.');
+      }
+      await _enqueue(copy, action: 'upsert', changedAt: DateTime.now().toUtc());
+    });
   }
 
   OwnedCopyV1 _decodeRow(OwnedCopiesV1CacheData row) {
@@ -209,7 +220,7 @@ final class OwnedCopyV1Repository {
       SyncChange(
         id: _uuid.v4(),
         entityType: _syncEntityType,
-        entityId: copy.ref.copyId,
+        entityId: syncEntityIdFor(copy.ref),
         action: action,
         payload: Map<String, dynamic>.from(copy.toJson()),
         clientChangedAt: changedAt.toUtc(),
