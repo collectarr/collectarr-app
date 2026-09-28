@@ -329,40 +329,23 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     try {
       AdminMetadataItem? updated;
       final api = ref.read(apiClientProvider);
-      final writer = LibraryAdminCorrectionWriter(
-        updateCatalogFields: (fields) async {
-          updated = await api.adminUpdateCatalogItemFields(
-            kind: item.kind,
-            id: item.id,
-            fields: fields,
-          );
-        },
-        updateRelatedFields: (relatedEntityId, fields) async {
-          await api.adminUpdateSeriesFields(
-            seriesId: relatedEntityId,
-            fields: fields,
-          );
-        },
-      );
       final catalogFields = <String, Object?>{};
       for (final field in correction.changedFields) {
-        final value = correction.values.read(field.key);
-        final save = field.save;
-        if (save == null) {
-          catalogFields[field.key] = value;
-        } else {
-          await save(item, value, writer);
-        }
+        catalogFields[field.key] = correction.values.read(field.key);
       }
       if (catalogFields.isNotEmpty) {
-        await writer.updateCatalogFields(catalogFields);
+        updated = await api.adminUpdateCatalogItemFields(
+          kind: item.kind,
+          id: item.id,
+          fields: catalogFields,
+        );
       }
       if (!mounted) return;
       setState(() {
         _updatingCatalogItemId = null;
         _catalogSearchController.statusMessage = 'Metadata correction saved.';
         if (updated != null) {
-          _catalogSearchController.replaceItem(updated!);
+          _catalogSearchController.replaceItem(updated);
         }
       });
       await _loadDashboard();

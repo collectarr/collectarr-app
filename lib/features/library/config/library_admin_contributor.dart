@@ -32,28 +32,6 @@ typedef LibraryAdminCorrectionComparator = bool Function(
   Object? right,
 );
 
-typedef LibraryAdminCorrectionSaver = Future<void> Function(
-  AdminMetadataItem item,
-  Object? value,
-  LibraryAdminCorrectionWriter writer,
-);
-
-/// Narrow write boundary supplied by the Admin host. A kind can route a field
-/// to a catalog item or a related canonical entity without teaching Admin the
-/// field's meaning.
-final class LibraryAdminCorrectionWriter {
-  const LibraryAdminCorrectionWriter({
-    required this.updateCatalogFields,
-    required this.updateRelatedFields,
-  });
-
-  final Future<void> Function(Map<String, Object?> fields) updateCatalogFields;
-  final Future<void> Function(
-    String relatedEntityId,
-    Map<String, Object?> fields,
-  ) updateRelatedFields;
-}
-
 /// One editable canonical field declared by its owning kind.
 final class LibraryAdminCorrectionField {
   const LibraryAdminCorrectionField({
@@ -62,7 +40,6 @@ final class LibraryAdminCorrectionField {
     this.parse,
     this.format,
     this.equals,
-    this.save,
     this.usesPhysicalFormatPicker = false,
     this.required = false,
   });
@@ -72,7 +49,6 @@ final class LibraryAdminCorrectionField {
   final LibraryAdminCorrectionParser? parse;
   final LibraryAdminCorrectionFormatter? format;
   final LibraryAdminCorrectionComparator? equals;
-  final LibraryAdminCorrectionSaver? save;
   final bool usesPhysicalFormatPicker;
   final bool required;
 
@@ -87,7 +63,6 @@ final class LibraryAdminCorrectionField {
         parse: parse,
         format: format,
         equals: equals,
-        save: save,
         usesPhysicalFormatPicker: usesPhysicalFormatPicker,
         required: required,
       );
@@ -123,7 +98,6 @@ LibraryAdminCorrectionField adminCorrectionField({
   LibraryAdminCorrectionParser? parse,
   LibraryAdminCorrectionFormatter? format,
   LibraryAdminCorrectionComparator? equals,
-  LibraryAdminCorrectionSaver? save,
   bool usesPhysicalFormatPicker = false,
   bool required = false,
 }) {
@@ -142,7 +116,6 @@ LibraryAdminCorrectionField adminCorrectionField({
     parse: parse,
     format: format,
     equals: equals,
-    save: save,
     usesPhysicalFormatPicker: usesPhysicalFormatPicker,
     required: required,
   );
@@ -226,37 +199,6 @@ LibraryAdminCorrectionField adminUrlListCorrectionField({
       }
 
       return listEquals(urls(left), urls(right));
-    },
-  );
-}
-
-LibraryAdminCorrectionField adminRelatedListCorrectionField({
-  required String key,
-  required String label,
-  required String relatedFieldKey,
-  required String? Function(AdminMetadataItem item) relatedEntityId,
-  required LibraryAdminCorrectionValueReader read,
-}) {
-  return adminCorrectionField(
-    key: key,
-    label: label,
-    tab: SharedMetadataEditTab.relations,
-    read: read,
-    valueType: SharedMetadataFieldValueType.stringList,
-    inputType: SharedMetadataFieldInputType.multiline,
-    minLines: 2,
-    maxLines: 4,
-    parse: (raw) => _adminStringValues(raw.split(',')),
-    format: (value) => _adminStringValues(value).join(', '),
-    save: (item, value, writer) async {
-      final entityId = relatedEntityId(item);
-      if (entityId == null || entityId.isEmpty) {
-        throw StateError('This item has no related entity to update.');
-      }
-      await writer.updateRelatedFields(
-        entityId,
-        {relatedFieldKey: _adminStringValues(value)},
-      );
     },
   );
 }
@@ -413,7 +355,7 @@ List<LibraryAdminCorrectionField> adminCorrectionFieldsForCatalogItem({
   final availableKeys = canonicalValues.keys.toSet();
   return [
     for (final field in contributor.correctionFields)
-      if (field.save == null && availableKeys.contains(field.key)) field,
+      if (availableKeys.contains(field.key)) field,
   ];
 }
 

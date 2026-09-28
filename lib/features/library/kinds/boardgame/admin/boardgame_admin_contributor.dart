@@ -105,16 +105,6 @@ class BoardGameAdminContributor implements LibraryAdminContributor {
               item.primaryEdition?.physicalFormatLabel ??
               item.canonicalFieldValues['physical_format'],
         ),
-        adminRelatedListCorrectionField(
-          key: 'series_tags',
-          label: 'Series tags',
-          relatedFieldKey: 'tags',
-          relatedEntityId: (item) =>
-              item.canonicalFieldValues['series_id']?.toString(),
-          read: (item) =>
-              item.canonicalFieldValues['series_tags'] ??
-              item.canonicalFieldValues['tags'],
-        ),
         adminUrlListCorrectionField(
           key: 'external_links',
           label: 'External links',
