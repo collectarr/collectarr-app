@@ -157,7 +157,10 @@ class ApiClient {
     required CatalogMediaKind kind,
     required String id,
   }) async {
-    return _catalogApi.getTypedMetadataItem(kind: kind, id: id);
+    final item = await _catalogApi.getCatalogItem(
+      CatalogItemRef(kind: kind, id: id),
+    );
+    return CatalogItemV1MetadataResponse(item);
   }
 
   Future<List<CatalogItemSummaryV1Dto>> searchCatalogItems({

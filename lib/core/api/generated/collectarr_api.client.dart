@@ -18,6 +18,7 @@ class CollectarrApiClient {
     String? query,
     String? identifier,
     int limit = 50,
+    CancelToken? cancelToken,
   }) async {
     final response = await _dio.get<List<dynamic>>(
       '/api/v1/metadata/catalog/items',
@@ -28,6 +29,7 @@ class CollectarrApiClient {
           'identifier': identifier.trim(),
         'limit': limit,
       },
+      cancelToken: cancelToken,
     );
     final rows = response.data;
     if (rows == null) {
@@ -139,47 +141,36 @@ class CollectarrApiClient {
     MetadataSearchQuery query, {
     CancelToken? cancelToken,
   }) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/api/v1/search',
-      queryParameters: query.toQueryParameters(),
+    final rawQuery = query.query?.trim();
+    final identifier = query.barcode?.trim().isNotEmpty == true
+        ? query.barcode!.trim()
+        : rawQuery != null && RegExp(r'^\d{8,14}$').hasMatch(rawQuery)
+            ? rawQuery
+            : null;
+    final searchText = [
+      rawQuery,
+      query.series,
+      query.issueNumber,
+      query.publisher,
+      if (query.year != null) query.year.toString(),
+    ].whereType<String>().map((value) => value.trim()).firstWhere(
+          (value) => value.isNotEmpty,
+          orElse: () => '',
+        );
+    final rawKind = query.kind?.trim();
+    final kind = rawKind == null || rawKind.isEmpty
+        ? null
+        : catalogMediaKindFromApiValue(rawKind);
+    final results = await searchCatalogItems(
+      kind: kind?.isUnknown == true ? null : kind,
+      query: searchText.isEmpty ? null : searchText,
+      identifier: identifier,
+      limit: query.limit ?? 50,
       cancelToken: cancelToken,
     );
-    return response.data!
-        .cast<Map<String, dynamic>>()
-        .map(_resolveImageUrls)
-        .toList(growable: false);
-  }
-
-  Future<TypedMetadataResponse> getTypedMetadataItem({
-    required CatalogMediaKind kind,
-    required String id,
-  }) async {
-    switch (kind) {
-      case CatalogMediaKind.comic:
-        return getComicWorkDto(id);
-      case CatalogMediaKind.manga:
-        return getMangaWorkDto(id);
-      case CatalogMediaKind.anime:
-        return getAnimeSeriesDto(id);
-      case CatalogMediaKind.movie:
-        return getMovieWorkDto(id);
-      case CatalogMediaKind.tv:
-        return getTvSeriesDto(id);
-      case CatalogMediaKind.book:
-        return getBookWorkDto(id);
-      case CatalogMediaKind.game:
-        return getGameWorkDto(id);
-      case CatalogMediaKind.boardgame:
-        return getBoardGameWorkDto(id);
-      case CatalogMediaKind.music:
-        throw UnsupportedError(
-          'Music metadata uses the unified Catalog Item API.',
-        );
-      default:
-        throw UnsupportedError(
-          'Unsupported metadata kind: ${kind.apiValue}',
-        );
-    }
+    return List.unmodifiable([
+      for (final result in results) result.toJson(),
+    ]);
   }
 
   Future<T> _fetchTypedMetadataItem<T extends TypedMetadataResponse>(
@@ -501,15 +492,27 @@ class CollectarrApiClient {
     String? kind,
     CancelToken? cancelToken,
   }) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/api/v1/barcode/${Uri.encodeComponent(MetadataSearchQuery.normalizeBarcode(barcode))}',
-      queryParameters: {if (kind != null) 'kind': kind},
+    final rawKind = kind?.trim();
+    final parsedKind = rawKind == null || rawKind.isEmpty
+        ? null
+        : catalogMediaKindFromApiValue(rawKind);
+    final matches = await searchCatalogItems(
+      kind: parsedKind?.isUnknown == true ? null : parsedKind,
+      identifier: MetadataSearchQuery.normalizeBarcode(barcode),
+      limit: 1,
       cancelToken: cancelToken,
     );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/api/v1/barcode returned an empty response body');
+    if (matches.isEmpty) {
+      throw StateError('No Catalog Item matches barcode $barcode.');
     }
-    return _resolveImageUrls(data);
+    final match = matches.first;
+    final item = await getCatalogItem(match.reference);
+    return {
+      'id': item.id,
+      'kind': item.kind,
+      'created_at': item.createdAt.toIso8601String(),
+      'updated_at': item.updatedAt.toIso8601String(),
+      ...item.details.toJson(),
+    };
   }
 }

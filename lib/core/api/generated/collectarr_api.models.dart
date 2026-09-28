@@ -25,6 +25,107 @@ abstract class TypedMetadataResponse {
   Map<String, dynamic> toJson() => Map<String, dynamic>.from(raw);
 }
 
+/// Compatibility view for older App readers while they migrate to the v1
+/// Catalog Item details contract. The HTTP response itself remains v1.
+@immutable
+final class CatalogItemV1MetadataResponse extends TypedMetadataResponse {
+  CatalogItemV1MetadataResponse(CatalogItemV1Dto item)
+      : item = item,
+        super(Map<String, dynamic>.unmodifiable({
+          'id': item.id,
+          'kind': item.kind,
+          'created_at': item.createdAt.toIso8601String(),
+          'updated_at': item.updatedAt.toIso8601String(),
+          ...item.details.toJson(),
+        }));
+
+  final CatalogItemV1Dto item;
+
+  @override
+  String get id => item.id;
+
+  @override
+  String get title => item.title;
+
+  @override
+  String? get kind => item.kind;
+
+  @override
+  DateTime? get releaseDate {
+    final value = item.details.toJson()['release_date'];
+    return PartialDate.tryParse(value)?.asDateTime;
+  }
+
+  @override
+  String? get coverImageUrl => _catalogItemImageUrl(
+        item,
+        preferredTypes: const {'front_cover', 'cover', 'poster'},
+        directField: 'cover_image_url',
+      );
+
+  @override
+  String? get thumbnailImageUrl => _catalogItemImageUrl(
+        item,
+        preferredTypes: const {'thumbnail', 'front_cover', 'cover', 'poster'},
+        directField: 'thumbnail_image_url',
+      );
+
+  @override
+  String? get barcode {
+    final details = item.details.toJson();
+    final direct = _nullableString(details['barcode']);
+    if (direct != null) return direct;
+    final identifiers = details['identifiers'];
+    if (identifiers is! List) return null;
+    const barcodeTypes = {
+      'barcode',
+      'ean',
+      'gtin',
+      'upc',
+      'isbn',
+      'isbn_10',
+      'isbn_13'
+    };
+    for (final value in identifiers) {
+      if (value is! Map) continue;
+      final type = _nullableString(value['identifier_type'])?.toLowerCase();
+      final identifier = _nullableString(value['value']);
+      if (type != null && barcodeTypes.contains(type) && identifier != null) {
+        return identifier;
+      }
+    }
+    return null;
+  }
+}
+
+String? _catalogItemImageUrl(
+  CatalogItemV1Dto item, {
+  required Set<String> preferredTypes,
+  required String directField,
+}) {
+  final details = item.details.toJson();
+  final direct = _nullableString(details[directField]);
+  if (direct != null) return direct;
+  final images = details['images'];
+  if (images is! List) return null;
+  final rows = [
+    for (final image in images)
+      if (image is Map) image
+  ];
+  for (final image in rows) {
+    final type = _nullableString(image['image_type'])?.toLowerCase();
+    final url = _nullableString(image['url']);
+    if (type != null && preferredTypes.contains(type) && url != null) {
+      return url;
+    }
+  }
+  for (final image in rows) {
+    final url = _nullableString(image['url']);
+    if (url != null) return url;
+  }
+  return null;
+}
+
 String _stringValue(dynamic value, {String fallback = ''}) =>
     value?.toString() ?? fallback;
 
