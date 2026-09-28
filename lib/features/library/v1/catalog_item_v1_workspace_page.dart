@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
 import 'package:collectarr_app/features/library/domain/catalog_item_v1_schema.dart';
 import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
 import 'package:collectarr_app/features/library/v1/owned_copy_v1_form.dart';
+import 'package:collectarr_app/features/library/v1/catalog_item_v1_cover_panel.dart';
 import 'package:collectarr_app/features/library/config/library_kind_identity.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:flutter/material.dart';
@@ -704,16 +705,11 @@ final class _CatalogItemCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (cover != null) ...[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: Image.network(
-                      cover,
-                      width: 72,
-                      height: 96,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                    ),
+                if (cover != null || canEditCatalog) ...[
+                  CatalogItemV1CoverPanel(
+                    reference: item.reference,
+                    fallbackUrl: cover,
+                    canEdit: canEditCatalog,
                   ),
                   const SizedBox(width: 14),
                 ],
