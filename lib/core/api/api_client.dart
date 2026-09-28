@@ -330,10 +330,6 @@ class ApiClient {
     return CanonicalCorrectionTarget.fromJson(data);
   }
 
-  Future<List<AdminProviderStatus>> adminProviderStatuses() async {
-    return _adminApi.adminProviderStatuses();
-  }
-
   Future<AdminCatalogSummary> adminCatalogSummary() async {
     return _adminApi.adminCatalogSummary();
   }
@@ -414,18 +410,6 @@ class ApiClient {
     return _adminApi.adminGetMetadataItem(kind: kind, id: id);
   }
 
-  Future<List<Map<String, dynamic>>> adminProviderSearch({
-    required String provider,
-    required String query,
-    String? kind,
-  }) async {
-    return _adminApi.adminProviderSearch(
-      provider: provider,
-      query: query,
-      kind: kind,
-    );
-  }
-
   Future<AdminProviderIngestResult> adminProviderIngest({
     required String provider,
     required String providerItemId,
@@ -438,89 +422,6 @@ class ApiClient {
     );
   }
 
-  Future<List<AdminReleaseMediaMappingRule>> adminReleaseMediaMappingRules({
-    String? provider,
-    bool? active,
-  }) async {
-    return _adminApi.adminReleaseMediaMappingRules(
-      provider: provider,
-      active: active,
-    );
-  }
-
-  Future<AdminReleaseMediaMappingRule> adminCreateReleaseMediaMappingRule({
-    required AdminReleaseMediaMappingRuleUpsert payload,
-  }) async {
-    return _adminApi.adminCreateReleaseMediaMappingRule(payload: payload);
-  }
-
-  Future<AdminReleaseMediaMappingRule> adminUpdateReleaseMediaMappingRule({
-    required String ruleId,
-    required AdminReleaseMediaMappingRuleUpsert payload,
-  }) async {
-    return _adminApi.adminUpdateReleaseMediaMappingRule(
-      ruleId: ruleId,
-      payload: payload,
-    );
-  }
-
-  Future<void> adminDeleteReleaseMediaMappingRule({
-    required String ruleId,
-  }) async {
-    return _adminApi.adminDeleteReleaseMediaMappingRule(ruleId: ruleId);
-  }
-
-  Future<AdminProviderPrefillResolved> adminResolveProviderPrefill({
-    required String source,
-    String? provider,
-    String? kind,
-    String? query,
-    String? providerItemId,
-    String? releaseType,
-    String? proposalId,
-    int? ingestHistoryId,
-  }) async {
-    return _adminApi.adminResolveProviderPrefill(
-      source: source,
-      provider: provider,
-      kind: kind,
-      query: query,
-      providerItemId: providerItemId,
-      releaseType: releaseType,
-      proposalId: proposalId,
-      ingestHistoryId: ingestHistoryId,
-    );
-  }
-
-  Future<List<AdminProviderIngestHistoryEntry>>
-      adminProviderIngestHistory() async {
-    return _adminApi.adminProviderIngestHistory();
-  }
-
-  Future<AdminProviderIngestResult> adminRetryProviderIngest({
-    required int historyId,
-  }) async {
-    return _adminApi.adminRetryProviderIngest(historyId: historyId);
-  }
-
-  Future<List<AdminProviderIngestJob>> adminProviderIngestJobs({
-    String? status,
-    String? provider,
-    String? query,
-    int limit = 25,
-  }) async {
-    return _adminApi.adminProviderIngestJobs(
-      status: status,
-      provider: provider,
-      query: query,
-      limit: limit,
-    );
-  }
-
-  Future<AdminProviderIngestJobSummary> adminProviderIngestJobSummary() async {
-    return _adminApi.adminProviderIngestJobSummary();
-  }
-
   Future<AdminProviderIngestJob> adminCreateProviderIngestJob({
     required String provider,
     required String providerItemId,
@@ -531,85 +432,6 @@ class ApiClient {
       providerItemId: providerItemId,
       maxAttempts: maxAttempts,
     );
-  }
-
-  Future<AdminProviderIngestJobRunResult> adminRunPendingProviderIngestJobs({
-    int limit = 5,
-  }) async {
-    return _adminApi.adminRunPendingProviderIngestJobs(limit: limit);
-  }
-
-  Future<AdminProviderIngestJob> adminRunProviderIngestJob({
-    required String jobId,
-  }) async {
-    return _adminApi.adminRunProviderIngestJob(jobId: jobId);
-  }
-
-  Future<AdminProviderIngestJob> adminRetryProviderIngestJob({
-    required String jobId,
-  }) async {
-    return _adminApi.adminRetryProviderIngestJob(jobId: jobId);
-  }
-
-  Future<AdminMetadataProposalSummary> adminMetadataProposalSummary() async {
-    return _adminApi.adminMetadataProposalSummary();
-  }
-
-  Future<List<AdminMetadataProposal>> adminMetadataProposals({
-    String status = 'pending',
-    String? provider,
-  }) async {
-    return _adminApi.adminMetadataProposals(
-      status: status,
-      provider: provider,
-    );
-  }
-
-  Future<AdminProviderIngestResult> adminApproveMetadataProposal({
-    required String proposalId,
-  }) async {
-    return _adminApi.adminApproveMetadataProposal(proposalId: proposalId);
-  }
-
-  Future<AdminMetadataProposal> adminUpdateMetadataProposal({
-    required String proposalId,
-    String? query,
-    String? providerItemId,
-    String? title,
-    String? summary,
-    String? imageUrl,
-    Map<String, dynamic>? metadataPayload,
-  }) async {
-    return _adminApi.adminUpdateMetadataProposal(
-      proposalId: proposalId,
-      query: query,
-      providerItemId: providerItemId,
-      title: title,
-      summary: summary,
-      imageUrl: imageUrl,
-      metadataPayload: metadataPayload,
-    );
-  }
-
-  Future<AdminProviderIngestResult>
-      adminApproveMetadataProposalWithProviderItem({
-    required String proposalId,
-    required String provider,
-    required String providerItemId,
-    String? kind,
-  }) async {
-    return _adminApi.adminApproveMetadataProposalWithProviderItem(
-      proposalId: proposalId,
-      provider: provider,
-      providerItemId: providerItemId,
-      kind: kind,
-    );
-  }
-
-  Future<AdminMetadataProposal> adminRejectMetadataProposal({
-    required String proposalId,
-  }) async {
-    return _adminApi.adminRejectMetadataProposal(proposalId: proposalId);
   }
 
   Future<Map<String, dynamic>> createMetadataProposal({
