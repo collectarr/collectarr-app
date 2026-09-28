@@ -344,30 +344,22 @@ class AdminImageCacheStats {
     required this.totalSizeBytes,
     required this.maxSizeBytes,
     required this.usagePercent,
-    required this.mirroringEnabled,
-    this.providers = const <String, int>{},
+    required this.cacheEnabled,
   });
 
   final int totalEntries;
   final int totalSizeBytes;
   final int maxSizeBytes;
   final double usagePercent;
-  final bool mirroringEnabled;
-  final Map<String, int> providers;
+  final bool cacheEnabled;
 
   factory AdminImageCacheStats.fromJson(Map<String, dynamic> json) {
-    final providerMap = json['providers'];
     return AdminImageCacheStats(
       totalEntries: (json['total_entries'] as num?)?.toInt() ?? 0,
       totalSizeBytes: (json['total_size_bytes'] as num?)?.toInt() ?? 0,
       maxSizeBytes: (json['max_size_bytes'] as num?)?.toInt() ?? 0,
       usagePercent: (json['usage_percent'] as num?)?.toDouble() ?? 0,
-      mirroringEnabled: json['mirroring_enabled'] as bool? ?? false,
-      providers: providerMap is Map<String, dynamic>
-          ? providerMap.map(
-              (key, value) => MapEntry(key, (value as num?)?.toInt() ?? 0),
-            )
-          : const <String, int>{},
+      cacheEnabled: json['cache_enabled'] as bool? ?? false,
     );
   }
 }

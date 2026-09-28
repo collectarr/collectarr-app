@@ -734,10 +734,8 @@ class ApiClient {
     return _assetsApi.adminImageCacheStats();
   }
 
-  Future<AdminImageCachePurgeResult> adminPurgeImageCache({
-    String? provider,
-  }) async {
-    return _assetsApi.adminPurgeImageCache(provider: provider);
+  Future<AdminImageCachePurgeResult> adminPurgeImageCache() async {
+    return _assetsApi.adminPurgeImageCache();
   }
 
   Future<AdminUser> adminUpdateUser(

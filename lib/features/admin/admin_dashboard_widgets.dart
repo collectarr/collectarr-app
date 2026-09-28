@@ -322,12 +322,10 @@ class _DashboardStatsOverview extends StatelessWidget {
                     '${_statsFormatBytes(cache.totalSizeBytes)} / ${_statsFormatBytes(cache.maxSizeBytes)}',
               ),
               AdminStatusChip(
-                icon: cache.mirroringEnabled
+                icon: cache.cacheEnabled
                     ? Icons.check_circle_outline
                     : Icons.block_outlined,
-                label: cache.mirroringEnabled
-                    ? 'Mirroring enabled'
-                    : 'Mirroring disabled',
+                label: cache.cacheEnabled ? 'Cache enabled' : 'Cache disabled',
               ),
             ],
           ],

@@ -501,7 +501,6 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastUpdatedUserDisplayName;
   String? lastUpdatedUserRole;
   bool? lastUpdatedUserIsActive;
-  String? lastPurgedImageProvider;
   String? lastSeriesTagsSeriesId;
   String? lastIngestProvider;
   String? lastIngestProviderItemId;
@@ -569,7 +568,7 @@ class _FakeAdminApiClient extends ApiClient {
       updatedAt: DateTime.utc(2026, 5, 14, 10),
     ),
   ];
-  final Map<String, int> _imageProviders = {'gcd': 12, 'comicvine': 4};
+  int _imageCacheEntries = 16;
   final List<AdminMetadataProposal> _pendingProposals = [
     const AdminMetadataProposal(
       id: 'proposal-1',
@@ -1476,8 +1475,7 @@ class _FakeAdminApiClient extends ApiClient {
 
   @override
   Future<AdminImageCacheStats> adminImageCacheStats() async {
-    final totalEntries =
-        _imageProviders.values.fold<int>(0, (sum, item) => sum + item);
+    final totalEntries = _imageCacheEntries;
     final totalSizeBytes = totalEntries * 1024 * 128;
     const maxSizeBytes = 1024 * 1024 * 8;
     return AdminImageCacheStats(
@@ -1485,26 +1483,14 @@ class _FakeAdminApiClient extends ApiClient {
       totalSizeBytes: totalSizeBytes,
       maxSizeBytes: maxSizeBytes,
       usagePercent: totalSizeBytes / maxSizeBytes * 100,
-      mirroringEnabled: true,
-      providers: Map<String, int>.from(_imageProviders),
+      cacheEnabled: true,
     );
   }
 
   @override
-  Future<AdminImageCachePurgeResult> adminPurgeImageCache(
-      {String? provider}) async {
-    lastPurgedImageProvider = provider;
-    if (provider == null || provider.isEmpty) {
-      final deletedEntries =
-          _imageProviders.values.fold<int>(0, (sum, item) => sum + item);
-      _imageProviders.updateAll((key, value) => 0);
-      return AdminImageCachePurgeResult(
-        deletedEntries: deletedEntries,
-        freedBytes: deletedEntries * 1024 * 128,
-      );
-    }
-    final deletedEntries = _imageProviders[provider] ?? 0;
-    _imageProviders[provider] = 0;
+  Future<AdminImageCachePurgeResult> adminPurgeImageCache() async {
+    final deletedEntries = _imageCacheEntries;
+    _imageCacheEntries = 0;
     return AdminImageCachePurgeResult(
       deletedEntries: deletedEntries,
       freedBytes: deletedEntries * 1024 * 128,

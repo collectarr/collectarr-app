@@ -16,7 +16,6 @@ class _AdminImageCachePanelState extends ConsumerState<AdminImageCachePanel> {
   AdminImageCacheStats? _stats;
   bool _isLoading = false;
   bool _isPurging = false;
-  String? _purgingProvider;
   String? _errorMessage;
   String? _statusMessage;
 
@@ -48,30 +47,26 @@ class _AdminImageCachePanelState extends ConsumerState<AdminImageCachePanel> {
     }
   }
 
-  Future<void> _purge({String? provider}) async {
+  Future<void> _purge() async {
     setState(() {
       _isPurging = true;
-      _purgingProvider = provider;
       _statusMessage = null;
       _errorMessage = null;
     });
     try {
       final api = ref.read(apiClientProvider);
-      final result = await api.adminPurgeImageCache(provider: provider);
+      final result = await api.adminPurgeImageCache();
       if (!mounted) return;
       setState(() {
         _isPurging = false;
-        _purgingProvider = null;
-        _statusMessage = provider == null || provider.isEmpty
-            ? 'Purged ${result.deletedEntries} entries, freed ${_formatBytes(result.freedBytes)}'
-            : 'Purged ${result.deletedEntries} $provider entries, freed ${_formatBytes(result.freedBytes)}';
+        _statusMessage =
+            'Purged ${result.deletedEntries} entries, freed ${_formatBytes(result.freedBytes)}';
       });
       await _loadStats();
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _isPurging = false;
-        _purgingProvider = null;
         _errorMessage = e.toString();
       });
     }
@@ -102,9 +97,7 @@ class _AdminImageCachePanelState extends ConsumerState<AdminImageCachePanel> {
     final totalSize = stats.totalSizeBytes;
     final maxSize = stats.maxSizeBytes;
     final usagePct = stats.usagePercent;
-    final mirroring = stats.mirroringEnabled;
-    final providers = stats.providers.entries.toList(growable: false)
-      ..sort((left, right) => right.value.compareTo(left.value));
+    final cacheEnabled = stats.cacheEnabled;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -154,81 +147,11 @@ class _AdminImageCachePanelState extends ConsumerState<AdminImageCachePanel> {
               value: '${usagePct.toStringAsFixed(1)}%',
             ),
             _StatChip(
-              label: 'Mirroring',
-              value: mirroring ? 'Enabled' : 'Disabled',
+              label: 'Cache',
+              value: cacheEnabled ? 'Enabled' : 'Disabled',
             ),
           ],
         ),
-        if (providers.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          const Text(
-            'Per-provider purge',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-          ),
-          const SizedBox(height: 4),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: providers.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              final provider = providers[index];
-              final share = totalEntries == 0
-                  ? 0
-                  : ((provider.value / totalEntries) * 100).round();
-              final isPurgingProvider = _purgingProvider == provider.key;
-              return DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              provider.key,
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                            const SizedBox(height: 4),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                Chip(label: Text('${provider.value} entries')),
-                                Chip(label: Text('$share% of cache')),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      OutlinedButton.icon(
-                        onPressed: _isPurging || provider.value == 0
-                            ? null
-                            : () => _purge(provider: provider.key),
-                        icon: isPurgingProvider
-                            ? const SizedBox.square(
-                                dimension: 16,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Icon(Icons.delete_outline, size: 18),
-                        label: Text('Purge ${provider.key}'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
@@ -242,7 +165,7 @@ class _AdminImageCachePanelState extends ConsumerState<AdminImageCachePanel> {
             OutlinedButton.icon(
               onPressed:
                   _isPurging || totalEntries == 0 ? null : () => _purge(),
-              icon: _purgingProvider == null && _isPurging
+              icon: _isPurging
                   ? const SizedBox.square(
                       dimension: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
