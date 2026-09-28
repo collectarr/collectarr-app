@@ -19,10 +19,10 @@ Collectarr keeps your personal library local, fast, and offline-friendly, while
 using `collectarr-core` for canonical metadata and `collectarr-sync` for
 optional multi-device sync.
 
-> **Coordinated all-kind Catalog Item v1 cutover in progress:** the target is
-> one Catalog Item per collectible edition/version/release and zero or more
-> separate Owned Copy records. Music has a Core Album API slice, but App storage
-> and the other eight kinds still need the coordinated reset. Do not deploy or
+> **Coordinated all-kind Catalog Item v1 cutover in progress:** Core now serves
+> one Catalog Item per collectible edition/version/release for all nine kinds,
+> with zero or more separate Owned Copy records in App. App storage and legacy
+> Work/Release modules still need the coordinated reset. Do not deploy or
 > reset existing databases yet. The completed cutover requires fresh App and
 > Core databases and a rebuilt Core search index; old database and backup
 > formats will not be supported by the final v1 baseline. See the
