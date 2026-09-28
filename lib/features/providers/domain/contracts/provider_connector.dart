@@ -61,19 +61,6 @@ abstract interface class ProviderAccountAuthorizationCapability {
   Future<ProviderAccount?> authorize(String credential);
 }
 
-/// Reads provider-owned personal-list exports into the provider-neutral
-/// [ProviderPersonalEntry] projection.
-///
-/// This contract deliberately does not cover catalog metadata imports. Those
-/// imports are owned by the relevant kind integration and are not exposed as
-/// a provider-wide connector capability.
-abstract interface class PersonalListFileImportCapability {
-  Future<List<ProviderPersonalEntry>> parsePersonalListFile(
-    String content, {
-    String? filename,
-  });
-}
-
 abstract interface class IdentityCapability {
   Future<String?> resolveRemoteId({
     required CatalogMediaKind kind,
@@ -104,7 +91,6 @@ final class ProviderConnector implements ProviderRawMetadataCapability {
     this.personalRead,
     this.personalWrite,
     this.accountAuthorization,
-    this.personalListFileImport,
     this.identity,
     this.images,
     this.barcode,
@@ -117,7 +103,6 @@ final class ProviderConnector implements ProviderRawMetadataCapability {
   final PersonalListReadCapability? personalRead;
   final PersonalListWriteCapability? personalWrite;
   final ProviderAccountAuthorizationCapability? accountAuthorization;
-  final PersonalListFileImportCapability? personalListFileImport;
   final IdentityCapability? identity;
   final ImageCapability? images;
   final BarcodeCapability? barcode;
@@ -131,7 +116,6 @@ final class ProviderConnector implements ProviderRawMetadataCapability {
   bool get supportsPersonalRead => personalRead != null;
   bool get supportsPersonalWrite => personalWrite != null;
   bool get supportsAccountAuthorization => accountAuthorization != null;
-  bool get supportsPersonalListFileImport => personalListFileImport != null;
   bool get supportsIdentity => identity != null;
   bool get supportsImages => images != null;
   bool get supportsBarcode => barcode != null;
@@ -166,7 +150,6 @@ final class ProviderConnector implements ProviderRawMetadataCapability {
     ];
   }
 
-  bool get canImportPersonalList => supportsPersonalListFileImport;
   bool get canPull => supportsPersonalRead;
   bool get canPush => supportsPersonalWrite;
 

@@ -14,9 +14,7 @@ void main() {
       expect(connector!.supportsMetadata, isTrue);
       expect(connector.supportsPersonalRead, isTrue);
       expect(connector.supportsPersonalWrite, isTrue);
-      expect(connector.supportsPersonalListFileImport, isTrue);
       expect(connector.supportsAccountAuthorization, isTrue);
-      expect(connector.canImportPersonalList, isTrue);
       expect(connector.canPull, isTrue);
       expect(connector.canPush, isTrue);
       expect(connector.supportsBidirectionalSync, isTrue);
@@ -30,21 +28,6 @@ void main() {
       expect(connector!.supportsMetadata, isTrue);
       expect(connector.supportsPersonalRead, isFalse);
       expect(connector.supportsPersonalWrite, isFalse);
-      expect(connector.supportsPersonalListFileImport, isFalse);
-      expect(connector.canImportPersonalList, isFalse);
-      expect(connector.canPull, isFalse);
-      expect(connector.canPush, isFalse);
-    });
-
-    test('ProviderConnector for MyAnimeList exposes personal-list file import',
-        () {
-      final connector =
-          defaultProviderConnectorRegistry.getById(ProviderId.myAnimeList);
-
-      expect(connector, isNotNull);
-      expect(connector!.supportsMetadata, isFalse);
-      expect(connector.supportsPersonalListFileImport, isTrue);
-      expect(connector.canImportPersonalList, isTrue);
       expect(connector.canPull, isFalse);
       expect(connector.canPush, isFalse);
     });

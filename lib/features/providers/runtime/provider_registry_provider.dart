@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/catalog_media_kind.dart';
 
-import '../adapters/anilist/anilist_file_import_capability.dart';
 import '../adapters/anilist/anilist_provider.dart';
 import '../adapters/anilist/anilist_sync_adapter.dart';
 import '../adapters/bgg/bgg_provider.dart';
@@ -11,9 +10,7 @@ import '../adapters/gcd/gcd_provider.dart';
 import '../adapters/hardcover/hardcover_provider.dart';
 import '../adapters/igdb/igdb_provider.dart';
 import '../adapters/mangadex/mangadex_provider.dart';
-import '../adapters/myanimelist/myanimelist_file_import_capability.dart';
 import '../adapters/openlibrary/openlibrary_provider.dart';
-import '../adapters/tmdb/tmdb_file_import_capability.dart';
 import '../adapters/tmdb/tmdb_provider.dart';
 import '../credentials/models/bgg_credentials.dart';
 import '../credentials/models/comicvine_credentials.dart';
@@ -81,7 +78,6 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
       personalRead: anilistSync,
       personalWrite: anilistSync,
       accountAuthorization: anilistSync,
-      personalListFileImport: const AniListPersonalListFileImportCapability(),
     ),
   );
   registry.register(
@@ -123,9 +119,7 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
       credentials: tmdbCredentials,
       httpClient: httpClient,
       rateLimiterRegistry: limiters,
-    ).toConnector(
-      personalListFileImport: const TmdbPersonalListFileImportCapability(),
-    ),
+    ).toConnector(),
   );
   registry.register(
     buildMusicBrainzProviderConnector(
@@ -145,7 +139,6 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
         supportsSearch: false,
         supportsIngest: true,
       ),
-      personalListFileImport: MyAnimeListPersonalListFileImportCapability(),
     ),
   );
 
