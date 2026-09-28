@@ -1330,24 +1330,6 @@ final class _SelectedCatalogItemDetails extends StatelessWidget {
 
 List<String> _summaryRows(CatalogItemV1Dto item) {
   final details = item.details.toJson();
-  if (item.kind == 'music') {
-    final artists = _catalogNames(details['artists']);
-    final labels = _catalogNames(details['labels']);
-    final labelWithCatalogNumber = [
-      ...labels,
-      if (_summaryText(details['catalog_number']) case final value?) value,
-    ].join(' ');
-    return [
-      if (artists.isNotEmpty) artists.join(', '),
-      if (_summaryText(details['release_date']) case final value?)
-        'Release date $value',
-      if (_summaryText(details['format']) case final value?) 'Format $value',
-      if (_summaryText(details['country']) case final value?) 'Country $value',
-      if (labelWithCatalogNumber.isNotEmpty) 'Label $labelWithCatalogNumber',
-      if (_summaryText(details['barcode']) case final value?) 'Barcode $value',
-    ];
-  }
-
   const skip = {
     'kind',
     'title',
@@ -1359,12 +1341,18 @@ List<String> _summaryRows(CatalogItemV1Dto item) {
     'credits',
     'contributors',
     'links',
+    'identifiers',
   };
+  final schema = _kindDetailsSchema(catalogMediaKindFromApiValue(item.kind));
+  final properties = schema['properties'] as Map<String, dynamic>;
   final rows = <String>[];
-  for (final entry in details.entries) {
+  for (final entry in properties.entries) {
     if (skip.contains(entry.key)) continue;
-    final text = _summaryText(entry.value);
-    if (text != null) rows.add('${_humanize(entry.key)} $text');
+    final text = _summaryText(details[entry.key]);
+    if (text == null) continue;
+    final fieldSchema = entry.value as Map<String, dynamic>;
+    final label = fieldSchema['title'] as String? ?? _humanize(entry.key);
+    rows.add('$label $text');
     if (rows.length == 6) break;
   }
   return rows;
