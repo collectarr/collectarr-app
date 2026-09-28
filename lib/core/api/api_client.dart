@@ -277,12 +277,6 @@ class ApiClient {
     return _catalogApi.metadataMediaTypes();
   }
 
-  Future<MetadataFieldSchema> metadataFieldSchema({
-    bool editableOnly = true,
-  }) async {
-    return _catalogApi.metadataFieldSchema(editableOnly: editableOnly);
-  }
-
   /// Creates a provider-independent proposal against one exact canonical
   /// Core entity. This intentionally uses the versioned endpoint directly;
   /// it must not be routed through the legacy provider proposal transport.
@@ -371,16 +365,6 @@ class ApiClient {
     return _adminApi.adminUpdateCatalogItemFields(
       kind: kind,
       id: id,
-      fields: fields,
-    );
-  }
-
-  Future<Map<String, dynamic>> adminUpdateSeriesFields({
-    required String seriesId,
-    required Map<String, Object?> fields,
-  }) {
-    return _adminApi.adminUpdateSeriesFields(
-      seriesId: seriesId,
       fields: fields,
     );
   }

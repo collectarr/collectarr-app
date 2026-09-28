@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:flutter/foundation.dart';
@@ -53,19 +52,6 @@ final class LibraryAdminCorrectionField {
   final bool required;
 
   String get key => presentation.key;
-
-  LibraryAdminCorrectionField withPresentation(
-    SharedMetadataFieldDescriptor value,
-  ) =>
-      LibraryAdminCorrectionField(
-        presentation: value,
-        read: read,
-        parse: parse,
-        format: format,
-        equals: equals,
-        usesPhysicalFormatPicker: usesPhysicalFormatPicker,
-        required: required,
-      );
 
   bool valuesEqual(Object? left, Object? right) =>
       equals?.call(left, right) ??
@@ -308,39 +294,6 @@ abstract interface class LibraryAdminContributor {
   List<LibraryMetadataOverrideField> get metadataOverrideFields;
 }
 
-/// Resolves the editable correction form directly from Core's per-kind field
-/// schema. Kinds only override fields that need a kind-owned codec or writer.
-List<LibraryAdminCorrectionField> adminCorrectionFieldsForKind({
-  required MetadataFieldSchema schema,
-  required CatalogMediaKind kind,
-  required LibraryAdminContributor contributor,
-}) {
-  final overrides = {
-    for (final field in contributor.correctionFields) field.key: field,
-  };
-  final fields = <LibraryAdminCorrectionField>[];
-  for (final spec in schema.fieldsForKind(kind.apiValue)) {
-    final ownership = spec.ownershipByKind[kind.apiValue];
-    if (!spec.editable || ownership == null) continue;
-    if (ownership.writeTarget != MetadataWriteTarget.coreCanonical &&
-        ownership.writeTarget != MetadataWriteTarget.coreCanonicalRelation) {
-      continue;
-    }
-    if (ownership.scope == MetadataFieldScope.ownedCopy ||
-        ownership.scope == MetadataFieldScope.trackingRecord) {
-      continue;
-    }
-    final presentation = _adminCorrectionPresentationFromSchema(spec);
-    final override = overrides.remove(spec.key);
-    if (override != null) {
-      fields.add(override.withPresentation(presentation));
-      continue;
-    }
-    fields.add(_adminCorrectionFieldFromSchema(spec, presentation));
-  }
-  return fields;
-}
-
 /// Returns this kind's declared correction fields that are present in a
 /// Catalog Item v1 summary or details map.
 ///
@@ -357,58 +310,6 @@ List<LibraryAdminCorrectionField> adminCorrectionFieldsForCatalogItem({
     for (final field in contributor.correctionFields)
       if (availableKeys.contains(field.key)) field,
   ];
-}
-
-SharedMetadataFieldDescriptor _adminCorrectionPresentationFromSchema(
-  MetadataFieldSpec field,
-) {
-  final valueType = switch (field.valueType) {
-    'number' || 'decimal' || 'float' => SharedMetadataFieldValueType.number,
-    'integer' => SharedMetadataFieldValueType.integer,
-    'boolean' || 'bool' => SharedMetadataFieldValueType.boolean,
-    'partial_date' => SharedMetadataFieldValueType.partialDate,
-    'string_list' || 'link_list' => SharedMetadataFieldValueType.stringList,
-    'string' => SharedMetadataFieldValueType.text,
-    _ => SharedMetadataFieldValueType.json,
-  };
-  final inputType = valueType == SharedMetadataFieldValueType.json
-      ? SharedMetadataFieldInputType.multiline
-      : switch (field.input) {
-          'number' => SharedMetadataFieldInputType.number,
-          'multiline' || 'list' => SharedMetadataFieldInputType.multiline,
-          _ => SharedMetadataFieldInputType.text,
-        };
-  final tab = switch (field.section) {
-    'publishing' => SharedMetadataEditTab.publishing,
-    'technical' => SharedMetadataEditTab.technical,
-    'regional' => SharedMetadataEditTab.regional,
-    'artwork' => SharedMetadataEditTab.artwork,
-    'relations' => SharedMetadataEditTab.relations,
-    _ => SharedMetadataEditTab.item,
-  };
-  return SharedMetadataFieldDescriptor(
-    key: field.key,
-    label: field.label,
-    tab: tab,
-    inputType: inputType,
-    valueType: valueType,
-    hintText: field.valueType == 'partial_date'
-        ? 'YYYY, YYYY-MM, YYYY-MM-DD, or {"month": 5}'
-        : null,
-    minLines: inputType == SharedMetadataFieldInputType.multiline ? 2 : 1,
-    maxLines: inputType == SharedMetadataFieldInputType.multiline ? 5 : 1,
-  );
-}
-
-LibraryAdminCorrectionField _adminCorrectionFieldFromSchema(
-  MetadataFieldSpec field,
-  SharedMetadataFieldDescriptor presentation,
-) {
-  return LibraryAdminCorrectionField(
-    presentation: presentation,
-    read: (item) => item.canonicalFieldValues[field.key],
-    required: field.required,
-  );
 }
 
 String readAdminProposalText(

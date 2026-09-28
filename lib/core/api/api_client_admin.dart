@@ -164,25 +164,6 @@ class _AdminApiClient {
     return value;
   }
 
-  Future<Map<String, dynamic>> adminUpdateSeriesFields({
-    required String seriesId,
-    required Map<String, Object?> fields,
-  }) async {
-    final response = await _client._dio.patch<Map<String, dynamic>>(
-      '/api/v1/admin/catalog/series/$seriesId/tags',
-      data: {
-        for (final entry in fields.entries)
-          entry.key: _jsonSafeCatalogCorrectionValue(entry.value),
-      },
-    );
-    final body = response.data;
-    if (body == null) {
-      throw StateError(
-          '/api/v1/admin/catalog/series/$seriesId/tags returned an empty response body');
-    }
-    return body;
-  }
-
   Future<AdminSearchStatus> adminSearchStatus() async {
     final response = await _client._dio
         .get<Map<String, dynamic>>('/api/v1/admin/search/status');

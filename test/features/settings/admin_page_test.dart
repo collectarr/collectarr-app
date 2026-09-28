@@ -280,64 +280,6 @@ void main() {
     expect(api.lastIngestProviderItemId, '12345');
   });
 
-  testWidgets('admin page persists series tag corrections for books',
-      (tester) async {
-    final api = _BookAdminApiClient();
-    final db = LocalDatabase(NativeDatabase.memory());
-    tester.view.physicalSize = const Size(1280, 1600);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    addTearDown(db.close);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(api),
-          localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith(
-            () => _AdminAuthController(),
-          ),
-        ],
-        child: const MaterialApp(home: AdminPage()),
-      ),
-    );
-
-    await pumpUntilSettled(tester);
-    await tester.tap(find.widgetWithText(Tab, 'Catalog'));
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Find catalog items'),
-      'Lord of the Rings',
-    );
-    await tester.tap(find.widgetWithText(FilledButton, 'Search'));
-    await pumpUntilSettled(tester);
-
-    await _scrollUntilVisible(
-      tester,
-      find.text('Edit'),
-      delta: -500,
-    );
-    await tester.tap(find.text('Edit').first);
-    await pumpUntilSettled(tester);
-
-    await tester.ensureVisible(find.widgetWithText(TextField, 'Series tags'));
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Series tags'),
-      'Fantasy, Epic Fantasy, Fellowship',
-    );
-
-    await tester.tap(find.widgetWithText(FilledButton, 'Review correction'));
-    await pumpUntilSettled(tester);
-    expect(find.text('Preview metadata correction'), findsOneWidget);
-
-    await _tapPreviewSaveCorrection(tester, 'Preview metadata correction');
-    await pumpUntilSettled(tester);
-
-    expect(api.lastSeriesTagsSeriesId, 'series-book-1');
-    expect(api.lastSeriesTags, ['Fantasy', 'Epic Fantasy', 'Fellowship']);
-  });
-
   testWidgets('proposal editor validates malformed external links',
       (tester) async {
     final api = _FakeAdminApiClient();
@@ -501,7 +443,6 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastUpdatedUserDisplayName;
   String? lastUpdatedUserRole;
   bool? lastUpdatedUserIsActive;
-  String? lastSeriesTagsSeriesId;
   String? lastIngestProvider;
   String? lastIngestProviderItemId;
   String? lastInspectKind;
@@ -536,7 +477,6 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastBundleUpdateTitle;
   String? lastQueuedProviderItemId;
   int? lastRetryHistoryId;
-  List<String>? lastSeriesTags;
   List<String>? lastMergeSourceItemIds;
   bool duplicateResolved = false;
   bool retryResolved = false;
@@ -834,23 +774,6 @@ class _FakeAdminApiClient extends ApiClient {
     lastCatalogUpdatePhysicalFormat = physicalFormat;
     catalogUpdated = true;
     return (await adminCatalogItems()).single;
-  }
-
-  @override
-  Future<Map<String, dynamic>> adminUpdateSeriesFields({
-    required String seriesId,
-    required Map<String, Object?> fields,
-  }) async {
-    final tags = (fields['tags'] as List? ?? const [])
-        .map((value) => value.toString())
-        .toList(growable: false);
-    lastSeriesTagsSeriesId = seriesId;
-    lastSeriesTags = tags;
-    return {
-      'id': seriesId,
-      'title': 'Series',
-      'tags': tags,
-    };
   }
 
   @override
@@ -1476,97 +1399,5 @@ class _FakeAdminApiClient extends ApiClient {
       deletedEntries: deletedEntries,
       freedBytes: deletedEntries * 1024 * 128,
     );
-  }
-}
-
-class _BookAdminApiClient extends _FakeAdminApiClient {
-  @override
-  Future<List<CatalogMediaType>> metadataMediaTypes() async {
-    return const [
-      CatalogMediaType(
-        kind: 'book',
-        singularLabel: 'Book',
-        pluralLabel: 'Books',
-        routeSegments: ['books', 'book'],
-        defaultProvider: 'openlibrary',
-        providers: ['openlibrary', 'hardcover'],
-      ),
-    ];
-  }
-
-  @override
-  Future<MetadataFieldSchema> metadataFieldSchema({
-    bool editableOnly = true,
-  }) async {
-    return const MetadataFieldSchema(
-      schemaVersion: 1,
-      fields: [
-        MetadataFieldSpec(
-          key: 'series_tags',
-          valueType: 'string_list',
-          label: 'Series tags',
-          common: false,
-          typed: true,
-          normalized: true,
-          editable: true,
-          section: 'relations',
-          input: 'text',
-          kinds: ['book'],
-          ownershipByKind: {
-            'book': MetadataFieldOwnership(
-              scope: MetadataFieldScope.relations,
-              sourceEntityType: 'book_series',
-              sourceTable: 'book_series',
-              writeTarget: MetadataWriteTarget.coreCanonicalRelation,
-            ),
-          },
-        ),
-      ],
-      kindFields: {
-        'book': ['series_tags']
-      },
-      sections: ['relations'],
-    );
-  }
-
-  @override
-  Future<List<AdminMetadataItem>> adminCatalogItems({
-    String? query,
-    String? kind,
-    int limit = 25,
-  }) async {
-    return [
-      AdminMetadataItem(
-        id: 'book-item-1',
-        kind: 'book',
-        title: 'The Fellowship of the Ring',
-        itemNumber: '1',
-        canonicalFieldValues: {
-          'publisher': 'Allen & Unwin',
-          'synopsis': 'The first journey into Middle-earth.',
-          'series_id': 'series-book-1',
-          'series_title': 'The Lord of the Rings',
-          'volume_number': '1',
-          'series_tags': lastSeriesTags ?? const ['Fantasy'],
-          'subtitle': 'Being the First Part',
-          'page_count': 423,
-        },
-        editions: const [
-          AdminEdition(
-            id: 'edition-book-1',
-            title: 'Hardcover',
-            publisher: 'Allen & Unwin',
-            variants: [
-              AdminVariant(
-                id: 'variant-book-1',
-                name: 'Primary',
-                isPrimary: true,
-                coverImageUrl: 'https://cdn.example/fellowship.jpg',
-              ),
-            ],
-          ),
-        ],
-      ),
-    ];
   }
 }

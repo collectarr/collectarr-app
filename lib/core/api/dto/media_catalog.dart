@@ -146,13 +146,8 @@ class CatalogMediaType {
   }
 }
 
-/// A single editable canonical metadata field, sourced from the core registry
-/// (`app/catalog/metadata_fields.py`) via
-/// `GET /api/v1/metadata/field-schema`.
-///
-/// This is the single source of truth the admin edit panel and the app edit
-/// dialog render from; the local [kAdminMetadataScalarFields] contract is kept
-/// consistent with it by `shared_metadata_editing_contract_test.dart`.
+/// A field row from Core's pinned, migration-era normalization metadata
+/// artifact. Catalog Item v1 editing uses generated Catalog Item DTOs instead.
 class MetadataFieldSpec {
   const MetadataFieldSpec({
     required this.key,
@@ -243,7 +238,7 @@ class MetadataFieldOwnership {
   }
 }
 
-/// The unified field schema returned by `GET /api/v1/metadata/field-schema`.
+/// The pinned normalization metadata artifact used by contract checks.
 class MetadataFieldSchema {
   const MetadataFieldSchema({
     required this.schemaVersion,

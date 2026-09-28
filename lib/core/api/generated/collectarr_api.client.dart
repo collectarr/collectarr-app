@@ -358,22 +358,6 @@ class CollectarrApiClient {
         .toList(growable: false);
   }
 
-  Future<MetadataFieldSchema> metadataFieldSchema({
-    bool editableOnly = true,
-  }) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/api/v1/metadata/field-schema',
-      queryParameters: {'editable_only': editableOnly},
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-        '/api/v1/metadata/field-schema returned an empty response body',
-      );
-    }
-    return MetadataFieldSchema.fromJson(data);
-  }
-
   Future<Map<String, dynamic>> createMetadataProposal({
     required String provider,
     required String query,
