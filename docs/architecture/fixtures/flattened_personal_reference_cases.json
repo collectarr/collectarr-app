@@ -1,0 +1,35 @@
+{
+  "fixture_version": 1,
+  "source_app_commit": "6949fb4f00e6fdd5828e21474b74fa448e793fe9",
+  "cases": [
+    {
+      "case": "owned_copy_has_explicit_concrete_target",
+      "old_catalog_ref": {"kind": "music", "entity_type": "work", "id": "work-1"},
+      "old_target_ref": {"kind": "music", "entity_type": "release", "id": "release-2", "root_id": "work-1"},
+      "owned_item_id": "owned-1",
+      "expected_catalog_item_id": "release-2",
+      "expected_owned_item_id": "owned-1",
+      "resolution": "direct"
+    },
+    {
+      "case": "parent_has_no_concrete_child",
+      "old_catalog_ref": {"kind": "book", "entity_type": "work", "id": "work-2"},
+      "old_target_ref": null,
+      "concrete_child_ids": [],
+      "owned_item_id": "owned-2",
+      "expected_catalog_item_id": "work-2",
+      "expected_owned_item_id": "owned-2",
+      "resolution": "preserve_parent_id_as_root"
+    },
+    {
+      "case": "parent_only_reference_has_multiple_concrete_children",
+      "old_catalog_ref": {"kind": "movie", "entity_type": "work", "id": "work-3"},
+      "old_target_ref": null,
+      "concrete_child_ids": ["release-31", "release-32"],
+      "owned_item_id": "owned-3",
+      "expected_catalog_item_id": null,
+      "expected_owned_item_id": "owned-3",
+      "resolution": "requires_explicit_resolution"
+    }
+  ]
+}
