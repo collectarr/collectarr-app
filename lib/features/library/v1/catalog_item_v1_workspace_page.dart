@@ -947,6 +947,11 @@ final class _CatalogItemV1AddDialogState
                 onSelectionChanged: (values) => setState(() {
                   _manual = values.single;
                   _error = null;
+                  _results = const [];
+                  _selected = null;
+                  _selectedDetails = null;
+                  _loadingSelectedDetails = false;
+                  _selectedDetailsError = null;
                 }),
               ),
               const SizedBox(height: 12),
@@ -976,11 +981,20 @@ final class _CatalogItemV1AddDialogState
                             child: TextField(
                               controller: _queryController,
                               autofocus: true,
+                              enabled: !_busy,
                               decoration: const InputDecoration(
                                 labelText: 'Title or identifier',
                                 prefixIcon: Icon(Icons.search),
                               ),
-                              onChanged: (_) => _searchIdentifierOnly = false,
+                              onChanged: (_) => setState(() {
+                                _searchIdentifierOnly = false;
+                                _results = const [];
+                                _selected = null;
+                                _selectedDetails = null;
+                                _loadingSelectedDetails = false;
+                                _selectedDetailsError = null;
+                                _error = null;
+                              }),
                               onSubmitted: (_) => _search(),
                             ),
                           ),
