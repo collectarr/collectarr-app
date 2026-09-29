@@ -90,9 +90,6 @@ CatalogMediaType normalizeCatalogMediaTypeDefaults(CatalogMediaType type) {
     singularLabel: singularLabel,
     pluralLabel: pluralLabel,
     routeSegments: type.routeSegments,
-    defaultProvider: type.defaultProvider,
-    providers: type.providers,
-    providerSearchPolicy: type.providerSearchPolicy,
     isTopLevel: type.isTopLevel,
     physicalFormats: type.physicalFormats,
   );

@@ -74,13 +74,6 @@ final fallbackMediaCatalog = [
       singularLabel: registration.identity.singularLabel,
       pluralLabel: registration.identity.pluralLabel,
       routeSegments: registration.identity.routeSegments,
-      defaultProvider:
-          libraryMetadataForKind(registration.kind).defaultProviderId,
-      providers: [
-        for (final provider
-            in libraryMetadataForKind(registration.kind).providers)
-          provider.id,
-      ],
       isTopLevel: registration.identity.isTopLevel,
       physicalFormats: [
         for (final format

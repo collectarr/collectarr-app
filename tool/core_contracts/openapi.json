@@ -12208,16 +12208,6 @@
       },
       "MediaTypeResponse": {
         "properties": {
-          "default_provider": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ExternalProvider"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "grouping_model": {
             "$ref": "#/components/schemas/GroupingModel"
           },
@@ -12240,17 +12230,6 @@
             "title": "Plural Label",
             "type": "string"
           },
-          "provider_search_policy": {
-            "title": "Provider Search Policy",
-            "type": "string"
-          },
-          "providers": {
-            "items": {
-              "$ref": "#/components/schemas/ExternalProvider"
-            },
-            "title": "Providers",
-            "type": "array"
-          },
           "route_segments": {
             "items": {
               "type": "string"
@@ -12268,7 +12247,6 @@
           "singular_label",
           "plural_label",
           "route_segments",
-          "provider_search_policy",
           "grouping_model"
         ],
         "title": "MediaTypeResponse",

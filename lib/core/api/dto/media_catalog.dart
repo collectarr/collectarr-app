@@ -102,9 +102,6 @@ class CatalogMediaType {
     required this.singularLabel,
     required this.pluralLabel,
     this.routeSegments = const [],
-    this.defaultProvider,
-    this.providers = const [],
-    this.providerSearchPolicy = 'core_miss_then_configured_providers',
     this.isTopLevel = true,
     this.physicalFormats = const [],
   });
@@ -113,9 +110,6 @@ class CatalogMediaType {
   final String singularLabel;
   final String pluralLabel;
   final List<String> routeSegments;
-  final String? defaultProvider;
-  final List<String> providers;
-  final String providerSearchPolicy;
   final bool isTopLevel;
   final List<CatalogPhysicalFormat> physicalFormats;
 
@@ -130,13 +124,6 @@ class CatalogMediaType {
         for (final segment in (json['route_segments'] as List<dynamic>? ?? []))
           segment.toString(),
       ],
-      defaultProvider: json['default_provider'] as String?,
-      providers: [
-        for (final provider in (json['providers'] as List<dynamic>? ?? []))
-          provider.toString(),
-      ],
-      providerSearchPolicy: json['provider_search_policy'] as String? ??
-          'core_miss_then_configured_providers',
       isTopLevel: json['is_top_level'] as bool? ?? true,
       physicalFormats: [
         for (final format in (json['physical_formats'] as List<dynamic>? ?? []))
