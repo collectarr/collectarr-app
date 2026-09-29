@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_manual_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
@@ -223,7 +223,7 @@ void main() {
     expect(group.releases.single.mediums.single.mediumType, 'CD');
   });
 
-  test('manual Music candidate preserves group and release fields', () {
+  test('manual Music candidate is one flat catalog edition', () {
     final draft = MusicAddManualDraft();
     addTearDown(draft.dispose);
     draft.releaseGroup.artist = 'Daft Punk';
@@ -242,20 +242,21 @@ void main() {
     final candidate = buildMusicManualCandidate(draft, title: 'Discovery');
 
     expect(candidate, isNotNull);
-    final group = candidate!.kindCapability
-        .mapTransport(MusicCatalogMapper.mapDtoToMusic);
-    final release = group.primaryRelease!;
-    expect(group.title, 'Discovery');
-    expect(release.title, 'Discovery (Vinyl)');
-    expect(group.artist, 'Daft Punk');
-    expect(group.genres, ['Electronic', 'House']);
-    expect(release.publisher, 'Virgin');
-    expect(release.catalogNumber, '7243');
-    expect(release.barcode, '123456789');
-    expect(release.packaging, 'Gatefold');
-    expect(release.countryCode, 'FR');
-    expect(release.language, 'fra');
-    expect(release.releaseDate, DateTime.utc(2001, 3, 12));
-    expect(group.coverImageUrl, 'https://example.test/cover.jpg');
+    final item = musicCatalogItemFromCandidate(candidate!);
+    expect(item.title, 'Discovery');
+    expect(item.artist, 'Daft Punk');
+    expect(item.genres, ['Electronic', 'House']);
+    expect(item.label, 'Virgin');
+    expect(item.catalogNumber, '7243');
+    expect(item.barcode, '123456789');
+    expect(item.packaging, 'Gatefold');
+    expect(item.country, 'FR');
+    expect(item.releaseDate, '2001-03-12');
+    expect(item.coverImageUrl, 'https://example.test/cover.jpg');
+
+    final payload = candidate.kindCapability.toCatalogItemPayload();
+    expect(payload.containsKey('release_group_id'), isFalse);
+    expect(payload.containsKey('releases'), isFalse);
+    expect(payload.containsKey('mediums'), isFalse);
   });
 }
