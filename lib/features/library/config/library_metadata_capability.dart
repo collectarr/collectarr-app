@@ -36,6 +36,7 @@ class LibraryMetadataCapability {
     this.compareBuilder,
     this.searchQueryBuilder,
     this.catalogSearchBuilder,
+    this.catalogSearchResultsAreDetailed = false,
   });
 
   final LibraryMetadataCatalogDecoder catalogMetadataDecoder;
@@ -43,6 +44,7 @@ class LibraryMetadataCapability {
   final MetadataCompareBuilder? compareBuilder;
   final LibraryMetadataSearchQueryBuilder? searchQueryBuilder;
   final LibraryMetadataCatalogSearchBuilder? catalogSearchBuilder;
+  final bool catalogSearchResultsAreDetailed;
 
   MetadataSearchQuery searchQueryFor({
     required LibraryWorkspaceSource source,

@@ -1,8 +1,7 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_candidate_projection.dart';
 
 const musicAddMediumFilterId = LibraryAddFilterId('music.search.medium');
 const musicAddArtistFilterId = LibraryAddFilterId('music.artist');
@@ -61,23 +60,10 @@ bool musicAddCoreCandidateMatchesMedium(
 ) {
   final filter = musicAddMediumFilterFor(context);
   if (filter == MusicAddMediumFilter.all) return true;
-  final group = item.kindCapability
-      .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-  return group.releases.any(
-    (release) => musicAddMediumFilterMatchesTypes(
-      musicAddMediumTypesForRelease(release),
-      filter,
-    ),
+  return musicAddMediumFilterMatchesTypes(
+    [musicCatalogItemFromCandidate(item).format ?? ''],
+    filter,
   );
-}
-
-List<String> musicAddMediumTypesForRelease(MusicRelease release) {
-  final values = <String>[];
-  for (final medium in release.mediums) {
-    final value = medium.mediumType?.trim();
-    if (value != null && value.isNotEmpty) values.add(value);
-  }
-  return values;
 }
 
 bool musicAddMediumFilterMatchesTypes(

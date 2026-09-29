@@ -32,10 +32,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   ),
   mediaTargetRefBuilder: musicPrimaryReleaseRef,
   digitalCopyFlagBuilder: (item) {
-    final group = item.kindCapability
-        .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-    final format =
-        group.primaryRelease?.mediums.firstOrNull?.mediumType?.toLowerCase();
+    final format = musicCatalogItemFromCandidate(item).format?.toLowerCase();
     return format == null
         ? null
         : const {'digital', 'download', 'streaming', 'file'}
@@ -63,9 +60,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final group = item.kindCapability
-                  .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-              return [group.artist];
+              return [musicCatalogItemFromCandidate(item).artist];
             },
           ),
           LibraryAddSearchRankField(
@@ -73,9 +68,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final group = item.kindCapability
-                  .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-              return [group.primaryRelease?.publisher];
+              return [musicCatalogItemFromCandidate(item).label];
             },
           ),
           LibraryAddSearchRankField(
@@ -83,11 +76,12 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final group = item.kindCapability
-                  .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+              final catalogItem = musicCatalogItemFromCandidate(item);
               return [
-                group.originalReleaseDate?.year,
-                group.recordingDate?.year,
+                catalogItem.releaseDateParts ?? catalogItem.releaseDate,
+                catalogItem.originalReleaseDateParts ??
+                    catalogItem.originalReleaseDate,
+                catalogItem.recordingDateParts ?? catalogItem.recordingDate,
               ];
             },
           ),

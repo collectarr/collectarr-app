@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_catalog_remote_source.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:dio/dio.dart';
 
 Future<List<Map<String, dynamic>>> searchMusicCatalogItems({
@@ -24,10 +24,15 @@ Future<List<Map<String, dynamic>>> searchMusicCatalogItems({
 
 CatalogSearchCandidate musicCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
+) => item;
+
+CatalogMusicItemDto musicCatalogItemFromCandidate(
+  CatalogSearchCandidate item,
 ) {
   return item.kindCapability.mapTransport((transport) {
-    final group = MusicCatalogMapper.mapMetadataItemToMusic(transport);
-    return item.kindCapability.withKindMetadata(group);
+    final metadata = transport.kindMetadata;
+    if (metadata is CatalogMusicItemDto) return metadata;
+    return CatalogMusicItemDto.fromCatalogPayload(transport.payload);
   });
 }
 

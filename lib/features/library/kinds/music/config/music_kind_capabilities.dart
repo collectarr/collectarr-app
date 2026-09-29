@@ -2,6 +2,7 @@ import '../music_module_dependencies.dart';
 import 'music_kind_configuration.dart';
 import '../actions/music_log_listen_action.dart';
 import '../add/music_add_contribution.dart';
+import '../data/remote/catalog_music_item_dto.dart';
 
 final musicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.music,
@@ -69,9 +70,10 @@ final musicKindIdentity = const LibraryKindIdentity(
 );
 
 final musicKindMetadata = const LibraryMetadataCapability(
-  catalogMetadataDecoder: MusicCatalogMapper.decodeMetadataPayload,
+  catalogMetadataDecoder: CatalogMusicItemDto.fromCatalogPayload,
   searchQueryBuilder: musicMetadataSearchQuery,
   catalogSearchBuilder: searchMusicCatalogItems,
+  catalogSearchResultsAreDetailed: true,
   supportsServerCompare: true,
   compareBuilder: buildMusicMetadataComparePanels,
 );

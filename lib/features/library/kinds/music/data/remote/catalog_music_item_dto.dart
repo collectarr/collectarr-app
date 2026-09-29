@@ -1,11 +1,12 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 /// Transport model for Core's flattened Music Catalog Item API.
 ///
 /// One DTO represents one concrete album edition. Discs and tracks are
 /// contained catalog data, not Work or Release records.
-final class CatalogMusicItemDto {
+final class CatalogMusicItemDto implements JsonEncodable {
   CatalogMusicItemDto({
     required this.id,
     required this.title,
@@ -110,6 +111,20 @@ final class CatalogMusicItemDto {
           CatalogMusicDiscDto.fromJson(disc),
       ],
     );
+  }
+
+  factory CatalogMusicItemDto.fromCatalogPayload(
+    Map<String, dynamic> payload,
+  ) {
+    final nestedMusic = payload['music'];
+    final json = nestedMusic is Map
+        ? <String, dynamic>{
+            ...payload,
+            ...Map<String, dynamic>.from(nestedMusic),
+          }
+        : Map<String, dynamic>.from(payload);
+    json['id'] = payload['id'] ?? json['id'];
+    return CatalogMusicItemDto.fromJson(json);
   }
 
   final String id;
@@ -217,6 +232,13 @@ final class CatalogMusicItemDto {
         if (externalLinks.isNotEmpty) 'external_links': externalLinks,
         if (discs.isNotEmpty)
           'discs': discs.map((disc) => disc.toJson()).toList(),
+      };
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'kind': 'music',
+        ...toProposalData(),
       };
 
   /// Projects one flat Music item into the shared catalog search envelope.

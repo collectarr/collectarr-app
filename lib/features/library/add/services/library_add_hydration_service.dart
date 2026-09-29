@@ -13,6 +13,9 @@ final class LibraryAddHydrationService {
     required CatalogSearchCandidate fallback,
     required String itemId,
   }) async {
+    if (libraryMetadataForKind(type.kind).catalogSearchResultsAreDetailed) {
+      return fallback;
+    }
     final dto = await api.getTypedMetadataItem(
       kind: fallback.summary.kind,
       id: itemId,

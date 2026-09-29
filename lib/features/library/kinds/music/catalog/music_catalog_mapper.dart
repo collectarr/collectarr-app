@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
@@ -18,23 +17,6 @@ final class MusicCatalogMapper {
 
   static MusicReleaseGroup mapDtoToMusic(CatalogItemDto dto) =>
       mapMetadataItemToMusic(dto);
-
-  /// Decodes a flat Music Catalog Item payload into the current Music domain
-  /// projection. The projection keeps existing local editors working while
-  /// their persisted graph is migrated to Catalog Item ownership.
-  static MusicReleaseGroup decodeMetadataPayload(JsonMap payload) {
-    final id = _text(payload['id']);
-    if (id == null) {
-      throw const FormatException('Music Catalog Item requires an id.');
-    }
-    final item = CatalogItemDto.raw(
-      id: id,
-      mediaKind: CatalogMediaKind.music,
-      common: CatalogCommonDto.fromJson(payload),
-      payload: payload,
-    );
-    return _fromPayload(payload, item);
-  }
 
   static MusicReleaseGroup mapMetadataItemToMusic(CatalogItemDto item) {
     final metadata = item.kindMetadata;
