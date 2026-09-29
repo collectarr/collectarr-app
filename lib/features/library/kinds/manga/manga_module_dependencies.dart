@@ -19,7 +19,7 @@ export 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 export 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 export 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_pane.dart';
-export 'package:collectarr_app/features/library/kinds/manga/add/manga_provider_candidate_projection.dart';
+export 'package:collectarr_app/features/library/kinds/manga/add/manga_catalog_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_catalog_target_capability.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy_mapper.dart';
@@ -38,7 +38,6 @@ export 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owne
 export 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_create_payload.dart';
 export 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
-export 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_candidates.dart';
 export 'package:collectarr_app/features/library/kinds/manga/release/manga_release_projection_capability.dart';
 export 'package:collectarr_app/features/library/kinds/manga/stats/manga_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_profile.dart';

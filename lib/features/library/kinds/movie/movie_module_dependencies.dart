@@ -19,8 +19,8 @@ export 'package:collectarr_app/features/library/generic/transferable_field.dart'
 export 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_pane.dart';
+export 'package:collectarr_app/features/library/kinds/movie/add/movie_catalog_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/movie/add/movie_add_result_policy.dart';
-export 'package:collectarr_app/features/library/kinds/movie/add/movie_provider_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/movie/add_preview.dart';
 export 'package:collectarr_app/features/library/kinds/movie/add_shell.dart';
 export 'package:collectarr_app/features/library/kinds/movie/domain/movie_catalog_target_capability.dart';
@@ -38,7 +38,6 @@ export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owne
 export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_create_payload.dart';
 export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
-export 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_candidates.dart';
 export 'package:collectarr_app/features/library/kinds/movie/release/movie_release_detail_source.dart';
 export 'package:collectarr_app/features/library/kinds/movie/release/movie_release_projection_capability.dart';
 export 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
@@ -55,5 +54,4 @@ export 'package:collectarr_app/features/library/workspace/config/library_project
 export 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 export 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
-export 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 export 'package:flutter/material.dart';

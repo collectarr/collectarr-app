@@ -17,12 +17,11 @@ export 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_pane.dart';
+export 'package:collectarr_app/features/library/kinds/music/add/music_catalog_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_search_controls.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_search_filters.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_manual_candidate.dart';
-export 'package:collectarr_app/features/library/kinds/music/add/music_provider_candidate_projection.dart';
-export 'package:collectarr_app/features/library/kinds/music/add/music_provider_search.dart';
 export 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/music/detail/music_personal_detail_fields.dart';
@@ -44,7 +43,6 @@ export 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 export 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
 export 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/music/presentation.dart';
-export 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 export 'package:collectarr_app/features/library/kinds/music/release/music_release_projection_capability.dart';
 export 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';

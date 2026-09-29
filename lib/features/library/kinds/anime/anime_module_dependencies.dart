@@ -23,8 +23,8 @@ export 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_pane.dart';
+export 'package:collectarr_app/features/library/kinds/anime/add/anime_catalog_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_result_policy.dart';
-export 'package:collectarr_app/features/library/kinds/anime/add/anime_provider_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/anime/anime_physical_media_formats.dart';
 export 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_catalog_target_capability.dart';
@@ -43,7 +43,6 @@ export 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owne
 export 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_create_payload.dart';
 export 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
-export 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_candidates.dart';
 export 'package:collectarr_app/features/library/kinds/anime/release/anime_release_detail_source.dart';
 export 'package:collectarr_app/features/library/kinds/anime/release/anime_release_projection_capability.dart';
 export 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_capability.dart';
@@ -59,5 +58,4 @@ export 'package:collectarr_app/features/library/kinds/registry/library_kind_work
 export 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 export 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
-export 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 export 'package:flutter/material.dart';

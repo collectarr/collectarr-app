@@ -16,7 +16,7 @@ export 'package:collectarr_app/features/library/generic/transferable_field.dart'
 export 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_draft.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_pane.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_provider_candidate_projection.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_catalog_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/boardgame_physical_media_formats.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_catalog_target_capability.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
@@ -33,7 +33,6 @@ export 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardg
 export 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_create_payload.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_candidates.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/release/boardgame_release_projection_capability.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_profile.dart';

@@ -3,8 +3,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 
 const musicAddMediumFilterId = LibraryAddFilterId('music.search.medium');
 const musicAddArtistFilterId = LibraryAddFilterId('music.artist');
@@ -57,16 +55,6 @@ bool musicAddHasSearchInput(LibraryAddSearchContext context) {
   return musicAddMediumFilterFor(context) != MusicAddMediumFilter.all;
 }
 
-String? musicAddProviderMediumQuery(LibraryAddSearchContext context) {
-  return switch (musicAddMediumFilterFor(context)) {
-    MusicAddMediumFilter.cd => 'format:CD',
-    MusicAddMediumFilter.vinyl => 'format:Vinyl',
-    MusicAddMediumFilter.cassette => 'format:Cassette',
-    MusicAddMediumFilter.digital => 'format:Digital',
-    MusicAddMediumFilter.all || MusicAddMediumFilter.other => null,
-  };
-}
-
 bool musicAddCoreCandidateMatchesMedium(
   CatalogSearchCandidate item,
   LibraryAddSearchContext context,
@@ -81,31 +69,6 @@ bool musicAddCoreCandidateMatchesMedium(
       filter,
     ),
   );
-}
-
-bool musicAddProviderCandidateMatchesMedium(
-  ProviderSearchCandidate candidate,
-  LibraryAddSearchContext context,
-) {
-  final filter = musicAddMediumFilterFor(context);
-  if (filter == MusicAddMediumFilter.all) return true;
-  if (candidate case final MusicReleaseGroupCandidate group) {
-    final types = [
-      for (final release in group.releases)
-        if (release.format?.trim() case final format? when format.isNotEmpty)
-          format,
-    ];
-    return types.isEmpty || musicAddMediumFilterMatchesTypes(types, filter);
-  }
-  if (candidate case final MusicReleaseCandidate release) {
-    final types = [
-      for (final medium in release.mediums)
-        if (medium.format?.trim() case final format? when format.isNotEmpty)
-          format,
-    ];
-    return musicAddMediumFilterMatchesTypes(types, filter);
-  }
-  return false;
 }
 
 List<String> musicAddMediumTypesForRelease(MusicRelease release) {
