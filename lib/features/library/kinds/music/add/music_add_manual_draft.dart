@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
 
 /// Editable values for one concrete Music catalog item.
 ///
@@ -12,7 +13,6 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
     List<String> genres = const [],
     this.coverImageUrl = '',
     this.backCoverImageUrl = '',
-    this.thumbnailImageUrl = '',
     this.format = '',
     this.packaging = '',
     this.catalogNumber = '',
@@ -31,9 +31,31 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
     this.extra = '',
     this.spars = '',
     this.boxSet = '',
+    List<MusicAddManualNamedCredit> composers = const [],
+    List<MusicAddManualNamedCredit> conductors = const [],
+    List<MusicAddManualNamedCredit> choruses = const [],
+    List<MusicAddManualNamedCredit> compositions = const [],
+    List<MusicAddManualNamedCredit> orchestras = const [],
+    List<MusicAddManualNamedCredit> songwriters = const [],
+    List<MusicAddManualNamedCredit> producers = const [],
+    List<MusicAddManualNamedCredit> engineers = const [],
+    List<MusicAddManualNamedCredit> musicians = const [],
+    List<MusicAddManualDisc> discs = const [],
+    List<MusicAddManualExternalLink> externalLinks = const [],
   })  : genres = List<String>.of(genres),
         soundTypes = List<String>.of(soundTypes),
-        studios = List<String>.of(studios);
+        studios = List<String>.of(studios),
+        composers = List.of(composers),
+        conductors = List.of(conductors),
+        choruses = List.of(choruses),
+        compositions = List.of(compositions),
+        orchestras = List.of(orchestras),
+        songwriters = List.of(songwriters),
+        producers = List.of(producers),
+        engineers = List.of(engineers),
+        musicians = List.of(musicians),
+        discs = List.of(discs),
+        externalLinks = List.of(externalLinks);
 
   String artist;
   String sortTitle;
@@ -41,7 +63,6 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
   List<String> genres;
   String coverImageUrl;
   String backCoverImageUrl;
-  String thumbnailImageUrl;
   String format;
   String packaging;
   String catalogNumber;
@@ -60,6 +81,17 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
   String extra;
   String spars;
   String boxSet;
+  final List<MusicAddManualNamedCredit> composers;
+  final List<MusicAddManualNamedCredit> conductors;
+  final List<MusicAddManualNamedCredit> choruses;
+  final List<MusicAddManualNamedCredit> compositions;
+  final List<MusicAddManualNamedCredit> orchestras;
+  final List<MusicAddManualNamedCredit> songwriters;
+  final List<MusicAddManualNamedCredit> producers;
+  final List<MusicAddManualNamedCredit> engineers;
+  final List<MusicAddManualNamedCredit> musicians;
+  final List<MusicAddManualDisc> discs;
+  final List<MusicAddManualExternalLink> externalLinks;
 
   @override
   void dispose() {}

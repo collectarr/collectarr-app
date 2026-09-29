@@ -2,8 +2,12 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_credits_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_covers_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_tracks_tab.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:flutter/material.dart';
 
@@ -63,6 +67,45 @@ class MusicAddManualPane extends StatelessWidget {
             mediaKind: request.kind.apiValue,
             onVocabularyValueChanged: request.onVocabularyValueChanged,
             onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          label: 'Classical',
+          icon: Icons.queue_music_outlined,
+          content: MusicAddManualCreditsTab(
+            draft: draft,
+            accent: request.accent,
+            classical: true,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          label: 'People',
+          icon: Icons.people_outline,
+          content: MusicAddManualCreditsTab(
+            draft: draft,
+            accent: request.accent,
+            classical: false,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          label: 'Tracks',
+          icon: Icons.format_list_numbered,
+          content: MusicAddManualTracksTab(
+            draft: draft,
+            accent: request.accent,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          label: 'Covers',
+          icon: Icons.photo_camera_outlined,
+          content: MusicAddManualCoversTab(draft: draft),
+        ),
+        LibraryAddManualPaneTab(
+          label: 'Links',
+          icon: Icons.public,
+          content: MusicAddManualLinksTab(
+            draft: draft,
+            accent: request.accent,
           ),
         ),
       ],

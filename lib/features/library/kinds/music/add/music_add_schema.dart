@@ -26,6 +26,14 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
         if (draft.releaseDate != null && draft.releaseDate!.year < 1) {
           return 'Release year must be greater than zero';
         }
+        if (draft.discs.any(
+          (disc) => disc.tracks.any(
+            (track) =>
+                track.duration.trim().isNotEmpty && track.durationMs == null,
+          ),
+        )) {
+          return 'Track lengths must use MM:SS or HH:MM:SS';
+        }
         return null;
       },
       sections: [
@@ -156,24 +164,6 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
               pickListKey: MusicVocabularyIds.country.value,
               onManage:
                   onManageCountry == null ? null : (_) => onManageCountry(),
-            ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'cover_image_url',
-              label: 'Front cover URL',
-              value: (draft) => draft.coverImageUrl,
-              setValue: (draft, value) => draft.coverImageUrl = value,
-            ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'back_cover_image_url',
-              label: 'Back cover URL',
-              value: (draft) => draft.backCoverImageUrl,
-              setValue: (draft, value) => draft.backCoverImageUrl = value,
-            ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'thumbnail_image_url',
-              label: 'Thumbnail URL',
-              value: (draft) => draft.thumbnailImageUrl,
-              setValue: (draft, value) => draft.thumbnailImageUrl = value,
             ),
           ],
         ),
