@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
@@ -134,61 +133,37 @@ Widget buildMovieAddSearchPane(
                       itemBuilder: (context, index) {
                         final entry = entries[index];
                         final item = entry.item;
-                        final candidate = entry.candidate;
-                        final isCore = item != null;
-                        final selected = isCore
-                            ? item.reference.id == request.selectedResultId
-                            : candidate!.localCatalogId ==
-                                request.selectedProviderCandidateId;
-                        final checked = isCore &&
-                            request.checkedResultIds
-                                .contains(item.reference.id);
-                        final title = isCore
-                            ? item.summary.primaryLabel
-                            : candidate!.title;
-                        final coverUrl = isCore
-                            ? item.movieCatalogFields.coverImageUrl
-                            : candidate!.imageUrl;
-                        final publisher = (item?.kindCapability
+                        final selected =
+                            item.reference.id == request.selectedResultId;
+                        final checked = request.checkedResultIds
+                            .contains(item.reference.id);
+                        final title = item.summary.primaryLabel;
+                        final coverUrl = item.movieCatalogFields.coverImageUrl;
+                        final publisher = (item.kindCapability
                                 .mapTransport((transport) => transport)
                                 .payload['publisher'] as String?) ??
-                            ((item?.kindCapability
+                            ((item.kindCapability
                                     .mapTransport((transport) => transport)
                                     .payload['publishing']
                                 as Map?)?['original_publisher'] as String?);
-                        final subtitle = isCore
-                            ? [
-                                if ((item.movieCatalogFields.releaseYear ??
-                                        item.movieCatalogFields.releaseDate
-                                            ?.year) !=
-                                    null)
-                                  (item.movieCatalogFields.releaseYear ??
-                                          item.movieCatalogFields.releaseDate
-                                              ?.year)
-                                      .toString(),
-                                if (publisher != null &&
-                                    publisher.trim().isNotEmpty)
-                                  publisher.trim(),
-                              ].whereType<String>().join(' Â· ')
-                            : [
-                                libraryMetadataForKind(request.type.kind)
-                                    .providerLabel(candidate!.provider),
-                                if (candidate.summary?.trim().isNotEmpty ==
-                                    true)
-                                  candidate.summary,
-                              ].whereType<String>().join(' Â· ');
-                        final matchSummary = isCore
-                            ? request.coreMatchSummary?.call(item)
-                            : request.providerMatchSummary?.call(candidate!);
+                        final subtitle = [
+                          if ((item.movieCatalogFields.releaseYear ??
+                                  item.movieCatalogFields.releaseDate?.year) !=
+                              null)
+                            (item.movieCatalogFields.releaseYear ??
+                                    item.movieCatalogFields.releaseDate?.year)
+                                .toString(),
+                          if (publisher != null && publisher.trim().isNotEmpty)
+                            publisher.trim(),
+                        ].whereType<String>().join(' / ');
+                        final matchSummary =
+                            request.coreMatchSummary?.call(item);
                         return Material(
                           color: Colors.transparent,
                           child: InkWell(
                             mouseCursor: WidgetStateMouseCursor.clickable,
-                            onTap: isCore
-                                ? () =>
-                                    request.onSelectResult(item.reference.id)
-                                : () => request.onSelectProviderCandidate(
-                                    candidate!.localCatalogId),
+                            onTap: () =>
+                                request.onSelectResult(item.reference.id),
                             borderRadius: BorderRadius.circular(8),
                             child: Ink(
                               decoration: BoxDecoration(
@@ -228,49 +203,43 @@ Widget buildMovieAddSearchPane(
                                             left: 6,
                                             bottom: 6,
                                             child: LibraryAddResultBadge(
-                                              isCore
-                                                  ? 'core'
-                                                  : libraryMetadataForKind(
-                                                          request.type.kind)
-                                                      .providerLabel(
-                                                          candidate!.provider),
+                                              'core',
                                               accent: request.accent,
                                             ),
                                           ),
-                                          if (isCore)
-                                            Positioned(
-                                              right: 4,
-                                              top: 4,
-                                              child: InkWell(
-                                                mouseCursor:
-                                                    WidgetStateMouseCursor
-                                                        .clickable,
-                                                onTap: () =>
-                                                    request.onToggleResultCheck(
-                                                        item.reference.id),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                child: Container(
-                                                  padding:
-                                                      const EdgeInsets.all(4),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.black
-                                                        .withValues(alpha: 0.5),
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: Icon(
-                                                    checked
-                                                        ? Icons.check_circle
-                                                        : Icons
-                                                            .radio_button_unchecked,
-                                                    size: 18,
-                                                    color: checked
-                                                        ? request.accent
-                                                        : Colors.white,
-                                                  ),
+                                          Positioned(
+                                            right: 4,
+                                            top: 4,
+                                            child: InkWell(
+                                              mouseCursor:
+                                                  WidgetStateMouseCursor
+                                                      .clickable,
+                                              onTap: () =>
+                                                  request.onToggleResultCheck(
+                                                      item.reference.id),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.all(4),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black
+                                                      .withValues(alpha: 0.5),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Icon(
+                                                  checked
+                                                      ? Icons.check_circle
+                                                      : Icons
+                                                          .radio_button_unchecked,
+                                                  size: 18,
+                                                  color: checked
+                                                      ? request.accent
+                                                      : Colors.white,
                                                 ),
                                               ),
                                             ),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -312,9 +281,8 @@ Widget buildMovieAddSearchPane(
                                         ),
                                       ),
                                     ],
-                                    if (isCore &&
-                                        request.ownedCatalogRefs
-                                            .contains(item.reference)) ...[
+                                    if (request.ownedCatalogRefs
+                                        .contains(item.reference)) ...[
                                       const SizedBox(height: 5),
                                       const LibraryAddResultBadge(
                                           'In collection'),
@@ -334,8 +302,7 @@ Widget buildMovieAddSearchPane(
 }
 
 class _MovieSearchGridEntry {
-  const _MovieSearchGridEntry.core(this.item) : candidate = null;
+  const _MovieSearchGridEntry.core(this.item);
 
-  final CatalogSearchCandidate? item;
-  final ProviderSearchCandidate? candidate;
+  final CatalogSearchCandidate item;
 }

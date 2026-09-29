@@ -1,15 +1,12 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_add_search_options_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -81,9 +78,6 @@ class _ComicAddSearchPaneState extends State<_ComicAddSearchPane> {
     );
     final entries = [
       for (final item in widget.request.results) _ComicSearchEntry.core(item),
-      for (final candidate in widget.request.providerResults)
-        if (candidate case final ComicProviderCandidate value)
-          _ComicSearchEntry.provider(value),
     ];
     return ComicAddSearchOptionsScope(
       hideOwnedResults: hideOwnedResults,
@@ -262,20 +256,15 @@ class _ComicSearchRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final options = ComicAddSearchOptionsScope.maybeOf(context);
-    final selected = entry.catalog != null
-        ? request.selectedResultId == entry.catalogId
-        : request.selectedProviderCandidateId ==
-            entry.candidate!.localCatalogId;
-    final checked = entry.catalog != null &&
-        request.checkedResultIds.contains(entry.catalogId);
-    final owned = entry.catalog != null &&
-        request.ownedCatalogRefs.contains(
-          CatalogEntityRef(
-            kind: CatalogMediaKind.comic,
-            entityType: const CatalogEntityTypeId('work'),
-            id: entry.catalogId,
-          ),
-        );
+    final selected = request.selectedResultId == entry.catalogId;
+    final checked = request.checkedResultIds.contains(entry.catalogId);
+    final owned = request.ownedCatalogRefs.contains(
+      CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: const CatalogEntityTypeId('work'),
+        id: entry.catalogId,
+      ),
+    );
     final background = selected
         ? Color.alphaBlend(
             request.accent.withValues(alpha: 0.2), palette.selection)
@@ -292,10 +281,7 @@ class _ComicSearchRow extends StatelessWidget {
         key: ValueKey(
           'library-add-search-result-${entry.catalogIdOrCandidateId}',
         ),
-        onTap: entry.catalog != null
-            ? () => request.onSelectResult(entry.catalogId)
-            : () => request
-                .onSelectProviderCandidate(entry.candidate!.localCatalogId),
+        onTap: () => request.onSelectResult(entry.catalogId),
         child: Container(
           height: options?.compactIssues == true ? 64 : 72,
           decoration: BoxDecoration(
@@ -320,21 +306,14 @@ class _ComicSearchRow extends StatelessWidget {
                 children: [
                   SizedBox(
                     width: 36,
-                    child: entry.catalog != null
-                        ? Checkbox(
-                            value: checked,
-                            onChanged: (_) =>
-                                request.onToggleResultCheck(entry.catalogId),
-                            activeColor: request.accent,
-                            materialTapTargetSize:
-                                MaterialTapTargetSize.shrinkWrap,
-                            visualDensity: VisualDensity.compact,
-                          )
-                        : Icon(
-                            Icons.add_circle_outline,
-                            size: 18,
-                            color: request.accent.withValues(alpha: 0.72),
-                          ),
+                    child: Checkbox(
+                      value: checked,
+                      onChanged: (_) =>
+                          request.onToggleResultCheck(entry.catalogId),
+                      activeColor: request.accent,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    ),
                   ),
                   _seriesCell(context, owned),
                   _issueCell(context),
@@ -374,10 +353,7 @@ class _ComicSearchRow extends StatelessWidget {
             runSpacing: 4,
             children: [
               LibraryAddResultBadge(
-                entry.catalog != null
-                    ? 'core'
-                    : libraryMetadataForKind(request.type.kind)
-                        .providerLabel(entry.candidate!.provider),
+                'core',
                 accent: request.accent,
               ),
               if (owned)
@@ -447,75 +423,52 @@ class _ComicSearchRow extends StatelessWidget {
     );
   }
 
-  String get _seriesText {
-    if (entry.catalog != null) {
-      return entry.catalog!.series?.seriesTitle?.trim().isNotEmpty == true
-          ? entry.catalog!.series!.seriesTitle!.trim()
-          : entry.catalog!.title;
-    }
-    return _candidateSeries(entry.candidate!);
-  }
+  String get _seriesText =>
+      entry.catalog.series?.seriesTitle?.trim().isNotEmpty == true
+          ? entry.catalog.series!.seriesTitle!.trim()
+          : entry.catalog.title;
 
   String get _issueText {
-    if (entry.catalog != null) {
-      return entry.catalog!.issueNumber?.trim() ?? '';
-    }
-    return entry.candidate!.issueNumber?.trim() ?? '';
+    return entry.catalog.issueNumber?.trim() ?? '';
   }
 
   String get _editionText {
-    if (entry.catalog != null) {
-      return entry.catalog!.editionTitle?.trim() ??
-          entry.catalog!.variant?.trim() ??
-          '';
-    }
-    return entry.candidate!.variantName?.trim() ??
-        (entry.candidate!.searchRole == ProviderSearchRole.variant
-            ? 'Variant'
-            : '');
-  }
-
-  String get _publisherText {
-    return entry.catalog?.publisher?.trim() ??
-        entry.candidate?.publisher?.trim() ??
+    return entry.catalog.editionTitle?.trim() ??
+        entry.catalog.variant?.trim() ??
         '';
   }
 
+  String get _publisherText {
+    return entry.catalog.publisher?.trim() ?? '';
+  }
+
   String get _releaseText {
-    if (entry.catalog != null) {
-      return _formatReleaseDate(
-        entry.catalog!.releaseDate,
-        entry.catalog!.releaseDate?.year ?? entry.catalog!.coverDate?.year,
-      );
-    }
-    final year = entry.candidate!.series?.volumeStartYear;
-    return year?.toString() ?? '';
+    return _formatReleaseDate(
+      entry.catalog.releaseDate,
+      entry.catalog.releaseDate?.year ?? entry.catalog.coverDate?.year,
+    );
   }
 
   String get _formatText {
-    return entry.catalog?.physicalFormatLabel?.trim() ?? '';
+    return entry.catalog.physicalFormatLabel?.trim() ?? '';
   }
 }
 
 class _ComicSearchEntry {
   _ComicSearchEntry.core(CatalogSearchCandidate item)
-      : catalog = _comicMediaFromResult(item),
-        candidate = null;
-  const _ComicSearchEntry.provider(this.candidate) : catalog = null;
+      : catalog = _comicMediaFromResult(item);
 
-  final ComicMedia? catalog;
-  final ComicProviderCandidate? candidate;
+  final ComicMedia catalog;
 
   String get catalogId {
-    final id = catalog?.id?.value;
+    final id = catalog.id?.value;
     if (id == null || id.isEmpty) {
       throw StateError('Comic add result is missing its typed media ID');
     }
     return id;
   }
 
-  String get catalogIdOrCandidateId =>
-      catalog == null ? candidate!.localCatalogId : catalogId;
+  String get catalogIdOrCandidateId => catalogId;
 }
 
 ComicMedia _comicMediaFromResult(CatalogSearchCandidate item) {
@@ -528,14 +481,6 @@ ComicMedia _comicMediaFromResult(CatalogSearchCandidate item) {
     return metadata;
   }
   return metadata.copyWith(id: ComicMediaId(item.reference.id));
-}
-
-String _candidateSeries(ComicProviderCandidate candidate) {
-  final seriesTitle = candidate.series?.seriesTitle?.trim();
-  if (seriesTitle != null && seriesTitle.isNotEmpty) {
-    return seriesTitle;
-  }
-  return candidate.title;
 }
 
 String _formatReleaseDate(DateTime? date, int? year) {

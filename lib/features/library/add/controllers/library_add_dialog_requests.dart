@@ -11,8 +11,8 @@ import 'package:collectarr_app/features/library/add/models/library_add_reference
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
@@ -252,25 +252,16 @@ class LibraryAddSearchPaneRequest {
     required this.error,
     required this.accent,
     required this.results,
-    required this.providerResults,
-    required this.selectedProvider,
-    required this.searchedProvider,
     required this.selectedResultId,
-    required this.selectedProviderCandidateId,
     required this.checkedResultIds,
-    required this.checkedProviderIds,
     required this.ownedCatalogRefs,
     this.coreMatchSummary,
-    this.providerMatchSummary,
     required this.resultPolicy,
     required this.resultPolicyState,
     required this.onResultPolicyOptionChanged,
     required this.isWideLayout,
     required this.onSelectResult,
-    required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
-    required this.onToggleProviderCheck,
-    required this.onSearchCore,
   });
 
   final LibraryKindRegistration type;
@@ -278,26 +269,16 @@ class LibraryAddSearchPaneRequest {
   final String? error;
   final Color accent;
   final List<CatalogSearchCandidate> results;
-  final List<ProviderSearchCandidate> providerResults;
-  final String selectedProvider;
-  final bool searchedProvider;
   final String? selectedResultId;
-  final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
-  final Set<String> checkedProviderIds;
   final Set<CatalogEntityRef> ownedCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
-  final String? Function(ProviderSearchCandidate candidate)?
-      providerMatchSummary;
   final LibraryAddResultPolicy resultPolicy;
   final LibraryAddResultPolicyState resultPolicyState;
   final void Function(String id, bool value) onResultPolicyOptionChanged;
   final bool isWideLayout;
   final ValueChanged<String> onSelectResult;
-  final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
-  final ValueChanged<String> onToggleProviderCheck;
-  final VoidCallback onSearchCore;
 }
 
 class LibraryAddBottomBarRequest {

@@ -810,26 +810,17 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 error: state.search.error,
                 accent: accent,
                 results: visibleCore,
-                providerResults: const [],
-                selectedProvider: '',
-                searchedProvider: false,
                 selectedResultId: state.selection.selectedResultId,
-                selectedProviderCandidateId: null,
                 checkedResultIds: state.selection.checkedResultIds,
-                checkedProviderIds: const {},
                 ownedCatalogRefs: ownedByCatalogRef.keys.toSet(),
                 coreMatchSummary: (item) => addCapability.search.presentation
                     .coreMatchSummary(item, searchContext),
-                providerMatchSummary: null,
                 resultPolicy: resultPolicy,
                 resultPolicyState: state.selection.resultPolicyState,
                 onResultPolicyOptionChanged: _controller.setResultPolicyOption,
                 isWideLayout: constraints.maxWidth >= 720,
                 onSelectResult: _controller.selectResult,
-                onSelectProviderCandidate: (_) {},
                 onToggleResultCheck: _controller.toggleCheckedResult,
-                onToggleProviderCheck: (_) {},
-                onSearchCore: _controller.executeSearch,
               );
 
               final searchPaneWidget = addCapability.searchPaneBuilder
@@ -851,7 +842,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         searchPaneRequest.onResultPolicyOptionChanged,
                     onSelectResult: searchPaneRequest.onSelectResult,
                     onToggleResultCheck: searchPaneRequest.onToggleResultCheck,
-                    onSearchCore: searchPaneRequest.onSearchCore,
                   );
 
               final previewPaneWidget = LibraryAddPreviewPane(
