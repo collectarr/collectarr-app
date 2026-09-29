@@ -500,7 +500,6 @@ class _DashboardMiniChip extends StatelessWidget {
 String _dashboardProposalAuditActionLabel(String action) {
   return switch (action) {
     'metadata_proposal.approve' => 'Approved proposal',
-    'metadata_proposal.approve_provider' => 'Approved proposal',
     'metadata_proposal.reject' => 'Rejected proposal',
     _ => action,
   };

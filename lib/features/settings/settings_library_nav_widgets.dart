@@ -125,12 +125,7 @@ class SettingsLibraryNavigationPanel extends StatelessWidget {
               ),
               title: Text(group.label),
               subtitle: Text(
-                [
-                  allVisible ? 'Visible' : 'Hidden',
-                  _groupProviders(group).isEmpty
-                      ? 'No provider'
-                      : 'Providers: ${_groupProviders(group).join(', ')}',
-                ].join(' | '),
+                allVisible ? 'Visible' : 'Hidden',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -484,15 +479,6 @@ List<String> _expandSettingsGroupKinds(List<LibraryNavGroup> groups) {
     for (final group in groups)
       for (final type in group.types) type.kind,
   ];
-}
-
-List<String> _groupProviders(LibraryNavGroup group) {
-  final providers = <String>{};
-  for (final type in group.types) {
-    providers.addAll(type.providers);
-  }
-  final ordered = providers.toList()..sort();
-  return ordered;
 }
 
 String _settingsKindLabel(String kind) {

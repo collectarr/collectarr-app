@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_listening
 import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_providers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state_provider.dart';
-import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -85,5 +84,4 @@ void invalidateLocalDatabaseProjections(WidgetRef ref) {
   ref.invalidate(libraryCustomFieldCacheProvider);
   ref.invalidate(tvTrackingStateBySeriesIdProvider);
   ref.invalidate(tvCustomEpisodesByCatalogRefProvider);
-  ref.invalidate(externalAccountsProvider);
 }

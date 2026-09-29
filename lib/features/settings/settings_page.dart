@@ -995,8 +995,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               Text(
                 auth.isAuthenticated
                     ? auth.isAdmin
-                        ? 'Full admin access: dashboard, ingest jobs, logs, system management, and all catalog operations.'
-                        : 'Catalog search, proposals, corrections, and provider workflows are available. Admin-only tools (dashboard, ingest jobs, logs) are hidden.'
+                        ? 'Full admin access: dashboard, logs, system management, and all catalog operations.'
+                        : 'Catalog search, proposals, and corrections are available. Admin-only tools (dashboard, logs) are hidden.'
                     : 'You can browse the app and send metadata proposals without signing in. Admin sign in is only needed for admin/server features.',
               ),
               const SizedBox(height: 12),
