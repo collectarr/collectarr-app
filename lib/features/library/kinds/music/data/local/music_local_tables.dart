@@ -65,18 +65,6 @@ class MusicReleaseLocalDetailsRows extends Table {
   Set<Column> get primaryKey => {releaseId};
 }
 
-/// Recovery copy of medium conditions migrated to owned-copy details.
-class MusicLegacyMediumConditionArchiveRows extends Table {
-  TextColumn get id => text()();
-  TextColumn get releaseId => text()();
-  IntColumn get mediumNumber => integer()();
-  TextColumn get condition => text()();
-  DateTimeColumn get archivedAt => dateTime()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
 /// User-managed front/back covers and reference images for a concrete release.
 class MusicReleaseImagesRows extends Table {
   TextColumn get id => text()();

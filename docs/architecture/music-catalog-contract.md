@@ -32,7 +32,7 @@ dart run tool/check_music_catalog_field_ownership.dart
 
 CI runs both the DTO generator check and the field ownership check against the pinned App contract. Updating Core does not silently update the App input; copying a new Core bundle and regenerating its DTOs is an explicit App change.
 
-## App-only fields and local migration
+## App-only fields
 
 - `recording_id` is a canonical Music track field. App stores it on `MusicTrack` and `music_track_rows`.
 - Release-level physical format is derived from the ordered `medium_type` values. App stores the summary values in `medium_types_json` when the full medium rows are not loaded; it does not store duplicate physical-format columns.
@@ -40,6 +40,7 @@ CI runs both the DTO generator check and the field ownership check against the p
 - `media_condition` describes an owned physical copy. It is stored in `MusicOwnedMediumDetails` within `music_owned_items_rows.medium_details_json`, not on the canonical medium.
 - Release links, tracking, listening history, owned-copy fields, and device artwork paths remain in App-owned tables or caches.
 
-App's SQLite schema version 5 migration moves old box-set names to the local details table, archives previous medium-condition values for recovery, transfers them to matching owned copies by release and medium number, and preserves the existing format by deriving summary values from medium rows or the former release format values. It then rebuilds the affected release and medium tables without the duplicate or copy-specific columns.
-
-Core's `migrations/20260925_music_field_ownership.sql` archives existing Music synopsis and medium-condition values before removing those columns, then adds `music_tracks.recording_id`. Run this deployment migration through the Core database migration process; `bootstrap_schema` only creates missing schema objects and does not remove old columns.
+The supported App database is created as a fresh version 1 schema. There is no
+upgrade path from the earlier SQLite layouts. Preserve existing databases and
+backups separately; App does not rewrite them. Core likewise requires a new,
+empty PostgreSQL database for its current schema baseline.

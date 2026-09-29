@@ -23,7 +23,7 @@ The flattened-catalog cutover is in progress. Its target is one Catalog Item
 per concrete edition in each kind, with separate App-owned copies. User
 proposals remain available and carry the same catalog fields as manual Add/Edit;
 provider search and ingest are not part of that flow. See
-[the recorded baseline and migration rules](docs/architecture/flattened-catalog-baseline.md).
+[the Catalog Item v1 cutover status and fresh database policy](docs/architecture/flattened-catalog-baseline.md).
 
 The app keeps semantic behavior inside the owning kind: Comic, Manga, Book,
 Game, Board Game, Movie, TV, Anime, and Music each provide their typed domain,
@@ -133,7 +133,7 @@ Current active tracks:
 
 - preserve the manual Add submission guard with contract checks
 - keep Add search on the Core catalog and preserve manual Add/Edit proposals
-- remove obsolete draft, fallback, and widget paths after each migration
+- remove obsolete draft and widget paths after each cutover step
 - improve small text, accent contrast, and text scaling across Library screens
 - keep seed scripts, local Drift schemas, and contract tests synchronized
 - extend calendar support with a live subscribable ICS feed and reminders

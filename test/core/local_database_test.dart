@@ -3,13 +3,13 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('creates the complete current schema as version 3', () async {
+  test('creates the fresh schema at version 1', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 5);
+    expect(db.schemaVersion, 1);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 3);
+    expect(version.data.values.single, 1);
 
     final tables = await db
         .customSelect(
