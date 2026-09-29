@@ -89,10 +89,8 @@ final tvKindIdentity = const LibraryKindIdentity(
 );
 
 final tvKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'tmdb',
   catalogMetadataDecoder: TvSeriesMetadata.fromJson,
   searchQueryBuilder: tvMetadataSearchQuery,
-  providers: [tmdbMetadataProvider],
 );
 
 final tvKindUiPolicy = const LibraryUiPolicy(

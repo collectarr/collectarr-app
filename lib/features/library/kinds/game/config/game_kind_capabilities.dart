@@ -45,10 +45,8 @@ final gameKindIdentity = const LibraryKindIdentity(
 );
 
 final gameKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'igdb',
   catalogMetadataDecoder: GameCatalogMetadata.fromJson,
   searchQueryBuilder: gameMetadataSearchQuery,
-  providers: [igdbMetadataProvider],
 );
 
 final gameKindHierarchy = const LibraryHierarchyCapability(

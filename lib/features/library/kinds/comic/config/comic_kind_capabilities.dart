@@ -48,19 +48,10 @@ final comicKindIdentity = const LibraryKindIdentity(
 );
 
 final comicKindMetadata = LibraryMetadataCapability(
-  defaultProviderId: 'gcd',
   catalogMetadataDecoder: ComicMedia.fromJson,
   searchQueryBuilder: comicMetadataSearchQuery,
   supportsServerCompare: true,
-  usesTreeProviderCandidates: true,
   compareBuilder: buildComicMetadataComparePanels,
-  providers: [
-    gcdMetadataProvider,
-    comicVineMetadataProvider,
-    mangadexMetadataProvider,
-    anilistMetadataProvider,
-    hardcoverMetadataProvider,
-  ],
 );
 
 final comicKindHierarchy = const LibraryHierarchyCapability(

@@ -180,11 +180,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 accent: widget.accent,
               ),
             );
-    final onRefreshMetadata = libraryMetadataForKind(widget.type.kind)
-            .supportedProvidersForKind(widget.type.kind)
-            .isEmpty
-        ? null
-        : () => _refreshSelectedEntryMetadata(selected);
+    void onRefreshMetadata() => _refreshSelectedEntryMetadata(selected);
     void onShare() => _shareInspectorEntry(selected);
     late final LibraryItemActions scopedActions;
     void onOpenDetails() {

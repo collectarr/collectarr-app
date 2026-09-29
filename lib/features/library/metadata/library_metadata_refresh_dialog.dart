@@ -120,7 +120,7 @@ class _LibraryMetadataRefreshDialogState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Search Collectarr Core for fresher metadata and cache the returned snapshots locally on this device.',
+                'Search Collectarr Core for catalog records and cache matching results on this device.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: palette.textMuted,
                       fontWeight: FontWeight.w700,
@@ -128,19 +128,8 @@ class _LibraryMetadataRefreshDialogState
               ),
               const SizedBox(height: 14),
               _RefreshSourcePanel(
-                type: widget.type,
                 accent: widget.accent,
               ),
-              if (libraryMetadataForKind(widget.type.kind)
-                  .supportedProvidersForKind(widget.type.kind)
-                  .isEmpty) ...[
-                const SizedBox(height: 8),
-                _RefreshNotice(
-                  icon: Icons.warning_amber_outlined,
-                  text:
-                      'No metadata provider is configured for this media type. Refresh may only find existing Core catalog records; manual add remains available.',
-                ),
-              ],
               const SizedBox(height: 12),
               SegmentedButton<_RefreshScope>(
                 segments: [
@@ -434,11 +423,9 @@ class _RefreshSummary {
 
 class _RefreshSourcePanel extends StatelessWidget {
   const _RefreshSourcePanel({
-    required this.type,
     required this.accent,
   });
 
-  final LibraryKindRegistration type;
   final Color accent;
 
   @override
@@ -469,7 +456,7 @@ class _RefreshSourcePanel extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _providerSummary(type),
+                    'Searches canonical catalog records already available in Core.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: palette.textMuted,
                           fontWeight: FontWeight.w700,
@@ -646,17 +633,6 @@ List<LibraryProjectionView> _dedupe(Iterable<LibraryProjectionView> values) {
     }
   }
   return result;
-}
-
-String _providerSummary(LibraryKindRegistration type) {
-  final supportedProviders =
-      libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind);
-  if (supportedProviders.isEmpty) {
-    return 'No providers are registered for this media type yet; existing Core catalog rows can still be searched.';
-  }
-  final labels =
-      supportedProviders.map((provider) => provider.label).join(', ');
-  return 'Core may use: $labels.';
 }
 
 String _shortError(Object error) {

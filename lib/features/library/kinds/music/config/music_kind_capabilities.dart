@@ -69,12 +69,10 @@ final musicKindIdentity = const LibraryKindIdentity(
 );
 
 final musicKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'musicbrainz',
   catalogMetadataDecoder: MusicReleaseGroup.fromJson,
   searchQueryBuilder: musicMetadataSearchQuery,
   supportsServerCompare: true,
   compareBuilder: buildMusicMetadataComparePanels,
-  providers: [musicBrainzMetadataProvider],
 );
 
 final musicKindHierarchy = const LibraryHierarchyCapability(

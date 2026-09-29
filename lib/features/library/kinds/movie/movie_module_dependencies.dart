@@ -51,7 +51,6 @@ export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-export 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 export 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 export 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';

@@ -48,10 +48,8 @@ final boardGameKindIdentity = const LibraryKindIdentity(
 );
 
 final boardGameKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'bgg',
   catalogMetadataDecoder: BoardGameMetadata.fromJson,
   searchQueryBuilder: boardGameMetadataSearchQuery,
-  providers: [bggMetadataProvider],
 );
 
 final boardGameKindHierarchy = const LibraryHierarchyCapability(

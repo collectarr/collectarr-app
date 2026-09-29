@@ -85,10 +85,8 @@ final movieKindIdentity = const LibraryKindIdentity(
 );
 
 final movieKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'tmdb',
   catalogMetadataDecoder: MovieCatalogMetadata.fromJson,
   searchQueryBuilder: movieMetadataSearchQuery,
-  providers: [tmdbMetadataProvider],
 );
 
 final movieKindUiPolicy = const LibraryUiPolicy(

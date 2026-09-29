@@ -57,7 +57,6 @@ export 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 export 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-export 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 export 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 export 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';

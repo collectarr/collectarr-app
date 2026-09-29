@@ -100,16 +100,8 @@ final mangaKindIdentity = const LibraryKindIdentity(
 );
 
 final mangaKindMetadata = LibraryMetadataCapability(
-  defaultProviderId: 'hardcover',
   catalogMetadataDecoder: MangaMetadata.fromJson,
   searchQueryBuilder: mangaMetadataSearchQuery,
-  usesTreeProviderCandidates: true,
-  providers: [
-    hardcoverMetadataProvider,
-    comicVineMetadataProvider,
-    anilistMetadataProvider,
-    mangadexMetadataProvider,
-  ],
 );
 
 final mangaKindHierarchy = const LibraryHierarchyCapability(

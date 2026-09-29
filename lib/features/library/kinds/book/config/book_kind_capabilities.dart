@@ -62,13 +62,8 @@ final bookKindIdentity = const LibraryKindIdentity(
 );
 
 final bookKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'hardcover',
   catalogMetadataDecoder: BookCatalogMetadata.fromJson,
   searchQueryBuilder: bookMetadataSearchQuery,
-  providers: [
-    hardcoverMetadataProvider,
-    openLibraryMetadataProvider,
-  ],
 );
 
 final bookKindHierarchy = LibraryHierarchyCapability(

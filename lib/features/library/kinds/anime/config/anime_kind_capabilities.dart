@@ -88,11 +88,8 @@ final animeKindIdentity = const LibraryKindIdentity(
 );
 
 final animeKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'anilist',
   catalogMetadataDecoder: AnimeMetadata.fromJson,
   searchQueryBuilder: animeMetadataSearchQuery,
-  usesTreeProviderCandidates: true,
-  providers: [anilistMetadataProvider],
 );
 
 final animeKindHierarchy = const LibraryHierarchyCapability(
