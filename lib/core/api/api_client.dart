@@ -446,28 +446,6 @@ class ApiClient {
     );
   }
 
-  Future<List<AdminDuplicateCandidate>> adminDuplicateCandidates({
-    int limit = 10,
-  }) async {
-    return _adminApi.adminDuplicateCandidates(limit: limit);
-  }
-
-  Future<AdminDuplicateActionResult> adminIgnoreDuplicateCandidate({
-    required List<String> itemIds,
-  }) async {
-    return _adminApi.adminIgnoreDuplicateCandidate(itemIds: itemIds);
-  }
-
-  Future<AdminDuplicateActionResult> adminMergeDuplicateCandidate({
-    required String targetItemId,
-    required List<String> sourceItemIds,
-  }) async {
-    return _adminApi.adminMergeDuplicateCandidate(
-      targetItemId: targetItemId,
-      sourceItemIds: sourceItemIds,
-    );
-  }
-
   Future<AdminMetadataItem> adminGetMetadataItem({
     required String kind,
     required String id,

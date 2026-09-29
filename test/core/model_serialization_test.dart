@@ -262,23 +262,6 @@ void main() {
     expect(preview.tracks.first.artist, 'Daft Punk');
   });
 
-  test('admin duplicate candidate parses score and recommended target', () {
-    final candidate = AdminDuplicateCandidate.fromJson({
-      'kind': 'comic',
-      'title': 'Absolute Batman',
-      'item_number': '1',
-      'count': 2,
-      'item_ids': ['a', 'b'],
-      'duplicate_score': 86,
-      'recommended_target_item_id': 'b',
-    });
-
-    expect(candidate.duplicateScore, 86);
-    expect(candidate.recommendedTargetItemId, 'b');
-    expect(candidate.preferredTargetItemId, 'b');
-    expect(candidate.displayTitle, 'Absolute Batman #1');
-  });
-
   test('typed TV episode parses runtime and air date', () {
     final episode = TvEpisode.fromJson({
       'id': 'episode-1',

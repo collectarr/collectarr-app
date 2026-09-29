@@ -60,7 +60,6 @@ void main() {
     expect(find.text('1 live'), findsOneWidget);
     expect(find.text('3 registered'), findsOneWidget);
     expect(find.text('12 items'), findsOneWidget);
-    expect(find.text('1 duplicate groups'), findsOneWidget);
     expect(find.text('75% covers'), findsOneWidget);
     expect(find.text('92% provider IDs'), findsOneWidget);
     expect(find.text('1 failures'), findsOneWidget);
@@ -507,7 +506,6 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastIngestProviderItemId;
   String? lastInspectKind;
   String? lastInspectId;
-  String? lastMergeTargetItemId;
   String? lastCatalogUpdateTitle;
   String? lastCatalogUpdateOriginalTitle;
   String? lastCatalogUpdateLocalizedTitle;
@@ -538,8 +536,6 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastQueuedProviderItemId;
   int? lastRetryHistoryId;
   List<String>? lastSeriesTags;
-  List<String>? lastMergeSourceItemIds;
-  bool duplicateResolved = false;
   bool retryResolved = false;
   bool catalogUpdated = false;
   bool bundleUpdated = false;
@@ -722,7 +718,7 @@ class _FakeAdminApiClient extends ApiClient {
       pendingProposals: 2,
       missingCoverItems: 3,
       missingProviderLinkItems: 1,
-      duplicateCandidateGroups: duplicateResolved ? 0 : 1,
+      duplicateCandidateGroups: 0,
       providerIngestSuccesses: retryResolved ? 6 : 5,
       providerIngestFailures: retryResolved ? 0 : 1,
     );
@@ -1198,84 +1194,6 @@ class _FakeAdminApiClient extends ApiClient {
       }
       return true;
     }).toList(growable: false);
-  }
-
-  @override
-  Future<List<AdminDuplicateCandidate>> adminDuplicateCandidates({
-    int limit = 10,
-  }) async {
-    if (duplicateResolved) {
-      return const [];
-    }
-    return const [
-      AdminDuplicateCandidate(
-        kind: 'comic',
-        title: 'Absolute Batman',
-        itemNumber: '1A',
-        count: 2,
-        itemIds: ['item-1', 'item-2'],
-        hasCoverConflicts: true,
-      ),
-    ];
-  }
-
-  @override
-  Future<AdminDuplicateActionResult> adminIgnoreDuplicateCandidate({
-    required List<String> itemIds,
-  }) async {
-    duplicateResolved = true;
-    return AdminDuplicateActionResult(
-      ok: true,
-      affectedItems: itemIds.length,
-    );
-  }
-
-  @override
-  Future<AdminDuplicateActionResult> adminMergeDuplicateCandidate({
-    required String targetItemId,
-    required List<String> sourceItemIds,
-  }) async {
-    lastMergeTargetItemId = targetItemId;
-    lastMergeSourceItemIds = sourceItemIds;
-    duplicateResolved = true;
-    return AdminDuplicateActionResult(
-      ok: true,
-      affectedItems: sourceItemIds.length,
-      item: const AdminMetadataItem(
-        id: 'item-1',
-        kind: 'comic',
-        title: 'Absolute Batman',
-        itemNumber: '1A',
-        canonicalFieldValues: {
-          'series_title': 'Absolute Batman',
-          'publisher': 'DC Comics',
-        },
-        editions: [
-          AdminEdition(
-            id: 'edition-1',
-            title: 'Standard Edition',
-            variants: [
-              AdminVariant(
-                id: 'variant-1',
-                name: 'Cover A',
-                isPrimary: true,
-              ),
-            ],
-          ),
-          AdminEdition(
-            id: 'edition-2',
-            title: 'Variant Edition',
-            variants: [
-              AdminVariant(
-                id: 'variant-2',
-                name: 'Variant Cover',
-                isPrimary: false,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 
   @override
