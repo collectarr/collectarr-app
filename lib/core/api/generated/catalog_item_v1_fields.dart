@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND.
 // Source: tool/core_contracts/catalog-item-v1.json
-// Contract SHA-256: 216b8142a807179f3b41dcbf8b537e1a794d27097e6404e51f25fa3399179b36
+// Contract SHA-256: 1315d2511e3213ec9228a87cc668b11f873f6dd088c78b55ee77893893abf620
 const catalogItemV1SchemaVersion = 1;
 const catalogItemV1ContractVersion = '1.0.0';
 
@@ -161,6 +161,7 @@ const Map<String, Set<String>> catalogItemV1FieldsByKind = {
     'edition_title',
     'external_links',
     'genres',
+    'identifiers',
     'imprint',
     'issue_number',
     'item_number',
@@ -249,8 +250,11 @@ const Map<String, Set<String>> catalogItemV1FieldsByKind = {
     'edition_title',
     'external_links',
     'genres',
+    'identifiers',
     'imprint',
     'isbn',
+    'isbn10',
+    'isbn13',
     'item_number',
     'language',
     'localized_title',

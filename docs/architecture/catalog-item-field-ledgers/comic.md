@@ -23,6 +23,7 @@
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `edition_title` | `edition_title` |
 | Unverified; Edit-form capture required | Unverified; capture required | array of object | Catalog Item | Yes | `external_links` | `external_links` |
 | Unverified; Edit-form capture required | Unverified; capture required | array of string | Catalog Item | Yes | `genres` | `genres` |
+| Unverified; Edit-form capture required | Unverified; capture required | array of string or object | Catalog Item | Yes | `identifiers` | `identifiers` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `imprint` | `imprint` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `issue_number` | `issue_number` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `item_number` | `item_number` |
