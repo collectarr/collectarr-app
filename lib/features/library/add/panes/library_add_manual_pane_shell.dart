@@ -1,15 +1,16 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
-import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:flutter/material.dart';
 
 /// Shared visual structure for kind-owned manual Add forms.
 ///
-/// Kind panes keep their identity fields, schema, and any supporting state;
-/// this shell owns the panel, introduction, scrolling, and common actions.
-class LibraryAddManualPaneShell extends StatelessWidget {
+/// Uses the Edit dialog scaffold so manual Add and Edit share their header,
+/// tab strip, form surface, positioning, and footer layout. Kind panes retain
+/// their own identity fields, schema, and supporting state.
+class LibraryAddManualPaneShell extends StatefulWidget {
   const LibraryAddManualPaneShell({
     super.key,
     required this.request,
@@ -26,50 +27,79 @@ class LibraryAddManualPaneShell extends StatelessWidget {
   final Widget formContent;
 
   @override
+  State<LibraryAddManualPaneShell> createState() =>
+      _LibraryAddManualPaneShellState();
+}
+
+class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
+    with SingleTickerProviderStateMixin {
+  late final GlobalKey<FormState> _formKey;
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _formKey = GlobalKey<FormState>();
+    _tabController = TabController(length: 1, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        border: Border(left: BorderSide(color: palette.divider)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    final request = widget.request;
+    final subtitle = widget.subtitle.trim();
+    final badges = <Widget>[
+      const LibraryAddResultBadge('main'),
+      LibraryAddResultBadge('owned defaults', accent: request.accent),
+      if (request.defaultLocationLabel != null)
+        LibraryAddResultBadge(
+          request.defaultLocationLabel!,
+          accent: request.accent,
+        ),
+    ];
+
+    return LibraryEditDialogScaffold(
+      formKey: _formKey,
+      accent: request.accent,
+      icon: request.type.identity.icon,
+      title: widget.title,
+      badges: badges,
+      tabController: _tabController,
+      tabs: [
+        EditTab(icon: Icons.edit_note_outlined, label: 'Main'),
+      ],
+      views: [
+        EditTabShell(
           children: [
-            LibraryAddManualIntroCard(
-              icon: request.type.identity.icon,
-              accent: request.accent,
-              title: title,
-              subtitle: subtitle,
-              badges: [
-                const LibraryAddResultBadge('main'),
-                libraryAddManualIntroBadge(
-                  'owned defaults',
-                  accent: request.accent,
+            if (subtitle.isNotEmpty)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
-                if (request.defaultLocationLabel != null)
-                  libraryAddManualIntroBadge(
-                    request.defaultLocationLabel!,
-                    accent: request.accent,
-                  ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView(
-                children: [
-                  identity,
-                  const SizedBox(height: 10),
-                  formContent,
-                ],
               ),
-            ),
+            if (subtitle.isNotEmpty) const SizedBox(height: 12),
+            widget.identity,
             const SizedBox(height: 10),
-            LibraryAddManualActionBar(request: request),
+            widget.formContent,
           ],
         ),
+      ],
+      allowTabReorder: false,
+      onClose: () => Navigator.of(context).pop(),
+      onCancel: () => Navigator.of(context).pop(),
+      onSave: request.onAddOwned,
+      footerOverride: LibraryAddManualActionBar(
+        request: request,
+        formKey: _formKey,
       ),
     );
   }

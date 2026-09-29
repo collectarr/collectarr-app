@@ -27,6 +27,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     this.views = const [],
     this.body,
     this.footerContent,
+    this.footerOverride,
     required this.onClose,
     required this.onCancel,
     required this.onSave,
@@ -54,6 +55,10 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final List<Widget> views;
   final Widget? body;
   final Widget? footerContent;
+
+  /// Replaces the standard Edit actions while retaining the shared dialog
+  /// footer slot and layout.
+  final Widget? footerOverride;
   final VoidCallback onClose;
   final VoidCallback onCancel;
   final VoidCallback onSave;
@@ -196,15 +201,16 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
           chromeVariant: widget.chromeVariant,
           accent: widget.accent,
         ),
-        footer: _LibraryEditFooter(
-          onCancel: widget.onCancel,
-          onSave: widget.onSave,
-          onProposeToCore: widget.onProposeToCore,
-          onPrevious: widget.onPrevious,
-          onNext: widget.onNext,
-          chromeVariant: widget.chromeVariant,
-          accent: widget.accent,
-        ),
+        footer: widget.footerOverride ??
+            _LibraryEditFooter(
+              onCancel: widget.onCancel,
+              onSave: widget.onSave,
+              onProposeToCore: widget.onProposeToCore,
+              onPrevious: widget.onPrevious,
+              onNext: widget.onNext,
+              chromeVariant: widget.chromeVariant,
+              accent: widget.accent,
+            ),
         maxWidth: maxWidth,
         minHeight: 0,
         maxHeight: maxHeight,

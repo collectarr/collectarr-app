@@ -560,48 +560,14 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _manualDialogOpen = true;
 
     Widget buildManualDialog(BuildContext dialogContext) {
-      final viewport = MediaQuery.sizeOf(dialogContext);
-      final windowClass = AppWindowClass.of(dialogContext);
-      final horizontalInset = windowClass.isMedium ? 16.0 : 32.0;
-      final dialogWidth = (viewport.width - horizontalInset * 2)
-          .clamp(360.0, 1100.0)
-          .toDouble();
-      final dialogHeight =
-          (viewport.height - 24).clamp(320.0, 850.0).toDouble();
-      final palette = appPalette(dialogContext);
-
-      return LibraryDialogScaffold(
-        accent: accent,
-        themeData: buildLibraryAddDialogTheme(accent, palette),
-        header: AccentDialogHeader(
-          title: 'Add ${widget.type.identity.pluralLabel}',
-          icon: widget.type.identity.icon,
-          onClose: () => Navigator.of(dialogContext).pop(),
-        ),
-        width: dialogWidth,
-        height: dialogHeight,
-        minWidth: 360,
-        maxWidth: 1100,
-        minHeight: 0,
-        maxHeight: dialogHeight,
-        alignment: Alignment.topCenter,
-        insetPadding: EdgeInsets.fromLTRB(
-          horizontalInset,
-          8,
-          horizontalInset,
-          16,
-        ),
-        padding: EdgeInsets.zero,
-        expandBody: true,
-        body: ValueListenableBuilder<LibraryAddSessionState>(
-          valueListenable: _controller,
-          builder: (context, state, _) => capability.buildManualPane(
-            context,
-            _buildManualPaneRequest(
-              state,
-              accent,
-              manualDialogContext: dialogContext,
-            ),
+      return ValueListenableBuilder<LibraryAddSessionState>(
+        valueListenable: _controller,
+        builder: (context, state, _) => capability.buildManualPane(
+          context,
+          _buildManualPaneRequest(
+            state,
+            accent,
+            manualDialogContext: dialogContext,
           ),
         ),
       );
