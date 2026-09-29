@@ -811,7 +811,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 accent: accent,
                 results: visibleCore,
                 providerResults: const [],
-                queuedProviderIngests: const {},
                 selectedProvider: '',
                 searchedProvider: false,
                 selectedResultId: state.selection.selectedResultId,

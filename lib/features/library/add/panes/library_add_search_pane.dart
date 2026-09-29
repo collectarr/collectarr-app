@@ -71,7 +71,6 @@ class LibraryAddSearchPane extends StatelessWidget {
               results: results,
               providerResults: const [],
               resultPolicy: resultPolicy,
-              queuedProviderIngests: const {},
               selectedResultId: selectedResultId,
               selectedProviderCandidateId: null,
               checkedResultIds: checkedResultIds,
@@ -191,94 +190,23 @@ class _SearchSourceToggle extends StatelessWidget {
 class _SearchPaneNoticeStack extends StatelessWidget {
   const _SearchPaneNoticeStack({
     required this.error,
-    required this.queuedProviderIngests,
-    required this.isBusy,
-    required this.accent,
-    required this.onSearchCore,
   });
 
   final String? error;
-  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
-  final bool isBusy;
-  final Color accent;
-  final VoidCallback onSearchCore;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    if (error == null && queuedProviderIngests.isEmpty) {
+    if (error == null) {
       return const SizedBox.shrink();
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (queuedProviderIngests.isNotEmpty)
-          _QueuedIngestNotice(
-            count: queuedProviderIngests.length,
-            accent: accent,
-            onSearchCore: isBusy ? null : onSearchCore,
-          ),
-        if (error != null)
-          Padding(
-            padding: EdgeInsets.only(
-              top: queuedProviderIngests.isNotEmpty ? 6 : 0,
-            ),
-            child: AppErrorBanner(error!),
-          ),
+        if (error != null) AppErrorBanner(error!),
         Divider(height: 1, thickness: 1, color: palette.divider),
       ],
-    );
-  }
-}
-
-class _QueuedIngestNotice extends StatelessWidget {
-  const _QueuedIngestNotice({
-    required this.count,
-    required this.accent,
-    required this.onSearchCore,
-  });
-
-  final int count;
-  final Color accent;
-  final VoidCallback? onSearchCore;
-
-  @override
-  Widget build(BuildContext context) {
-    final jobLabel = count == 1 ? 'job' : 'jobs';
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.infoBackground,
-        border: Border.all(color: accent.withValues(alpha: 0.65)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-        child: Row(
-          children: [
-            Icon(Icons.playlist_add_check,
-                size: 18, color: palette.infoForeground),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                '$count Core ingest $jobLabel queued. Run or retry them in Admin, then search Core again.',
-                style: TextStyle(
-                  color: palette.infoForeground,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            OutlinedButton.icon(
-              onPressed: onSearchCore,
-              style: libraryAddOutlinedButtonStyle(accent),
-              icon: const Icon(Icons.refresh, size: 16),
-              label: const Text('Search Core again'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -295,7 +223,6 @@ class _SearchResultsList extends StatelessWidget {
     required this.results,
     required this.providerResults,
     required this.resultPolicy,
-    required this.queuedProviderIngests,
     required this.selectedResultId,
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
@@ -320,7 +247,6 @@ class _SearchResultsList extends StatelessWidget {
   final List<CatalogSearchCandidate> results;
   final List<ProviderSearchCandidate> providerResults;
   final LibraryAddResultPolicy resultPolicy;
-  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
@@ -338,13 +264,7 @@ class _SearchResultsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final notice = _SearchPaneNoticeStack(
-      error: error,
-      queuedProviderIngests: queuedProviderIngests,
-      isBusy: isBusy,
-      accent: accent,
-      onSearchCore: onSearchCore,
-    );
+    final notice = _SearchPaneNoticeStack(error: error);
     if (isBusy && results.isEmpty && providerResults.isEmpty) {
       return _SearchSkeletonList(notice: notice);
     }
@@ -371,7 +291,6 @@ class _SearchResultsList extends StatelessWidget {
         accent: accent,
         results: results,
         providerResults: providerResults,
-        queuedProviderIngests: queuedProviderIngests,
         selectedResultId: selectedResultId,
         selectedProviderCandidateId: selectedProviderCandidateId,
         checkedResultIds: checkedResultIds,
@@ -386,9 +305,6 @@ class _SearchResultsList extends StatelessWidget {
         onToggleProviderCheck: onToggleProviderCheck,
       );
     }
-    final fallbackProviderLabel = _fallbackProviderLabel();
-    // Hide mixed-provider summary; provider badges are sufficient.
-    // final mixedProviderSummary = _mixedProviderSummary();
     final groups = buildUnifiedGroups(
       coreResults: results,
       providerResults: providerResults,
@@ -402,13 +318,6 @@ class _SearchResultsList extends StatelessWidget {
       padding: EdgeInsets.zero,
       children: [
         notice,
-        if (fallbackProviderLabel != null)
-          _ProviderFallbackNotice(
-            requestedProvider: libraryMetadataForKind(type.kind)
-                .providerLabel(selectedProvider),
-            fallbackProvider: fallbackProviderLabel,
-          ),
-        // mixed provider summary removed per UX preference.
         for (var i = 0; i < groups.length; i++) ...[
           LibraryAddUnifiedGroupNode(
             key: ValueKey(groups[i].key),
@@ -420,7 +329,6 @@ class _SearchResultsList extends StatelessWidget {
             checkedResultIds: checkedResultIds,
             checkedProviderIds: checkedProviderIds,
             ownedCatalogRefs: ownedCatalogRefs,
-            queuedProviderIngests: queuedProviderIngests,
             providerLabel: libraryMetadataForKind(type.kind).providerLabel,
             onSelectResult: onSelectResult,
             onSelectProviderCandidate: onSelectProviderCandidate,
@@ -435,28 +343,6 @@ class _SearchResultsList extends StatelessWidget {
       ],
     );
   }
-
-  String? _fallbackProviderLabel() {
-    final providers = _providerIdsInOrder();
-    if (providers.length != 1) {
-      return null;
-    }
-    final onlyProvider = providers.first;
-    if (onlyProvider != selectedProvider) {
-      return libraryMetadataForKind(type.kind).providerLabel(onlyProvider);
-    }
-    return null;
-  }
-
-  List<String> _providerIdsInOrder() {
-    final providers = <String>[];
-    for (final item in providerResults) {
-      if (!providers.contains(item.provider)) {
-        providers.add(item.provider);
-      }
-    }
-    return providers;
-  }
 }
 
 class _SearchResultsGrid extends StatelessWidget {
@@ -465,7 +351,6 @@ class _SearchResultsGrid extends StatelessWidget {
     required this.accent,
     required this.results,
     required this.providerResults,
-    required this.queuedProviderIngests,
     required this.selectedResultId,
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
@@ -484,7 +369,6 @@ class _SearchResultsGrid extends StatelessWidget {
   final Color accent;
   final List<CatalogSearchCandidate> results;
   final List<ProviderSearchCandidate> providerResults;
-  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
@@ -677,30 +561,6 @@ class _SearchResultsGrid extends StatelessWidget {
                                 ),
                               ),
                             )
-                          else if (queuedProviderIngests[
-                                  candidate!.localCatalogId] !=
-                              null)
-                            Positioned(
-                              right: 6,
-                              top: 6,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: palette.panel,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(4),
-                                  child: Icon(
-                                    Icons.playlist_add_check,
-                                    size: 18,
-                                    color: libraryAccentTextColor(
-                                      accent,
-                                      palette.panel,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
                         ],
                       ),
                     ),
@@ -839,44 +699,6 @@ class _SkeletonBox extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.surfaceBright,
         borderRadius: BorderRadius.circular(2),
-      ),
-    );
-  }
-}
-
-class _ProviderFallbackNotice extends StatelessWidget {
-  const _ProviderFallbackNotice({
-    required this.requestedProvider,
-    required this.fallbackProvider,
-  });
-
-  final String requestedProvider;
-  final String fallbackProvider;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: palette.warningBackground,
-        border: Border(bottom: BorderSide(color: palette.divider)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.swap_horiz, size: 18, color: palette.warningForeground),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              '$requestedProvider unavailable, $fallbackProvider fallback used.',
-              style: TextStyle(
-                color: palette.warningForeground,
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1107,7 +929,6 @@ class ProviderCandidateTile extends StatelessWidget {
     required this.candidate,
     required this.accent,
     required this.providerLabel,
-    required this.queuedIngest,
     this.matchSummary,
     this.checked = false,
     this.onToggleCheck,
@@ -1119,7 +940,6 @@ class ProviderCandidateTile extends StatelessWidget {
   final ProviderSearchCandidate candidate;
   final Color accent;
   final String providerLabel;
-  final LibraryQueuedProviderIngest? queuedIngest;
   final String? Function(ProviderSearchCandidate candidate)? matchSummary;
   final bool checked;
   final VoidCallback? onToggleCheck;
@@ -1232,12 +1052,6 @@ class ProviderCandidateTile extends StatelessWidget {
                           child: Row(
                             children: [
                               LibraryAddResultBadge(providerLabel),
-                              if (queuedIngest != null) ...[
-                                const SizedBox(width: 5),
-                                LibraryAddResultBadge(
-                                  '${queuedIngest!.statusLabel} ${queuedIngest!.shortId}',
-                                ),
-                              ],
                             ],
                           ),
                         ),

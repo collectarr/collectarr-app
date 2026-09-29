@@ -253,7 +253,6 @@ class LibraryAddSearchPaneRequest {
     required this.accent,
     required this.results,
     required this.providerResults,
-    required this.queuedProviderIngests,
     required this.selectedProvider,
     required this.searchedProvider,
     required this.selectedResultId,
@@ -280,7 +279,6 @@ class LibraryAddSearchPaneRequest {
   final Color accent;
   final List<CatalogSearchCandidate> results;
   final List<ProviderSearchCandidate> providerResults;
-  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String selectedProvider;
   final bool searchedProvider;
   final String? selectedResultId;

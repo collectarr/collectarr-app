@@ -174,7 +174,6 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
     required this.checkedResultIds,
     required this.checkedProviderIds,
     required this.ownedCatalogRefs,
-    required this.queuedProviderIngests,
     required this.providerLabel,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
@@ -192,7 +191,6 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
   final Set<CatalogEntityRef> ownedCatalogRefs;
-  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String Function(String providerId) providerLabel;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
@@ -278,8 +276,6 @@ class LibraryAddUnifiedGroupNodeState
             candidate: candidate,
             accent: widget.accent,
             providerLabel: widget.providerLabel(candidate.provider),
-            queuedIngest:
-                widget.queuedProviderIngests[candidate.localCatalogId],
             matchSummary: widget.providerMatchSummary,
             checked: widget.checkedProviderIds.contains(
               candidate.localCatalogId,
@@ -305,8 +301,6 @@ class LibraryAddUnifiedGroupNodeState
             candidate: candidate,
             accent: widget.accent,
             providerLabel: widget.providerLabel(candidate.provider),
-            queuedIngest:
-                widget.queuedProviderIngests[candidate.localCatalogId],
             matchSummary: widget.providerMatchSummary,
             selected:
                 candidate.localCatalogId == widget.selectedProviderCandidateId,
@@ -512,8 +506,6 @@ class LibraryAddUnifiedGroupNodeState
               accent: widget.accent,
               providerLabel:
                   widget.providerLabel(group.providerItems[i].provider),
-              queuedIngest: widget
-                  .queuedProviderIngests[group.providerItems[i].localCatalogId],
               selected: group.providerItems[i].localCatalogId ==
                   widget.selectedProviderCandidateId,
               checked: widget.checkedProviderIds.contains(
@@ -770,7 +762,6 @@ class _UnifiedProviderChildTile extends StatelessWidget {
     required this.candidate,
     required this.accent,
     required this.providerLabel,
-    this.queuedIngest,
     required this.checked,
     required this.onToggleCheck,
     required this.selected,
@@ -780,7 +771,6 @@ class _UnifiedProviderChildTile extends StatelessWidget {
   final ProviderSearchCandidate candidate;
   final Color accent;
   final String providerLabel;
-  final LibraryQueuedProviderIngest? queuedIngest;
   final bool checked;
   final VoidCallback onToggleCheck;
   final bool selected;
@@ -847,11 +837,6 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                       runSpacing: 3,
                       children: [
                         LibraryAddResultBadge(providerLabel),
-                        if (queuedIngest != null)
-                          LibraryAddResultBadge(
-                            '${queuedIngest!.statusLabel} '
-                            '${queuedIngest!.shortId}',
-                          ),
                         Text(
                           subtitleParts.skip(1).join(' / '),
                           maxLines: 1,

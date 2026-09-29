@@ -4,32 +4,6 @@ import 'package:collectarr_app/features/library/config/library_dialog_tokens.dar
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-class LibraryQueuedProviderIngest {
-  const LibraryQueuedProviderIngest({
-    required this.id,
-    required this.status,
-  });
-
-  final String id;
-  final String status;
-
-  String get shortId {
-    final trimmed = id.trim();
-    if (trimmed.length <= 8) {
-      return trimmed;
-    }
-    return trimmed.substring(0, 8);
-  }
-
-  String get statusLabel {
-    final trimmed = status.trim();
-    if (trimmed.isEmpty) {
-      return 'Queued';
-    }
-    return '${trimmed[0].toUpperCase()}${trimmed.substring(1)}';
-  }
-}
-
 enum LibraryAddDialogMode { search, identifier }
 
 class LibraryCoverScanPrefillBanner extends StatelessWidget {
