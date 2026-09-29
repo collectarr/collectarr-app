@@ -106,7 +106,7 @@ final class AdminCatalogSearchPanel extends StatelessWidget {
                   controller: queryController,
                   decoration: InputDecoration(
                     labelText: 'Find catalog items',
-                    hintText: 'Search by title, number, or provider ID',
+                    hintText: 'Search by title, number, or catalog ID',
                     prefixIcon: const Icon(Icons.manage_search_outlined),
                     border: border,
                   ),

@@ -15,7 +15,7 @@ String? adminKindLabelForType(
 String adminFallbackKindLabel(String kind) =>
     kind.isEmpty ? 'Unknown' : '${kind[0].toUpperCase()}${kind.substring(1)}';
 
-String adminProviderKindLabel(
+String adminKindLabelFromValue(
   String kind,
   Map<String, String> labels,
 ) {
@@ -41,7 +41,7 @@ int compareAdminMediaKinds(
   String right,
   Map<String, String> labels,
 ) {
-  return adminProviderKindLabel(left, labels).compareTo(
-    adminProviderKindLabel(right, labels),
+  return adminKindLabelFromValue(left, labels).compareTo(
+    adminKindLabelFromValue(right, labels),
   );
 }

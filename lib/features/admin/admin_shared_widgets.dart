@@ -178,7 +178,7 @@ String _adminErrorMessage(Object error) {
       return 'Admin access was rejected.';
     }
     if (statusCode == 422) {
-      return 'Provider request was invalid.';
+      return 'Catalog request was invalid.';
     }
     if (statusCode != null && statusCode >= 500) {
       return 'Metadata server could not complete the admin request.';
@@ -189,55 +189,6 @@ String _adminErrorMessage(Object error) {
     }
   }
   return error.toString();
-}
-
-String _proposalAuditActionLabel(String action) {
-  return switch (action) {
-    'metadata_proposal.approve' => 'Approved proposal',
-    'metadata_proposal.approve_provider' => 'Approved via provider',
-    'metadata_proposal.reject' => 'Rejected proposal',
-    _ => action,
-  };
-}
-
-String _shortId(String id) {
-  if (id.length <= 8) {
-    return id;
-  }
-  return id.substring(0, 8);
-}
-
-String _preferredProvider(
-  List<AdminProviderStatus> providers, {
-  required String current,
-}) {
-  if (current.isNotEmpty &&
-      providers.any((provider) => provider.name == current)) {
-    return current;
-  }
-  AdminProviderStatus? best;
-  for (final provider in providers) {
-    if (provider.isConfigured &&
-        provider.supportsSearch &&
-        provider.supportsIngest) {
-      best = provider;
-      break;
-    }
-  }
-  best ??= _firstWhereOrNull(providers, (provider) => provider.isConfigured);
-  best ??= _firstWhereOrNull(providers, (provider) => provider.supportsIngest);
-  best ??= _firstWhereOrNull(providers, (provider) => provider.supportsSearch);
-  best ??= providers.isEmpty ? null : providers.first;
-  return best?.name ?? '';
-}
-
-T? _firstWhereOrNull<T>(Iterable<T> items, bool Function(T) test) {
-  for (final item in items) {
-    if (test(item)) {
-      return item;
-    }
-  }
-  return null;
 }
 
 String _formatDate(DateTime value) {
@@ -251,15 +202,6 @@ String _formatDateTime(DateTime value) {
   return '${_formatDate(local)} '
       '${local.hour.toString().padLeft(2, '0')}:'
       '${local.minute.toString().padLeft(2, '0')}';
-}
-
-int _ingestJobAttemptsRemaining(AdminProviderIngestJob job) {
-  final remaining = job.maxAttempts - job.attempts;
-  return remaining < 0 ? 0 : remaining;
-}
-
-String _ingestJobStateDescription(AdminProviderIngestJob job) {
-  return job.status.replaceAll('_', ' ');
 }
 
 String? _emptyToNull(String value) {

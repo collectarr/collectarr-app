@@ -102,14 +102,12 @@ class _CanonicalItemInspectionDialog extends StatelessWidget {
 class _CanonicalItemSummary extends StatelessWidget {
   const _CanonicalItemSummary({
     required this.item,
-    this.created,
     this.auditLogs = const [],
     this.bundleReleases = const [],
     this.metadataFields = const [],
   });
 
   final AdminMetadataItem item;
-  final bool? created;
   final List<AdminAuditLogEntry> auditLogs;
   final List<BundleReleaseSummary> bundleReleases;
   final List<LibraryAdminCorrectionField> metadataFields;
@@ -143,12 +141,7 @@ class _CanonicalItemSummary extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      created == true
-                          ? Icons.add_circle_outline
-                          : Icons.fact_check_outlined,
-                      color: colorScheme.primary,
-                    ),
+                    Icon(Icons.fact_check_outlined, color: colorScheme.primary),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -199,10 +192,6 @@ class _CanonicalItemSummary extends StatelessWidget {
                         ),
                   ],
                 ),
-                if (item.providerLinks.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  _ProviderLinksList(links: item.providerLinks),
-                ],
                 if (item.editions.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   _AdminItemVariantSummary(item: item),
@@ -316,48 +305,6 @@ class _CoverUpdate {
   final String? thumbnailImageUrl;
 }
 
-class _ProviderLinksList extends StatelessWidget {
-  const _ProviderLinksList({required this.links});
-
-  final List<AdminProviderLink> links;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Provider links', style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 6),
-        for (final link in links.take(6))
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                _MiniChip(label: link.provider),
-                _MiniChip(label: link.entityType),
-                _MiniChip(label: 'Linked record'),
-                if (link.siteUrl != null) const _MiniChip(label: 'site URL'),
-                if (link.apiUrl != null) const _MiniChip(label: 'api URL'),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 420),
-                  child: SelectableText(link.providerItemId, maxLines: 1),
-                ),
-                if (link.siteUrl != null)
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 420),
-                    child: SelectableText(link.siteUrl!, maxLines: 1),
-                  ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
 class _CoverInspectionDialog extends StatefulWidget {
   const _CoverInspectionDialog({required this.item});
 
@@ -444,7 +391,7 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Used by the client when the provider has no usable cover URL.',
+                            'Used by the client when the catalog item has no cover URL.',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],

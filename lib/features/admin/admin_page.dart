@@ -10,15 +10,11 @@ import 'package:collectarr_app/features/admin/admin_dashboard_widgets.dart';
 import 'package:collectarr_app/features/admin/admin_primitives.dart';
 import 'package:collectarr_app/features/admin/admin_kind_labels.dart';
 import 'package:collectarr_app/features/admin/admin_proposal_metadata_edit_dialog.dart';
-import 'package:collectarr_app/features/admin/admin_provider_add_dialog.dart';
-import 'package:collectarr_app/features/admin/admin_release_mapping_rule_dialog.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_catalog_search_controller.dart';
-import 'package:collectarr_app/features/admin/controllers/admin_ingest_jobs_controller.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_proposals_controller.dart';
 import 'package:collectarr_app/features/admin/widgets/admin_catalog_search_panel.dart';
 import 'package:collectarr_app/features/admin/widgets/admin_catalog_item_list.dart';
 import 'package:collectarr_app/features/admin/widgets/admin_proposals_panel.dart';
-import 'package:collectarr_app/features/admin/widgets/admin_ingest_jobs_panel.dart';
 import 'package:collectarr_app/features/admin/widgets/admin_proposal_tile.dart';
 import 'package:collectarr_app/features/admin/admin_diagnostics_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
@@ -26,8 +22,6 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -50,11 +44,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'admin_item_inspection.dart';
 part 'admin_metadata_correction_dialog.dart';
-part 'admin_duplicate_merge_dialog.dart';
 part 'admin_bundle_correction_dialog.dart';
 part 'admin_page_sections.dart';
-part 'admin_provider_widgets.dart';
 part 'admin_shared_widgets.dart';
+part 'admin_catalog_widgets.dart';
 
 class AdminPage extends ConsumerStatefulWidget {
   const AdminPage({super.key});
@@ -64,12 +57,7 @@ class AdminPage extends ConsumerStatefulWidget {
 }
 
 class _AdminPageState extends ConsumerState<AdminPage> {
-  void _refresh(VoidCallback fn) => setState(fn);
-
   late final _catalogSearchController = AdminCatalogSearchController(
-    formatError: _adminErrorMessage,
-  );
-  late final _ingestJobsController = AdminIngestJobsController(
     formatError: _adminErrorMessage,
   );
   late final _proposalsController = AdminProposalsController(
@@ -77,12 +65,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   );
 
   final _catalogQueryController = TextEditingController();
-  final _queryController = TextEditingController();
-  final _providerItemIdController = TextEditingController();
-  final _jobProviderItemIdController = TextEditingController();
-  final _ingestJobQueryController = TextEditingController();
   var _mediaTypes = const <CatalogMediaType>[];
-  var _providers = const <AdminProviderStatus>[];
   AdminCatalogSummary? _summary;
   AdminNormalizedMetadataDriftReport? _normalizedMetadataDrift;
   SharedMetadataContractDrift? _metadataContractDrift;
@@ -92,306 +75,38 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   var _searchHistory = const <AdminSearchHistoryEntry>[];
   var _auditLogs = const <AdminAuditLogEntry>[];
   var _proposalHistory = const <AdminAuditLogEntry>[];
-  var _releaseMappingRules = const <AdminReleaseMediaMappingRule>[];
   AdminMetadataProposalSummary? _dashboardProposalSummary;
-  static const _ingestPollInterval = Duration(seconds: 15);
-  Timer? _ingestPollTimer;
-  var _duplicates = const <AdminDuplicateCandidate>[];
-  var _results = const <ProviderSearchResult>[];
-  var _selectedProvider = '';
-  String? _selectedProviderKindFilter;
-  AdminProviderIngestResult? _lastIngest;
-  String? _statusMessage;
-  String? _errorMessage;
   String? _dashboardErrorMessage;
   String? _inspectErrorMessage;
-  String? _duplicateStatusMessage;
-  String? _duplicateErrorMessage;
   String? _proposalStatusMessage;
   String? _proposalErrorMessage;
-  String? _releaseRulesStatusMessage;
-  String? _releaseRulesErrorMessage;
   bool _isLoadingDashboard = false;
   bool _isReindexing = false;
-  bool _isLoadingProviders = false;
-  bool _isRunningJobs = false;
-  bool _autoRefreshIngestJobs = true;
-  bool _isSearching = false;
-  bool _isDirectIngesting = false;
-  bool _isLoadingReleaseMappingRules = false;
-  bool _showProviderMediaResults = true;
-  bool _showProviderReleaseResults = true;
+  bool _isLoadingMediaTypes = false;
   String? _inspectingItemId;
   String? _updatingCatalogItemId;
-  String? _duplicateActionItemId;
-  String? _ingestingProviderItemId;
-  String? _jobActionId;
   String? _proposalActionId;
-  int? _retryingHistoryId;
 
   @override
   void initState() {
     super.initState();
     _catalogSearchController.addListener(_onFlowControllerChanged);
-    _ingestJobsController.addListener(_onFlowControllerChanged);
     _proposalsController.addListener(_onFlowControllerChanged);
     _loadDashboard();
     _loadMediaTypes();
-    _loadProviders();
     _loadProposalData();
-    _restartIngestPolling();
   }
 
   @override
   void dispose() {
-    _ingestPollTimer?.cancel();
     _catalogSearchController.dispose();
-    _ingestJobsController.dispose();
     _proposalsController.dispose();
     _catalogQueryController.dispose();
-    _queryController.dispose();
-    _providerItemIdController.dispose();
-    _jobProviderItemIdController.dispose();
-    _ingestJobQueryController.dispose();
     super.dispose();
   }
 
   void _onFlowControllerChanged() {
     if (mounted) setState(() {});
-  }
-
-  bool _isProviderReleaseCandidate(ProviderSearchResult candidate) {
-    return candidate.searchRole.isCollectibleRelease;
-  }
-
-  List<ProviderSearchResult> _visibleProviderResults() {
-    if (_showProviderMediaResults && _showProviderReleaseResults) {
-      return _results;
-    }
-    return _results.where((candidate) {
-      final isRelease = _isProviderReleaseCandidate(candidate);
-      return isRelease
-          ? _showProviderReleaseResults
-          : _showProviderMediaResults;
-    }).toList(growable: false);
-  }
-
-  Future<void> _loadReleaseMappingRules({bool showErrors = true}) async {
-    setState(() {
-      _isLoadingReleaseMappingRules = true;
-      _releaseRulesErrorMessage = null;
-    });
-    try {
-      final rows = await AdminPageDataLoader(
-        ref.read(apiClientProvider),
-      ).loadReleaseMappingRules();
-      if (!mounted) return;
-      setState(() {
-        _releaseMappingRules = rows;
-        _isLoadingReleaseMappingRules = false;
-      });
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _isLoadingReleaseMappingRules = false;
-        if (showErrors) {
-          _releaseRulesErrorMessage = 'Failed to load mapping rules: $error';
-        }
-      });
-    }
-  }
-
-  Future<void> _showCreateReleaseMappingRuleDialog() async {
-    final result = await showDialog<AdminReleaseMappingRuleFormResult>(
-      context: context,
-      builder: (context) => AdminReleaseMappingRuleDialog(
-        providers: _providerOptions()
-            .map((entry) => entry.name)
-            .toList(growable: false),
-        kinds: _providerKindOptions(forSearch: true),
-        kindLabels: _catalogKindLabels(),
-      ),
-    );
-    if (result == null) {
-      return;
-    }
-    try {
-      await ref.read(apiClientProvider).adminCreateReleaseMediaMappingRule(
-            payload: AdminReleaseMediaMappingRuleUpsert(
-              provider: result.provider,
-              releaseType: result.releaseType,
-              targetKind: result.targetKind,
-              priority: result.priority,
-              isActive: result.isActive,
-              notes: result.notes,
-            ),
-          );
-      if (!mounted) return;
-      setState(() {
-        _releaseRulesStatusMessage = 'Release mapping rule created.';
-        _releaseRulesErrorMessage = null;
-      });
-      await _loadReleaseMappingRules();
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _releaseRulesErrorMessage = 'Failed to create mapping rule: $error';
-      });
-    }
-  }
-
-  Future<void> _showEditReleaseMappingRuleDialog(
-    AdminReleaseMediaMappingRule rule,
-  ) async {
-    final result = await showDialog<AdminReleaseMappingRuleFormResult>(
-      context: context,
-      builder: (context) => AdminReleaseMappingRuleDialog(
-        providers: _providerOptions()
-            .map((entry) => entry.name)
-            .toList(growable: false),
-        kinds: _providerKindOptions(forSearch: true),
-        kindLabels: _catalogKindLabels(),
-        initialProvider: rule.provider,
-        initialReleaseType: rule.releaseType,
-        initialTargetKind: rule.targetKind,
-        initialPriority: rule.priority,
-        initialIsActive: rule.isActive,
-        initialNotes: rule.notes,
-      ),
-    );
-    if (result == null) {
-      return;
-    }
-    try {
-      await ref.read(apiClientProvider).adminUpdateReleaseMediaMappingRule(
-            ruleId: rule.id,
-            payload: AdminReleaseMediaMappingRuleUpsert(
-              provider: result.provider,
-              releaseType: result.releaseType,
-              targetKind: result.targetKind,
-              priority: result.priority,
-              isActive: result.isActive,
-              notes: result.notes,
-            ),
-          );
-      if (!mounted) return;
-      setState(() {
-        _releaseRulesStatusMessage = 'Release mapping rule updated.';
-        _releaseRulesErrorMessage = null;
-      });
-      await _loadReleaseMappingRules();
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _releaseRulesErrorMessage = 'Failed to update mapping rule: $error';
-      });
-    }
-  }
-
-  Future<void> _deleteReleaseMappingRule(
-      AdminReleaseMediaMappingRule rule) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AccentAlertDialog(
-        title: const Text('Delete mapping rule?'),
-        content: Text('Delete "${rule.releaseType} -> ${rule.targetKind}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton.tonal(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) {
-      return;
-    }
-    try {
-      await ref.read(apiClientProvider).adminDeleteReleaseMediaMappingRule(
-            ruleId: rule.id,
-          );
-      if (!mounted) return;
-      setState(() {
-        _releaseRulesStatusMessage = 'Release mapping rule deleted.';
-        _releaseRulesErrorMessage = null;
-      });
-      await _loadReleaseMappingRules();
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _releaseRulesErrorMessage = 'Failed to delete mapping rule: $error';
-      });
-    }
-  }
-
-  Future<void> _applyRulePrefillDefaults() async {
-    final source =
-        _ingestJobsController.history.isNotEmpty ? 'ingest_history' : 'manual';
-    try {
-      final resolved =
-          await ref.read(apiClientProvider).adminResolveProviderPrefill(
-                source: source,
-                provider:
-                    _selectedProvider.trim().isEmpty ? null : _selectedProvider,
-                kind: _selectedProviderKindFilter,
-                query: _queryController.text,
-                providerItemId: _providerItemIdController.text,
-                ingestHistoryId: source == 'ingest_history'
-                    ? _ingestJobsController.history.first.id
-                    : null,
-              );
-      if (!mounted) return;
-      final providerOptions = _providerOptions();
-      setState(() {
-        if (resolved.provider != null &&
-            providerOptions.any((entry) => entry.name == resolved.provider)) {
-          _selectedProvider = resolved.provider!;
-        }
-        if (resolved.kind != null) {
-          _selectedProviderKindFilter = resolved.kind;
-        }
-        if (resolved.query != null) {
-          _queryController.text = resolved.query!;
-        }
-        if (resolved.providerItemId != null) {
-          _providerItemIdController.text = resolved.providerItemId!;
-        }
-        _statusMessage = resolved.notes.isEmpty
-            ? 'Applied centralized prefill defaults.'
-            : resolved.notes.join(' \u2022 ');
-        _errorMessage = null;
-      });
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _errorMessage = 'Failed to apply rule defaults: $error';
-      });
-    }
-  }
-
-  void _prefillFromLatestIngest() {
-    if (_ingestJobsController.history.isEmpty) {
-      setState(() {
-        _errorMessage = 'No ingest history available for prefill.';
-      });
-      return;
-    }
-    final entry = _ingestJobsController.history.first;
-    final ingestProviders = _providerOptions(forIngest: true);
-    setState(() {
-      if (ingestProviders.any((provider) => provider.name == entry.provider)) {
-        _selectedProvider = entry.provider;
-      }
-      _providerItemIdController.text = entry.providerItemId;
-      _queryController.text = '';
-      _statusMessage =
-          'Prefilled provider and item ID from latest ingest history entry.';
-      _errorMessage = null;
-    });
   }
 
   @override
@@ -406,7 +121,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       if (isAdmin)
         const Tab(icon: Icon(Icons.bar_chart_outlined), text: 'Stats'),
       const Tab(icon: Icon(Icons.inventory_2_outlined), text: 'Catalog'),
-      const Tab(icon: Icon(Icons.hub_outlined), text: 'Providers'),
+      const Tab(icon: Icon(Icons.pending_actions_outlined), text: 'Proposals'),
       if (isAdmin) const Tab(icon: Icon(Icons.history_outlined), text: 'Logs'),
       if (isAdmin)
         const Tab(icon: Icon(Icons.settings_outlined), text: 'System'),
@@ -416,7 +131,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       if (isAdmin) _buildDashboardTab(),
       if (isAdmin) _buildStatsTab(),
       _buildCatalogTab(context),
-      _buildProvidersTab(context, isAdmin: isAdmin),
+      _buildProposalsTab(),
       if (isAdmin) _buildLogsTab(),
       if (isAdmin) _buildSystemTab(),
     ];
@@ -452,10 +167,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       summary: _summary,
       searchStatus: _searchStatus,
       lastReindex: _lastReindex,
-      configuredProviders: _configuredProviderCount(),
-      registeredProviders: _providers.length,
-      selectedProviderLabel: _selectedProviderLabel(),
-      lastIngest: _lastIngest,
       normalizedMetadataDrift: _normalizedMetadataDrift,
       metadataContractDrift: _metadataContractDrift,
       dashboardErrorMessage: _dashboardErrorMessage,
@@ -484,20 +195,14 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _dashboardErrorMessage = null;
     });
     try {
-      final ingestJobQuery = _ingestJobQueryController.text.trim();
       final dashboard = await AdminPageDataLoader(
         ref.read(apiClientProvider),
-      ).loadDashboard(
-        ingestJobStatus: _ingestJobsController.statusFilter,
-        ingestJobProvider: _ingestJobsController.providerFilter,
-        ingestJobQuery: ingestJobQuery.isEmpty ? null : ingestJobQuery,
-      );
+      ).loadDashboard();
       final contractDrift =
           compareSharedContractWithManifest(dashboard.normalizedManifest);
       if (!mounted) {
         return;
       }
-      _ingestJobsController.acceptDashboard(dashboard);
       setState(() {
         _summary = dashboard.summary;
         _normalizedMetadataDrift = dashboard.normalizedMetadataDrift;
@@ -508,7 +213,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _auditLogs = dashboard.auditLogs;
         _dashboardProposalSummary = dashboard.proposalSummary;
         _proposalHistory = dashboard.proposalHistory;
-        _duplicates = dashboard.duplicateCandidates;
         _isLoadingDashboard = false;
       });
     } catch (error) {
@@ -522,85 +226,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
   }
 
-  Future<void> _refreshIngestJobs({bool silent = false}) async {
-    if (_isLoadingDashboard) {
-      return;
-    }
-    if (!silent) setState(() => _errorMessage = null);
-    final query = _ingestJobQueryController.text.trim();
-    await _ingestJobsController.refresh(
-      ref.read(apiClientProvider),
-      query: query.isEmpty ? null : query,
-      silent: silent,
-    );
-    if (!mounted || silent) return;
-    setState(() => _errorMessage = _ingestJobsController.errorMessage);
-  }
-
   Future<void> _loadProposalData() async {
     _proposalErrorMessage = null;
     await _proposalsController.load(ref.read(apiClientProvider));
     if (!mounted) return;
     if (_proposalsController.errorMessage != null) {
       setState(() => _proposalErrorMessage = _proposalsController.errorMessage);
-    }
-  }
-
-  void _restartIngestPolling() {
-    _ingestPollTimer?.cancel();
-    if (!_autoRefreshIngestJobs) {
-      return;
-    }
-    _ingestPollTimer = Timer.periodic(_ingestPollInterval, (_) {
-      if (!_ingestJobsController.hasPollableJobs ||
-          _ingestJobsController.isLoading ||
-          _isLoadingDashboard) {
-        return;
-      }
-      unawaited(_refreshIngestJobs(silent: true));
-    });
-  }
-
-  void _changeIngestJobAutoRefresh(bool value) {
-    setState(() {
-      _autoRefreshIngestJobs = value;
-    });
-    _restartIngestPolling();
-  }
-
-  Future<void> _retryIngestHistory(
-    AdminProviderIngestHistoryEntry entry,
-  ) async {
-    setState(() {
-      _retryingHistoryId = entry.id;
-      _errorMessage = null;
-      _statusMessage = null;
-      _inspectErrorMessage = null;
-    });
-    try {
-      final result = await _ingestJobsController.retryHistory(
-        ref.read(apiClientProvider),
-        historyId: entry.id,
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _retryingHistoryId = null;
-        _lastIngest = result;
-        _statusMessage = result.created
-            ? 'Provider ingest retried.'
-            : 'Provider item already exists.';
-      });
-      await _loadDashboard();
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _retryingHistoryId = null;
-        _errorMessage = _adminErrorMessage(error);
-      });
     }
   }
 
@@ -632,7 +263,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         return;
       }
       setState(() {
-        _lastIngest = null;
         _inspectingItemId = null;
       });
       await _showCanonicalItemInspectionDialog(
@@ -837,7 +467,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       if (!mounted) return;
       setState(() {
         _updatingCatalogItemId = null;
-        _lastIngest = null;
         _catalogSearchController.statusMessage = 'Metadata correction saved.';
         if (updated != null) {
           _catalogSearchController.replaceItem(updated!);
@@ -900,146 +529,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
   }
 
-  Future<void> _queueCurrentProviderItemId() async {
-    final provider = _selectedProvider.trim();
-    if (provider.isEmpty ||
-        !_providerOptions(forIngest: true).any(
-          (option) => option.name == provider,
-        )) {
-      setState(() {
-        _errorMessage = 'Select an ingest provider first.';
-        _statusMessage = null;
-      });
-      return;
-    }
-    final providerItemId = _jobProviderItemIdController.text.trim();
-    if (providerItemId.isEmpty) {
-      setState(() {
-        _errorMessage = 'Enter a provider item ID.';
-        _statusMessage = null;
-      });
-      return;
-    }
-    setState(() {
-      _jobActionId = 'new';
-      _errorMessage = null;
-      _statusMessage = null;
-    });
-    try {
-      await _ingestJobsController.queue(
-        ref.read(apiClientProvider),
-        provider: provider,
-        providerItemId: providerItemId,
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _jobActionId = null;
-        _statusMessage = 'Provider ingest job queued.';
-      });
-      await _loadDashboard();
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _jobActionId = null;
-        _errorMessage = _adminErrorMessage(error);
-      });
-    }
-  }
-
-  Future<void> _runPendingIngestJobs() async {
-    setState(() {
-      _isRunningJobs = true;
-      _errorMessage = null;
-      _statusMessage = null;
-    });
-    try {
-      final result = await _ingestJobsController.runPending(
-        ref.read(apiClientProvider),
-        limit: 5,
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isRunningJobs = false;
-        _statusMessage = result.recovered > 0
-            ? 'Processed ${result.processed} ingest jobs; recovered ${result.recovered} stale jobs.'
-            : 'Processed ${result.processed} ingest jobs.';
-      });
-      await _loadDashboard();
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isRunningJobs = false;
-        _errorMessage = _adminErrorMessage(error);
-      });
-    }
-  }
-
-  Future<void> _runIngestJob(AdminProviderIngestJob job) async {
-    await _runSingleIngestJob(job, retry: false);
-  }
-
-  Future<void> _retryIngestJob(AdminProviderIngestJob job) async {
-    await _runSingleIngestJob(job, retry: true);
-  }
-
-  Future<void> _runSingleIngestJob(
-    AdminProviderIngestJob job, {
-    required bool retry,
-  }) async {
-    setState(() {
-      _jobActionId = job.id;
-      _errorMessage = null;
-      _statusMessage = null;
-    });
-    try {
-      final updated = await _ingestJobsController.runJob(
-        ref.read(apiClientProvider),
-        jobId: job.id,
-        retry: retry,
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _jobActionId = null;
-        _statusMessage = 'Ingest job ${updated.status}.';
-      });
-      await _loadDashboard();
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _jobActionId = null;
-        _errorMessage = _adminErrorMessage(error);
-      });
-    }
-  }
-
-  void _changeIngestJobStatusFilter(String? status) {
-    _ingestJobsController.setFilters(
-      status: status == null || status.isEmpty ? null : status,
-      provider: _ingestJobsController.providerFilter,
-    );
-    unawaited(_refreshIngestJobs());
-  }
-
-  void _changeIngestJobProviderFilter(String? provider) {
-    _ingestJobsController.setFilters(
-      status: _ingestJobsController.statusFilter,
-      provider: provider == null || provider.isEmpty ? null : provider,
-    );
-    unawaited(_refreshIngestJobs());
-  }
-
   Future<void> _reindexSearch() async {
     setState(() {
       _isReindexing = true;
@@ -1068,215 +557,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
   }
 
-  Future<void> _inspectDuplicateCandidate(
-    AdminDuplicateCandidate candidate,
-  ) async {
-    if (candidate.itemIds.isEmpty) {
-      return;
-    }
-    final itemId = candidate.itemIds.first;
-    setState(() {
-      _inspectingItemId = itemId;
-      _duplicateStatusMessage = null;
-      _duplicateErrorMessage = null;
-      _inspectErrorMessage = null;
-    });
-    try {
-      final item = await ref.read(apiClientProvider).adminGetMetadataItem(
-            kind: candidate.kind,
-            id: itemId,
-          );
-      final auditLogs = await ref.read(apiClientProvider).adminAuditLogs(
-            entityType: 'item',
-            entityId: itemId,
-            limit: 8,
-          );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _lastIngest = null;
-        _inspectingItemId = null;
-      });
-      await _showCanonicalItemInspectionDialog(
-        item,
-        auditLogs,
-        const <BundleReleaseSummary>[],
-        await _adminMetadataFields(item),
-      );
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _inspectingItemId = null;
-        _inspectErrorMessage = _adminErrorMessage(error);
-      });
-    }
-  }
-
-  Future<void> _ignoreDuplicateCandidate(
-    AdminDuplicateCandidate candidate,
-  ) async {
-    if (candidate.itemIds.length < 2) {
-      return;
-    }
-    final confirmed = await showDialog<bool>(
-          context: context,
-          builder: (context) => AccentAlertDialog(
-            title: const Text('Ignore duplicate group?'),
-            content: SizedBox(
-              width: 440,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const _DestructiveWarning(
-                    icon: Icons.visibility_off_outlined,
-                    message:
-                        'This hides the duplicate group from admin review. No catalog records are deleted, but the decision is audit logged.',
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '${candidate.itemIds.length} items will be marked as reviewed for ${candidate.displayTitle}.',
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              FilledButton.tonalIcon(
-                onPressed: () => Navigator.of(context).pop(true),
-                icon: const Icon(Icons.visibility_off_outlined),
-                label: const Text('Ignore group'),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-    if (!confirmed || !mounted) {
-      return;
-    }
-    setState(() {
-      _duplicateActionItemId = candidate.itemIds.first;
-      _duplicateStatusMessage = null;
-      _duplicateErrorMessage = null;
-    });
-    try {
-      final result =
-          await ref.read(apiClientProvider).adminIgnoreDuplicateCandidate(
-                itemIds: candidate.itemIds,
-              );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _duplicateActionItemId = null;
-        _duplicateStatusMessage =
-            'Ignored ${result.affectedItems} duplicate items.';
-      });
-      await _loadDashboard();
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _duplicateActionItemId = null;
-        _duplicateErrorMessage = _adminErrorMessage(error);
-      });
-    }
-  }
-
-  Future<void> _mergeDuplicateCandidate(
-    AdminDuplicateCandidate candidate,
-  ) async {
-    if (candidate.itemIds.length < 2) {
-      return;
-    }
-    final selection = await showDialog<_DuplicateMergeSelection>(
-      context: context,
-      builder: (context) => _DuplicateMergeReviewDialog(candidate: candidate),
-    );
-    if (selection == null || !mounted || selection.sourceItemIds.isEmpty) {
-      return;
-    }
-    final targetItemId = selection.targetItemId;
-    final sourceItemIds = selection.sourceItemIds;
-    setState(() {
-      _duplicateActionItemId = targetItemId;
-      _duplicateStatusMessage = null;
-      _duplicateErrorMessage = null;
-      _inspectErrorMessage = null;
-    });
-    try {
-      final result =
-          await ref.read(apiClientProvider).adminMergeDuplicateCandidate(
-                targetItemId: targetItemId,
-                sourceItemIds: sourceItemIds,
-              );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _duplicateActionItemId = null;
-        _lastIngest = null;
-        _duplicateStatusMessage =
-            'Merged ${result.affectedItems} duplicate items.';
-      });
-      await _loadDashboard();
-      if (result.item != null) {
-        await _inspectCatalogItem(result.item!);
-      }
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _duplicateActionItemId = null;
-        _duplicateErrorMessage = _adminErrorMessage(error);
-      });
-    }
-  }
-
-  Future<void> _loadProviders() async {
-    setState(() {
-      _isLoadingProviders = true;
-      _errorMessage = null;
-    });
-    try {
-      final providers = await AdminPageDataLoader(
-        ref.read(apiClientProvider),
-      ).loadProviders();
-      if (!mounted) {
-        return;
-      }
-      final selectableProviders = [
-        for (final provider in providers)
-          if (provider.supportsSearch || provider.supportsIngest) provider,
-      ];
-      setState(() {
-        _providers = providers;
-        _isLoadingProviders = false;
-        _selectedProvider = _preferredProvider(
-          selectableProviders,
-          current: _selectedProvider,
-        );
-      });
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isLoadingProviders = false;
-        _errorMessage = _adminErrorMessage(error);
-      });
-    }
-  }
-
   Future<void> _loadMediaTypes() async {
+    if (mounted) setState(() => _isLoadingMediaTypes = true);
     try {
       final mediaTypes = await ref.read(mediaCatalogProvider.future);
       if (!mounted) {
@@ -1284,6 +566,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
       setState(() {
         _mediaTypes = mediaTypes;
+        _isLoadingMediaTypes = false;
       });
     } catch (error, stackTrace) {
       logRecoverableError(
@@ -1297,66 +580,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
       setState(() {
         _mediaTypes = const [];
-      });
-    }
-  }
-
-  Future<void> _searchProvider() async {
-    final query = _queryController.text.trim();
-    final provider = _selectedProvider.trim();
-    if (query.isEmpty) {
-      setState(() {
-        _errorMessage = 'Enter a provider query.';
-        _statusMessage = null;
-      });
-      return;
-    }
-    if (provider.isEmpty ||
-        !_providerOptions().any((option) => option.name == provider)) {
-      setState(() {
-        _errorMessage = 'Select a searchable provider first.';
-        _statusMessage = null;
-      });
-      return;
-    }
-    setState(() {
-      _isSearching = true;
-      _results = const [];
-      _lastIngest = null;
-      _errorMessage = null;
-      _statusMessage = null;
-    });
-    try {
-      final selectedKind = _selectedProviderKind();
-      final rows = await ref.read(apiClientProvider).adminProviderSearch(
-            provider: provider,
-            query: query,
-            kind: selectedKind,
-          );
-      final results = rows
-          .map(
-            (row) => ProviderSearchResult.fromJson(
-              row,
-            ),
-          )
-          .toList(growable: false);
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _results = results;
-        _isSearching = false;
-        _statusMessage = results.isEmpty
-            ? 'No provider results.'
-            : '${results.length} provider results.';
-      });
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isSearching = false;
-        _errorMessage = _adminErrorMessage(error);
+        _isLoadingMediaTypes = false;
       });
     }
   }
@@ -1468,126 +692,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
   }
 
-  Future<void> _ingestProviderItemId() async {
-    final provider = _selectedProvider.trim();
-    if (provider.isEmpty ||
-        !_providerOptions(forIngest: true).any(
-          (option) => option.name == provider,
-        )) {
-      setState(() {
-        _errorMessage = 'Select an ingest provider first.';
-        _statusMessage = null;
-      });
-      return;
-    }
-    final providerItemId = _providerItemIdController.text.trim();
-    if (providerItemId.isEmpty) {
-      setState(() {
-        _errorMessage = 'Enter a provider item ID.';
-        _statusMessage = null;
-      });
-      return;
-    }
-    await _ingestProvider(
-      provider: provider,
-      providerItemId: providerItemId,
-      isDirect: true,
-    );
-  }
-
-  Future<void> _ingestProviderItem(ProviderSearchResult candidate) async {
-    await _ingestProvider(
-      provider: candidate.provider,
-      providerItemId: candidate.providerItemId,
-      kind: candidate.kind.apiValue,
-    );
-  }
-
-  Future<void> _ingestProvider({
-    required String provider,
-    required String providerItemId,
-    String? kind,
-    bool isDirect = false,
-  }) async {
-    setState(() {
-      _isDirectIngesting = isDirect;
-      _ingestingProviderItemId = providerItemId;
-      _errorMessage = null;
-      _statusMessage = null;
-    });
-    try {
-      final result = await ref.read(apiClientProvider).adminProviderIngest(
-            provider: provider,
-            providerItemId: providerItemId,
-            kind: kind ?? _selectedProviderKind(),
-          );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _lastIngest = result;
-        _inspectErrorMessage = null;
-        _isDirectIngesting = false;
-        _ingestingProviderItemId = null;
-        _statusMessage = result.created
-            ? 'Metadata item ingested.'
-            : 'Metadata item already exists.';
-      });
-      unawaited(_loadDashboard());
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isDirectIngesting = false;
-        _ingestingProviderItemId = null;
-        _errorMessage = _adminErrorMessage(error);
-      });
-    }
-  }
-
-  Future<void> _showProviderAddDialog() async {
-    final request = await showDialog<AdminProviderAddRequest>(
-      context: context,
-      builder: (context) => AdminProviderAddDialog(
-        providers: _providers,
-        kinds: _providerKindOptions(forSearch: true),
-        kindLabels: _catalogKindLabels(),
-        initialKind: _selectedProviderKindFilter,
-        initialProvider: _selectedProvider,
-        initialQuery: _queryController.text,
-        initialProviderItemId: _providerItemIdController.text,
-        initialShowMediaResults: _showProviderMediaResults,
-        initialShowReleaseResults: _showProviderReleaseResults,
-      ),
-    );
-    if (request == null || !mounted) {
-      return;
-    }
-    setState(() {
-      _selectedProviderKindFilter = request.kind;
-      _selectedProvider = request.provider;
-      _showProviderMediaResults = request.showMediaResults;
-      _showProviderReleaseResults = request.showReleaseResults;
-      _errorMessage = null;
-      _statusMessage = null;
-    });
-    switch (request) {
-      case AdminProviderSearchRequest(:final query):
-        _queryController.text = query;
-        _providerItemIdController.clear();
-        await _searchProvider();
-      case AdminProviderDirectIngestRequest(:final providerItemId):
-        _queryController.clear();
-        _providerItemIdController.text = providerItemId;
-        await _ingestProviderItemId();
-    }
-  }
-
-  int _configuredProviderCount() {
-    return _providers.where((provider) => provider.isConfigured).length;
-  }
-
   void _editProposalMetadata(AdminMetadataProposal proposal) {
     unawaited(_editProposalMetadataAsync(proposal));
   }
@@ -1647,53 +751,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     unawaited(_loadProposalData());
   }
 
-  void _changeSelectedProvider(String? value) {
-    final provider = value?.trim();
-    if (provider == null || provider.isEmpty || provider == _selectedProvider) {
-      return;
-    }
-    setState(() {
-      _selectedProvider = provider;
-      _results = const [];
-      _lastIngest = null;
-      _statusMessage = null;
-      _errorMessage = null;
-    });
-  }
-
-  String? _selectedProviderKind() {
-    for (final provider in _providers) {
-      if (provider.name == _selectedProvider) {
-        final filterKind = _selectedProviderKindFilter;
-        if (filterKind != null &&
-            provider.effectiveKinds.contains(filterKind)) {
-          return filterKind;
-        }
-        return provider.kind;
-      }
-    }
-    return null;
-  }
-
-  List<String> _providerKindOptions({required bool forSearch}) {
-    final kinds = <String>{};
-    for (final provider in _providers) {
-      final supported =
-          forSearch ? provider.supportsSearch : provider.supportsIngest;
-      if (!supported) {
-        continue;
-      }
-      for (final kind in provider.effectiveKinds) {
-        if (kind.isNotEmpty) {
-          kinds.add(kind);
-        }
-      }
-    }
-    final labels = _catalogKindLabels();
-    return kinds.toList(growable: false)
-      ..sort((left, right) => compareAdminMediaKinds(left, right, labels));
-  }
-
   Map<String, String> _catalogKindLabels() {
     return {
       for (final type in _mediaTypes)
@@ -1701,35 +758,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     };
   }
 
-  List<AdminProviderStatus> _providerOptions({
-    String? kind,
-    bool forIngest = false,
-  }) {
-    final filterKind = kind ?? _selectedProviderKindFilter;
-    return [
-      for (final provider in _providers)
-        if ((forIngest ? provider.supportsIngest : provider.supportsSearch) &&
-            (filterKind == null ||
-                provider.effectiveKinds.contains(filterKind)))
-          provider,
-    ];
-  }
-
-  String _selectedProviderLabel() {
-    for (final provider in _providers) {
-      if (provider.name == _selectedProvider) {
-        return provider.displayName;
-      }
-    }
-    return _selectedProvider.isEmpty ? 'No provider' : _selectedProvider;
-  }
-
-  bool _providerSupportsIngest(String providerName) {
-    for (final provider in _providers) {
-      if (provider.name == providerName) {
-        return provider.supportsIngest;
-      }
-    }
-    return false;
+  List<String> _catalogKindOptions() {
+    final labels = _catalogKindLabels();
+    return labels.keys.toList(growable: false)
+      ..sort((left, right) => compareAdminMediaKinds(left, right, labels));
   }
 }

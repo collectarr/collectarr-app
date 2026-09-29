@@ -8,11 +8,7 @@ class AdminPageDataLoader {
 
   final ApiClient api;
 
-  Future<AdminDashboardData> loadDashboard({
-    String? ingestJobStatus,
-    String? ingestJobProvider,
-    String? ingestJobQuery,
-  }) async {
+  Future<AdminDashboardData> loadDashboard() async {
     final results = await Future.wait<Object>([
       api.adminCatalogSummary(),
       api.adminNormalizedMetadataDrift(),
@@ -23,15 +19,6 @@ class AdminPageDataLoader {
       api.adminAuditLogs(limit: 8),
       api.adminMetadataProposalSummary(),
       api.adminAuditLogs(entityType: 'metadata_proposal', limit: 6),
-      api.adminProviderIngestHistory(),
-      api.adminProviderIngestJobSummary(),
-      api.adminProviderIngestJobs(
-        status: ingestJobStatus,
-        provider: ingestJobProvider,
-        query: ingestJobQuery,
-        limit: 8,
-      ),
-      api.adminDuplicateCandidates(limit: 5),
     ]);
     return AdminDashboardData(
       summary: results[0] as AdminCatalogSummary,
@@ -43,32 +30,6 @@ class AdminPageDataLoader {
       auditLogs: results[6] as List<AdminAuditLogEntry>,
       proposalSummary: results[7] as AdminMetadataProposalSummary,
       proposalHistory: results[8] as List<AdminAuditLogEntry>,
-      ingestHistory: results[9] as List<AdminProviderIngestHistoryEntry>,
-      ingestJobSummary: results[10] as AdminProviderIngestJobSummary,
-      ingestJobs: results[11] as List<AdminProviderIngestJob>,
-      duplicateCandidates: results[12] as List<AdminDuplicateCandidate>,
-    );
-  }
-
-  Future<AdminIngestJobsData> loadIngestJobs({
-    String? status,
-    String? provider,
-    String? query,
-  }) async {
-    final results = await Future.wait<Object>([
-      api.adminProviderIngestHistory(),
-      api.adminProviderIngestJobSummary(),
-      api.adminProviderIngestJobs(
-        status: status,
-        provider: provider,
-        query: query,
-        limit: 8,
-      ),
-    ]);
-    return AdminIngestJobsData(
-      history: results[0] as List<AdminProviderIngestHistoryEntry>,
-      summary: results[1] as AdminProviderIngestJobSummary,
-      jobs: results[2] as List<AdminProviderIngestJob>,
     );
   }
 
@@ -84,12 +45,6 @@ class AdminPageDataLoader {
       proposals: results[1] as List<AdminMetadataProposal>,
     );
   }
-
-  Future<List<AdminProviderStatus>> loadProviders() =>
-      api.adminProviderStatuses();
-
-  Future<List<AdminReleaseMediaMappingRule>> loadReleaseMappingRules() =>
-      api.adminReleaseMediaMappingRules();
 }
 
 class AdminDashboardData {
@@ -103,10 +58,6 @@ class AdminDashboardData {
     required this.auditLogs,
     required this.proposalSummary,
     required this.proposalHistory,
-    required this.ingestHistory,
-    required this.ingestJobSummary,
-    required this.ingestJobs,
-    required this.duplicateCandidates,
   });
 
   final AdminCatalogSummary summary;
@@ -118,22 +69,6 @@ class AdminDashboardData {
   final List<AdminAuditLogEntry> auditLogs;
   final AdminMetadataProposalSummary proposalSummary;
   final List<AdminAuditLogEntry> proposalHistory;
-  final List<AdminProviderIngestHistoryEntry> ingestHistory;
-  final AdminProviderIngestJobSummary ingestJobSummary;
-  final List<AdminProviderIngestJob> ingestJobs;
-  final List<AdminDuplicateCandidate> duplicateCandidates;
-}
-
-class AdminIngestJobsData {
-  const AdminIngestJobsData({
-    required this.history,
-    required this.summary,
-    required this.jobs,
-  });
-
-  final List<AdminProviderIngestHistoryEntry> history;
-  final AdminProviderIngestJobSummary summary;
-  final List<AdminProviderIngestJob> jobs;
 }
 
 class AdminProposalData {

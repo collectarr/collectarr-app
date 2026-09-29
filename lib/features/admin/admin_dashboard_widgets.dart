@@ -63,10 +63,6 @@ class _DashboardSummary extends StatelessWidget {
     required this.summary,
     required this.searchStatus,
     required this.lastReindex,
-    required this.configuredProviders,
-    required this.registeredProviders,
-    required this.selectedProviderLabel,
-    required this.lastIngest,
     required this.normalizedMetadataDrift,
     required this.metadataContractDrift,
     required this.errorMessage,
@@ -75,10 +71,6 @@ class _DashboardSummary extends StatelessWidget {
   final AdminCatalogSummary? summary;
   final AdminSearchStatus? searchStatus;
   final AdminSearchReindexResult? lastReindex;
-  final int configuredProviders;
-  final int registeredProviders;
-  final String selectedProviderLabel;
-  final AdminProviderIngestResult? lastIngest;
   final AdminNormalizedMetadataDriftReport? normalizedMetadataDrift;
   final SharedMetadataContractDrift? metadataContractDrift;
   final String? errorMessage;
@@ -93,24 +85,6 @@ class _DashboardSummary extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Providers ──
-        _DashboardSection(
-          title: 'Providers',
-          children: [
-            AdminStatusChip(
-              icon: Icons.extension_outlined,
-              label: '$configuredProviders live',
-            ),
-            AdminStatusChip(
-              icon: Icons.manage_search_outlined,
-              label: '$registeredProviders registered',
-            ),
-            AdminStatusChip(
-              icon: Icons.source_outlined,
-              label: selectedProviderLabel,
-            ),
-          ],
-        ),
         if (summary != null) ...[
           const SizedBox(height: 12),
           // ── Catalog ──
@@ -125,10 +99,6 @@ class _DashboardSummary extends StatelessWidget {
                 icon: Icons.category_outlined,
                 label: '${summary.series} series',
               ),
-              AdminStatusChip(
-                icon: Icons.link_outlined,
-                label: '${summary.providerLinks} provider links',
-              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -141,49 +111,20 @@ class _DashboardSummary extends StatelessWidget {
                 label: summary.coverCoverageLabel,
               ),
               AdminStatusChip(
-                icon: Icons.hub_outlined,
-                label: summary.providerCoverageLabel,
-              ),
-              AdminStatusChip(
                 icon: Icons.image_outlined,
                 label: '${summary.missingCoverItems} missing covers',
-              ),
-              AdminStatusChip(
-                icon: Icons.link_off_outlined,
-                label: '${summary.missingProviderLinkItems} missing IDs',
               ),
             ],
           ),
           const SizedBox(height: 12),
-          // ── Ingests ──
+          // ── Catalog review ──
           _DashboardSection(
-            title: 'Ingests',
+            title: 'Catalog review',
             children: [
-              AdminStatusChip(
-                icon: Icons.join_inner_outlined,
-                label: '${summary.duplicateCandidateGroups} duplicate groups',
-              ),
-              AdminStatusChip(
-                icon: summary.providerIngestFailures == 0
-                    ? Icons.download_done_outlined
-                    : Icons.error_outline,
-                label: '${summary.providerIngestFailures} failures',
-              ),
-              AdminStatusChip(
-                icon: Icons.download_for_offline_outlined,
-                label: '${summary.providerIngestSuccesses} ok',
-              ),
               AdminStatusChip(
                 icon: Icons.pending_actions_outlined,
                 label: '${summary.pendingProposals} pending',
               ),
-              if (lastIngest != null)
-                AdminStatusChip(
-                  icon: lastIngest!.created
-                      ? Icons.add_circle_outline
-                      : Icons.fact_check_outlined,
-                  label: lastIngest!.created ? 'Last: new' : 'Last: exists',
-                ),
             ],
           ),
         ] else
@@ -559,7 +500,7 @@ class _DashboardMiniChip extends StatelessWidget {
 String _dashboardProposalAuditActionLabel(String action) {
   return switch (action) {
     'metadata_proposal.approve' => 'Approved proposal',
-    'metadata_proposal.approve_provider' => 'Approved via provider',
+    'metadata_proposal.approve_provider' => 'Approved proposal',
     'metadata_proposal.reject' => 'Rejected proposal',
     _ => action,
   };
@@ -603,10 +544,6 @@ class AdminDashboardTab extends StatelessWidget {
     required this.summary,
     required this.searchStatus,
     required this.lastReindex,
-    required this.configuredProviders,
-    required this.registeredProviders,
-    required this.selectedProviderLabel,
-    required this.lastIngest,
     required this.normalizedMetadataDrift,
     required this.metadataContractDrift,
     required this.dashboardErrorMessage,
@@ -622,10 +559,6 @@ class AdminDashboardTab extends StatelessWidget {
   final AdminCatalogSummary? summary;
   final AdminSearchStatus? searchStatus;
   final AdminSearchReindexResult? lastReindex;
-  final int configuredProviders;
-  final int registeredProviders;
-  final String selectedProviderLabel;
-  final AdminProviderIngestResult? lastIngest;
   final AdminNormalizedMetadataDriftReport? normalizedMetadataDrift;
   final SharedMetadataContractDrift? metadataContractDrift;
   final String? dashboardErrorMessage;
@@ -671,10 +604,6 @@ class AdminDashboardTab extends StatelessWidget {
             summary: summary,
             searchStatus: searchStatus,
             lastReindex: lastReindex,
-            configuredProviders: configuredProviders,
-            registeredProviders: registeredProviders,
-            selectedProviderLabel: selectedProviderLabel,
-            lastIngest: lastIngest,
             normalizedMetadataDrift: normalizedMetadataDrift,
             metadataContractDrift: metadataContractDrift,
             errorMessage: dashboardErrorMessage,
