@@ -13,6 +13,7 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
   Iterable<String>? countryOptions,
   Iterable<String>? recordLabelOptions,
   Iterable<String>? packagingOptions,
+  Iterable<String>? studioOptions,
   FutureOr<void> Function()? onManageFormat,
   FutureOr<void> Function()? onManageCountry,
   FutureOr<void> Function()? onManageRecordLabel,
@@ -54,11 +55,17 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
               value: (draft) => draft.coverImageUrl,
               setValue: (draft, value) => draft.coverImageUrl = value,
             ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'studio',
+            LibraryMultiVocabularyFieldSpec<MusicAddManualDraft, String>(
+              id: 'studios',
               label: 'Studio',
-              value: (draft) => draft.studio,
-              setValue: (draft, value) => draft.studio = value,
+              pickListKey: MusicVocabularyIds.studio.value,
+              pluralLabel: 'Studios',
+              values: (draft) => draft.studios.toSet(),
+              setValues: (draft, values) =>
+                  draft.studios = values.toList(growable: false),
+              options: _options(
+                studioOptions ?? MusicVocabularies.studio.builtIns,
+              ),
             ),
           ],
         ),

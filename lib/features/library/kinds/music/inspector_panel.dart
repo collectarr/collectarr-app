@@ -1190,7 +1190,7 @@ class _MusicReleaseGroupDetails extends StatelessWidget {
         ('Original release', formatDate(group.originalReleaseDate!)),
       if (group.recordingDate != null)
         ('Recording date', formatDate(group.recordingDate!)),
-      if (group.studio?.trim().isNotEmpty == true) ('Studio', group.studio!),
+      if (group.studios.isNotEmpty) ('Studio', group.studios.join(', ')),
       ...releaseRows,
     ];
     return LibraryDetailFieldTable(

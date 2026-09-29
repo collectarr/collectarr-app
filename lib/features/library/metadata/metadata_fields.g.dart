@@ -72,7 +72,7 @@ const List<GeneratedMetadataField> kGeneratedMetadataFields = [
   (key: 'original_release_date', label: 'Original release date', section: 'item', valueType: 'partialDate', inputType: 'text', normalizedValueType: null),
   (key: 'recording_date', label: 'Recording date', section: 'item', valueType: 'partialDate', inputType: 'text', normalizedValueType: null),
   (key: 'packaging', label: 'Packaging', section: 'publishing', valueType: 'text', inputType: 'text', normalizedValueType: null),
-  (key: 'studio', label: 'Studio', section: 'item', valueType: 'text', inputType: 'text', normalizedValueType: null),
+  (key: 'studios', label: 'Studio', section: 'item', valueType: 'stringList', inputType: 'text', normalizedValueType: null),
   (key: 'is_live', label: 'Is live', section: 'technical', valueType: 'boolean', inputType: 'text', normalizedValueType: null),
   (key: 'sound_types', label: 'Sound', section: 'technical', valueType: 'stringList', inputType: 'text', normalizedValueType: null),
   (key: 'vinyl_color', label: 'Vinyl color', section: 'technical', valueType: 'text', inputType: 'text', normalizedValueType: null),

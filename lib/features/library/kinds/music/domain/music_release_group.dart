@@ -21,7 +21,7 @@ final class MusicReleaseGroup implements JsonEncodable {
     this.originalReleaseDateParts,
     this.recordingDate,
     this.recordingDateParts,
-    this.studio,
+    List<String> studios = const [],
     this.isLive,
     this.genres = const [],
     this.artistCredits = const [],
@@ -34,7 +34,8 @@ final class MusicReleaseGroup implements JsonEncodable {
     this.localThumbnailImagePath,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : createdAt =
+  })  : studios = List<String>.unmodifiable(studios),
+        createdAt =
             createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
         updatedAt =
             updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
@@ -51,7 +52,7 @@ final class MusicReleaseGroup implements JsonEncodable {
   final PartialDate? originalReleaseDateParts;
   final DateTime? recordingDate;
   final PartialDate? recordingDateParts;
-  final String? studio;
+  final List<String> studios;
   final bool? isLive;
   final List<String> genres;
   final List<MusicArtistCredit> artistCredits;
@@ -99,7 +100,7 @@ final class MusicReleaseGroup implements JsonEncodable {
       recordingDateParts: _partialDate(
         json['recording_date_parts'] ?? json['recording_date'],
       ),
-      studio: _text(json['studio']),
+      studios: _strings(json['studios']),
       isLive: json['is_live'] as bool?,
       genres: _strings(json['genres']),
       artistCredits: [
@@ -147,7 +148,7 @@ final class MusicReleaseGroup implements JsonEncodable {
           'recording_date': recordingDate!.toIso8601String(),
         if (recordingDateParts != null)
           'recording_date_parts': recordingDateParts!.toJson(),
-        if (studio != null) 'studio': studio,
+        if (studios.isNotEmpty) 'studios': studios,
         if (isLive != null) 'is_live': isLive,
         if (genres.isNotEmpty) 'genres': genres,
         if (artistCredits.isNotEmpty)

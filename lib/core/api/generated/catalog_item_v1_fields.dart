@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND.
 // Source: tool/core_contracts/catalog-item-v1.json
-// Contract SHA-256: 1b7f0cef01a7d11989a4bf1067bdcee576de7b3b075bc359b9168fcae82c671e
+// Contract SHA-256: 60ab0e657ba6da5aa6b43747cd7a0161b0289d25d24acb9ff44d53ca75cb8372
 const catalogItemV1SchemaVersion = 1;
 const catalogItemV1ContractVersion = '1.0.0';
 
@@ -364,7 +364,7 @@ const Map<String, Set<String>> catalogItemV1FieldsByKind = {
     'sort_title',
     'sound_types',
     'spars',
-    'studio',
+    'studios',
     'subtitle',
     'thumbnail_image_url',
     'title',

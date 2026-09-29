@@ -38188,11 +38188,14 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
   late final GeneratedColumn<String> recordingDatePartsJson =
       GeneratedColumn<String>('recording_date_parts_json', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _studioMeta = const VerificationMeta('studio');
+  static const VerificationMeta _studiosJsonMeta =
+      const VerificationMeta('studiosJson');
   @override
-  late final GeneratedColumn<String> studio = GeneratedColumn<String>(
-      'studio', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> studiosJson = GeneratedColumn<String>(
+      'studios_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
   static const VerificationMeta _isLiveMeta = const VerificationMeta('isLive');
   @override
   late final GeneratedColumn<bool> isLive = GeneratedColumn<bool>(
@@ -38270,7 +38273,7 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
         originalReleaseDatePartsJson,
         recordingDate,
         recordingDatePartsJson,
-        studio,
+        studiosJson,
         isLive,
         genresJson,
         coverImageUrl,
@@ -38343,9 +38346,11 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
           recordingDatePartsJson.isAcceptableOrUnknown(
               data['recording_date_parts_json']!, _recordingDatePartsJsonMeta));
     }
-    if (data.containsKey('studio')) {
-      context.handle(_studioMeta,
-          studio.isAcceptableOrUnknown(data['studio']!, _studioMeta));
+    if (data.containsKey('studios_json')) {
+      context.handle(
+          _studiosJsonMeta,
+          studiosJson.isAcceptableOrUnknown(
+              data['studios_json']!, _studiosJsonMeta));
     }
     if (data.containsKey('is_live')) {
       context.handle(_isLiveMeta,
@@ -38436,8 +38441,8 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
       recordingDatePartsJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}recording_date_parts_json']),
-      studio: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}studio']),
+      studiosJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}studios_json'])!,
       isLive: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_live']),
       genresJson: attachedDatabase.typeMapping
@@ -38480,7 +38485,7 @@ class MusicReleaseGroupRow extends DataClass
   final String? originalReleaseDatePartsJson;
   final DateTime? recordingDate;
   final String? recordingDatePartsJson;
-  final String? studio;
+  final String studiosJson;
   final bool? isLive;
   final String genresJson;
   final String? coverImageUrl;
@@ -38501,7 +38506,7 @@ class MusicReleaseGroupRow extends DataClass
       this.originalReleaseDatePartsJson,
       this.recordingDate,
       this.recordingDatePartsJson,
-      this.studio,
+      required this.studiosJson,
       this.isLive,
       required this.genresJson,
       this.coverImageUrl,
@@ -38540,9 +38545,7 @@ class MusicReleaseGroupRow extends DataClass
       map['recording_date_parts_json'] =
           Variable<String>(recordingDatePartsJson);
     }
-    if (!nullToAbsent || studio != null) {
-      map['studio'] = Variable<String>(studio);
-    }
+    map['studios_json'] = Variable<String>(studiosJson);
     if (!nullToAbsent || isLive != null) {
       map['is_live'] = Variable<bool>(isLive);
     }
@@ -38594,8 +38597,7 @@ class MusicReleaseGroupRow extends DataClass
       recordingDatePartsJson: recordingDatePartsJson == null && nullToAbsent
           ? const Value.absent()
           : Value(recordingDatePartsJson),
-      studio:
-          studio == null && nullToAbsent ? const Value.absent() : Value(studio),
+      studiosJson: Value(studiosJson),
       isLive:
           isLive == null && nullToAbsent ? const Value.absent() : Value(isLive),
       genresJson: Value(genresJson),
@@ -38636,7 +38638,7 @@ class MusicReleaseGroupRow extends DataClass
       recordingDate: serializer.fromJson<DateTime?>(json['recordingDate']),
       recordingDatePartsJson:
           serializer.fromJson<String?>(json['recordingDatePartsJson']),
-      studio: serializer.fromJson<String?>(json['studio']),
+      studiosJson: serializer.fromJson<String>(json['studiosJson']),
       isLive: serializer.fromJson<bool?>(json['isLive']),
       genresJson: serializer.fromJson<String>(json['genresJson']),
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
@@ -38667,7 +38669,7 @@ class MusicReleaseGroupRow extends DataClass
       'recordingDate': serializer.toJson<DateTime?>(recordingDate),
       'recordingDatePartsJson':
           serializer.toJson<String?>(recordingDatePartsJson),
-      'studio': serializer.toJson<String?>(studio),
+      'studiosJson': serializer.toJson<String>(studiosJson),
       'isLive': serializer.toJson<bool?>(isLive),
       'genresJson': serializer.toJson<String>(genresJson),
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
@@ -38692,7 +38694,7 @@ class MusicReleaseGroupRow extends DataClass
           Value<String?> originalReleaseDatePartsJson = const Value.absent(),
           Value<DateTime?> recordingDate = const Value.absent(),
           Value<String?> recordingDatePartsJson = const Value.absent(),
-          Value<String?> studio = const Value.absent(),
+          String? studiosJson,
           Value<bool?> isLive = const Value.absent(),
           String? genresJson,
           Value<String?> coverImageUrl = const Value.absent(),
@@ -38721,7 +38723,7 @@ class MusicReleaseGroupRow extends DataClass
         recordingDatePartsJson: recordingDatePartsJson.present
             ? recordingDatePartsJson.value
             : this.recordingDatePartsJson,
-        studio: studio.present ? studio.value : this.studio,
+        studiosJson: studiosJson ?? this.studiosJson,
         isLive: isLive.present ? isLive.value : this.isLive,
         genresJson: genresJson ?? this.genresJson,
         coverImageUrl:
@@ -38762,7 +38764,8 @@ class MusicReleaseGroupRow extends DataClass
       recordingDatePartsJson: data.recordingDatePartsJson.present
           ? data.recordingDatePartsJson.value
           : this.recordingDatePartsJson,
-      studio: data.studio.present ? data.studio.value : this.studio,
+      studiosJson:
+          data.studiosJson.present ? data.studiosJson.value : this.studiosJson,
       isLive: data.isLive.present ? data.isLive.value : this.isLive,
       genresJson:
           data.genresJson.present ? data.genresJson.value : this.genresJson,
@@ -38802,7 +38805,7 @@ class MusicReleaseGroupRow extends DataClass
               'originalReleaseDatePartsJson: $originalReleaseDatePartsJson, ')
           ..write('recordingDate: $recordingDate, ')
           ..write('recordingDatePartsJson: $recordingDatePartsJson, ')
-          ..write('studio: $studio, ')
+          ..write('studiosJson: $studiosJson, ')
           ..write('isLive: $isLive, ')
           ..write('genresJson: $genresJson, ')
           ..write('coverImageUrl: $coverImageUrl, ')
@@ -38828,7 +38831,7 @@ class MusicReleaseGroupRow extends DataClass
       originalReleaseDatePartsJson,
       recordingDate,
       recordingDatePartsJson,
-      studio,
+      studiosJson,
       isLive,
       genresJson,
       coverImageUrl,
@@ -38853,7 +38856,7 @@ class MusicReleaseGroupRow extends DataClass
               this.originalReleaseDatePartsJson &&
           other.recordingDate == this.recordingDate &&
           other.recordingDatePartsJson == this.recordingDatePartsJson &&
-          other.studio == this.studio &&
+          other.studiosJson == this.studiosJson &&
           other.isLive == this.isLive &&
           other.genresJson == this.genresJson &&
           other.coverImageUrl == this.coverImageUrl &&
@@ -38877,7 +38880,7 @@ class MusicReleaseGroupRowsCompanion
   final Value<String?> originalReleaseDatePartsJson;
   final Value<DateTime?> recordingDate;
   final Value<String?> recordingDatePartsJson;
-  final Value<String?> studio;
+  final Value<String> studiosJson;
   final Value<bool?> isLive;
   final Value<String> genresJson;
   final Value<String?> coverImageUrl;
@@ -38899,7 +38902,7 @@ class MusicReleaseGroupRowsCompanion
     this.originalReleaseDatePartsJson = const Value.absent(),
     this.recordingDate = const Value.absent(),
     this.recordingDatePartsJson = const Value.absent(),
-    this.studio = const Value.absent(),
+    this.studiosJson = const Value.absent(),
     this.isLive = const Value.absent(),
     this.genresJson = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
@@ -38922,7 +38925,7 @@ class MusicReleaseGroupRowsCompanion
     this.originalReleaseDatePartsJson = const Value.absent(),
     this.recordingDate = const Value.absent(),
     this.recordingDatePartsJson = const Value.absent(),
-    this.studio = const Value.absent(),
+    this.studiosJson = const Value.absent(),
     this.isLive = const Value.absent(),
     this.genresJson = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
@@ -38948,7 +38951,7 @@ class MusicReleaseGroupRowsCompanion
     Expression<String>? originalReleaseDatePartsJson,
     Expression<DateTime>? recordingDate,
     Expression<String>? recordingDatePartsJson,
-    Expression<String>? studio,
+    Expression<String>? studiosJson,
     Expression<bool>? isLive,
     Expression<String>? genresJson,
     Expression<String>? coverImageUrl,
@@ -38974,7 +38977,7 @@ class MusicReleaseGroupRowsCompanion
       if (recordingDate != null) 'recording_date': recordingDate,
       if (recordingDatePartsJson != null)
         'recording_date_parts_json': recordingDatePartsJson,
-      if (studio != null) 'studio': studio,
+      if (studiosJson != null) 'studios_json': studiosJson,
       if (isLive != null) 'is_live': isLive,
       if (genresJson != null) 'genres_json': genresJson,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
@@ -39002,7 +39005,7 @@ class MusicReleaseGroupRowsCompanion
       Value<String?>? originalReleaseDatePartsJson,
       Value<DateTime?>? recordingDate,
       Value<String?>? recordingDatePartsJson,
-      Value<String?>? studio,
+      Value<String>? studiosJson,
       Value<bool?>? isLive,
       Value<String>? genresJson,
       Value<String?>? coverImageUrl,
@@ -39026,7 +39029,7 @@ class MusicReleaseGroupRowsCompanion
       recordingDate: recordingDate ?? this.recordingDate,
       recordingDatePartsJson:
           recordingDatePartsJson ?? this.recordingDatePartsJson,
-      studio: studio ?? this.studio,
+      studiosJson: studiosJson ?? this.studiosJson,
       isLive: isLive ?? this.isLive,
       genresJson: genresJson ?? this.genresJson,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
@@ -39075,8 +39078,8 @@ class MusicReleaseGroupRowsCompanion
       map['recording_date_parts_json'] =
           Variable<String>(recordingDatePartsJson.value);
     }
-    if (studio.present) {
-      map['studio'] = Variable<String>(studio.value);
+    if (studiosJson.present) {
+      map['studios_json'] = Variable<String>(studiosJson.value);
     }
     if (isLive.present) {
       map['is_live'] = Variable<bool>(isLive.value);
@@ -39129,7 +39132,7 @@ class MusicReleaseGroupRowsCompanion
               'originalReleaseDatePartsJson: $originalReleaseDatePartsJson, ')
           ..write('recordingDate: $recordingDate, ')
           ..write('recordingDatePartsJson: $recordingDatePartsJson, ')
-          ..write('studio: $studio, ')
+          ..write('studiosJson: $studiosJson, ')
           ..write('isLive: $isLive, ')
           ..write('genresJson: $genresJson, ')
           ..write('coverImageUrl: $coverImageUrl, ')
@@ -74379,7 +74382,7 @@ typedef $$MusicReleaseGroupRowsTableCreateCompanionBuilder
   Value<String?> originalReleaseDatePartsJson,
   Value<DateTime?> recordingDate,
   Value<String?> recordingDatePartsJson,
-  Value<String?> studio,
+  Value<String> studiosJson,
   Value<bool?> isLive,
   Value<String> genresJson,
   Value<String?> coverImageUrl,
@@ -74403,7 +74406,7 @@ typedef $$MusicReleaseGroupRowsTableUpdateCompanionBuilder
   Value<String?> originalReleaseDatePartsJson,
   Value<DateTime?> recordingDate,
   Value<String?> recordingDatePartsJson,
-  Value<String?> studio,
+  Value<String> studiosJson,
   Value<bool?> isLive,
   Value<String> genresJson,
   Value<String?> coverImageUrl,
@@ -74456,8 +74459,8 @@ class $$MusicReleaseGroupRowsTableFilterComposer
       column: $table.recordingDatePartsJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get studio => $composableBuilder(
-      column: $table.studio, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get studiosJson => $composableBuilder(
+      column: $table.studiosJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isLive => $composableBuilder(
       column: $table.isLive, builder: (column) => ColumnFilters(column));
@@ -74536,8 +74539,8 @@ class $$MusicReleaseGroupRowsTableOrderingComposer
       column: $table.recordingDatePartsJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get studio => $composableBuilder(
-      column: $table.studio, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get studiosJson => $composableBuilder(
+      column: $table.studiosJson, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isLive => $composableBuilder(
       column: $table.isLive, builder: (column) => ColumnOrderings(column));
@@ -74614,8 +74617,8 @@ class $$MusicReleaseGroupRowsTableAnnotationComposer
   GeneratedColumn<String> get recordingDatePartsJson => $composableBuilder(
       column: $table.recordingDatePartsJson, builder: (column) => column);
 
-  GeneratedColumn<String> get studio =>
-      $composableBuilder(column: $table.studio, builder: (column) => column);
+  GeneratedColumn<String> get studiosJson => $composableBuilder(
+      column: $table.studiosJson, builder: (column) => column);
 
   GeneratedColumn<bool> get isLive =>
       $composableBuilder(column: $table.isLive, builder: (column) => column);
@@ -74688,7 +74691,7 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             Value<String?> originalReleaseDatePartsJson = const Value.absent(),
             Value<DateTime?> recordingDate = const Value.absent(),
             Value<String?> recordingDatePartsJson = const Value.absent(),
-            Value<String?> studio = const Value.absent(),
+            Value<String> studiosJson = const Value.absent(),
             Value<bool?> isLive = const Value.absent(),
             Value<String> genresJson = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
@@ -74711,7 +74714,7 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             originalReleaseDatePartsJson: originalReleaseDatePartsJson,
             recordingDate: recordingDate,
             recordingDatePartsJson: recordingDatePartsJson,
-            studio: studio,
+            studiosJson: studiosJson,
             isLive: isLive,
             genresJson: genresJson,
             coverImageUrl: coverImageUrl,
@@ -74734,7 +74737,7 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             Value<String?> originalReleaseDatePartsJson = const Value.absent(),
             Value<DateTime?> recordingDate = const Value.absent(),
             Value<String?> recordingDatePartsJson = const Value.absent(),
-            Value<String?> studio = const Value.absent(),
+            Value<String> studiosJson = const Value.absent(),
             Value<bool?> isLive = const Value.absent(),
             Value<String> genresJson = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
@@ -74757,7 +74760,7 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             originalReleaseDatePartsJson: originalReleaseDatePartsJson,
             recordingDate: recordingDate,
             recordingDatePartsJson: recordingDatePartsJson,
-            studio: studio,
+            studiosJson: studiosJson,
             isLive: isLive,
             genresJson: genresJson,
             coverImageUrl: coverImageUrl,

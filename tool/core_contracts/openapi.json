@@ -1174,17 +1174,19 @@
             ],
             "title": "Story Arcs"
           },
-          "studio": {
+          "studios": {
             "anyOf": [
               {
-                "maxLength": 255,
-                "type": "string"
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Studio"
+            "title": "Studios"
           },
           "subtitle": {
             "anyOf": [
@@ -9118,16 +9120,12 @@
             ],
             "title": "Spars"
           },
-          "studio": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Studio"
+          "studios": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Studios",
+            "type": "array"
           },
           "subtitle": {
             "anyOf": [
@@ -9183,6 +9181,7 @@
           "title",
           "artist_credits",
           "genres",
+          "studios",
           "sound_types",
           "composers",
           "conductors",

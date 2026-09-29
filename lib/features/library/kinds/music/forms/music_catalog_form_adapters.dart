@@ -21,7 +21,7 @@ abstract final class MusicReleaseGroupFormAdapter {
         originalTitle: _text(values.originalTitle),
         originalReleaseDate: values.originalReleaseDate,
         recordingDate: values.recordingDate,
-        studio: _text(values.studio),
+        studios: List.unmodifiable(values.studios),
         isLive: values.isLive,
         genres: List.unmodifiable(values.genres),
         coverImageUrl: _text(values.coverImageUrl),
@@ -51,7 +51,7 @@ abstract final class MusicReleaseGroupFormAdapter {
         recordingDateParts: values.recordingDate == original.recordingDate
             ? original.recordingDateParts
             : null,
-        studio: _text(values.studio),
+        studios: List.unmodifiable(values.studios),
         isLive: values.isLive,
         genres: List.unmodifiable(values.genres),
         artistCredits: original.artistCredits,

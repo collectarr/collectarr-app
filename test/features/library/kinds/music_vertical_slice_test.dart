@@ -16,7 +16,7 @@ void main() {
       title: 'The Dark Side of the Moon',
       artist: 'Pink Floyd',
       originalReleaseDate: DateTime(1973, 3, 1),
-      studio: 'Abbey Road Studios',
+      studios: const ['Abbey Road Studios'],
       genres: ['Progressive Rock', 'Psychedelic Rock'],
       releases: [
         MusicRelease(

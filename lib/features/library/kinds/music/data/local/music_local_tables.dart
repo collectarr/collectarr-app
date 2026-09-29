@@ -11,7 +11,7 @@ class MusicReleaseGroupRows extends Table {
   TextColumn get originalReleaseDatePartsJson => text().nullable()();
   DateTimeColumn get recordingDate => dateTime().nullable()();
   TextColumn get recordingDatePartsJson => text().nullable()();
-  TextColumn get studio => text().nullable()();
+  TextColumn get studiosJson => text().withDefault(const Constant('[]'))();
   BoolColumn get isLive => boolean().nullable()();
   TextColumn get genresJson => text().withDefault(const Constant('[]'))();
   TextColumn get coverImageUrl => text().nullable()();

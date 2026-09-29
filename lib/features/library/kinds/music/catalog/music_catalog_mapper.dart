@@ -139,7 +139,7 @@ final class MusicCatalogMapper {
       originalReleaseDate: _date(sourcePayload['original_release_date']) ??
           _date(sourcePayload['release_date']),
       recordingDate: _date(sourcePayload['recording_date']),
-      studio: _text(sourcePayload['studio']),
+      studios: _strings(sourcePayload['studios']),
       isLive: sourcePayload['is_live'] as bool?,
       genres: _strings(sourcePayload['genres']),
       coverImageUrl:

@@ -132,7 +132,7 @@ final class MusicCollectionCsvProjection
       release?.title ?? '',
       physicalFormat.toString(),
       physicalFormatLabel.toString(),
-      release?.publisher ?? music?.studio ?? '',
+      release?.publisher ?? music?.studios.join(', ') ?? '',
       _formatDate(
         music?.originalReleaseDate ??
             release?.releaseDate ??

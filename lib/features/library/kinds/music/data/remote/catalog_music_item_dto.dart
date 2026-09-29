@@ -26,7 +26,7 @@ final class CatalogMusicItemDto implements JsonEncodable {
     this.catalogNumber,
     this.genres = const [],
     this.packaging,
-    this.studio,
+    List<String> studios = const [],
     this.country,
     this.isLive,
     this.soundTypes = const [],
@@ -51,7 +51,7 @@ final class CatalogMusicItemDto implements JsonEncodable {
     this.thumbnailImageUrl,
     this.revision = 1,
     this.discs = const [],
-  });
+  }) : studios = List<String>.unmodifiable(studios);
 
   factory CatalogMusicItemDto.fromJson(Map<String, dynamic> json) {
     final id = _string(json['id']);
@@ -84,7 +84,7 @@ final class CatalogMusicItemDto implements JsonEncodable {
       catalogNumber: _string(json['catalog_number']),
       genres: _stringList(json['genres']),
       packaging: _string(json['packaging']),
-      studio: _string(json['studio']),
+      studios: _stringList(json['studios']),
       country: _string(json['country']),
       isLive: json['is_live'] as bool?,
       soundTypes: _stringList(json['sound_types']),
@@ -153,7 +153,7 @@ final class CatalogMusicItemDto implements JsonEncodable {
   final String? catalogNumber;
   final List<String> genres;
   final String? packaging;
-  final String? studio;
+  final List<String> studios;
   final String? country;
   final bool? isLive;
   final List<String> soundTypes;
@@ -204,7 +204,7 @@ final class CatalogMusicItemDto implements JsonEncodable {
         if (catalogNumber != null) 'catalog_number': catalogNumber,
         if (genres.isNotEmpty) 'genres': genres,
         if (packaging != null) 'packaging': packaging,
-        if (studio != null) 'studio': studio,
+        if (studios.isNotEmpty) 'studios': studios,
         if (country != null) 'country': country,
         if (isLive != null) 'is_live': isLive,
         if (soundTypes.isNotEmpty) 'sound_types': soundTypes,

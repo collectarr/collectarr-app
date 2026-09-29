@@ -6916,8 +6916,8 @@
     {
       "common": false,
       "editable": true,
-      "input": "text",
-      "key": "studio",
+      "input": "list",
+      "key": "studios",
       "kind": "music",
       "label": "Studio",
       "normalized": false,
@@ -6926,7 +6926,7 @@
       "sourceEntityType": "catalog_music_item",
       "sourceTable": "music_items",
       "typed": false,
-      "valueType": "string",
+      "valueType": "string_list",
       "writeTarget": "core_canonical"
     },
     {
@@ -7074,5 +7074,5 @@
       "writeTarget": "core_canonical"
     }
   ],
-  "generatedAt": "2026-09-29T21:44:46.772955Z"
+  "generatedAt": "2026-09-29T22:07:59.935654Z"
 }

@@ -223,7 +223,7 @@ final class MusicRepository
       originalReleaseDateParts: group.originalReleaseDateParts,
       recordingDate: group.recordingDate,
       recordingDateParts: group.recordingDateParts,
-      studio: group.studio,
+      studios: group.studios,
       isLive: group.isLive,
       genres: group.genres,
       artistCredits: group.artistCredits,

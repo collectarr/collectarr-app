@@ -16,9 +16,10 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
     this.countryCode = '',
     this.releaseDate,
     this.recordLabel = '',
-    this.studio = '',
+    List<String> studios = const [],
     this.year,
-  }) : genres = List<String>.of(genres);
+  })  : genres = List<String>.of(genres),
+        studios = List<String>.of(studios);
 
   String artist;
   List<String> genres;
@@ -30,7 +31,7 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
   String countryCode;
   DateTime? releaseDate;
   String recordLabel;
-  String studio;
+  List<String> studios;
   int? year;
 
   @override

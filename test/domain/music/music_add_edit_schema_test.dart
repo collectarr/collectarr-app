@@ -43,6 +43,7 @@ void main() {
         'artist',
         'record_label',
         'genres',
+        'studios',
       ]),
     );
     draft.year = 0;
@@ -61,7 +62,7 @@ void main() {
       originalTitle: 'The Wall (Original)',
       originalReleaseDate: DateTime.utc(1979, 11, 30),
       recordingDate: DateTime.utc(1979, 1, 1),
-      studio: 'Britannia Row',
+      studios: ['Britannia Row'],
       isLive: false,
       genres: ['Progressive Rock'],
       createdAt: DateTime.utc(2020, 1, 1),
@@ -120,7 +121,7 @@ void main() {
       ..originalTitle = 'The Wall'
       ..originalReleaseDate = DateTime.utc(1980, 1, 1)
       ..recordingDate = DateTime.utc(1978, 1, 1)
-      ..studio = 'New Studio'
+      ..studios = ['New Studio', 'Abbey Road']
       ..isLive = true
       ..genres = ['Rock'];
     final releaseDraft =
@@ -161,7 +162,7 @@ void main() {
 
     expect(editedGroup.title, 'The Wall (Remastered)');
     expect(editedGroup.artist, 'Pink Floyd & Guests');
-    expect(editedGroup.studio, 'New Studio');
+    expect(editedGroup.studios, ['New Studio', 'Abbey Road']);
     expect(editedGroup.genres, ['Rock']);
     expect(editedGroup.createdAt, group.createdAt);
     expect(editedGroup.updatedAt, group.updatedAt);
@@ -232,7 +233,7 @@ void main() {
     draft.format = 'Vinyl';
     draft.packaging = 'Gatefold';
     draft.countryCode = 'FR';
-    draft.studio = 'Studio 1';
+    draft.studios = ['Studio 1', 'Studio 2'];
     draft.releaseDate = DateTime.utc(2001, 3, 12);
     draft.genres = ['Electronic', 'House'];
     draft.coverImageUrl = 'https://example.test/cover.jpg';
@@ -249,7 +250,7 @@ void main() {
     expect(item.barcode, '123456789');
     expect(item.packaging, 'Gatefold');
     expect(item.country, 'FR');
-    expect(item.studio, 'Studio 1');
+    expect(item.studios, ['Studio 1', 'Studio 2']);
     expect(item.releaseDate, '2001-03-12');
     expect(item.coverImageUrl, 'https://example.test/cover.jpg');
 

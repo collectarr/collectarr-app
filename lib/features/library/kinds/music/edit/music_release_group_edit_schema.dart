@@ -41,7 +41,7 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
             include: {
               'original_release_date',
               'recording_date',
-              'studio',
+              'studios',
               'genres',
             },
           ),

@@ -33,7 +33,7 @@ final class MusicLocalMapper {
       recordingDate: Value(group.recordingDate),
       recordingDatePartsJson:
           Value(_encodePartialDate(group.recordingDateParts)),
-      studio: Value(group.studio),
+      studiosJson: Value(jsonEncode(group.studios)),
       isLive: Value(group.isLive),
       genresJson: Value(jsonEncode(group.genres)),
       coverImageUrl: Value(group.coverImageUrl),
@@ -65,7 +65,7 @@ final class MusicLocalMapper {
           _decodePartialDate(row.originalReleaseDatePartsJson),
       recordingDate: row.recordingDate,
       recordingDateParts: _decodePartialDate(row.recordingDatePartsJson),
-      studio: row.studio,
+      studios: _decodeStrings(row.studiosJson),
       isLive: row.isLive,
       genres: _decodeStrings(row.genresJson),
       artistCredits: artistCredits,

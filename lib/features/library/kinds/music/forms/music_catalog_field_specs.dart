@@ -65,11 +65,15 @@ List<LibraryFieldSpec<TDraft>> musicReleaseGroupFields<TDraft>({
         value: (draft) => values(draft).recordingDate,
         setValue: (draft, value) => values(draft).recordingDate = value,
       ),
-      _text<TDraft>(
-        id: 'studio',
+      LibraryMultiVocabularyFieldSpec<TDraft, String>(
+        id: 'studios',
         label: 'Studio',
-        read: (draft) => values(draft).studio,
-        write: (draft, value) => values(draft).studio = value,
+        pickListKey: MusicVocabularyIds.studio.value,
+        pluralLabel: 'Studios',
+        values: (draft) => values(draft).studios.toSet(),
+        setValues: (draft, next) =>
+            values(draft).studios = next.toList(growable: false),
+        options: _options(MusicVocabularies.studio.builtIns),
       ),
       LibraryMultiVocabularyFieldSpec<TDraft, String>(
         id: 'genres',

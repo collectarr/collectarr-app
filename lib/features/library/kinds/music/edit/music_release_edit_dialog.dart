@@ -340,7 +340,7 @@ MusicReleaseGroup _replaceRelease(
     originalTitle: group.originalTitle,
     originalReleaseDate: group.originalReleaseDate,
     recordingDate: group.recordingDate,
-    studio: group.studio,
+    studios: group.studios,
     isLive: group.isLive,
     genres: group.genres,
     coverImageUrl: group.coverImageUrl,

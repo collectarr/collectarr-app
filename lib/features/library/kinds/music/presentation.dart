@@ -151,11 +151,11 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : const <String>[],
   ),
   LibraryFilterDefinition<Object?>(
-    id: 'studio',
+    id: 'studios',
     label: 'Studio',
     anyLabel: 'Any studio',
     value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).music.studio
+        ? (item.dto as MusicWorkspaceProjection).music.studios
         : null,
   ),
   LibraryFilterDefinition<Object?>(

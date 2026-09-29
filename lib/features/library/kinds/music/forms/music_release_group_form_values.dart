@@ -9,11 +9,12 @@ final class MusicReleaseGroupFormValues {
     this.originalTitle = '',
     this.originalReleaseDate,
     this.recordingDate,
-    this.studio = '',
+    List<String> studios = const [],
     this.isLive,
     List<String> genres = const [],
     this.coverImageUrl = '',
-  }) : genres = List<String>.of(genres);
+  })  : genres = List<String>.of(genres),
+        studios = List<String>.of(studios);
 
   factory MusicReleaseGroupFormValues.fromGroup(MusicReleaseGroup group) =>
       MusicReleaseGroupFormValues(
@@ -23,7 +24,7 @@ final class MusicReleaseGroupFormValues {
         originalTitle: group.originalTitle ?? '',
         originalReleaseDate: group.originalReleaseDate,
         recordingDate: group.recordingDate,
-        studio: group.studio ?? '',
+        studios: group.studios,
         isLive: group.isLive,
         genres: group.genres,
         coverImageUrl: group.coverImageUrl ?? '',
@@ -35,7 +36,7 @@ final class MusicReleaseGroupFormValues {
   String originalTitle;
   DateTime? originalReleaseDate;
   DateTime? recordingDate;
-  String studio;
+  List<String> studios;
   bool? isLive;
   List<String> genres;
   String coverImageUrl;

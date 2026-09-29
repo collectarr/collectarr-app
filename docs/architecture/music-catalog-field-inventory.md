@@ -30,7 +30,7 @@ An exact CLZ form field is identified by the displayed label and tab below. “C
 | Main | Cat No | string | `catalog_number` | Exact catalog number. |
 | Main | Genre | ordered string list | `genres[]` | One item can have multiple genres. |
 | Details | Packaging | string | `packaging` | Catalog Item packaging description. |
-| Details | Studio | ordered name list | `studios[]` | Preserve multiple studio credits. |
+| Details | Studio | ordered managed name list | `studios[]` | Preserve multiple studio credits in the order entered. |
 | Details | Country | string | `country` | Full country name. |
 | Details | Is Live | boolean | `is_live` | Explicit Yes/No value. |
 | Details | Sound | ordered string list | `sound_types[]` | Preserve multiple selected values. |

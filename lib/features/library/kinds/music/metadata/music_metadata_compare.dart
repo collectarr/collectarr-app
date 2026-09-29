@@ -47,7 +47,7 @@ List<MetadataDiffEntry> _musicMetadataEntries(
     _entry('Sort title', local['sort_title'], server['sort_title']),
     _entry('Original title', local['original_title'], server['original_title']),
     _entry('Artist', local['artist'], server['artist']),
-    _entry('Studio', local['studio'], server['studio']),
+    _listEntry('Studio', local['studios'], server['studios']),
     _dateEntry('Original release date', local['original_release_date'],
         server['original_release_date']),
     _dateEntry(
