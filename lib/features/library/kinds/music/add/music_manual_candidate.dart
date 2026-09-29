@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 
 /// Builds the typed flat catalog candidate used by Music's manual Add flow.
 ///
@@ -24,7 +25,8 @@ CatalogSearchCandidate? buildMusicManualCandidate(
   final normalizedTitle = title.trim();
   final proposal = buildMusicManualProposalData(draft, title: normalizedTitle);
   if (proposal == null) return null;
-  final releaseDate = draft.releaseDate;
+  final releaseDateParts =
+      draft.releaseDateParts ?? _partsFromDate(draft.releaseDate);
   final id = 'manual-music-${DateTime.now().microsecondsSinceEpoch}';
   final itemJson = <String, dynamic>{
     'id': id,
@@ -42,8 +44,9 @@ CatalogSearchCandidate? buildMusicManualCandidate(
     common: CatalogCommonDto(
       title: normalizedTitle,
       coverImageUrl: musicItem.coverImageUrl,
-      releaseDate: releaseDate,
-      releaseYear: releaseDate?.year,
+      releaseDate: releaseDateParts?.asDateTime,
+      releaseDateParts: releaseDateParts,
+      releaseYear: releaseDateParts?.year,
     ),
     kindMetadata: musicItem,
   );
@@ -64,7 +67,8 @@ Map<String, Object?>? buildMusicManualProposalData(
   }
 
   final artist = _textOrNull(draft.artist);
-  final releaseDate = _dateString(draft.releaseDate);
+  final releaseDateParts =
+      draft.releaseDateParts ?? _partsFromDate(draft.releaseDate);
   final format = _textOrNull(draft.format);
   final barcode = _textOrNull(draft.barcode);
   final countryCode = _textOrNull(draft.countryCode);
@@ -73,17 +77,20 @@ Map<String, Object?>? buildMusicManualProposalData(
       : _textOrNull(musicCountryName(countryCode) ?? countryCode);
   final cover = _textOrNull(draft.coverImageUrl);
   final backCover = _textOrNull(draft.backCoverImageUrl);
-  final originalReleaseDate = _dateString(draft.originalReleaseDate);
-  final recordingDate = _dateString(draft.recordingDate);
+  final originalReleaseDateParts = draft.originalReleaseDateParts ??
+      _partsFromDate(draft.originalReleaseDate);
+  final recordingDateParts =
+      draft.recordingDateParts ?? _partsFromDate(draft.recordingDate);
 
   return {
     'title': title.trim(),
     if (_textOrNull(draft.sortTitle) case final value?) 'sort_title': value,
     if (_textOrNull(draft.subtitle) case final value?) 'subtitle': value,
-    if (releaseDate != null) 'release_date': releaseDate,
-    if (originalReleaseDate != null)
-      'original_release_date': originalReleaseDate,
-    if (recordingDate != null) 'recording_date': recordingDate,
+    if (releaseDateParts != null) 'release_date': releaseDateParts.isoString,
+    if (originalReleaseDateParts != null)
+      'original_release_date': originalReleaseDateParts.isoString,
+    if (recordingDateParts != null)
+      'recording_date': recordingDateParts.isoString,
     if (artist != null)
       'artist_credits': [
         <String, Object?>{'name': artist}
@@ -188,7 +195,8 @@ List<String> _creditNames(Iterable<MusicAddManualNamedCredit> credits) => [
         if (credit.name.trim().isNotEmpty) credit.name.trim(),
     ];
 
-String? _dateString(DateTime? date) => date?.toIso8601String().split('T').first;
+PartialDate? _partsFromDate(DateTime? date) =>
+    date == null ? null : PartialDate.fromDateTime(date);
 
 String? _textOrNull(String value) {
   final text = value.trim();

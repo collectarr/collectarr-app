@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:flutter/widgets.dart';
 
 typedef LibraryVocabularyValueChanged = void Function({
@@ -21,6 +22,7 @@ abstract interface class LibraryFieldSpecVisitor<TDraft, TResult> {
   TResult visitText(LibraryTextFieldSpec<TDraft> field);
   TResult visitNumber(LibraryNumberFieldSpec<TDraft> field);
   TResult visitDate(LibraryDateFieldSpec<TDraft> field);
+  TResult visitPartialDate(LibraryPartialDateFieldSpec<TDraft> field);
   TResult visitMoney(LibraryMoneyFieldSpec<TDraft> field);
   TResult visitToggle(LibraryToggleFieldSpec<TDraft> field);
   TResult visitSelect<TValue>(LibrarySelectFieldSpec<TDraft, TValue> field);
@@ -131,6 +133,30 @@ final class LibraryDateFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {
   @override
   TResult accept<TResult>(LibraryFieldSpecVisitor<TDraft, TResult> visitor) =>
       visitor.visitDate(this);
+}
+
+final class LibraryPartialDateFieldSpec<TDraft>
+    extends LibraryFieldSpec<TDraft> {
+  const LibraryPartialDateFieldSpec({
+    required super.id,
+    required super.label,
+    required this.value,
+    required this.setValue,
+    super.visibleWhen,
+    super.validator,
+  });
+
+  final PartialDate? Function(TDraft draft) value;
+  final void Function(TDraft draft, PartialDate? value) setValue;
+
+  PartialDate? currentValue(TDraft draft) => value(draft);
+
+  void updateValue(TDraft draft, PartialDate? nextValue) =>
+      setValue(draft, nextValue);
+
+  @override
+  TResult accept<TResult>(LibraryFieldSpecVisitor<TDraft, TResult> visitor) =>
+      visitor.visitPartialDate(this);
 }
 
 final class LibraryMoneyFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {

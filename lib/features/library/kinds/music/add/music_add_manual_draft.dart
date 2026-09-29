@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 
 /// Editable values for one concrete Music catalog item.
 ///
@@ -19,8 +20,11 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
     this.barcode = '',
     this.countryCode = '',
     this.releaseDate,
+    this.releaseDateParts,
     this.originalReleaseDate,
+    this.originalReleaseDateParts,
     this.recordingDate,
+    this.recordingDateParts,
     this.recordLabel = '',
     List<String> studios = const [],
     this.isLive,
@@ -69,8 +73,11 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
   String barcode;
   String countryCode;
   DateTime? releaseDate;
+  PartialDate? releaseDateParts;
   DateTime? originalReleaseDate;
+  PartialDate? originalReleaseDateParts;
   DateTime? recordingDate;
+  PartialDate? recordingDateParts;
   String recordLabel;
   List<String> studios;
   bool? isLive;
