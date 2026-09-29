@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/dev/seeds/music_seed_catalog_details.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state.dart';
@@ -66,7 +67,6 @@ void enrichMusicSeedPayload(
     () => item.releaseDate?.toUtc().toIso8601String(),
   );
   payload.putIfAbsent('artist', () => _seedMusicArtist(item));
-  payload.putIfAbsent('studio', () => item.publisher);
   payload.putIfAbsent('is_live', () => false);
   payload.putIfAbsent('composition', () => item.title);
 }
@@ -278,7 +278,6 @@ CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
     'artist': _seedMusicArtist(item),
     'original_release_date': item.releaseDate?.toUtc().toIso8601String(),
     'recording_date': item.releaseDate?.toUtc().toIso8601String(),
-    'studio': item.publisher,
     'is_live': false,
     'releases': [release],
     'track_count': tracks.length,
@@ -354,7 +353,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Alan Parsons', 'role': 'engineer'},
         ],
         genres: ['progressive rock', 'psychedelic rock', 'art rock'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 10,
           catalogNumber: 'SHVL 804',
           releaseStatus: 'Official',
@@ -464,7 +463,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'John McVie', 'role': 'bass'},
         ],
         genres: ['soft rock', 'pop rock', 'classic rock'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 11,
           catalogNumber: 'BSK 3010',
           releaseStatus: 'Official',
@@ -535,7 +534,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Jimmy Cobb', 'role': 'drums'},
         ],
         genres: ['modal jazz', 'cool jazz'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 5,
           catalogNumber: 'CL 1355',
           releaseStatus: 'Official',
@@ -584,7 +583,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Eddie Van Halen', 'role': 'guitar solo (Beat It)'},
         ],
         genres: ['pop', 'post-disco', 'funk', 'rock'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 9,
           catalogNumber: 'QE 38112',
           releaseStatus: 'Official',
@@ -646,7 +645,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Butch Vig', 'role': 'producer'},
         ],
         genres: ['grunge', 'alternative rock'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 12,
           catalogNumber: 'DGC-24425',
           releaseStatus: 'Official',
@@ -715,7 +714,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Pharrell Williams', 'role': 'vocals'},
         ],
         genres: ['disco', 'electronic', 'funk', 'synth-pop'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 13,
           catalogNumber: '88883716861',
           releaseStatus: 'Official',
@@ -794,7 +793,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Nigel Godrich', 'role': 'producer'},
         ],
         genres: ['alternative rock', 'art rock', 'experimental rock'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 12,
           catalogNumber: 'NODATA 02',
           releaseStatus: 'Official',
@@ -865,7 +864,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Flying Lotus', 'role': 'producer'},
         ],
         genres: ['conscious hip hop', 'jazz rap', 'funk', 'neo-soul'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 16,
           catalogNumber: 'B0022956-01',
           releaseStatus: 'Official',
@@ -951,7 +950,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'George Martin', 'role': 'producer'},
         ],
         genres: ['rock', 'pop rock', 'psychedelic rock'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 17,
           catalogNumber: 'PCS 7088',
           releaseStatus: 'Official',
@@ -1039,7 +1038,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'John Bonham', 'role': 'drums'},
         ],
         genres: ['hard rock', 'heavy metal', 'folk rock'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 8,
           catalogNumber: 'SD 7208',
           releaseStatus: 'Official',
@@ -1100,7 +1099,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Ken Scott', 'role': 'producer'},
         ],
         genres: ['glam rock', 'proto-punk', 'art rock'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 11,
           catalogNumber: 'SF 8287',
           releaseStatus: 'Official',
@@ -1169,7 +1168,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Roy Thomas Baker', 'role': 'producer'},
         ],
         genres: ['progressive rock', 'hard rock', 'glam rock', 'opera rock'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 12,
           catalogNumber: 'EMTC 103',
           releaseStatus: 'Official',
@@ -1246,7 +1245,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Elizabeth Fraser', 'role': 'guest vocals (Teardrop)'},
         ],
         genres: ['trip hop', 'downtempo', 'electronica', 'dark ambient'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 11,
           catalogNumber: 'WBRLP4',
           releaseStatus: 'Official',
@@ -1307,7 +1306,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Adrian Utley', 'role': 'guitar & bass'},
         ],
         genres: ['trip hop', 'lo-fi', 'electronica'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 11,
           catalogNumber: '828 553-1',
           releaseStatus: 'Official',
@@ -1370,7 +1369,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Guy Stevens', 'role': 'producer'},
         ],
         genres: ['punk rock', 'post-punk', 'ska', 'reggae rock'],
-        music: const MusicCatalogDetailsDto(
+        music: const MusicSeedCatalogDetails(
           trackCount: 19,
           catalogNumber: 'CBS CLASH 3',
           releaseStatus: 'Official',

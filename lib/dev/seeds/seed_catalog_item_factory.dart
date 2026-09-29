@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/dev/seeds/music_seed_catalog_details.dart';
 
 /// Builds a catalog item for the development database seed.
 ///
@@ -120,7 +121,7 @@ CatalogItemDto seedCatalogItem({
 Object _encodeSeedDetails(Object value) {
   return switch (value) {
     VideoCatalogDetailsDto details => details.toJson(),
-    MusicCatalogDetailsDto details => details.toJson(),
+    MusicSeedCatalogDetails details => details.toJson(),
     GameCatalogDetailsDto details => details.toJson(),
     Map<Object?, Object?> value => Map<String, dynamic>.from(value),
     _ => throw ArgumentError.value(
