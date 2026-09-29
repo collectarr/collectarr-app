@@ -18,7 +18,7 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
   ]),
   vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
   presentation: musicTypedEditPresentation,
-  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
+  coreCorrectionTargetResolver: resolveMusicCatalogItemCoreCorrectionTarget,
   conditions: MusicVocabularies.condition.builtIns,
   ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
     MusicOwnedItem item => item.grade,
@@ -95,6 +95,18 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
   ownedDetailsResetPayloadBuilder: () =>
       MusicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
 );
+
+LibraryCoreCorrectionTarget resolveMusicCatalogItemCoreCorrectionTarget({
+  required LibraryEntityRef? node,
+  required LibraryEntityScope? requestedScope,
+  required CatalogEntityRef catalogRef,
+}) {
+  final id = catalogRef.id.trim();
+  if (catalogRef.mediaKind != CatalogMediaKind.music || id.isEmpty) {
+    throw StateError('Music correction requires a concrete Catalog Item.');
+  }
+  return LibraryCoreCorrectionTarget(scope: 'catalog_item', entityId: id);
+}
 
 CatalogEntityRef musicPrimaryReleaseRef(CatalogSearchCandidate item) {
   final group = item.kindCapability

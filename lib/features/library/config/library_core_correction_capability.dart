@@ -11,7 +11,9 @@ final class LibraryCoreCorrectionTarget {
     required this.entityId,
   });
 
-  final LibraryEntityScope scope;
+  /// Core field-schema scope. This may be kind-specific, such as
+  /// `catalog_item`, even while other kinds still use structural scopes.
+  final String scope;
   final String entityId;
 }
 
@@ -36,7 +38,7 @@ LibraryCoreCorrectionTarget resolveStructuralLibraryCoreCorrectionTarget({
       throw StateError('Copy correction requires a concrete parent Release.');
     }
     return LibraryCoreCorrectionTarget(
-      scope: LibraryEntityScope.release,
+      scope: LibraryEntityScope.release.apiValue,
       entityId: releaseId,
     );
   }
@@ -45,7 +47,7 @@ LibraryCoreCorrectionTarget resolveStructuralLibraryCoreCorrectionTarget({
       throw StateError('Release correction requires a concrete Release.');
     }
     return LibraryCoreCorrectionTarget(
-      scope: LibraryEntityScope.release,
+      scope: LibraryEntityScope.release.apiValue,
       entityId: releaseId,
     );
   }
@@ -54,7 +56,7 @@ LibraryCoreCorrectionTarget resolveStructuralLibraryCoreCorrectionTarget({
       throw StateError('Work correction requires a concrete Work.');
     }
     return LibraryCoreCorrectionTarget(
-      scope: LibraryEntityScope.work,
+      scope: LibraryEntityScope.work.apiValue,
       entityId: workId,
     );
   }
@@ -70,5 +72,8 @@ LibraryCoreCorrectionTarget resolveStructuralLibraryCoreCorrectionTarget({
       'Core correction requires a concrete ${scope.name} entity reference.',
     );
   }
-  return LibraryCoreCorrectionTarget(scope: scope, entityId: entityId);
+  return LibraryCoreCorrectionTarget(
+    scope: scope.apiValue,
+    entityId: entityId,
+  );
 }

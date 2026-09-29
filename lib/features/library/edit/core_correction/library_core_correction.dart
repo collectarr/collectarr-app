@@ -87,13 +87,13 @@ Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
   final snapshot = await apiClient.getCanonicalCorrectionTarget(
     kind: source.request.type.kind,
     entityId: target.entityId,
-    scope: target.scope.apiValue,
+    scope: target.scope,
   );
   return LibraryResolvedCoreCorrection(
     source: source,
     entityType: snapshot.entityType,
     entityId: target.entityId,
-    scope: MetadataFieldScope.fromApiValue(target.scope.apiValue),
+    scope: MetadataFieldScope.fromApiValue(target.scope),
     baseRevision: snapshot.revision,
     baseHash: snapshot.hash,
     currentFields: snapshot.fields,
