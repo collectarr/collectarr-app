@@ -17,14 +17,16 @@ class LibraryAddManualPaneShell extends StatefulWidget {
     required this.title,
     required this.subtitle,
     required this.identity,
-    required this.formContent,
+    this.formContent,
+    this.tabs,
   });
 
   final LibraryAddManualPaneRequest request;
   final String title;
   final String subtitle;
   final Widget identity;
-  final Widget formContent;
+  final Widget? formContent;
+  final List<LibraryAddManualPaneTab>? tabs;
 
   @override
   State<LibraryAddManualPaneShell> createState() =>
@@ -34,13 +36,38 @@ class LibraryAddManualPaneShell extends StatefulWidget {
 class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
     with SingleTickerProviderStateMixin {
   late final GlobalKey<FormState> _formKey;
-  late final TabController _tabController;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _formKey = GlobalKey<FormState>();
-    _tabController = TabController(length: 1, vsync: this);
+    _tabController = TabController(length: _resolvedTabs.length, vsync: this);
+  }
+
+  List<LibraryAddManualPaneTab> get _resolvedTabs {
+    if (widget.tabs?.isNotEmpty ?? false) return widget.tabs!;
+    assert(widget.formContent != null);
+    return [
+      LibraryAddManualPaneTab(
+        label: 'Main',
+        icon: Icons.edit_note_outlined,
+        content: widget.formContent!,
+      ),
+    ];
+  }
+
+  @override
+  void didUpdateWidget(covariant LibraryAddManualPaneShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if ((oldWidget.tabs?.length ?? 1) == _resolvedTabs.length) return;
+    final previousIndex = _tabController.index;
+    _tabController.dispose();
+    _tabController = TabController(
+      length: _resolvedTabs.length,
+      initialIndex: previousIndex.clamp(0, _resolvedTabs.length - 1).toInt(),
+      vsync: this,
+    );
   }
 
   @override
@@ -53,6 +80,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
   Widget build(BuildContext context) {
     final request = widget.request;
     final subtitle = widget.subtitle.trim();
+    final tabs = _resolvedTabs;
     final badges = <Widget>[
       const LibraryAddResultBadge('main'),
       LibraryAddResultBadge('owned defaults', accent: request.accent),
@@ -71,27 +99,30 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
       badges: badges,
       tabController: _tabController,
       tabs: [
-        EditTab(icon: Icons.edit_note_outlined, label: 'Main'),
+        for (final tab in tabs) EditTab(icon: tab.icon, label: tab.label),
       ],
       views: [
-        EditTabShell(
-          children: [
-            if (subtitle.isNotEmpty)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  subtitle,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+        for (var index = 0; index < tabs.length; index++)
+          EditTabShell(
+            children: [
+              if (index == 0 && subtitle.isNotEmpty)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
                 ),
-              ),
-            if (subtitle.isNotEmpty) const SizedBox(height: 12),
-            widget.identity,
-            const SizedBox(height: 10),
-            widget.formContent,
-          ],
-        ),
+              if (index == 0 && subtitle.isNotEmpty) const SizedBox(height: 12),
+              if (index == 0) ...[
+                widget.identity,
+                const SizedBox(height: 10),
+              ],
+              tabs[index].content,
+            ],
+          ),
       ],
       allowTabReorder: false,
       onClose: () => Navigator.of(context).pop(),
@@ -103,4 +134,19 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
       ),
     );
   }
+}
+
+/// One kind-owned tab displayed inside the shared manual Add dialog shell.
+///
+/// The shell owns tab layout and chrome; each kind owns tab contents.
+final class LibraryAddManualPaneTab {
+  const LibraryAddManualPaneTab({
+    required this.label,
+    required this.icon,
+    required this.content,
+  });
+
+  final String label;
+  final IconData icon;
+  final Widget content;
 }

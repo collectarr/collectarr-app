@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
+import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
@@ -14,6 +15,17 @@ class MusicAddManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final draft = request.manualDraftAs<MusicAddManualDraft>();
+    final mainSchema = AddSchema<MusicAddManualDraft>(
+      sections: musicAddSchema.sections
+          .where((section) => section.id != 'technical')
+          .toList(growable: false),
+    );
+    final detailsSchema = AddSchema<MusicAddManualDraft>(
+      sections: musicAddSchema.sections
+          .where((section) => section.id == 'technical')
+          .toList(growable: false),
+    );
+
     return LibraryAddManualPaneShell(
       request: request,
       title: 'Manual music album setup',
@@ -30,13 +42,30 @@ class MusicAddManualPane extends StatelessWidget {
           ),
         ),
       ),
-      formContent: AddSchemaRenderer<MusicAddManualDraft>.embedded(
-        schema: musicAddSchema,
-        draft: draft,
-        mediaKind: request.kind.apiValue,
-        onVocabularyValueChanged: request.onVocabularyValueChanged,
-        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-      ),
+      tabs: [
+        LibraryAddManualPaneTab(
+          label: 'Main',
+          icon: Icons.music_note_outlined,
+          content: AddSchemaRenderer<MusicAddManualDraft>.embedded(
+            schema: mainSchema,
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          label: 'Details',
+          icon: Icons.info_outline,
+          content: AddSchemaRenderer<MusicAddManualDraft>.embedded(
+            schema: detailsSchema,
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          ),
+        ),
+      ],
     );
   }
 }
