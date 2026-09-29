@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
@@ -6,58 +5,6 @@ import 'package:collectarr_app/features/library/domain/library_entity_scope.dart
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('canonical Core Music graph preserves release-group ownership', () {
-    final group = MusicCoreMapper.fromReleaseGroupDto(
-      MusicReleaseGroupDto.fromJson({
-        'id': 'group-1',
-        'kind': 'music',
-        'title': 'The Wall',
-        'artist': 'Pink Floyd',
-        'genres': ['Rock'],
-        'releases': [
-          {
-            'id': 'release-1',
-            'release_group_id': 'group-1',
-            'title': 'The Wall - First Pressing',
-            'release_date': '1979-11-30',
-          },
-        ],
-      }),
-    );
-    final release = MusicCoreMapper.fromReleaseDto(
-      MusicReleaseDto.fromJson({
-        'id': 'release-1',
-        'kind': 'music',
-        'release_group_id': 'group-1',
-        'title': 'The Wall - First Pressing',
-        'mediums': [
-          {
-            'id': 'medium-1',
-            'release_id': 'release-1',
-            'medium_number': 1,
-            'medium_type': 'Vinyl',
-            'tracks': [
-              {
-                'id': 'track-1',
-                'medium_id': 'medium-1',
-                'position': 'A1',
-                'title': 'In the Flesh?',
-              },
-            ],
-          },
-        ],
-      }),
-    );
-
-    expect(group.id.value, 'group-1');
-    expect(group.artist, 'Pink Floyd');
-    expect(group.primaryRelease!.id.value, 'release-1');
-    expect(release.releaseGroupId, group.id);
-    expect(release.mediums.single.releaseId, release.id);
-    expect(release.mediums.single.tracks.single.mediumId,
-        release.mediums.single.id);
-  });
-
   test('Music track JSON preserves artist and structural headers', () {
     final track = MusicTrack(
       id: const MusicTrackId('header-child'),

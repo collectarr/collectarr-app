@@ -73,7 +73,10 @@ class CollectarrApiClient {
       case CatalogMediaKind.boardgame:
         return getBoardGameWorkDto(id);
       case CatalogMediaKind.music:
-        return getMusicReleaseGroupDto(id);
+        return _fetchTypedMetadataItem(
+          '/api/v1/metadata/music/items/${Uri.encodeComponent(id)}',
+          RawTypedMetadataResponse.fromJson,
+        );
       default:
         throw UnsupportedError(
           'Unsupported metadata kind: ${kind.apiValue}',
@@ -233,34 +236,6 @@ class CollectarrApiClient {
     return _fetchTypedMetadataItem(
       '/api/v1/metadata/boardgames/editions/${Uri.encodeComponent(id)}',
       BoardGameEditionDto.fromJson,
-    );
-  }
-
-  Future<MusicReleaseGroupDto> getMusicReleaseGroupDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/music/release-groups/${Uri.encodeComponent(id)}',
-      MusicReleaseGroupDto.fromJson,
-    );
-  }
-
-  Future<MusicReleaseDto> getMusicReleaseDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/music/releases/${Uri.encodeComponent(id)}',
-      MusicReleaseDto.fromJson,
-    );
-  }
-
-  Future<MusicMediumDto> getMusicMediumDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/music/mediums/${Uri.encodeComponent(id)}',
-      MusicMediumDto.fromJson,
-    );
-  }
-
-  Future<MusicTrackDto> getMusicTrackDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/music/tracks/${Uri.encodeComponent(id)}',
-      MusicTrackDto.fromJson,
     );
   }
 

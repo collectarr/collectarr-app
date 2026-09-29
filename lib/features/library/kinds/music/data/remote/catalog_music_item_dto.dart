@@ -57,6 +57,10 @@ final class CatalogMusicItemDto implements JsonEncodable {
   factory CatalogMusicItemDto.fromJson(Map<String, dynamic> json) {
     final id = _string(json['id']);
     final title = _string(json['title']);
+    final kind = _string(json['kind']);
+    if (kind != null && kind != CatalogMediaKind.music.apiValue) {
+      throw FormatException('Expected a Music Catalog Item, received $kind.');
+    }
     if (id == null || title == null) {
       throw const FormatException(
         'Music Catalog Item response requires id and title.',
@@ -250,11 +254,9 @@ final class CatalogMusicItemDto implements JsonEncodable {
         'kind': 'music',
         'title': title,
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
-        if (thumbnailImageUrl != null)
-          'thumbnail_image_url': thumbnailImageUrl,
+        if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
         if (releaseDate != null) 'release_date': releaseDate,
-        if (releaseDateParts != null)
-          'release_date_parts': releaseDateParts,
+        if (releaseDateParts != null) 'release_date_parts': releaseDateParts,
         if (revision > 0) 'revision': revision,
         'music': toProposalData(),
       };

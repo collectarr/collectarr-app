@@ -1,9 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 import 'collectarr_api.enums.dart';
-import 'package:collectarr_app/core/models/partial_date.dart';
-
-part 'music_catalog.models.g.dart';
 
 @immutable
 abstract class TypedMetadataResponse {
@@ -40,6 +37,56 @@ int? _nullableInt(dynamic value) {
 DateTime? _nullableDate(dynamic value) {
   final text = _nullableString(value);
   return text == null ? null : DateTime.tryParse(text);
+}
+
+/// A typed boundary for catalog responses whose kind-specific DTO is owned by
+/// the kind module. Shared API consumers can inspect common fields and retain
+/// the complete response without introducing another kind-specific model.
+@immutable
+final class RawTypedMetadataResponse extends TypedMetadataResponse {
+  const RawTypedMetadataResponse._(
+    super.raw, {
+    required this.id,
+    required this.title,
+    required this.kind,
+  });
+
+  factory RawTypedMetadataResponse.fromJson(Map<String, dynamic> json) {
+    final id = _nullableString(json['id']);
+    final title = _nullableString(json['title']);
+    if (id == null || title == null) {
+      throw const FormatException('Catalog response requires id and title.');
+    }
+    return RawTypedMetadataResponse._(
+      Map<String, dynamic>.from(json),
+      id: id,
+      title: title,
+      kind: _nullableString(json['kind']),
+    );
+  }
+
+  @override
+  final String id;
+
+  @override
+  final String title;
+
+  @override
+  final String? kind;
+
+  @override
+  DateTime? get releaseDate =>
+      _nullableDate(raw['release_date'] ?? raw['original_release_date']);
+
+  @override
+  String? get coverImageUrl => _nullableString(raw['cover_image_url']);
+
+  @override
+  String? get thumbnailImageUrl =>
+      _nullableString(raw['thumbnail_image_url']) ?? coverImageUrl;
+
+  @override
+  String? get barcode => _nullableString(raw['barcode']);
 }
 
 List<dynamic> _dynamicList(dynamic value) {

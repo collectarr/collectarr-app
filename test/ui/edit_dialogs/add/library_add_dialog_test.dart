@@ -1538,7 +1538,7 @@ class _FakeLibraryAddApiClient extends ApiClient {
             },
           ],
         }),
-    'music:music-core-1': () => MusicReleaseDto.fromJson({
+    'music:music-core-1': () => RawTypedMetadataResponse.fromJson({
           'id': 'music-core-1',
           'kind': 'music',
           'title': 'Random Access Memories',
