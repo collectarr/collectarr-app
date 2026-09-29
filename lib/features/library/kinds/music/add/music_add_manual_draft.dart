@@ -1,18 +1,38 @@
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_group_form_values.dart';
 
-/// Add values for one release group and its first concrete release.
+/// Editable values for one concrete Music catalog item.
+///
+/// Add stores album and pressing details on the same item. Disc and track data
+/// remains contained by that item and is edited through its child editor.
 final class MusicAddManualDraft implements LibraryKindAddDraft {
   MusicAddManualDraft({
-    MusicReleaseGroupFormValues? releaseGroup,
-    MusicReleaseFormValues? release,
+    this.artist = '',
+    List<String> genres = const [],
+    this.coverImageUrl = '',
+    this.format = '',
+    this.packaging = '',
+    this.catalogNumber = '',
+    this.barcode = '',
+    this.upc = '',
+    this.countryCode = '',
+    this.releaseDate,
+    this.recordLabel = '',
+    this.language = '',
     this.year,
-  })  : releaseGroup = releaseGroup ?? MusicReleaseGroupFormValues(),
-        release = release ?? MusicReleaseFormValues();
+  }) : genres = List<String>.of(genres);
 
-  final MusicReleaseGroupFormValues releaseGroup;
-  final MusicReleaseFormValues release;
+  String artist;
+  List<String> genres;
+  String coverImageUrl;
+  String format;
+  String packaging;
+  String catalogNumber;
+  String barcode;
+  String upc;
+  String countryCode;
+  DateTime? releaseDate;
+  String recordLabel;
+  String language;
   int? year;
 
   @override

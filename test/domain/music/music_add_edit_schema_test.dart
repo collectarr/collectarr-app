@@ -34,7 +34,6 @@ void main() {
     expect(
       fieldIds,
       containsAll([
-        'title',
         'format',
         'catalog_number',
         'barcode',
@@ -226,18 +225,17 @@ void main() {
   test('manual Music candidate is one flat catalog edition', () {
     final draft = MusicAddManualDraft();
     addTearDown(draft.dispose);
-    draft.releaseGroup.artist = 'Daft Punk';
-    draft.release.title = 'Discovery (Vinyl)';
-    draft.release.publisher = 'Virgin';
-    draft.release.catalogNumber = '7243';
-    draft.release.barcode = '123456789';
-    draft.release.physicalFormatLabel = 'Vinyl';
-    draft.release.packaging = 'Gatefold';
-    draft.release.countryCode = 'FR';
-    draft.release.language = 'fra';
-    draft.release.releaseDate = DateTime.utc(2001, 3, 12);
-    draft.releaseGroup.genres = ['Electronic', 'House'];
-    draft.releaseGroup.coverImageUrl = 'https://example.test/cover.jpg';
+    draft.artist = 'Daft Punk';
+    draft.recordLabel = 'Virgin';
+    draft.catalogNumber = '7243';
+    draft.barcode = '123456789';
+    draft.format = 'Vinyl';
+    draft.packaging = 'Gatefold';
+    draft.countryCode = 'FR';
+    draft.language = 'fra';
+    draft.releaseDate = DateTime.utc(2001, 3, 12);
+    draft.genres = ['Electronic', 'House'];
+    draft.coverImageUrl = 'https://example.test/cover.jpg';
 
     final candidate = buildMusicManualCandidate(draft, title: 'Discovery');
 

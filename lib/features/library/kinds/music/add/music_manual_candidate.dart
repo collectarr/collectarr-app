@@ -22,13 +22,13 @@ CatalogSearchCandidate? buildMusicManualCandidate(
   final normalizedTitle = title.trim();
   final proposal = buildMusicManualProposalData(draft, title: normalizedTitle);
   if (proposal == null) return null;
-  final releaseDate = draft.release.releaseDate ?? _yearDate(draft.year);
+  final releaseDate = draft.releaseDate ?? _yearDate(draft.year);
   final id = 'manual-music-${DateTime.now().microsecondsSinceEpoch}';
   final itemJson = <String, dynamic>{
     'id': id,
     'kind': 'music',
     'title': normalizedTitle,
-    'artist': _textOrNull(draft.releaseGroup.artist),
+    'artist': _textOrNull(draft.artist),
     'revision': 1,
     ...proposal,
     if (releaseDate != null)
@@ -65,10 +65,8 @@ Map<String, Object?>? buildMusicManualProposalData(
     return null;
   }
 
-  final release = draft.release;
-  final album = draft.releaseGroup;
-  final artist = _textOrNull(album.artist);
-  final date = release.releaseDate;
+  final artist = _textOrNull(draft.artist);
+  final date = draft.releaseDate;
   final releaseDate = date == null
       ? (draft.year == null ? null : <String, Object?>{'year': draft.year})
       : <String, Object?>{
@@ -76,38 +74,27 @@ Map<String, Object?>? buildMusicManualProposalData(
           'month': date.month,
           'day': date.day,
         };
-  final format = _textOrNull(release.physicalFormatLabel) ??
-      _textOrNull(release.physicalFormat);
-  final barcode = _textOrNull(release.barcode) ?? _textOrNull(release.upc);
-  final country = _textOrNull(release.countryCode);
-  final studio = _textOrNull(album.studio);
-  final cover =
-      _textOrNull(album.coverImageUrl) ?? _textOrNull(release.coverImageUrl);
+  final format = _textOrNull(draft.format);
+  final barcode = _textOrNull(draft.barcode) ?? _textOrNull(draft.upc);
+  final country = _textOrNull(draft.countryCode);
+  final cover = _textOrNull(draft.coverImageUrl);
 
   return {
     'title': title.trim(),
-    if (_textOrNull(album.sortTitle) case final value?) 'sort_title': value,
-    if (_textOrNull(release.subtitle) case final value?) 'subtitle': value,
     if (releaseDate != null) 'release_date': releaseDate,
-    if (album.originalReleaseDate case final value?)
-      'original_release_date': _dateValue(value),
-    if (album.recordingDate case final value?)
-      'recording_date': _dateValue(value),
     if (artist != null)
       'artist_credits': [
         <String, Object?>{'name': artist}
       ],
-    if (album.genres.isNotEmpty) 'genres': List<String>.of(album.genres),
-    if (_textOrNull(release.publisher) case final value?) 'label': value,
+    if (draft.genres.isNotEmpty) 'genres': List<String>.of(draft.genres),
+    if (_textOrNull(draft.recordLabel) case final value?) 'label': value,
     if (format != null) 'format': format,
     if (barcode != null) 'barcode': barcode,
-    if (_textOrNull(release.catalogNumber) case final value?)
+    if (_textOrNull(draft.catalogNumber) case final value?)
       'catalog_number': value,
     if (country != null) 'country': country,
-    if (_textOrNull(release.packaging) case final value?) 'packaging': value,
-    if (studio != null) 'studios': [studio],
-    if (album.isLive != null) 'is_live': album.isLive,
-    if (_textOrNull(release.boxSetName) case final value?) 'box_set': value,
+    if (_textOrNull(draft.packaging) case final value?) 'packaging': value,
+    if (_textOrNull(draft.language) case final value?) 'language': value,
     if (cover != null) 'cover_image_url': cover,
   };
 }
@@ -126,12 +113,6 @@ void _normalizePartialDate(Map<String, dynamic> payload, String field) {
     if (parts['day'] != null) parts['day'].toString().padLeft(2, '0'),
   ].whereType<String>().join('-');
 }
-
-Map<String, Object?> _dateValue(DateTime value) => {
-      'year': value.year,
-      'month': value.month,
-      'day': value.day,
-    };
 
 String? _textOrNull(String value) {
   final text = value.trim();
