@@ -98,7 +98,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
       controlsBuilder: buildMusicAddSearchControls,
     ),
   ),
-  resultPolicy: musicAddResultPolicy,
+  resultPolicy: const LibraryAddResultPolicy.identity(),
   manualPaneBuilder: buildMusicAddManualPane,
   chrome: musicAddChrome,
 );

@@ -18,7 +18,6 @@ export 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_pane.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_catalog_candidate_projection.dart';
-export 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_search_controls.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_search_filters.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_manual_candidate.dart';
