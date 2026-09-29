@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
+import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 
 List<Map<String, dynamic>> _musicTrackRows(Object? value) {
   if (value is! List) {
@@ -25,6 +27,34 @@ String _readMusicTracks(LibraryMetadataCorrectionValues values) {
         ].join(' | '),
       )
       .join('\n');
+}
+
+List<Map<String, dynamic>> _musicCorrectionTracks(AdminMetadataItem item) {
+  final discs = item.canonicalFieldValues['discs'];
+  if (discs is! List) return const [];
+  return [
+    for (final discValue in discs)
+      if (discValue is Map)
+        for (final trackValue in (discValue['tracks'] as List? ?? const []))
+          if (trackValue is Map)
+            {
+              ...Map<String, dynamic>.from(trackValue),
+              'disc_number': discValue['disc_number'],
+            },
+  ];
+}
+
+String _formatCorrectionMusicTracks(Object? value) {
+  final values = LibraryMetadataCorrectionValues.fromSerialized({
+    'tracks': value,
+  });
+  return _readMusicTracks(values);
+}
+
+List<Map<String, dynamic>> _parseCorrectionMusicTracks(String rawValue) {
+  final values = LibraryMetadataCorrectionValues.fromSerialized({});
+  _writeMusicTracks(values, rawValue);
+  return _musicTrackRows(values.read('tracks'));
 }
 
 void _writeMusicTracks(
@@ -103,7 +133,7 @@ void _writeMusicTrackInteger(
   track[key] = parsed;
 }
 
-/// Music owns track proposal editing and its compact provider-payload codec.
+/// Music owns its track correction editor and compact track-list codec.
 class MusicAdminContributor implements LibraryAdminContributor {
   const MusicAdminContributor();
 
@@ -112,12 +142,18 @@ class MusicAdminContributor implements LibraryAdminContributor {
 
   @override
   List<LibraryAdminProposalField> get proposalFields => [
-        adminTextProposalField(key: 'item_number', label: 'Item number'),
         adminTextProposalField(key: 'subtitle', label: 'Subtitle'),
-        adminTextProposalField(key: 'publisher', label: 'Publisher'),
+        adminTextProposalField(key: 'artist', label: 'Artist'),
+        adminTextProposalField(key: 'label', label: 'Label'),
+        adminTextProposalField(key: 'format', label: 'Format'),
+        adminTextProposalField(
+          key: 'catalog_number',
+          label: 'Catalog number',
+        ),
+        adminTextProposalField(key: 'barcode', label: 'Barcode'),
         adminStringListProposalField(
           key: 'genres',
-          label: 'Genres (comma separated)',
+          label: 'Genre (comma separated)',
         ),
         LibraryAdminProposalField(
           key: 'tracks',
@@ -132,75 +168,20 @@ class MusicAdminContributor implements LibraryAdminContributor {
 
   @override
   List<LibraryAdminCorrectionField> get correctionFields => [
-        adminCorrectionFieldValueOverride(
-          key: 'edition_title',
-          read: (item) =>
-              item.primaryEdition?.title ??
-              item.canonicalFieldValues['edition_title'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'release_date',
-          read: (item) =>
-              item.primaryEdition?.releaseDateParts ??
-              item.primaryEdition?.releaseDate ??
-              item.canonicalFieldValues['cover_date'] ??
-              item.canonicalFieldValues['release_date'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'publisher',
-          read: (item) =>
-              item.primaryEdition?.publisher ??
-              item.canonicalFieldValues['publisher'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'subtitle',
-          read: (item) => item.canonicalFieldValues['subtitle'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'barcode',
-          read: (item) =>
-              item.primaryVariant?.barcode ??
-              item.canonicalFieldValues['barcode'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'variant_name',
-          read: (item) =>
-              item.primaryVariant?.name ??
-              item.canonicalFieldValues['variant_name'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'catalog_number',
-          read: (item) => item.canonicalFieldValues['catalog_number'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'release_status',
-          read: (item) => item.canonicalFieldValues['release_status'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'genres',
-          read: (item) => item.canonicalFieldValues['genres'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'cover_image_url',
-          read: (item) =>
-              item.primaryVariant?.coverImageUrl ??
-              item.canonicalFieldValues['cover_image_url'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'thumbnail_image_url',
-          read: (item) =>
-              item.primaryVariant?.thumbnailImageUrl ??
-              item.canonicalFieldValues['thumbnail_image_url'],
-        ),
-        adminRelatedListCorrectionField(
-          key: 'series_tags',
-          label: 'Series tags',
-          relatedFieldKey: 'tags',
-          relatedEntityId: (item) =>
-              item.canonicalFieldValues['series_id']?.toString(),
-          read: (item) =>
-              item.canonicalFieldValues['series_tags'] ??
-              item.canonicalFieldValues['tags'],
+        adminCorrectionField(
+          key: 'tracks',
+          label: 'Tracks (title | artist | disc | pos | duration)',
+          tab: SharedMetadataEditTab.relations,
+          read: _musicCorrectionTracks,
+          valueType: SharedMetadataFieldValueType.json,
+          inputType: SharedMetadataFieldInputType.multiline,
+          minLines: 3,
+          maxLines: 8,
+          parse: _parseCorrectionMusicTracks,
+          format: _formatCorrectionMusicTracks,
+          save: (item, value, writer) => writer.updateCatalogFields({
+            'tracks': value,
+          }),
         ),
         adminUrlListCorrectionField(
           key: 'external_links',

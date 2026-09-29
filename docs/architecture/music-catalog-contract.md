@@ -10,6 +10,8 @@ Music owns its transport types in `lib/features/library/kinds/music/data/remote/
 dart run tool/check_music_catalog_contract.dart
 ```
 
+The pinned metadata-field schema assigns Music corrections to `catalog_item`. Music Admin reads artist, label, format, dates, identifiers, and images directly from the flat item response; the kind-owned contributor edits its contained disc tracks without following a Release Group or Release reference.
+
 The check verifies the pinned hash and that each item, disc, and track contract field is represented and decoded by its kind-owned DTO. Updating Core does not silently update App's pinned input; copying the new bundle is an explicit App change.
 
 ## Ownership

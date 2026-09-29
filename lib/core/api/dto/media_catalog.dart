@@ -1,6 +1,7 @@
 import '../../models/catalog_media_kind.dart';
 
 enum MetadataFieldScope {
+  catalogItem('catalog_item'),
   work('work'),
   edition('edition'),
   release('release'),
