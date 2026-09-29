@@ -269,22 +269,6 @@ class ApiClient {
     return _catalogApi.getBoardGameEditionDto(id);
   }
 
-  Future<MusicReleaseGroupDto> getMusicReleaseGroupDto(String id) {
-    return _catalogApi.getMusicReleaseGroupDto(id);
-  }
-
-  Future<MusicReleaseDto> getMusicReleaseDto(String id) {
-    return _catalogApi.getMusicReleaseDto(id);
-  }
-
-  Future<MusicMediumDto> getMusicMediumDto(String id) {
-    return _catalogApi.getMusicMediumDto(id);
-  }
-
-  Future<MusicTrackDto> getMusicTrackDto(String id) {
-    return _catalogApi.getMusicTrackDto(id);
-  }
-
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     return _catalogApi.getBundleRelease(bundleReleaseId);
   }
