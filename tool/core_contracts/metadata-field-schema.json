@@ -1,5 +1,5 @@
 {
-  "contractVersion": "2.0.0",
+  "contractVersion": "1.0.0",
   "fields": [
     {
       "common": true,
@@ -7090,5 +7090,5 @@
       "writeTarget": "core_canonical_relation"
     }
   ],
-  "generatedAt": "2026-09-29T19:33:09.236168Z"
+  "generatedAt": "2026-09-29T20:02:33.972465Z"
 }
