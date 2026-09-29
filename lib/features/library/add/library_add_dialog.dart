@@ -618,11 +618,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
   }
 
-  void _selectAddMode(LibraryAddDialogMode mode, Color accent) {
-    if (mode == LibraryAddDialogMode.manual) {
-      _openManualDialog(accent, libraryAddForKind(widget.type.kind));
-      return;
-    }
+  void _selectAddMode(LibraryAddDialogMode mode) {
     _controller.setMode(mode);
   }
 
@@ -688,7 +684,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         identifierController: _identifierController,
         isSearching: state.search.isSearching,
         isSearchingProvider: state.search.isSearchingProvider,
-        onModeChanged: (mode) => _selectAddMode(mode, accent),
+        onModeChanged: _selectAddMode,
         onSearch: () {
           _controller.dismissSuggestions();
           _controller.updateQuery(_queryController.text);
@@ -778,7 +774,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   identifierController: _identifierController,
                   isSearching: state.search.isBusy,
                   isSearchingProvider: state.search.isSearchingProvider,
-                  onModeChanged: (mode) => _selectAddMode(mode, accent),
+                  onModeChanged: _selectAddMode,
                   onSearch: () {
                     _controller.dismissSuggestions();
                     _controller.updateQuery(_queryController.text);
@@ -998,10 +994,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 ],
               );
             },
-          ),
-        LibraryAddDialogMode.manual => addCapability.buildManualPane(
-            context,
-            _buildManualPaneRequest(state, accent),
           ),
       },
       footer: () {

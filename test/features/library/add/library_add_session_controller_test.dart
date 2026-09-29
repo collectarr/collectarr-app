@@ -126,12 +126,12 @@ void main() {
       expect(controller.state.search.isSearching, false);
     });
 
-    test('selects result and switches mode', () {
+    test('selects result and switches search mode', () {
       controller.selectResult('item-123');
       expect(controller.state.selection.selectedId, 'item-123');
 
-      controller.setMode(LibraryAddDialogMode.manual);
-      expect(controller.state.mode, LibraryAddDialogMode.manual);
+      controller.setMode(LibraryAddDialogMode.identifier);
+      expect(controller.state.mode, LibraryAddDialogMode.identifier);
     });
 
     test('manual draft editing updates state', () {
@@ -152,7 +152,7 @@ void main() {
     test('resets controller to initial state', () {
       controller.updateQuery('Batman');
       controller.selectResult('bm-1');
-      controller.setMode(LibraryAddDialogMode.manual);
+      controller.setMode(LibraryAddDialogMode.identifier);
 
       controller.reset();
 

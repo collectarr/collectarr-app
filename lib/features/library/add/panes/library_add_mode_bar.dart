@@ -459,32 +459,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                     ),
                   ],
                 ),
-              LibraryAddDialogMode.manual => Row(
-                  children: [
-                    Icon(Icons.edit_note, size: 18, color: widget.accent),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Start a manual draft here, then review the full editor before saving.',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: palette.textMuted,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    _LibraryAddModeButton(
-                      label: 'Manual draft',
-                      icon: Icons.edit_note,
-                      accent: widget.accent,
-                      outlined: true,
-                      onPressed: widget.onManual,
-                    ),
-                  ],
-                ),
             },
           ],
         ),
@@ -704,7 +678,6 @@ class _LibraryAddModeButton extends StatelessWidget {
     required this.accent,
     required this.onPressed,
     this.isBusy = false,
-    this.outlined = false,
   });
 
   final String label;
@@ -712,7 +685,6 @@ class _LibraryAddModeButton extends StatelessWidget {
   final Color accent;
   final VoidCallback? onPressed;
   final bool isBusy;
-  final bool outlined;
 
   @override
   Widget build(BuildContext context) {
@@ -729,22 +701,13 @@ class _LibraryAddModeButton extends StatelessWidget {
               Text(label),
             ],
           );
-    final style = outlined
-        ? libraryAddOutlinedButtonStyle(accent)
-        : libraryAddFilledButtonStyle(accent);
     return SizedBox(
       height: kLibraryAddModeControlHeight,
-      child: outlined
-          ? OutlinedButton(
-              onPressed: onPressed,
-              style: style,
-              child: child,
-            )
-          : FilledButton(
-              onPressed: onPressed,
-              style: style,
-              child: child,
-            ),
+      child: FilledButton(
+        onPressed: onPressed,
+        style: libraryAddFilledButtonStyle(accent),
+        child: child,
+      ),
     );
   }
 }

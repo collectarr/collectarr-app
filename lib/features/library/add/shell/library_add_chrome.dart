@@ -252,23 +252,21 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                         label: Text('Barcode'),
                         icon: Icon(Icons.qr_code_2, size: 18),
                       ),
-                      ButtonSegment<LibraryAddDialogMode>(
-                        value: LibraryAddDialogMode.manual,
-                        label: Text('Manual'),
-                        icon: Icon(Icons.edit_note, size: 18),
-                      ),
                     ],
                     selected: {request.mode},
                     onSelectionChanged: (selection) {
                       if (selection.isNotEmpty) {
-                        final value = selection.first;
-                        request.onModeChanged(value);
-                        if (value == LibraryAddDialogMode.manual) {
-                          request.onManual();
-                        }
+                        request.onModeChanged(selection.first);
                       }
                     },
                   ),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton.icon(
+                  onPressed: request.onManual,
+                  style: libraryAddOutlinedButtonStyle(request.accent),
+                  icon: const Icon(Icons.edit_note, size: 18),
+                  label: const Text('Add manually'),
                 ),
                 if (isSearch) ...[
                   const SizedBox(width: 8),
