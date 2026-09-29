@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND.
 // Source: tool/core_contracts/catalog-item-v1.json
-// Contract SHA-256: 1315d2511e3213ec9228a87cc668b11f873f6dd088c78b55ee77893893abf620
+// Contract SHA-256: 6126b7cb391875a07dabd91d6c889386edfc27716a498b3fbebc1c2c1d4035dc
 const catalogItemV1SchemaVersion = 1;
 const catalogItemV1ContractVersion = '1.0.0';
 
@@ -24,6 +24,7 @@ const Map<String, Set<String>> catalogItemV1FieldsByKind = {
     'episodes',
     'external_links',
     'genres',
+    'identifiers',
     'item_number',
     'language',
     'layers',
@@ -388,6 +389,7 @@ const Map<String, Set<String>> catalogItemV1FieldsByKind = {
     'episodes',
     'external_links',
     'genres',
+    'identifiers',
     'item_number',
     'language',
     'layers',

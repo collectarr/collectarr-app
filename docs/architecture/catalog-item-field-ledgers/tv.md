@@ -24,6 +24,7 @@
 | Unverified; Edit-form capture required | Unverified; capture required | array of object | Catalog Item | Yes | `episodes` | `episodes` |
 | Unverified; Edit-form capture required | Unverified; capture required | array of object | Catalog Item | Yes | `external_links` | `external_links` |
 | Unverified; Edit-form capture required | Unverified; capture required | array of string | Catalog Item | Yes | `genres` | `genres` |
+| Unverified; Edit-form capture required | Unverified; capture required | array of string or object | Catalog Item | Yes | `identifiers` | `identifiers` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `item_number` | `item_number` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `language` | `language` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `layers` | `layers` |
