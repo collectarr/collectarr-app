@@ -1,8 +1,8 @@
 import '../music_module_dependencies.dart';
 import '../config/music_kind_configuration.dart';
 import '../edit/music_edit_contribution.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_catalog_remote_source.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_item_hierarchy_mapper.dart';
 
 final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   kind: CatalogMediaKind.music,
@@ -106,11 +106,7 @@ Future<List<LibraryHierarchyNode>> fetchMusicTracks({
   final item = await MusicCatalogRemoteSource(api)
       .getById(itemId)
       .timeout(const Duration(seconds: 60));
-  final transport = CatalogItemDto.fromJson(item.toSearchJson());
-  final album = MusicCatalogMapper.mapMetadataItemToMusic(transport);
-  final release = album.primaryRelease;
-  if (release == null) return const <LibraryHierarchyNode>[];
-  return MusicHierarchyMapper.toLibraryNodes(release);
+  return MusicCatalogItemHierarchyMapper.toLibraryNodes(item);
 }
 
 List<LibraryAddAdvancedFilterField<String>> buildMusicAddAdvancedFilterFields(
