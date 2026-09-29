@@ -850,12 +850,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 isWideLayout: isWideLayout,
                 previewPaneBuilder: addCapability.previewPaneBuilder,
                 item: selectedItem,
-                candidate: null,
-                candidatePreview: null,
                 isFetchingPreview: selectedItem != null &&
                     state.preview.pendingHydratedResultRefs
                         .contains(selectedItem.reference),
-                providerLabel: '',
                 searched: state.search.results.isNotEmpty,
                 addTarget: state.target,
                 referenceType: state.selection.referenceType,

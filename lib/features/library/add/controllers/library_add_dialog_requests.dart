@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -12,7 +11,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
@@ -129,10 +127,7 @@ class LibraryAddPreviewPaneRequest {
     required this.type,
     required this.accent,
     required this.item,
-    required this.candidate,
-    required this.candidatePreview,
     required this.isFetchingPreview,
-    required this.providerLabel,
     required this.searched,
     required this.addTarget,
     required this.referenceType,
@@ -152,10 +147,7 @@ class LibraryAddPreviewPaneRequest {
   final LibraryKindRegistration type;
   final Color accent;
   final CatalogSearchCandidate? item;
-  final ProviderSearchCandidate? candidate;
-  final AdminProviderPreview? candidatePreview;
   final bool isFetchingPreview;
-  final String providerLabel;
   final bool searched;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;

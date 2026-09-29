@@ -22,44 +22,27 @@ class _ComicAddPreviewPane extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final selectedItem = request.item;
-    final selectedCandidate = request.candidate;
+    if (selectedItem == null) return const SizedBox.shrink();
     final selectedBundle =
         request.referenceType == LibraryAddReferenceType.bundleRelease
             ? request.selectedBundleReleaseDetail
             : null;
-    final title = selectedBundle?.title ??
-        selectedItem?.summary.primaryLabel ??
-        selectedCandidate!.title;
+    final title = selectedBundle?.title ?? selectedItem.summary.primaryLabel;
     final itemNumber = selectedBundle == null
-        ? (selectedItem?.kindCapability
+        ? (selectedItem.kindCapability
             .mapTransport((transport) => transport)
             .payload['item_number'] as String?)
         : null;
-    final displayEditionLabel = (selectedItem?.kindCapability
+    final displayEditionLabel = (selectedItem.kindCapability
             .mapTransport((transport) => transport)
             .payload['edition_title'] as String?) ??
-        (selectedItem?.kindCapability
+        (selectedItem.kindCapability
             .mapTransport((transport) => transport)
             .payload['physical_format_label'] as String?);
-    final preview = request.candidatePreview;
-    final synopsis = selectedItem?.comicCatalogFields.synopsis ??
-        preview?.synopsis ??
-        selectedCandidate?.summary;
+    final synopsis = selectedItem.comicCatalogFields.synopsis;
     final coverUrl = selectedBundle?.coverImageUrl ??
-        selectedItem?.comicCatalogFields.coverImageUrl ??
-        preview?.coverImageUrl ??
-        selectedCandidate?.imageUrl;
-    final rows = selectedItem == null
-        ? (preview != null
-            ? libraryAddMetadataRowsForFullPreview(preview, request.type)
-            : libraryAddMetadataRowsForCandidate(
-                selectedCandidate!, request.type))
-        : libraryAddMetadataRowsForItem(selectedItem, request.type);
-    final discoverySections = libraryAddPreviewDiscoverySections(
-      item: selectedItem,
-      candidate: selectedCandidate,
-      preview: preview,
-    );
+        selectedItem.comicCatalogFields.coverImageUrl;
+    final rows = libraryAddMetadataRowsForItem(selectedItem, request.type);
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -113,9 +96,7 @@ class _ComicAddPreviewPane extends StatelessWidget {
                         runSpacing: 6,
                         children: [
                           LibraryAddResultBadge(
-                            selectedItem == null
-                                ? request.providerLabel
-                                : request.type.identity.singularLabel,
+                            request.type.identity.singularLabel,
                             accent: request.accent,
                           ),
                           if (itemNumber != null)
@@ -128,10 +109,10 @@ class _ComicAddPreviewPane extends StatelessWidget {
                               displayEditionLabel!.trim(),
                               accent: request.accent,
                             ),
-                          if (selectedItem?.comicCatalogFields.releaseYear !=
+                          if (selectedItem.comicCatalogFields.releaseYear !=
                               null)
                             LibraryAddResultBadge(
-                              selectedItem!.comicCatalogFields.releaseYear
+                              selectedItem.comicCatalogFields.releaseYear
                                   .toString(),
                               accent: request.accent,
                             ),
@@ -192,28 +173,25 @@ class _ComicAddPreviewPane extends StatelessWidget {
             Expanded(
               child: ListView(
                 children: [
-                  if (selectedItem != null) ...[
-                    LibraryAddReferenceSelector(
-                      type: request.type,
-                      accent: request.accent,
-                      addTarget: request.addTarget,
-                      referenceType: request.referenceType,
-                      item: selectedItem,
-                      bundleReleases: request.availableBundleReleases,
-                      selectedBundleReleaseId: request.selectedBundleReleaseId,
-                      selectedEditionId: request.selectedEditionId,
-                      selectedVariantId: request.selectedVariantId,
-                      isLoadingBundleReleases: request.isLoadingBundleReleases,
-                      onReferenceTypeChanged: request.onReferenceTypeChanged,
-                      onEditionSelected: request.onEditionSelected,
-                      onVariantSelected: request.onVariantSelected,
-                      onBundleReleaseSelected: request.onBundleReleaseSelected,
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  if (selectedItem != null &&
-                      request.referenceType ==
-                          LibraryAddReferenceType.bundleRelease) ...[
+                  LibraryAddReferenceSelector(
+                    type: request.type,
+                    accent: request.accent,
+                    addTarget: request.addTarget,
+                    referenceType: request.referenceType,
+                    item: selectedItem,
+                    bundleReleases: request.availableBundleReleases,
+                    selectedBundleReleaseId: request.selectedBundleReleaseId,
+                    selectedEditionId: request.selectedEditionId,
+                    selectedVariantId: request.selectedVariantId,
+                    isLoadingBundleReleases: request.isLoadingBundleReleases,
+                    onReferenceTypeChanged: request.onReferenceTypeChanged,
+                    onEditionSelected: request.onEditionSelected,
+                    onVariantSelected: request.onVariantSelected,
+                    onBundleReleaseSelected: request.onBundleReleaseSelected,
+                  ),
+                  const SizedBox(height: 12),
+                  if (request.referenceType ==
+                      LibraryAddReferenceType.bundleRelease) ...[
                     Text(
                       'Bundle contents',
                       style: TextStyle(
@@ -263,23 +241,6 @@ class _ComicAddPreviewPane extends StatelessWidget {
                         label: row.$1,
                         value: row.$2!,
                       ),
-                  if (discoverySections.isNotEmpty) ...[
-                    const SizedBox(height: 14),
-                    Text(
-                      'Discovery',
-                      style: TextStyle(
-                        color: request.accent,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    for (final section in discoverySections)
-                      LibraryAddPreviewDiscoverySection(
-                        title: section.title,
-                        values: section.values,
-                        accent: request.accent,
-                      ),
-                  ],
                   if (request.isFetchingPreview) ...[
                     const SizedBox(height: 14),
                     Row(
