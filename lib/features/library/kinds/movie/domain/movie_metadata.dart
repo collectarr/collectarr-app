@@ -133,15 +133,6 @@ class MovieCatalogMetadata implements JsonEncodable {
   final List<CatalogEditionDto> editions;
   final Map<String, dynamic> rawPayload;
 
-  /// Optional provider valuation preserved at the provider boundary.
-  ///
-  /// Movie providers do not share a common valuation contract, so the value
-  /// remains an optional typed-domain projection of the normalized payload.
-  int? get providerValueCents =>
-      _movieIntValue(rawPayload['estimated_value_cents']) ??
-      _movieIntValue(rawPayload['market_value_cents']) ??
-      _movieIntValue(rawPayload['value_cents']);
-
   @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
@@ -457,12 +448,6 @@ class MovieCatalogMetadata implements JsonEncodable {
       editions: rawEditions,
     );
   }
-}
-
-int? _movieIntValue(Object? value) {
-  if (value is int) return value;
-  if (value is num) return value.toInt();
-  return int.tryParse(value?.toString().trim() ?? '');
 }
 
 @immutable

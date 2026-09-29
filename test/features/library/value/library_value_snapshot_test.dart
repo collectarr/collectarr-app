@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../helpers/test_data_factories.dart';
 
 void main() {
-  test('combines provider, manual, purchase, sold, and insurance values', () {
+  test('combines manual, purchase, sold, and insurance values', () {
     final ownedItem = testOwnedItem(
       id: 'owned-1',
       catalogRef: const CatalogEntityRef(
@@ -53,18 +53,15 @@ void main() {
       soldPriceCents: ownedItem.sellPriceCents,
       manualEstimatedValueCents: ownedItem.marketValueCents,
       ownedCurrency: ownedItem.currency,
-      providerName: 'Comic provider',
     );
 
-    expect(snapshot.providerValueCents, 2500);
     expect(snapshot.manualEstimatedValueCents, 1800);
-    expect(snapshot.displayPrimaryValueCents, 2500);
-    expect(snapshot.insuranceValueCents, 2500);
-    expect(snapshot.unrealizedGainLossCents, 1300);
+    expect(snapshot.displayPrimaryValueCents, 1800);
+    expect(snapshot.insuranceValueCents, 1800);
+    expect(snapshot.unrealizedGainLossCents, 600);
     expect(snapshot.historyEntries.map((entry) => entry.label), [
       'Purchase price',
       'Manual estimate',
-      'Comic provider',
       'Sold price',
     ]);
   });

@@ -74,8 +74,6 @@ class InspectorPersonalSection extends StatelessWidget {
           soldPriceCents: item.source.sellPriceCents,
           manualEstimatedValueCents: item.source.marketValueCents,
           ownedCurrency: item.source.currency,
-          providerName:
-              item.source.marketValueCents != null ? 'Provider snapshot' : null,
         );
     final paid = formatMoney(
         ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
@@ -138,13 +136,6 @@ class InspectorPersonalSection extends StatelessWidget {
                 label: 'Location',
                 value: genericLibraryDash(item.source.locationPath)),
             LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
-            if (snapshot.providerValueCents != null)
-              LibraryDetailField(
-                  label: 'Provider value',
-                  value: formatMoney(
-                    snapshot.providerValueCents,
-                    snapshot.currency,
-                  )),
             if (snapshot.manualEstimatedValueCents != null)
               LibraryDetailField(
                   label: 'Manual value',

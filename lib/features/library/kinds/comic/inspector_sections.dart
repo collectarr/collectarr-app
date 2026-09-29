@@ -617,8 +617,6 @@ List<LibraryDetailField> _valueFacts(
     soldPriceCents: item.source.sellPriceCents,
     manualEstimatedValueCents: item.source.marketValueCents,
     ownedCurrency: item.source.currency,
-    providerName:
-        item.source.marketValueCents != null ? 'Provider snapshot' : null,
   );
 
   final rows = <LibraryDetailField>[];
@@ -628,12 +626,6 @@ List<LibraryDetailField> _valueFacts(
     rows.add(LibraryDetailField(
       label: 'Paid',
       value: formatMoney(snapshot.purchasePriceCents, currency),
-    ));
-  }
-  if (snapshot.providerValueCents != null) {
-    rows.add(LibraryDetailField(
-      label: snapshot.providerName ?? 'Provider value',
-      value: formatMoney(snapshot.providerValueCents, currency),
     ));
   }
   if (snapshot.manualEstimatedValueCents != null) {
