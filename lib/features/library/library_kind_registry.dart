@@ -243,12 +243,6 @@ LibraryFacetModule? libraryKindFacetModuleForKind(CatalogMediaKind kind) {
   return collectarrKindFacetModules[kind];
 }
 
-ProviderCorrectionBuilder? libraryKindProviderCorrectionBuilderForKind(
-  CatalogMediaKind kind,
-) {
-  return libraryProviderCorrectionBuildersByKind[kind];
-}
-
 bool libraryGroupModeSupportsCompletion(
   LibraryKindRegistration type,
   String groupMode,

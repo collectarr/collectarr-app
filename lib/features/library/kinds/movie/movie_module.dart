@@ -11,7 +11,5 @@ export 'integrations/catalog/movie_catalog_lookup.dart';
 export 'integrations/collection_csv/movie_collection_csv_projection.dart';
 export 'ownership/movie_owned_contributor.dart';
 export 'page.dart';
-export 'provider/movie_provider_correction_patch.dart';
-export 'provider/movie_provider_mapper.dart';
 export 'tracking/movie_tracking_state_codec.dart';
 export 'vocabulary/movie_vocabularies.dart';

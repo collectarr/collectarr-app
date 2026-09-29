@@ -12,8 +12,6 @@ export 'integrations/collection_csv/manga_collection_csv_projection.dart';
 export 'integrations/collection_shelf/manga_shelf_extension_contributor.dart';
 export 'ownership/manga_owned_contributor.dart';
 export 'page.dart';
-export 'provider/manga_provider_correction_patch.dart';
-export 'provider/manga_provider_mapper.dart';
 export 'tracking/manga_tracking_state_codec.dart';
 export 'tracking/manga_tracking_unit_codec.dart';
 export 'integrations/serial/manga_serial_authority_contributor.dart';

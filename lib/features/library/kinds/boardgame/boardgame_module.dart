@@ -11,7 +11,5 @@ export 'integrations/catalog/boardgame_catalog_lookup.dart';
 export 'integrations/collection_csv/boardgame_collection_csv_projection.dart';
 export 'ownership/boardgame_owned_contributor.dart';
 export 'page.dart';
-export 'provider/boardgame_provider_correction_patch.dart';
-export 'provider/boardgame_provider_mapper.dart';
 export 'tracking/boardgame_tracking_state_codec.dart';
 export 'vocabulary/boardgame_vocabularies.dart';

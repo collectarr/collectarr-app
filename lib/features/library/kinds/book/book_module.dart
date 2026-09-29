@@ -15,8 +15,6 @@ export 'integrations/catalog/book_catalog_lookup.dart';
 export 'integrations/collection_csv/book_collection_csv_projection.dart';
 export 'ownership/book_owned_contributor.dart';
 export 'page.dart';
-export 'provider/book_provider_correction_patch.dart';
-export 'provider/book_provider_mapper.dart';
 export 'tracking/book_tracking_state_codec.dart';
 export 'tracking/book_tracking_unit_codec.dart';
 export 'vocabulary/book_vocabularies.dart';

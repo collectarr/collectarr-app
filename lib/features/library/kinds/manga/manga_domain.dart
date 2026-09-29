@@ -14,7 +14,6 @@ export 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owne
 export 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
-export 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card_presentation.dart';
 export 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';

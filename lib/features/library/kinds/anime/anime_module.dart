@@ -12,8 +12,6 @@ export 'integrations/catalog/anime_catalog_lookup.dart';
 export 'integrations/collection_csv/anime_collection_csv_projection.dart';
 export 'ownership/anime_owned_contributor.dart';
 export 'page.dart';
-export 'provider/anime_provider_correction_patch.dart';
-export 'provider/anime_provider_mapper.dart';
 export 'tracking/anime_custom_episode_codec.dart';
 export 'tracking/anime_tracking_state_codec.dart';
 export 'tracking/anime_tracking_unit_codec.dart';

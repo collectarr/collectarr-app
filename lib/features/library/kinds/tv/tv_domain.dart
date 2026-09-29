@@ -27,7 +27,6 @@ export 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_sche
 export 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/tv/edit/tv_owned_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/tv/edit/tv_owned_edit_schema.dart';
-export 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';

@@ -14,6 +14,5 @@ export 'integrations/collection_csv/music_collection_csv_projection.dart';
 export 'integrations/musicbrainz/music_musicbrainz_provider_adapter.dart';
 export 'ownership/music_owned_contributor.dart';
 export 'page.dart';
-export 'provider/music_release_correction_patch.dart';
 export 'tracking/music_tracking_state_codec.dart';
 export 'vocabulary/music_vocabularies.dart';

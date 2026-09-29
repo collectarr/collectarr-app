@@ -17,8 +17,6 @@ export 'detail/character_detail_page.dart';
 export 'detail/creator_detail_page.dart';
 export 'detail/story_arc_detail_page.dart';
 export 'page.dart';
-export 'provider/comic_provider_correction_patch.dart';
-export 'provider/comic_provider_mapper.dart';
 export 'tracking/comic_tracking_state_codec.dart';
 export 'tracking/comic_tracking_unit_codec.dart';
 export 'integrations/serial/comic_serial_authority_contributor.dart';
