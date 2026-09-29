@@ -21,7 +21,7 @@ void main() {
   test('round trips complete Anime copies and filters deleted copies',
       () async {
     final item = AnimeOwnedItem(
-      id: const AnimeOwnedItemId('owned-1'),
+      id: const AnimeOwnedCopyId('owned-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.anime,
         entityType: CatalogEntityTypeId('work'),

@@ -12,6 +12,6 @@ final class BookReleaseId extends LibraryEntityId {
 }
 
 @immutable
-final class BookOwnedItemId extends LibraryEntityId {
-  const BookOwnedItemId(super.value);
+final class BookOwnedCopyId extends LibraryEntityId {
+  const BookOwnedCopyId(super.value);
 }

@@ -1,11 +1,11 @@
 import 'dart:typed_data';
 
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-typedef LocalItemImageRequest = ({OwnedItemRef ownedRef, String imageType});
+typedef LocalItemImageRequest = ({OwnedCopyRef ownedRef, String imageType});
 
 final localItemImageProvider =
     FutureProvider.family<Uint8List?, LocalItemImageRequest>(
@@ -19,7 +19,7 @@ final localItemImageProvider =
 });
 
 /// Provides front cover bytes for an owned item, looked up from local DB.
-final localCoverImageProvider = FutureProvider.family<Uint8List?, OwnedItemRef>(
+final localCoverImageProvider = FutureProvider.family<Uint8List?, OwnedCopyRef>(
   (ref, ownedRef) async {
     return ref.watch(
       localItemImageProvider((

@@ -24,6 +24,21 @@ class LibraryAddManualActionBar extends StatelessWidget {
           children: [
             Expanded(
               child: OutlinedButton.icon(
+                onPressed: request.isAdding ? null : request.onPropose,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: request.accent,
+                  visualDensity: VisualDensity.compact,
+                ),
+                icon: const Icon(Icons.outbox_outlined, size: 18),
+                label: const Text(
+                  'Propose',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
                 onPressed: request.isAdding ? null : request.onAddTrack,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: palette.textPrimary,

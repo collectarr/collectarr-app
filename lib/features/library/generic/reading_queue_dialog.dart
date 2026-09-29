@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
@@ -14,7 +14,7 @@ Future<void> showReadingQueueDialog({
   required BuildContext context,
   required LocalDatabase db,
   required String mediaKind,
-  required Iterable<OwnedItemSummary> ownedItems,
+  required Iterable<OwnedCopySummary> ownedItems,
   Iterable<TrackingSummary> trackingSummaries = const [],
   required Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef,
   ValueChanged<String>? onSelectItem,
@@ -44,7 +44,7 @@ class _ReadingQueueDialog extends StatefulWidget {
 
   final LocalDatabase db;
   final String mediaKind;
-  final List<OwnedItemSummary> ownedItems;
+  final List<OwnedCopySummary> ownedItems;
   final List<TrackingSummary> trackingSummaries;
   final Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef;
   final ValueChanged<String>? onSelectItem;
@@ -359,7 +359,7 @@ class _ReadingQueueDialogEntry {
     this.trackingSummary,
   });
 
-  final OwnedItemSummary summary;
+  final OwnedCopySummary summary;
   final CatalogDisplaySummary catalogSummary;
   final TrackingSummary? trackingSummary;
 

@@ -34,6 +34,6 @@ final class MusicReleaseIdentifierId extends LibraryEntityId {
 }
 
 @immutable
-final class MusicOwnedItemId extends LibraryEntityId {
-  const MusicOwnedItemId(super.value);
+final class MusicOwnedCopyId extends LibraryEntityId {
+  const MusicOwnedCopyId(super.value);
 }

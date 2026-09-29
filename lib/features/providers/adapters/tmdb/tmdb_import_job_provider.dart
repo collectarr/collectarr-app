@@ -725,29 +725,24 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           );
           final kind = _resolvedKindForTmdbEntry(enriched);
           try {
-            final truncatedQuery = enriched.query.length > 255
-                ? enriched.query.substring(0, 255)
-                : enriched.query;
             final truncatedTitle = enriched.title.length > 255
                 ? enriched.title.substring(0, 255)
                 : enriched.title;
+            final localItem = contributionForTmdbImportEntry(enriched)
+                .localSyntheticCatalogItem(enriched);
             final response = await createAndRecordLibraryMetadataProposal(
               api: api,
-              kind: kind,
-              defaultProvider: 'tmdb',
-              provider: 'tmdb',
-              providerItemId: enriched.tmdbId.toString(),
-              query: truncatedQuery,
-              title: truncatedTitle,
-              summary: enriched.overview,
-              imageUrl: enriched.posterUrl,
-              metadataPayload: enriched.rawPayload,
+              kind: kind.apiValue,
+              catalogItem: {
+                ...localItem.kindCapability.toCatalogItemPayload(),
+                'title': truncatedTitle,
+                if (enriched.overview != null && enriched.overview!.isNotEmpty)
+                  'description': enriched.overview,
+              },
               source: 'TMDB import',
             );
             proposedCount += 1;
 
-            final localItem = contributionForTmdbImportEntry(enriched)
-                .localSyntheticCatalogItem(enriched);
             if (enriched.collection.isRated) {
               await catalogMutations.upsertTransport(
                 localItem.kindCapability.toImportTransport(),
@@ -1037,7 +1032,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final title = entry.title ?? '';
     final normalizedTitle = title.trim().toLowerCase();
     for (final candidate in candidates) {
-      final names = <String?>[candidate.summary.primaryLabel, candidate.summary.subtitle];
+      final names = <String?>[
+        candidate.summary.primaryLabel,
+        candidate.summary.subtitle
+      ];
       if (names.whereType<String>().any(
             (name) => name.trim().toLowerCase() == normalizedTitle,
           )) {

@@ -79,7 +79,7 @@ abstract final class LibraryPageShellPresenter {
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
     required ShelfState shelfState,
-    required List<OwnedItemSummary> allOwnedCopies,
+    required List<OwnedCopySummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     final registration = state.widget.type;

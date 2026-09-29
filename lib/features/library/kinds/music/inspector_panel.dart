@@ -26,9 +26,9 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/core/models/money.dart' show OwnedItemId;
-import 'package:collectarr_app/core/models/owned_item_projection.dart'
-    show OwnedItemRef;
+import 'package:collectarr_app/core/models/money.dart' show OwnedCopyId;
+import 'package:collectarr_app/core/models/owned_copy_projection.dart'
+    show OwnedCopyRef;
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
@@ -355,9 +355,9 @@ class _MusicListeningSection extends ConsumerWidget {
               targetRef: targetRef,
               ownedRef: owned == null
                   ? null
-                  : OwnedItemRef(
+                  : OwnedCopyRef(
                       kind: CatalogMediaKind.music,
-                      id: OwnedItemId(owned.id.value),
+                      id: OwnedCopyId(owned.id.value),
                     ),
               listenedAt: now,
               notes: notesController.text.trim().isEmpty

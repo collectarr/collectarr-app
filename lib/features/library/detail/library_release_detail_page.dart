@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -43,8 +43,8 @@ class LibraryReleaseDetailPage extends ConsumerStatefulWidget {
 class _LibraryReleaseDetailPageState
     extends ConsumerState<LibraryReleaseDetailPage> {
   String? _selectedReleaseNodeId;
-  final Map<String, OwnedItemRef?> _selectedOwnedItemRefByRelease =
-      <String, OwnedItemRef?>{};
+  final Map<String, OwnedCopyRef?> _selectedOwnedCopyRefByRelease =
+      <String, OwnedCopyRef?>{};
 
   @override
   void initState() {
@@ -68,7 +68,7 @@ class _LibraryReleaseDetailPageState
         rootRef: _rootCatalogRef(widget.request),
       );
       _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
-      _selectedOwnedItemRefByRelease.clear();
+      _selectedOwnedCopyRefByRelease.clear();
     }
   }
 
@@ -122,11 +122,11 @@ class _LibraryReleaseDetailPageState
         );
   }
 
-  OwnedItemSummary? _selectedOwnedCopyFor(_ResolvedLibraryRelease release) {
+  OwnedCopySummary? _selectedOwnedCopyFor(_ResolvedLibraryRelease release) {
     if (release.ownedCopies.isEmpty) {
       return null;
     }
-    final selectedRef = _selectedOwnedItemRefByRelease[release.node.id];
+    final selectedRef = _selectedOwnedCopyRefByRelease[release.node.id];
     if (selectedRef != null) {
       for (final copy in release.ownedCopies) {
         if (copy.ref == selectedRef) {
@@ -143,8 +143,8 @@ class _LibraryReleaseDetailPageState
     final releaseSource = libraryReleaseDetailSourceForKind(request.type.kind);
     final wishlistValue = ref.watch(wishlistProvider);
     final ownedCopies = request.item.source.ownedSummary == null
-        ? const <OwnedItemSummary>[]
-        : <OwnedItemSummary>[request.item.source.ownedSummary!];
+        ? const <OwnedCopySummary>[]
+        : <OwnedCopySummary>[request.item.source.ownedSummary!];
     final wishlistItems = wishlistValue.maybeWhen(
       data: (items) => items
           .where(
@@ -243,12 +243,12 @@ class _LibraryReleaseDetailPageState
                     accent: request.accent,
                     releases: releases,
                     selectedReleaseId: activeRelease.node.id,
-                    selectedOwnedItemRef: selectedOwnedCopy?.ref,
+                    selectedOwnedCopyRef: selectedOwnedCopy?.ref,
                     onSelectRelease: (value) =>
                         setState(() => _selectedReleaseNodeId = value),
                     onSelectOwnedItem: (releaseId, ownedItemRef) {
                       setState(() {
-                        _selectedOwnedItemRefByRelease[releaseId] =
+                        _selectedOwnedCopyRefByRelease[releaseId] =
                             ownedItemRef;
                       });
                     },
@@ -273,12 +273,12 @@ class _LibraryReleaseDetailPageState
                 releases: releases,
                 selectedReleaseId: _selectedReleaseNodeId ??
                     (releases.isEmpty ? null : releases.first.node.id),
-                selectedOwnedItemRef: null,
+                selectedOwnedCopyRef: null,
                 onSelectRelease: (value) =>
                     setState(() => _selectedReleaseNodeId = value),
                 onSelectOwnedItem: (releaseId, ownedItemRef) {
                   setState(() {
-                    _selectedOwnedItemRefByRelease[releaseId] = ownedItemRef;
+                    _selectedOwnedCopyRefByRelease[releaseId] = ownedItemRef;
                   });
                 },
                 onAddCopy: _addCopyForRelease,
@@ -344,7 +344,7 @@ List<LibraryEntityRef> _releaseNodesFor(
 List<_ResolvedLibraryRelease> _resolvedReleasesFor(
   LibraryProjectionView item, {
   required LibraryReleaseDetailSource? source,
-  required List<OwnedItemSummary> ownedCopies,
+  required List<OwnedCopySummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
   final catalogData = item.source.catalogData;
@@ -370,7 +370,7 @@ List<_ResolvedLibraryRelease> _resolvedReleasesFor(
 _ResolvedLibraryRelease _buildResolvedLibraryRelease(
   LibraryProjectionView item,
   LibraryReleaseDetailOption option, {
-  required List<OwnedItemSummary> ownedCopies,
+  required List<OwnedCopySummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
   final matchedOwnedCopies = ownedCopies.where((copy) {
@@ -433,7 +433,7 @@ class _ResolvedLibraryRelease {
 
   final LibraryReleaseRef node;
   final LibraryReleaseDetailOption option;
-  final List<OwnedItemSummary> ownedCopies;
+  final List<OwnedCopySummary> ownedCopies;
   final WishlistItem? wishlistItem;
 
   int get totalQuantity =>
@@ -458,7 +458,7 @@ class _LibraryReleaseBrowserSection extends StatelessWidget {
     required this.accent,
     required this.releases,
     required this.selectedReleaseId,
-    required this.selectedOwnedItemRef,
+    required this.selectedOwnedCopyRef,
     required this.onSelectRelease,
     required this.onSelectOwnedItem,
     required this.onAddCopy,
@@ -471,9 +471,9 @@ class _LibraryReleaseBrowserSection extends StatelessWidget {
   final Color accent;
   final List<_ResolvedLibraryRelease> releases;
   final String? selectedReleaseId;
-  final OwnedItemRef? selectedOwnedItemRef;
+  final OwnedCopyRef? selectedOwnedCopyRef;
   final ValueChanged<String> onSelectRelease;
-  final void Function(String releaseId, OwnedItemRef? ownedItemRef)
+  final void Function(String releaseId, OwnedCopyRef? ownedItemRef)
       onSelectOwnedItem;
   final Future<void> Function(_ResolvedLibraryRelease release) onAddCopy;
   final Future<void> Function()? onAddWishlist;
@@ -539,7 +539,7 @@ class _LibraryReleaseBrowserSection extends StatelessWidget {
                 const SizedBox(height: 12),
                 _LibraryReleaseActionsPanel(
                   release: selectedRelease,
-                  selectedOwnedItemRef: selectedOwnedItemRef,
+                  selectedOwnedCopyRef: selectedOwnedCopyRef,
                   accent: accent,
                   onSelectOwnedItem: (value) =>
                       onSelectOwnedItem(selectedRelease!.node.id, value),
@@ -704,7 +704,7 @@ class _LibraryReleaseTile extends StatelessWidget {
 class _LibraryReleaseActionsPanel extends StatelessWidget {
   const _LibraryReleaseActionsPanel({
     required this.release,
-    required this.selectedOwnedItemRef,
+    required this.selectedOwnedCopyRef,
     required this.accent,
     required this.onSelectOwnedItem,
     required this.onAddCopy,
@@ -715,9 +715,9 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
   });
 
   final _ResolvedLibraryRelease release;
-  final OwnedItemRef? selectedOwnedItemRef;
+  final OwnedCopyRef? selectedOwnedCopyRef;
   final Color accent;
-  final ValueChanged<OwnedItemRef?> onSelectOwnedItem;
+  final ValueChanged<OwnedCopyRef?> onSelectOwnedItem;
   final Future<void> Function() onAddCopy;
   final Future<void> Function()? onAddWishlist;
   final Future<void> Function()? onRemoveWishlist;
@@ -754,11 +754,11 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
             ),
             if (release.ownedCopies.isNotEmpty) ...[
               const SizedBox(height: 10),
-              CompactSearchDropdownFormField<OwnedItemRef>(
+              CompactSearchDropdownFormField<OwnedCopyRef>(
                 initialValue: release.ownedCopies.any(
-                  (copy) => copy.ref == selectedOwnedItemRef,
+                  (copy) => copy.ref == selectedOwnedCopyRef,
                 )
-                    ? selectedOwnedItemRef
+                    ? selectedOwnedCopyRef
                     : release.ownedCopies.first.ref,
                 isExpanded: true,
                 decoration: const InputDecoration(
@@ -768,7 +768,7 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
                   for (var index = 0;
                       index < release.ownedCopies.length;
                       index += 1)
-                    DropdownMenuItem<OwnedItemRef>(
+                    DropdownMenuItem<OwnedCopyRef>(
                       value: release.ownedCopies[index].ref,
                       child: Text(
                         buildOwnedCopySummaryLabel(

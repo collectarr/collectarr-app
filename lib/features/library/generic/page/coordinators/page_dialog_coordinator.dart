@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -499,12 +499,12 @@ class LibraryPageDialogCoordinator {
   ) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final context = _page.context;
-    final ownedItemsByRef = <OwnedItemRef, OwnedItemSummary>{};
+    final ownedItemsByRef = <OwnedCopyRef, OwnedCopySummary>{};
     for (final item in projection.filteredItems) {
       final ownedItem = item.source.ownedSummary;
       if (_page.selection.itemIds.contains(item.node.id) &&
           ownedItem != null &&
-          !_page.activeLoanOwnedItemIds.contains(ownedItem.ref)) {
+          !_page.activeLoanOwnedCopyIds.contains(ownedItem.ref)) {
         ownedItemsByRef[ownedItem.ref] = ownedItem;
       }
     }

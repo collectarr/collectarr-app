@@ -73,7 +73,7 @@ final class AnimeOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String? ownerLabel,
   }) {
     return AnimeOwnedItem(
-      id: AnimeOwnedItemId(id),
+      id: AnimeOwnedCopyId(id),
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,

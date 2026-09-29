@@ -113,15 +113,10 @@ extension _AdminPageSections on _AdminPageState {
           child: AdminProposalsPanel(
             summary: _proposalsController.summary,
             statusFilter: _proposalsController.statusFilter,
-            providerFilter: _proposalsController.providerFilter,
-            providers: _providers,
             isLoading: _proposalsController.isLoading,
-            activeProposalTitle: _activeProposalTitle,
             statusMessage: _proposalStatusMessage,
             errorMessage: _proposalErrorMessage,
             onStatusChanged: _changeProposalStatusFilter,
-            onProviderChanged: _changeProposalProviderFilter,
-            onClearReview: _clearActiveProposal,
             content: _proposalsController.proposals.isEmpty
                 ? Text(
                     'No ${_proposalsController.statusFilter.toLowerCase()} proposals found.')
@@ -133,33 +128,21 @@ extension _AdminPageSections on _AdminPageState {
                           child: AdminProposalTile(
                             proposal: proposal,
                             isActing: _proposalActionId == proposal.id,
-                            canApproveLinkedItem:
-                                _providerSupportsIngest(proposal.provider),
                             kindLabel: _proposalKindLabel(
-                              inferAdminProposalKind(
-                                proposal.provider,
-                                proposal.metadataPayload,
-                              ),
+                              proposal.kind,
                             ),
-                            payloadPreview:
-                                (proposal.metadataPayload ?? JsonMap()).isEmpty
-                                    ? null
-                                    : _ProposalPayloadPreview(
-                                        kind: catalogMediaKindFromValue(
-                                          inferAdminProposalKind(
-                                            proposal.provider,
-                                            proposal.metadataPayload,
-                                          ),
-                                        ),
-                                        payload: Map<String, Object?>.from(
-                                          proposal.metadataPayload!,
-                                        ),
-                                      ),
-                            onReview: () => _reviewProposal(proposal),
+                            payloadPreview: proposal.catalogItem.isEmpty
+                                ? null
+                                : _ProposalPayloadPreview(
+                                    kind: catalogMediaKindFromValue(
+                                      proposal.kind,
+                                    ),
+                                    payload: Map<String, Object?>.from(
+                                      proposal.catalogItem,
+                                    ),
+                                  ),
                             onEdit: () => _editProposalMetadata(proposal),
                             onApprove: () => _approveProposal(proposal),
-                            onApproveLinked: () =>
-                                _approveProposalWithLinkedItem(proposal),
                             onReject: () => _rejectProposal(proposal),
                           ),
                         ),
@@ -192,8 +175,6 @@ extension _AdminPageSections on _AdminPageState {
                     ),
                   if (_selectedProvider.isNotEmpty)
                     _MiniChip(label: _selectedProviderLabel()),
-                  if (_activeProposalTitle != null)
-                    _MiniChip(label: 'Reviewing $_activeProposalTitle'),
                 ],
               ),
               const SizedBox(height: 12),
@@ -216,13 +197,6 @@ extension _AdminPageSections on _AdminPageState {
                           )
                         : const Icon(Icons.add_circle_outline),
                     label: const Text('Open add dialog'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: _activeProposalId == null
-                        ? null
-                        : _prefillFromActiveProposal,
-                    icon: const Icon(Icons.history_toggle_off_outlined),
-                    label: const Text('Prefill from active proposal'),
                   ),
                   OutlinedButton.icon(
                     onPressed: _ingestJobsController.history.isEmpty
@@ -279,9 +253,6 @@ extension _AdminPageSections on _AdminPageState {
                 results: visibleProviderResults,
                 ingestingProviderItemId: _ingestingProviderItemId,
                 canIngestProvider: _providerSupportsIngest,
-                activeProposalId: _activeProposalId,
-                activeProposalTitle: _activeProposalTitle,
-                onApproveProposal: _approveProposalWithCandidate,
                 onIngest: _ingestProviderItem,
               ),
             ],

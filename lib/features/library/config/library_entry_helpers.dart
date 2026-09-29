@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -38,7 +38,7 @@ List<TrackingSummary> libraryTrackingSummariesForItem(
   LibraryKindRegistration type,
   LibraryProjectionView item,
   Map<CatalogEntityRef, List<TrackingSummary>> summariesByRef, {
-  OwnedItemSummary? ownedItem,
+  OwnedCopySummary? ownedItem,
 }) {
   final targets = <CatalogEntityRef>[
     if (ownedItem?.targetRef case final target?) target,
@@ -55,7 +55,7 @@ List<TrackingSummary> libraryTrackingSummariesForItem(
 }
 
 String? libraryOwnedReferenceLabel(
-  OwnedItemSummary? ownedItem, {
+  OwnedCopySummary? ownedItem, {
   String? mediaType,
 }) {
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
@@ -148,23 +148,23 @@ List<String> libraryWorkspaceReferenceHierarchySegments({
   return segments;
 }
 
-OwnedItemRef? resolveLibraryOwnedItemRef(
+OwnedCopyRef? resolveLibraryOwnedCopyRef(
   LibraryProjectionView item,
-  OwnedItemSummary? ownedItem,
+  OwnedCopySummary? ownedItem,
 ) {
   return ownedItem?.ref ?? item.source.ownedRef;
 }
 
-OwnedItemRef? resolveLibraryOwnedSummaryRef(
+OwnedCopyRef? resolveLibraryOwnedSummaryRef(
   LibraryProjectionView item,
-  OwnedItemSummary? ownedItem,
+  OwnedCopySummary? ownedItem,
 ) {
   return ownedItem?.ref ?? item.source.ownedRef;
 }
 
 CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
   LibraryProjectionView? item,
-  OwnedItemSummary? ownedItem,
+  OwnedCopySummary? ownedItem,
   WishlistItem? wishlistItem,
 }) {
   final existingTarget = ownedItem?.targetRef ?? wishlistItem?.catalogRef;
@@ -204,7 +204,7 @@ LibraryCatalogTargetLevel? libraryTargetScopeForCatalogRef(
 
 TrackingSummary? resolveActiveTrackingSummary(
   List<TrackingSummary> entries,
-  OwnedItemSummary? activeOwnedItem,
+  OwnedCopySummary? activeOwnedItem,
 ) {
   if (entries.isEmpty) {
     return null;
@@ -227,19 +227,19 @@ TrackingSummary? resolveActiveTrackingSummary(
 class LibraryOwnedSummaryResolution {
   const LibraryOwnedSummaryResolution({
     required this.ownedItem,
-    this.nextSelectedOwnedItemRef,
+    this.nextSelectedOwnedCopyRef,
     this.clearNewest = false,
   });
 
-  final OwnedItemSummary? ownedItem;
-  final OwnedItemRef? nextSelectedOwnedItemRef;
+  final OwnedCopySummary? ownedItem;
+  final OwnedCopyRef? nextSelectedOwnedCopyRef;
   final bool clearNewest;
 }
 
 LibraryOwnedSummaryResolution resolveActiveOwnedSummary(
-  List<OwnedItemSummary> ownedCopies, {
-  OwnedItemSummary? fallback,
-  OwnedItemRef? selectedOwnedItemRef,
+  List<OwnedCopySummary> ownedCopies, {
+  OwnedCopySummary? fallback,
+  OwnedCopyRef? selectedOwnedCopyRef,
   bool selectNewest = false,
 }) {
   if (ownedCopies.isEmpty) {
@@ -249,13 +249,13 @@ LibraryOwnedSummaryResolution resolveActiveOwnedSummary(
     final newest = ownedCopies.first;
     return LibraryOwnedSummaryResolution(
       ownedItem: newest,
-      nextSelectedOwnedItemRef: newest.ref,
+      nextSelectedOwnedCopyRef: newest.ref,
       clearNewest: true,
     );
   }
-  if (selectedOwnedItemRef != null) {
+  if (selectedOwnedCopyRef != null) {
     for (final item in ownedCopies) {
-      if (item.ref == selectedOwnedItemRef) {
+      if (item.ref == selectedOwnedCopyRef) {
         return LibraryOwnedSummaryResolution(ownedItem: item);
       }
     }
@@ -268,11 +268,11 @@ LibraryOwnedSummaryResolution resolveActiveOwnedSummary(
         );
   return LibraryOwnedSummaryResolution(
     ownedItem: resolved,
-    nextSelectedOwnedItemRef: resolved.ref,
+    nextSelectedOwnedCopyRef: resolved.ref,
   );
 }
 
-String buildOwnedCopySummaryLabel(OwnedItemSummary item, int index) {
+String buildOwnedCopySummaryLabel(OwnedCopySummary item, int index) {
   final parts = <String>[
     item.isDigital == true ? 'Digital copy' : 'Copy ${index + 1}',
   ];
@@ -327,7 +327,7 @@ String? _preferredReleaseVariantId(LibraryWorkspaceReleaseSummary release) {
 }
 
 String? buildOwnedCopyLabelFromWorkspaceReleases(
-  OwnedItemSummary? item,
+  OwnedCopySummary? item,
   List<LibraryWorkspaceReleaseSummary> releases,
   int index, {
   String? collectionValue,

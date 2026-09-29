@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_state.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -29,7 +29,7 @@ void main() {
     final trackingRecord = ComicTrackingState(
       id: 'tracking-1',
       catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-      ownedRef: OwnedItemRef.fromKey('comic:owned-1'),
+      ownedRef: OwnedCopyRef.fromKey('comic:owned-1'),
       rating: 5,
       status: MediaTrackingStatus.completed,
       notes: 'Great issue.',

@@ -288,7 +288,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       final db = state.ref.read(localDatabaseProvider);
       final repo = LoanRepository(db);
       final activeLoans = await repo.getActiveLoans();
-      final next = <OwnedItemRef>{
+      final next = <OwnedCopyRef>{
         for (final loan in activeLoans) loan.ownedRef,
       };
       if (!state.mounted ||
@@ -296,7 +296,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
           state.widget.type.kind != expectedKind) {
         return;
       }
-      state._mutateState(() => state._activeLoanOwnedItemIds = next);
+      state._mutateState(() => state._activeLoanOwnedCopyIds = next);
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'library_page',

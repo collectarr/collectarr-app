@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -14,7 +14,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
     required this.item,
     this.activeOwnedItem,
     this.ownedCopies = const [],
-    this.selectedOwnedItemRef,
+    this.selectedOwnedCopyRef,
     this.onSelectOwnedItem,
     required this.onAddOwned,
     required this.onRemoveOwned,
@@ -25,10 +25,10 @@ class LibraryDetailActionStrip extends StatelessWidget {
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final OwnedItemSummary? activeOwnedItem;
-  final List<OwnedItemSummary> ownedCopies;
-  final OwnedItemRef? selectedOwnedItemRef;
-  final ValueChanged<OwnedItemRef?>? onSelectOwnedItem;
+  final OwnedCopySummary? activeOwnedItem;
+  final List<OwnedCopySummary> ownedCopies;
+  final OwnedCopyRef? selectedOwnedCopyRef;
+  final ValueChanged<OwnedCopyRef?>? onSelectOwnedItem;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
@@ -50,9 +50,9 @@ class LibraryDetailActionStrip extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: LibrarySelectField<OwnedItemRef>(
+                child: LibrarySelectField<OwnedCopyRef>(
                   label: 'Copy in collection',
-                  value: selectedOwnedItemRef,
+                  value: selectedOwnedCopyRef,
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 12,
@@ -61,7 +61,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
                   ),
                   items: [
                     for (var index = 0; index < ownedCopies.length; index += 1)
-                      DropdownMenuItem<OwnedItemRef>(
+                      DropdownMenuItem<OwnedCopyRef>(
                         value: ownedCopies[index].ref,
                         child: Text(
                           buildOwnedCopySummaryLabel(
@@ -131,8 +131,8 @@ class LibraryDetailStatsBar extends StatelessWidget {
   });
 
   final LibraryProjectionView item;
-  final OwnedItemSummary? ownedItem;
-  final List<OwnedItemSummary> ownedCopies;
+  final OwnedCopySummary? ownedItem;
+  final List<OwnedCopySummary> ownedCopies;
 
   @override
   Widget build(BuildContext context) {

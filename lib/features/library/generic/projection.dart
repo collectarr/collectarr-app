@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -365,7 +365,7 @@ class LibraryProjection {
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
-    Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
+    Set<OwnedCopyRef> activeLoanOwnedCopyIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
     return const LibraryProjectionService().build(
@@ -388,7 +388,7 @@ class LibraryProjection {
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
-      activeLoanOwnedItemIds: activeLoanOwnedItemIds,
+      activeLoanOwnedCopyIds: activeLoanOwnedCopyIds,
       searchTarget: searchTarget,
     );
   }

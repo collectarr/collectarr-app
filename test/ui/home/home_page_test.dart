@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -39,7 +39,7 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedSummaries: [
-        testOwnedItemSummary(testOwnedItem(
+        testOwnedCopySummary(testOwnedItem(
           id: 'owned-1',
           itemId: game.id,
           kind: 'game',
@@ -110,7 +110,7 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedSummaries: [
-        testOwnedItemSummary(testOwnedItem(
+        testOwnedCopySummary(testOwnedItem(
           id: 'owned-1',
           itemId: game.id,
           kind: 'game',
@@ -232,7 +232,7 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedSummaries: [
-        testOwnedItemSummary(testOwnedItem(
+        testOwnedCopySummary(testOwnedItem(
           id: 'owned-game-rail-1',
           itemId: game.id,
           kind: 'game',
@@ -295,7 +295,7 @@ void main() {
       updatedAt: now,
     );
     final shelf = ShelfState.from(
-      ownedSummaries: [testOwnedItemSummary(owned)],
+      ownedSummaries: [testOwnedCopySummary(owned)],
       wishlistItems: const [],
       catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
       catalogDataByRef: {game.catalogRef: game.asShelfCatalogData},
@@ -303,9 +303,9 @@ void main() {
     await LoanRepository(db).create(
       Loan(
         id: 'loan-overdue-1',
-        ownedRef: OwnedItemRef(
+        ownedRef: OwnedCopyRef(
           kind: CatalogMediaKind.game,
-          id: OwnedItemId(owned.id),
+          id: OwnedCopyId(owned.id),
         ),
         borrowerName: 'Alex',
         lentDate: DateTime.utc(2020, 1, 1),

@@ -180,7 +180,7 @@ final class BookLocalMapper {
       id: row.itemId,
     );
     return BookOwnedItem(
-      id: BookOwnedItemId(row.id),
+      id: BookOwnedCopyId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,

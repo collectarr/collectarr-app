@@ -1449,7 +1449,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
 List<MusicOwnedItem> musicSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.music, 15))
         MusicOwnedItem(
-          id: MusicOwnedItemId('seed-owned-$itemId'),
+          id: MusicOwnedCopyId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.music, itemId),
           targetRef: musicReleaseRefForRoot(
             seedCatalogRef(CatalogMediaKind.music, itemId),

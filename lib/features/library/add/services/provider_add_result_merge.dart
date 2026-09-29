@@ -10,9 +10,12 @@ CatalogSearchCandidate mergeProviderAddResult({
   required CatalogSearchCandidate edited,
 }) {
   if (ingested.summary.kind != edited.summary.kind) {
-    throw ArgumentError('Cannot merge catalog candidates with different kinds.');
+    throw ArgumentError(
+        'Cannot merge catalog candidates with different kinds.');
   }
-  return libraryPresentationForKind(edited.summary.kind).builder.mergeProviderAddResult(
+  return libraryPresentationForKind(edited.summary.kind)
+      .builder
+      .mergeProviderAddResult(
         ingested: ingested,
         edited: edited,
       );

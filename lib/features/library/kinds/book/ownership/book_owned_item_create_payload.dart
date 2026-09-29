@@ -73,7 +73,7 @@ final class BookOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String? ownerLabel,
   }) {
     return BookOwnedItem(
-      id: BookOwnedItemId(id),
+      id: BookOwnedCopyId(id),
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,

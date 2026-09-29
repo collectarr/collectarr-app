@@ -1,7 +1,7 @@
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
@@ -105,7 +105,7 @@ void main() {
     test('supports OwnedItemTrackingTarget and resolves its CatalogEntityRef',
         () async {
       final owned = BookOwnedItem(
-        id: BookOwnedItemId('owned-item-77'),
+        id: BookOwnedCopyId('owned-item-77'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
           entityType: CatalogEntityTypeId('work'),
@@ -119,9 +119,9 @@ void main() {
       ]);
       await ownedItems.replaceFromTransport(
         OwnedImportTransport(
-          ref: OwnedItemRef(
+          ref: OwnedCopyRef(
             kind: CatalogMediaKind.book,
-            id: OwnedItemId(owned.id.value),
+            id: OwnedCopyId(owned.id.value),
           ),
           catalogRef: owned.catalogRef,
           payload: owned.toJson(),
@@ -130,9 +130,9 @@ void main() {
 
       await trackingMutations.upsertTrackingState(
         TrackingTarget.owned(
-          OwnedItemRef(
+          OwnedCopyRef(
             kind: CatalogMediaKind.book,
-            id: OwnedItemId(owned.id.value),
+            id: OwnedCopyId(owned.id.value),
           ),
         ),
         sourceType: TrackingSourceType.physical,
@@ -144,7 +144,7 @@ void main() {
         testCatalogRef('book-77', kind: 'book'),
       ]))
               .single;
-      expect(entry.ownedRef, OwnedItemRef.fromKey('book:owned-item-77'));
+      expect(entry.ownedRef, OwnedCopyRef.fromKey('book:owned-item-77'));
       expect(entry.catalogRef.kind.apiValue, 'book');
       expect(entry.status, MediaTrackingStatus.completed);
     });
@@ -153,9 +153,9 @@ void main() {
         () async {
       await trackingMutations.upsertTrackingState(
         TrackingTarget.owned(
-          const OwnedItemRef(
+          const OwnedCopyRef(
             kind: CatalogMediaKind.book,
-            id: OwnedItemId('book-anchor-target'),
+            id: OwnedCopyId('book-anchor-target'),
           ),
         ),
         targetRef: const CatalogEntityRef(
@@ -173,7 +173,7 @@ void main() {
         testCatalogRef('book-anchor-target', kind: 'book'),
       ]))
               .single;
-      expect(entry.ownedRef, OwnedItemRef.fromKey('book:book-anchor-target'));
+      expect(entry.ownedRef, OwnedCopyRef.fromKey('book:book-anchor-target'));
       expect(entry.catalogRef.entityType, const CatalogEntityTypeId('release'));
       expect(entry.catalogRef.id, 'variant-anchor');
       expect(entry.catalogRef.rootId, 'book-anchor-target');
@@ -214,9 +214,9 @@ void main() {
       expect(
         () => trackingMutations.upsertTrackingState(
           TrackingTarget.owned(
-            const OwnedItemRef(
+            const OwnedCopyRef(
               kind: CatalogMediaKind.book,
-              id: OwnedItemId('non-existent-owned-id'),
+              id: OwnedCopyId('non-existent-owned-id'),
             ),
           ),
         ),
@@ -350,7 +350,7 @@ void main() {
         id: 'tv-owned-1',
       );
       final owned = TvOwnedItem(
-        id: TvOwnedItemId('owned-tv-1'),
+        id: TvOwnedCopyId('owned-tv-1'),
         catalogRef: ref,
         details: const TvOwnedDetails(),
         updatedAt: DateTime.utc(2026, 6, 1),
@@ -364,9 +364,9 @@ void main() {
       ]);
       await ownedItems.replaceFromTransport(
         OwnedImportTransport(
-          ref: OwnedItemRef(
+          ref: OwnedCopyRef(
             kind: CatalogMediaKind.tv,
-            id: OwnedItemId(owned.id.value),
+            id: OwnedCopyId(owned.id.value),
           ),
           catalogRef: owned.catalogRef,
           payload: owned.toJson(),
@@ -376,9 +376,9 @@ void main() {
         TvTrackingState(
           id: 'tracking-tv-1',
           catalogRef: ref,
-          ownedRef: OwnedItemRef(
+          ownedRef: OwnedCopyRef(
             kind: CatalogMediaKind.tv,
-            id: OwnedItemId(owned.id.value),
+            id: OwnedCopyId(owned.id.value),
           ),
           coordinates: TvTrackingCoordinates(
             seasonNumber: 4,
@@ -390,9 +390,9 @@ void main() {
       );
 
       await trackingMutations.syncOwnedTrackingState(
-        OwnedItemRef(
+        OwnedCopyRef(
           kind: CatalogMediaKind.tv,
-          id: OwnedItemId(owned.id.value),
+          id: OwnedCopyId(owned.id.value),
         ),
         catalogRef: owned.catalogRef,
         isDigital: owned.isDigital,
@@ -418,7 +418,7 @@ void main() {
         id: 'book-owned-anchor-clear',
       );
       final owned = BookOwnedItem(
-        id: BookOwnedItemId('owned-book-anchor-clear'),
+        id: BookOwnedCopyId('owned-book-anchor-clear'),
         catalogRef: ref,
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
@@ -437,17 +437,17 @@ void main() {
       ]);
       await ownedItems.replaceFromTransport(
         OwnedImportTransport(
-          ref: OwnedItemRef(
+          ref: OwnedCopyRef(
             kind: CatalogMediaKind.book,
-            id: OwnedItemId(owned.id.value),
+            id: OwnedCopyId(owned.id.value),
           ),
           catalogRef: owned.catalogRef,
           payload: owned.toJson(),
         ),
       );
-      final ownedRef = OwnedItemRef(
+      final ownedRef = OwnedCopyRef(
         kind: CatalogMediaKind.book,
-        id: OwnedItemId(owned.id.value),
+        id: OwnedCopyId(owned.id.value),
       );
       await trackingMutations.syncOwnedTrackingState(
         ownedRef,
@@ -528,9 +528,9 @@ void main() {
           MovieTrackingState(
             id: 'tracking-kind-check',
             catalogRef: catalogRef,
-            ownedRef: const OwnedItemRef(
+            ownedRef: const OwnedCopyRef(
               kind: CatalogMediaKind.book,
-              id: OwnedItemId('book-owned'),
+              id: OwnedCopyId('book-owned'),
             ),
             updatedAt: DateTime.utc(2026, 9, 14),
           ),

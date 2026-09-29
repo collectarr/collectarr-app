@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter/material.dart';
 
@@ -279,7 +279,7 @@ final class TransferableOwnedItem {
     required this.value,
   });
 
-  final OwnedItemRef ref;
+  final OwnedCopyRef ref;
   final CatalogEntityRef catalogRef;
   final Object value;
 }

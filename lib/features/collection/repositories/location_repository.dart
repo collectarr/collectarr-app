@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
@@ -97,7 +97,7 @@ class LocationRepository {
   }
 
   Future<void> assignItemToLocation(
-      OwnedItemRef ownedRef, String? locationId) async {
+      OwnedCopyRef ownedRef, String? locationId) async {
     final repository = OwnedItemsRepository(_db);
     for (final item in await repository.listActiveSummaries()) {
       if (item.ref == ownedRef) {
@@ -107,7 +107,7 @@ class LocationRepository {
     }
   }
 
-  Future<String?> getItemLocationId(OwnedItemRef ownedRef) async {
+  Future<String?> getItemLocationId(OwnedCopyRef ownedRef) async {
     for (final item in await OwnedItemsRepository(_db).listActiveSummaries()) {
       if (item.ref == ownedRef) return item.locationLabel;
     }

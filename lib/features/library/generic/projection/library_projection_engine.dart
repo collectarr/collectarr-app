@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -42,7 +42,7 @@ class LibraryProjectionEngine {
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
-    Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
+    Set<OwnedCopyRef> activeLoanOwnedCopyIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
@@ -94,7 +94,7 @@ class LibraryProjectionEngine {
         searchDoc: searchDoc,
         type: type,
         index: index,
-        activeLoanOwnedItemIds: activeLoanOwnedItemIds,
+        activeLoanOwnedCopyIds: activeLoanOwnedCopyIds,
         customFieldValuesByDefinitionByItem:
             customFieldValuesByDefinitionByItem,
       )) {

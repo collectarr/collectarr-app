@@ -39,7 +39,7 @@ final class TvOwnedItem {
     this.details = const TvOwnedDetails(),
   });
 
-  final TvOwnedItemId id;
+  final TvOwnedCopyId id;
   final CatalogEntityRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
@@ -110,7 +110,7 @@ final class TvOwnedItem {
       throw FormatException('Expected tv catalog_ref, got ${catalogRef.kind}');
     }
     return TvOwnedItem(
-      id: TvOwnedItemId(json['id'] as String),
+      id: TvOwnedCopyId(json['id'] as String),
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
@@ -140,7 +140,7 @@ final class TvOwnedItem {
   }
 
   TvOwnedItem copyWith({
-    TvOwnedItemId? id,
+    TvOwnedCopyId? id,
     CatalogEntityRef? catalogRef,
     Object? createdAt = _unset,
     Object? isDigital = _unset,

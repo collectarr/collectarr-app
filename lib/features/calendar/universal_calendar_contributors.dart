@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/calendar/calendar_event_contributor.dart';
 
@@ -22,7 +22,7 @@ final class UniversalCalendarContext {
     this.hasKindContributor = _noKindContributor,
   });
 
-  final Iterable<OwnedItemSummary> ownedItems;
+  final Iterable<OwnedCopySummary> ownedItems;
   final Iterable<Loan> loans;
   final Iterable<WatchSession> watchSessions;
   final UniversalCalendarTitleForRef titleForRef;
@@ -62,7 +62,7 @@ final class LoanCalendarContributor
 
   @override
   Iterable<CalendarEvent> contribute(UniversalCalendarContext context) sync* {
-    final ownedByRef = <OwnedItemRef, OwnedItemSummary>{
+    final ownedByRef = <OwnedCopyRef, OwnedCopySummary>{
       for (final item in context.ownedItems) item.ref: item,
     };
 

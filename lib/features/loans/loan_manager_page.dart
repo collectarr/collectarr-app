@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/barcode/barcode_batch_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
@@ -31,8 +31,8 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   var _filter = _LoanFilter.active;
   var _loading = true;
   List<Loan> _loans = const [];
-  Map<OwnedItemRef, OwnedItemSummary> _ownedByRef = const {};
-  Map<CatalogEntityRef, List<OwnedItemSummary>> _ownedByCatalogRef = const {};
+  Map<OwnedCopyRef, OwnedCopySummary> _ownedByRef = const {};
+  Map<CatalogEntityRef, List<OwnedCopySummary>> _ownedByCatalogRef = const {};
 
   @override
   void initState() {
@@ -81,12 +81,12 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
               : locationLabelsById[item.locationLabel!],
         ),
     ];
-    final ownedByCatalogRef = <CatalogEntityRef, List<OwnedItemSummary>>{};
+    final ownedByCatalogRef = <CatalogEntityRef, List<OwnedCopySummary>>{};
     for (final item in summaries) {
       final catalogRef = item.catalogRef;
       if (catalogRef != null) {
         ownedByCatalogRef
-            .putIfAbsent(catalogRef, () => <OwnedItemSummary>[])
+            .putIfAbsent(catalogRef, () => <OwnedCopySummary>[])
             .add(item);
       }
     }
@@ -157,7 +157,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     });
   }
 
-  Future<OwnedItemSummary?> _resolveOwnedItemFromBarcode(String barcode) async {
+  Future<OwnedCopySummary?> _resolveOwnedItemFromBarcode(String barcode) async {
     final catalog = await CatalogLookupRepository(
       ref.read(localDatabaseProvider),
     ).resolve(CatalogLookupQuery(value: barcode));
@@ -174,9 +174,9 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     return _pickOwnedItem(ownedItems, catalog.title);
   }
 
-  Future<OwnedItemSummary?> _pickOwnedItem(
-      List<OwnedItemSummary> ownedItems, String title) async {
-    return showDialog<OwnedItemSummary>(
+  Future<OwnedCopySummary?> _pickOwnedItem(
+      List<OwnedCopySummary> ownedItems, String title) async {
+    return showDialog<OwnedCopySummary>(
       context: context,
       builder: (context) => _OwnedItemPickerDialog(
         title: title,
@@ -248,7 +248,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     );
   }
 
-  Future<void> _createLoan(OwnedItemSummary ownedItem) async {
+  Future<void> _createLoan(OwnedCopySummary ownedItem) async {
     final catalogTitle = ownedItem.title;
     final draft = await showDialog<_LoanDraft>(
       context: context,
@@ -728,7 +728,7 @@ class _OwnedItemPickerDialog extends StatelessWidget {
   });
 
   final String title;
-  final List<OwnedItemSummary> ownedItems;
+  final List<OwnedCopySummary> ownedItems;
 
   @override
   Widget build(BuildContext context) {

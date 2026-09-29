@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
@@ -74,7 +74,7 @@ final class TvTrackingState extends PersonalTrackingBase
   @override
   final CatalogEntityRef catalogRef;
   @override
-  final OwnedItemRef? ownedRef;
+  final OwnedCopyRef? ownedRef;
   @override
   final TrackingSourceType? sourceType;
   @override
@@ -115,7 +115,7 @@ final class TvTrackingState extends PersonalTrackingBase
       coordinates: coordinates,
       ownedRef: identical(ownedRef, trackingStorageUnset)
           ? this.ownedRef
-          : ownedRef as OwnedItemRef?,
+          : ownedRef as OwnedCopyRef?,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,
@@ -190,7 +190,7 @@ final class TvTrackingState extends PersonalTrackingBase
       ),
       ownedRef: identical(ownedRef, trackingStorageUnset)
           ? this.ownedRef
-          : ownedRef as OwnedItemRef?,
+          : ownedRef as OwnedCopyRef?,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,

@@ -13,7 +13,6 @@ final class AdminProposalsController extends ChangeNotifier {
   List<AdminMetadataProposal> _proposals = const [];
   AdminMetadataProposalSummary? _summary;
   String _statusFilter = 'pending';
-  String? _providerFilter;
   bool _isLoading = false;
   String? _errorMessage;
   bool _disposed = false;
@@ -23,20 +22,12 @@ final class AdminProposalsController extends ChangeNotifier {
 
   AdminMetadataProposalSummary? get summary => _summary;
   String get statusFilter => _statusFilter;
-  String? get providerFilter => _providerFilter;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
   set statusFilter(String value) {
     if (_statusFilter == value) return;
     _statusFilter = value;
-    _errorMessage = null;
-    _notifyListeners();
-  }
-
-  set providerFilter(String? value) {
-    if (_providerFilter == value) return;
-    _providerFilter = value;
     _errorMessage = null;
     _notifyListeners();
   }
@@ -49,7 +40,6 @@ final class AdminProposalsController extends ChangeNotifier {
     try {
       final data = await AdminPageDataLoader(api).loadProposals(
         status: _statusFilter,
-        provider: _providerFilter,
       );
       if (generation == _loadGeneration) {
         _summary = data.summary;
@@ -67,25 +57,11 @@ final class AdminProposalsController extends ChangeNotifier {
     }
   }
 
-  Future<AdminProviderIngestResult> approve(
+  Future<AdminMetadataProposal> approve(
     ApiClient api, {
     required String proposalId,
   }) =>
       api.adminApproveMetadataProposal(proposalId: proposalId);
-
-  Future<AdminProviderIngestResult> approveWithProviderItem(
-    ApiClient api, {
-    required String proposalId,
-    required String provider,
-    required String providerItemId,
-    String? kind,
-  }) =>
-      api.adminApproveMetadataProposalWithProviderItem(
-        proposalId: proposalId,
-        provider: provider,
-        providerItemId: providerItemId,
-        kind: kind,
-      );
 
   Future<void> reject(ApiClient api, {required String proposalId}) =>
       api.adminRejectMetadataProposal(proposalId: proposalId);
@@ -93,21 +69,13 @@ final class AdminProposalsController extends ChangeNotifier {
   Future<AdminMetadataProposal> update(
     ApiClient api, {
     required String proposalId,
-    required String query,
-    required String? providerItemId,
-    required String? title,
-    required String? summary,
-    required String? imageUrl,
-    required Map<String, Object?> metadataPayload,
+    required Map<String, Object?> catalogItem,
+    String? reviewNote,
   }) =>
       api.adminUpdateMetadataProposal(
         proposalId: proposalId,
-        query: query,
-        providerItemId: providerItemId,
-        title: title,
-        summary: summary,
-        imageUrl: imageUrl,
-        metadataPayload: metadataPayload,
+        catalogItem: Map<String, dynamic>.from(catalogItem),
+        reviewNote: reviewNote,
       );
 
   void replaceProposal(AdminMetadataProposal updated) {

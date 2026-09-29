@@ -21,7 +21,7 @@ void main() {
   test('round trips complete Movie copies and filters deleted copies',
       () async {
     final item = MovieOwnedItem(
-      id: const MovieOwnedItemId('owned-1'),
+      id: const MovieOwnedCopyId('owned-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
         entityType: CatalogEntityTypeId('work'),

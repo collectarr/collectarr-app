@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
@@ -12,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef _InspectorItemImagesRequest = ({
   LocalDatabase db,
-  OwnedItemRef ownedRef,
+  OwnedCopyRef ownedRef,
 });
 
 final _inspectorItemImagesProvider = FutureProvider.autoDispose
@@ -30,7 +30,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
     required this.accent,
   });
 
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
   final LocalDatabase db;
   final Color accent;
 

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
@@ -101,7 +101,7 @@ final class TvTrackingStateCodec
   TvTrackingState create({
     required String id,
     required CatalogEntityRef catalogRef,
-    OwnedItemRef? ownedRef,
+    OwnedCopyRef? ownedRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -247,7 +247,7 @@ final class TvTrackingStateCodec
         episodeNumber: episodeNumber,
         episodeRatings: _decodeEpisodeRatingsValue(payload['episode_ratings']),
       ),
-      ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
+      ownedRef: ownedCopyRefFromSerialized(payload['owned_ref']),
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),

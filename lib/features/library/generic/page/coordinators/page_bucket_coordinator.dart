@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -64,7 +64,7 @@ class LibraryPageBucketCoordinator {
     final workspace = libraryKindWorkspaceForKind(registration.kind);
 
     final catalogUpdates = <CatalogEntityRef, CatalogImportTransport>{};
-    final ownedUpdates = <OwnedItemRef, UpdateOwnedItemCommand>{};
+    final ownedUpdates = <OwnedCopyRef, UpdateOwnedItemCommand>{};
     final catalogRefs = [
       for (final item in projection.allItems)
         if (item.source.catalogRef case final ref?) ref.rootScope,

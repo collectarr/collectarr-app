@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -29,7 +29,7 @@ class LibraryCoverImage extends ConsumerWidget {
   final String? itemNumber;
   final String? imageUrl;
   final Uint8List? localBytes;
-  final OwnedItemRef? ownedRef;
+  final OwnedCopyRef? ownedRef;
   final int? targetCacheWidth;
   final double fallbackAspectRatio;
   final String localImageType;
@@ -442,7 +442,7 @@ class LibraryInteractiveCover extends StatefulWidget {
   final double fallbackAspectRatio;
   final String? secondaryImageUrl;
   final Uint8List? secondaryLocalBytes;
-  final OwnedItemRef? ownedRef;
+  final OwnedCopyRef? ownedRef;
   final double borderRadius;
   final BoxFit fit;
   final Color accentColor;
@@ -594,7 +594,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         Widget buildCover({
                           required String? imageUrl,
                           required Uint8List? localBytes,
-                          OwnedItemRef? ownedRef,
+                          OwnedCopyRef? ownedRef,
                         }) {
                           return AspectRatio(
                             aspectRatio: coverAspectRatio,

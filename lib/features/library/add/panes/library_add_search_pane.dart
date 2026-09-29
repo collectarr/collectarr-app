@@ -27,14 +27,10 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.resultPolicy,
     required this.resultPolicyState,
     required this.onResultPolicyOptionChanged,
-    required this.showCoreResults,
-    required this.showProviderResults,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
     required this.onToggleProviderCheck,
-    required this.onShowCoreResultsChanged,
-    required this.onShowProviderResultsChanged,
     required this.onSearchCore,
   });
 
@@ -59,14 +55,10 @@ class LibraryAddSearchPane extends StatelessWidget {
   final LibraryAddResultPolicy resultPolicy;
   final LibraryAddResultPolicyState resultPolicyState;
   final void Function(String id, bool value) onResultPolicyOptionChanged;
-  final bool showCoreResults;
-  final bool showProviderResults;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
   final ValueChanged<String> onToggleProviderCheck;
-  final ValueChanged<bool> onShowCoreResultsChanged;
-  final ValueChanged<bool> onShowProviderResultsChanged;
   final VoidCallback onSearchCore;
 
   @override
@@ -79,11 +71,7 @@ class LibraryAddSearchPane extends StatelessWidget {
       ),
       child: Column(
         children: [
-          LibraryAddSearchSourceToggles(
-            showCoreResults: showCoreResults,
-            showProviderResults: showProviderResults,
-            onShowCoreResultsChanged: onShowCoreResultsChanged,
-            onShowProviderResultsChanged: onShowProviderResultsChanged,
+          LibraryAddSearchFilters(
             resultOptions: resultPolicy.options
                 .where((option) => option.showInSourceToggles)
                 .toList(growable: false),
@@ -123,35 +111,26 @@ class LibraryAddSearchPane extends StatelessWidget {
   }
 }
 
-class LibraryAddSearchSourceToggles extends StatelessWidget {
-  const LibraryAddSearchSourceToggles({
+class LibraryAddSearchFilters extends StatelessWidget {
+  const LibraryAddSearchFilters({
     super.key,
-    required this.showCoreResults,
-    required this.showProviderResults,
-    required this.onShowCoreResultsChanged,
-    required this.onShowProviderResultsChanged,
     required this.resultOptions,
     required this.resultPolicyState,
     required this.onResultPolicyOptionChanged,
   });
 
-  final bool showCoreResults;
-  final bool showProviderResults;
-  final ValueChanged<bool> onShowCoreResultsChanged;
-  final ValueChanged<bool> onShowProviderResultsChanged;
   final List<LibraryAddResultOption> resultOptions;
   final LibraryAddResultPolicyState resultPolicyState;
   final void Function(String id, bool value) onResultPolicyOptionChanged;
 
   @override
   Widget build(BuildContext context) {
+    if (resultOptions.isEmpty) return const SizedBox.shrink();
     final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
-        border: Border(
-          bottom: BorderSide(color: palette.divider),
-        ),
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -159,16 +138,6 @@ class LibraryAddSearchSourceToggles extends StatelessWidget {
           spacing: 12,
           runSpacing: 4,
           children: [
-            _SearchSourceToggle(
-              label: 'Core results',
-              value: showCoreResults,
-              onChanged: onShowCoreResultsChanged,
-            ),
-            _SearchSourceToggle(
-              label: 'Provider results',
-              value: showProviderResults,
-              onChanged: onShowProviderResultsChanged,
-            ),
             for (final option in resultOptions)
               _SearchSourceToggle(
                 label: option.label,
@@ -1357,14 +1326,9 @@ class _NoSearchResults extends StatelessWidget {
   }
 
   String get _message {
-    if (libraryMetadataForKind(type.kind)
-        .supportedProvidersForKind(type.kind)
-        .isEmpty) {
-      return 'No Core providers are configured for this library yet. Add a manual item to keep working locally.';
-    }
     if (searchedProvider) {
-      return 'No ${libraryMetadataForKind(type.kind).providerLabel(selectedProvider)} candidates found. Try a broader query or add a manual item.';
+      return 'No Catalog Items found. Add or propose one manually.';
     }
-    return 'Search Core, lookup a barcode, search ${libraryMetadataForKind(type.kind).providerLabel(selectedProvider)}, or add a manual item if Core is offline.';
+    return 'Search the catalog or add and propose a Catalog Item manually.';
   }
 }

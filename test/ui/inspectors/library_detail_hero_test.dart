@@ -73,7 +73,7 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              ownedItem: testOwnedItemSummary(owned),
+              ownedItem: testOwnedCopySummary(owned),
               accent: Colors.orange,
             ),
           ),
@@ -147,7 +147,7 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              ownedItem: testOwnedItemSummary(owned),
+              ownedItem: testOwnedCopySummary(owned),
               accent: Colors.orange,
             ),
           ),
@@ -266,10 +266,10 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              ownedItem: testOwnedItemSummary(owned1),
+              ownedItem: testOwnedCopySummary(owned1),
               ownedCopies: [
-                testOwnedItemSummary(owned1),
-                testOwnedItemSummary(owned2),
+                testOwnedCopySummary(owned1),
+                testOwnedCopySummary(owned2),
               ],
               accent: Colors.orange,
             ),

@@ -1,81 +1,9 @@
 import 'package:flutter/foundation.dart';
 
 import 'catalog_entity_ref.dart';
-import 'money.dart';
+import 'owned_copy_ref.dart';
 
-/// Stable cross-kind identity for an owned copy.
-///
-/// This is a reference only. It deliberately does not expose the owned
-/// domain model or any kind-specific fields.
-@immutable
-final class OwnedItemRef {
-  const OwnedItemRef({required this.kind, required this.id});
-
-  final CatalogMediaKind kind;
-  final OwnedItemId id;
-
-  String get key => '${kind.apiValue}:${id.value}';
-
-  /// Decode the stable storage key used by cross-kind infrastructure.
-  ///
-  /// This format is intentionally strict. A bare ID is not an owned-item
-  /// reference because it does not identify the owning kind.
-  factory OwnedItemRef.fromKey(String key) {
-    final separator = key.indexOf(':');
-    if (separator <= 0 || separator == key.length - 1) {
-      throw const FormatException(
-        'OwnedItemRef key must be <kind>:<id>',
-      );
-    }
-    final kind = catalogMediaKindFromApiValue(key.substring(0, separator));
-    final id = key.substring(separator + 1);
-    if (kind.isUnknown || id.trim().isEmpty) {
-      throw const FormatException(
-        'OwnedItemRef key must contain a known kind and non-empty id',
-      );
-    }
-    return OwnedItemRef(kind: kind, id: OwnedItemId(id));
-  }
-
-  Map<String, Object?> toJson() => {
-        'kind': kind.apiValue,
-        'id': id.value,
-      };
-
-  factory OwnedItemRef.fromJson(Map<String, Object?> json) {
-    final rawKind = json['kind'];
-    final rawId = json['id'];
-    if (rawKind is! String || rawId is! String || rawId.trim().isEmpty) {
-      throw const FormatException('OwnedItemRef requires kind and id');
-    }
-    final kind = catalogMediaKindFromApiValue(rawKind);
-    if (kind.isUnknown) {
-      throw FormatException('OwnedItemRef requires a known kind: $rawKind');
-    }
-    return OwnedItemRef(kind: kind, id: OwnedItemId(rawId));
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is OwnedItemRef && kind == other.kind && id == other.id;
-
-  @override
-  int get hashCode => Object.hash(kind, id);
-}
-
-/// Decodes the canonical cross-kind Owned reference at a transport boundary.
-///
-/// JSON transports may carry the structured object while schema-v1 text
-/// columns carry [OwnedItemRef.key]. Neither form is a bare Owned id.
-OwnedItemRef? ownedItemRefFromSerialized(Object? value) {
-  if (value == null) return null;
-  if (value is String) return OwnedItemRef.fromKey(value);
-  if (value is Map) {
-    return OwnedItemRef.fromJson(Map<String, Object?>.from(value));
-  }
-  throw FormatException('Invalid serialized OwnedItemRef: $value');
-}
+export 'owned_copy_ref.dart';
 
 /// Small read projection used by mixed-kind hosts such as Loans and Shelf.
 ///
@@ -83,8 +11,8 @@ OwnedItemRef? ownedItemRefFromSerialized(Object? value) {
 /// packaging, value, or another semantic field, it must dispatch to the
 /// owning kind.
 @immutable
-final class OwnedItemSummary {
-  const OwnedItemSummary({
+final class OwnedCopySummary {
+  const OwnedCopySummary({
     required this.ref,
     required this.title,
     this.catalogRef,
@@ -111,7 +39,7 @@ final class OwnedItemSummary {
     this.hasNotes = false,
   });
 
-  final OwnedItemRef ref;
+  final OwnedCopyRef ref;
   final String title;
   final CatalogEntityRef? catalogRef;
   final CatalogEntityRef? targetRef;
@@ -138,8 +66,8 @@ final class OwnedItemSummary {
 
   bool get isDeleted => deletedAt != null;
 
-  OwnedItemSummary copyWith({
-    OwnedItemRef? ref,
+  OwnedCopySummary copyWith({
+    OwnedCopyRef? ref,
     String? title,
     Object? catalogRef = _summaryUnset,
     Object? targetRef = _summaryUnset,
@@ -150,7 +78,7 @@ final class OwnedItemSummary {
     Object? notes = _summaryUnset,
     bool? hasNotes,
   }) {
-    return OwnedItemSummary(
+    return OwnedCopySummary(
       ref: ref ?? this.ref,
       title: title ?? this.title,
       catalogRef: catalogRef == _summaryUnset

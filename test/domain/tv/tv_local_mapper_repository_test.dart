@@ -32,7 +32,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final item = TvOwnedItem(
-      id: const TvOwnedItemId('owned-tv-1'),
+      id: const TvOwnedCopyId('owned-tv-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
         entityType: CatalogEntityTypeId('work'),

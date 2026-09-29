@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -100,13 +100,12 @@ final class CollectionImportOrchestrator {
       includeRootScope: false,
     );
     final activeWishlistRefs = existingWishlist.keys.toSet();
-    final ownedItemRefs = <OwnedItemRef>[];
+    final ownedItemRefs = <OwnedCopyRef>[];
     final ownedWrites = <Future<OwnedItemMutationResult> Function()>[];
     final trackingImports = <TrackingStorageImport>[];
     final wishlistDeletes = <WishlistItem>[];
     final wishlistUpserts = <WishlistItem>[];
     final syncChanges = <SyncChange>[];
-    final snapshotRefs = <CatalogEntityRef>{};
     var imported = 0;
 
     for (final row in resolvedRows) {
@@ -115,25 +114,9 @@ final class CollectionImportOrchestrator {
       if (rowRef == null) continue;
 
       imported++;
-      final importedCatalogItem = importedCatalogItemsByRef[rowRef];
-      final existingCatalogSummary = existingCatalogSummaries[rowRef];
-      final catalogKind = importedCatalogItem?.ref.kind ??
-          existingCatalogSummary?.kind ??
+      final catalogKind = importedCatalogItemsByRef[rowRef]?.ref.kind ??
+          existingCatalogSummaries[rowRef]?.kind ??
           row.mediaKind;
-      final catalogId = importedCatalogItem?.ref.id ?? row.itemId;
-      if ((importedCatalogItem != null || existingCatalogSummary != null) &&
-          snapshotRefs.add(rowRef)) {
-        syncChanges.add(
-          SyncChange(
-            id: 'catalog:$catalogId:upsert:${now.millisecondsSinceEpoch}',
-            entityType: 'catalog_item',
-            entityId: catalogId,
-            action: 'upsert',
-            payload: {'id': catalogId},
-            clientChangedAt: now,
-          ),
-        );
-      }
 
       final existingWishlistItem = existingWishlist[rowRef];
       if (row.isOwned) {
@@ -434,7 +417,7 @@ final class CollectionImportOrchestrator {
   _OwnedImport _ownedItemImportFromCsvRow(
     CollectionImportRow row,
     DateTime now, {
-    OwnedItemSummary? existingSummary,
+    OwnedCopySummary? existingSummary,
     JsonMap? existingPayload,
     CatalogMediaKind? catalogKind,
   }) {
@@ -450,7 +433,7 @@ final class CollectionImportOrchestrator {
     final projection = _profileForKind(kind);
     if (projection != null) {
       final ownedRef = existingSummary?.ref ??
-          OwnedItemRef(kind: kind, id: OwnedItemId(idGenerator()));
+          OwnedCopyRef(kind: kind, id: OwnedCopyId(idGenerator()));
       final transport = projection.ownedItemImportTransport(
         CollectionCsvOwnedImport(
           id: ownedRef.id.value,
@@ -483,12 +466,12 @@ final class CollectionImportOrchestrator {
   CollectionCsvKindProfile? _profileForKind(CatalogMediaKind kind) =>
       _csvProfiles[kind];
 
-  Map<CatalogEntityRef, OwnedItemSummary> _ownedSummariesByTarget(
-      Iterable<OwnedItemSummary> summaries, Iterable<CatalogEntityRef> targets,
+  Map<CatalogEntityRef, OwnedCopySummary> _ownedSummariesByTarget(
+      Iterable<OwnedCopySummary> summaries, Iterable<CatalogEntityRef> targets,
       {required bool includeRootScope}) {
     final targetSet = targets.toSet();
     final targetRoots = {for (final target in targetSet) target.rootScope};
-    final result = <CatalogEntityRef, OwnedItemSummary>{};
+    final result = <CatalogEntityRef, OwnedCopySummary>{};
     for (final summary in summaries) {
       final catalogRef = summary.catalogRef;
       if (catalogRef == null ||
@@ -506,7 +489,7 @@ final class CollectionImportOrchestrator {
 }
 
 typedef _OwnedImport = ({
-  OwnedItemRef ref,
+  OwnedCopyRef ref,
   OwnedImportTransport transport,
 });
 

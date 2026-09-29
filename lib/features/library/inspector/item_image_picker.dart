@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +21,7 @@ const itemImageTypeLabels = {
 Future<String?> pickAndStoreOwnedItemImage({
   required BuildContext context,
   required LocalDatabase db,
-  required OwnedItemRef ownedRef,
+  required OwnedCopyRef ownedRef,
   String? imageType,
 }) async {
   try {

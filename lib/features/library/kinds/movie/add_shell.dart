@@ -87,8 +87,6 @@ Widget buildMovieAddSearchPane(
   final palette = appPalette(context);
   final entries = <_MovieSearchGridEntry>[
     for (final item in request.results) _MovieSearchGridEntry.core(item),
-    for (final candidate in request.providerResults)
-      _MovieSearchGridEntry.provider(candidate),
   ];
   return DecoratedBox(
     decoration: BoxDecoration(
@@ -99,11 +97,7 @@ Widget buildMovieAddSearchPane(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (request.error != null) AppErrorBanner(request.error!),
-        LibraryAddSearchSourceToggles(
-          showCoreResults: request.showCoreResults,
-          showProviderResults: request.showProviderResults,
-          onShowCoreResultsChanged: request.onShowCoreResultsChanged,
-          onShowProviderResultsChanged: request.onShowProviderResultsChanged,
+        LibraryAddSearchFilters(
           resultOptions: request.resultPolicy.options
               .where((option) => option.showInSourceToggles)
               .toList(growable: false),
@@ -118,7 +112,7 @@ Widget buildMovieAddSearchPane(
                       child: Padding(
                         padding: const EdgeInsets.all(24),
                         child: Text(
-                          'Search to see movie releases and provider matches.',
+                          'Search Core to see matching movies.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: palette.textMuted,
@@ -341,7 +335,6 @@ Widget buildMovieAddSearchPane(
 
 class _MovieSearchGridEntry {
   const _MovieSearchGridEntry.core(this.item) : candidate = null;
-  const _MovieSearchGridEntry.provider(this.candidate) : item = null;
 
   final CatalogSearchCandidate? item;
   final ProviderSearchCandidate? candidate;

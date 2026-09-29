@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -12,7 +12,7 @@ import 'library_workspace_catalog_data.dart';
 /// Concrete workspace source used after kind dispatch.
 ///
 /// Mixed/global Shelf consumers use [CatalogDisplaySummary],
-/// [OwnedItemSummary] and refs. Kind-dispatched workspace pages receive the
+/// [OwnedCopySummary] and refs. Kind-dispatched workspace pages receive the
 /// owning kind's structural catalog data; transport DTOs do not cross this
 /// workspace boundary.
 final class LibraryWorkspaceSource {
@@ -34,7 +34,7 @@ final class LibraryWorkspaceSource {
 
   final String itemId;
   final CatalogDisplaySummary? catalogSummary;
-  final OwnedItemSummary? ownedSummary;
+  final OwnedCopySummary? ownedSummary;
   final TrackingSummary? trackingSummary;
   final List<TrackingSummary> trackingSummaries;
   final WishlistItem? wishlistItem;
@@ -70,7 +70,7 @@ final class LibraryWorkspaceSource {
       wishlistItem?.catalogRef.kind ??
       CatalogMediaKind.unknown;
 
-  OwnedItemRef? get ownedRef => ownedSummary?.ref;
+  OwnedCopyRef? get ownedRef => ownedSummary?.ref;
 
   bool get isOwned => ownedSummary != null;
   bool get isTracked => trackingSummary != null || trackingSummaries.isNotEmpty;

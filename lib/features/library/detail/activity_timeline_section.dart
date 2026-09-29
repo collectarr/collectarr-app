@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -26,7 +26,7 @@ class ActivityTimelineSection extends ConsumerStatefulWidget {
   final CatalogEntityRef itemRef;
 
   /// All owned-item references for this catalog item (needed for loan lookup).
-  final List<OwnedItemRef> ownedItemRefs;
+  final List<OwnedCopyRef> ownedItemRefs;
   final Color accent;
 
   @override
@@ -75,7 +75,7 @@ class _ActivityTimelineSectionState
                     i.catalogRef!.rootScope == widget.itemRef,
               )
               .toList(growable: false),
-          orElse: () => const <OwnedItemSummary>[],
+          orElse: () => const <OwnedCopySummary>[],
         );
     final trackingSummaries =
         ref.watch(trackingSummariesByCatalogRefProvider)[widget.itemRef] ??

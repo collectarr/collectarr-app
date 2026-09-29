@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -35,7 +35,7 @@ class LibraryProjectionRequest {
     required this.customFieldValuesByItem,
     required this.customFieldValuesByDefinitionByItem,
     this.customFieldDefinitions = const [],
-    required this.activeLoanOwnedItemIds,
+    required this.activeLoanOwnedCopyIds,
     required this.searchTarget,
   });
 
@@ -58,7 +58,7 @@ class LibraryProjectionRequest {
   final Map<String, List<String>> customFieldValuesByItem;
   final Map<String, Map<String, String>> customFieldValuesByDefinitionByItem;
   final List<CustomFieldDefinition> customFieldDefinitions;
-  final Set<OwnedItemRef> activeLoanOwnedItemIds;
+  final Set<OwnedCopyRef> activeLoanOwnedCopyIds;
   final LibrarySearchTarget searchTarget;
 
   @override
@@ -89,7 +89,7 @@ class LibraryProjectionRequest {
           other.customFieldValuesByDefinitionByItem,
         ) &&
         listEquals(customFieldDefinitions, other.customFieldDefinitions) &&
-        setEquals(activeLoanOwnedItemIds, other.activeLoanOwnedItemIds) &&
+        setEquals(activeLoanOwnedCopyIds, other.activeLoanOwnedCopyIds) &&
         searchTarget == other.searchTarget;
   }
 
@@ -114,7 +114,7 @@ class LibraryProjectionRequest {
         _stringListMapHash(customFieldValuesByItem),
         _stringNestedMapHash(customFieldValuesByDefinitionByItem),
         Object.hashAll(customFieldDefinitions),
-        Object.hashAll(activeLoanOwnedItemIds.toList(growable: false)),
+        Object.hashAll(activeLoanOwnedCopyIds.toList(growable: false)),
         searchTarget,
       ]);
 }
@@ -205,7 +205,7 @@ final libraryProjectionProvider = Provider.autoDispose
     customFieldValuesByItem: request.customFieldValuesByItem,
     customFieldValuesByDefinitionByItem:
         request.customFieldValuesByDefinitionByItem,
-    activeLoanOwnedItemIds: request.activeLoanOwnedItemIds,
+    activeLoanOwnedCopyIds: request.activeLoanOwnedCopyIds,
     searchTarget: request.searchTarget,
   );
 });

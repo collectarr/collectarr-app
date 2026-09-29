@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 
 String _ownedSeedKey(CatalogMediaKind kind, String id) =>
-    OwnedItemRef(kind: kind, id: OwnedItemId(id)).key;
+    OwnedCopyRef(kind: kind, id: OwnedCopyId(id)).key;
 
 Future<void> seedCustomFields(CustomFieldRepository repo) async {
   final now = DateTime.now().toUtc();

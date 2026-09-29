@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
@@ -30,10 +30,10 @@ typedef LibraryEditSessionFactory = LibraryEditSessionBundle Function({
 });
 
 typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
-    OwnedItemRef ownedRef, int indexNumber);
+    OwnedCopyRef ownedRef, int indexNumber);
 
 typedef LibraryOwnedConditionValueUpdatePayloadBuilder = OwnedItemUpdatePayload
-    Function(OwnedItemRef ownedRef, String? condition, String? collectionValue);
+    Function(OwnedCopyRef ownedRef, String? condition, String? collectionValue);
 
 typedef LibraryOwnedCollectionValueReader = String? Function(
   LibraryOwnedItemDispatch? ownedItem,
@@ -46,7 +46,7 @@ typedef LibraryOwnedFormatHintResolver = LibraryOwnedFormatHint Function(
 );
 
 typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
-  OwnedItemRef ownedRef,
+  OwnedCopyRef ownedRef,
   String? condition,
   String? collectionValue,
   String? locationId,
@@ -55,7 +55,7 @@ typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
 
 typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
     Function(
-  OwnedItemRef ownedRef,
+  OwnedCopyRef ownedRef,
   DateTime? purchaseDate,
   int? pricePaidCents,
   String? currency,
@@ -67,7 +67,7 @@ typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
 
 typedef LibraryOwnedTransferUpdatePayloadBuilder = OwnedItemUpdatePayload
     Function(
-  OwnedItemRef ownedRef,
+  OwnedCopyRef ownedRef,
   Object updated,
 );
 
@@ -170,7 +170,7 @@ final class LibraryOwnedEditCapability {
       ownedFormatHintResolver(item);
 
   bool? resolveOwnedDigitalFlag(
-    OwnedItemSummary? ownedItem,
+    OwnedCopySummary? ownedItem,
     List<LibraryAddReleaseOption> releases, {
     String? fallbackFormat,
     String? fallbackLabel,
@@ -186,7 +186,7 @@ final class LibraryOwnedEditCapability {
   }
 
   UpdateOwnedItemCommand buildIndexUpdateCommand({
-    required OwnedItemRef ownedRef,
+    required OwnedCopyRef ownedRef,
     required int indexNumber,
   }) {
     final builder = ownedIndexUpdatePayloadBuilder;
@@ -200,7 +200,7 @@ final class LibraryOwnedEditCapability {
   }
 
   UpdateOwnedItemCommand buildConditionValueUpdateCommand({
-    required OwnedItemRef ownedRef,
+    required OwnedCopyRef ownedRef,
     required String? condition,
     required String? collectionValue,
   }) {
@@ -217,7 +217,7 @@ final class LibraryOwnedEditCapability {
   }
 
   UpdateOwnedItemCommand buildBulkUpdateCommand({
-    required OwnedItemRef ownedRef,
+    required OwnedCopyRef ownedRef,
     required String? condition,
     required String? collectionValue,
     required String? locationId,
@@ -240,7 +240,7 @@ final class LibraryOwnedEditCapability {
   }
 
   UpdateOwnedItemCommand buildPersonalDetailsUpdateCommand({
-    required OwnedItemRef ownedRef,
+    required OwnedCopyRef ownedRef,
     required DateTime? purchaseDate,
     required int? pricePaidCents,
     required String? currency,
@@ -271,7 +271,7 @@ final class LibraryOwnedEditCapability {
   }
 
   UpdateOwnedItemCommand buildTransferUpdateCommand({
-    required OwnedItemRef ownedRef,
+    required OwnedCopyRef ownedRef,
     required Object updated,
   }) {
     final builder = ownedTransferUpdatePayloadBuilder;
@@ -285,7 +285,7 @@ final class LibraryOwnedEditCapability {
   }
 
   UpdateOwnedItemCommand buildDetailsResetCommand({
-    required OwnedItemRef ownedRef,
+    required OwnedCopyRef ownedRef,
   }) {
     final builder = ownedDetailsResetPayloadBuilder;
     if (builder == null) {

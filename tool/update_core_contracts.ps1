@@ -24,10 +24,8 @@ $files = @(
   "openapi.json",
   "music-catalog-v1.json",
   "metadata-field-schema.json",
+  "catalog-item-v1.json",
   "active-kinds.json",
-  "provider-support.json",
-  "provider-envelope-schema-v1.json",
-  "golden-provider-envelopes.json",
   "contract-manifest.json"
 )
 
@@ -47,10 +45,8 @@ $hashKeyByFile = @{
   "openapi.json"                     = "openApiHash"
   "music-catalog-v1.json"            = "musicCatalogHash"
   "metadata-field-schema.json"       = "fieldSchemaHash"
+  "catalog-item-v1.json"             = "catalogItemHash"
   "active-kinds.json"                = "activeKindsHash"
-  "provider-support.json"            = "providerSupportHash"
-  "provider-envelope-schema-v1.json" = "providerEnvelopeSchemaHash"
-  "golden-provider-envelopes.json"   = "goldenProviderEnvelopesHash"
 }
 
 foreach ($entry in $hashKeyByFile.GetEnumerator()) {

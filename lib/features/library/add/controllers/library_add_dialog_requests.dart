@@ -75,6 +75,7 @@ class LibraryAddManualPaneRequest {
     required this.onAddOwned,
     required this.onAddWishlist,
     required this.onAddTrack,
+    required this.onPropose,
     required this.manualDraft,
     this.customFieldDefinitions = const [],
     this.customFieldValues = const {},
@@ -110,6 +111,7 @@ class LibraryAddManualPaneRequest {
   final VoidCallback onAddOwned;
   final VoidCallback onAddWishlist;
   final VoidCallback onAddTrack;
+  final VoidCallback onPropose;
 
   // Custom fields and images
   final List<CustomFieldDefinition> customFieldDefinitions;
@@ -267,14 +269,10 @@ class LibraryAddSearchPaneRequest {
     required this.resultPolicyState,
     required this.onResultPolicyOptionChanged,
     required this.isWideLayout,
-    required this.showCoreResults,
-    required this.showProviderResults,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
     required this.onToggleProviderCheck,
-    required this.onShowCoreResultsChanged,
-    required this.onShowProviderResultsChanged,
     required this.onSearchCore,
   });
 
@@ -299,14 +297,10 @@ class LibraryAddSearchPaneRequest {
   final LibraryAddResultPolicyState resultPolicyState;
   final void Function(String id, bool value) onResultPolicyOptionChanged;
   final bool isWideLayout;
-  final bool showCoreResults;
-  final bool showProviderResults;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
   final ValueChanged<String> onToggleProviderCheck;
-  final ValueChanged<bool> onShowCoreResultsChanged;
-  final ValueChanged<bool> onShowProviderResultsChanged;
   final VoidCallback onSearchCore;
 }
 
@@ -318,14 +312,10 @@ class LibraryAddBottomBarRequest {
     required this.accent,
     required this.selectedItem,
     required this.selectedCandidate,
-    required this.selectedQueuedIngest,
-    required this.providerLabel,
     required this.addTarget,
     required this.addCount,
     this.hasCheckedSelection = false,
     required this.isAdding,
-    required this.isQueueingIngest,
-    required this.isAdmin,
     required this.defaultCondition,
     required this.defaultLocationLabel,
     required this.defaultPurchaseDate,
@@ -335,8 +325,6 @@ class LibraryAddBottomBarRequest {
     required this.onDefaultLocationPressed,
     required this.onDefaultPurchaseDateChanged,
     required this.onAdd,
-    required this.onQueueIngest,
-    required this.onPropose,
     required this.isWideLayout,
   });
 
@@ -346,14 +334,10 @@ class LibraryAddBottomBarRequest {
   final Color accent;
   final CatalogSearchCandidate? selectedItem;
   final ProviderSearchCandidate? selectedCandidate;
-  final LibraryQueuedProviderIngest? selectedQueuedIngest;
-  final String providerLabel;
   final LibraryAddTarget addTarget;
   final int addCount;
   final bool hasCheckedSelection;
   final bool isAdding;
-  final bool isQueueingIngest;
-  final bool isAdmin;
   final String defaultCondition;
   final String? defaultLocationLabel;
   final DateTime? defaultPurchaseDate;
@@ -363,7 +347,5 @@ class LibraryAddBottomBarRequest {
   final VoidCallback onDefaultLocationPressed;
   final ValueChanged<DateTime?> onDefaultPurchaseDateChanged;
   final VoidCallback? onAdd;
-  final VoidCallback? onQueueIngest;
-  final VoidCallback? onPropose;
   final bool isWideLayout;
 }

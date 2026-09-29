@@ -116,7 +116,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final item = MusicOwnedItem(
-      id: const MusicOwnedItemId('owned-music-1'),
+      id: const MusicOwnedCopyId('owned-music-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
         entityType: CatalogEntityTypeId.root,

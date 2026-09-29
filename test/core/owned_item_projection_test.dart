@@ -1,26 +1,26 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('OwnedItemRef round-trips as a small typed cross-kind reference', () {
-    const ref = OwnedItemRef(
+  test('OwnedCopyRef round-trips as a small typed cross-kind reference', () {
+    const ref = OwnedCopyRef(
       kind: CatalogMediaKind.book,
-      id: OwnedItemId('owned-book-1'),
+      id: OwnedCopyId('owned-book-1'),
     );
 
-    final decoded = OwnedItemRef.fromJson(ref.toJson());
+    final decoded = OwnedCopyRef.fromJson(ref.toJson());
 
     expect(decoded, ref);
     expect(decoded.key, 'book:owned-book-1');
   });
 
-  test('OwnedItemSummary contains projection fields only', () {
-    const summary = OwnedItemSummary(
-      ref: OwnedItemRef(
+  test('OwnedCopySummary contains projection fields only', () {
+    const summary = OwnedCopySummary(
+      ref: OwnedCopyRef(
         kind: CatalogMediaKind.comic,
-        id: OwnedItemId('owned-comic-1'),
+        id: OwnedCopyId('owned-comic-1'),
       ),
       title: 'Batman #1',
       subtitle: 'Detective Comics',
@@ -33,16 +33,16 @@ void main() {
     expect(summary.ownerLabel, 'Alex');
   });
 
-  test('OwnedItemRef rejects an empty identifier', () {
+  test('OwnedCopyRef rejects an empty identifier', () {
     expect(
-      () => OwnedItemRef.fromJson({'kind': 'comic', 'id': ' '}),
+      () => OwnedCopyRef.fromJson({'kind': 'comic', 'id': ' '}),
       throwsFormatException,
     );
   });
 
-  test('OwnedItemRef rejects an unknown kind at the boundary', () {
+  test('OwnedCopyRef rejects an unknown kind at the boundary', () {
     expect(
-      () => OwnedItemRef.fromJson({'kind': 'future-kind', 'id': 'owned-1'}),
+      () => OwnedCopyRef.fromJson({'kind': 'future-kind', 'id': 'owned-1'}),
       throwsFormatException,
     );
   });

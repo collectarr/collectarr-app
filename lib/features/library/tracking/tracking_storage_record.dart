@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -24,7 +24,7 @@ abstract interface class TrackingKindPatch {
 abstract interface class TrackingStorageRecord {
   String get id;
   CatalogEntityRef get catalogRef;
-  OwnedItemRef? get ownedRef;
+  OwnedCopyRef? get ownedRef;
   TrackingSourceType? get sourceType;
   MediaTrackingStatus? get status;
   int? get rating;

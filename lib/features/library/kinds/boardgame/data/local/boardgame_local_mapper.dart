@@ -183,7 +183,7 @@ final class BoardGameLocalMapper {
       id: row.itemId,
     );
     return BoardGameOwnedItem(
-      id: BoardGameOwnedItemId(row.id),
+      id: BoardGameOwnedCopyId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,

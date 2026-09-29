@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
@@ -202,13 +202,13 @@ CatalogEntityRef _decodeTarget(String raw) {
   return target;
 }
 
-OwnedItemRef? _decodeOwnedRef(String? raw) {
+OwnedCopyRef? _decodeOwnedRef(String? raw) {
   if (raw == null || raw.trim().isEmpty) return null;
   final decoded = jsonDecode(raw);
   if (decoded is! Map) {
     throw const FormatException('Music listen owned ref is not an object');
   }
-  return OwnedItemRef.fromJson(Map<String, Object?>.from(decoded));
+  return OwnedCopyRef.fromJson(Map<String, Object?>.from(decoded));
 }
 
 void _validateEvent(MusicListenEvent event) {

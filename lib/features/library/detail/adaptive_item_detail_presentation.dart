@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -14,13 +14,13 @@ Future<void> showAdaptiveItemDetail({
   required BuildContext context,
   required LibraryKindRegistration type,
   required LibraryProjectionView item,
-  required OwnedItemSummary? ownedSummary,
+  required OwnedCopySummary? ownedSummary,
   required Color accent,
   required VoidCallback? onAddOwned,
   required VoidCallback? onRemoveOwned,
   required VoidCallback? onAddWishlist,
   required VoidCallback? onRemoveWishlist,
-  required void Function(OwnedItemSummary? ownedItem)? onEdit,
+  required void Function(OwnedCopySummary? ownedItem)? onEdit,
   ValueChanged<String>? onFilterByValue,
 }) {
   final windowClass = AppWindowClass.of(context);

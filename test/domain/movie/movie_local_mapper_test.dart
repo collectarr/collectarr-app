@@ -140,7 +140,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final item = MovieOwnedItem(
-      id: const MovieOwnedItemId('owned-1'),
+      id: const MovieOwnedCopyId('owned-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
         entityType: CatalogEntityTypeId('work'),
@@ -238,7 +238,7 @@ void main() {
     expect(
       () => MovieLocalMapper.toOwnedItemRow(
         MovieOwnedItem(
-          id: MovieOwnedItemId(''),
+          id: MovieOwnedCopyId(''),
           catalogRef: CatalogEntityRef(
             kind: CatalogMediaKind.movie,
             entityType: const CatalogEntityTypeId('work'),

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -19,7 +19,7 @@ class InspectorLoanSection extends StatefulWidget {
     required this.accent,
   });
 
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -313,7 +313,7 @@ class _LoanCreateDialog extends StatefulWidget {
     required this.accent,
   });
 
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
   final Color accent;
 
   @override

@@ -11,6 +11,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   coreCatalogProjectionBuilder: bookCatalogTransportFromCoreItem,
   manualDraftBuilder: BookAddManualDraft.new,
   manualCandidateBuilder: buildBookManualCandidate,
+  manualProposalBuilder: buildBookManualProposalData,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       BookOwnedItemCreatePayload(
     catalogRef: item.reference,

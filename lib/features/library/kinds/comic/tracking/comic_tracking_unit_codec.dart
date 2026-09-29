@@ -140,6 +140,29 @@ final class ComicTrackingUnitCodec implements TrackingUnitStorageCodec {
   }
 
   @override
+  TrackingUnitSummary fromSyncPayload({
+    required String id,
+    required Map<String, Object?> payload,
+    required DateTime updatedAt,
+    required DateTime? deletedAt,
+  }) {
+    requireTrackingUnitType(payload, ComicTrackingUnit.type);
+    final row = trackingUnitStorageRowFromSyncPayload(
+      id: id,
+      payload: payload,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+    if (row.targetRef.mediaKind != kind) {
+      throw const FormatException('Comic tracking unit has a non-Comic ref');
+    }
+    return fromStorageRow(
+      row,
+      _ComicCoordinates(trackingUnitSyncString(payload['issue_number'])),
+    );
+  }
+
+  @override
   int compareCoordinates(TrackingUnitSummary left, TrackingUnitSummary right) {
     if (left is! ComicTrackingUnit || right is! ComicTrackingUnit) {
       return 0;

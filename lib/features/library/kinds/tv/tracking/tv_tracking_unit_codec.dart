@@ -149,6 +149,32 @@ final class TvTrackingUnitCodec implements TrackingUnitStorageCodec {
   }
 
   @override
+  TrackingUnitSummary fromSyncPayload({
+    required String id,
+    required Map<String, Object?> payload,
+    required DateTime updatedAt,
+    required DateTime? deletedAt,
+  }) {
+    requireTrackingUnitType(payload, TvTrackingUnit.type);
+    final row = trackingUnitStorageRowFromSyncPayload(
+      id: id,
+      payload: payload,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+    if (row.targetRef.mediaKind != kind) {
+      throw const FormatException('TV tracking unit has a non-TV ref');
+    }
+    return fromStorageRow(
+      row,
+      _TvCoordinates(
+        seasonNumber: trackingUnitSyncInt(payload['season_number']),
+        episodeNumber: trackingUnitSyncInt(payload['episode_number']),
+      ),
+    );
+  }
+
+  @override
   int compareCoordinates(TrackingUnitSummary left, TrackingUnitSummary right) {
     if (left is! TvTrackingUnit || right is! TvTrackingUnit) {
       return 0;

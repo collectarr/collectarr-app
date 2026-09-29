@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -19,10 +19,10 @@ void main() {
       id: 'book-activity',
     );
     final now = DateTime.utc(2026, 9, 1);
-    final owned = OwnedItemSummary(
-      ref: OwnedItemRef(
+    final owned = OwnedCopySummary(
+      ref: OwnedCopyRef(
         kind: catalogRef.mediaKind,
-        id: const OwnedItemId('owned-book-activity'),
+        id: const OwnedCopyId('owned-book-activity'),
       ),
       title: catalogRef.id,
       catalogRef: catalogRef,
@@ -48,7 +48,7 @@ void main() {
     );
     final loan = Loan(
       id: 'loan-book-activity',
-      ownedRef: OwnedItemRef(
+      ownedRef: OwnedCopyRef(
         kind: catalogRef.mediaKind,
         id: owned.ref.id,
       ),

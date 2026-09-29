@@ -743,7 +743,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
 List<GameOwnedItem> gameSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.game, 15))
         GameOwnedItem(
-          id: GameOwnedItemId('seed-owned-$itemId'),
+          id: GameOwnedCopyId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.game, itemId),
           createdAt: now.subtract(const Duration(days: 200)),
           updatedAt: now,

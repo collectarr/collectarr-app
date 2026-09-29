@@ -1,102 +1,98 @@
-# Music Catalog Field Inventory
+# Music Catalog Item and Owned Copy Field Ledger
 
-This inventory compares the canonical Music graph exposed by Collectarr Core with the typed App domain and Drift persistence. It records ownership decisions so that the API contract does not absorb copy-specific or presentation-only data.
+This ledger is grounded in the saved CLZ Music edit form, `C:\Users\saita\Desktop\tmp\My Albums - CLZ Music Web.html`. It defines the Music v1 field boundary for the flattened Catalog Item model. Core owns shared catalog facts; App owns each user's copies, activity, and personal images.
 
-## Ownership rules
+## Ownership and multiplicity
 
-| Owner | Meaning |
+| Target | Meaning |
 | --- | --- |
-| `core_catalog` | Canonical Music metadata owned and served by Core. |
-| `app_personal` | User-entered data or user-defined relationships that belong to an owned copy or the local user's catalog. |
-| `app_local_cache` | Local artwork paths and other device-only cache state. |
-| `derived` | A value calculated from canonical fields or relationships and not stored independently. |
+| `CatalogItem` | One concrete album edition/release. Each former Core release becomes one root item. Album metadata is copied from its former release group; release-specific identifiers and disc/track contents stay with that item. |
+| `OwnedCopy` | One distinguishable physical or digital copy. Copy status, condition, purchase/value data, owner, location, notes, tags, rating, and personal images never apply to another copy. |
+| `MusicDisc` and `MusicTrack` | Ordered catalog children of one Music Catalog Item. A disc contains ordered tracks; neither is a generic Work or Release. |
+| `MusicListeningEvent` | App activity. It references a Music Catalog Item and may reference the particular Owned Copy used. A history entry is not a catalog field or a copy attribute. |
 
-Core response fields are nullable unless listed as required. Collection properties are non-null arrays and default to empty arrays. Partial dates are transported as both a nullable `date` value and a nullable `{year, month, day}` object; the latter preserves precision.
+An exact CLZ form field is identified by the displayed label and tab below. “CLZ field set” does not include implementation IDs, storage keys, derived counts, or fields that appear only in the old Collectarr model. `Quantity` is derived from the number of Owned Copies; each new copy row represents one copy.
 
-## Release group
+## Catalog Item fields
 
-| Core model / API field | Type and nullability | App domain / Drift | Owner and decision |
-| --- | --- | --- | --- |
-| `id` | UUID, required | `MusicReleaseGroup.id` / `music_release_group_rows.id` | `core_catalog` |
-| `title` | string, required | `title` / `title` | `core_catalog` |
-| `sort_title` | string, nullable | `sortTitle` / `sort_title` | `core_catalog` |
-| `original_title` | string, nullable | `originalTitle` / `original_title` | `core_catalog` |
-| `artist` | string, nullable | `artist` / `artist` | `core_catalog`; compact display projection of artist credits |
-| `original_release_date` and `_parts` | nullable date and nullable partial-date object | `originalReleaseDate`, `originalReleaseDateParts` / date and JSON columns | `core_catalog`; App keeps both values to avoid inventing precision |
-| `recording_date` and `_parts` | nullable date and nullable partial-date object | `recordingDate`, `recordingDateParts` / date and JSON columns | `core_catalog`; App keeps both values to avoid inventing precision |
-| `studio` | string, nullable | `studio` / `studio` | `core_catalog` |
-| `is_live` | boolean, nullable | `isLive` / `is_live` | `core_catalog` |
-| `genres` | array of strings, required | `genres` / `genres_json` | `core_catalog`; Core stores an ordered relation, App stores the same ordered values as JSON |
-| `artist_credits` | array of `MusicArtistCreditResponse`, required | `artistCredits` / `music_artist_credits_rows` | `core_catalog`; relation rows preserve credited name, artist ID, join phrase, sequence, and source |
-| `cover_image_url`, `cover_image_key` | nullable strings | same fields / same columns | `core_catalog`; URL/key reference Core artwork |
-| `external_links` | array of open JSON objects, required | typed `MusicExternalLink` values / `external_links_json` | `core_catalog`; App keeps a typed local projection |
-| `releases` | array of release summaries, required | `releases` / `music_release_rows` and relation tables | `core_catalog`; nested catalog graph |
-| local front/back/thumbnail image paths | Not in Core API | `localCoverImagePath`, `localBackImagePath`, `localThumbnailImagePath` / group columns | `app_local_cache`; device paths never enter the Core contract |
-| `synopsis` | Previously nullable text in Core | Absent from App domain and Drift | Remove from Music Core storage and API. Keep the shared synopsis field for other applicable kinds. Archive existing Core values before dropping the column. |
+| CLZ tab | Displayed label | Type / repeats | v1 field | Decision |
+| --- | --- | --- | --- | --- |
+| Main | Title | string | `title` | Catalog Item title. |
+| Main | Sort Title | string | `sort_title` | Catalog Item sort value. |
+| Main | Subtitle | string | `subtitle` | Catalog Item subtitle. |
+| Main | Artist | ordered person list | `artist_credits[]` | Preserve order and credited display name. |
+| Main | Release Date | partial date | `release_date` | Preserve year/month/day precision. |
+| Main | Original Release Date | partial date | `original_release_date` | Preserve partial precision. |
+| Main | Label | string | `label` | Release-specific label. |
+| Main | Recording Date | partial date | `recording_date` | Preserve partial precision. |
+| Main | Format | string | `format` | Catalog Item format, such as CD or Vinyl. |
+| Main | Barcode | string | `barcode` | Exact identifier string; preserve leading zeroes. |
+| Main | Cat No | string | `catalog_number` | Exact catalog number. |
+| Main | Genre | ordered string list | `genres[]` | One item can have multiple genres. |
+| Details | Packaging | string | `packaging` | Catalog Item packaging description. |
+| Details | Studio | ordered name list | `studios[]` | Preserve multiple studio credits. |
+| Details | Country | string | `country` | Full country name. |
+| Details | Is Live | boolean | `is_live` | Explicit Yes/No value. |
+| Details | Sound | ordered string list | `sound_types[]` | Preserve multiple selected values. |
+| Details | Vinyl Color | string | `vinyl_color` | Catalog Item pressing detail. |
+| Details | Vinyl Weight | string | `vinyl_weight` | Preserve the displayed value. |
+| Details | RPM | integer | `rpm` | Rotational speed when applicable. |
+| Details | Extra | string | `extra` | CLZ catalog field; do not conflate it with App annotations. |
+| Details | SPARS | string | `spars` | Catalog Item production code. |
+| Details | Box Set | string/reference | `box_set` | A source-neutral Catalog Item grouping label/reference. It is shared catalog organization, not per-copy condition or purchase data. |
+| Classical | Composer | ordered person list | `composers[]` | Classical credit. |
+| Classical | Conductor | ordered person list | `conductors[]` | Classical credit. |
+| Classical | Chorus | ordered name list | `choruses[]` | Classical credit. |
+| Classical | Composition | ordered name list | `compositions[]` | Classical work credit. |
+| Classical | Orchestra | ordered name list | `orchestras[]` | Classical credit. |
+| People | Songwriter | ordered person list | `songwriters[]` | Person credit. |
+| People | Producer | ordered person list | `producers[]` | Person credit. |
+| People | Engineer | ordered person list | `engineers[]` | Person credit. |
+| People | Musician | ordered person list | `musicians[]` | Person credit; instrument data belongs to the credit when supplied. |
+| Tracks | Disc Title | string per disc | `discs[].title` | A disc is an ordered child; its title is shared catalog content. |
+| Tracks | Track Title | string per track | `discs[].tracks[].title` | Track order is represented by `position`. |
+| Tracks | Artist | string per track | `discs[].tracks[].artist` | Optional track-level credit. |
+| Tracks | Length | duration per track | `discs[].tracks[].duration_ms` | Store a normalized duration while preserving displayed time on presentation. |
+| Tracks | Matrix No. Side A | string per disc | `discs[].matrix_number_side_a` | Pressing identifier, shared by copies of the same Catalog Item. |
+| Tracks | Matrix No. Side B | string per disc | `discs[].matrix_number_side_b` | Pressing identifier, shared by copies of the same Catalog Item. |
+| Covers | Front Cover | image asset | `cover_image_url` | Core-owned Catalog Item artwork. |
+| Covers | Back Cover | image asset | `back_cover_image_url` | Core-owned Catalog Item artwork. |
+| Links | Links | ordered external-link list | `external_links[]` | Source-neutral links belong to the Catalog Item and may be proposed with its other catalog fields. |
 
-## Release
+## Owned Copy fields
 
-| Core model / API field | Type and nullability | App domain / Drift | Owner and decision |
-| --- | --- | --- | --- |
-| `id`, `release_group_id` | UUID, required | `id`, `releaseGroupId` / release row keys | `core_catalog` |
-| `title` | string, required | `title` / `title` | `core_catalog` |
-| `sort_title`, `subtitle`, `release_type`, `release_status` | nullable strings | same camel-case fields / same columns | `core_catalog` |
-| `release_date` and `_parts` | nullable date and nullable partial-date object | `releaseDate`, `releaseDateParts` / date and JSON columns | `core_catalog`; partial precision preserved |
-| `publisher`, `upc`, `catalog_number`, `barcode`, `country_code`, `language`, `packaging` | nullable strings | same semantic fields / same columns | `core_catalog` |
-| `cover_image_url`, `cover_image_key` | nullable strings | same fields / same columns | `core_catalog` |
-| `mediums` | array of medium responses, required | `mediums` / `music_medium_rows` | `core_catalog`; nested catalog graph |
-| `contributions` | array of contributor responses, required | `contributions` / `music_release_contributions_rows` | `core_catalog` |
-| `artist_credits` | array of artist-credit responses, required | `artistCredits` / `music_artist_credits_rows` | `core_catalog` |
-| `labels` | array of release-label responses, required | `labels` / `music_release_labels_rows` | `core_catalog` |
-| `identifiers` | array of identifier responses, required | `identifiers` / `music_release_identifiers_rows` | `core_catalog` |
-| release external links | Not currently in the typed Core response | typed links / `music_release_external_links_rows` | `app_personal`; user-managed links stay in a dedicated App relation table and outside the canonical Core DTO |
-| `box_set` membership | Not currently in Core's typed Music response | `boxSetMembership` / `music_release_box_set_membership_rows` | `app_personal`; a locally managed relationship to a box-set reference, not a Core catalog field |
-| `box_set_name` | Not in Core | `MusicRelease.boxSetName` / `music_release_local_details_rows.box_set_name` | `app_personal`; display label for the locally managed box-set relationship. |
-| `physical_format` | Not in Core | Derived from `MusicRelease.mediumTypes` | `derived`; do not persist a duplicate release field. `medium_types_json` is only a summary cache when full medium rows are not loaded. |
-| `physical_format_label` | Not in Core | Derived from ordered `MusicRelease.mediumTypes` | `derived`; use the medium type labels directly instead of storing a second release field. |
-| created/updated timestamps | SQLAlchemy mixin fields; not part of the typed response | App timestamps / local columns | Local synchronization metadata; not part of the catalog DTO field mapping. |
+| CLZ tab | Displayed label | Type / repeats | v1 field | Decision |
+| --- | --- | --- | --- | --- |
+| Details | Package/Sleeve Condition | vocabulary value | `condition` | App-owned condition for this copy. |
+| Details | Media Condition | vocabulary value | `media_condition` | App-owned condition for this copy's media, not a Catalog Disc property. |
+| Personal | Collection Status | status | `collection_status` | Status of this copy. Wishlist is represented by its own personal record. |
+| Personal | Index | integer | `index_number` | App's copy index. |
+| Personal | Location | location reference | `location_id` | App-owned location. |
+| Personal | Owner | string/reference | `owner_id` | App-owned owner value. |
+| Personal | Purchase Date | partial date | `purchase_date` | Copy-specific purchase date. |
+| Personal | Purchase Price | money | `purchase_price` | Copy-specific amount and currency. |
+| Personal | Purchase Store | string/reference | `purchase_store` | Copy-specific purchase source. |
+| Personal | Current Value | money | `current_value` | User valuation for this copy. |
+| Personal | Tags | string list | `tags[]` | Personal organization. |
+| Personal | Last Cleaned Date | date | `last_cleaned_date` | Copy-specific maintenance date. |
+| Personal | Signed by | ordered person/name list | `signed_by[]` | Copy-specific signatures. |
+| Personal | My Rating | rating | `rating` | User rating for this copy. |
+| Personal | Notes | text | `notes` | Private copy notes. |
+| Tracks | Storage Device | string/reference per disc | `disc_details[].storage_device` | App-owned storage placement for the physical copy. |
+| Tracks | Slot | string per disc | `disc_details[].slot` | App-owned position within the selected storage device. |
+| My Images | User images, maximum five | image list with description and image type | `personal_images[]` | App-owned images attached to this copy; local paths remain device cache data. |
+| Personal | Played History | ordered activity list | `MusicListeningEvent[]` | Activity targets the Catalog Item and optionally this copy; do not collapse history into one mutable copy field. |
+| Any | Custom Fields | user-defined values | `custom_field_values[]` | App-owned values target either a Catalog Item or one Owned Copy according to the field definition. |
 
-## Medium
+## Migration and legacy-only fields
 
-| Core model / API field | Type and nullability | App domain / Drift | Owner and decision |
-| --- | --- | --- | --- |
-| `id`, `release_id` | UUID, required | `id`, `releaseId` / medium row keys | `core_catalog` |
-| `medium_number` | integer, required | `mediumNumber` / `medium_number` | `core_catalog` |
-| `medium_type`, `title` | nullable strings | same fields / same columns | `core_catalog` |
-| `track_count`, `expected_track_count`, `missing_track_count` | nullable integers | same fields / same columns | `core_catalog` |
-| `missing_track_positions` | array of strings, required | `missingTrackPositions` / `missing_track_positions_json` | `core_catalog`; relation rows in Core flatten to an ordered array in the API, App stores the same values as JSON |
-| `toc`, `cddb_id`, `leadout_offset`, `bp_disc_id` | nullable string/integer/string/string | same fields / same columns | `core_catalog` |
-| `sound_type`, `vinyl_color`, `vinyl_weight`, `rpm`, `spars` | nullable string/string/string/integer/string | same fields / same columns | `core_catalog` |
-| `media_condition` | Removed from the Core medium model and API | User-owned medium detail in `MusicOwnedMediumDetails.mediaCondition` / `music_owned_items_rows.medium_details_json` | `app_personal`; absent from the canonical medium domain and Drift row. Existing App values move to matching owned copies by release and medium number. |
-| `tracks` | array of track responses, required | `tracks` / `music_track_rows` | `core_catalog`; nested catalog graph |
+- A former release becomes one Music Catalog Item and keeps its release ID. The former release-group metadata is copied onto each concrete release item. A release group with no release becomes one item using the group ID. If one old release title conflicts with the group title, preserve the Catalog Item title from the group and report the differing release title for review; do not silently overwrite the user's album title or place the value into CLZ Subtitle.
+- A parent-only personal reference to a release group with multiple releases is ambiguous. Emit it for explicit resolution; do not duplicate it across releases or choose a “primary” release.
+- Medium condition moves to the matching Owned Copy's disc details. Storage Device and Slot are also copy-specific. Matrix numbers remain shared catalog pressing identifiers.
+- `physical_format` is derived from the Catalog Item format and its ordered discs; do not persist a duplicate label.
+- Remove Music `synopsis`, provider/source IDs (including MusicBrainz recording IDs), and the old Release Group → Release identity from the v1 catalog contract. They are not CLZ Music edit fields. Track hashes, local file offsets, bitrates, file sizes, and device paths are local media/cache data only and must not be included in Core Catalog Item payloads.
+- The saved CLZ track list has Title, Artist, and Length. Collectarr's former `is_header`, `indent_level`, and `parent_header_id` fields are not part of that form and are excluded from the v1 canonical Music track contract. If a local playback/import feature still requires them, keep them outside the shared catalog contract.
 
-## Track
+## Capture limits
 
-| Core model / API field | Type and nullability | App domain / Drift | Owner and decision |
-| --- | --- | --- | --- |
-| `id`, `medium_id` | UUID, required | `id`, `mediumId` / track row keys | `core_catalog` |
-| `position`, `title` | string, required | same fields / same columns | `core_catalog` |
-| `artist` | nullable string | `artist` / `artist` | `core_catalog` |
-| `is_header`, `indent_level`, `parent_header_id` | required boolean/integer and nullable string | same fields / same columns | `core_catalog`; structural track-list metadata |
-| `duration_ms`, `offset_ms`, `bitrate_kbps`, `file_size_bytes` | nullable integers | same fields / same columns | `core_catalog` |
-| `track_hash`, `instrument`, `composition` | nullable strings | same fields / same columns | `core_catalog` |
-| `recording_id` | Nullable string | `recordingId` / `music_track_rows.recording_id` | `core_catalog`; represented in Core's normalized track, database model, Music response, and ingestion/update mappings |
-
-## Nested release relations
-
-| Relation | Core/API fields | App field and Drift storage | Owner |
-| --- | --- | --- | --- |
-| Artist credit | `id`, `artist_id`, `credited_name`, `join_phrase`, `sequence`, `source` | `MusicArtistCredit` / `music_artist_credits_rows` | `core_catalog` |
-| Contributor | `person_id`, `name`, `role`, `sequence`, `image_url`, `role_id` | `MusicReleaseContribution` / `music_release_contributions_rows` | `core_catalog` |
-| Label | `id`, `label_id`, `label_name`, `catalog_number`, `sequence`, `source` | `MusicReleaseLabel` / `music_release_labels_rows` | `core_catalog` |
-| Identifier | `id`, `identifier_type`, `value`, `normalized_value`, `is_primary`, `source_provider` | `MusicReleaseIdentifier` / `music_release_identifiers_rows` | `core_catalog` |
-| Release box-set membership | App-only reference and sequence | `MusicBoxSetMembership` / `music_release_box_set_membership_rows` | `app_personal`; kept separate from canonical release rows |
-
-## Contract and persistence expectations
-
-- Core exports `music-catalog-v1.json` from its Pydantic response schemas; App pins it as the input for `tool/generate_music_catalog_dto.dart`.
-- `tool/music_catalog_field_ownership.json` maps every contract property to a domain member and Drift location, or states why a discriminator/value object is not stored independently.
-- App's schema version 5 migration moves box-set names to their App-local table, transfers existing medium conditions to owned copies, preserves derived format values, and rebuilds the affected tables.
-- App may use JSON columns for ordered collections where Core uses relation tables, provided the field meaning, order, nullability, and values match.
-- Core's Music synopsis and medium-condition columns are archived and removed by an explicit PostgreSQL migration because `bootstrap_schema` only creates missing schema objects; it does not remove columns.
-- See [Music Catalog Contract](music-catalog-contract.md) for generation, pinned contract checks, field ownership validation, and migration commands.
+The saved HTML contains one populated Music edit form, including Main, Details, Classical, People, Tracks, Personal, Covers, My Images, and Links. This ledger records that form's displayed fields. It does not establish CLZ parity for any other kind.

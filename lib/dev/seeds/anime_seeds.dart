@@ -879,7 +879,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
 List<AnimeOwnedItem> animeSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.anime, 15))
         AnimeOwnedItem(
-          id: AnimeOwnedItemId('seed-owned-$itemId'),
+          id: AnimeOwnedCopyId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.anime, itemId),
           createdAt: now.subtract(const Duration(days: 180)),
           updatedAt: now,

@@ -35,7 +35,7 @@ final class MangaOwnedItem {
     this.details = const MangaOwnedDetails(),
   });
 
-  final MangaOwnedItemId id;
+  final MangaOwnedCopyId id;
   final CatalogEntityRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
@@ -108,7 +108,7 @@ final class MangaOwnedItem {
       );
     }
     return MangaOwnedItem(
-      id: MangaOwnedItemId(json['id'] as String),
+      id: MangaOwnedCopyId(json['id'] as String),
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
@@ -138,7 +138,7 @@ final class MangaOwnedItem {
   }
 
   MangaOwnedItem copyWith({
-    MangaOwnedItemId? id,
+    MangaOwnedCopyId? id,
     CatalogEntityRef? catalogRef,
     Object? createdAt = _unset,
     Object? isDigital = _unset,

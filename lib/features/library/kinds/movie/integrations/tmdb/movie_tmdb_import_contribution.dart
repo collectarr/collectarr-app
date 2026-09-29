@@ -154,8 +154,8 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
         current.movieCatalogFields.releaseYear !=
             next.movieCatalogFields.releaseYear ||
         !_deepEqual(
-          current.kindCapability.toSyncPayload(),
-          next.kindCapability.toSyncPayload(),
+          current.kindCapability.toCatalogItemPayload(),
+          next.kindCapability.toCatalogItemPayload(),
         );
   }
 

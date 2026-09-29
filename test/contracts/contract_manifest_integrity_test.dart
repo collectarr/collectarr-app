@@ -19,8 +19,8 @@ void main() {
   const hashKeyByFile = <String, String>{
     'openapi.json': 'openApiHash',
     'metadata-field-schema.json': 'fieldSchemaHash',
+    'catalog-item-v1.json': 'catalogItemHash',
     'active-kinds.json': 'activeKindsHash',
-    'provider-support.json': 'providerSupportHash',
   };
 
   test('local contract files match the hashes recorded in the manifest', () {

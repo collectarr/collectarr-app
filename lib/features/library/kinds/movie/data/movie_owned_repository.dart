@@ -7,13 +7,13 @@ import 'package:drift/drift.dart';
 
 /// Persistence for the complete Movie-owned graph.
 final class MovieOwnedRepository
-    implements ReadRepository<MovieOwnedItemId, MovieOwnedItem> {
+    implements ReadRepository<MovieOwnedCopyId, MovieOwnedItem> {
   const MovieOwnedRepository(this._db);
 
   final LocalDatabase _db;
 
   @override
-  Future<MovieOwnedItem?> findById(MovieOwnedItemId id) async {
+  Future<MovieOwnedItem?> findById(MovieOwnedCopyId id) async {
     final row = await (_db.select(_db.movieOwnedItemsRows)
           ..where((table) => table.id.equals(id.value)))
         .getSingleOrNull();

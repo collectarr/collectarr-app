@@ -41,7 +41,7 @@ final class ComicOwnedItem {
     this.reading = const ComicReadingState(),
   });
 
-  final ComicOwnedItemId id;
+  final ComicOwnedCopyId id;
   final CatalogEntityRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
@@ -118,7 +118,7 @@ final class ComicOwnedItem {
     }
     final rawReading = json['reading'];
     return ComicOwnedItem(
-      id: ComicOwnedItemId(json['id'] as String),
+      id: ComicOwnedCopyId(json['id'] as String),
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
@@ -151,7 +151,7 @@ final class ComicOwnedItem {
   }
 
   ComicOwnedItem copyWith({
-    ComicOwnedItemId? id,
+    ComicOwnedCopyId? id,
     CatalogEntityRef? catalogRef,
     Object? createdAt = _ownedUnset,
     Object? isDigital = _ownedUnset,

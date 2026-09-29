@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -36,7 +36,7 @@ void main() {
         entityType: CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
-      ownedRef: OwnedItemRef.fromKey('book:owned-1'),
+      ownedRef: OwnedCopyRef.fromKey('book:owned-1'),
       progressCurrent: 50,
       updatedAt: DateTime.utc(2026, 5, 25, 11),
     );
@@ -46,7 +46,7 @@ void main() {
         trackingSummaryFromRecord(trackedOnly),
         trackingSummaryFromRecord(copyTracked),
       ],
-      testOwnedItemSummary(testOwnedItem(
+      testOwnedCopySummary(testOwnedItem(
         id: 'owned-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
@@ -120,9 +120,9 @@ void main() {
     final node = const LibraryCopyRef(
       workId: 'comic-2',
       releaseId: 'release-2',
-      ownedRef: OwnedItemRef(
+      ownedRef: OwnedCopyRef(
         kind: CatalogMediaKind.comic,
-        id: OwnedItemId('owned-comic-2'),
+        id: OwnedCopyId('owned-comic-2'),
       ),
     );
     final dto = const ComicWorkspaceProjector().project(

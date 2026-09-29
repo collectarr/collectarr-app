@@ -18,15 +18,10 @@ class LibraryAddBottomBar extends StatelessWidget {
   Color get accent => request.accent;
   CatalogSearchCandidate? get selectedItem => request.selectedItem;
   ProviderSearchCandidate? get selectedCandidate => request.selectedCandidate;
-  LibraryQueuedProviderIngest? get selectedQueuedIngest =>
-      request.selectedQueuedIngest;
-  String get providerLabel => request.providerLabel;
   LibraryAddTarget get addTarget => request.addTarget;
   int get addCount => request.addCount;
   bool get hasCheckedSelection => request.hasCheckedSelection;
   bool get isAdding => request.isAdding;
-  bool get isQueueingIngest => request.isQueueingIngest;
-  bool get isAdmin => request.isAdmin;
   String get defaultCondition => request.defaultCondition;
   String? get defaultLocationLabel => request.defaultLocationLabel;
   DateTime? get defaultPurchaseDate => request.defaultPurchaseDate;
@@ -39,8 +34,6 @@ class LibraryAddBottomBar extends StatelessWidget {
   ValueChanged<DateTime?> get onDefaultPurchaseDateChanged =>
       request.onDefaultPurchaseDateChanged;
   VoidCallback? get onAdd => request.onAdd;
-  VoidCallback? get onQueueIngest => request.onQueueIngest;
-  VoidCallback? get onPropose => request.onPropose;
 
   @override
   Widget build(BuildContext context) {
@@ -68,8 +61,7 @@ class LibraryAddBottomBar extends StatelessWidget {
                 type: type,
                 target: addTarget,
               )
-            : selectedCandidate != null &&
-                    (!isAdmin || selectedCandidate!.isStub)
+            : selectedCandidate != null
                 ? _localCandidateAddLabel()
                 : effectiveCount > 0
                     ? LibraryAddCopy.addToTargetLabel(
@@ -111,37 +103,6 @@ class LibraryAddBottomBar extends StatelessWidget {
                   accent: accent,
                   onChanged: onAddTargetChanged,
                 ),
-                if (selectedCandidate != null &&
-                    !hasCheckedSelection &&
-                    !isWideLayout) ...[
-                  LibraryAddResultBadge(providerLabel),
-                  if (isAdmin)
-                    _LibraryAddBottomActionButton(
-                      tooltip: selectedQueuedIngest == null
-                          ? 'Queue Core ingest'
-                          : 'Core ingest queued',
-                      icon: Icons.playlist_add_check,
-                      label: selectedQueuedIngest == null
-                          ? 'Queue ingest'
-                          : 'Queued ${selectedQueuedIngest!.shortId}',
-                      accent: accent,
-                      onPressed: previewOnly ||
-                              selectedQueuedIngest != null ||
-                              isQueueingIngest ||
-                              isAdding
-                          ? null
-                          : onQueueIngest,
-                    ),
-                  _LibraryAddBottomActionButton(
-                    icon: Icons.outbox_outlined,
-                    tooltip: 'Propose metadata to Core',
-                    label: 'Propose',
-                    accent: accent,
-                    onPressed: previewOnly || isAdding || isQueueingIngest
-                        ? null
-                        : onPropose,
-                  ),
-                ],
               ],
             ),
             if (addTarget == LibraryAddTarget.owned && !isWideLayout) ...[
@@ -162,37 +123,6 @@ class LibraryAddBottomBar extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                if (isWideLayout &&
-                    selectedCandidate != null &&
-                    !hasCheckedSelection) ...[
-                  if (isAdmin)
-                    _LibraryAddBottomActionButton(
-                      tooltip: selectedQueuedIngest == null
-                          ? 'Queue Core ingest'
-                          : 'Core ingest queued',
-                      icon: Icons.playlist_add_check,
-                      label: selectedQueuedIngest == null
-                          ? 'Queue ingest'
-                          : 'Queued ${selectedQueuedIngest!.shortId}',
-                      accent: accent,
-                      onPressed: previewOnly ||
-                              selectedQueuedIngest != null ||
-                              isQueueingIngest
-                          ? null
-                          : onQueueIngest,
-                    ),
-                  const SizedBox(width: 8),
-                  _LibraryAddBottomActionButton(
-                    icon: Icons.outbox_outlined,
-                    tooltip: 'Propose metadata to Core',
-                    label: 'Propose',
-                    accent: accent,
-                    onPressed: previewOnly || isAdding || isQueueingIngest
-                        ? null
-                        : onPropose,
-                  ),
-                  const SizedBox(width: 8),
-                ],
                 Expanded(
                   child: FilledButton(
                     onPressed: isAdding || previewOnly ? null : onAdd,
@@ -296,12 +226,6 @@ class LibraryAddBottomBar extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (request.isAdmin &&
-                    request.selectedCandidate != null &&
-                    !request.hasCheckedSelection) ...[
-                  const SizedBox(width: 8),
-                  _AdminOverflowMenu(request: request),
-                ],
               ],
             ),
             if (request.addTarget == LibraryAddTarget.owned) ...[
@@ -463,85 +387,6 @@ String _purchaseDateLabel(DateTime? date) {
     _ => 'Dec',
   };
   return '$month ${date.day}, ${date.year}';
-}
-
-enum _AdminAction { queueIngest, propose }
-
-class _AdminOverflowMenu extends StatelessWidget {
-  const _AdminOverflowMenu({required this.request});
-
-  final LibraryAddBottomBarRequest request;
-
-  @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton<_AdminAction>(
-      tooltip: 'More actions',
-      enabled: !request.selectedCandidate!.previewOnly &&
-          (request.onQueueIngest != null || request.onPropose != null),
-      onSelected: (action) {
-        switch (action) {
-          case _AdminAction.queueIngest:
-            request.onQueueIngest?.call();
-          case _AdminAction.propose:
-            request.onPropose?.call();
-        }
-      },
-      itemBuilder: (context) => [
-        PopupMenuItem<_AdminAction>(
-          value: _AdminAction.queueIngest,
-          enabled: request.selectedQueuedIngest == null &&
-              request.onQueueIngest != null &&
-              !request.selectedCandidate!.previewOnly,
-          child: Text(
-            request.selectedQueuedIngest == null
-                ? 'Queue ingest'
-                : 'Ingest queued',
-          ),
-        ),
-        PopupMenuItem<_AdminAction>(
-          value: _AdminAction.propose,
-          enabled: request.onPropose != null &&
-              !request.selectedCandidate!.previewOnly,
-          child: const Text('Propose metadata'),
-        ),
-      ],
-      child: OutlinedButton.icon(
-        onPressed: null,
-        style: _kindOutlinedButtonStyle(request.accent),
-        icon: const Icon(Icons.more_horiz, size: 18),
-        label: const Text('More'),
-      ),
-    );
-  }
-}
-
-class _LibraryAddBottomActionButton extends StatelessWidget {
-  const _LibraryAddBottomActionButton({
-    required this.tooltip,
-    required this.icon,
-    required this.label,
-    required this.accent,
-    required this.onPressed,
-  });
-
-  final String tooltip;
-  final IconData icon;
-  final String label;
-  final Color accent;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: OutlinedButton.icon(
-        onPressed: onPressed,
-        style: libraryAddOutlinedButtonStyle(accent),
-        icon: Icon(icon, size: 17),
-        label: Text(label),
-      ),
-    );
-  }
 }
 
 class _AddTargetDefaultsBar extends StatelessWidget {

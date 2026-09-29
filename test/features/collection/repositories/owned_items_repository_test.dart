@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
@@ -17,7 +17,7 @@ void main() {
     addTearDown(db.close);
 
     final owned = ComicOwnedItem(
-      id: const ComicOwnedItemId('owned-comic-1'),
+      id: const ComicOwnedCopyId('owned-comic-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
         entityType: CatalogEntityTypeId('work'),
@@ -32,9 +32,9 @@ void main() {
     );
     await OwnedItemsRepository(db).replaceFromTransport(
       OwnedImportTransport(
-        ref: OwnedItemRef(
+        ref: OwnedCopyRef(
           kind: CatalogMediaKind.comic,
-          id: OwnedItemId(owned.id.value),
+          id: OwnedCopyId(owned.id.value),
         ),
         catalogRef: owned.catalogRef,
         payload: owned.toJson(),

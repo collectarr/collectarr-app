@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -28,7 +28,7 @@ class _UserFoldersDialog extends StatefulWidget {
 
 class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   List<UserFolder> _folders = [];
-  Map<String, List<OwnedItemRef>> _folderOwnedRefs = {};
+  Map<String, List<OwnedCopyRef>> _folderOwnedRefs = {};
   bool _loading = true;
 
   @override
@@ -40,7 +40,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   Future<void> _load() async {
     final repo = UserFolderRepository(widget.db);
     final folders = await repo.getAll();
-    final ownedRefs = <String, List<OwnedItemRef>>{};
+    final ownedRefs = <String, List<OwnedCopyRef>>{};
     for (final folder in folders) {
       ownedRefs[folder.id] = await repo.getOwnedRefsInFolder(folder.id);
     }

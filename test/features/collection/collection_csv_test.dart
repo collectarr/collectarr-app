@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_v1_schema.dart';
@@ -77,7 +77,7 @@ void main() {
         trackingSummary: TrackingSummary(
           id: 'tracking-1',
           catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-          ownedRef: OwnedItemRef.fromKey('comic:owned-1'),
+          ownedRef: OwnedCopyRef.fromKey('comic:owned-1'),
           status: MediaTrackingStatus.completed,
           rating: 5,
           updatedAt: DateTime.utc(2026, 5, 12),
@@ -219,7 +219,7 @@ void main() {
       trackingSummary: TrackingSummary(
         id: 'tracking-1',
         catalogRef: testCatalogRef('book-1', kind: 'book'),
-        ownedRef: OwnedItemRef.fromKey('book:owned-1'),
+        ownedRef: OwnedCopyRef.fromKey('book:owned-1'),
         status: MediaTrackingStatus.inProgress,
         rating: 8,
         startedAt: DateTime.utc(2026, 1, 3),

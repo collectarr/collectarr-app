@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dar
 final tvOwnedContributor = TypedOwnedKindContributor<TvOwnedItem>(
   kind: CatalogMediaKind.tv,
   findById: (database, id) =>
-      TvOwnedRepository(database).findById(TvOwnedItemId(id)),
+      TvOwnedRepository(database).findById(TvOwnedCopyId(id)),
   upsert: (database, item) => TvOwnedRepository(database).upsert(item),
   listActive: (database) => TvOwnedRepository(database).listActive(),
   createItem: ({

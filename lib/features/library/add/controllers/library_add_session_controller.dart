@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -24,22 +23,12 @@ import 'package:collectarr_app/features/library/add/models/library_add_tracking_
 import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
 import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
-import 'package:collectarr_app/features/library/add/services/library_add_proposal_flow_service.dart';
-import 'package:collectarr_app/features/library/add/services/library_add_provider_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_hydration_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_submission_service.dart';
-import 'package:collectarr_app/features/library/add/services/library_provider_add_coordinator.dart';
-import 'package:collectarr_app/features/library/add/services/library_provider_add_request.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
-import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
-import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
-import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,14 +45,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     required this.trackingMutations,
     this.api,
     this.catalog,
-    this.providerRegistry,
     this.coverScanService = const LocalLibraryCoverScanService(),
-    this.providerAddCoordinator = const LibraryProviderAddCoordinator(),
-    this.providerActionService = const LibraryProviderActionService(),
-    this.providerOrchestrationService =
-        const LibraryProviderOrchestrationService(),
-    this.providerFlowService = const LibraryAddProviderFlowService(),
-    this.proposalFlowService = const LibraryAddProposalFlowService(),
     this.hydrationService = const LibraryAddHydrationService(),
     this.submissionService = const LibraryAddSubmissionService(),
     this.onAuthSessionExpired,
@@ -110,14 +92,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   final ApiClient? api;
   @override
   final CatalogTransportRepository? catalog;
-  @override
-  final ProviderConnectorRegistry? providerRegistry;
   final LibraryCoverScanService coverScanService;
-  final LibraryProviderAddCoordinator providerAddCoordinator;
-  final LibraryProviderActionService providerActionService;
-  final LibraryProviderOrchestrationService providerOrchestrationService;
-  final LibraryAddProviderFlowService providerFlowService;
-  final LibraryAddProposalFlowService proposalFlowService;
   final LibraryAddHydrationService hydrationService;
   final LibraryAddSubmissionService submissionService;
   final Future<bool> Function(Object error, String action)?
@@ -237,7 +212,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         referenceType: LibraryAddReferenceType.media,
       ),
     );
-    unawaited(_ensureProviderPreviewLoaded(id));
   }
 
   void toggleCheckedResult(String id) {
@@ -320,18 +294,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     unawaited(_ensureBundleReleaseDetailLoaded(bundleReleaseId));
   }
 
-  void setShowCoreResults(bool value) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(showCoreResults: value),
-    );
-  }
-
-  void setShowProviderResults(bool value) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(showProviderResults: value),
-    );
-  }
-
   void setResultPolicyOption(String id, bool value) {
     state = state.copyWith(
       selection: state.selection.copyWith(
@@ -411,61 +373,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         search: state.search.copyWith(isScanningCover: false),
       );
     }
-  }
-
-  Future<void> queueProviderIngest(
-    ProviderSearchCandidate candidate, {
-    required BuildContext context,
-  }) async {
-    if (api == null) return;
-    if (state.preview.isQueueingIngest ||
-        state.preview.queuedProviderIngests
-            .containsKey(candidate.localCatalogId)) {
-      return;
-    }
-
-    state = state.copyWith(
-      preview: state.preview.copyWith(isQueueingIngest: true),
-    );
-
-    final previewController = LibraryAddPreviewController();
-    for (final entry in state.preview.queuedProviderIngests.entries) {
-      previewController.setQueuedProviderIngest(entry.key, entry.value);
-    }
-
-    await providerFlowService.queueProviderIngest(
-      context: context,
-      api: api!,
-      candidate: candidate,
-      providerActionService: providerActionService,
-      mounted: true,
-      isQueueingIngest: false,
-      clearRejectedMetadataSession: _handleAuthExpiration,
-      rebuild: (fn) {},
-      setQueueingIngest: (val) {
-        state = state.copyWith(
-          preview: state.preview.copyWith(isQueueingIngest: val),
-        );
-      },
-      onQueued: (ingest) {
-        final updated = Map<String, LibraryQueuedProviderIngest>.from(
-          state.preview.queuedProviderIngests,
-        );
-        updated[candidate.localCatalogId] = ingest;
-        state = state.copyWith(
-          preview: state.preview.copyWith(
-            queuedProviderIngests: updated,
-            isQueueingIngest: false,
-          ),
-        );
-      },
-      setError: (msg) {
-        state = state.copyWith(
-          search: state.search.copyWith(error: msg),
-          preview: state.preview.copyWith(isQueueingIngest: false),
-        );
-      },
-    );
   }
 
   @override
@@ -668,92 +575,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     }
   }
 
-  @override
-  Future<void> _ensureProviderPreviewLoaded(String candidateId) async {
-    if (state.preview.providerPreviewFor(candidateId) != null ||
-        state.preview.isProviderPreviewPending(candidateId)) {
-      return;
-    }
-
-    ProviderSearchCandidate? candidate;
-    for (final value in state.search.providerResults) {
-      if (value.localCatalogId == candidateId) {
-        candidate = value;
-        break;
-      }
-    }
-    if (candidate == null || candidate.isStub) return;
-    final candidateKind = candidate.kind;
-
-    final searchGen = state.search.providerSearchGeneration;
-    final pending = Set<String>.from(state.preview.pendingProviderPreviewIds)
-      ..add(candidateId);
-    state = state.copyWith(
-      preview: state.preview.copyWith(pendingProviderPreviewIds: pending),
-    );
-
-    try {
-      final loaded = await hydrationService.loadProviderGroupPreview(
-        registry: providerRegistry,
-        capability: _searchCapability,
-        resultPolicy: libraryAddForKind(candidate.kind).resultPolicy,
-        candidate: candidate,
-        searchContext: _searchContext(),
-        currentResults: state.search.providerResults,
-        buildGroupChildren: ({
-          required groupCandidate,
-          required preview,
-        }) =>
-            libraryPresentationForKind(candidateKind)
-                .builder
-                .buildProviderGroupPreviewChildrenForSearchCandidate(
-                  groupCandidate: groupCandidate,
-                  preview: preview,
-                ),
-      );
-      final preview = loaded.preview;
-      final hydratedCandidate = loaded.candidate;
-
-      if (searchGen != state.search.providerSearchGeneration) return;
-
-      final previewsMap = Map<String, AdminProviderPreview>.from(
-        state.preview.providerPreviews,
-      );
-      final typedCandidatesMap = Map<String, ProviderSearchCandidate>.from(
-        state.preview.typedProviderCandidates,
-      );
-      previewsMap[candidateId] = preview;
-      typedCandidatesMap[candidateId] = hydratedCandidate;
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingProviderPreviewIds)
-            ..remove(candidateId);
-      state = state.copyWith(
-        search: state.search.copyWith(providerResults: loaded.searchResults),
-        preview: state.preview.copyWith(
-          providerPreviews: previewsMap,
-          typedProviderCandidates: typedCandidatesMap,
-          pendingProviderPreviewIds: pendingUpdated,
-        ),
-      );
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_add',
-        message:
-            'Failed to load provider preview for ${candidate.provider}:${candidate.providerItemId}.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingProviderPreviewIds)
-            ..remove(candidateId);
-      state = state.copyWith(
-        preview: state.preview.copyWith(
-          pendingProviderPreviewIds: pendingUpdated,
-        ),
-      );
-    }
-  }
-
   void updateCommonDraft(
       LibraryAddCommonDraft Function(LibraryAddCommonDraft) update) {
     state = state.copyWith(commonDraft: update(state.commonDraft));
@@ -856,116 +677,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     }
   }
 
-  Future<int> _submitProviderCandidates({
-    required List<ProviderSearchCandidate> candidates,
-    required BuildContext? context,
-    required bool isAdmin,
-    required bool allowNavigation,
-  }) async {
-    if (candidates.isEmpty) return 0;
-
-    final candidatesToSubmit =
-        await _hydrateProviderCandidatesForSubmission(candidates);
-    if (candidatesToSubmit.isEmpty) return 0;
-
-    if (api != null && catalog != null && context != null && context.mounted) {
-      final previewController = LibraryAddPreviewController();
-      for (final entry in state.preview.providerPreviews.entries) {
-        previewController.setProviderPreview(entry.key, entry.value);
-      }
-      for (final entry in state.preview.typedProviderCandidates.entries) {
-        previewController.setTypedProviderCandidate(entry.key, entry.value);
-      }
-      final physicalFormats = physicalMediaFormatsForKind(
-        fallbackMediaCatalog,
-        kind,
-      );
-      final request = LibraryProviderAddRequest(
-        api: api!,
-        isAdmin: isAdmin,
-        type: type,
-        candidate: candidatesToSubmit.first,
-        target: state.target,
-        accent: LibraryAccentScope.accentOf(context),
-        dependencies: LibraryProviderAddDependencies(
-          catalog: catalog!,
-          ownedMutations: ownedMutations,
-          wishlistMutations: wishlistMutations,
-          trackingMutations: trackingMutations,
-          physicalFormats: physicalFormats,
-          previewState: previewController,
-          providerActionService: providerActionService,
-          providerOrchestrationService: providerOrchestrationService,
-          providerMapper: _providerCorrectionsForKind(type.kind),
-          visibleProviderResults: () => state.visibleProviderResults(
-            libraryAddForKind(type.kind).resultPolicy,
-          ),
-          showEditDialog: (req) =>
-              showLibraryEditDialog(context: context, request: req),
-          closeEditDialog: () => Navigator.of(context).pop(),
-          clearRejectedMetadataSession: _handleAuthExpiration,
-        ),
-        referenceType: state.selection.referenceType,
-        defaults: LibraryAddDefaults(
-          condition: state.defaultCondition,
-          purchaseDate: state.defaultPurchaseDate,
-          locationId: state.defaultLocationId,
-          readStatus: state.defaultReadStatus,
-          tags: state.defaultTags,
-        ),
-        allowNavigation: allowNavigation,
-        reportError: (message) => state = state.copyWith(
-          search: state.search.copyWith(error: message),
-        ),
-      );
-      if (candidatesToSubmit.length == 1 && allowNavigation) {
-        return await providerAddCoordinator.addProviderCandidate(request)
-            ? candidatesToSubmit.length
-            : 0;
-      }
-      return await providerAddCoordinator.addProviderCandidates(
-        request,
-        candidatesToSubmit,
-      );
-    }
-
-    final metadataItems = [
-      for (final candidate in candidatesToSubmit)
-        libraryAddForKind(type.kind)
-            .catalogCandidateFromProviderCandidate(candidate),
-    ];
-    final result =
-        await submissionService.submit(_submissionRequest(metadataItems));
-    return result.submittedCount;
-  }
-
-  Future<List<ProviderSearchCandidate>> _hydrateProviderCandidatesForSubmission(
-    List<ProviderSearchCandidate> candidates,
-  ) async {
-    final loaded =
-        await hydrationService.hydrateProviderCandidatesForSubmission(
-      registry: providerRegistry,
-      capability: libraryAddForKind(kind).search,
-      candidates: candidates,
-      existingCandidatesById: state.preview.typedProviderCandidates,
-    );
-    if (loaded.hydratedCandidates.isNotEmpty) {
-      final typedCandidates = Map<String, ProviderSearchCandidate>.from(
-        state.preview.typedProviderCandidates,
-      )..addAll(loaded.hydratedCandidates);
-      final previews = Map<String, AdminProviderPreview>.from(
-        state.preview.providerPreviews,
-      )..addAll(loaded.hydratedPreviews);
-      state = state.copyWith(
-        preview: state.preview.copyWith(
-          typedProviderCandidates: typedCandidates,
-          providerPreviews: previews,
-        ),
-      );
-    }
-    return loaded.candidates;
-  }
-
   Future<int> _submitCoreCandidates(Set<String> checkedResultIds) async {
     if (checkedResultIds.isEmpty) return 0;
 
@@ -1007,33 +718,17 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     return result.submittedCount;
   }
 
-  Future<bool> submitCurrentSelection({
-    BuildContext? context,
-    bool isAdmin = false,
-  }) async {
+  Future<bool> submitCurrentSelection() async {
     if (state.isAdding || state.submitState.isLoading) return false;
 
-    final selectedCandidate = state.selectedCandidate;
     final selectedResult = state.selectedItem;
     final checkedResults = state.selection.checkedResultIds
         .where(
           (id) => state.search.results.any((item) => item.reference.id == id),
         )
         .toSet();
-    final checkedProviderCandidates = [
-      for (final candidate in state.search.providerResults)
-        if (state.selection.checkedProviderIds.contains(
-              candidate.localCatalogId,
-            ) &&
-            !candidate.previewOnly)
-          candidate,
-    ];
-
-    final hasBulkSelection =
-        checkedProviderCandidates.isNotEmpty || checkedResults.isNotEmpty;
-    if (!hasBulkSelection &&
-        selectedCandidate == null &&
-        selectedResult == null) {
+    final hasBulkSelection = checkedResults.isNotEmpty;
+    if (!hasBulkSelection && selectedResult == null) {
       reportSubmissionError('Select an item before adding it.');
       return false;
     }
@@ -1047,32 +742,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     try {
       var submittedCount = 0;
       if (hasBulkSelection) {
-        if (checkedProviderCandidates.isNotEmpty) {
-          submittedCount += await _submitProviderCandidates(
-            candidates: checkedProviderCandidates,
-            context: context,
-            isAdmin: isAdmin,
-            allowNavigation: false,
-          );
-        }
-        if (checkedResults.isNotEmpty) {
-          submittedCount += await _submitCoreCandidates(checkedResults);
-        }
-      } else if (selectedCandidate != null) {
-        final selectedContext = context;
-        if (selectedContext != null && !selectedContext.mounted) {
-          state = state.copyWith(
-            isAdding: false,
-            submitState: const AsyncValue.data(null),
-          );
-          return false;
-        }
-        submittedCount = await _submitProviderCandidates(
-          candidates: [selectedCandidate],
-          context: selectedContext,
-          isAdmin: isAdmin,
-          allowNavigation: true,
-        );
+        submittedCount = await _submitCoreCandidates(checkedResults);
       } else if (selectedResult != null) {
         final result = await submissionService.submit(
           _submissionRequest(
@@ -1169,23 +839,4 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     cancelSearch();
     super.dispose();
   }
-}
-
-ProviderCorrectionPatch _emptyProviderCorrections({
-  required CatalogSearchCandidate edited,
-  required CatalogSearchCandidate preview,
-}) =>
-    const EmptyProviderCorrectionPatch();
-
-BuildProviderCorrections _providerCorrectionsForKind(CatalogMediaKind kind) {
-  final builder = libraryKindProviderCorrectionBuilderForKind(kind);
-  if (builder == null) return _emptyProviderCorrections;
-  return ({
-    required CatalogSearchCandidate edited,
-    required CatalogSearchCandidate preview,
-  }) =>
-      builder(
-        preview: preview,
-        edited: edited,
-      );
 }

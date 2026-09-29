@@ -6,43 +6,25 @@ final class AdminProposalsPanel extends StatelessWidget {
   const AdminProposalsPanel({
     required this.summary,
     required this.statusFilter,
-    required this.providerFilter,
-    required this.providers,
     required this.isLoading,
-    required this.activeProposalTitle,
     required this.statusMessage,
     required this.errorMessage,
     required this.onStatusChanged,
-    required this.onProviderChanged,
-    required this.onClearReview,
     required this.content,
     super.key,
   });
 
   final AdminMetadataProposalSummary? summary;
   final String statusFilter;
-  final String? providerFilter;
-  final List<AdminProviderStatus> providers;
   final bool isLoading;
-  final String? activeProposalTitle;
   final String? statusMessage;
   final String? errorMessage;
   final ValueChanged<String?> onStatusChanged;
-  final ValueChanged<String?> onProviderChanged;
-  final VoidCallback onClearReview;
   final Widget content;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final providerOptions = [
-      const DropdownMenuItem<String>(value: '', child: Text('All providers')),
-      for (final provider in providers)
-        DropdownMenuItem<String>(
-          value: provider.name,
-          child: Text(provider.displayName),
-        ),
-    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -72,62 +54,9 @@ final class AdminProposalsPanel extends StatelessWidget {
               ],
               onChanged: onStatusChanged,
             );
-            final provider = CompactSearchDropdownFormField<String>(
-              initialValue: providerFilter ?? '',
-              decoration: const InputDecoration(
-                labelText: 'Provider',
-                border: OutlineInputBorder(),
-              ),
-              items: providerOptions,
-              onChanged: onProviderChanged,
-            );
-            if (constraints.maxWidth < 760) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  status,
-                  const SizedBox(height: 12),
-                  provider,
-                ],
-              );
-            }
-            return Row(
-              children: [
-                Expanded(child: status),
-                const SizedBox(width: 12),
-                Expanded(child: provider),
-              ],
-            );
+            return SizedBox(width: constraints.maxWidth, child: status);
           },
         ),
-        if (activeProposalTitle != null) ...[
-          const SizedBox(height: 12),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest
-                  .withValues(alpha: 0.35),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: theme.colorScheme.outlineVariant),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  const Icon(Icons.travel_explore_outlined),
-                  Text('Reviewing proposal: $activeProposalTitle'),
-                  OutlinedButton.icon(
-                    onPressed: onClearReview,
-                    icon: const Icon(Icons.close_outlined),
-                    label: const Text('Clear review'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
         if (statusMessage != null || errorMessage != null) ...[
           const SizedBox(height: 12),
           Text(

@@ -7,13 +7,13 @@ import 'package:drift/drift.dart';
 
 /// Persistence for the complete TV-owned graph.
 final class TvOwnedRepository
-    implements ReadRepository<TvOwnedItemId, TvOwnedItem> {
+    implements ReadRepository<TvOwnedCopyId, TvOwnedItem> {
   const TvOwnedRepository(this._db);
 
   final LocalDatabase _db;
 
   @override
-  Future<TvOwnedItem?> findById(TvOwnedItemId id) async {
+  Future<TvOwnedItem?> findById(TvOwnedCopyId id) async {
     final row = await (_db.select(_db.tvOwnedItemsRows)
           ..where((table) => table.id.equals(id.value)))
         .getSingleOrNull();

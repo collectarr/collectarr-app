@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
@@ -26,7 +26,7 @@ final class TrackingUnitStorageRow {
   final String id;
   final CatalogEntityRef targetRef;
   final String? trackingEntryId;
-  final OwnedItemRef? ownedRef;
+  final OwnedCopyRef? ownedRef;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -74,7 +74,73 @@ abstract interface class TrackingUnitStorageCodec {
     Object? coordinates,
   );
 
+  TrackingUnitSummary fromSyncPayload({
+    required String id,
+    required Map<String, Object?> payload,
+    required DateTime updatedAt,
+    required DateTime? deletedAt,
+  });
+
   int compareCoordinates(TrackingUnitSummary left, TrackingUnitSummary right);
+}
+
+TrackingUnitStorageRow trackingUnitStorageRowFromSyncPayload({
+  required String id,
+  required Map<String, Object?> payload,
+  required DateTime updatedAt,
+  required DateTime? deletedAt,
+}) {
+  final rawTargetRef = payload['catalog_ref'] ?? payload['target_ref'];
+  if (rawTargetRef is! Map) {
+    throw const FormatException(
+      'Tracking unit sync payload is missing catalog_ref',
+    );
+  }
+  final targetRef = CatalogEntityRef.fromJson(
+    Map<String, Object?>.from(rawTargetRef),
+  );
+  requireKnownCatalogRef(targetRef, 'trackingUnit.targetRef');
+  final ownedRef = ownedCopyRefFromSerialized(payload['owned_ref']);
+  if (ownedRef != null) {
+    requireMatchingOwnedCatalogKinds(targetRef, ownedRef);
+  }
+  final completedAtValue = payload['completed_at'];
+  if (completedAtValue is! String) {
+    throw const FormatException(
+      'Tracking unit sync payload is missing completed_at',
+    );
+  }
+  final trackingEntryId = payload['tracking_entry_id'];
+  if (trackingEntryId != null && trackingEntryId is! String) {
+    throw const FormatException('Invalid tracking_entry_id');
+  }
+  return TrackingUnitStorageRow(
+    id: id,
+    targetRef: targetRef,
+    trackingEntryId: trackingEntryId as String?,
+    ownedRef: ownedRef,
+    completedAt: DateTime.parse(completedAtValue),
+    updatedAt: updatedAt,
+    deletedAt: deletedAt,
+  );
+}
+
+int? trackingUnitSyncInt(Object? value) {
+  if (value == null) return null;
+  if (value is int && value >= 0) return value;
+  throw FormatException('Expected an integer tracking coordinate, got $value');
+}
+
+void requireTrackingUnitType(Map<String, Object?> payload, String expected) {
+  if (payload['unit_type'] != expected) {
+    throw FormatException('Expected tracking unit type "$expected"');
+  }
+}
+
+String? trackingUnitSyncString(Object? value) {
+  if (value == null) return null;
+  if (value is String) return value;
+  throw FormatException('Expected a string tracking coordinate, got $value');
 }
 
 TrackingUnitStorageRow trackingUnitStorageRowFromColumns({
@@ -95,7 +161,7 @@ TrackingUnitStorageRow trackingUnitStorageRowFromColumns({
     Map<String, Object?>.from(decoded),
   );
   requireKnownCatalogRef(targetRef, 'trackingUnit.targetRef');
-  final ownedRef = ownedItemRefFromSerialized(ownedRefKey);
+  final ownedRef = ownedCopyRefFromSerialized(ownedRefKey);
   if (ownedRef != null) {
     requireMatchingOwnedCatalogKinds(targetRef, ownedRef);
   }

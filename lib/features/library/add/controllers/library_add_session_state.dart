@@ -54,7 +54,6 @@ final class LibraryAddSessionState {
   final bool isAdding;
 
   CatalogSearchCandidate? get selectedItem {
-    if (!selection.showCoreResults) return null;
     final id = selection.selectedResultId;
     if (id == null) return null;
     for (final item in search.results) {
@@ -65,7 +64,6 @@ final class LibraryAddSessionState {
   }
 
   ProviderSearchCandidate? get selectedCandidate {
-    if (!selection.showProviderResults) return null;
     final id = selection.selectedProviderCandidateId;
     if (id == null) return null;
     for (final candidate in search.providerResults) {
@@ -90,9 +88,6 @@ final class LibraryAddSessionState {
     LibraryAddResultPolicy policy, {
     required bool Function(CatalogSearchCandidate item) isOwnedCatalogItem,
   }) {
-    if (!selection.showCoreResults) {
-      return const <CatalogSearchCandidate>[];
-    }
     final ownedRefs = <CatalogEntityRef>{
       for (final item in search.results)
         if (isOwnedCatalogItem(item)) item.reference,
@@ -104,17 +99,12 @@ final class LibraryAddSessionState {
     );
   }
 
+  /// Add uses Core catalog matches only. Provider results are no longer a
+  /// selectable source for new catalog records.
   List<ProviderSearchCandidate> visibleProviderResults(
     LibraryAddResultPolicy policy,
-  ) {
-    if (!selection.showProviderResults) {
-      return const <ProviderSearchCandidate>[];
-    }
-    return policy.filterProviderResults(
-      candidates: search.providerResults,
-      state: selection.resultPolicyState,
-    );
-  }
+  ) =>
+      const <ProviderSearchCandidate>[];
 
   LibraryAddSessionState copyWith({
     LibraryAddDialogMode? mode,

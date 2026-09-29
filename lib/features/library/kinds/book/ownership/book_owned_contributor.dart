@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dar
 final bookOwnedContributor = TypedOwnedKindContributor<BookOwnedItem>(
   kind: CatalogMediaKind.book,
   findById: (database, id) =>
-      BookOwnedRepository(database).findById(BookOwnedItemId(id)),
+      BookOwnedRepository(database).findById(BookOwnedCopyId(id)),
   upsert: (database, item) => BookOwnedRepository(database).upsert(item),
   listActive: (database) => BookOwnedRepository(database).listActive(),
   createItem: ({

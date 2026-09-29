@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
@@ -91,9 +91,9 @@ void main() {
       entity: const LibraryCopyRef(
         workId: 'boardgame-1',
         releaseId: 'edition-1',
-        ownedRef: OwnedItemRef(
+        ownedRef: OwnedCopyRef(
           kind: CatalogMediaKind.boardgame,
-          id: OwnedItemId('owned-1'),
+          id: OwnedCopyId('owned-1'),
         ),
       ),
     );

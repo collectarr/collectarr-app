@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/release/tv_release_detail_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -158,16 +158,16 @@ void main() {
   });
 }
 
-OwnedItemSummary _ownedSummary({
+OwnedCopySummary _ownedSummary({
   required String id,
   required String itemId,
   CatalogMediaKind kind = CatalogMediaKind.tv,
   String? variantId,
 }) {
-  return OwnedItemSummary(
-    ref: OwnedItemRef(
+  return OwnedCopySummary(
+    ref: OwnedCopyRef(
       kind: kind,
-      id: OwnedItemId(id),
+      id: OwnedCopyId(id),
     ),
     title: itemId,
     catalogRef: CatalogEntityRef(

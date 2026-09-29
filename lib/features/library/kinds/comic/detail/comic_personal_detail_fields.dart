@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 List<LibraryDetailField> buildComicPersonalDetailFields({
   required BuildContext context,
   required LibraryProjectionView item,
-  required OwnedItemSummary? ownedItem,
+  required OwnedCopySummary? ownedItem,
   required LibraryOwnedItemDispatch? ownedItemDispatch,
   required String? currency,
 }) {

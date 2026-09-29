@@ -323,25 +323,16 @@ class CollectarrApiClient {
     return MetadataFieldSchema.fromJson(data);
   }
 
-  Future<Map<String, dynamic>> createMetadataProposal({
-    required String provider,
-    required String query,
-    String? providerItemId,
-    String? title,
-    String? summary,
-    String? imageUrl,
-    Map<String, dynamic>? metadataPayload,
+  Future<Map<String, dynamic>> createCatalogItemProposal({
+    required String kind,
+    required Map<String, dynamic> catalogItem,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/api/v1/metadata/proposals',
       data: {
-        'provider': provider,
-        'query': query,
-        if (providerItemId != null) 'provider_item_id': providerItemId,
-        if (title != null) 'title': title,
-        if (summary != null) 'summary': summary,
-        if (imageUrl != null) 'image_url': imageUrl,
-        if (metadataPayload != null) 'metadata_payload': metadataPayload,
+        'schema_version': 'v1',
+        'kind': kind,
+        'catalog_item': catalogItem,
       },
     );
     final data = response.data;

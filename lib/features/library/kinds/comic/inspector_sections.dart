@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -603,14 +603,14 @@ List<LibraryDetailField> _collectorFacts(ComicOwnedItem? ownedItem) {
 
 List<LibraryDetailField> _valueFacts(
   LibraryProjectionView item,
-  OwnedItemSummary? ownedItem,
-  List<OwnedItemSummary> ownedCopies,
+  OwnedCopySummary? ownedItem,
+  List<OwnedCopySummary> ownedCopies,
 ) {
   if (ownedItem == null) {
     return const [];
   }
   final effectiveOwnedCopies =
-      ownedCopies.isNotEmpty ? ownedCopies : <OwnedItemSummary>[ownedItem];
+      ownedCopies.isNotEmpty ? ownedCopies : <OwnedCopySummary>[ownedItem];
   final snapshot = LibraryValueSnapshot.fromItem(
     item,
     purchasePriceCents: item.source.pricePaidCents,
@@ -690,8 +690,8 @@ List<LibraryDetailField> _valueFacts(
 }
 
 int? _sumOwnedValueCents(
-  List<OwnedItemSummary> items,
-  int? Function(OwnedItemSummary item) selector,
+  List<OwnedCopySummary> items,
+  int? Function(OwnedCopySummary item) selector,
 ) {
   var hasValue = false;
   var total = 0;
@@ -707,8 +707,8 @@ int? _sumOwnedValueCents(
 }
 
 String? _inspectorValueCurrency(
-  List<OwnedItemSummary> ownedCopies,
-  OwnedItemSummary? ownedItem,
+  List<OwnedCopySummary> ownedCopies,
+  OwnedCopySummary? ownedItem,
 ) {
   for (final copy in ownedCopies) {
     final currency = copy.currency?.trim();

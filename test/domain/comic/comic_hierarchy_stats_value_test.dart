@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -97,9 +97,9 @@ void main() {
       node: LibraryCopyRef(
         workId: 'missing-variant',
         releaseId: 'missing-release',
-        ownedRef: const OwnedItemRef(
+        ownedRef: const OwnedCopyRef(
           kind: CatalogMediaKind.comic,
-          id: OwnedItemId('owned-missing-variant'),
+          id: OwnedCopyId('owned-missing-variant'),
         ),
       ),
     );

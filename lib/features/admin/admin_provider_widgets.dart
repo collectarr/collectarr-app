@@ -699,19 +699,13 @@ class _ProviderResultsList extends StatelessWidget {
     required this.results,
     required this.ingestingProviderItemId,
     required this.canIngestProvider,
-    required this.onApproveProposal,
     required this.onIngest,
-    this.activeProposalId,
-    this.activeProposalTitle,
   });
 
   final List<ProviderSearchResult> results;
   final String? ingestingProviderItemId;
   final bool Function(String provider) canIngestProvider;
-  final ValueChanged<ProviderSearchResult> onApproveProposal;
   final ValueChanged<ProviderSearchResult> onIngest;
-  final String? activeProposalId;
-  final String? activeProposalTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -730,9 +724,6 @@ class _ProviderResultsList extends StatelessWidget {
           candidate: candidate,
           isIngesting: isIngesting,
           canIngest: canIngestProvider(candidate.provider),
-          activeProposalId: activeProposalId,
-          activeProposalTitle: activeProposalTitle,
-          onApproveProposal: () => onApproveProposal(candidate),
           onIngest: () => onIngest(candidate),
         );
       },
@@ -902,19 +893,13 @@ class _ProviderResultTile extends StatelessWidget {
     required this.candidate,
     required this.isIngesting,
     required this.canIngest,
-    required this.onApproveProposal,
     required this.onIngest,
-    this.activeProposalId,
-    this.activeProposalTitle,
   });
 
   final ProviderSearchResult candidate;
   final bool isIngesting;
   final bool canIngest;
-  final VoidCallback onApproveProposal;
   final VoidCallback onIngest;
-  final String? activeProposalId;
-  final String? activeProposalTitle;
 
   String? _releaseLinkHint() {
     // Provider payload semantics belong to the selected kind integration.
@@ -1012,18 +997,6 @@ class _ProviderResultTile extends StatelessWidget {
                 ),
           label: Text(canIngest ? 'Ingest' : 'Search only'),
         );
-        final proposalButton = activeProposalId == null
-            ? null
-            : FilledButton.icon(
-                onPressed: isIngesting || !canIngest ? null : onApproveProposal,
-                icon: isIngesting
-                    ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.task_alt_outlined),
-                label: const Text('Approve proposal'),
-              );
         return DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
@@ -1050,7 +1023,6 @@ class _ProviderResultTile extends StatelessWidget {
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            if (proposalButton != null) proposalButton,
                             button,
                           ],
                         ),
@@ -1068,7 +1040,6 @@ class _ProviderResultTile extends StatelessWidget {
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          if (proposalButton != null) proposalButton,
                           button,
                         ],
                       ),

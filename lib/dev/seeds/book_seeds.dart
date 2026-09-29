@@ -766,7 +766,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
 List<BookOwnedItem> bookSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.book, 15))
         BookOwnedItem(
-          id: BookOwnedItemId('seed-owned-$itemId'),
+          id: BookOwnedCopyId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.book, itemId),
           createdAt: now.subtract(const Duration(days: 300)),
           updatedAt: now,

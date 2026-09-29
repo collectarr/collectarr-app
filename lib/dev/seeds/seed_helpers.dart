@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
@@ -46,8 +46,8 @@ CatalogEntityRef seedCatalogRef(CatalogMediaKind kind, String itemId) {
   );
 }
 
-OwnedItemRef seedOwnedRef(CatalogMediaKind kind, String itemId) {
-  return OwnedItemRef(kind: kind, id: OwnedItemId(itemId));
+OwnedCopyRef seedOwnedRef(CatalogMediaKind kind, String itemId) {
+  return OwnedCopyRef(kind: kind, id: OwnedCopyId(itemId));
 }
 
 /// Rebuilds a transport fixture while preserving its common catalog fields.
@@ -426,7 +426,7 @@ void seedValidateStandardBarcode(
   seedValidateBarcode(issues, prefix, barcode);
 }
 
-void validateSeedOwnedQuality(Iterable<OwnedItemSummary> items) {
+void validateSeedOwnedQuality(Iterable<OwnedCopySummary> items) {
   final issues = <String>[];
   for (final item in items) {
     final prefix = '${item.ref.kind.apiValue}/${item.ref.id.value}';

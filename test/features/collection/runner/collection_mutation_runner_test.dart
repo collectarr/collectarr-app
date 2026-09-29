@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
@@ -54,9 +54,9 @@ void main() {
       },
       eventsToEmit: const [
         OwnedItemAdded(
-          OwnedItemRef(
+          OwnedCopyRef(
             kind: CatalogMediaKind.comic,
-            id: OwnedItemId('owned-1'),
+            id: OwnedCopyId('owned-1'),
           ),
         ),
       ],
@@ -67,9 +67,9 @@ void main() {
     expect(eventsReceived, hasLength(1));
     expect(
       (eventsReceived.first as OwnedItemAdded).ownedRef,
-      const OwnedItemRef(
+      const OwnedCopyRef(
         kind: CatalogMediaKind.comic,
-        id: OwnedItemId('owned-1'),
+        id: OwnedCopyId('owned-1'),
       ),
     );
     expect(syncScheduled, isTrue);
@@ -105,9 +105,9 @@ void main() {
         },
         eventsToEmit: const [
           OwnedItemAdded(
-            OwnedItemRef(
+            OwnedCopyRef(
               kind: CatalogMediaKind.comic,
-              id: OwnedItemId('owned-fail'),
+              id: OwnedCopyId('owned-fail'),
             ),
           ),
         ],

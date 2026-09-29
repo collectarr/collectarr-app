@@ -100,7 +100,7 @@ final class MetadataOverrideMutations {
   ) {
     return SyncChange(
       id: 'metadata_override:${override.id}:$action:${now.millisecondsSinceEpoch}',
-      entityType: 'user_metadata_override',
+      entityType: 'metadata_override',
       entityId: override.id,
       action: action,
       payload: override.toSyncPayload(),

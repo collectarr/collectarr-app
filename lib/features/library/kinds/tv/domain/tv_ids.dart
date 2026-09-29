@@ -27,8 +27,8 @@ final class TvReleaseMediaId extends LibraryEntityId {
 }
 
 @immutable
-final class TvOwnedItemId extends LibraryEntityId {
-  const TvOwnedItemId(super.value);
+final class TvOwnedCopyId extends LibraryEntityId {
+  const TvOwnedCopyId(super.value);
 }
 
 @immutable

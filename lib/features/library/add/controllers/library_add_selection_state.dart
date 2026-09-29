@@ -13,8 +13,6 @@ class LibraryAddSelectionState {
     this.checkedResultIds = const {},
     this.checkedProviderIds = const {},
     this.referenceType = LibraryAddReferenceType.media,
-    this.showCoreResults = true,
-    this.showProviderResults = true,
     this.resultPolicyState = const LibraryAddResultPolicyState(),
   });
 
@@ -26,8 +24,6 @@ class LibraryAddSelectionState {
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
   final LibraryAddReferenceType referenceType;
-  final bool showCoreResults;
-  final bool showProviderResults;
   final LibraryAddResultPolicyState resultPolicyState;
 
   String? get selectedId => selectedResultId;
@@ -47,8 +43,6 @@ class LibraryAddSelectionState {
     Set<String>? checkedResultIds,
     Set<String>? checkedProviderIds,
     LibraryAddReferenceType? referenceType,
-    bool? showCoreResults,
-    bool? showProviderResults,
     LibraryAddResultPolicyState? resultPolicyState,
   }) {
     return LibraryAddSelectionState(
@@ -70,8 +64,6 @@ class LibraryAddSelectionState {
       checkedResultIds: checkedResultIds ?? this.checkedResultIds,
       checkedProviderIds: checkedProviderIds ?? this.checkedProviderIds,
       referenceType: referenceType ?? this.referenceType,
-      showCoreResults: showCoreResults ?? this.showCoreResults,
-      showProviderResults: showProviderResults ?? this.showProviderResults,
       resultPolicyState: resultPolicyState ?? this.resultPolicyState,
     );
   }

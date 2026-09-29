@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 class Loan {
@@ -16,7 +16,7 @@ class Loan {
 
   /// Structural reference to the lent copy. Loan code never interprets the
   /// referenced kind's domain details.
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
   final String borrowerName;
   final DateTime lentDate;
   final DateTime? dueDate;
@@ -34,7 +34,7 @@ class Loan {
     if (ownedPayload is! Map) {
       throw const FormatException('Loan.owned_ref is required');
     }
-    final ownedRef = OwnedItemRef.fromJson(
+    final ownedRef = OwnedCopyRef.fromJson(
       Map<String, Object?>.from(ownedPayload),
     );
     requireKnownOwnedRef(ownedRef, 'loan.ownedRef');
@@ -87,7 +87,7 @@ class Loan {
   }
 
   Loan copyWith({
-    OwnedItemRef? ownedRef,
+    OwnedCopyRef? ownedRef,
     String? borrowerName,
     DateTime? dueDate,
     DateTime? returnedDate,

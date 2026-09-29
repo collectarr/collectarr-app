@@ -73,7 +73,7 @@ final class TvOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String? ownerLabel,
   }) {
     return TvOwnedItem(
-      id: TvOwnedItemId(id),
+      id: TvOwnedCopyId(id),
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,

@@ -202,7 +202,7 @@ final class AnimeLocalMapper {
       id: row.itemId,
     );
     return AnimeOwnedItem(
-      id: AnimeOwnedItemId(row.id),
+      id: AnimeOwnedCopyId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,

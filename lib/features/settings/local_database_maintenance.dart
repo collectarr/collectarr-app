@@ -80,7 +80,7 @@ void invalidateLocalDatabaseProjections(WidgetRef ref) {
   ref.invalidate(musicListeningEventsProvider);
   ref.invalidate(musicReleaseGroupTrackingSummaryProvider);
   ref.invalidate(musicReleaseImagesProvider);
-  ref.invalidate(overdueLoanOwnedItemIdsProvider);
+  ref.invalidate(overdueLoanOwnedCopyIdsProvider);
   ref.invalidate(activeOwnedCopiesByCatalogItemProvider);
   ref.invalidate(libraryCustomFieldCacheProvider);
   ref.invalidate(tvTrackingStateBySeriesIdProvider);

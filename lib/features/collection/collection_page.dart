@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
@@ -54,9 +54,9 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
     final overdueOwnedRefs =
-        ref.watch(overdueLoanOwnedItemIdsProvider).maybeWhen(
+        ref.watch(overdueLoanOwnedCopyIdsProvider).maybeWhen(
               data: (value) => value,
-              orElse: () => const <OwnedItemRef>{},
+              orElse: () => const <OwnedCopyRef>{},
             );
     final accent = LibraryAccentScope.accentOf(context);
     final animationDuration = LibraryAccentScope.animationDurationOf(context);
@@ -140,7 +140,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
 
   List<LibraryWorkspaceSource> _filteredEntries(
     List<LibraryWorkspaceSource> entries,
-    Set<OwnedItemRef> overdueOwnedRefs,
+    Set<OwnedCopyRef> overdueOwnedRefs,
   ) {
     return switch (filter) {
       _ShelfFilter.all => entries,

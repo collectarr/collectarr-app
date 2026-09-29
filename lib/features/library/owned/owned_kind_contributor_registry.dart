@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
@@ -39,7 +39,7 @@ OwnedKindContributor ownedContributorForKind(CatalogMediaKind kind) {
   return contributor;
 }
 
-typedef LibraryOwnedSummaryReader = Future<List<OwnedItemSummary>> Function(
+typedef LibraryOwnedSummaryReader = Future<List<OwnedCopySummary>> Function(
   LocalDatabase database,
 );
 

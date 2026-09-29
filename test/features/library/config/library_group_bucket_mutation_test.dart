@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
@@ -212,9 +212,9 @@ void main() {
     );
     final mutator = MusicOwnedCopyWorkspaceFields.conditionBucketValueMutator();
     final dispatch = OpaqueLibraryOwnedItemDispatch(
-      ref: OwnedItemRef(
+      ref: OwnedCopyRef(
         kind: CatalogMediaKind.music,
-        id: OwnedItemId(item.id.value),
+        id: OwnedCopyId(item.id.value),
       ),
       kind: CatalogMediaKind.music,
       value: item,

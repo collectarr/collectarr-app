@@ -16,7 +16,7 @@ void main() {
   group('Typed TransferableField', () {
     test('reads and writes typed Book fields', () {
       final item = BookOwnedItem(
-        id: BookOwnedItemId('item-1'),
+        id: BookOwnedCopyId('item-1'),
         catalogRef: const CatalogEntityRef(
           id: 'work-1',
           kind: CatalogMediaKind.comic,
@@ -81,7 +81,7 @@ void main() {
 
       final keyComicField = fields.firstWhere((f) => f.key == 'keyComic');
       final item = ComicOwnedItem(
-        id: ComicOwnedItemId('c-1'),
+        id: ComicOwnedCopyId('c-1'),
         catalogRef: const CatalogEntityRef(
           id: 'c-1',
           kind: CatalogMediaKind.comic,
@@ -107,7 +107,7 @@ void main() {
 
       final packagingField = fields.firstWhere((f) => f.key == 'packaging');
       final item = MovieOwnedItem(
-        id: MovieOwnedItemId('m-1'),
+        id: MovieOwnedCopyId('m-1'),
         catalogRef: const CatalogEntityRef(
           id: 'm-1',
           kind: CatalogMediaKind.movie,

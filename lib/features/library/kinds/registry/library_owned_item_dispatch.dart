@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 
 /// Structural dispatch boundary for a fully loaded kind-owned aggregate.
 ///
@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 /// but it cannot enumerate or invoke callbacks for every concrete kind. The
 /// owning kind interprets [value] after checking its own expected type.
 abstract interface class LibraryOwnedItemDispatch {
-  OwnedItemRef get ref;
+  OwnedCopyRef get ref;
   CatalogMediaKind get kind;
   Object get value;
 }
@@ -20,7 +20,7 @@ final class OpaqueLibraryOwnedItemDispatch implements LibraryOwnedItemDispatch {
   });
 
   @override
-  final OwnedItemRef ref;
+  final OwnedCopyRef ref;
 
   @override
   final CatalogMediaKind kind;

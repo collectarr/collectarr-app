@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
@@ -98,7 +98,7 @@ final class MusicTrackingStateCodec
   MusicTrackingState create({
     required String id,
     required CatalogEntityRef catalogRef,
-    OwnedItemRef? ownedRef,
+    OwnedCopyRef? ownedRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -159,7 +159,7 @@ final class MusicTrackingStateCodec
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
     _validateMusicRelease(catalogRef);
-    final ownedRef = ownedItemRefFromSerialized(payload['owned_ref']);
+    final ownedRef = ownedCopyRefFromSerialized(payload['owned_ref']);
     if (ownedRef != null) {
       throw StateError('Music tracking cannot be attached to an owned copy.');
     }

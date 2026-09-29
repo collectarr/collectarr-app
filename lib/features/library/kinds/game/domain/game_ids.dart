@@ -12,6 +12,6 @@ final class GameReleaseId extends LibraryEntityId {
 }
 
 @immutable
-final class GameOwnedItemId extends LibraryEntityId {
-  const GameOwnedItemId(super.value);
+final class GameOwnedCopyId extends LibraryEntityId {
+  const GameOwnedCopyId(super.value);
 }

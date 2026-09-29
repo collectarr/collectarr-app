@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
@@ -17,9 +17,9 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required LibraryKindRegistration type,
   required LibraryProjectionView item,
   required Color accent,
-  OwnedItemSummary? ownedSummary,
+  OwnedCopySummary? ownedSummary,
   TrackingSummary? trackingSummary,
-  required List<OwnedItemSummary> ownedCopies,
+  required List<OwnedCopySummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {
   final activeBundleReleaseId = libraryCatalogTargetForKind(type.kind)

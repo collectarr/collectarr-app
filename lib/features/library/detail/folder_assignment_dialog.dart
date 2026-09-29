@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -11,7 +11,7 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 Future<void> showFolderAssignmentDialog({
   required BuildContext context,
   required LocalDatabase db,
-  required OwnedItemRef ownedRef,
+  required OwnedCopyRef ownedRef,
 }) async {
   return showDialog<void>(
     context: context,
@@ -26,7 +26,7 @@ class _FolderAssignmentDialog extends StatefulWidget {
   });
 
   final LocalDatabase db;
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
 
   @override
   State<_FolderAssignmentDialog> createState() =>

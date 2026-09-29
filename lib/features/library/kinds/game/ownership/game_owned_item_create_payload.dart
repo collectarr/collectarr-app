@@ -73,7 +73,7 @@ final class GameOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String? ownerLabel,
   }) {
     return GameOwnedItem(
-      id: GameOwnedItemId(id),
+      id: GameOwnedCopyId(id),
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,

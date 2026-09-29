@@ -33,7 +33,7 @@ void main() {
 
       final entry = LibraryWorkspaceSource(
         itemId: 'cat_1',
-        ownedSummary: testOwnedItemSummary(owned),
+        ownedSummary: testOwnedCopySummary(owned),
         locationPath: 'Box A / Row 1',
       );
 

@@ -6,7 +6,7 @@ part of '../generic_library_page.dart';
 
 typedef _PreparedPageEditTarget = ({
   LibraryProjectionItem item,
-  OwnedItemSummary? owned,
+  OwnedCopySummary? owned,
   WishlistItem? wishlist,
   TrackingSummary? activeTrackingSummary,
   CatalogSearchCandidate catalogItem,
@@ -62,7 +62,7 @@ class LibraryPageEditCoordinator {
 
   Future<void> showEditDialog(
     LibraryProjectionItem item,
-    OwnedItemSummary? ownedItemOverride, {
+    OwnedCopySummary? ownedItemOverride, {
     bool openMetadataCompareOnOpen = false,
     LibraryEntityScope? scope,
   }) async {
@@ -100,7 +100,7 @@ class LibraryPageEditCoordinator {
 
     Future<_PreparedPageEditTarget?> prepareTarget(
       LibraryProjectionItem target, {
-      OwnedItemSummary? ownedOverride,
+      OwnedCopySummary? ownedOverride,
       bool compareOnOpen = false,
       LibraryEntityScope? scopeOverride,
     }) async {
@@ -311,7 +311,7 @@ class LibraryPageEditCoordinator {
   Future<void> _persistEditResult(
     LibraryEditSelection result, {
     required LibraryEntityRef node,
-    required OwnedItemSummary? owned,
+    required OwnedCopySummary? owned,
     required WishlistItem? wishlist,
     required TrackingSummary? activeTrackingSummary,
     required CatalogSearchCandidate catalogItem,

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
@@ -44,7 +44,7 @@ final class CollectarrOwnedItemPersistence {
   }
 
   Future<OwnedItemMutationResult> updateOwned({
-    required OwnedItemRef ref,
+    required OwnedCopyRef ref,
     required OwnedItemUpdatePayload payload,
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
@@ -60,19 +60,19 @@ final class CollectarrOwnedItemPersistence {
     );
   }
 
-  Future<OwnedItemCreatePayload?> createPayloadByRef(OwnedItemRef ref) {
+  Future<OwnedItemCreatePayload?> createPayloadByRef(OwnedCopyRef ref) {
     return ownedContributorForKind(ref.kind).createPayloadByRef(
       _database,
       ref,
     );
   }
 
-  Future<JsonMap?> payloadByRef(OwnedItemRef ref) {
+  Future<JsonMap?> payloadByRef(OwnedCopyRef ref) {
     return ownedContributorForKind(ref.kind).payloadByRef(_database, ref);
   }
 
   Future<({JsonMap payload, bool isDeleted})?> syncPayloadByRef(
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
   ) {
     return ownedContributorForKind(ref.kind).syncPayloadByRef(_database, ref);
   }
@@ -85,7 +85,7 @@ final class CollectarrOwnedItemPersistence {
   }
 
   Future<LibraryOwnedItemDispatch?> ownedItemForLibraryByRef(
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
   ) async {
     return ownedContributorForKind(ref.kind).itemForLibraryByRef(
       _database,
@@ -94,7 +94,7 @@ final class CollectarrOwnedItemPersistence {
   }
 
   Future<OwnedItemMutationResult?> markDeletedByRef(
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
     DateTime deletedAt,
   ) async {
     return ownedContributorForKind(ref.kind).markDeletedByRef(
@@ -104,7 +104,7 @@ final class CollectarrOwnedItemPersistence {
     );
   }
 
-  Future<void> updateLocation(OwnedItemRef ref, String? locationId) async {
+  Future<void> updateLocation(OwnedCopyRef ref, String? locationId) async {
     await ownedContributorForKind(ref.kind).updateLocation(
       _database,
       ref,
@@ -112,7 +112,7 @@ final class CollectarrOwnedItemPersistence {
     );
   }
 
-  Future<List<OwnedItemSummary>> listActiveSummaries() async {
+  Future<List<OwnedCopySummary>> listActiveSummaries() async {
     final groups = await Future.wait(
       _contributors.values.map(
         (contributor) => contributor.listActiveSummaries(_database),

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -16,7 +16,7 @@ class InspectorFolderSection extends StatefulWidget {
     required this.accent,
   });
 
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
   final LocalDatabase db;
   final Color accent;
 

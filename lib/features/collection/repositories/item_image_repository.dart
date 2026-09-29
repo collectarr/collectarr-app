@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
@@ -9,7 +9,7 @@ class ItemImageRepository {
 
   final LocalDatabase _db;
 
-  Future<List<ItemImage>> listForOwnedRef(OwnedItemRef ownedRef) async {
+  Future<List<ItemImage>> listForOwnedRef(OwnedCopyRef ownedRef) async {
     requireKnownOwnedRef(ownedRef);
     final rows = await (_db.select(_db.itemImagesCache)
           ..where((row) => row.ownedRefKey.equals(ownedRef.key))
@@ -18,15 +18,15 @@ class ItemImageRepository {
     return rows.map(_fromRow).toList(growable: false);
   }
 
-  Future<Map<OwnedItemRef, List<ItemImage>>> listForOwnedRefs(
-    Iterable<OwnedItemRef> ownedRefs,
+  Future<Map<OwnedCopyRef, List<ItemImage>>> listForOwnedRefs(
+    Iterable<OwnedCopyRef> ownedRefs,
   ) async {
     final refs = ownedRefs.toSet().toList(growable: false);
     for (final ref in refs) {
       requireKnownOwnedRef(ref);
     }
     if (refs.isEmpty) {
-      return const <OwnedItemRef, List<ItemImage>>{};
+      return const <OwnedCopyRef, List<ItemImage>>{};
     }
     final keys = refs.map((ref) => ref.key).toList(growable: false);
     final rows = await (_db.select(_db.itemImagesCache)
@@ -36,9 +36,9 @@ class ItemImageRepository {
             (row) => OrderingTerm.asc(row.createdAt),
           ]))
         .get();
-    final grouped = <OwnedItemRef, List<ItemImage>>{};
+    final grouped = <OwnedCopyRef, List<ItemImage>>{};
     for (final row in rows) {
-      final ref = OwnedItemRef.fromKey(row.ownedRefKey);
+      final ref = OwnedCopyRef.fromKey(row.ownedRefKey);
       grouped.putIfAbsent(ref, () => <ItemImage>[]).add(_fromRow(row));
     }
     return grouped;
@@ -89,14 +89,14 @@ class ItemImageRepository {
         .go();
   }
 
-  Future<void> deleteAllForOwnedRef(OwnedItemRef ownedRef) {
+  Future<void> deleteAllForOwnedRef(OwnedCopyRef ownedRef) {
     requireKnownOwnedRef(ownedRef);
     return (_db.delete(_db.itemImagesCache)
           ..where((row) => row.ownedRefKey.equals(ownedRef.key)))
         .go();
   }
 
-  Future<int> countForOwnedRef(OwnedItemRef ownedRef) async {
+  Future<int> countForOwnedRef(OwnedCopyRef ownedRef) async {
     requireKnownOwnedRef(ownedRef);
     final count = _db.itemImagesCache.id.count();
     final query = _db.selectOnly(_db.itemImagesCache)
@@ -109,7 +109,7 @@ class ItemImageRepository {
   ItemImage _fromRow(ItemImagesCacheData row) {
     return ItemImage(
       id: row.id,
-      ownedRef: OwnedItemRef.fromKey(row.ownedRefKey),
+      ownedRef: OwnedCopyRef.fromKey(row.ownedRefKey),
       imageType: row.imageType,
       imageData: row.imageData,
       caption: row.caption,

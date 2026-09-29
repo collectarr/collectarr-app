@@ -61,11 +61,11 @@ class SettingsMetadataProposalHistory extends StatelessWidget {
             dense: true,
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.fact_check_outlined),
-            title: Text(record.title ?? record.query),
+            title: Text(record.title ?? 'Untitled ${record.kind} item'),
             subtitle: Text(
               [
                 record.source,
-                record.provider,
+                record.kind,
                 record.status,
                 formatSettingsDateTime(record.createdAt),
               ].join(' | '),

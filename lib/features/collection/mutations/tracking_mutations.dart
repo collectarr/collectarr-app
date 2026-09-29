@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
@@ -97,7 +97,7 @@ final class TrackingMutations {
   }) async {
     final now = DateTime.now().toUtc();
     late CatalogEntityRef catalogRef;
-    OwnedItemRef? targetOwnedRef;
+    OwnedCopyRef? targetOwnedRef;
 
     switch (target) {
       case CatalogTrackingTarget(:final ref):
@@ -183,7 +183,7 @@ final class TrackingMutations {
   }
 
   Future<void> syncOwnedTrackingState(
-    OwnedItemRef ownedRef, {
+    OwnedCopyRef ownedRef, {
     CatalogEntityRef? catalogRef,
     bool? isDigital,
     CatalogEntityRef? targetRef,

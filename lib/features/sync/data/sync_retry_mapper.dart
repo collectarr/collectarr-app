@@ -1,12 +1,14 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
+import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/models/watch_session_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/library_tracking_registry.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
@@ -32,9 +34,9 @@ class SyncRetryMapper {
         final catalogRef = CatalogEntityRef.fromJson(
           Map<String, dynamic>.from(rawCatalogRef),
         );
-        final ownedRef = OwnedItemRef(
+        final ownedRef = OwnedCopyRef(
           kind: catalogRef.mediaKind,
-          id: OwnedItemId(change.entityId),
+          id: OwnedCopyId(change.entityId),
         );
         final serialized =
             await CollectarrOwnedItemPersistence(db).syncPayloadByRef(ownedRef);
@@ -91,28 +93,30 @@ class SyncRetryMapper {
           payload: tracking.payload,
           clientChangedAt: changedAt,
         );
-      case 'library_item_snapshot':
-        final payload = change.localPayload ?? change.servicePayload;
-        final rawKind = payload?['kind'];
-        if (rawKind is! String || rawKind.trim().isEmpty) {
-          return null;
-        }
-        final catalogRef = CatalogEntityRef(
-          kind: catalogMediaKindFromApiValue(rawKind),
-          entityType: CatalogEntityTypeId.root,
-          id: change.entityId,
+      case 'tracking_unit':
+        final unitPayload = change.localPayload ?? change.servicePayload;
+        final rawCatalogRef =
+            unitPayload?['catalog_ref'] ?? unitPayload?['target_ref'];
+        if (rawCatalogRef is! Map) return null;
+        final catalogRef = CatalogEntityRef.fromJson(
+          Map<String, dynamic>.from(rawCatalogRef),
         );
-        final item =
-            await CatalogSnapshotRepository(db).findCandidateByRef(catalogRef);
-        if (item == null) {
-          return null;
-        }
+        final unit = await TrackingUnitStorageRepository(
+          db,
+          codecs: libraryTrackingUnitCodecs,
+        ).findByRef(
+          TrackingUnitRef(
+            kind: catalogRef.mediaKind,
+            id: change.entityId,
+          ),
+        );
+        if (unit == null) return null;
         return SyncChange(
           id: uuid.v4(),
           entityType: change.entityType,
-          entityId: item.reference.id,
-          action: 'upsert',
-          payload: item.kindCapability.toSyncPayload(),
+          entityId: unit.id,
+          action: unit.isDeleted ? 'delete' : 'upsert',
+          payload: unit.toSyncPayload(),
           clientChangedAt: changedAt,
         );
       case 'watch_session':

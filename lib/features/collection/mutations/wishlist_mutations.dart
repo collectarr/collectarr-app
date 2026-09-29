@@ -61,8 +61,6 @@ final class WishlistMutations {
           if (!catalogRootRef.id.startsWith('tmdb-local:')) {
             await syncQueue
                 .enqueue(_syncChangeForWishlistItem(item, 'upsert', now));
-            await syncQueue
-                .enqueue(_syncChangeForCatalogRef(catalogRootRef, now));
           }
         }
       },
@@ -132,9 +130,6 @@ final class WishlistMutations {
         await wishlist.upsert(updated);
         await syncQueue
             .enqueue(_syncChangeForWishlistItem(updated, 'upsert', now));
-        await syncQueue.enqueue(
-          _syncChangeForCatalogRef(updatedCatalogRef.rootScope, now),
-        );
       },
       eventsToEmit: [WishlistChanged(updatedCatalogRef)],
     );
@@ -222,21 +217,6 @@ final class WishlistMutations {
       entityId: item.id,
       action: action,
       payload: item.toSyncPayload(),
-      clientChangedAt: now,
-    );
-  }
-
-  SyncChange _syncChangeForCatalogRef(
-    CatalogEntityRef catalogRef,
-    DateTime now,
-  ) {
-    final root = catalogRef.rootScope;
-    return SyncChange(
-      id: 'catalog:${root.id}:upsert:${now.millisecondsSinceEpoch}',
-      entityType: 'catalog_item',
-      entityId: root.id,
-      action: 'upsert',
-      payload: {'id': root.id, 'kind': root.kind.apiValue},
       clientChangedAt: now,
     );
   }

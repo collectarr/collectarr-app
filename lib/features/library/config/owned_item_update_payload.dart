@@ -5,7 +5,7 @@
 /// Structural marker for a kind-owned update payload.
 ///
 /// The common application boundary transports this marker only until the
-/// generated registry dispatches by [OwnedItemRef]. The concrete payload then
+/// generated registry dispatches by [OwnedCopyRef]. The concrete payload then
 /// remains responsible for its own `canApplyTo` and `applyTo` operations.
 /// Keeping those operations off this contract prevents a common `Object`
 /// domain API from reappearing in Collection and Edit.

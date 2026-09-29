@@ -11,6 +11,7 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
   coreCatalogProjectionBuilder: animeCatalogTransportFromCoreItem,
   manualDraftBuilder: AnimeAddManualDraft.new,
   manualCandidateBuilder: buildAnimeManualCandidate,
+  manualProposalBuilder: buildAnimeManualProposalData,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       AnimeOwnedItemCreatePayload(
     catalogRef: item.reference,

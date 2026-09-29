@@ -78,7 +78,7 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String? ownerLabel,
   }) {
     return ComicOwnedItem(
-      id: ComicOwnedItemId(id),
+      id: ComicOwnedCopyId(id),
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,

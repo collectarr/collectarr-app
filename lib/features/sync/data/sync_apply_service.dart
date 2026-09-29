@@ -1,34 +1,30 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/tracking/library_tracking_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/drift.dart';
-import 'package:uuid/uuid.dart';
-
-const _uuid = Uuid();
 
 /// Orchestrates a full sync round-trip: push pending changes → pull server
 /// entities → apply them to the local cache.
@@ -41,7 +37,6 @@ class SyncApplyService {
     required this.client,
     required this.db,
     required this.queue,
-    required this.catalog,
     required this.ownedPersistence,
     required this.trackingRecords,
     required this.wishlistItems,
@@ -51,7 +46,6 @@ class SyncApplyService {
   final CollectarrSyncClient client;
   final LocalDatabase db;
   final SyncQueueRepository queue;
-  final CatalogTransportRepository catalog;
   final CollectarrOwnedItemPersistence ownedPersistence;
   final TrackingStorageRepository trackingRecords;
   final WishlistItemsCacheRepository wishlistItems;
@@ -84,20 +78,17 @@ class SyncApplyService {
   }
 
   Future<void> _applyEntities(List<JsonMap> entities) async {
-    final catalogItems = <CatalogImportTransport>[];
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
     final ownedPayloads = <_OwnedSyncPayload>[];
     final tracking = <TrackingStorageSyncInput>[];
+    final trackingUnits = <TrackingUnitSummary>[];
     final wishlist = <WishlistItem>[];
     final watchSessions = <WatchSession>[];
     final metadataOverrides = <UserMetadataOverride>[];
     final customEpisodes = <_CustomEpisodeSyncInput>[];
     final pickListUpserts = <JsonMap>[];
     final pickListDeletes = <String>[];
-    // Collect image data from snapshots keyed by the complete catalog ref.
-    // Equal IDs are valid across kinds and must never overwrite one another.
-    final imageDataByCatalogRef = <CatalogEntityRef, String>{};
     for (final entity in entities) {
       final type = entity['entity_type'] as String;
       if (type == 'location') {
@@ -107,19 +98,14 @@ class SyncApplyService {
           locationUpserts.add(_locationFromEntity(entity));
         }
       }
-      if (type == 'library_item_snapshot' && entity['action'] == 'upsert') {
-        final item = _catalogItemFromEntity(entity);
-        catalogItems.add(item);
-        final coverImageData = item.payload['cover_image_data'] as String?;
-        if (coverImageData != null) {
-          imageDataByCatalogRef[item.ref] = coverImageData;
-        }
-      }
       if (type == 'owned_item') {
         ownedPayloads.add(_ownedPayloadFromEntity(entity));
       }
       if (type == 'tracking_entry') {
         tracking.add(_trackingRecordFromEntity(entity));
+      }
+      if (type == 'tracking_unit') {
+        trackingUnits.add(_trackingUnitFromEntity(entity));
       }
       if (type == 'wishlist_item') {
         wishlist.add(_wishlistItemFromEntity(entity));
@@ -145,7 +131,6 @@ class SyncApplyService {
       }
     }
     await db.transaction(() async {
-      await catalog.upsertTransports(catalogItems);
       for (final location in locationUpserts) {
         await locations.applySyncedUpsert(location);
       }
@@ -153,6 +138,12 @@ class SyncApplyService {
         await ownedPersistence.replaceFromPayload(item.kind, item.payload);
       }
       await trackingRecords.upsertSyncPayloads(tracking);
+      if (trackingUnits.isNotEmpty) {
+        await TrackingUnitStorageRepository(
+          db,
+          codecs: libraryTrackingUnitCodecs,
+        ).upsertAll(trackingUnits);
+      }
       await wishlistItems.upsertAll(wishlist);
       if (watchSessions.isNotEmpty) {
         await WatchSessionsRepository(
@@ -181,33 +172,6 @@ class SyncApplyService {
         await locations.applySyncedDelete(locationId);
       }
     });
-
-    // Store image bytes outside the main transaction so data sync completes
-    // first and images are processed in the background.
-    if (imageDataByCatalogRef.isNotEmpty && ownedPayloads.isNotEmpty) {
-      final imagesRepo = ItemImagesCacheRepository(db);
-      final ownedByCatalogRef = <CatalogEntityRef, OwnedItemRef>{};
-      for (final item in ownedPayloads) {
-        final rawCatalogRef = item.payload['catalog_ref'];
-        if (rawCatalogRef is! Map) continue;
-        final catalogRef = CatalogEntityRef.fromJson(
-          JsonMap.from(rawCatalogRef),
-        );
-        ownedByCatalogRef[catalogRef] = item.ref;
-      }
-      for (final entry in imageDataByCatalogRef.entries) {
-        final ownedRef = ownedByCatalogRef[entry.key];
-        if (ownedRef == null) continue;
-        final deterministicId =
-            _uuid.v5(Namespace.url.value, '${ownedRef.key}:front_cover');
-        await imagesRepo.upsert(
-          id: deterministicId,
-          ownedRef: ownedRef,
-          imageType: 'front_cover',
-          imageData: base64Decode(entry.value),
-        );
-      }
-    }
   }
 
   Future<void> _applyPickListValues(
@@ -242,19 +206,6 @@ class SyncApplyService {
   // Entity deserializers
   // ---------------------------------------------------------------------------
 
-  CatalogImportTransport _catalogItemFromEntity(
-    JsonMap entity,
-  ) {
-    final type = entity['entity_type'] as String;
-    if (type != 'library_item_snapshot') {
-      throw FormatException('Expected library_item_snapshot entity, got $type');
-    }
-    return catalog.transportFromSyncPayload(
-      id: entity['entity_id'] as String,
-      payload: _payload(entity),
-    );
-  }
-
   _OwnedSyncPayload _ownedPayloadFromEntity(
     JsonMap entity,
   ) {
@@ -284,7 +235,7 @@ class SyncApplyService {
     };
     return (
       kind: kind,
-      ref: OwnedItemRef.fromJson({
+      ref: OwnedCopyRef.fromJson({
         'kind': kind.apiValue,
         'id': entity['entity_id'],
       }),
@@ -332,6 +283,39 @@ class SyncApplyService {
       payload: payload,
       updatedAt: DateTime.parse(entity['client_changed_at'] as String),
       deletedAt: deletedAt == null ? null : DateTime.parse(deletedAt as String),
+    );
+  }
+
+  TrackingUnitSummary _trackingUnitFromEntity(JsonMap entity) {
+    final type = entity['entity_type'] as String;
+    if (type != 'tracking_unit') {
+      throw FormatException('Expected tracking_unit entity, got $type');
+    }
+    final payload = _payload(entity);
+    final rawRef = payload['catalog_ref'] ?? payload['target_ref'];
+    if (rawRef is! Map) {
+      throw const FormatException(
+        'Tracking unit sync payload is missing catalog_ref',
+      );
+    }
+    final catalogRef = CatalogEntityRef.fromJson(JsonMap.from(rawRef));
+    final codec =
+        libraryTrackingUnitCodecs.cast<TrackingUnitStorageCodec?>().firstWhere(
+              (candidate) => candidate?.kind == catalogRef.mediaKind,
+              orElse: () => null,
+            );
+    if (codec == null) {
+      throw UnsupportedError(
+        'No tracking-unit codec is registered for ${catalogRef.mediaKind.apiValue}',
+      );
+    }
+    final action = entity['action'] as String;
+    final changedAt = DateTime.parse(entity['client_changed_at'] as String);
+    return codec.fromSyncPayload(
+      id: entity['entity_id'] as String,
+      payload: payload,
+      updatedAt: changedAt,
+      deletedAt: action == 'delete' ? changedAt : null,
     );
   }
 
@@ -509,7 +493,7 @@ class SyncApplyService {
 
 typedef _OwnedSyncPayload = ({
   CatalogMediaKind kind,
-  OwnedItemRef ref,
+  OwnedCopyRef ref,
   JsonMap payload,
 });
 

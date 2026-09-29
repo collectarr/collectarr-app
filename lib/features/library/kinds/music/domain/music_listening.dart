@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:flutter/foundation.dart';
 
 /// A completed listening event for a Music entity.
@@ -33,7 +33,7 @@ final class MusicListenEvent {
   /// Optional finer-grained target such as a medium or track.
   final CatalogEntityRef? targetRef;
   final DateTime listenedAt;
-  final OwnedItemRef? ownedRef;
+  final OwnedCopyRef? ownedRef;
   final DateTime? startedAt;
   final DateTime? finishedAt;
   final String? location;
@@ -76,7 +76,7 @@ final class MusicListenEvent {
         : null;
     final rawOwned = json['owned_ref'];
     final ownedRef = rawOwned is Map
-        ? OwnedItemRef.fromJson(Map<String, Object?>.from(rawOwned))
+        ? OwnedCopyRef.fromJson(Map<String, Object?>.from(rawOwned))
         : null;
     return MusicListenEvent(
       id: (json['id'] as String?) ?? '',

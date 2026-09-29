@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 abstract interface class LibraryItemActionRunner {
   Future<void> addCopy();
   Future<void> openDetails();
-  Future<void> selectOwnedItem(OwnedItemRef ref);
+  Future<void> selectOwnedItem(OwnedCopyRef ref);
   Future<void> toggleOwned();
   Future<void> toggleWishlist();
   Future<void> edit();
@@ -90,7 +90,7 @@ class LibraryItemActions implements LibraryItemActionRunner {
 
   final VoidCallback? onAddCopy;
   final VoidCallback? onOpenDetails;
-  final ValueChanged<OwnedItemRef>? onSelectOwnedItem;
+  final ValueChanged<OwnedCopyRef>? onSelectOwnedItem;
   final VoidCallback? onToggleOwned;
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
@@ -109,7 +109,7 @@ class LibraryItemActions implements LibraryItemActionRunner {
   Future<void> openDetails() async => onOpenDetails?.call();
 
   @override
-  Future<void> selectOwnedItem(OwnedItemRef ref) async =>
+  Future<void> selectOwnedItem(OwnedCopyRef ref) async =>
       onSelectOwnedItem?.call(ref);
 
   @override
@@ -191,7 +191,7 @@ class LibraryEditDialogRequest {
   /// Structural node being edited. Kind-owned dialogs use this to select a
   /// concrete release/copy without teaching the generic host Music semantics.
   final LibraryEntityRef? node;
-  final OwnedItemSummary? ownedItem;
+  final OwnedCopySummary? ownedItem;
 
   /// Concrete kind-owned aggregate, present only after kind dispatch.
   /// Generic edit infrastructure must not decode or inspect this value.
@@ -225,7 +225,7 @@ class LibraryEditDialogRequest {
     LibraryKindRegistration? type,
     CatalogSearchCandidate? item,
     LibraryEntityRef? node,
-    OwnedItemSummary? ownedItem,
+    OwnedCopySummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
     Color? accent,
     LibraryEntityScope? scope,
@@ -284,7 +284,7 @@ class LibraryDetailPageRequest {
     VoidCallback? onRemoveOwned,
     VoidCallback? onAddWishlist,
     VoidCallback? onRemoveWishlist,
-    void Function(OwnedItemSummary? ownedItem)? onEdit,
+    void Function(OwnedCopySummary? ownedItem)? onEdit,
     this.onFilterByValue,
   })  : _onAddOwned = onAddOwned,
         _onRemoveOwned = onRemoveOwned,
@@ -294,7 +294,7 @@ class LibraryDetailPageRequest {
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final OwnedItemSummary? ownedSummary;
+  final OwnedCopySummary? ownedSummary;
 
   /// Concrete kind-owned aggregate available after Library kind dispatch.
   final LibraryOwnedItemDispatch? ownedItemDispatch;
@@ -306,14 +306,14 @@ class LibraryDetailPageRequest {
   final VoidCallback? _onRemoveOwned;
   final VoidCallback? _onAddWishlist;
   final VoidCallback? _onRemoveWishlist;
-  final void Function(OwnedItemSummary? ownedItem)? _onEdit;
+  final void Function(OwnedCopySummary? ownedItem)? _onEdit;
 
   VoidCallback? get onAddOwned => _onAddOwned ?? actions.onToggleOwned;
   VoidCallback? get onRemoveOwned => _onRemoveOwned ?? actions.onToggleOwned;
   VoidCallback? get onAddWishlist => _onAddWishlist ?? actions.onToggleWishlist;
   VoidCallback? get onRemoveWishlist =>
       _onRemoveWishlist ?? actions.onToggleWishlist;
-  void Function(OwnedItemSummary? ownedItem)? get onEdit =>
+  void Function(OwnedCopySummary? ownedItem)? get onEdit =>
       _onEdit ?? (actions.onEdit != null ? (_) => actions.onEdit!() : null);
 }
 
@@ -349,12 +349,12 @@ class LibraryInspectorRequest {
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final OwnedItemSummary? ownedItem;
+  final OwnedCopySummary? ownedItem;
 
   /// Concrete kind-owned aggregate for kind-owned inspector contributions.
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final VoidCallback? onEdit;
-  final List<OwnedItemSummary> ownedCopies;
+  final List<OwnedCopySummary> ownedCopies;
   final TrackingSummary? trackingSummary;
   final Color accent;
   final LibraryDetailsLayout detailsLayout;
@@ -380,7 +380,7 @@ class LibraryInspectorPanelRequest {
     required this.primarySections,
     required this.trailingSections,
     required this.ownedCopies,
-    required this.selectedOwnedItemRef,
+    required this.selectedOwnedCopyRef,
     required this.extraActions,
     this.actions = const LibraryItemActions(),
     this.onDetailsLayoutChanged,
@@ -389,7 +389,7 @@ class LibraryInspectorPanelRequest {
     this.conditionGradeSection,
     VoidCallback? onAddCopy,
     VoidCallback? onOpenDetails,
-    ValueChanged<OwnedItemRef>? onSelectOwnedItem,
+    ValueChanged<OwnedCopyRef>? onSelectOwnedItem,
     VoidCallback? onToggleOwned,
     VoidCallback? onToggleWishlist,
     VoidCallback? onEdit,
@@ -414,8 +414,8 @@ class LibraryInspectorPanelRequest {
   final Widget hero;
   final List<Widget> primarySections;
   final List<Widget> trailingSections;
-  final List<OwnedItemSummary> ownedCopies;
-  final OwnedItemRef? selectedOwnedItemRef;
+  final List<OwnedCopySummary> ownedCopies;
+  final OwnedCopyRef? selectedOwnedCopyRef;
   final List<Widget> extraActions;
   final LibraryItemActions actions;
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
@@ -425,7 +425,7 @@ class LibraryInspectorPanelRequest {
 
   final VoidCallback? _onAddCopy;
   final VoidCallback? _onOpenDetails;
-  final ValueChanged<OwnedItemRef>? _onSelectOwnedItem;
+  final ValueChanged<OwnedCopyRef>? _onSelectOwnedItem;
   final VoidCallback? _onToggleOwned;
   final VoidCallback? _onToggleWishlist;
   final VoidCallback? _onEdit;
@@ -438,7 +438,7 @@ class LibraryInspectorPanelRequest {
   VoidCallback get onAddCopy => _onAddCopy ?? actions.onAddCopy ?? () {};
   VoidCallback get onOpenDetails =>
       _onOpenDetails ?? actions.onOpenDetails ?? () {};
-  ValueChanged<OwnedItemRef>? get onSelectOwnedItem =>
+  ValueChanged<OwnedCopyRef>? get onSelectOwnedItem =>
       _onSelectOwnedItem ?? actions.onSelectOwnedItem;
   VoidCallback? get onToggleOwned => _onToggleOwned ?? actions.onToggleOwned;
   VoidCallback? get onToggleWishlist =>

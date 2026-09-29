@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
@@ -101,11 +101,11 @@ final class LibraryEntityActionContext {
   final BuildContext buildContext;
   final LibraryProjection projection;
   final LibraryProjectionView item;
-  final OwnedItemSummary? ownedItem;
-  final List<OwnedItemSummary> ownedCopies;
+  final OwnedCopySummary? ownedItem;
+  final List<OwnedCopySummary> ownedCopies;
   final VoidCallback? onAddCopy;
   final VoidCallback? onOpenDetails;
-  final ValueChanged<OwnedItemRef>? onSelectOwnedItem;
+  final ValueChanged<OwnedCopyRef>? onSelectOwnedItem;
   final VoidCallback? onToggleOwned;
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;

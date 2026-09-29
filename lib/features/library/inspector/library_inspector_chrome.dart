@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:flutter/material.dart';
@@ -20,14 +20,14 @@ class InspectorBackdrop extends StatelessWidget {
   });
 
   final LibraryProjectionView item;
-  final OwnedItemSummary? ownedItem;
+  final OwnedCopySummary? ownedItem;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
     final card = libraryCardPresentationForEntry(item);
-    final ownedRef = resolveLibraryOwnedItemRef(item, ownedItem);
+    final ownedRef = resolveLibraryOwnedCopyRef(item, ownedItem);
     return Stack(
       fit: StackFit.expand,
       children: [

@@ -13,7 +13,7 @@ void main() {
     addTearDown(db.close);
     final repository = BookOwnedRepository(db);
     final item = BookOwnedItem(
-      id: const BookOwnedItemId('owned-book-1'),
+      id: const BookOwnedCopyId('owned-book-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
         entityType: CatalogEntityTypeId('work'),
@@ -50,7 +50,7 @@ void main() {
     addTearDown(db.close);
     final repository = BookOwnedRepository(db);
     final item = BookOwnedItem(
-      id: const BookOwnedItemId('owned-book-invalid'),
+      id: const BookOwnedCopyId('owned-book-invalid'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
         entityType: CatalogEntityTypeId('work'),

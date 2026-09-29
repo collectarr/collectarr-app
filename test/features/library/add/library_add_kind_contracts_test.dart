@@ -243,6 +243,7 @@ void main() {
         onAddOwned: () {},
         onAddWishlist: () {},
         onAddTrack: () {},
+        onPropose: () {},
       );
 
       await tester.pumpWidget(

@@ -73,7 +73,7 @@ final class MovieOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String? ownerLabel,
   }) {
     return MovieOwnedItem(
-      id: MovieOwnedItemId(id),
+      id: MovieOwnedCopyId(id),
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,

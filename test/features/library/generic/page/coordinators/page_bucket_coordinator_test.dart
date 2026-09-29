@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -210,7 +210,7 @@ void main() {
 
     expect(affected, 1);
     expect(harness.selectedBucket, 'Mint');
-    final updated = await ownedRepository.findById(MusicOwnedItemId(owned.id));
+    final updated = await ownedRepository.findById(MusicOwnedCopyId(owned.id));
     expect(updated?.condition, 'Mint');
   });
 
@@ -375,7 +375,7 @@ final class _CoordinatorHarness {
       setActiveSmartListName: (_) {},
       getScopeHistory: () => const [],
       setScopeHistory: (_) {},
-      getActiveLoanOwnedItemIds: () => const <OwnedItemRef>{},
+      getActiveLoanOwnedCopyIds: () => const <OwnedCopyRef>{},
       getPinnedSortFavoriteIds: () => const <String>{},
       setPinnedSortFavoriteIds: (_) {},
       getPinnedColumnFavoriteKeys: () => const <String>{},

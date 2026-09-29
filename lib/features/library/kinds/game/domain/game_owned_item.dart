@@ -38,7 +38,7 @@ final class GameOwnedItem {
     this.details = const GameOwnedDetails(),
   });
 
-  final GameOwnedItemId id;
+  final GameOwnedCopyId id;
   final CatalogEntityRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
@@ -110,7 +110,7 @@ final class GameOwnedItem {
           'Expected game catalog_ref, got ${catalogRef.kind}');
     }
     return GameOwnedItem(
-      id: GameOwnedItemId(json['id'] as String),
+      id: GameOwnedCopyId(json['id'] as String),
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
@@ -140,7 +140,7 @@ final class GameOwnedItem {
   }
 
   GameOwnedItem copyWith({
-    GameOwnedItemId? id,
+    GameOwnedCopyId? id,
     CatalogEntityRef? catalogRef,
     Object? createdAt = _unset,
     Object? isDigital = _unset,

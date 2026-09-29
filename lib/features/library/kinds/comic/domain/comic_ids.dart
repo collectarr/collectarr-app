@@ -12,6 +12,6 @@ final class ComicReleaseId extends LibraryEntityId {
 }
 
 @immutable
-final class ComicOwnedItemId extends LibraryEntityId {
-  const ComicOwnedItemId(super.value);
+final class ComicOwnedCopyId extends LibraryEntityId {
+  const ComicOwnedCopyId(super.value);
 }

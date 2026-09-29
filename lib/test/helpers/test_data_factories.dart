@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/test/helpers/test_owned_item_fixture.dart';
 
 export 'test_owned_item_fixture.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -504,8 +504,8 @@ CatalogEntityRef _testTargetRef(
   );
 }
 
-OwnedItemSummary testOwnedItemSummary(TestOwnedItem item) {
-  return OwnedItemSummary(
+OwnedCopySummary testOwnedCopySummary(TestOwnedItem item) {
+  return OwnedCopySummary(
     ref: item.ref,
     title: item.itemId,
     catalogRef: item.catalogRef,
@@ -530,8 +530,8 @@ OwnedItemSummary testOwnedItemSummary(TestOwnedItem item) {
   );
 }
 
-OwnedItemSummary testOwnedSummary(TestOwnedItem item) =>
-    testOwnedItemSummary(item);
+OwnedCopySummary testOwnedSummary(TestOwnedItem item) =>
+    testOwnedCopySummary(item);
 
 ComicOwnedItem testComicOwnedItemFrom(TestOwnedItem item) =>
     ComicOwnedItem.fromJson(item.toJson());
@@ -615,37 +615,37 @@ LibraryOwnedItemDispatch testOwnedItemDispatchFrom(TestOwnedItem item) {
   };
 }
 
-OwnedItemRef _testOwnedItemRef(CatalogEntityRef catalogRef, String id) =>
-    OwnedItemRef(
+OwnedCopyRef _testOwnedCopyRef(CatalogEntityRef catalogRef, String id) =>
+    OwnedCopyRef(
       kind: catalogRef.mediaKind,
-      id: OwnedItemId(id),
+      id: OwnedCopyId(id),
     );
 
 LibraryOwnedItemDispatch testComicOwnedItemDispatchFrom(ComicOwnedItem item) =>
     OpaqueLibraryOwnedItemDispatch(
       kind: CatalogMediaKind.comic,
-      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      ref: _testOwnedCopyRef(item.catalogRef, item.id.value),
       value: item,
     );
 
 LibraryOwnedItemDispatch testGameOwnedItemDispatchFrom(GameOwnedItem item) =>
     OpaqueLibraryOwnedItemDispatch(
       kind: CatalogMediaKind.game,
-      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      ref: _testOwnedCopyRef(item.catalogRef, item.id.value),
       value: item,
     );
 
 LibraryOwnedItemDispatch testMangaOwnedItemDispatchFrom(MangaOwnedItem item) =>
     OpaqueLibraryOwnedItemDispatch(
       kind: CatalogMediaKind.manga,
-      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      ref: _testOwnedCopyRef(item.catalogRef, item.id.value),
       value: item,
     );
 
 LibraryOwnedItemDispatch testMovieOwnedItemDispatchFrom(MovieOwnedItem item) =>
     OpaqueLibraryOwnedItemDispatch(
       kind: CatalogMediaKind.movie,
-      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      ref: _testOwnedCopyRef(item.catalogRef, item.id.value),
       value: item,
     );
 
@@ -678,7 +678,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
             testCatalogItemWithKindMetadata(resolvedCatalogItem),
           ),
         ),
-    ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),
+    ownedSummary: ownedItem == null ? null : testOwnedCopySummary(ownedItem),
     ownedItemDispatch: ownedItemDispatch,
     wishlistItem: wishlistItem,
     locationPath: locationPath,

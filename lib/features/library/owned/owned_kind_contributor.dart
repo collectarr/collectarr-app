@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
@@ -42,7 +42,7 @@ typedef OwnedKindUpdate<TItem> = TItem Function({
 
 typedef OwnedKindToJson<TItem> = JsonMap Function(TItem item);
 typedef OwnedKindFromJson<TItem> = TItem Function(JsonMap payload);
-typedef OwnedKindSummary<TItem> = OwnedItemSummary Function(TItem item);
+typedef OwnedKindSummary<TItem> = OwnedCopySummary Function(TItem item);
 typedef OwnedKindCreatePayload<TItem> = OwnedItemCreatePayload Function(
   TItem item,
 );
@@ -73,7 +73,7 @@ abstract interface class OwnedKindContributor {
 
   Future<OwnedItemMutationResult> updateOwned({
     required LocalDatabase database,
-    required OwnedItemRef ref,
+    required OwnedCopyRef ref,
     required OwnedItemUpdatePayload payload,
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
@@ -82,14 +82,14 @@ abstract interface class OwnedKindContributor {
 
   Future<OwnedItemCreatePayload?> createPayloadByRef(
     LocalDatabase database,
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
   );
 
-  Future<JsonMap?> payloadByRef(LocalDatabase database, OwnedItemRef ref);
+  Future<JsonMap?> payloadByRef(LocalDatabase database, OwnedCopyRef ref);
 
   Future<({JsonMap payload, bool isDeleted})?> syncPayloadByRef(
     LocalDatabase database,
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
   );
 
   Future<OwnedItemMutationResult> replaceFromPayload(
@@ -99,22 +99,22 @@ abstract interface class OwnedKindContributor {
 
   Future<LibraryOwnedItemDispatch?> itemForLibraryByRef(
     LocalDatabase database,
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
   );
 
   Future<OwnedItemMutationResult?> markDeletedByRef(
     LocalDatabase database,
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
     DateTime deletedAt,
   );
 
   Future<void> updateLocation(
     LocalDatabase database,
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
     String? locationId,
   );
 
-  Future<List<OwnedItemSummary>> listActiveSummaries(LocalDatabase database);
+  Future<List<OwnedCopySummary>> listActiveSummaries(LocalDatabase database);
 }
 
 /// Generic orchestration for a kind's typed repository.
@@ -154,9 +154,9 @@ final class TypedOwnedKindContributor<TItem> implements OwnedKindContributor {
   final OwnedKindMarkDeleted<TItem> markDeleted;
   final OwnedKindUpdateLocation<TItem> updateItemLocation;
 
-  OwnedItemRef _refFor(TItem item) => OwnedItemRef(
+  OwnedCopyRef _refFor(TItem item) => OwnedCopyRef(
         kind: kind,
-        id: OwnedItemId(itemId(item)),
+        id: OwnedCopyId(itemId(item)),
       );
 
   ({JsonMap payload, bool isDeleted}) _syncPayload(TItem item) {
@@ -205,7 +205,7 @@ final class TypedOwnedKindContributor<TItem> implements OwnedKindContributor {
   @override
   Future<OwnedItemMutationResult> updateOwned({
     required LocalDatabase database,
-    required OwnedItemRef ref,
+    required OwnedCopyRef ref,
     required OwnedItemUpdatePayload payload,
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
@@ -231,7 +231,7 @@ final class TypedOwnedKindContributor<TItem> implements OwnedKindContributor {
   @override
   Future<OwnedItemCreatePayload?> createPayloadByRef(
     LocalDatabase database,
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
   ) async {
     if (ref.kind != kind) return null;
     final item = await findById(database, ref.id.value);
@@ -241,7 +241,7 @@ final class TypedOwnedKindContributor<TItem> implements OwnedKindContributor {
   @override
   Future<JsonMap?> payloadByRef(
     LocalDatabase database,
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
   ) async {
     if (ref.kind != kind) return null;
     final item = await findById(database, ref.id.value);
@@ -251,7 +251,7 @@ final class TypedOwnedKindContributor<TItem> implements OwnedKindContributor {
   @override
   Future<({JsonMap payload, bool isDeleted})?> syncPayloadByRef(
     LocalDatabase database,
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
   ) async {
     if (ref.kind != kind) return null;
     final item = await findById(database, ref.id.value);
@@ -271,7 +271,7 @@ final class TypedOwnedKindContributor<TItem> implements OwnedKindContributor {
   @override
   Future<LibraryOwnedItemDispatch?> itemForLibraryByRef(
     LocalDatabase database,
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
   ) async {
     if (ref.kind != kind) return null;
     final item = await findById(database, ref.id.value);
@@ -286,7 +286,7 @@ final class TypedOwnedKindContributor<TItem> implements OwnedKindContributor {
   @override
   Future<OwnedItemMutationResult?> markDeletedByRef(
     LocalDatabase database,
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
     DateTime deletedAt,
   ) async {
     if (ref.kind != kind) return null;
@@ -300,7 +300,7 @@ final class TypedOwnedKindContributor<TItem> implements OwnedKindContributor {
   @override
   Future<void> updateLocation(
     LocalDatabase database,
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
     String? locationId,
   ) async {
     if (ref.kind != kind) return;
@@ -310,7 +310,7 @@ final class TypedOwnedKindContributor<TItem> implements OwnedKindContributor {
   }
 
   @override
-  Future<List<OwnedItemSummary>> listActiveSummaries(
+  Future<List<OwnedCopySummary>> listActiveSummaries(
     LocalDatabase database,
   ) async {
     final items = await listActive(database);

@@ -1,112 +1,61 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  test('resolves default and explicit proposal providers from library config',
-      () {
-    expect(
-      resolveLibraryMetadataProposalProvider(CatalogMediaKind.comic),
-      'gcd',
-    );
-    expect(
-      resolveLibraryMetadataProposalProvider(
-        CatalogMediaKind.comic,
-        provider: 'comicvine',
-      ),
-      'comicvine',
-    );
-  });
-
-  test('rejects unsupported proposal providers for the library type', () {
-    expect(
-      () => resolveLibraryMetadataProposalProvider(
-        CatalogMediaKind.comic,
-        provider: 'openlibrary',
-      ),
-      throwsArgumentError,
-    );
-  });
-
-  test('creates proposal with resolved default provider', () async {
-    final api = _FakeProposalApiClient();
-
-    final response = await createLibraryMetadataProposal(
-      api: api,
-      kind: CatalogMediaKind.comic,
-      defaultProvider: comicKindMetadata.defaultProviderId,
-      query: 'Batman #1',
-      title: 'Batman',
-      summary: 'Missing comic metadata',
-    );
-
-    expect(response['status'], 'pending');
-    expect(api.provider, 'gcd');
-    expect(api.query, 'Batman #1');
-    expect(api.title, 'Batman');
-    expect(api.summary, 'Missing comic metadata');
-  });
-
-  test('creates and records proposal with resolved provider', () async {
+  test('manual Add catalog data is submitted unchanged for review', () async {
     SharedPreferences.setMockInitialValues({});
     final api = _FakeProposalApiClient();
+    const catalogItem = <String, dynamic>{
+      'title': 'Lupus Dei',
+      'artist': 'Powerwolf',
+      'release_date': '2017',
+      'genres': ['Heavy Metal', 'Power Metal'],
+      'mediums': [
+        {
+          'position': 1,
+          'tracks': [
+            {'position': 1, 'title': 'Fire & Forgive'},
+          ],
+        },
+      ],
+    };
 
     final response = await createAndRecordLibraryMetadataProposal(
       api: api,
-      kind: CatalogMediaKind.comic,
-      defaultProvider: comicKindMetadata.defaultProviderId,
-      provider: 'comicvine',
-      providerItemId: 'cv-42',
-      query: 'Absolute Batman #1',
-      title: 'Absolute Batman',
-      summary: 'Provider candidate',
-      imageUrl: 'https://example.test/cover.jpg',
-      source: 'Unit test',
+      kind: 'music',
+      catalogItem: catalogItem,
+      source: 'Manual Add form',
     );
-    final records = await const MetadataProposalStore().read();
 
     expect(response['status'], 'pending');
-    expect(api.provider, 'comicvine');
-    expect(api.providerItemId, 'cv-42');
-    expect(api.imageUrl, 'https://example.test/cover.jpg');
+    expect(api.kind, 'music');
+    expect(api.catalogItem, catalogItem);
+
+    final records = await const MetadataProposalStore().read();
+    expect(records, hasLength(1));
     expect(records.single.serverId, 'proposal-1');
-    expect(records.single.provider, 'comicvine');
-    expect(records.single.query, 'Absolute Batman #1');
-    expect(records.single.title, 'Absolute Batman');
-    expect(records.single.source, 'Unit test');
+    expect(records.single.kind, 'music');
+    expect(records.single.title, 'Lupus Dei');
+    expect(records.single.source, 'Manual Add form');
   });
 }
 
 class _FakeProposalApiClient extends ApiClient {
   _FakeProposalApiClient() : super(baseUrl: 'http://unused');
 
-  String? provider;
-  String? providerItemId;
-  String? query;
-  String? title;
-  String? summary;
-  String? imageUrl;
+  String? kind;
+  Map<String, dynamic>? catalogItem;
 
   @override
-  Future<Map<String, dynamic>> createMetadataProposal({
-    required String provider,
-    required String query,
-    String? providerItemId,
-    String? title,
-    String? summary,
-    String? imageUrl,
-    Map<String, dynamic>? metadataPayload,
+  Future<Map<String, dynamic>> createCatalogItemProposal({
+    required String kind,
+    required Map<String, dynamic> catalogItem,
   }) async {
-    this.provider = provider;
-    this.providerItemId = providerItemId;
-    this.query = query;
-    this.title = title;
-    this.summary = summary;
-    this.imageUrl = imageUrl;
+    this.kind = kind;
+    this.catalogItem = catalogItem;
     return const {'id': 'proposal-1', 'status': 'pending'};
   }
 }

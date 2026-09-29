@@ -352,18 +352,20 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
     try {
       final kind = _kindForImportRow(row);
+      final catalogItem = <String, dynamic>{
+        'title': draft.title.trim().isEmpty ? draft.query : draft.title.trim(),
+        if (draft.summary.trim().isNotEmpty)
+          'description': draft.summary.trim(),
+      };
       final response = await createLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
-        kind: kind,
-        query: draft.query,
-        title: draft.title.trim().isEmpty ? null : draft.title.trim(),
-        summary: draft.summary,
+        kind: kind.apiValue,
+        catalogItem: catalogItem,
       );
       await recordLibraryMetadataProposalResponse(
         response: response,
-        kind: kind,
-        query: draft.query,
-        title: draft.title,
+        kind: kind.apiValue,
+        catalogItem: catalogItem,
         source: 'CSV import',
       );
       if (!mounted) {
@@ -942,7 +944,8 @@ class _CatalogThumb extends StatelessWidget {
 
 String _catalogTitle(CatalogSearchCandidate item) => item.summary.primaryLabel;
 
-String _catalogSubtitle(CatalogSearchCandidate item) => item.summary.subtitle ?? '';
+String _catalogSubtitle(CatalogSearchCandidate item) =>
+    item.summary.subtitle ?? '';
 
 String _importRowTitle(CollectionImportRow row) {
   final kindTitle = row.kindDisplayTitle?.trim();

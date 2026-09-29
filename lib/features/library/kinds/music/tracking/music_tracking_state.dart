@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
@@ -38,7 +38,7 @@ final class MusicTrackingState extends PersonalTrackingBase
   @override
   CatalogEntityRef get catalogRef => releaseRef;
   @override
-  OwnedItemRef? get ownedRef => null;
+  OwnedCopyRef? get ownedRef => null;
   String get releaseId => releaseRef.id;
   @override
   final TrackingSourceType? sourceType;
@@ -87,7 +87,7 @@ final class MusicTrackingState extends PersonalTrackingBase
     final nextReleaseRef = releaseRef ?? catalogRef ?? this.releaseRef;
     final nextOwnedRef = identical(ownedRef, trackingStorageUnset)
         ? this.ownedRef
-        : ownedRef as OwnedItemRef?;
+        : ownedRef as OwnedCopyRef?;
     if (nextOwnedRef != null) {
       throw StateError('Music tracking cannot be attached to an owned copy.');
     }

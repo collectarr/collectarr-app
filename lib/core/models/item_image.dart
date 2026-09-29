@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 
 class ItemImage {
   const ItemImage({
@@ -15,7 +15,7 @@ class ItemImage {
   });
 
   final String id;
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
   final String imageType; // front_cover, back_cover, auxiliary
   final Uint8List imageData;
   final String? caption;
@@ -25,7 +25,7 @@ class ItemImage {
   factory ItemImage.fromJson(Map<String, Object?> json) {
     return ItemImage(
       id: json['id'] as String,
-      ownedRef: ownedItemRefFromSerialized(json['owned_ref'])!,
+      ownedRef: ownedCopyRefFromSerialized(json['owned_ref'])!,
       imageType: json['image_type'] as String? ?? 'front_cover',
       imageData: base64Decode(json['image_data'] as String),
       caption: json['caption'] as String?,
@@ -46,7 +46,7 @@ class ItemImage {
 
   ItemImage copyWith({
     String? id,
-    OwnedItemRef? ownedRef,
+    OwnedCopyRef? ownedRef,
     String? imageType,
     Uint8List? imageData,
     String? caption,

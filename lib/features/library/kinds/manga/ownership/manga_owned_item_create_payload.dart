@@ -73,7 +73,7 @@ final class MangaOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String? ownerLabel,
   }) {
     return MangaOwnedItem(
-      id: MangaOwnedItemId(id),
+      id: MangaOwnedCopyId(id),
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,

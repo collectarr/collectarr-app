@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:uuid/uuid.dart';
@@ -20,7 +20,7 @@ class CoverOfflineStorage {
   /// Download the cover at [url] and store it for [ownedRef].
   /// Returns the created [ItemImage], or null if the download failed.
   Future<ItemImage?> saveCoverOffline({
-    required OwnedItemRef ownedRef,
+    required OwnedCopyRef ownedRef,
     required String url,
   }) async {
     final bytes = await _downloadBytes(url);
@@ -47,7 +47,7 @@ class CoverOfflineStorage {
   }
 
   /// Check if an offline cover exists for the given item.
-  Future<Uint8List?> offlineCoverBytes(OwnedItemRef ownedRef) async {
+  Future<Uint8List?> offlineCoverBytes(OwnedCopyRef ownedRef) async {
     final images = await _repo.listForOwnedRef(ownedRef);
     for (final img in images) {
       if (img.caption == _coverCaption) {
@@ -58,7 +58,7 @@ class CoverOfflineStorage {
   }
 
   /// Remove the offline cover for the given item.
-  Future<void> removeOfflineCover(OwnedItemRef ownedRef) async {
+  Future<void> removeOfflineCover(OwnedCopyRef ownedRef) async {
     final images = await _repo.listForOwnedRef(ownedRef);
     for (final img in images) {
       if (img.caption == _coverCaption) {

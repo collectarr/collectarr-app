@@ -933,7 +933,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
 
 List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-01'),
+        id: MovieOwnedCopyId('seed-owned-movie-01'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01'),
         createdAt: now.subtract(const Duration(days: 420)),
         updatedAt: now,
@@ -953,7 +953,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-02'),
+        id: MovieOwnedCopyId('seed-owned-movie-02'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-02'),
         createdAt: now.subtract(const Duration(days: 380)),
         updatedAt: now,
@@ -972,7 +972,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-03'),
+        id: MovieOwnedCopyId('seed-owned-movie-03'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-03'),
         createdAt: now.subtract(const Duration(days: 350)),
         updatedAt: now,
@@ -994,7 +994,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-04'),
+        id: MovieOwnedCopyId('seed-owned-movie-04'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-04'),
         createdAt: now.subtract(const Duration(days: 280)),
         updatedAt: now,
@@ -1016,7 +1016,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-05'),
+        id: MovieOwnedCopyId('seed-owned-movie-05'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-05'),
         createdAt: now.subtract(const Duration(days: 200)),
         updatedAt: now,
@@ -1038,7 +1038,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-06'),
+        id: MovieOwnedCopyId('seed-owned-movie-06'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-06'),
         createdAt: now.subtract(const Duration(days: 500)),
         updatedAt: now,
@@ -1059,7 +1059,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-07'),
+        id: MovieOwnedCopyId('seed-owned-movie-07'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-07'),
         createdAt: now.subtract(const Duration(days: 340)),
         updatedAt: now,
@@ -1080,7 +1080,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-08'),
+        id: MovieOwnedCopyId('seed-owned-movie-08'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-08'),
         createdAt: now.subtract(const Duration(days: 240)),
         updatedAt: now,
@@ -1100,7 +1100,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-09'),
+        id: MovieOwnedCopyId('seed-owned-movie-09'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-09'),
         createdAt: now.subtract(const Duration(days: 230)),
         updatedAt: now,
@@ -1122,7 +1122,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-10'),
+        id: MovieOwnedCopyId('seed-owned-movie-10'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-10'),
         createdAt: now.subtract(const Duration(days: 150)),
         updatedAt: now,
@@ -1142,7 +1142,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-11'),
+        id: MovieOwnedCopyId('seed-owned-movie-11'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-11'),
         createdAt: now.subtract(const Duration(days: 90)),
         updatedAt: now,
@@ -1163,7 +1163,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-12'),
+        id: MovieOwnedCopyId('seed-owned-movie-12'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-12'),
         createdAt: now.subtract(const Duration(days: 60)),
         updatedAt: now,
@@ -1184,7 +1184,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-13'),
+        id: MovieOwnedCopyId('seed-owned-movie-13'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-13'),
         createdAt: now.subtract(const Duration(days: 30)),
         updatedAt: now,
@@ -1205,7 +1205,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-14'),
+        id: MovieOwnedCopyId('seed-owned-movie-14'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-14'),
         createdAt: now.subtract(const Duration(days: 45)),
         updatedAt: now,
@@ -1226,7 +1226,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         collectionStatus: 'collected',
       ),
       MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-15'),
+        id: MovieOwnedCopyId('seed-owned-movie-15'),
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-15'),
         createdAt: now.subtract(const Duration(days: 20)),
         updatedAt: now,

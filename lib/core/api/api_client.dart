@@ -152,6 +152,44 @@ class ApiClient {
     return _catalogApi.searchMetadata(query, cancelToken: cancelToken);
   }
 
+  /// Fetches an untyped JSON object for a kind-owned remote data source.
+  ///
+  /// The owning feature is responsible for decoding the response into its
+  /// typed transport model.
+  Future<Map<String, dynamic>> getJsonObject(
+    String path, {
+    Map<String, Object?>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      path,
+      queryParameters: queryParameters,
+      cancelToken: cancelToken,
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('Core returned an empty JSON object for $path.');
+    }
+    return data;
+  }
+
+  /// Fetches a JSON list for a kind-owned remote data source.
+  Future<List<Map<String, dynamic>>> getJsonList(
+    String path, {
+    Map<String, Object?>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      path,
+      queryParameters: queryParameters,
+      cancelToken: cancelToken,
+    );
+    return [
+      for (final value in response.data ?? const <dynamic>[])
+        if (value is Map) Map<String, dynamic>.from(value),
+    ];
+  }
+
   Future<TypedMetadataResponse> getTypedMetadataItem({
     required CatalogMediaKind kind,
     required String id,
@@ -580,15 +618,11 @@ class ApiClient {
 
   Future<List<AdminMetadataProposal>> adminMetadataProposals({
     String status = 'pending',
-    String? provider,
   }) async {
-    return _adminApi.adminMetadataProposals(
-      status: status,
-      provider: provider,
-    );
+    return _adminApi.adminMetadataProposals(status: status);
   }
 
-  Future<AdminProviderIngestResult> adminApproveMetadataProposal({
+  Future<AdminMetadataProposal> adminApproveMetadataProposal({
     required String proposalId,
   }) async {
     return _adminApi.adminApproveMetadataProposal(proposalId: proposalId);
@@ -596,36 +630,13 @@ class ApiClient {
 
   Future<AdminMetadataProposal> adminUpdateMetadataProposal({
     required String proposalId,
-    String? query,
-    String? providerItemId,
-    String? title,
-    String? summary,
-    String? imageUrl,
-    Map<String, dynamic>? metadataPayload,
+    required Map<String, dynamic> catalogItem,
+    String? reviewNote,
   }) async {
     return _adminApi.adminUpdateMetadataProposal(
       proposalId: proposalId,
-      query: query,
-      providerItemId: providerItemId,
-      title: title,
-      summary: summary,
-      imageUrl: imageUrl,
-      metadataPayload: metadataPayload,
-    );
-  }
-
-  Future<AdminProviderIngestResult>
-      adminApproveMetadataProposalWithProviderItem({
-    required String proposalId,
-    required String provider,
-    required String providerItemId,
-    String? kind,
-  }) async {
-    return _adminApi.adminApproveMetadataProposalWithProviderItem(
-      proposalId: proposalId,
-      provider: provider,
-      providerItemId: providerItemId,
-      kind: kind,
+      catalogItem: catalogItem,
+      reviewNote: reviewNote,
     );
   }
 
@@ -635,23 +646,13 @@ class ApiClient {
     return _adminApi.adminRejectMetadataProposal(proposalId: proposalId);
   }
 
-  Future<Map<String, dynamic>> createMetadataProposal({
-    required String provider,
-    required String query,
-    String? providerItemId,
-    String? title,
-    String? summary,
-    String? imageUrl,
-    Map<String, dynamic>? metadataPayload,
+  Future<Map<String, dynamic>> createCatalogItemProposal({
+    required String kind,
+    required Map<String, dynamic> catalogItem,
   }) async {
-    return _catalogApi.createMetadataProposal(
-      provider: provider,
-      query: query,
-      providerItemId: providerItemId,
-      title: title,
-      summary: summary,
-      imageUrl: imageUrl,
-      metadataPayload: metadataPayload,
+    return _catalogApi.createCatalogItemProposal(
+      kind: kind,
+      catalogItem: catalogItem,
     );
   }
 

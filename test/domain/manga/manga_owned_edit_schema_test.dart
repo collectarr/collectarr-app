@@ -153,7 +153,7 @@ MangaEditDraft _createDraft(MangaOwnedDetails details) {
     item: item,
     ownedItemDispatch: testMangaOwnedItemDispatchFrom(
       MangaOwnedItem(
-        id: const MangaOwnedItemId('owned-1'),
+        id: const MangaOwnedCopyId('owned-1'),
         catalogRef: const CatalogEntityRef(
           id: 'manga-1',
           kind: CatalogMediaKind.manga,

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -21,8 +21,8 @@ class LibraryDetailHero extends StatelessWidget {
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final OwnedItemSummary? ownedItem;
-  final List<OwnedItemSummary> ownedCopies;
+  final OwnedCopySummary? ownedItem;
+  final List<OwnedCopySummary> ownedCopies;
   final Color accent;
   final bool? isOwned;
   final Widget? kindOwnedContent;
@@ -208,8 +208,8 @@ class LibraryDetailHero extends StatelessWidget {
 }
 
 int? _sumOwnedValueCents(
-  List<OwnedItemSummary> items,
-  int? Function(OwnedItemSummary item) selector,
+  List<OwnedCopySummary> items,
+  int? Function(OwnedCopySummary item) selector,
 ) {
   var hasValue = false;
   var total = 0;
@@ -225,8 +225,8 @@ int? _sumOwnedValueCents(
 }
 
 String? _detailHeroValueCurrency(
-  List<OwnedItemSummary> ownedCopies,
-  OwnedItemSummary? ownedItem,
+  List<OwnedCopySummary> ownedCopies,
+  OwnedCopySummary? ownedItem,
   LibraryProjectionView item,
 ) {
   for (final copy in ownedCopies) {

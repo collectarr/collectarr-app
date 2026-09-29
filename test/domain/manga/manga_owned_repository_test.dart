@@ -14,7 +14,7 @@ void main() {
     addTearDown(db.close);
     final repository = MangaOwnedRepository(db);
     final item = MangaOwnedItem(
-      id: const MangaOwnedItemId('owned-manga-1'),
+      id: const MangaOwnedCopyId('owned-manga-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.manga,
         entityType: CatalogEntityTypeId('work'),
@@ -57,7 +57,7 @@ void main() {
     addTearDown(db.close);
     final repository = MangaOwnedRepository(db);
     final item = MangaOwnedItem(
-      id: const MangaOwnedItemId('owned-manga-invalid'),
+      id: const MangaOwnedCopyId('owned-manga-invalid'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
         entityType: CatalogEntityTypeId('work'),

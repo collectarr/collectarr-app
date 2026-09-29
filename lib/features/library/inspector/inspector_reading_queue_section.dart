@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ class InspectorReadingQueueSection extends StatefulWidget {
     required this.accent,
   });
 
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
   final LocalDatabase db;
   final Color accent;
 

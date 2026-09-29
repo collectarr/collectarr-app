@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/calendar/calendar_page.dart';
 import 'package:collectarr_app/features/calendar/calendar_provider.dart';
 import 'package:flutter/material.dart';
@@ -65,9 +65,9 @@ void main() {
       kind: CalendarEventKind.loanDue,
       date: DateTime.now(),
       title: 'Spider-Man #1',
-      ownedRef: const OwnedItemRef(
+      ownedRef: const OwnedCopyRef(
         kind: CatalogMediaKind.comic,
-        id: OwnedItemId('owned-1'),
+        id: OwnedCopyId('owned-1'),
       ),
     );
 

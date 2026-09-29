@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -20,7 +20,7 @@ class LibraryFilterEngine {
     required LibrarySearchDocument searchDoc,
     required LibraryKindRegistration type,
     LibraryProjectionIndex? index,
-    Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
+    Set<OwnedCopyRef> activeLoanOwnedCopyIds = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
   }) {
@@ -50,7 +50,7 @@ class LibraryFilterEngine {
       item,
       type,
       query.filterSelection,
-      activeLoanOwnedItemIds,
+      activeLoanOwnedCopyIds,
       customFieldValuesByDefinitionByItem,
     )) {
       return false;
@@ -155,7 +155,7 @@ class LibraryFilterEngine {
     LibraryProjectionItem item,
     LibraryKindRegistration type,
     LibraryFilterSelection filters,
-    Set<OwnedItemRef> activeLoanOwnedItemIds,
+    Set<OwnedCopyRef> activeLoanOwnedCopyIds,
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
   ) {
     if (!filters.hasActiveFilters) {
@@ -176,7 +176,7 @@ class LibraryFilterEngine {
       return false;
     }
     if (!_matchesLoanFilter(
-        item, filters.loanStatusFilter, activeLoanOwnedItemIds)) {
+        item, filters.loanStatusFilter, activeLoanOwnedCopyIds)) {
       return false;
     }
     if (!_matchesDateRange(item, filters)) {
@@ -224,7 +224,7 @@ class LibraryFilterEngine {
   bool _matchesLoanFilter(
     LibraryProjectionItem item,
     LibraryLoanStatusFilter filter,
-    Set<OwnedItemRef> activeLoanOwnedItemIds,
+    Set<OwnedCopyRef> activeLoanOwnedCopyIds,
   ) {
     if (filter == LibraryLoanStatusFilter.all) {
       return true;
@@ -233,7 +233,7 @@ class LibraryFilterEngine {
     if (ownedRef == null) {
       return false;
     }
-    final hasActiveLoan = activeLoanOwnedItemIds.contains(ownedRef);
+    final hasActiveLoan = activeLoanOwnedCopyIds.contains(ownedRef);
     return switch (filter) {
       LibraryLoanStatusFilter.all => true,
       LibraryLoanStatusFilter.onLoan => hasActiveLoan,

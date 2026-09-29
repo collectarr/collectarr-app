@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
@@ -187,7 +187,7 @@ final class LibraryEditSessionController {
 
   OwnedItemUpdateRequest buildCopyUpdateCommand(
     LibraryEditShellState state,
-    OwnedItemRef ownedRef,
+    OwnedCopyRef ownedRef,
   ) {
     return UpdateOwnedItemCommand(
       ownedRef: ownedRef,

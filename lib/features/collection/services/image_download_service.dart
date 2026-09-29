@@ -1,7 +1,7 @@
 import 'dart:developer' as developer;
 import 'dart:typed_data';
 
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:uuid/uuid.dart';
@@ -29,7 +29,7 @@ class ImageDownloadService {
   /// Skips silently if the URL is null/empty or if the download fails.
   /// Returns the stored bytes, or null on failure.
   Future<Uint8List?> downloadAndStoreCover({
-    required OwnedItemRef ownedRef,
+    required OwnedCopyRef ownedRef,
     required String? coverImageUrl,
     String imageType = 'front_cover',
   }) async {
@@ -78,7 +78,7 @@ class ImageDownloadService {
   ///
   /// Returns a map of ownedItemId → image bytes for successful downloads.
   Future<Map<String, Uint8List>> downloadCoversForItems(
-    Map<OwnedItemRef, String?> ownedRefToCoverUrl, {
+    Map<OwnedCopyRef, String?> ownedRefToCoverUrl, {
     String imageType = 'front_cover',
     int concurrency = 4,
   }) async {

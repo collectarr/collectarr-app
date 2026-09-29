@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -8,7 +8,7 @@ sealed class TrackingTarget {
 
   const factory TrackingTarget.catalog(CatalogEntityRef ref) =
       CatalogTrackingTarget;
-  const factory TrackingTarget.owned(OwnedItemRef ownedRef) =
+  const factory TrackingTarget.owned(OwnedCopyRef ownedRef) =
       OwnedItemTrackingTarget;
 }
 
@@ -29,7 +29,7 @@ final class CatalogTrackingTarget extends TrackingTarget {
 
 final class OwnedItemTrackingTarget extends TrackingTarget {
   const OwnedItemTrackingTarget(this.ownedRef);
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
 
   @override
   bool operator ==(Object other) =>

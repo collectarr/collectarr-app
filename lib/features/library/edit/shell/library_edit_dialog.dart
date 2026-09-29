@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -83,7 +83,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
 
   /// Concrete candidate retained only for kind-owned draft/custom boundaries.
   final CatalogSearchCandidate kindItem;
-  final OwnedItemSummary? ownedItem;
+  final OwnedCopySummary? ownedItem;
 
   /// Concrete kind-owned aggregate passed through the typed edit boundary.
   final LibraryOwnedItemDispatch? ownedItemDispatch;

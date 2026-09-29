@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -23,7 +23,7 @@ Widget? buildLibraryKindDrilldown({
   required VoidCallback onBack,
   required Future<void> Function() onRefreshFromCore,
   required VoidCallback onOpenTitleDetails,
-  required List<OwnedItemSummary> ownedCopies,
+  required List<OwnedCopySummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
   required String? selectedReleaseId,
   required void Function(String releaseId) onSelectRelease,

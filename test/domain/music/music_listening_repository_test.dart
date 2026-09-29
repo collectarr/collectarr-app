@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
@@ -38,9 +38,9 @@ void main() {
     final newer = MusicListenEvent(
       id: 'listen-newer',
       releaseRef: releaseRef,
-      ownedRef: const OwnedItemRef(
+      ownedRef: const OwnedCopyRef(
         kind: CatalogMediaKind.music,
-        id: OwnedItemId('owned-1'),
+        id: OwnedCopyId('owned-1'),
       ),
       listenedAt: DateTime.utc(2026, 8, 2),
       notes: 'First pressing',

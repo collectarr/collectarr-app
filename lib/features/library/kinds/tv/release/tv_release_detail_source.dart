@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/release/library_release_detail_source.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -35,7 +35,7 @@ class TvReleaseAnchor {
 
 List<CatalogEditionDto> resolveTvCatalogEditionsForCatalogItem(
   CatalogItemDto item, {
-  Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
+  Iterable<OwnedCopySummary> ownedItems = const <OwnedCopySummary>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {
   final payload = item.payload;
@@ -147,7 +147,7 @@ String? preferredTvEditionVariantId(CatalogEditionDto edition) {
 List<CatalogEditionDto> _resolveTvCatalogEditions(
   _TvReleaseSeedInput input,
   List<CatalogEditionDto> existingEditions, {
-  required Iterable<OwnedItemSummary> ownedItems,
+  required Iterable<OwnedCopySummary> ownedItems,
   required Iterable<WishlistItem> wishlistItems,
 }) {
   if (existingEditions.isNotEmpty) {
@@ -574,7 +574,7 @@ final class TvReleaseDetailSource implements LibraryReleaseDetailSource {
 
   List<CatalogEditionDto> resolveCatalogData(
     LibraryWorkspaceCatalogData catalogData, {
-    Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
+    Iterable<OwnedCopySummary> ownedItems = const <OwnedCopySummary>[],
     Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
   }) {
     if (catalogData is! TvWorkspaceCatalogData) {
@@ -692,7 +692,7 @@ final class TvReleaseDetailSource implements LibraryReleaseDetailSource {
   List<LibraryReleaseDetailOption> detailOptionsForCatalogData(
     LibraryWorkspaceCatalogData catalogData,
     CatalogEntityRef rootRef, {
-    Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
+    Iterable<OwnedCopySummary> ownedItems = const <OwnedCopySummary>[],
     Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
   }) {
     final editions = resolveCatalogData(

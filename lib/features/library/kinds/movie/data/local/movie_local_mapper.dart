@@ -160,7 +160,7 @@ final class MovieLocalMapper {
       id: row.itemId,
     );
     return MovieOwnedItem(
-      id: MovieOwnedItemId(row.id),
+      id: MovieOwnedCopyId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,

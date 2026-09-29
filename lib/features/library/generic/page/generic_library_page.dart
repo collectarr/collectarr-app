@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -154,7 +154,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   final _detailHydrationInFlight = <String>{};
   final _detailHydrationService = const LibraryDetailHydrationService();
-  Set<OwnedItemRef> _activeLoanOwnedItemIds = const {};
+  Set<OwnedCopyRef> _activeLoanOwnedCopyIds = const {};
   bool _isEditDialogInFlight = false;
   bool _isScanningCover = false;
   int _activeLoanIdsLoadToken = 0;
@@ -316,7 +316,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           _session.preferences.activeSmartListName = value,
       getScopeHistory: () => _session.preferences.scopeHistory,
       setScopeHistory: (value) => _session.preferences.scopeHistory = value,
-      getActiveLoanOwnedItemIds: () => _activeLoanOwnedItemIds,
+      getActiveLoanOwnedCopyIds: () => _activeLoanOwnedCopyIds,
       getPinnedSortFavoriteIds: () =>
           _session.preferences.pinnedSortFavoriteIds,
       setPinnedSortFavoriteIds: (value) =>
@@ -610,7 +610,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       (item) =>
           _session.selection.value.itemIds.contains(item.node.id) &&
           item.source.ownedRef != null &&
-          !_activeLoanOwnedItemIds.contains(item.source.ownedRef),
+          !_activeLoanOwnedCopyIds.contains(item.source.ownedRef),
     );
   }
 
@@ -901,7 +901,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   Widget? buildKindWorkspaceOverride(
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
-    required List<OwnedItemSummary> allOwnedCopies,
+    required List<OwnedCopySummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     final selectedItem = projection.selectedItem;
@@ -959,7 +959,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   Widget? buildWorkspaceOverride(
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
-    required List<OwnedItemSummary> allOwnedCopies,
+    required List<OwnedCopySummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     return null;

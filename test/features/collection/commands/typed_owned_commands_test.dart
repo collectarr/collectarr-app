@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
@@ -134,7 +134,7 @@ void main() {
 
         final updated = await coordinator.updateOwnedItem(
           libraryOwnedEditForKind(kind).buildDetailsResetCommand(
-            ownedRef: OwnedItemRef(kind: kind, id: initialRef.id),
+            ownedRef: OwnedCopyRef(kind: kind, id: initialRef.id),
           ),
         );
 

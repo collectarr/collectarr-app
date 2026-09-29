@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -22,7 +22,7 @@ typedef DevSeedCatalogBarcodeValidator = void Function(
 typedef DevSeedCatalogGraphValidator = List<String> Function(
   CatalogItemDto item,
 );
-typedef DevSeedOwnedSummaryFactory = List<OwnedItemSummary> Function(
+typedef DevSeedOwnedSummaryFactory = List<OwnedCopySummary> Function(
   DateTime now,
 );
 typedef DevSeedOwnedQualityValidator = List<String> Function(DateTime now);
@@ -138,7 +138,7 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
   @override
   final DevSeedCatalogBarcodeValidator validateBarcode;
   final List<TOwned> Function(DateTime now) ownedItemsTyped;
-  final OwnedItemSummary Function(TOwned item) ownedSummaryTyped;
+  final OwnedCopySummary Function(TOwned item) ownedSummaryTyped;
   final List<String> Function(TOwned item) validateOwnedTyped;
   final DevSeedOwnedSeeder seedOwnedTyped;
   @override

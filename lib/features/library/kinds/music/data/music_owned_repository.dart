@@ -9,13 +9,13 @@ import 'package:drift/drift.dart';
 
 /// Persistence for the complete Music-owned graph.
 final class MusicOwnedRepository
-    implements ReadRepository<MusicOwnedItemId, MusicOwnedItem> {
+    implements ReadRepository<MusicOwnedCopyId, MusicOwnedItem> {
   const MusicOwnedRepository(this._db);
 
   final LocalDatabase _db;
 
   @override
-  Future<MusicOwnedItem?> findById(MusicOwnedItemId id) async {
+  Future<MusicOwnedItem?> findById(MusicOwnedCopyId id) async {
     final row = await (_db.select(_db.musicOwnedItemsRows)
           ..where((table) => table.id.equals(id.value)))
         .getSingleOrNull();

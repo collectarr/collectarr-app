@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
@@ -201,7 +201,7 @@ class CustomFieldRepository {
       );
     }
     if (targetScope == CustomFieldTargetScope.ownedCopy) {
-      final ownedRef = OwnedItemRef.fromKey(targetId);
+      final ownedRef = OwnedCopyRef.fromKey(targetId);
       requireKnownOwnedRef(ownedRef, 'customField.ownedRef');
     }
   }

@@ -20,7 +20,7 @@ void main() {
 
   test('round trips complete TV copies and filters deleted copies', () async {
     final item = TvOwnedItem(
-      id: const TvOwnedItemId('owned-1'),
+      id: const TvOwnedCopyId('owned-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
         entityType: CatalogEntityTypeId('work'),

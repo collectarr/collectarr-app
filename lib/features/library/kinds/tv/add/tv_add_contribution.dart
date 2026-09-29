@@ -10,6 +10,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   coreCatalogProjectionBuilder: tvCatalogTransportFromCoreItem,
   manualDraftBuilder: TvAddManualDraft.new,
   manualCandidateBuilder: buildTvManualCandidate,
+  manualProposalBuilder: buildTvManualProposalData,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       TvOwnedItemCreatePayload(
     catalogRef: item.reference,

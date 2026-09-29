@@ -7,13 +7,13 @@ import 'package:drift/drift.dart';
 
 /// Persistence for the complete Book-owned graph.
 final class BookOwnedRepository
-    implements ReadRepository<BookOwnedItemId, BookOwnedItem> {
+    implements ReadRepository<BookOwnedCopyId, BookOwnedItem> {
   const BookOwnedRepository(this._db);
 
   final LocalDatabase _db;
 
   @override
-  Future<BookOwnedItem?> findById(BookOwnedItemId id) async {
+  Future<BookOwnedItem?> findById(BookOwnedCopyId id) async {
     final row = await (_db.select(_db.bookOwnedItemsRows)
           ..where((table) => table.id.equals(id.value)))
         .getSingleOrNull();

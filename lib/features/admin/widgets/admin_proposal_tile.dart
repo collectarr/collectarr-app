@@ -5,12 +5,9 @@ final class AdminProposalTile extends StatelessWidget {
   const AdminProposalTile({
     required this.proposal,
     required this.isActing,
-    required this.canApproveLinkedItem,
     required this.kindLabel,
-    required this.onReview,
     required this.onEdit,
     required this.onApprove,
-    required this.onApproveLinked,
     required this.onReject,
     this.payloadPreview,
     super.key,
@@ -18,18 +15,18 @@ final class AdminProposalTile extends StatelessWidget {
 
   final AdminMetadataProposal proposal;
   final bool isActing;
-  final bool canApproveLinkedItem;
   final String kindLabel;
   final Widget? payloadPreview;
-  final VoidCallback onReview;
   final VoidCallback onEdit;
   final VoidCallback onApprove;
-  final VoidCallback onApproveLinked;
   final VoidCallback onReject;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final description =
+        proposal.catalogItem['description'] ?? proposal.catalogItem['synopsis'];
+    final summary = description is String ? description.trim() : '';
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
@@ -48,25 +45,14 @@ final class AdminProposalTile extends StatelessWidget {
               children: [
                 Text(proposal.displayTitle,
                     style: Theme.of(context).textTheme.titleSmall),
-                _MiniChip(label: proposal.provider),
+                const _MiniChip(label: 'User proposal'),
                 _MiniChip(label: proposal.status),
                 _MiniChip(label: kindLabel),
-                if (proposal.providerItemId?.isNotEmpty == true)
-                  _MiniChip(label: 'ID ${proposal.providerItemId}'),
               ],
             ),
-            const SizedBox(height: 6),
-            Text(
-              proposal.query,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: colors.onSurfaceVariant),
-            ),
-            if (proposal.summary?.trim().isNotEmpty == true) ...[
+            if (summary.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Text(proposal.summary!,
-                  maxLines: 3, overflow: TextOverflow.ellipsis),
+              Text(summary, maxLines: 3, overflow: TextOverflow.ellipsis),
             ],
             if (payloadPreview != null) ...[
               const SizedBox(height: 8),
@@ -79,27 +65,10 @@ final class AdminProposalTile extends StatelessWidget {
                 runSpacing: 8,
                 children: [
                   OutlinedButton.icon(
-                    onPressed: isActing ? null : onReview,
-                    icon: const Icon(Icons.travel_explore_outlined),
-                    label: const Text('Review in search'),
-                  ),
-                  OutlinedButton.icon(
                     onPressed: isActing ? null : onEdit,
                     icon: const Icon(Icons.edit_note_outlined),
                     label: const Text('Edit metadata'),
                   ),
-                  if (proposal.providerItemId?.isNotEmpty == true &&
-                      canApproveLinkedItem)
-                    FilledButton.tonalIcon(
-                      onPressed: isActing ? null : onApproveLinked,
-                      icon: isActing
-                          ? const SizedBox.square(
-                              dimension: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.link_outlined),
-                      label: const Text('Approve linked ID'),
-                    ),
                   FilledButton.icon(
                     onPressed: isActing ? null : onApprove,
                     icon: isActing

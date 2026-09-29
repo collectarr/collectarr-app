@@ -1,5 +1,5 @@
 import 'catalog_entity_ref.dart';
-import 'owned_item_projection.dart';
+import 'owned_copy_projection.dart';
 
 /// Validates a structural catalog target before it crosses a persistence or
 /// feature boundary. The target's entity semantics remain owned by its kind.
@@ -19,7 +19,7 @@ void requireKnownCatalogRef(
 /// Validates an owned-copy reference before it is persisted by a global
 /// feature. A bare string id is never a valid cross-kind target.
 void requireKnownOwnedRef(
-  OwnedItemRef ref, [
+  OwnedCopyRef ref, [
   String name = 'ownedRef',
 ]) {
   if (ref.kind.isUnknown || ref.id.value.trim().isEmpty) {
@@ -35,7 +35,7 @@ void requireKnownOwnedRef(
 /// kind before a global feature stores both references together.
 void requireMatchingOwnedCatalogKinds(
   CatalogEntityRef catalogRef,
-  OwnedItemRef ownedRef, {
+  OwnedCopyRef ownedRef, {
   String catalogName = 'catalogRef',
   String ownedName = 'ownedRef',
 }) {

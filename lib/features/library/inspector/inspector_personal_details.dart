@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -128,7 +128,7 @@ class InspectorPersonalDetailsEditor extends ConsumerStatefulWidget {
     required this.accent,
   });
 
-  final OwnedItemSummary ownedItem;
+  final OwnedCopySummary ownedItem;
   final Color accent;
 
   @override
@@ -304,7 +304,7 @@ class _InspectorPersonalDetailsEditorState
     );
   }
 
-  void _syncFromItem(OwnedItemSummary item) {
+  void _syncFromItem(OwnedCopySummary item) {
     _purchaseDate = item.purchaseDate;
     _priceController.text = item.pricePaidCents == null
         ? ''

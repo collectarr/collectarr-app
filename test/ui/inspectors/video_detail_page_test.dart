@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -22,7 +22,7 @@ import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
-  OwnedItemSummary movieOwnedSummary({
+  OwnedCopySummary movieOwnedSummary({
     required String id,
     required String itemId,
   }) {
@@ -32,10 +32,10 @@ void main() {
       id: 'edition-4k',
       rootId: itemId,
     );
-    return OwnedItemSummary(
-      ref: OwnedItemRef(
+    return OwnedCopySummary(
+      ref: OwnedCopyRef(
         kind: CatalogMediaKind.movie,
-        id: OwnedItemId(id),
+        id: OwnedCopyId(id),
       ),
       title: 'Spirited Away',
       catalogRef: targetRef,
@@ -270,7 +270,7 @@ void main() {
       ProviderScope(
         overrides: [
           collectionProvider.overrideWith(
-            (ref) async => const <OwnedItemSummary>[],
+            (ref) async => const <OwnedCopySummary>[],
           ),
           wishlistProvider.overrideWith(
             (ref) async => [
@@ -375,7 +375,7 @@ void main() {
       ProviderScope(
         overrides: [
           collectionProvider.overrideWith(
-            (ref) async => const <OwnedItemSummary>[],
+            (ref) async => const <OwnedCopySummary>[],
           ),
           wishlistProvider.overrideWith((ref) async => const <WishlistItem>[]),
           watchSessionsProvider.overrideWith(

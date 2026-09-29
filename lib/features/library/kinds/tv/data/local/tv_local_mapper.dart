@@ -346,7 +346,7 @@ final class TvLocalMapper {
       id: row.itemId,
     );
     return TvOwnedItem(
-      id: TvOwnedItemId(row.id),
+      id: TvOwnedCopyId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,

@@ -14,7 +14,7 @@ void main() {
     addTearDown(db.close);
     final repository = MusicOwnedRepository(db);
     final item = MusicOwnedItem(
-      id: const MusicOwnedItemId('owned-music-1'),
+      id: const MusicOwnedCopyId('owned-music-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
         entityType: CatalogEntityTypeId('work'),
@@ -69,7 +69,7 @@ void main() {
     addTearDown(db.close);
     final repository = MusicOwnedRepository(db);
     final item = MusicOwnedItem(
-      id: const MusicOwnedItemId('owned-music-invalid'),
+      id: const MusicOwnedCopyId('owned-music-invalid'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
         entityType: CatalogEntityTypeId('work'),
@@ -87,7 +87,7 @@ void main() {
     addTearDown(db.close);
     final repository = MusicOwnedRepository(db);
     final item = MusicOwnedItem(
-      id: const MusicOwnedItemId('owned-music-missing-release'),
+      id: const MusicOwnedCopyId('owned-music-missing-release'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
         entityType: CatalogEntityTypeId.root,

@@ -39,7 +39,7 @@ final class MovieOwnedItem {
     this.details = const MovieOwnedDetails(),
   });
 
-  final MovieOwnedItemId id;
+  final MovieOwnedCopyId id;
   final CatalogEntityRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
@@ -111,7 +111,7 @@ final class MovieOwnedItem {
           'Expected movie catalog_ref, got ${catalogRef.kind}');
     }
     return MovieOwnedItem(
-      id: MovieOwnedItemId(json['id'] as String),
+      id: MovieOwnedCopyId(json['id'] as String),
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
@@ -141,7 +141,7 @@ final class MovieOwnedItem {
   }
 
   MovieOwnedItem copyWith({
-    MovieOwnedItemId? id,
+    MovieOwnedCopyId? id,
     CatalogEntityRef? catalogRef,
     Object? createdAt = _unset,
     Object? isDigital = _unset,

@@ -19,6 +19,12 @@ Collectarr keeps your personal library local, fast, and offline-friendly, while
 using `collectarr-core` for canonical metadata and `collectarr-sync` for
 optional multi-device sync.
 
+The flattened-catalog cutover is in progress. Its target is one Catalog Item
+per concrete edition in each kind, with separate App-owned copies. User
+proposals remain available and carry the same catalog fields as manual Add/Edit;
+provider search and ingest are not part of that flow. See
+[the recorded baseline and migration rules](docs/architecture/flattened-catalog-baseline.md).
+
 The app keeps semantic behavior inside the owning kind: Comic, Manga, Book,
 Game, Board Game, Movie, TV, Anime, and Music each provide their typed domain,
 edit flows, persistence integration, and applicable actions.
@@ -28,17 +34,17 @@ edit flows, persistence integration, and applicable actions.
 - 🗂️ **Local-first ownership** — your owned/wishlist state lives in the app
 - 🧩 **9 active media kinds** — comics, manga, anime, books, games, board games, movies, TV, music
 - 🛠️ **Collector workflows** — variants, barcode, bulk edit, custom fields, import/export
-- 🔍 **Provider-backed metadata** — rich metadata via Core provider integrations
-- 🧪 **Power-user/admin tooling** — ingest, proposals, provider health, image cache controls
+- 🔍 **Canonical catalog** — search shared Core metadata and create new entries through manual Add
+- 🧪 **Power-user/admin tooling** — user proposals, catalog review, and image management
 
 ## 🚀 Highlights
 
 - 📦 Offline Drift database with cached catalog snapshots
 - 🖼️ CLZ-style workspace (grid/table/carousel, filters, sidebars, inspector)
-- ➕ Smart add/search flows with provider previews and bundle-aware anchors
+- ➕ Search Core catalog, enter new catalog metadata manually, or submit it as a proposal for review
 - 🎵 Media-aware edit/inspector UX (music/game/video specific fields)
 - 🔁 Optional sync support through `collectarr-sync`
-- 📊 CSV import/export and TMDB import
+- 📊 CSV import/export
 - 🎨 Animated accent theming across libraries
 - ✨ Cleaner auth/login shell and platform-aware tooling placement
 - 🧭 Metadata compare flows in edit UX (including context entrypoints for supported kinds)
@@ -96,10 +102,11 @@ Collectarr App owns:
 - media-aware presentation + desktop ergonomics
 - canonical in-memory models and semantic behavior for each library kind
 
-`collectarr-core` owns the backend catalog/API contract, provider integrations,
-ingest/admin logic, and media services. Provider transport DTOs are decoded
-back into the owning kind before they enter app edit, workspace, or persistence
-flows.
+`collectarr-core` owns the source-neutral catalog/API contract and review of
+user proposals. The App owns personal collection state, owned copies, local
+storage, and sync payloads. Catalog proposals contain the same kind-owned
+catalog fields as the manual Add/Edit form; they contain no provider IDs,
+snapshots, or personal copy data.
 
 After kind dispatch, app code keeps the concrete type (`ComicMedia`,
 `BookRelease`, `TvSeries`, etc.). Cross-kind screens use structural references
@@ -125,15 +132,13 @@ Active implementation plans:
 Current active tracks:
 
 - preserve the manual Add submission guard with contract checks
-- reduce generic Add/provider hosts to structural selection and orchestration
+- keep Add search on the Core catalog and preserve manual Add/Edit proposals
 - remove obsolete draft, fallback, and widget paths after each migration
 - improve small text, accent contrast, and text scaling across Library screens
 - keep seed scripts, local Drift schemas, and contract tests synchronized
-- keep provider protocol code separate from kind-owned semantic mapping
 - extend calendar support with a live subscribable ICS feed and reminders
 - add local notifications for loans, releases, sync conflicts, and imports
 - keep Plex/Jellyfin/Emby watched sync as a low-priority follow-up to the local watch-session flow
-- add a reusable importer framework for MAL, AniList, Trakt, Simkl, and Kitsu personal lists
 - simplify `LibraryAddDialog` and its session controller around search, preview, and submit responsibilities
 - keep admin proposal/editor UX and stats surfaces aligned with Core contracts
 
@@ -158,7 +163,7 @@ Published release assets include:
 
 | Repo | Purpose |
 |------|---------|
-| `collectarr-core` | Canonical metadata catalog, providers, image delivery, admin APIs |
+| `collectarr-core` | Source-neutral catalog, proposal review, image delivery, admin APIs |
 | `collectarr-sync` | Optional personal sync service |
 
 ## 💛 Support

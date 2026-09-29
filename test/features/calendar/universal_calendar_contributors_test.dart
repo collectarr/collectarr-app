@@ -2,17 +2,17 @@ import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/calendar/universal_calendar_contributors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('projects owned lifecycle and loan events without kind semantics', () {
-    final owned = OwnedItemSummary(
-      ref: const OwnedItemRef(
+    final owned = OwnedCopySummary(
+      ref: const OwnedCopyRef(
         kind: CatalogMediaKind.book,
-        id: OwnedItemId('owned-1'),
+        id: OwnedCopyId('owned-1'),
       ),
       title: 'book-1',
       catalogRef: const CatalogEntityRef(
@@ -26,9 +26,9 @@ void main() {
     );
     final loan = Loan(
       id: 'loan-1',
-      ownedRef: const OwnedItemRef(
+      ownedRef: const OwnedCopyRef(
         kind: CatalogMediaKind.book,
-        id: OwnedItemId('owned-1'),
+        id: OwnedCopyId('owned-1'),
       ),
       borrowerName: 'Reader',
       lentDate: DateTime.utc(2026, 1, 4),
@@ -87,10 +87,10 @@ void main() {
   });
 
   test('keeps equal owned ids distinct by media kind', () {
-    final book = OwnedItemSummary(
-      ref: const OwnedItemRef(
+    final book = OwnedCopySummary(
+      ref: const OwnedCopyRef(
         kind: CatalogMediaKind.book,
-        id: OwnedItemId('shared-id'),
+        id: OwnedCopyId('shared-id'),
       ),
       title: 'Book copy',
       catalogRef: const CatalogEntityRef(
@@ -100,10 +100,10 @@ void main() {
       ),
       updatedAt: DateTime.utc(2026, 1, 3),
     );
-    final comic = OwnedItemSummary(
-      ref: const OwnedItemRef(
+    final comic = OwnedCopySummary(
+      ref: const OwnedCopyRef(
         kind: CatalogMediaKind.comic,
-        id: OwnedItemId('shared-id'),
+        id: OwnedCopyId('shared-id'),
       ),
       title: 'Comic copy',
       catalogRef: const CatalogEntityRef(

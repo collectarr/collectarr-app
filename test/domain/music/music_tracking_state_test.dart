@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state_codec.dart';
@@ -52,9 +52,9 @@ void main() {
       () => codec.create(
         id: 'copy-tracking',
         catalogRef: release,
-        ownedRef: const OwnedItemRef(
+        ownedRef: const OwnedCopyRef(
           kind: CatalogMediaKind.music,
-          id: OwnedItemId('copy-1'),
+          id: OwnedCopyId('copy-1'),
         ),
         updatedAt: DateTime.utc(2026, 9, 15),
       ),

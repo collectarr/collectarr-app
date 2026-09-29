@@ -18,7 +18,7 @@ void main() {
     final updatedAt = DateTime.utc(2026, 5, 12, 8);
     await repository.upsert(
       ComicOwnedItem(
-        id: ComicOwnedItemId('owned-retry'),
+        id: ComicOwnedCopyId('owned-retry'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           entityType: CatalogEntityTypeId('work'),
@@ -66,7 +66,7 @@ void main() {
     final repository = ComicOwnedRepository(db);
     await repository.upsert(
       ComicOwnedItem(
-        id: ComicOwnedItemId('owned-deleted-retry'),
+        id: ComicOwnedCopyId('owned-deleted-retry'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           entityType: CatalogEntityTypeId('work'),
@@ -105,7 +105,7 @@ void main() {
     addTearDown(db.close);
     await ComicOwnedRepository(db).upsert(
       ComicOwnedItem(
-        id: ComicOwnedItemId('owned-untyped-retry'),
+        id: ComicOwnedCopyId('owned-untyped-retry'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           entityType: CatalogEntityTypeId('work'),

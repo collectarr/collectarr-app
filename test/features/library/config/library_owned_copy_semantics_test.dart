@@ -21,7 +21,7 @@ void main() {
 
       expect(
         libraryOwnedEditForKind(type.kind).resolveOwnedDigitalFlag(
-          testOwnedItemSummary(digital),
+          testOwnedCopySummary(digital),
           const [],
         ),
         isTrue,
@@ -29,7 +29,7 @@ void main() {
       );
       expect(
         libraryOwnedEditForKind(type.kind).resolveOwnedDigitalFlag(
-          testOwnedItemSummary(physical),
+          testOwnedCopySummary(physical),
           const [],
         ),
         isFalse,

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
@@ -18,25 +18,25 @@ import 'package:collectarr_app/features/library/tracking/watch_session_codec.dar
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final collectionProvider = FutureProvider<List<OwnedItemSummary>>((ref) async {
+final collectionProvider = FutureProvider<List<OwnedCopySummary>>((ref) async {
   final cache = OwnedItemsRepository(ref.watch(localDatabaseProvider));
   return cache.listActiveSummaries();
 });
 
 final collectionByCatalogRefProvider =
-    Provider<Map<CatalogEntityRef, OwnedItemSummary>>((ref) {
+    Provider<Map<CatalogEntityRef, OwnedCopySummary>>((ref) {
   final collection = ref.watch(collectionSummariesProvider);
   return collection.maybeWhen(
     data: (items) => {
       for (final item in items)
         if (!item.isDeleted && item.catalogRef != null) item.catalogRef!: item,
     },
-    orElse: () => const <CatalogEntityRef, OwnedItemSummary>{},
+    orElse: () => const <CatalogEntityRef, OwnedCopySummary>{},
   );
 });
 
 final collectionSummariesProvider =
-    FutureProvider<List<OwnedItemSummary>>((ref) async {
+    FutureProvider<List<OwnedCopySummary>>((ref) async {
   final cache = OwnedItemsRepository(ref.watch(localDatabaseProvider));
   return cache.listActiveSummaries();
 });

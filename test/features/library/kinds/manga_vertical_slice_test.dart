@@ -194,7 +194,7 @@ void main() {
         item: metaItem,
         ownedItemDispatch: testMangaOwnedItemDispatchFrom(
           MangaOwnedItem(
-            id: const MangaOwnedItemId('owned_1'),
+            id: const MangaOwnedCopyId('owned_1'),
             catalogRef: const CatalogEntityRef(
               id: 'manga_1',
               kind: CatalogMediaKind.manga,

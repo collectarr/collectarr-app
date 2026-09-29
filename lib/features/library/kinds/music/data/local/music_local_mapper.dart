@@ -519,7 +519,7 @@ final class MusicLocalMapper {
       id: row.itemId,
     );
     final item = MusicOwnedItem(
-      id: MusicOwnedItemId(row.id),
+      id: MusicOwnedCopyId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,

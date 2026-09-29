@@ -94,7 +94,7 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
     final resolvedRelease = _resolveReleaseRef(resolvedCatalogRef);
     final rootRef = resolvedRelease.rootScope;
     final item = MusicOwnedItem(
-      id: MusicOwnedItemId(id),
+      id: MusicOwnedCopyId(id),
       catalogRef: rootRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
@@ -101,9 +101,9 @@ void main() {
         )
         .first
         .copyWith(
-          ref: OwnedItemRef(
+          ref: OwnedCopyRef(
             kind: CatalogMediaKind.movie,
-            id: OwnedItemId(mismatched.id.value),
+            id: OwnedCopyId(mismatched.id.value),
           ),
           catalogRef: mismatched.catalogRef,
         );
@@ -709,7 +709,7 @@ Future<int> _countImages(
 ) async {
   final rows = await db.select(db.itemImagesCache).get();
   return rows.where((row) {
-    final ownedRef = ownedItemRefFromSerialized(row.ownedRefKey);
+    final ownedRef = ownedCopyRefFromSerialized(row.ownedRefKey);
     return ownedRef?.id.value.startsWith(ownedPrefix) == true &&
         row.imageType == imageType;
   }).length;

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
@@ -203,9 +203,9 @@ void main() {
       entityType: CatalogEntityTypeId('work'),
       id: 'comic-import-1',
     );
-    const ownedRef = OwnedItemRef(
+    const ownedRef = OwnedCopyRef(
       kind: CatalogMediaKind.comic,
-      id: OwnedItemId('owned-import-1'),
+      id: OwnedCopyId('owned-import-1'),
     );
 
     final results = await repository.upsertImportedAll([

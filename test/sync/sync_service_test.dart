@@ -41,7 +41,7 @@ void main() {
     ).syncNow('android', since: since);
 
     final owned = await ComicOwnedRepository(db)
-        .findById(const ComicOwnedItemId('owned-1'));
+        .findById(const ComicOwnedCopyId('owned-1'));
     final typedOwnedRow = await db.select(db.comicOwnedItemsRows).getSingle();
     final trackingRow = await readSingleTrackingState(db);
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
@@ -105,7 +105,7 @@ void main() {
     ).syncNow('android', since: DateTime.utc(2026, 5, 11));
 
     final owned = await ComicOwnedRepository(db)
-        .findById(const ComicOwnedItemId('owned-1'));
+        .findById(const ComicOwnedCopyId('owned-1'));
     expect(result.rejectedCount, 1);
     expect(result.rejectedChanges.single.entityId, 'owned-1');
     expect(await queue.pendingCount(), 0);

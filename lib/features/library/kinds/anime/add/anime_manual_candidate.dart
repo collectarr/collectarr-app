@@ -93,3 +93,17 @@ String? _nullable(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
+
+/// Serializes this kind's typed manual catalog model for Core review.
+///
+/// Core projects the supplied object onto the recognized flattened fields for
+/// this kind, so this mapper does not maintain a second field denylist.
+Map<String, Object?>? buildAnimeManualProposalData(
+  LibraryKindAddDraft draft, {
+  required String title,
+}) {
+  final candidate = buildAnimeManualCandidate(draft, title: title);
+  if (candidate == null) return null;
+  return Map<String, Object?>.from(
+      candidate.kindCapability.toCatalogItemPayload());
+}

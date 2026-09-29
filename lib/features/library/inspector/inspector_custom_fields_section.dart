@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef _InspectorCustomFieldsRequest = ({
   LocalDatabase db,
-  OwnedItemRef ownedRef,
+  OwnedCopyRef ownedRef,
 });
 
 final _inspectorCustomFieldsProvider = FutureProvider.autoDispose
@@ -39,7 +39,7 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
     this.onFilterByValue,
   });
 
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
   final LocalDatabase db;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;

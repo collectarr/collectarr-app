@@ -51,7 +51,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final item = AnimeOwnedItem(
-      id: const AnimeOwnedItemId('owned-anime-1'),
+      id: const AnimeOwnedCopyId('owned-anime-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.anime,
         entityType: CatalogEntityTypeId('work'),
@@ -159,7 +159,7 @@ void main() {
     expect(
       () => AnimeLocalMapper.toOwnedItemRow(
         AnimeOwnedItem(
-          id: const AnimeOwnedItemId(''),
+          id: const AnimeOwnedCopyId(''),
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.anime,
             entityType: CatalogEntityTypeId('work'),

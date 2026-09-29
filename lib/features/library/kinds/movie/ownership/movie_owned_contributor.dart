@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dar
 final movieOwnedContributor = TypedOwnedKindContributor<MovieOwnedItem>(
   kind: CatalogMediaKind.movie,
   findById: (database, id) =>
-      MovieOwnedRepository(database).findById(MovieOwnedItemId(id)),
+      MovieOwnedRepository(database).findById(MovieOwnedCopyId(id)),
   upsert: (database, item) => MovieOwnedRepository(database).upsert(item),
   listActive: (database) => MovieOwnedRepository(database).listActive(),
   createItem: ({

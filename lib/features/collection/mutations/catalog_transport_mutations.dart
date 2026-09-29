@@ -31,12 +31,10 @@ final class CatalogTransportMutations {
     CatalogImportTransport item, {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
-    final now = DateTime.now().toUtc();
     await mutationRunner.run(
       origin: origin,
       action: () async {
         await catalogTransport.upsertTransports([item]);
-        await syncQueue.enqueue(_syncChangeForItem(item, now));
       },
       eventsToEmit: [CatalogItemChanged(item.ref)],
     );
@@ -46,13 +44,9 @@ final class CatalogTransportMutations {
     final pending = items.toList(growable: false);
     if (pending.isEmpty) return;
 
-    final now = DateTime.now().toUtc();
     await mutationRunner.run(
       action: () async {
         await catalogTransport.upsertTransports(pending);
-        await syncQueue.enqueueAll([
-          for (final item in pending) _syncChangeForItem(item, now),
-        ]);
       },
       eventsToEmit: [
         for (final item in pending) CatalogItemChanged(item.ref),
@@ -108,13 +102,6 @@ final class CatalogTransportMutations {
           count++;
         }
 
-        await syncQueue.enqueue(
-          _syncChangeForItem(
-            item,
-            now,
-            entityType: 'library_item_snapshot',
-          ),
-        );
         return count;
       },
       eventsToEmit: [
@@ -122,18 +109,6 @@ final class CatalogTransportMutations {
         for (final item in wishlistEntries) WishlistChanged(item.catalogRef),
         const TrackingChanged(),
       ],
-    );
-  }
-
-  SyncChange _syncChangeForItem(CatalogImportTransport item, DateTime now,
-      {String entityType = 'catalog_item'}) {
-    return SyncChange(
-      id: 'catalog:${item.ref.id}:upsert:${now.millisecondsSinceEpoch}',
-      entityType: entityType,
-      entityId: item.ref.id,
-      action: 'upsert',
-      payload: item.payload,
-      clientChangedAt: now,
     );
   }
 

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_owned_copy_workspace_schema.dart';
@@ -84,9 +84,9 @@ void main() {
       const LibraryCopyRef(
         workId: 'group-1',
         releaseId: 'release-1',
-        ownedRef: OwnedItemRef(
+        ownedRef: OwnedCopyRef(
           kind: CatalogMediaKind.music,
-          id: OwnedItemId('owned-1'),
+          id: OwnedCopyId('owned-1'),
         ),
       ),
     );

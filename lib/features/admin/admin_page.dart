@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
-import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
@@ -43,7 +40,6 @@ import 'package:collectarr_app/features/settings/collection_schema_management_pa
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -131,8 +127,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   String? _ingestingProviderItemId;
   String? _jobActionId;
   String? _proposalActionId;
-  String? _activeProposalId;
-  String? _activeProposalTitle;
   int? _retryingHistoryId;
 
   @override
@@ -180,51 +174,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
           ? _showProviderReleaseResults
           : _showProviderMediaResults;
     }).toList(growable: false);
-  }
-
-  void _prefillFromActiveProposal() {
-    final activeId = _activeProposalId;
-    if (activeId == null || activeId.isEmpty) {
-      setState(() {
-        _errorMessage = 'No active proposal selected for prefill.';
-      });
-      return;
-    }
-    AdminMetadataProposal? proposal;
-    for (final entry in _proposalsController.proposals) {
-      if (entry.id == activeId) {
-        proposal = entry;
-        break;
-      }
-    }
-    if (proposal == null) {
-      setState(() {
-        _errorMessage = 'Active proposal is no longer available.';
-      });
-      return;
-    }
-    final activeProposal = proposal;
-    final searchableProviders = _providerOptions();
-    final kindFromPayload =
-        activeProposal.metadataPayload?['kind']?.toString().trim();
-    final resolvedKind = kindFromPayload != null && kindFromPayload.isNotEmpty
-        ? kindFromPayload
-        : _selectedProviderKindFilter;
-    final query = activeProposal.query.trim().isEmpty
-        ? activeProposal.displayTitle
-        : activeProposal.query;
-    setState(() {
-      if (searchableProviders
-          .any((entry) => entry.name == activeProposal.provider)) {
-        _selectedProvider = activeProposal.provider;
-      }
-      _selectedProviderKindFilter = resolvedKind;
-      _queryController.text = query;
-      _providerItemIdController.text =
-          activeProposal.providerItemId?.trim() ?? '';
-      _statusMessage = 'Prefilled from active proposal.';
-      _errorMessage = null;
-    });
   }
 
   Future<void> _loadReleaseMappingRules({bool showErrors = true}) async {
@@ -380,11 +329,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _applyRulePrefillDefaults() async {
-    final source = _activeProposalId != null
-        ? 'proposal'
-        : (_ingestJobsController.history.isNotEmpty
-            ? 'ingest_history'
-            : 'manual');
+    final source =
+        _ingestJobsController.history.isNotEmpty ? 'ingest_history' : 'manual';
     try {
       final resolved =
           await ref.read(apiClientProvider).adminResolveProviderPrefill(
@@ -394,7 +340,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                 kind: _selectedProviderKindFilter,
                 query: _queryController.text,
                 providerItemId: _providerItemIdController.text,
-                proposalId: source == 'proposal' ? _activeProposalId : null,
                 ingestHistoryId: source == 'ingest_history'
                     ? _ingestJobsController.history.first.id
                     : null,
@@ -1417,10 +1362,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _approveProposal(AdminMetadataProposal proposal) async {
-    final confirmed = await _confirmProposalApproval(
-      proposal,
-      linked: false,
-    );
+    final confirmed = await _confirmProposalApproval(proposal);
     if (!confirmed || !mounted) {
       return;
     }
@@ -1430,7 +1372,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _proposalStatusMessage = null;
     });
     try {
-      final result = await _proposalsController.approve(
+      await _proposalsController.approve(
         ref.read(apiClientProvider),
         proposalId: proposal.id,
       );
@@ -1439,12 +1381,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
       setState(() {
         _proposalActionId = null;
-        _lastIngest = result;
-        _proposalStatusMessage = 'Proposal approved and ingested.';
-        if (_activeProposalId == proposal.id) {
-          _activeProposalId = null;
-          _activeProposalTitle = null;
-        }
+        _proposalStatusMessage = 'Proposal approved.';
       });
       await _loadProposalData();
       await _loadDashboard();
@@ -1459,42 +1396,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
   }
 
-  Future<void> _approveProposalWithLinkedItem(
-    AdminMetadataProposal proposal,
-  ) async {
-    final providerItemId = proposal.providerItemId?.trim();
-    if (providerItemId == null || providerItemId.isEmpty) {
-      setState(() {
-        _proposalErrorMessage =
-            'Linked approval requires a provider item id on the proposal.';
-      });
-      return;
-    }
-    final confirmed = await _confirmProposalApproval(
-      proposal,
-      linked: true,
-      providerItemId: providerItemId,
-    );
-    if (!confirmed || !mounted) {
-      return;
-    }
-    await _approveProposalWithProviderItem(
-      proposalId: proposal.id,
-      provider: proposal.provider,
-      providerItemId: providerItemId,
-      successMessage: 'Proposal approved with linked provider item.',
-    );
-  }
-
-  Future<bool> _confirmProposalApproval(
-    AdminMetadataProposal proposal, {
-    required bool linked,
-    String? providerItemId,
-  }) async {
+  Future<bool> _confirmProposalApproval(AdminMetadataProposal proposal) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
-        title: Text(linked ? 'Approve linked proposal?' : 'Approve proposal?'),
+        title: const Text('Approve proposal?'),
         content: SizedBox(
           width: 560,
           child: Column(
@@ -1506,14 +1412,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 8),
-              Text('Provider: ${proposal.provider}'),
-              if (providerItemId != null && providerItemId.isNotEmpty)
-                Text('Provider item id: $providerItemId'),
               const SizedBox(height: 10),
-              Text(
-                linked
-                    ? 'This will ingest the linked provider item and mark the proposal as approved.'
-                    : 'This will ingest provider metadata and mark the proposal as approved.',
+              Text('Kind: ${proposal.kind}'),
+              const SizedBox(height: 8),
+              const Text(
+                'This records an editorial approval for the user-submitted Catalog Item data.',
               ),
             ],
           ),
@@ -1534,87 +1437,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     return result ?? false;
   }
 
-  Future<void> _approveProposalWithCandidate(
-      ProviderSearchResult candidate) async {
-    final proposalId = _activeProposalId;
-    if (proposalId == null || proposalId.isEmpty) {
-      return;
-    }
-    final proposal = _proposalsController.proposals
-        .where((row) => row.id == proposalId)
-        .firstOrNull;
-    final confirmed = await _confirmProposalApproval(
-      proposal ??
-          AdminMetadataProposal(
-            id: proposalId,
-            provider: candidate.provider,
-            query: _queryController.text.trim(),
-            title: _activeProposalTitle,
-            status: 'pending',
-          ),
-      linked: true,
-      providerItemId: candidate.providerItemId,
-    );
-    if (!confirmed || !mounted) {
-      return;
-    }
-    await _approveProposalWithProviderItem(
-      proposalId: proposalId,
-      provider: candidate.provider,
-      providerItemId: candidate.providerItemId,
-      kind: candidate.kind.apiValue,
-      successMessage: 'Proposal approved with selected provider item.',
-    );
-  }
-
-  Future<void> _approveProposalWithProviderItem({
-    required String proposalId,
-    required String provider,
-    required String providerItemId,
-    String? kind,
-    required String successMessage,
-  }) async {
-    setState(() {
-      _proposalActionId = proposalId;
-      _ingestingProviderItemId = providerItemId;
-      _proposalErrorMessage = null;
-      _proposalStatusMessage = null;
-    });
-    try {
-      final result = await _proposalsController.approveWithProviderItem(
-        ref.read(apiClientProvider),
-        proposalId: proposalId,
-        provider: provider,
-        providerItemId: providerItemId,
-        kind: kind,
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _proposalActionId = null;
-        _ingestingProviderItemId = null;
-        _lastIngest = result;
-        _proposalStatusMessage = successMessage;
-        if (_activeProposalId == proposalId) {
-          _activeProposalId = null;
-          _activeProposalTitle = null;
-        }
-      });
-      await _loadProposalData();
-      await _loadDashboard();
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _proposalActionId = null;
-        _ingestingProviderItemId = null;
-        _proposalErrorMessage = _adminErrorMessage(error);
-      });
-    }
-  }
-
   Future<void> _rejectProposal(AdminMetadataProposal proposal) async {
     setState(() {
       _proposalActionId = proposal.id;
@@ -1632,10 +1454,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       setState(() {
         _proposalActionId = null;
         _proposalStatusMessage = 'Proposal rejected.';
-        if (_activeProposalId == proposal.id) {
-          _activeProposalId = null;
-          _activeProposalTitle = null;
-        }
       });
       await _loadProposalData();
       await _loadDashboard();
@@ -1792,12 +1610,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final updated = await _proposalsController.update(
         ref.read(apiClientProvider),
         proposalId: proposal.id,
-        query: result.query,
-        providerItemId: result.providerItemId,
-        title: result.title,
-        summary: result.summary,
-        imageUrl: result.imageUrl,
-        metadataPayload: result.metadataPayload,
+        catalogItem: result.catalogItem,
+        reviewNote: result.reviewNote,
       );
       if (!mounted) {
         return;
@@ -1806,13 +1620,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _proposalActionId = null;
         _proposalStatusMessage = 'Proposal metadata updated.';
         _proposalsController.replaceProposal(updated);
-        if (_activeProposalId == updated.id) {
-          _activeProposalTitle = updated.displayTitle;
-          _providerItemIdController.text = updated.providerItemId ?? '';
-          _queryController.text = updated.query.trim().isEmpty
-              ? updated.displayTitle
-              : updated.query;
-        }
       });
     } catch (error) {
       if (!mounted) {
@@ -1825,42 +1632,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
   }
 
-  void _reviewProposal(AdminMetadataProposal proposal) {
-    final searchableProviders = _providerOptions();
-    final canSearchWithProvider = searchableProviders.any(
-      (provider) => provider.name == proposal.provider,
-    );
-    setState(() {
-      if (canSearchWithProvider) {
-        _selectedProvider = proposal.provider;
-      }
-      _queryController.text = proposal.query.trim().isEmpty
-          ? proposal.displayTitle
-          : proposal.query;
-      _providerItemIdController.text = proposal.providerItemId ?? '';
-      _activeProposalId = proposal.id;
-      _activeProposalTitle = proposal.displayTitle;
-      _proposalStatusMessage = canSearchWithProvider
-          ? 'Provider search prepared from proposal.'
-          : 'Proposal pinned. Choose a searchable provider to continue review.';
-      _proposalErrorMessage = null;
-      _statusMessage = null;
-      _errorMessage = null;
-    });
-    if (canSearchWithProvider) {
-      unawaited(_searchProvider());
-    }
-  }
-
-  void _clearActiveProposal() {
-    setState(() {
-      _activeProposalId = null;
-      _activeProposalTitle = null;
-      _proposalStatusMessage = 'Proposal review cleared.';
-      _proposalErrorMessage = null;
-    });
-  }
-
   void _changeProposalStatusFilter(String? value) {
     final nextValue = value?.trim();
     if (nextValue == null ||
@@ -1870,20 +1641,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
     setState(() {
       _proposalsController.statusFilter = nextValue;
-      _proposalStatusMessage = null;
-      _proposalErrorMessage = null;
-    });
-    unawaited(_loadProposalData());
-  }
-
-  void _changeProposalProviderFilter(String? value) {
-    final nextValue =
-        value == null || value.trim().isEmpty ? null : value.trim();
-    if (nextValue == _proposalsController.providerFilter) {
-      return;
-    }
-    setState(() {
-      _proposalsController.providerFilter = nextValue;
       _proposalStatusMessage = null;
       _proposalErrorMessage = null;
     });

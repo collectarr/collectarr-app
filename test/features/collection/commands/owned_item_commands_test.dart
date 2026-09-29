@@ -137,7 +137,7 @@ void main() {
 
     final itemRef = await coordinator.addOwnedItem(command);
     final item = await ComicOwnedRepository(db)
-        .findById(ComicOwnedItemId(itemRef.id.value));
+        .findById(ComicOwnedCopyId(itemRef.id.value));
     expect(item, isNotNull);
     final storedItem = item!;
 
@@ -215,7 +215,7 @@ void main() {
 
     expect(updatedRef.id, initialRef.id);
     final updated = await ComicOwnedRepository(db)
-        .findById(ComicOwnedItemId(updatedRef.id.value));
+        .findById(ComicOwnedCopyId(updatedRef.id.value));
     expect(updated, isNotNull);
     final updatedItem = updated!;
     expect(updatedItem.targetRef?.entityType.apiValue, 'release');

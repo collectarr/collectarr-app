@@ -80,21 +80,21 @@ class Money {
 }
 
 @immutable
-class OwnedItemId {
-  const OwnedItemId(this.value);
+class OwnedCopyId {
+  const OwnedCopyId(this.value);
 
   final String value;
 
-  static OwnedItemId? fromRaw(String? raw) {
+  static OwnedCopyId? fromRaw(String? raw) {
     final trimmed = raw?.trim();
     if (trimmed == null || trimmed.isEmpty) return null;
-    return OwnedItemId(trimmed);
+    return OwnedCopyId(trimmed);
   }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is OwnedItemId &&
+      other is OwnedCopyId &&
           runtimeType == other.runtimeType &&
           value == other.value;
 

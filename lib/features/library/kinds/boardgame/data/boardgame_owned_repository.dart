@@ -7,13 +7,13 @@ import 'package:drift/drift.dart';
 
 /// Persistence for the complete BoardGame-owned graph.
 final class BoardGameOwnedRepository
-    implements ReadRepository<BoardGameOwnedItemId, BoardGameOwnedItem> {
+    implements ReadRepository<BoardGameOwnedCopyId, BoardGameOwnedItem> {
   const BoardGameOwnedRepository(this._db);
 
   final LocalDatabase _db;
 
   @override
-  Future<BoardGameOwnedItem?> findById(BoardGameOwnedItemId id) async {
+  Future<BoardGameOwnedItem?> findById(BoardGameOwnedCopyId id) async {
     final row = await (_db.select(_db.boardGameOwnedItemsRows)
           ..where((table) => table.id.equals(id.value)))
         .getSingleOrNull();

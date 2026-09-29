@@ -7,13 +7,13 @@ import 'package:drift/drift.dart';
 
 /// Persistence for the complete Manga-owned graph.
 final class MangaOwnedRepository
-    implements ReadRepository<MangaOwnedItemId, MangaOwnedItem> {
+    implements ReadRepository<MangaOwnedCopyId, MangaOwnedItem> {
   const MangaOwnedRepository(this._db);
 
   final LocalDatabase _db;
 
   @override
-  Future<MangaOwnedItem?> findById(MangaOwnedItemId id) async {
+  Future<MangaOwnedItem?> findById(MangaOwnedCopyId id) async {
     final row = await (_db.select(_db.mangaOwnedItemsRows)
           ..where((table) => table.id.equals(id.value)))
         .getSingleOrNull();

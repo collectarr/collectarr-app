@@ -150,6 +150,32 @@ final class AnimeTrackingUnitCodec implements TrackingUnitStorageCodec {
   }
 
   @override
+  TrackingUnitSummary fromSyncPayload({
+    required String id,
+    required Map<String, Object?> payload,
+    required DateTime updatedAt,
+    required DateTime? deletedAt,
+  }) {
+    requireTrackingUnitType(payload, AnimeTrackingUnit.type);
+    final row = trackingUnitStorageRowFromSyncPayload(
+      id: id,
+      payload: payload,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+    if (row.targetRef.mediaKind != kind) {
+      throw const FormatException('Anime tracking unit has a non-Anime ref');
+    }
+    return fromStorageRow(
+      row,
+      _AnimeCoordinates(
+        seasonNumber: trackingUnitSyncInt(payload['season_number']),
+        episodeNumber: trackingUnitSyncInt(payload['episode_number']),
+      ),
+    );
+  }
+
+  @override
   int compareCoordinates(TrackingUnitSummary left, TrackingUnitSummary right) {
     if (left is! AnimeTrackingUnit || right is! AnimeTrackingUnit) {
       return 0;

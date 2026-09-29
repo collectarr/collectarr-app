@@ -25,7 +25,7 @@ class LibraryProjectionService {
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
-    Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
+    Set<OwnedCopyRef> activeLoanOwnedCopyIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
@@ -57,7 +57,7 @@ class LibraryProjectionService {
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
-      activeLoanOwnedItemIds: activeLoanOwnedItemIds,
+      activeLoanOwnedCopyIds: activeLoanOwnedCopyIds,
       searchTarget: searchTarget,
     );
   }

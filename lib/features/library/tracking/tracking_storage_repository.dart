@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
@@ -31,7 +31,7 @@ class TrackingStorageRepository {
   TrackingStorageRecord create({
     required String id,
     required CatalogEntityRef catalogRef,
-    OwnedItemRef? ownedRef,
+    OwnedCopyRef? ownedRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -127,7 +127,7 @@ class TrackingStorageRepository {
   Future<TrackingStorageSyncRecord> upsertMutation({
     required String id,
     required CatalogEntityRef catalogRef,
-    OwnedItemRef? ownedRef,
+    OwnedCopyRef? ownedRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -257,7 +257,7 @@ class TrackingStorageRepository {
 
   Future<TrackingStorageRecord?> _findActiveEntry({
     required CatalogEntityRef catalogRef,
-    required OwnedItemRef? ownedRef,
+    required OwnedCopyRef? ownedRef,
   }) async {
     final trackingTopology =
         libraryTrackingTopologyForKind(catalogRef.mediaKind);
@@ -460,7 +460,7 @@ class TrackingStorageRepository {
 
   void _validateTargetRefs(
     CatalogEntityRef catalogRef,
-    OwnedItemRef? ownedRef,
+    OwnedCopyRef? ownedRef,
   ) {
     requireKnownCatalogRef(catalogRef, 'catalogRef');
     if (ownedRef != null) {

@@ -12,21 +12,19 @@ void main() {
 
     await store.recordResponse(
       response: const {'id': 'proposal-1', 'status': 'pending'},
-      provider: 'gcd',
-      query: 'Batman #1',
+      kind: 'comic',
       title: 'Batman',
-      source: 'CSV import',
+      source: 'Manual Add form',
     );
 
     final records = await store.read();
 
     expect(records, hasLength(1));
     expect(records.single.serverId, 'proposal-1');
-    expect(records.single.provider, 'gcd');
-    expect(records.single.query, 'Batman #1');
+    expect(records.single.kind, 'comic');
     expect(records.single.title, 'Batman');
     expect(records.single.status, 'pending');
-    expect(records.single.source, 'CSV import');
+    expect(records.single.source, 'Manual Add form');
 
     await store.clear();
     expect(await store.read(), isEmpty);

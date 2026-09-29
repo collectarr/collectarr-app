@@ -155,7 +155,7 @@ final class GameLocalMapper {
       id: row.itemId,
     );
     return GameOwnedItem(
-      id: GameOwnedItemId(row.id),
+      id: GameOwnedCopyId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,

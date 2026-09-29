@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/calendar/calendar_ics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -65,9 +65,9 @@ void main() {
           date: DateTime(2026, 7, 1),
           title: 'Saga, Vol. 1; Deluxe',
           subtitle: 'Loaned to Bob',
-          ownedRef: const OwnedItemRef(
+          ownedRef: const OwnedCopyRef(
             kind: CatalogMediaKind.comic,
-            id: OwnedItemId('owned-3'),
+            id: OwnedCopyId('owned-3'),
           ),
         ),
       ],

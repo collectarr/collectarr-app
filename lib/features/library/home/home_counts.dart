@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -23,8 +23,8 @@ class LibraryKindCount {
   }
 }
 
-final overdueLoanOwnedItemIdsProvider =
-    FutureProvider.autoDispose<Set<OwnedItemRef>>((ref) async {
+final overdueLoanOwnedCopyIdsProvider =
+    FutureProvider.autoDispose<Set<OwnedCopyRef>>((ref) async {
   final repo = LoanRepository(ref.watch(localDatabaseProvider));
   final loans = await repo.getActiveLoans();
   final now = DateTime.now();
@@ -64,7 +64,7 @@ Map<String, LibraryKindCount> libraryCountsByKind(ShelfState state) {
 
 Map<String, int> overdueLoanCountsByKind(
   ShelfState state,
-  Set<OwnedItemRef> overdueOwnedRefs,
+  Set<OwnedCopyRef> overdueOwnedRefs,
 ) {
   if (overdueOwnedRefs.isEmpty) {
     return const <String, int>{};

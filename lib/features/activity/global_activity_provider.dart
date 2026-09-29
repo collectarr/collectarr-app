@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -52,15 +52,15 @@ final globalActivityProvider =
 
   final loans = await LoanRepository(db).getAllLoans();
 
-  final ownedByCatalogRef = <CatalogEntityRef, List<OwnedItemSummary>>{};
+  final ownedByCatalogRef = <CatalogEntityRef, List<OwnedCopySummary>>{};
   for (final item in owned) {
     final catalogRef = item.catalogRef;
     if (catalogRef == null) continue;
     ownedByCatalogRef
-        .putIfAbsent(catalogRef.rootScope, () => <OwnedItemSummary>[])
+        .putIfAbsent(catalogRef.rootScope, () => <OwnedCopySummary>[])
         .add(item);
   }
-  final ownedByRef = <OwnedItemRef, OwnedItemSummary>{
+  final ownedByRef = <OwnedCopyRef, OwnedCopySummary>{
     for (final item in owned)
       if (item.catalogRef != null) item.ref: item,
   };
@@ -112,7 +112,7 @@ final globalActivityProvider =
   final entries = <GlobalActivityEntry>[];
   for (final itemRef in refs) {
     final events = ActivityEventAggregator.aggregate(
-      ownedItems: ownedByCatalogRef[itemRef] ?? const <OwnedItemSummary>[],
+      ownedItems: ownedByCatalogRef[itemRef] ?? const <OwnedCopySummary>[],
       trackingRecords:
           trackingByRef[itemRef] ?? const <TrackingActivitySummary>[],
       wishlistItems: wishlistByRef[itemRef] ?? const <WishlistItem>[],

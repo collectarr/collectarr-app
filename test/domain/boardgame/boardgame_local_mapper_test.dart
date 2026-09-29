@@ -126,7 +126,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final item = BoardGameOwnedItem(
-      id: const BoardGameOwnedItemId('owned-boardgame-1'),
+      id: const BoardGameOwnedCopyId('owned-boardgame-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.boardgame,
         entityType: CatalogEntityTypeId('work'),
@@ -217,7 +217,7 @@ void main() {
     expect(
       () => BoardGameLocalMapper.toOwnedItemRow(
         BoardGameOwnedItem(
-          id: const BoardGameOwnedItemId(''),
+          id: const BoardGameOwnedCopyId(''),
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.boardgame,
             entityType: CatalogEntityTypeId('work'),

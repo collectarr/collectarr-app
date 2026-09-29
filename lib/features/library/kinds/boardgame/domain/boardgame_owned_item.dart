@@ -38,7 +38,7 @@ final class BoardGameOwnedItem {
     this.details = const BoardgameOwnedDetails(),
   });
 
-  final BoardGameOwnedItemId id;
+  final BoardGameOwnedCopyId id;
   final CatalogEntityRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
@@ -110,7 +110,7 @@ final class BoardGameOwnedItem {
           'Expected boardgame catalog_ref, got ${catalogRef.kind}');
     }
     return BoardGameOwnedItem(
-      id: BoardGameOwnedItemId(json['id'] as String),
+      id: BoardGameOwnedCopyId(json['id'] as String),
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
@@ -140,7 +140,7 @@ final class BoardGameOwnedItem {
   }
 
   BoardGameOwnedItem copyWith({
-    BoardGameOwnedItemId? id,
+    BoardGameOwnedCopyId? id,
     CatalogEntityRef? catalogRef,
     Object? createdAt = _unset,
     Object? isDigital = _unset,

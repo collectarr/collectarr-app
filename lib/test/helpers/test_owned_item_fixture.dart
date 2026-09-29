@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 
 /// Test-only fixture used by mixed-kind tests while constructing the concrete
 /// kind aggregate is not the subject of the test.
@@ -67,9 +67,9 @@ final class TestOwnedItem {
 
   String get itemId => catalogRef.id;
 
-  OwnedItemRef get ref => OwnedItemRef(
+  OwnedCopyRef get ref => OwnedCopyRef(
         kind: catalogRef.mediaKind,
-        id: OwnedItemId(id),
+        id: OwnedCopyId(id),
       );
 
   JsonMap toSyncPayload() => {

@@ -39,7 +39,7 @@ final class AnimeOwnedItem {
     this.details = const AnimeOwnedDetails(),
   });
 
-  final AnimeOwnedItemId id;
+  final AnimeOwnedCopyId id;
   final CatalogEntityRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
@@ -111,7 +111,7 @@ final class AnimeOwnedItem {
           'Expected anime catalog_ref, got ${catalogRef.kind}');
     }
     return AnimeOwnedItem(
-      id: AnimeOwnedItemId(json['id'] as String),
+      id: AnimeOwnedCopyId(json['id'] as String),
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
@@ -141,7 +141,7 @@ final class AnimeOwnedItem {
   }
 
   AnimeOwnedItem copyWith({
-    AnimeOwnedItemId? id,
+    AnimeOwnedCopyId? id,
     CatalogEntityRef? catalogRef,
     Object? createdAt = _unset,
     Object? isDigital = _unset,

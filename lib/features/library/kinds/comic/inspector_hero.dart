@@ -60,7 +60,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final ink = palette.textPrimary;
     final muted = palette.textMuted;
     final ownedSummary = request.ownedItem;
-    final ownedRef = resolveLibraryOwnedItemRef(item, ownedSummary);
+    final ownedRef = resolveLibraryOwnedCopyRef(item, ownedSummary);
     final localFront = ownedRef == null
         ? null
         : ref

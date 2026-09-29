@@ -150,6 +150,32 @@ final class BookTrackingUnitCodec implements TrackingUnitStorageCodec {
   }
 
   @override
+  TrackingUnitSummary fromSyncPayload({
+    required String id,
+    required Map<String, Object?> payload,
+    required DateTime updatedAt,
+    required DateTime? deletedAt,
+  }) {
+    requireTrackingUnitType(payload, BookTrackingUnit.type);
+    final row = trackingUnitStorageRowFromSyncPayload(
+      id: id,
+      payload: payload,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+    if (row.targetRef.mediaKind != kind) {
+      throw const FormatException('Book tracking unit has a non-Book ref');
+    }
+    return fromStorageRow(
+      row,
+      _BookCoordinates(
+        volumeNumber: trackingUnitSyncInt(payload['volume_number']),
+        chapterNumber: trackingUnitSyncInt(payload['chapter_number']),
+      ),
+    );
+  }
+
+  @override
   int compareCoordinates(TrackingUnitSummary left, TrackingUnitSummary right) {
     if (left is! BookTrackingUnit || right is! BookTrackingUnit) {
       return 0;

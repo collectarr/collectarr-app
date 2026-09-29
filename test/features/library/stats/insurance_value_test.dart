@@ -34,7 +34,7 @@ void main() {
     ]);
     await ComicOwnedRepository(db).upsert(
       ComicOwnedItem(
-        id: const ComicOwnedItemId('owned-value-1'),
+        id: const ComicOwnedCopyId('owned-value-1'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           entityType: CatalogEntityTypeId('owned_copy'),

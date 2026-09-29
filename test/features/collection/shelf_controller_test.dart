@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -16,7 +16,7 @@ void main() {
   test('shelf state combines owned and wishlist records', () {
     final state = ShelfState.from(
       ownedSummaries: [
-        testOwnedItemSummary(testOwnedItem(
+        testOwnedCopySummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Near Mint',
@@ -26,7 +26,7 @@ void main() {
           currency: 'USD',
           updatedAt: DateTime.utc(2026, 5, 11),
         )),
-        testOwnedItemSummary(testOwnedItem(
+        testOwnedCopySummary(testOwnedItem(
           id: 'owned-2',
           itemId: 'comic-2',
           condition: 'Fine',
@@ -67,15 +67,15 @@ void main() {
         ).asShelfCatalogSummary,
       },
       itemImagesByOwnedItem: {
-        OwnedItemRef(
+        OwnedCopyRef(
           kind: CatalogMediaKind.comic,
-          id: OwnedItemId('owned-1'),
+          id: OwnedCopyId('owned-1'),
         ): [
           ItemImage(
             id: 'img-1',
-            ownedRef: OwnedItemRef(
+            ownedRef: OwnedCopyRef(
               kind: CatalogMediaKind.comic,
-              id: OwnedItemId('owned-1'),
+              id: OwnedCopyId('owned-1'),
             ),
             imageType: 'back_cover',
             imageData: Uint8List.fromList('data'.codeUnits),
@@ -99,7 +99,7 @@ void main() {
   test('shelf state keys records by catalog ref id', () {
     final state = ShelfState.from(
       ownedSummaries: [
-        testOwnedItemSummary(testOwnedItem(
+        testOwnedCopySummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'owned-1',
           catalogRef: const CatalogEntityRef(
@@ -167,18 +167,18 @@ void main() {
     );
     final state = ShelfState.from(
       ownedSummaries: [
-        const OwnedItemSummary(
-          ref: OwnedItemRef(
+        const OwnedCopySummary(
+          ref: OwnedCopyRef(
             kind: CatalogMediaKind.book,
-            id: OwnedItemId('book-copy'),
+            id: OwnedCopyId('book-copy'),
           ),
           title: 'Book copy',
           catalogRef: bookRef,
         ),
-        const OwnedItemSummary(
-          ref: OwnedItemRef(
+        const OwnedCopySummary(
+          ref: OwnedCopyRef(
             kind: CatalogMediaKind.comic,
-            id: OwnedItemId('comic-copy'),
+            id: OwnedCopyId('comic-copy'),
           ),
           title: 'Comic copy',
           catalogRef: comicRef,

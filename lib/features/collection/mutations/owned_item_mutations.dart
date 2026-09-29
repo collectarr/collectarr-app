@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -42,8 +42,8 @@ final class OwnedItemMutations {
   /// The generated registry performs the one composition-boundary dispatch
   /// and immediately turns the concrete aggregate into its owning kind's
   /// create payload. No common Owned model or catalog snapshot is involved.
-  Future<OwnedItemRef?> duplicateItem(
-    OwnedItemRef sourceRef, {
+  Future<OwnedCopyRef?> duplicateItem(
+    OwnedCopyRef sourceRef, {
     CatalogEntityRef? targetRef,
     OwnedItemTrackingDraft? tracking,
   }) async {
@@ -60,7 +60,7 @@ final class OwnedItemMutations {
     );
   }
 
-  Future<OwnedItemRef> addOwnedItem(
+  Future<OwnedCopyRef> addOwnedItem(
     AddOwnedItemCommand command,
   ) async {
     final now = DateTime.now().toUtc();
@@ -102,13 +102,6 @@ final class OwnedItemMutations {
           ),
         );
 
-        if (existingCatalog != null) {
-          await syncQueue.enqueue(_syncChangeForCatalogRef(
-            existingCatalog.ref,
-            now,
-          ));
-        }
-
         if (existingWishlist != null) {
           await wishlist.markDeleted(existingWishlist, now);
           await syncQueue.enqueue(
@@ -124,9 +117,9 @@ final class OwnedItemMutations {
       },
       eventsToEmit: [
         OwnedItemAdded(
-          OwnedItemRef(
+          OwnedCopyRef(
             kind: catalogRef.mediaKind,
-            id: OwnedItemId(newItemId),
+            id: OwnedCopyId(newItemId),
           ),
         ),
         if (wishlistChanged) WishlistChanged(wishlistTargetRef),
@@ -136,7 +129,7 @@ final class OwnedItemMutations {
     return ownedRef;
   }
 
-  Future<OwnedItemRef> updateOwnedItem(
+  Future<OwnedCopyRef> updateOwnedItem(
     OwnedItemUpdateRequest command,
   ) async {
     final typedCommand = command is UpdateOwnedItemCommand
@@ -171,7 +164,7 @@ final class OwnedItemMutations {
     return updated;
   }
 
-  Future<void> removeItem(OwnedItemRef ref) async {
+  Future<void> removeItem(OwnedCopyRef ref) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
       action: () async {
@@ -209,21 +202,6 @@ final class OwnedItemMutations {
       );
     }
     return catalogRef;
-  }
-
-  SyncChange _syncChangeForCatalogRef(
-    CatalogEntityRef ref,
-    DateTime now,
-  ) {
-    final root = ref.rootScope;
-    return SyncChange(
-      id: 'catalog:${root.id}:upsert:${now.millisecondsSinceEpoch}',
-      entityType: 'catalog_item',
-      entityId: root.id,
-      action: 'upsert',
-      payload: {'id': root.id, 'kind': root.kind.apiValue},
-      clientChangedAt: now,
-    );
   }
 
   SyncChange _syncChangeForWishlistItem(

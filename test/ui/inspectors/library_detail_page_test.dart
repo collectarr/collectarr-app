@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -80,7 +80,7 @@ void main() {
           home: LibraryDetailPage(
             type: type,
             item: bookItem,
-            ownedSummary: testOwnedItemSummary(owned),
+            ownedSummary: testOwnedCopySummary(owned),
             accent: Colors.orange,
             onAddOwned: () {},
             onRemoveOwned: () {},
@@ -122,7 +122,7 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 23, 11),
       )),
     ]);
-    OwnedItemSummary? editedOwnedSummary;
+    OwnedCopySummary? editedOwnedSummary;
 
     final owned = testOwnedItem(
       id: 'owned-1',
@@ -159,10 +159,10 @@ void main() {
           home: LibraryDetailPage(
             type: type,
             item: bookItem,
-            ownedSummary: testOwnedItemSummary(owned),
+            ownedSummary: testOwnedCopySummary(owned),
             ownedCopies: [
-              testOwnedItemSummary(owned),
-              testOwnedItemSummary(
+              testOwnedCopySummary(owned),
+              testOwnedCopySummary(
                 testOwnedItem(
                   id: 'owned-2',
                   itemId: 'book-1',

@@ -130,6 +130,11 @@ typedef LibraryAddManualCandidateBuilder = CatalogSearchCandidate? Function(
   required String title,
 });
 
+typedef LibraryAddManualProposalBuilder = Map<String, Object?>? Function(
+  LibraryKindAddDraft draft, {
+  required String title,
+});
+
 typedef LibraryAddTypedProviderCandidateProjection = CatalogSearchCandidate
     Function(ProviderSearchCandidate candidate);
 
@@ -418,6 +423,12 @@ abstract interface class LibraryAddCapability<
   }) =>
       null;
 
+  Map<String, Object?>? buildManualProposalData(
+    LibraryKindAddDraft draft, {
+    required String title,
+  }) =>
+      null;
+
   Widget buildManualPane(
     BuildContext context,
     LibraryAddManualPaneRequest request,
@@ -480,6 +491,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     required this.initialDraftBuilder,
     this.manualDraftBuilder,
     this.manualCandidateBuilder,
+    this.manualProposalBuilder,
     this.manualCandidateValidationMessage =
         'The manual entry is incomplete or contains invalid values.',
     this.manualPaneBuilder,
@@ -503,6 +515,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final TDraft Function() initialDraftBuilder;
   final LibraryKindAddDraft Function()? manualDraftBuilder;
   final LibraryAddManualCandidateBuilder? manualCandidateBuilder;
+  final LibraryAddManualProposalBuilder? manualProposalBuilder;
   final Widget Function(
           BuildContext context, LibraryAddManualPaneRequest request)?
       manualPaneBuilder;
@@ -570,6 +583,14 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     required String title,
   }) =>
       manualCandidateBuilder?.call(draft, title: title);
+
+  @override
+  Map<String, Object?>? buildManualProposalData(
+    LibraryKindAddDraft draft, {
+    required String title,
+  }) {
+    return manualProposalBuilder?.call(draft, title: title);
+  }
 
   @override
   final String manualCandidateValidationMessage;

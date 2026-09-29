@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
@@ -88,49 +88,49 @@ void main() {
   });
 }
 
-OwnedItemRef _comicRef(ComicOwnedItem item) => OwnedItemRef(
+OwnedCopyRef _comicRef(ComicOwnedItem item) => OwnedCopyRef(
       kind: CatalogMediaKind.comic,
-      id: OwnedItemId(item.id.value),
+      id: OwnedCopyId(item.id.value),
     );
 
-OwnedItemRef _mangaRef(MangaOwnedItem item) => OwnedItemRef(
+OwnedCopyRef _mangaRef(MangaOwnedItem item) => OwnedCopyRef(
       kind: CatalogMediaKind.manga,
-      id: OwnedItemId(item.id.value),
+      id: OwnedCopyId(item.id.value),
     );
 
-OwnedItemRef _bookRef(BookOwnedItem item) => OwnedItemRef(
+OwnedCopyRef _bookRef(BookOwnedItem item) => OwnedCopyRef(
       kind: CatalogMediaKind.book,
-      id: OwnedItemId(item.id.value),
+      id: OwnedCopyId(item.id.value),
     );
 
-OwnedItemRef _gameRef(GameOwnedItem item) => OwnedItemRef(
+OwnedCopyRef _gameRef(GameOwnedItem item) => OwnedCopyRef(
       kind: CatalogMediaKind.game,
-      id: OwnedItemId(item.id.value),
+      id: OwnedCopyId(item.id.value),
     );
 
-OwnedItemRef _boardGameRef(BoardGameOwnedItem item) => OwnedItemRef(
+OwnedCopyRef _boardGameRef(BoardGameOwnedItem item) => OwnedCopyRef(
       kind: CatalogMediaKind.boardgame,
-      id: OwnedItemId(item.id.value),
+      id: OwnedCopyId(item.id.value),
     );
 
-OwnedItemRef _movieRef(MovieOwnedItem item) => OwnedItemRef(
+OwnedCopyRef _movieRef(MovieOwnedItem item) => OwnedCopyRef(
       kind: CatalogMediaKind.movie,
-      id: OwnedItemId(item.id.value),
+      id: OwnedCopyId(item.id.value),
     );
 
-OwnedItemRef _tvRef(TvOwnedItem item) => OwnedItemRef(
+OwnedCopyRef _tvRef(TvOwnedItem item) => OwnedCopyRef(
       kind: CatalogMediaKind.tv,
-      id: OwnedItemId(item.id.value),
+      id: OwnedCopyId(item.id.value),
     );
 
-OwnedItemRef _animeRef(AnimeOwnedItem item) => OwnedItemRef(
+OwnedCopyRef _animeRef(AnimeOwnedItem item) => OwnedCopyRef(
       kind: CatalogMediaKind.anime,
-      id: OwnedItemId(item.id.value),
+      id: OwnedCopyId(item.id.value),
     );
 
-OwnedItemRef _musicRef(MusicOwnedItem item) => OwnedItemRef(
+OwnedCopyRef _musicRef(MusicOwnedItem item) => OwnedCopyRef(
       kind: CatalogMediaKind.music,
-      id: OwnedItemId(item.id.value),
+      id: OwnedCopyId(item.id.value),
     );
 
 Future<void> _storeComic(
@@ -326,7 +326,7 @@ Future<void> _assertRoundTrip<T>(
   CollectarrOwnedItemPersistence persistence, {
   required CatalogMediaKind kind,
   required T item,
-  required OwnedItemRef ref,
+  required OwnedCopyRef ref,
   required Map<String, dynamic> json,
 }) async {
   await persistence.replaceFromPayload(kind, json);
@@ -442,7 +442,7 @@ Future<void> _assertSync<T>(
   CollectarrOwnedItemPersistence persistence, {
   required CatalogMediaKind kind,
   required T item,
-  required OwnedItemRef ref,
+  required OwnedCopyRef ref,
 }) async {
   await persistence.replaceFromPayload(
     kind,

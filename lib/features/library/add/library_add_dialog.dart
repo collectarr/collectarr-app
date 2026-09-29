@@ -3,7 +3,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_contracts.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_form_options_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_manual_draft.dart';
@@ -29,11 +30,10 @@ import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.d
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -42,24 +42,16 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/adaptive/window_class.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 export 'controllers/library_add_dialog_requests.dart';
 export 'controllers/library_add_manual_draft.dart';
 export 'library_add_ranking.dart';
 export 'panes/library_add_preview_pane.dart';
-
-String buildPreviewCatalogItemId({
-  required String kind,
-  required String provider,
-  required String providerItemId,
-}) {
-  final previewKey = '$kind:$provider:$providerItemId';
-  return 'preview-$kind-${const Uuid().v5(Namespace.url.value, previewKey)}';
-}
 
 class LibraryAddDialog extends ConsumerStatefulWidget {
   const LibraryAddDialog({
@@ -106,6 +98,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   double _resultsPaneWidth = 500;
   bool _isClosing = false;
+  bool _manualDialogOpen = false;
+  bool _hasOpenedManualDialog = false;
 
   void _closeDialog([LibraryAddDialogResult? result]) {
     if (!mounted || _isClosing) return;
@@ -139,37 +133,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         }
       }
     }
-    final checkedProviderIds = state.selection.checkedProviderIds;
-    if (checkedProviderIds.isNotEmpty) {
-      for (final candidate in state.search.providerResults) {
-        if (checkedProviderIds.contains(candidate.localCatalogId) &&
-            !candidate.previewOnly) {
-          ids.add(_catalogIdForProviderCandidate(state, candidate));
-        }
-      }
-    }
     if (ids.isEmpty) {
       final selectedItem = state.selectedItem;
       if (selectedItem != null) {
         ids.add(selectedItem.reference.id);
-      } else if (state.selectedCandidate case final candidate?) {
-        ids.add(_catalogIdForProviderCandidate(state, candidate));
       }
     }
     return ids;
-  }
-
-  String _catalogIdForProviderCandidate(
-    LibraryAddSessionState state,
-    ProviderSearchCandidate candidate,
-  ) {
-    final typedCandidate =
-        state.preview.typedProviderCandidateFor(candidate.localCatalogId) ??
-            candidate;
-    return libraryAddForKind(widget.type.kind)
-        .catalogCandidateFromProviderCandidate(typedCandidate)
-        .reference
-        .id;
   }
 
   double _clampedResultsPaneWidth(double totalWidth) {
@@ -213,10 +183,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       trackingMutations: ref.read(trackingMutationsProvider),
       api: ref.read(apiClientProvider),
       catalog: CatalogTransportRepository(ref.read(localDatabaseProvider)),
-      providerRegistry: ref.read(providerRegistryProvider).value ??
-          buildDefaultProviderRegistry(
-            rateLimiterRegistry: ref.read(providerRateLimiterRegistryProvider),
-          ),
       coverScanService: widget.coverScanService,
       onAuthSessionExpired: (error, action) => ref
           .read(authControllerProvider.notifier)
@@ -272,6 +238,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.type.kind != widget.type.kind) {
       _manualDraft.dispose();
+      _hasOpenedManualDialog = false;
       _manualDraft = LibraryAddManualDraft(
         customFieldValues: widget.customFieldValues,
         itemImages: widget.itemImages,
@@ -371,36 +338,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _controller.setDefaultLocationId(result.isEmpty ? null : result);
   }
 
-  Future<void> _proposeCandidate(ProviderSearchCandidate candidate) async {
-    await _controller.proposalFlowService.proposeCandidate(
-      context: context,
-      api: ref.read(apiClientProvider),
-      type: widget.type,
-      candidate: candidate,
-      providerActionService: _controller.providerActionService,
-      orchestrationService: _controller.providerOrchestrationService,
-      mounted: mounted,
-      isAdding: _controller.state.isAdding,
-      rebuild: (fn) {
-        if (mounted) setState(fn);
-      },
-      setIsAdding: (bool value) {
-        _controller.state = _controller.state.copyWith(isAdding: value);
-      },
-      setError: (String? message) {
-        _controller.state = _controller.state.copyWith(
-          search: _controller.state.search.copyWith(error: message),
-        );
-      },
-      visibleProviderResults: () => _controller.state.visibleProviderResults(
-        libraryAddForKind(widget.type.kind).resultPolicy,
-      ),
-      currentPhysicalFormats: () => const [],
-      showEditDialog: (ctx, req) =>
-          showLibraryEditDialog(context: ctx, request: req),
-    );
-  }
-
   @override
   void dispose() {
     _controller.removeListener(_onControllerStateChanged);
@@ -413,8 +350,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   LibraryAddManualPaneRequest _buildManualPaneRequest(
     LibraryAddSessionState state,
-    Color accent,
-  ) {
+    Color accent, {
+    BuildContext? manualDialogContext,
+  }) {
     return LibraryAddManualPaneRequest(
       kind: widget.type.kind,
       accent: accent,
@@ -442,86 +380,250 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           locationPathForId(_availableLocations, state.defaultLocationId),
       defaultPurchaseDate: state.defaultPurchaseDate,
       defaultTags: state.defaultTags,
-      onAddOwned: () => _submitManual(LibraryAddTarget.owned),
-      onAddWishlist: () => _submitManual(LibraryAddTarget.wishlist),
-      onAddTrack: () => _submitManual(LibraryAddTarget.track),
+      onAddOwned: () => _submitManualFromManualPane(
+        LibraryAddTarget.owned,
+        manualDialogContext,
+      ),
+      onAddWishlist: () => _submitManualFromManualPane(
+        LibraryAddTarget.wishlist,
+        manualDialogContext,
+      ),
+      onAddTrack: () => _submitManualFromManualPane(
+        LibraryAddTarget.track,
+        manualDialogContext,
+      ),
+      onPropose: _proposeManualDraft,
       customFieldDefinitions: widget.customFieldDefinitions,
       customFieldValues: _manualDraft.customFieldValues,
       onCustomFieldValuesChanged: (vals) {
-        setState(() {
-          _manualDraft.customFieldValues = vals;
-        });
+        _manualDraft.customFieldValues = vals;
+        _notifyManualDraftChanged();
       },
       itemImages: _manualDraft.itemImages,
       onItemImagesChanged: (imgs) {
-        setState(() {
-          _manualDraft.itemImages = imgs
-              .where((e) => !e.deleted && e.imageData != null)
-              .map((e) => ItemImage(
-                    id: e.id,
-                    ownedRef: OwnedItemRef.fromKey(
-                      '${widget.type.kind.apiValue}:draft',
-                    ),
-                    imageData: e.imageData!,
-                    imageType: e.imageType,
-                    caption: e.caption,
-                    sortOrder: e.sortOrder,
-                    createdAt: e.createdAt ?? DateTime.now().toUtc(),
-                  ))
-              .toList();
-        });
+        _manualDraft.itemImages = imgs
+            .where((e) => !e.deleted && e.imageData != null)
+            .map((e) => ItemImage(
+                  id: e.id,
+                  ownedRef: OwnedCopyRef.fromKey(
+                    '${widget.type.kind.apiValue}:draft',
+                  ),
+                  imageData: e.imageData!,
+                  imageType: e.imageType,
+                  caption: e.caption,
+                  sortOrder: e.sortOrder,
+                  createdAt: e.createdAt ?? DateTime.now().toUtc(),
+                ))
+            .toList();
+        _notifyManualDraftChanged();
       },
     );
   }
 
-  void _submitManual(LibraryAddTarget target) {
-    () async {
-      _controller.setTarget(target);
-      _controller.clearSubmissionError();
-      final capability = libraryAddForKind(widget.type.kind);
-      final candidate = capability.buildManualCandidate(
-        _manualDraft.kindDraft,
-        title: _manualDraft.titleController.text,
+  void _notifyManualDraftChanged() {
+    _controller.state = _controller.state.copyWith();
+  }
+
+  Future<void> _proposeManualDraft() async {
+    if (_controller.state.isAdding) return;
+    final capability = libraryAddForKind(widget.type.kind);
+    final Map<String, Object?>? catalogItem =
+        capability.buildManualProposalData(
+      _manualDraft.kindDraft,
+      title: _manualDraft.titleController.text,
+    );
+    if (catalogItem == null) {
+      _controller.reportSubmissionError(
+        capability.manualCandidateValidationMessage,
       );
-      if (candidate == null) {
-        _controller.reportSubmissionError(
-          capability.manualCandidateValidationMessage,
-        );
-        return;
-      }
-      final current = _controller.state.commonDraft;
-      _controller.updateCommonDraft(
-        (_) => LibraryAddCommonDraft(
-          condition: current.condition ?? _controller.state.defaultCondition,
-          purchaseDate:
-              current.purchaseDate ?? _controller.state.defaultPurchaseDate,
-          pricePaidCents: current.pricePaidCents,
-          currency: current.currency,
-          personalNotes: _textOrNull(
-                _manualDraft.personalNotesController.text,
-              ) ??
-              current.personalNotes,
-          quantity: current.quantity,
-          tags: _textOrNull(_manualDraft.tagsController.text) ??
-              _controller.state.defaultTags ??
-              current.tags,
-          locationId: current.locationId ?? _controller.state.defaultLocationId,
-          purchaseStore: current.purchaseStore,
-          collectionStatus: current.collectionStatus,
-          isDigital: current.isDigital,
-        ),
+      return;
+    }
+
+    _controller.state = _controller.state.copyWith(isAdding: true);
+    try {
+      await createAndRecordLibraryMetadataProposal(
+        api: ref.read(apiClientProvider),
+        kind: widget.type.kind.apiValue,
+        catalogItem: catalogItem,
+        source: 'Manual Add form',
       );
       if (!mounted) return;
-      final success = await _controller.submitSelectedItem(candidate);
-      if (success && mounted) {
-        _closeDialog(_addResult([candidate.reference.id]));
-      } else if (mounted) {
-        final error = _controller.state.submitState.error;
-        _controller.reportSubmissionError(
-          error?.toString() ?? 'The item could not be added. Please try again.',
+      showAppToast(
+        context,
+        '${widget.type.identity.singularLabel} proposal sent for review.',
+        tone: AppToastTone.success,
+      );
+    } catch (error) {
+      if (!mounted) return;
+      showAppToast(
+        context,
+        'Could not send the proposal. $error',
+        tone: AppToastTone.error,
+      );
+    } finally {
+      if (mounted) {
+        _controller.state = _controller.state.copyWith(isAdding: false);
+      }
+    }
+  }
+
+  void _submitManualFromManualPane(
+    LibraryAddTarget target,
+    BuildContext? manualDialogContext,
+  ) {
+    unawaited(() async {
+      final itemId = await _submitManual(target);
+      if (itemId == null || !mounted) return;
+      if (manualDialogContext == null) {
+        _closeDialog(_addResult([itemId]));
+        return;
+      }
+      if (manualDialogContext.mounted) {
+        Navigator.of(manualDialogContext).pop();
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _closeDialog(_addResult([itemId]));
+      });
+    }());
+  }
+
+  Future<String?> _submitManual(LibraryAddTarget target) async {
+    if (_controller.state.isAdding) return null;
+    _controller.setTarget(target);
+    _controller.clearSubmissionError();
+    final capability = libraryAddForKind(widget.type.kind);
+    final candidate = capability.buildManualCandidate(
+      _manualDraft.kindDraft,
+      title: _manualDraft.titleController.text,
+    );
+    if (candidate == null) {
+      _controller.reportSubmissionError(
+        capability.manualCandidateValidationMessage,
+      );
+      return null;
+    }
+    final current = _controller.state.commonDraft;
+    _controller.updateCommonDraft(
+      (_) => LibraryAddCommonDraft(
+        condition: current.condition ?? _controller.state.defaultCondition,
+        purchaseDate:
+            current.purchaseDate ?? _controller.state.defaultPurchaseDate,
+        pricePaidCents: current.pricePaidCents,
+        currency: current.currency,
+        personalNotes: _textOrNull(
+              _manualDraft.personalNotesController.text,
+            ) ??
+            current.personalNotes,
+        quantity: current.quantity,
+        tags: _textOrNull(_manualDraft.tagsController.text) ??
+            _controller.state.defaultTags ??
+            current.tags,
+        locationId: current.locationId ?? _controller.state.defaultLocationId,
+        purchaseStore: current.purchaseStore,
+        collectionStatus: current.collectionStatus,
+        isDigital: current.isDigital,
+      ),
+    );
+    if (!mounted) return null;
+    final success = await _controller.submitSelectedItem(candidate);
+    if (success && mounted) return candidate.reference.id;
+    if (mounted) {
+      final error = _controller.state.submitState.error;
+      _controller.reportSubmissionError(
+        error?.toString() ?? 'The item could not be added. Please try again.',
+      );
+    }
+    return null;
+  }
+
+  Future<void> _openManualDialog(
+    Color accent,
+    LibraryAddCapability capability,
+  ) async {
+    if (_manualDialogOpen) return;
+    if (!_hasOpenedManualDialog) {
+      _manualDraft.titleController.text = _queryController.text;
+      _hasOpenedManualDialog = true;
+    }
+    _controller.dismissSuggestions();
+    _manualDialogOpen = true;
+
+    Widget buildManualDialog(BuildContext dialogContext) {
+      final viewport = MediaQuery.sizeOf(dialogContext);
+      final windowClass = AppWindowClass.of(dialogContext);
+      final horizontalInset = windowClass.isMedium ? 16.0 : 32.0;
+      final dialogWidth = (viewport.width - horizontalInset * 2)
+          .clamp(360.0, 1100.0)
+          .toDouble();
+      final dialogHeight =
+          (viewport.height - 24).clamp(320.0, 850.0).toDouble();
+      final palette = appPalette(dialogContext);
+
+      return LibraryDialogScaffold(
+        accent: accent,
+        themeData: buildLibraryAddDialogTheme(accent, palette),
+        header: AccentDialogHeader(
+          title: 'Add ${widget.type.identity.pluralLabel}',
+          icon: widget.type.identity.icon,
+          onClose: () => Navigator.of(dialogContext).pop(),
+        ),
+        width: dialogWidth,
+        height: dialogHeight,
+        minWidth: 360,
+        maxWidth: 1100,
+        minHeight: 0,
+        maxHeight: dialogHeight,
+        alignment: Alignment.topCenter,
+        insetPadding: EdgeInsets.fromLTRB(
+          horizontalInset,
+          8,
+          horizontalInset,
+          16,
+        ),
+        padding: EdgeInsets.zero,
+        expandBody: true,
+        body: ValueListenableBuilder<LibraryAddSessionState>(
+          valueListenable: _controller,
+          builder: (context, state, _) => capability.buildManualPane(
+            context,
+            _buildManualPaneRequest(
+              state,
+              accent,
+              manualDialogContext: dialogContext,
+            ),
+          ),
+        ),
+      );
+    }
+
+    try {
+      if (AppWindowClass.of(context).isCompact) {
+        await Navigator.of(context).push<void>(
+          MaterialPageRoute<void>(
+            fullscreenDialog: true,
+            builder: (routeContext) => Scaffold(
+              body: SafeArea(child: buildManualDialog(routeContext)),
+            ),
+          ),
+        );
+      } else {
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: buildManualDialog,
         );
       }
-    }();
+    } finally {
+      _manualDialogOpen = false;
+    }
+  }
+
+  void _selectAddMode(LibraryAddDialogMode mode, Color accent) {
+    if (mode == LibraryAddDialogMode.manual) {
+      _openManualDialog(accent, libraryAddForKind(widget.type.kind));
+      return;
+    }
+    _controller.setMode(mode);
   }
 
   String? _textOrNull(String value) {
@@ -586,12 +688,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         identifierController: _identifierController,
         isSearching: state.search.isSearching,
         isSearchingProvider: state.search.isSearchingProvider,
-        onModeChanged: (mode) {
-          if (mode == LibraryAddDialogMode.manual) {
-            _manualDraft.titleController.text = _queryController.text;
-          }
-          _controller.setMode(mode);
-        },
+        onModeChanged: (mode) => _selectAddMode(mode, accent),
         onSearch: () {
           _controller.dismissSuggestions();
           _controller.updateQuery(_queryController.text);
@@ -611,10 +708,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         onLookupIdentifier: () => _controller.lookupIdentifier(
           identifierCode: _identifierController.text,
         ),
-        onManual: () {
-          _manualDraft.titleController.text = _queryController.text;
-          _controller.setMode(LibraryAddDialogMode.manual);
-        },
+        onManual: () => _openManualDialog(accent, addCapability),
         showAdvanced: state.search.showAdvancedSearch,
         onToggleAdvanced: _controller.toggleAdvancedSearch,
         advancedFilterState: state.search.advancedFilters,
@@ -684,12 +778,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   identifierController: _identifierController,
                   isSearching: state.search.isBusy,
                   isSearchingProvider: state.search.isSearchingProvider,
-                  onModeChanged: (mode) {
-                    if (mode == LibraryAddDialogMode.manual) {
-                      _manualDraft.titleController.text = _queryController.text;
-                    }
-                    _controller.setMode(mode);
-                  },
+                  onModeChanged: (mode) => _selectAddMode(mode, accent),
                   onSearch: () {
                     _controller.dismissSuggestions();
                     _controller.updateQuery(_queryController.text);
@@ -710,10 +799,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   onLookupIdentifier: () => _controller.lookupIdentifier(
                     identifierCode: _identifierController.text,
                   ),
-                  onManual: () {
-                    _manualDraft.titleController.text = _queryController.text;
-                    _controller.setMode(LibraryAddDialogMode.manual);
-                  },
+                  onManual: () => _openManualDialog(accent, addCapability),
                   showAdvanced: state.search.showAdvancedSearch,
                   onToggleAdvanced: _controller.toggleAdvancedSearch,
                   advancedFilterState: state.search.advancedFilters,
@@ -782,15 +868,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 resultPolicyState: state.selection.resultPolicyState,
                 onResultPolicyOptionChanged: _controller.setResultPolicyOption,
                 isWideLayout: constraints.maxWidth >= 720,
-                showCoreResults: state.selection.showCoreResults,
-                showProviderResults: state.selection.showProviderResults,
                 onSelectResult: _controller.selectResult,
                 onSelectProviderCandidate: _controller.selectProviderCandidate,
                 onToggleResultCheck: _controller.toggleCheckedResult,
                 onToggleProviderCheck: _controller.toggleCheckedProvider,
-                onShowCoreResultsChanged: _controller.setShowCoreResults,
-                onShowProviderResultsChanged:
-                    _controller.setShowProviderResults,
                 onSearchCore: _controller.executeSearch,
               );
 
@@ -821,18 +902,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     resultPolicyState: searchPaneRequest.resultPolicyState,
                     onResultPolicyOptionChanged:
                         searchPaneRequest.onResultPolicyOptionChanged,
-                    showCoreResults: searchPaneRequest.showCoreResults,
-                    showProviderResults: searchPaneRequest.showProviderResults,
                     onSelectResult: searchPaneRequest.onSelectResult,
                     onSelectProviderCandidate:
                         searchPaneRequest.onSelectProviderCandidate,
                     onToggleResultCheck: searchPaneRequest.onToggleResultCheck,
                     onToggleProviderCheck:
                         searchPaneRequest.onToggleProviderCheck,
-                    onShowCoreResultsChanged:
-                        searchPaneRequest.onShowCoreResultsChanged,
-                    onShowProviderResultsChanged:
-                        searchPaneRequest.onShowProviderResultsChanged,
                     onSearchCore: searchPaneRequest.onSearchCore,
                   );
 
@@ -937,21 +1012,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           accent: accent,
           selectedItem: selectedItem,
           selectedCandidate: selectedCandidate,
-          selectedQueuedIngest: selectedCandidate != null
-              ? state.preview
-                  .queuedProviderIngests[selectedCandidate.localCatalogId]
-              : null,
-          providerLabel: selectedCandidate == null
-              ? libraryMetadataForKind(widget.type.kind)
-                  .providerLabel(state.search.selectedProvider)
-              : libraryMetadataForKind(widget.type.kind)
-                  .providerLabel(selectedCandidate.provider),
           addTarget: state.target,
           addCount: checkedSelectionCount > 0 ? checkedSelectionCount : 1,
           hasCheckedSelection: hasCheckedSelection,
           isAdding: state.isAdding || state.submitState.isLoading,
-          isQueueingIngest: state.preview.isQueueingIngest,
-          isAdmin: ref.watch(authControllerProvider).isAdmin,
           defaultCondition: state.defaultCondition,
           defaultLocationLabel:
               locationPathForId(_availableLocations, state.defaultLocationId),
@@ -962,23 +1026,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           onDefaultLocationPressed: _pickDefaultLocation,
           onDefaultPurchaseDateChanged: _controller.setDefaultPurchaseDate,
           onAdd: () async {
-            final success = await _controller.submitCurrentSelection(
-              context: context,
-              isAdmin: ref.read(authControllerProvider).isAdmin,
-            );
+            final success = await _controller.submitCurrentSelection();
             if (success && mounted) {
               _closeDialog(_addResult(_currentSubmissionItemIds()));
             }
           },
-          onQueueIngest: selectedCandidate != null
-              ? () => _controller.queueProviderIngest(
-                    selectedCandidate,
-                    context: context,
-                  )
-              : null,
-          onPropose: selectedCandidate != null
-              ? () => _proposeCandidate(selectedCandidate)
-              : null,
           isWideLayout: isWideLayout,
         );
         return LibraryAddBottomBar(

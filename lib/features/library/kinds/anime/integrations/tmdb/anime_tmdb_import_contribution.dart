@@ -149,8 +149,8 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
         current.animeCatalogFields.releaseYear !=
             next.animeCatalogFields.releaseYear ||
         !_deepEqual(
-          current.kindCapability.toSyncPayload(),
-          next.kindCapability.toSyncPayload(),
+          current.kindCapability.toCatalogItemPayload(),
+          next.kindCapability.toCatalogItemPayload(),
         );
   }
 

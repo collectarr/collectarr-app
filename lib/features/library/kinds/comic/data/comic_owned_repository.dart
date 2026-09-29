@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
@@ -11,21 +11,21 @@ import 'package:drift/drift.dart';
 
 /// Persistence for the complete Comic-owned graph.
 final class ComicOwnedRepository
-    implements ReadRepository<ComicOwnedItemId, ComicOwnedItem> {
+    implements ReadRepository<ComicOwnedCopyId, ComicOwnedItem> {
   const ComicOwnedRepository(this._db);
 
   final LocalDatabase _db;
 
   @override
-  Future<ComicOwnedItem?> findById(ComicOwnedItemId id) async {
+  Future<ComicOwnedItem?> findById(ComicOwnedCopyId id) async {
     final row = await (_db.select(_db.comicOwnedItemsRows)
           ..where((table) => table.id.equals(id.value)))
         .getSingleOrNull();
     if (row == null) return null;
     final readingRow = await (_db.select(_db.comicReadingRows)
-          ..where((table) => table.ownedRefKey.equals(OwnedItemRef(
+          ..where((table) => table.ownedRefKey.equals(OwnedCopyRef(
                 kind: CatalogMediaKind.comic,
-                id: OwnedItemId(id.value),
+                id: OwnedCopyId(id.value),
               ).key)))
         .getSingleOrNull();
     return ComicLocalMapper.fromOwnedItemRow(
@@ -43,7 +43,7 @@ final class ComicOwnedRepository
         .get();
     final result = <ComicOwnedItem>[];
     for (final row in rows) {
-      final item = await findById(ComicOwnedItemId(row.id));
+      final item = await findById(ComicOwnedCopyId(row.id));
       if (item != null) result.add(item);
     }
     return result;

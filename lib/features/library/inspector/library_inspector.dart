@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_cont
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -66,9 +66,9 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final LibraryKindRegistration type;
   final LibraryProjection projection;
   final LibraryProjectionView? item;
-  final OwnedItemSummary? ownedItem;
+  final OwnedCopySummary? ownedItem;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
-  final List<OwnedItemSummary>? ownedCopies;
+  final List<OwnedCopySummary>? ownedCopies;
   final LibraryDetailsLayout detailsLayout;
   final LibraryWorkspaceDensityPreset densityPreset;
   final Color accent;
@@ -76,7 +76,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
-  final void Function(OwnedItemSummary? ownedItem)? onEdit;
+  final void Function(OwnedCopySummary? ownedItem)? onEdit;
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final ValueChanged<String>? onFilterByValue;
   final String? searchQuery;
@@ -89,27 +89,27 @@ class LibraryInspector extends ConsumerStatefulWidget {
 }
 
 class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
-  OwnedItemRef? _selectedOwnedItemRef;
+  OwnedCopyRef? _selectedOwnedCopyRef;
   bool _selectNewestOwnedItem = false;
 
   @override
   void initState() {
     super.initState();
-    _selectedOwnedItemRef = widget.ownedItem?.ref;
+    _selectedOwnedCopyRef = widget.ownedItem?.ref;
   }
 
   @override
   void didUpdateWidget(covariant LibraryInspector oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.item?.node.id != oldWidget.item?.node.id) {
-      _selectedOwnedItemRef = widget.ownedItem?.ref;
+      _selectedOwnedCopyRef = widget.ownedItem?.ref;
       _selectNewestOwnedItem = false;
       return;
     }
     if (widget.ownedItem?.ref != oldWidget.ownedItem?.ref &&
         widget.ownedItem != null &&
-        _selectedOwnedItemRef == null) {
-      _selectedOwnedItemRef = widget.ownedItem!.ref;
+        _selectedOwnedCopyRef == null) {
+      _selectedOwnedCopyRef = widget.ownedItem!.ref;
     }
   }
 
@@ -125,21 +125,21 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     // kind-owned data remains available through ownedItemDispatch after dispatch.
     final ownedCopies = widget.ownedCopies ??
         (widget.ownedItem == null
-            ? const <OwnedItemSummary>[]
-            : <OwnedItemSummary>[widget.ownedItem!]);
+            ? const <OwnedCopySummary>[]
+            : <OwnedCopySummary>[widget.ownedItem!]);
     final ownedSummaryResolution = resolveActiveOwnedSummary(
       ownedCopies,
       fallback: widget.ownedItem,
-      selectedOwnedItemRef: _selectedOwnedItemRef,
+      selectedOwnedCopyRef: _selectedOwnedCopyRef,
       selectNewest: _selectNewestOwnedItem,
     );
     final activeOwnedItem = ownedSummaryResolution.ownedItem;
-    if (ownedSummaryResolution.nextSelectedOwnedItemRef != null &&
-        (ownedSummaryResolution.nextSelectedOwnedItemRef !=
-                _selectedOwnedItemRef ||
+    if (ownedSummaryResolution.nextSelectedOwnedCopyRef != null &&
+        (ownedSummaryResolution.nextSelectedOwnedCopyRef !=
+                _selectedOwnedCopyRef ||
             (ownedSummaryResolution.clearNewest && _selectNewestOwnedItem))) {
       _scheduleOwnedCopySelection(
-        ownedSummaryResolution.nextSelectedOwnedItemRef!,
+        ownedSummaryResolution.nextSelectedOwnedCopyRef!,
         clearNewest: ownedSummaryResolution.clearNewest,
       );
     }
@@ -218,7 +218,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ownedCopies: ownedCopies,
         onAddCopy: addCopy,
         onOpenDetails: onOpenDetails,
-        onSelectOwnedItem: (ref) => setState(() => _selectedOwnedItemRef = ref),
+        onSelectOwnedItem: (ref) => setState(() => _selectedOwnedCopyRef = ref),
         onToggleOwned: onToggleOwned,
         onToggleWishlist: onToggleWishlist,
         onEdit: onEdit,
@@ -265,8 +265,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     BuildContext context,
     WidgetRef ref,
     LibraryProjectionView selected,
-    OwnedItemSummary? activeOwnedItem,
-    List<OwnedItemSummary> ownedCopies,
+    OwnedCopySummary? activeOwnedItem,
+    List<OwnedCopySummary> ownedCopies,
     TrackingSummary? activeTrackingSummary,
     LibraryInspectorRequest inspectorRequest, {
     required bool usesCustomInspectorPanel,
@@ -314,7 +314,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         collectionValueReader:
             libraryOwnedEditForKind(widget.type.kind).readOwnedCollectionValue,
         ownedItemDispatch: inspectorRequest.ownedItemDispatch,
-        selectedOwnedItemRef: activeOwnedItem?.ref,
+        selectedOwnedCopyRef: activeOwnedItem?.ref,
         accent: widget.accent,
         onAddCopy: entityActions.onAddCopy,
         onSelected:
@@ -445,7 +445,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }
 
   void _scheduleOwnedCopySelection(
-    OwnedItemRef ownedItemRef, {
+    OwnedCopyRef ownedItemRef, {
     bool clearNewest = true,
   }) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -453,7 +453,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         return;
       }
       setState(() {
-        _selectedOwnedItemRef = ownedItemRef;
+        _selectedOwnedCopyRef = ownedItemRef;
         if (clearNewest) {
           _selectNewestOwnedItem = false;
         }
@@ -463,7 +463,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
 
   Future<void> _addOwnedCopy(
     LibraryProjectionView item, {
-    OwnedItemSummary? ownedItem,
+    OwnedCopySummary? ownedItem,
   }) async {
     if (!libraryOwnershipForKind(widget.type.kind).canCreateCopyAt(item.node)) {
       return;
@@ -493,19 +493,19 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       return;
     }
     setState(() {
-      _selectedOwnedItemRef = null;
+      _selectedOwnedCopyRef = null;
       _selectNewestOwnedItem = true;
     });
   }
 
-  Future<void> _removeOwnedCopy(OwnedItemSummary item) async {
+  Future<void> _removeOwnedCopy(OwnedCopySummary item) async {
     await ref.read(ownedItemMutationsProvider).removeItem(item.ref);
     if (!mounted) {
       return;
     }
     setState(() {
-      if (_selectedOwnedItemRef == item.ref) {
-        _selectedOwnedItemRef = null;
+      if (_selectedOwnedCopyRef == item.ref) {
+        _selectedOwnedCopyRef = null;
       }
       _selectNewestOwnedItem = false;
     });
@@ -513,7 +513,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
 
   Future<void> _duplicateOwnedCopy(
     LibraryProjectionView item,
-    OwnedItemSummary ownedItem,
+    OwnedCopySummary ownedItem,
   ) async {
     final duplicated = await ref.read(ownedItemMutationsProvider).duplicateItem(
           ownedItem.ref,
@@ -533,7 +533,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       return;
     }
     setState(() {
-      _selectedOwnedItemRef = null;
+      _selectedOwnedCopyRef = null;
       _selectNewestOwnedItem = true;
     });
     ScaffoldMessenger.of(context).showSnackBar(
@@ -577,20 +577,20 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
     required this.releases,
     required this.collectionValueReader,
     required this.ownedItemDispatch,
-    required this.selectedOwnedItemRef,
+    required this.selectedOwnedCopyRef,
     required this.accent,
     required this.onAddCopy,
     this.onSelected,
   });
 
-  final List<OwnedItemSummary> copies;
+  final List<OwnedCopySummary> copies;
   final List<LibraryWorkspaceReleaseSummary> releases;
   final String? Function(LibraryOwnedItemDispatch?) collectionValueReader;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
-  final OwnedItemRef? selectedOwnedItemRef;
+  final OwnedCopyRef? selectedOwnedCopyRef;
   final Color accent;
   final VoidCallback? onAddCopy;
-  final ValueChanged<OwnedItemRef?>? onSelected;
+  final ValueChanged<OwnedCopyRef?>? onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -609,15 +609,15 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                           ),
                     )
-                  : CompactSearchDropdownFormField<OwnedItemRef>(
-                      initialValue: selectedOwnedItemRef,
+                  : CompactSearchDropdownFormField<OwnedCopyRef>(
+                      initialValue: selectedOwnedCopyRef,
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Active copy',
                       ),
                       items: [
                         for (var index = 0; index < copies.length; index += 1)
-                          DropdownMenuItem<OwnedItemRef>(
+                          DropdownMenuItem<OwnedCopyRef>(
                             value: copies[index].ref,
                             child: Text(
                               buildOwnedCopyLabelFromWorkspaceReleases(
@@ -668,7 +668,7 @@ class _InspectorReadingQueueActionButton extends StatefulWidget {
     required this.accent,
   });
 
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
   final LocalDatabase db;
   final Color accent;
 

@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dar
 final boardGameOwnedContributor = TypedOwnedKindContributor<BoardGameOwnedItem>(
   kind: CatalogMediaKind.boardgame,
   findById: (database, id) =>
-      BoardGameOwnedRepository(database).findById(BoardGameOwnedItemId(id)),
+      BoardGameOwnedRepository(database).findById(BoardGameOwnedCopyId(id)),
   upsert: (database, item) => BoardGameOwnedRepository(database).upsert(item),
   listActive: (database) => BoardGameOwnedRepository(database).listActive(),
   createItem: ({

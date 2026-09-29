@@ -27,3 +27,5 @@ This work starts from the visually established App baseline below. The UI in thi
 - The eventual App release has a fresh v1 schema and intentionally does not open the old schema or backup formats. Provide a separate, reviewed migration/export path before that release; do not run it against live user data.
 
 Core's matching concrete identity path cases are in `collectarr-core/tests/fixtures/flattened_catalog/legacy_graph_migration_cases.json`. App-specific personal-reference resolution cases live beside this document. The live-feature inventory and intended destinations are in `flattened-catalog-reference-inventory.md`.
+
+User proposals stay supported through the cutover. A proposal carries the selected kind and the full Catalog Item values from the Add/Edit form; it does not carry provider identity, ingest envelopes, or source snapshots. Approval is a catalog moderation action and must use the same kind-owned write path as manual Catalog Item Add/Edit.

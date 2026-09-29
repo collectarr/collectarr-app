@@ -12,6 +12,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   coreCatalogProjectionBuilder: movieCatalogTransportFromCoreItem,
   manualDraftBuilder: MovieAddManualDraft.new,
   manualCandidateBuilder: buildMovieManualCandidate,
+  manualProposalBuilder: buildMovieManualProposalData,
   manualCandidateValidationMessage:
       'Enter a title and correct any invalid release details.',
   manualPaneBuilder: buildMovieAddManualPane,

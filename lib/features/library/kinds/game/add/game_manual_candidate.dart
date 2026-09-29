@@ -25,3 +25,17 @@ CatalogSearchCandidate? buildGameManualCandidate(
     ),
   );
 }
+
+/// Serializes this kind's typed manual catalog model for Core review.
+///
+/// Core projects the supplied object onto the recognized flattened fields for
+/// this kind, so this mapper does not maintain a second field denylist.
+Map<String, Object?>? buildGameManualProposalData(
+  LibraryKindAddDraft draft, {
+  required String title,
+}) {
+  final candidate = buildGameManualCandidate(draft, title: title);
+  if (candidate == null) return null;
+  return Map<String, Object?>.from(
+      candidate.kindCapability.toCatalogItemPayload());
+}

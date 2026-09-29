@@ -40,7 +40,7 @@ final class MusicOwnedItem {
     this.details = const MusicOwnedDetails(),
   });
 
-  final MusicOwnedItemId id;
+  final MusicOwnedCopyId id;
   final CatalogEntityRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
@@ -128,7 +128,7 @@ final class MusicOwnedItem {
           'Expected music catalog_ref, got ${catalogRef.kind}');
     }
     final item = MusicOwnedItem(
-      id: MusicOwnedItemId(json['id'] as String),
+      id: MusicOwnedCopyId(json['id'] as String),
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
@@ -160,7 +160,7 @@ final class MusicOwnedItem {
   }
 
   MusicOwnedItem copyWith({
-    MusicOwnedItemId? id,
+    MusicOwnedCopyId? id,
     CatalogEntityRef? catalogRef,
     Object? createdAt = _unset,
     Object? isDigital = _unset,

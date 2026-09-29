@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -268,7 +268,7 @@ void main() {
     );
     expect(
       tracking.ownedRef?.key,
-      OwnedItemRef.fromKey('movie:${owned.id.value}').key,
+      OwnedCopyRef.fromKey('movie:${owned.id.value}').key,
     );
     expect(tracking.sourceTypeApiValue, 'physical');
     expect(tracking.statusStorageValue, 'Completed');
@@ -554,9 +554,9 @@ void main() {
 
     await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           UpdateOwnedItemCommand(
-            ownedRef: OwnedItemRef(
+            ownedRef: OwnedCopyRef(
               kind: CatalogMediaKind.comic,
-              id: OwnedItemId(original.id.value),
+              id: OwnedCopyId(original.id.value),
             ),
             payload: ComicOwnedItemUpdatePayload.partial(
               condition: const Patch.set('Near Mint'),
@@ -571,9 +571,9 @@ void main() {
 
     final updated = await _typedOwned<ComicOwnedItem>(
       db,
-      OwnedItemRef(
+      OwnedCopyRef(
         kind: CatalogMediaKind.comic,
-        id: OwnedItemId(original.id.value),
+        id: OwnedCopyId(original.id.value),
       ),
     );
     expect(updated.purchaseDate, isNull);
@@ -603,9 +603,9 @@ void main() {
 
     await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           UpdateOwnedItemCommand(
-            ownedRef: OwnedItemRef(
+            ownedRef: OwnedCopyRef(
               kind: CatalogMediaKind.comic,
-              id: OwnedItemId(original.id.value),
+              id: OwnedCopyId(original.id.value),
             ),
             payload: ComicOwnedItemUpdatePayload.partial(
               locationId: const Patch.clear(),
@@ -615,9 +615,9 @@ void main() {
 
     final updated = await _typedOwned<ComicOwnedItem>(
       db,
-      OwnedItemRef(
+      OwnedCopyRef(
         kind: CatalogMediaKind.comic,
-        id: OwnedItemId(original.id.value),
+        id: OwnedCopyId(original.id.value),
       ),
     );
     expect(updated.locationId, isNull);
@@ -1360,7 +1360,7 @@ void main() {
     expect(imported, 1);
     expect(
       tracking.ownedRef?.key,
-      OwnedItemRef.fromKey('comic:${owned.id.value}').key,
+      OwnedCopyRef.fromKey('comic:${owned.id.value}').key,
     );
     expect(tracking.statusStorageValue, 'Completed');
     expect(tracking.rating, 8);
@@ -1600,14 +1600,14 @@ void main() {
   });
 }
 
-Future<T> _typedOwned<T>(LocalDatabase db, OwnedItemRef ref) async {
+Future<T> _typedOwned<T>(LocalDatabase db, OwnedCopyRef ref) async {
   final result = switch (ref.kind) {
     CatalogMediaKind.comic =>
-      await ComicOwnedRepository(db).findById(ComicOwnedItemId(ref.id.value)),
+      await ComicOwnedRepository(db).findById(ComicOwnedCopyId(ref.id.value)),
     CatalogMediaKind.book =>
-      await BookOwnedRepository(db).findById(BookOwnedItemId(ref.id.value)),
+      await BookOwnedRepository(db).findById(BookOwnedCopyId(ref.id.value)),
     CatalogMediaKind.movie =>
-      await MovieOwnedRepository(db).findById(MovieOwnedItemId(ref.id.value)),
+      await MovieOwnedRepository(db).findById(MovieOwnedCopyId(ref.id.value)),
     _ => throw StateError('Unsupported test Owned kind ${ref.kind}'),
   };
   expect(result, isNotNull, reason: 'Missing typed Owned item ${ref.key}');

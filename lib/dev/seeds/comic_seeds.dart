@@ -797,7 +797,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
 List<ComicOwnedItem> comicSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.comic, 15))
         ComicOwnedItem(
-          id: ComicOwnedItemId('seed-owned-$itemId'),
+          id: ComicOwnedCopyId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.comic, itemId),
           createdAt: now.subtract(const Duration(days: 260)),
           updatedAt: now,
@@ -850,7 +850,7 @@ List<TrackingStorageRecord> comicSeedTrackingStates(DateTime now) => [
 Future<void> seedComicReadingStates(LocalDatabase db, DateTime now) async {
   final repository = ComicOwnedRepository(db);
   for (var i = 1; i <= 15; i++) {
-    final id = ComicOwnedItemId('seed-owned-seed-comic-${seedOrdinal2(i)}');
+    final id = ComicOwnedCopyId('seed-owned-seed-comic-${seedOrdinal2(i)}');
     final item = await repository.findById(id);
     if (item == null) {
       throw StateError(

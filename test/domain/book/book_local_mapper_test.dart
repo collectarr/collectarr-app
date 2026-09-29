@@ -162,7 +162,7 @@ void main() {
     expect(
       () => BookLocalMapper.toOwnedItemRow(
         BookOwnedItem(
-          id: const BookOwnedItemId(''),
+          id: const BookOwnedCopyId(''),
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
             entityType: CatalogEntityTypeId('work'),
@@ -179,7 +179,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final item = BookOwnedItem(
-      id: const BookOwnedItemId('owned-book-1'),
+      id: const BookOwnedCopyId('owned-book-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
         entityType: CatalogEntityTypeId('work'),

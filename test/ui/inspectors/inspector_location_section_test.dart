@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_location_section.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:drift/drift.dart';
@@ -38,9 +38,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorLocationSection(
-            ownedRef: const OwnedItemRef(
+            ownedRef: const OwnedCopyRef(
               kind: CatalogMediaKind.comic,
-              id: OwnedItemId('owned-1'),
+              id: OwnedCopyId('owned-1'),
             ),
             db: db,
             accent: Colors.orange,

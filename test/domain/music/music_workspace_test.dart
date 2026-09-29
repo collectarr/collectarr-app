@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
@@ -150,9 +150,9 @@ void main() {
         entity: LibraryCopyRef(
           workId: 'group-stale',
           releaseId: 'release-missing',
-          ownedRef: OwnedItemRef(
+          ownedRef: OwnedCopyRef(
             kind: CatalogMediaKind.music,
-            id: OwnedItemId('copy-1'),
+            id: OwnedCopyId('copy-1'),
           ),
         ),
       ),

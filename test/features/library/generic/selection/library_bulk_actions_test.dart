@@ -134,7 +134,7 @@ void main() {
     ]);
 
     final deletedOwned =
-        await MovieOwnedRepository(db).findById(MovieOwnedItemId(row.id.value));
+        await MovieOwnedRepository(db).findById(MovieOwnedCopyId(row.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
 
     expect(deletedOwned?.deletedAt, isNotNull);
@@ -230,7 +230,7 @@ void main() {
     ]);
 
     final deletedOwned = await MovieOwnedRepository(db)
-        .findById(MovieOwnedItemId(ownedRow.id.value));
+        .findById(MovieOwnedCopyId(ownedRow.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
     final deletedTracking =
         await trackingRecordTestRepository(db).findStorageRecordByRef(

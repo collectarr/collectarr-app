@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -420,11 +420,11 @@ void main() {
   });
 }
 
-OwnedItemSummary _movieOwnedSummary({required CatalogEntityRef targetRef}) {
-  return OwnedItemSummary(
-    ref: const OwnedItemRef(
+OwnedCopySummary _movieOwnedSummary({required CatalogEntityRef targetRef}) {
+  return OwnedCopySummary(
+    ref: const OwnedCopyRef(
       kind: CatalogMediaKind.movie,
-      id: OwnedItemId('owned-1'),
+      id: OwnedCopyId('owned-1'),
     ),
     title: 'movie_1',
     catalogRef: const CatalogEntityRef(

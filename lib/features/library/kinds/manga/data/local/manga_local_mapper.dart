@@ -116,7 +116,7 @@ final class MangaLocalMapper {
       id: row.itemId,
     );
     return MangaOwnedItem(
-      id: MangaOwnedItemId(row.id),
+      id: MangaOwnedCopyId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
@@ -41,7 +41,7 @@ final class OwnedItemsRepository {
   }
 
   Future<OwnedItemMutationResult> updateOwned({
-    required OwnedItemRef ref,
+    required OwnedCopyRef ref,
     required OwnedItemUpdatePayload payload,
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
@@ -56,11 +56,11 @@ final class OwnedItemsRepository {
     );
   }
 
-  Future<OwnedItemCreatePayload?> createPayloadByRef(OwnedItemRef ref) {
+  Future<OwnedItemCreatePayload?> createPayloadByRef(OwnedCopyRef ref) {
     return _persistence.createPayloadByRef(ref);
   }
 
-  Future<JsonMap?> payloadByRef(OwnedItemRef ref) {
+  Future<JsonMap?> payloadByRef(OwnedCopyRef ref) {
     return _persistence.payloadByRef(ref);
   }
 
@@ -93,11 +93,11 @@ final class OwnedItemsRepository {
     );
   }
 
-  Future<List<OwnedItemSummary>> listActiveSummaries() async {
+  Future<List<OwnedCopySummary>> listActiveSummaries() async {
     return _persistence.listActiveSummaries();
   }
 
-  Future<OwnedItemSummary?> findSummaryByRef(OwnedItemRef ref) async {
+  Future<OwnedCopySummary?> findSummaryByRef(OwnedCopyRef ref) async {
     for (final item in await listActiveSummaries()) {
       if (item.ref == ref) return item;
     }
@@ -105,13 +105,13 @@ final class OwnedItemsRepository {
   }
 
   Future<OwnedItemMutationResult?> markDeletedByRef(
-    OwnedItemRef ref,
+    OwnedCopyRef ref,
     DateTime deletedAt,
   ) {
     return _persistence.markDeletedByRef(ref, deletedAt);
   }
 
-  Future<void> updateLocation(OwnedItemRef ref, String? locationId) {
+  Future<void> updateLocation(OwnedCopyRef ref, String? locationId) {
     return _persistence.updateLocation(ref, locationId);
   }
 }

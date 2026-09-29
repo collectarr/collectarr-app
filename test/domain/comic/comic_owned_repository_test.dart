@@ -14,7 +14,7 @@ void main() {
     addTearDown(db.close);
 
     final item = ComicOwnedItem(
-      id: const ComicOwnedItemId('owned-comic-1'),
+      id: const ComicOwnedCopyId('owned-comic-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
         entityType: CatalogEntityTypeId('work'),

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -21,7 +21,7 @@ LibraryEditShellState createLibraryEditShellState({
   LibraryEntityScope scope = LibraryEntityScope.work,
   LibraryEntityRef? node,
   required CatalogSearchCandidate item,
-  required OwnedItemSummary? ownedItem,
+  required OwnedCopySummary? ownedItem,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   required WishlistItem? wishlistItem,
   required TrackingSummary? trackingSummary,

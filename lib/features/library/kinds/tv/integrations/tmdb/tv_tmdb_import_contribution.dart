@@ -176,8 +176,8 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
         current.tvCatalogFields.releaseYear !=
             next.tvCatalogFields.releaseYear ||
         !_deepEqual(
-          current.kindCapability.toSyncPayload(),
-          next.kindCapability.toSyncPayload(),
+          current.kindCapability.toCatalogItemPayload(),
+          next.kindCapability.toCatalogItemPayload(),
         );
   }
 

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 
 import '../../helpers/test_constants.dart';
 
@@ -22,9 +22,9 @@ void main() {
     await LoanRepository(db).create(
       Loan(
         id: 'loan-1',
-        ownedRef: const OwnedItemRef(
+        ownedRef: const OwnedCopyRef(
           kind: CatalogMediaKind.book,
-          id: OwnedItemId('owned-1'),
+          id: OwnedCopyId('owned-1'),
         ),
         borrowerName: 'Alex',
         lentDate: DateTime.utc(2026, 5, 1),
@@ -36,9 +36,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorLoanSection(
-            ownedRef: const OwnedItemRef(
+            ownedRef: const OwnedCopyRef(
               kind: CatalogMediaKind.book,
-              id: OwnedItemId('owned-1'),
+              id: OwnedCopyId('owned-1'),
             ),
             db: db,
             accent: Colors.orange,
@@ -58,9 +58,9 @@ void main() {
     await pumpUntilSettled(tester);
 
     final loans = await LoanRepository(db).getLoansForItem(
-      const OwnedItemRef(
+      const OwnedCopyRef(
         kind: CatalogMediaKind.book,
-        id: OwnedItemId('owned-1'),
+        id: OwnedCopyId('owned-1'),
       ),
     );
     expect(loans, hasLength(1));

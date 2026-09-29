@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,9 +21,9 @@ void main() {
   tearDown(() => db.close());
 
   Uint8List bytes(List<int> values) => Uint8List.fromList(values);
-  OwnedItemRef ownedRef(String id) => OwnedItemRef(
+  OwnedCopyRef ownedRef(String id) => OwnedCopyRef(
         kind: CatalogMediaKind.comic,
-        id: OwnedItemId(id),
+        id: OwnedCopyId(id),
       );
 
   ItemImage image(String id, String owner, {int sortOrder = 0}) => ItemImage(
@@ -98,7 +98,7 @@ void main() {
   });
 
   test('different kinds with equal ids remain isolated', () async {
-    final bookRef = OwnedItemRef.fromKey('book:owned-1');
+    final bookRef = OwnedCopyRef.fromKey('book:owned-1');
     await repo.add(image('img-comic', 'owned-1'));
     await repo.add(
       ItemImage(

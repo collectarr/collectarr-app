@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 
 @immutable
 sealed class CollectionEvent {
@@ -9,7 +9,7 @@ sealed class CollectionEvent {
 
 final class OwnedItemAdded extends CollectionEvent {
   const OwnedItemAdded(this.ownedRef);
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
 
   @override
   bool operator ==(Object other) =>
@@ -24,7 +24,7 @@ final class OwnedItemAdded extends CollectionEvent {
 
 final class OwnedItemUpdated extends CollectionEvent {
   const OwnedItemUpdated(this.ownedRef);
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
 
   @override
   bool operator ==(Object other) =>
@@ -39,7 +39,7 @@ final class OwnedItemUpdated extends CollectionEvent {
 
 final class OwnedItemRemoved extends CollectionEvent {
   const OwnedItemRemoved(this.ownedRef);
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
 
   @override
   bool operator ==(Object other) =>

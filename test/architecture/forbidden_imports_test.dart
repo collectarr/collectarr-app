@@ -220,12 +220,12 @@ class TestStats {}
   test('architecture boundary checker allows structural owned projections', () {
     final repoRoot = Directory.current.path;
     const testCode = '''
-class OwnedItemSummary {
+class OwnedCopySummary {
   final String? subtitle;
-  const OwnedItemSummary(this.subtitle);
+  const OwnedCopySummary(this.subtitle);
 }
 ''';
-    final relativePath = 'lib/core/models/owned_item_projection.dart';
+    final relativePath = 'lib/core/models/owned_copy_projection.dart';
     final parseResult = parseString(
       content: testCode,
       path: p.join(repoRoot, relativePath),

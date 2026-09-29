@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -28,8 +28,8 @@ class LibraryDetailPersonalSection extends StatelessWidget {
   final LibraryKindRegistration? type;
   final LibraryProjectionView item;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
-  final OwnedItemSummary? ownedSummary;
-  final List<OwnedItemSummary> ownedCopies;
+  final OwnedCopySummary? ownedSummary;
+  final List<OwnedCopySummary> ownedCopies;
   final TrackingSummary? trackingSummary;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -39,8 +39,8 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     final effectiveOwnedCopies = ownedCopies.isNotEmpty
         ? ownedCopies
         : ownedSummary == null
-            ? const <OwnedItemSummary>[]
-            : <OwnedItemSummary>[ownedSummary!];
+            ? const <OwnedCopySummary>[]
+            : <OwnedCopySummary>[ownedSummary!];
     final paid = formatMoney(
       ownedSummary?.pricePaidCents ?? item.source.pricePaidCents,
       ownedSummary?.currency ?? item.source.currency,
@@ -165,8 +165,8 @@ class LibraryDetailPersonalSection extends StatelessWidget {
 }
 
 int? _sumOwnedValueCents(
-  List<OwnedItemSummary> items,
-  int? Function(OwnedItemSummary item) selector,
+  List<OwnedCopySummary> items,
+  int? Function(OwnedCopySummary item) selector,
 ) {
   var hasValue = false;
   var total = 0;
@@ -182,8 +182,8 @@ int? _sumOwnedValueCents(
 }
 
 String? _detailValueCurrency(
-  List<OwnedItemSummary> ownedCopies,
-  OwnedItemSummary? ownedItem,
+  List<OwnedCopySummary> ownedCopies,
+  OwnedCopySummary? ownedItem,
   LibraryProjectionView item,
 ) {
   for (final copy in ownedCopies) {
@@ -199,7 +199,7 @@ String? _detailValueCurrency(
   return null;
 }
 
-String? _detailProfitLossLabel(OwnedItemSummary? ownedItem) {
+String? _detailProfitLossLabel(OwnedCopySummary? ownedItem) {
   final paid = ownedItem?.pricePaidCents;
   final sold = ownedItem?.sellPriceCents;
   if (paid == null || sold == null) {

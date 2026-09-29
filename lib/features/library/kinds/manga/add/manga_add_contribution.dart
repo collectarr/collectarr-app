@@ -12,6 +12,7 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
   coreCatalogProjectionBuilder: mangaCatalogTransportFromCoreItem,
   manualDraftBuilder: MangaAddManualDraft.new,
   manualCandidateBuilder: buildMangaManualCandidate,
+  manualProposalBuilder: buildMangaManualProposalData,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MangaOwnedItemCreatePayload(
     catalogRef: item.reference,

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
@@ -282,7 +282,7 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 23, 11),
       )),
     ]);
-    OwnedItemSummary? editedOwnedItem;
+    OwnedCopySummary? editedOwnedItem;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -360,7 +360,7 @@ void main() {
                 primarySections: const [SizedBox.shrink()],
                 trailingSections: const [SizedBox.shrink()],
                 ownedCopies: const [],
-                selectedOwnedItemRef: null,
+                selectedOwnedCopyRef: null,
                 extraActions: const [Text('Extra action')],
                 onAddCopy: () {},
                 onOpenDetails: () {},
@@ -635,7 +635,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorItemImagesSection(
-              ownedRef: OwnedItemRef.fromKey('book:owned-1'),
+              ownedRef: OwnedCopyRef.fromKey('book:owned-1'),
               db: db,
               accent: Colors.orange,
             ),
@@ -746,7 +746,7 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 23, 11),
       )),
     ]);
-    OwnedItemSummary? editedOwnedItem;
+    OwnedCopySummary? editedOwnedItem;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -796,7 +796,7 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.byType(DropdownButtonFormField<OwnedItemRef>).first);
+    await tester.tap(find.byType(DropdownButtonFormField<OwnedCopyRef>).first);
     await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Copy 2').last);
     await pumpUntilSettled(tester);
@@ -900,7 +900,7 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Front'), findsNothing);
     expect(find.widgetWithText(FilledButton, 'Back'), findsNothing);
 
-    await tester.tap(find.byType(DropdownButtonFormField<OwnedItemRef>).first);
+    await tester.tap(find.byType(DropdownButtonFormField<OwnedCopyRef>).first);
     await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Copy 2').last);
     await pumpUntilSettled(tester);

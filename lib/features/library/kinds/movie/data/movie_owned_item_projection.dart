@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/models/money.dart' show OwnedItemId;
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/money.dart' show OwnedCopyId;
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 
@@ -12,11 +12,11 @@ final class MovieOwnedItemProjection {
     return value is MovieOwnedItem ? value : null;
   }
 
-  static OwnedItemSummary toSummary(MovieOwnedItem item) {
-    return OwnedItemSummary(
-      ref: OwnedItemRef(
+  static OwnedCopySummary toSummary(MovieOwnedItem item) {
+    return OwnedCopySummary(
+      ref: OwnedCopyRef(
         kind: item.catalogRef.mediaKind,
-        id: OwnedItemId(item.id.value),
+        id: OwnedCopyId(item.id.value),
       ),
       catalogRef: item.catalogRef,
       targetRef: item.targetRef,

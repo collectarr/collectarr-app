@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 
 /// Structural result of a kind-owned persistence mutation.
@@ -13,7 +13,7 @@ final class OwnedItemMutationResult {
     required this.isDeleted,
   });
 
-  final OwnedItemRef ref;
+  final OwnedCopyRef ref;
   final JsonMap syncPayload;
   final bool isDeleted;
 }

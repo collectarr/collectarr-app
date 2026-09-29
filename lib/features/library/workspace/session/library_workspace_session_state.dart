@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -411,27 +411,27 @@ final class LibrarySessionAsyncState {
     this.isLoading = false,
     this.error,
     this.detailHydrationInFlight = const {},
-    this.activeLoanOwnedItemIds = const {},
+    this.activeLoanOwnedCopyIds = const {},
   });
 
   final bool isLoading;
   final Object? error;
   final Set<String> detailHydrationInFlight;
-  final Set<OwnedItemRef> activeLoanOwnedItemIds;
+  final Set<OwnedCopyRef> activeLoanOwnedCopyIds;
 
   LibrarySessionAsyncState copyWith({
     bool? isLoading,
     Object? Function()? error,
     Set<String>? detailHydrationInFlight,
-    Set<OwnedItemRef>? activeLoanOwnedItemIds,
+    Set<OwnedCopyRef>? activeLoanOwnedCopyIds,
   }) {
     return LibrarySessionAsyncState(
       isLoading: isLoading ?? this.isLoading,
       error: error != null ? error() : this.error,
       detailHydrationInFlight:
           detailHydrationInFlight ?? this.detailHydrationInFlight,
-      activeLoanOwnedItemIds:
-          activeLoanOwnedItemIds ?? this.activeLoanOwnedItemIds,
+      activeLoanOwnedCopyIds:
+          activeLoanOwnedCopyIds ?? this.activeLoanOwnedCopyIds,
     );
   }
 
@@ -443,14 +443,14 @@ final class LibrarySessionAsyncState {
           isLoading == other.isLoading &&
           error == other.error &&
           setEquals(detailHydrationInFlight, other.detailHydrationInFlight) &&
-          setEquals(activeLoanOwnedItemIds, other.activeLoanOwnedItemIds);
+          setEquals(activeLoanOwnedCopyIds, other.activeLoanOwnedCopyIds);
 
   @override
   int get hashCode => Object.hash(
         isLoading,
         error,
         Object.hashAll(detailHydrationInFlight),
-        Object.hashAll(activeLoanOwnedItemIds),
+        Object.hashAll(activeLoanOwnedCopyIds),
       );
 }
 

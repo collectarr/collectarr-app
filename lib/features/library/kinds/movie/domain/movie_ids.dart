@@ -17,6 +17,6 @@ final class MovieReleaseMediaId extends LibraryEntityId {
 }
 
 @immutable
-final class MovieOwnedItemId extends LibraryEntityId {
-  const MovieOwnedItemId(super.value);
+final class MovieOwnedCopyId extends LibraryEntityId {
+  const MovieOwnedCopyId(super.value);
 }

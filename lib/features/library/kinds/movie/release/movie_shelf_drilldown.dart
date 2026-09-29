@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -46,7 +46,7 @@ bool canOpenMovieShelfDrilldown(
 
 List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
   required LibraryProjectionView titleItem,
-  required List<OwnedItemSummary> ownedCopies,
+  required List<OwnedCopySummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
   required LibraryEntityWorkspaceProjector<LibraryWorkspaceDto> projector,
 }) {
@@ -87,7 +87,7 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
   LibraryProjectionView titleItem,
   CatalogEditionDto edition, {
   required List<CatalogEditionDto> editions,
-  required List<OwnedItemSummary> ownedCopies,
+  required List<OwnedCopySummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
   required LibraryEntityWorkspaceProjector<LibraryWorkspaceDto> projector,
 }) {

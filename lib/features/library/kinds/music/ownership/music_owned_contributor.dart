@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dar
 final musicOwnedContributor = TypedOwnedKindContributor<MusicOwnedItem>(
   kind: CatalogMediaKind.music,
   findById: (database, id) =>
-      MusicOwnedRepository(database).findById(MusicOwnedItemId(id)),
+      MusicOwnedRepository(database).findById(MusicOwnedCopyId(id)),
   upsert: (database, item) => MusicOwnedRepository(database).upsert(item),
   listActive: (database) => MusicOwnedRepository(database).listActive(),
   createItem: ({

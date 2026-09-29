@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -65,7 +65,7 @@ class LibraryEditShellState {
   /// draft and final catalog mutation boundary. The shared shell keeps this
   /// candidate opaque and routes semantic work through the kind session.
   final CatalogSearchCandidate kindItem;
-  final OwnedItemSummary? ownedItem;
+  final OwnedCopySummary? ownedItem;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final WishlistItem? wishlistItem;
   final TrackingSummary? trackingSummary;
@@ -162,7 +162,7 @@ class LibraryEditShellState {
     LibraryEntityScope scope = LibraryEntityScope.work,
     LibraryEntityRef? node,
     required CatalogSearchCandidate item,
-    OwnedItemSummary? ownedItem,
+    OwnedCopySummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
     WishlistItem? wishlistItem,
     TrackingSummary? trackingSummary,
@@ -196,7 +196,7 @@ class LibraryEditShellState {
     LibraryEntityScope scope = LibraryEntityScope.work,
     LibraryEntityRef? node,
     required CatalogSearchCandidate item,
-    required OwnedItemSummary? ownedItem,
+    required OwnedCopySummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
     required WishlistItem? wishlistItem,
     required TrackingSummary? trackingSummary,

@@ -47,9 +47,9 @@ void main() {
         home: Scaffold(
           body: LibraryDetailPersonalSection(
             item: movieItem,
-            ownedSummary: testOwnedItemSummary(owned1),
+            ownedSummary: testOwnedCopySummary(owned1),
             ownedCopies: [
-              testOwnedItemSummary(testOwnedItem(
+              testOwnedCopySummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'movie-1',
                 purchaseDate: DateTime.utc(2026, 5, 11),
@@ -61,7 +61,7 @@ void main() {
                 currency: 'USD',
                 updatedAt: DateTime.utc(2026, 5, 22),
               )),
-              testOwnedItemSummary(testOwnedItem(
+              testOwnedCopySummary(testOwnedItem(
                 id: 'owned-2',
                 itemId: 'movie-1',
                 pricePaidCents: 999,

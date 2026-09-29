@@ -35,7 +35,7 @@ final class BookOwnedItem {
     this.details = const BookOwnedDetails(),
   });
 
-  final BookOwnedItemId id;
+  final BookOwnedCopyId id;
   final CatalogEntityRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
@@ -108,7 +108,7 @@ final class BookOwnedItem {
       );
     }
     return BookOwnedItem(
-      id: BookOwnedItemId(json['id'] as String),
+      id: BookOwnedCopyId(json['id'] as String),
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
@@ -138,7 +138,7 @@ final class BookOwnedItem {
   }
 
   BookOwnedItem copyWith({
-    BookOwnedItemId? id,
+    BookOwnedCopyId? id,
     CatalogEntityRef? catalogRef,
     Object? createdAt = _unset,
     Object? isDigital = _unset,

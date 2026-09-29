@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
 
@@ -160,9 +160,9 @@ mixin CollectionCsvKindOwnedImportSupport {
       payload.addAll(details.toJson());
     }
     return OwnedImportTransport(
-      ref: OwnedItemRef(
+      ref: OwnedCopyRef(
         kind: input.catalogRef.kind,
-        id: OwnedItemId(input.id),
+        id: OwnedCopyId(input.id),
       ),
       catalogRef: input.catalogRef,
       payload: payload,

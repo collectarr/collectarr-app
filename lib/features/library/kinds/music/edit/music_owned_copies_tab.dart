@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -526,7 +526,7 @@ String? _nullable(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-OwnedItemRef _ownedRef(MusicOwnedItem item) => OwnedItemRef(
+OwnedCopyRef _ownedRef(MusicOwnedItem item) => OwnedCopyRef(
       kind: CatalogMediaKind.music,
-      id: OwnedItemId(item.id.value),
+      id: OwnedCopyId(item.id.value),
     );

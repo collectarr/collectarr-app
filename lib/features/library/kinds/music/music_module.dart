@@ -7,6 +7,8 @@ export 'admin/music_admin_contributor.dart';
 export 'barcode/music_barcode_resolver.dart';
 export 'calendar/music_calendar_contributor.dart';
 export 'data/music_catalog_transport_codec.dart';
+export 'data/remote/catalog_music_item_dto.dart';
+export 'data/remote/music_catalog_remote_source.dart';
 export 'integrations/catalog/music_catalog_lookup.dart';
 export 'integrations/collection_csv/music_collection_csv_projection.dart';
 export 'integrations/musicbrainz/music_musicbrainz_provider_adapter.dart';

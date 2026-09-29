@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
@@ -35,7 +35,7 @@ final class TrackingStorageRow {
 
   final String id;
   final CatalogEntityRef catalogRef;
-  final OwnedItemRef? ownedRef;
+  final OwnedCopyRef? ownedRef;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -128,7 +128,7 @@ abstract interface class TrackingStorageCodec {
   TrackingStorageRecord create({
     required String id,
     required CatalogEntityRef catalogRef,
-    OwnedItemRef? ownedRef,
+    OwnedCopyRef? ownedRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -294,7 +294,7 @@ TrackingStorageRow trackingStorageRowFromColumns({
     Map<String, Object?>.from(decoded),
   );
   requireKnownCatalogRef(catalogRef, 'tracking.catalogRef');
-  final ownedRef = ownedItemRefFromSerialized(ownedRefKey);
+  final ownedRef = ownedCopyRefFromSerialized(ownedRefKey);
   if (ownedRef != null) {
     requireMatchingOwnedCatalogKinds(catalogRef, ownedRef);
   }

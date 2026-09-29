@@ -15,7 +15,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -1577,10 +1577,10 @@ void main() {
                 kind: CatalogMediaKind.comic,
                 entityType: CatalogEntityTypeId('work'),
                 id: 'comic-423',
-              ): const OwnedItemSummary(
-                ref: OwnedItemRef(
+              ): const OwnedCopySummary(
+                ref: OwnedCopyRef(
                   kind: CatalogMediaKind.comic,
-                  id: OwnedItemId('owned-comic-423'),
+                  id: OwnedCopyId('owned-comic-423'),
                 ),
                 title: 'comic-423',
                 catalogRef: CatalogEntityRef(
@@ -1648,10 +1648,10 @@ void main() {
                 kind: CatalogMediaKind.comic,
                 entityType: CatalogEntityTypeId('work'),
                 id: 'comic-423',
-              ): const OwnedItemSummary(
-                ref: OwnedItemRef(
+              ): const OwnedCopySummary(
+                ref: OwnedCopyRef(
                   kind: CatalogMediaKind.comic,
-                  id: OwnedItemId('owned-comic-423'),
+                  id: OwnedCopyId('owned-comic-423'),
                 ),
                 title: 'comic-423',
                 catalogRef: CatalogEntityRef(

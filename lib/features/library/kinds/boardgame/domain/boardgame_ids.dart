@@ -12,6 +12,6 @@ final class BoardGameEditionId extends LibraryEntityId {
 }
 
 @immutable
-final class BoardGameOwnedItemId extends LibraryEntityId {
-  const BoardGameOwnedItemId(super.value);
+final class BoardGameOwnedCopyId extends LibraryEntityId {
+  const BoardGameOwnedCopyId(super.value);
 }

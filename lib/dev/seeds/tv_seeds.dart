@@ -1020,7 +1020,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
 List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.tv, 15))
         TvOwnedItem(
-          id: TvOwnedItemId('seed-owned-$itemId'),
+          id: TvOwnedCopyId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.tv, itemId),
           createdAt: now.subtract(const Duration(days: 280)),
           updatedAt: now,

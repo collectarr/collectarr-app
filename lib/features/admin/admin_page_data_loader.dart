@@ -74,11 +74,10 @@ class AdminPageDataLoader {
 
   Future<AdminProposalData> loadProposals({
     required String status,
-    String? provider,
   }) async {
     final results = await Future.wait<Object>([
       api.adminMetadataProposalSummary(),
-      api.adminMetadataProposals(status: status, provider: provider),
+      api.adminMetadataProposals(status: status),
     ]);
     return AdminProposalData(
       summary: results[0] as AdminMetadataProposalSummary,

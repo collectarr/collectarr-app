@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -35,7 +35,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
       (summary) => ownedRepository.ownedItemForLibraryByRef(summary.ref),
     ),
   );
-  final ownedItemDispatchesByRef = <OwnedItemRef, LibraryOwnedItemDispatch>{};
+  final ownedItemDispatchesByRef = <OwnedCopyRef, LibraryOwnedItemDispatch>{};
   for (var index = 0; index < typedOwnedResults.length; index++) {
     final result = typedOwnedResults[index];
     if (result != null) {
@@ -97,17 +97,17 @@ class ShelfState {
   });
 
   factory ShelfState.from({
-    Iterable<OwnedItemSummary>? ownedSummaries,
+    Iterable<OwnedCopySummary>? ownedSummaries,
     required List<WishlistItem> wishlistItems,
     Iterable<TrackingSummary>? trackingSummaries,
-    Map<OwnedItemRef, LibraryOwnedItemDispatch> ownedItemDispatchesByRef =
-        const <OwnedItemRef, LibraryOwnedItemDispatch>{},
+    Map<OwnedCopyRef, LibraryOwnedItemDispatch> ownedItemDispatchesByRef =
+        const <OwnedCopyRef, LibraryOwnedItemDispatch>{},
     List<WatchSession> watchSessions = const [],
     Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
     Map<CatalogEntityRef, LibraryWorkspaceCatalogData>? catalogDataByRef,
     List<StorageLocation> locations = const [],
-    Map<OwnedItemRef, List<ItemImage>> itemImagesByOwnedItem =
-        const <OwnedItemRef, List<ItemImage>>{},
+    Map<OwnedCopyRef, List<ItemImage>> itemImagesByOwnedItem =
+        const <OwnedCopyRef, List<ItemImage>>{},
     String? fallbackOwnerLabel,
   }) {
     final workspaceCatalogByRef =
@@ -120,14 +120,14 @@ class ShelfState {
           const <CatalogEntityRef, CatalogDisplaySummary>{},
     );
     final resolvedOwnedSummaries =
-        ownedSummaries?.toList(growable: false) ?? const <OwnedItemSummary>[];
+        ownedSummaries?.toList(growable: false) ?? const <OwnedCopySummary>[];
     final resolvedTrackingSummaries =
         trackingSummaries?.toList(growable: false) ?? const <TrackingSummary>[];
     final locationPathsById = {
       for (final location in locations)
         location.id: location.fullPath(locations),
     };
-    final ownedByCatalogRef = <CatalogEntityRef, OwnedItemSummary>{
+    final ownedByCatalogRef = <CatalogEntityRef, OwnedCopySummary>{
       for (final item in resolvedOwnedSummaries)
         if (!item.isDeleted && item.catalogRef != null)
           item.catalogRef!.rootScope: item,

@@ -71,7 +71,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final item = MangaOwnedItem(
-      id: const MangaOwnedItemId('owned-manga-1'),
+      id: const MangaOwnedCopyId('owned-manga-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.manga,
         entityType: CatalogEntityTypeId('work'),

@@ -141,49 +141,42 @@ class AdminMetadataProposalSummary {
 class AdminMetadataProposal {
   const AdminMetadataProposal({
     required this.id,
-    required this.provider,
-    required this.query,
+    required this.kind,
+    required this.catalogItem,
     required this.status,
-    this.providerItemId,
-    this.title,
-    this.summary,
-    this.imageUrl,
-    this.metadataPayload,
+    this.reviewNote,
+    this.createdAt,
   });
 
   final String id;
-  final String provider;
-  final String query;
+  final String kind;
+  final Map<String, dynamic> catalogItem;
   final String status;
-  final String? providerItemId;
-  final String? title;
-  final String? summary;
-  final String? imageUrl;
-  final Map<String, dynamic>? metadataPayload;
+  final String? reviewNote;
+  final DateTime? createdAt;
 
   String get displayTitle {
-    final title = this.title?.trim();
+    final rawTitle = catalogItem['title'] ?? catalogItem['name'];
+    final title = rawTitle is String ? rawTitle.trim() : null;
     if (title != null && title.isNotEmpty) {
       return title;
     }
-    return query;
+    return 'Untitled ${kind.toUpperCase()} proposal';
   }
 
   bool get isPending => status == 'pending';
 
   factory AdminMetadataProposal.fromJson(Map<String, dynamic> json) {
-    final payload = json['metadata_payload'];
+    final rawItem = json['catalog_item'];
     return AdminMetadataProposal(
       id: json['id']?.toString() ?? '',
-      provider: json['provider']?.toString() ?? '',
-      providerItemId: json['provider_item_id']?.toString(),
-      query: json['query']?.toString() ?? '',
-      title: json['title'] as String?,
-      summary: json['summary'] as String?,
-      imageUrl: json['image_url'] as String?,
-      metadataPayload:
-          payload is Map<String, dynamic> ? payload : const <String, dynamic>{},
+      kind: json['kind']?.toString() ?? '',
+      catalogItem: rawItem is Map<String, dynamic>
+          ? Map<String, dynamic>.unmodifiable(rawItem)
+          : const <String, dynamic>{},
       status: json['status']?.toString() ?? 'pending',
+      reviewNote: json['review_note'] as String?,
+      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? ''),
     );
   }
 }

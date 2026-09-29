@@ -103,7 +103,8 @@ final class CatalogSearchCandidateKindCapability {
     );
   }
 
-  JsonMap toSyncPayload() => mapTransport((item) => item.toSyncPayload());
+  JsonMap toCatalogItemPayload() =>
+      mapTransport((item) => item.toSyncPayload());
 
   CatalogImportTransport toImportTransport() =>
       mapTransport(CatalogImportTransport.fromItem);

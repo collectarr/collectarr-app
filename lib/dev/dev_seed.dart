@@ -11,7 +11,7 @@ library;
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -379,7 +379,7 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
 Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
   final issues = <String>[];
   final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
-  final ownedById = <String, OwnedItemSummary>{
+  final ownedById = <String, OwnedCopySummary>{
     for (final row in ownedRows) row.ref.id.value: row,
   };
   final expectedByKind = <String, Set<String>>{};
@@ -1095,7 +1095,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   // --- Owned summaries ---
   // The central seed runner only carries the deliberately small structural
   // projection. Complete Owned aggregates stay inside each kind contributor.
-  final ownedSummaries = <OwnedItemSummary>[
+  final ownedSummaries = <OwnedCopySummary>[
     for (final contributor in collectarrDevSeedContributors)
       ...contributor.ownedSummaries(now),
   ];
@@ -1229,7 +1229,7 @@ void _validateSeedTrackingUnits(
 
 void _validateSeedFixtures({
   required List<CatalogItemDto> catalogItems,
-  required List<OwnedItemSummary> ownedSummaries,
+  required List<OwnedCopySummary> ownedSummaries,
   required List<TrackingStorageRecord> trackingRecords,
   required Set<CatalogMediaKind> trackingRequiresOwnedRef,
 }) {
@@ -1267,7 +1267,7 @@ void _validateSeedFixtures({
   }
 
   final ownedCatalogIds = <String>{};
-  final ownedById = <String, OwnedItemSummary>{};
+  final ownedById = <String, OwnedCopySummary>{};
   for (final item in ownedSummaries) {
     final ref = item.ref;
     final catalogRef = item.catalogRef;
@@ -1382,7 +1382,7 @@ void _validateSeedFixtures({
 
 Future<void> _seedItemImages(
   ItemImagesCacheRepository repo,
-  List<OwnedItemSummary> ownedSummaries,
+  List<OwnedCopySummary> ownedSummaries,
 ) async {
   for (var i = 0; i < ownedSummaries.length; i++) {
     final ownedRef = ownedSummaries[i].ref;

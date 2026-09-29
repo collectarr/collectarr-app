@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
@@ -213,9 +213,9 @@ abstract final class MusicOwnedCopyWorkspaceFields {
       if (owned.condition?.trim() != currentLabel.trim()) return null;
       final next = replacement?.trim();
       return UpdateOwnedItemCommand(
-        ownedRef: OwnedItemRef(
+        ownedRef: OwnedCopyRef(
           kind: CatalogMediaKind.music,
-          id: OwnedItemId(owned.id.value),
+          id: OwnedCopyId(owned.id.value),
         ),
         payload: MusicOwnedItemUpdatePayload(
           targetRef: const Patch<CatalogEntityRef?>.unchanged(),

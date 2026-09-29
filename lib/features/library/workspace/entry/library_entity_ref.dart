@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
@@ -73,7 +73,7 @@ final class LibraryCopyRef extends LibraryEntityRef {
   });
 
   final String releaseId;
-  final OwnedItemRef ownedRef;
+  final OwnedCopyRef ownedRef;
   final String? copyId;
 
   @override

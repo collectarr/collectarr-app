@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_fields.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
@@ -21,7 +21,7 @@ LibraryOwnedFormatHint resolveTvOwnedFormatHint(
 }
 
 bool? resolveTvOwnedDigitalFlag(
-  OwnedItemSummary? ownedItem,
+  OwnedCopySummary? ownedItem,
   List<LibraryAddReleaseOption> editions, {
   String? fallbackFormat,
   String? fallbackLabel,

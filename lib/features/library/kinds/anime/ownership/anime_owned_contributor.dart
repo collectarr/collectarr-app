@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dar
 final animeOwnedContributor = TypedOwnedKindContributor<AnimeOwnedItem>(
   kind: CatalogMediaKind.anime,
   findById: (database, id) =>
-      AnimeOwnedRepository(database).findById(AnimeOwnedItemId(id)),
+      AnimeOwnedRepository(database).findById(AnimeOwnedCopyId(id)),
   upsert: (database, item) => AnimeOwnedRepository(database).upsert(item),
   listActive: (database) => AnimeOwnedRepository(database).listActive(),
   createItem: ({

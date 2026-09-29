@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 
 /// Structural mixed-feature projection of a kind-owned tracking unit.
 ///
@@ -21,7 +21,7 @@ class TrackingUnitSummary {
   final String id;
   final CatalogEntityRef targetRef;
   final String? trackingEntryId;
-  final OwnedItemRef? ownedRef;
+  final OwnedCopyRef? ownedRef;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -42,7 +42,7 @@ class TrackingUnitSummary {
     String? id,
     CatalogEntityRef? targetRef,
     String? trackingEntryId,
-    OwnedItemRef? ownedRef,
+    OwnedCopyRef? ownedRef,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,

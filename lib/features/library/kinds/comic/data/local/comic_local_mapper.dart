@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
@@ -228,7 +228,7 @@ final class ComicLocalMapper {
       id: row.itemId,
     );
     return ComicOwnedItem(
-      id: ComicOwnedItemId(row.id),
+      id: ComicOwnedCopyId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
@@ -275,9 +275,9 @@ final class ComicLocalMapper {
 
   static ComicReadingRowsCompanion toReadingRow(ComicOwnedItem item) {
     return ComicReadingRowsCompanion.insert(
-      ownedRefKey: OwnedItemRef(
+      ownedRefKey: OwnedCopyRef(
         kind: CatalogMediaKind.comic,
-        id: OwnedItemId(item.id.value),
+        id: OwnedCopyId(item.id.value),
       ).key,
       rating: Value(item.reading.rating),
       status: Value(item.reading.status),

@@ -94,7 +94,7 @@ void main() {
         );
     await ComicOwnedRepository(db).upsert(
       ComicOwnedItem(
-        id: ComicOwnedItemId('owned-1'),
+        id: ComicOwnedCopyId('owned-1'),
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           entityType: const CatalogEntityTypeId('owned_copy'),
@@ -153,7 +153,7 @@ void main() {
   test('owned value merge dispatches to the typed kind repository', () async {
     await ComicOwnedRepository(db).upsert(
       ComicOwnedItem(
-        id: const ComicOwnedItemId('owned-merge-1'),
+        id: const ComicOwnedCopyId('owned-merge-1'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           entityType: CatalogEntityTypeId('owned_copy'),
@@ -180,7 +180,7 @@ void main() {
 
     expect(
       (await ComicOwnedRepository(db)
-              .findById(const ComicOwnedItemId('owned-merge-1')))
+              .findById(const ComicOwnedCopyId('owned-merge-1')))
           ?.condition,
       'Fine',
     );

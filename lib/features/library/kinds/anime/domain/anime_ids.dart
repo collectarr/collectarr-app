@@ -17,6 +17,6 @@ final class AnimeReleaseId extends LibraryEntityId {
 }
 
 @immutable
-final class AnimeOwnedItemId extends LibraryEntityId {
-  const AnimeOwnedItemId(super.value);
+final class AnimeOwnedCopyId extends LibraryEntityId {
+  const AnimeOwnedCopyId(super.value);
 }

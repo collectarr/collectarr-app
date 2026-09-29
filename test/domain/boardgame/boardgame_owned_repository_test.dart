@@ -14,7 +14,7 @@ void main() {
     addTearDown(db.close);
     final repository = BoardGameOwnedRepository(db);
     final item = BoardGameOwnedItem(
-      id: const BoardGameOwnedItemId('owned-boardgame-1'),
+      id: const BoardGameOwnedCopyId('owned-boardgame-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.boardgame,
         entityType: CatalogEntityTypeId('work'),
@@ -53,7 +53,7 @@ void main() {
     addTearDown(db.close);
     final repository = BoardGameOwnedRepository(db);
     final item = BoardGameOwnedItem(
-      id: const BoardGameOwnedItemId('owned-boardgame-invalid'),
+      id: const BoardGameOwnedCopyId('owned-boardgame-invalid'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.game,
         entityType: CatalogEntityTypeId('work'),

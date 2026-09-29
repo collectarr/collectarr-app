@@ -15,7 +15,7 @@ void main() {
   group('Nullable copy semantics', () {
     test('ComicOwnedItem exposes typed kind-owned details', () {
       final item = ComicOwnedItem(
-        id: const ComicOwnedItemId('item-typed'),
+        id: const ComicOwnedCopyId('item-typed'),
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           id: 'cat-typed',
@@ -34,7 +34,7 @@ void main() {
         'ComicOwnedItem.copyWith allows preserving, updating, and clearing nullable fields',
         () {
       final item = ComicOwnedItem(
-        id: const ComicOwnedItemId('item-1'),
+        id: const ComicOwnedCopyId('item-1'),
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           id: 'cat-1',

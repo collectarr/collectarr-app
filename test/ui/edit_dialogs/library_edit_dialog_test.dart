@@ -5,7 +5,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
@@ -114,7 +114,7 @@ void main() {
     final trackingRecord = MovieTrackingState(
       id: 'tracking-1',
       catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-      ownedRef: OwnedItemRef.fromKey('movie:owned-1'),
+      ownedRef: OwnedCopyRef.fromKey('movie:owned-1'),
       sourceType: 'physical',
       status: 'In progress',
       rating: 9,

@@ -540,7 +540,7 @@ List<BoardGameOwnedItem> boardgameSeedOwnedItems(DateTime now) => [
         BoardGameOwnedItem(
           // Keep a deterministic first ID so repeated seed runs remain
           // idempotent.
-          id: BoardGameOwnedItemId(
+          id: BoardGameOwnedCopyId(
             i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
           ),
           catalogRef: seedCatalogRef(
