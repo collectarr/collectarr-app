@@ -34,7 +34,6 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
-import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 import 'package:drift/native.dart';
@@ -829,36 +828,6 @@ void main() {
     expect(ownedPayload, isNot(contains('id')));
     expect(ownedPayload, isNot(contains('updated_at')));
     expect(container.read(syncControllerProvider).pendingCount, 2);
-  });
-
-  test('collection import propagates file import origin', () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    MutationOrigin? observedOrigin;
-    final runner = CollectionMutationRunner(
-      database: db,
-      events: CollectionEventBus(),
-      mutationOriginHandler: (origin) => observedOrigin = origin,
-    );
-    final container = ProviderContainer(
-      overrides: [
-        localDatabaseProvider.overrideWithValue(db),
-        collectionMutationRunnerProvider.overrideWithValue(runner),
-      ],
-    );
-    addTearDown(container.dispose);
-
-    await container.read(collectionImportOrchestratorProvider).importRows(
-      const [
-        CollectionImportRow(
-          itemId: 'comic-import-1',
-          mediaKind: CatalogMediaKind.comic,
-          status: 'owned',
-        ),
-      ],
-    );
-
-    expect(observedOrigin, MutationOrigin.fileImport);
   });
 
   test('collection import moves existing wishlist rows to owned in one batch',

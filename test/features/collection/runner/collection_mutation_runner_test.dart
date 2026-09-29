@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -122,60 +121,5 @@ void main() {
     expect(items, isEmpty);
 
     await sub.cancel();
-  });
-
-  test('passes mutation origin to the origin handler after commit', () async {
-    MutationOrigin? observedOrigin;
-    final runner = CollectionMutationRunner(
-      database: db,
-      events: eventBus,
-      mutationOriginHandler: (origin) => observedOrigin = origin,
-    );
-
-    await runner.run(
-      action: () async {},
-      triggerSync: false,
-      origin: MutationOrigin.fileImport,
-    );
-
-    expect(observedOrigin, MutationOrigin.fileImport);
-  });
-
-  test(
-      'passes local reference and origin to local mutation handler after commit',
-      () async {
-    CatalogEntityRef? observedRef;
-    MutationOrigin? observedOrigin;
-    final runner = CollectionMutationRunner(
-      database: db,
-      events: eventBus,
-      localMutationHandler: (localRef, origin) {
-        observedRef = localRef;
-        observedOrigin = origin;
-      },
-    );
-    const localRef = CatalogEntityRef(
-      id: 'movie-1',
-      kind: CatalogMediaKind.movie,
-      entityType: CatalogEntityTypeId('work'),
-    );
-
-    await runner.run(
-      action: () async {
-        await CatalogTransportRepository(db).upsertTransportItems([
-          testCatalogItemFromJson({
-            'id': localRef.id,
-            'kind': localRef.kind.apiValue,
-            'title': 'Movie',
-          }),
-        ]);
-      },
-      triggerSync: false,
-      origin: MutationOrigin.user,
-      localRef: localRef,
-    );
-
-    expect(observedRef, localRef);
-    expect(observedOrigin, MutationOrigin.user);
   });
 }

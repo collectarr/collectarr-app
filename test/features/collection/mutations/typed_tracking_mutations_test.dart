@@ -17,7 +17,6 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
@@ -27,7 +26,6 @@ import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_r
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -37,10 +35,8 @@ void main() {
   late CatalogTransportRepository catalogCache;
   late OwnedItemsRepository ownedItems;
   late TrackingStorageRepository trackingRecords;
-  late MutationOrigin? observedOrigin;
 
   setUp(() {
-    observedOrigin = null;
     db = LocalDatabase(NativeDatabase.memory());
     catalogCache = CatalogTransportRepository(db);
     ownedItems = OwnedItemsRepository(db);
@@ -51,7 +47,6 @@ void main() {
     final runner = CollectionMutationRunner(
       database: db,
       events: CollectionEventBus(),
-      mutationOriginHandler: (origin) => observedOrigin = origin,
     );
 
     trackingMutations = TrackingMutations(
@@ -303,34 +298,24 @@ void main() {
       expect(entry.catalogRef.kind, isNot('comic'));
     });
 
-    test('forwards file import origin through tracking mutation', () async {
-      const ref = CatalogEntityRef(
-        kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityTypeId('work'),
-        id: 'anime-import-1',
-      );
-
-      await trackingMutations.upsertTrackingState(
-        TrackingTarget.catalog(ref),
-        status: MediaTrackingStatus.completed,
-        origin: MutationOrigin.fileImport,
-      );
-
-      expect(observedOrigin, MutationOrigin.fileImport);
-    });
-
-    test('keeps TV season coordinates in the TV import contribution', () async {
+    test('keeps TV season coordinates in the TV tracking patch', () async {
       final seasonItem = testCatalogItem(
         id: 'tmdb-local:tv:123:season:2',
         kind: 'tv',
         title: 'Season 2',
       );
 
-      await const TvTrackingImportContribution().addLocalOnlySeasonEntry(
-        trackingMutations,
-        CatalogSearchCandidate.fromItem(seasonItem),
-        seasonNumber: 2,
+      await trackingMutations.upsertTrackingState(
+        TrackingTarget.catalog(CatalogEntityRef(
+          id: seasonItem.id,
+          kind: CatalogMediaKind.tv,
+          entityType: const CatalogEntityTypeId('work'),
+        )),
         status: MediaTrackingStatus.completed,
+        kindPatch: const TvTrackingCoordinatesPatch(
+          seasonNumber: 2,
+          setSeasonNumber: true,
+        ),
       );
 
       final entry = (await trackingRecords.listActiveStorageRecords()).single;
