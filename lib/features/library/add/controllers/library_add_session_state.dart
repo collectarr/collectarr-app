@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_state.dart';
@@ -10,7 +9,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_kind_draf
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -63,25 +61,10 @@ final class LibraryAddSessionState {
     return null;
   }
 
-  ProviderSearchCandidate? get selectedCandidate {
-    final id = selection.selectedProviderCandidateId;
-    if (id == null) return null;
-    for (final candidate in search.providerResults) {
-      if (candidate.localCatalogId == id) return candidate;
-    }
-    return null;
-  }
-
   LibraryBundleDetail? get selectedBundleReleaseDetail {
     final bundleReleaseId = selection.selectedBundleReleaseId;
     if (bundleReleaseId == null) return null;
     return preview.bundleReleaseDetailForId(bundleReleaseId);
-  }
-
-  AdminProviderPreview? get selectedCandidatePreview {
-    final candidate = selectedCandidate;
-    if (candidate == null) return null;
-    return preview.providerPreviewFor(candidate.localCatalogId);
   }
 
   List<CatalogSearchCandidate> visibleCoreResults(
@@ -98,13 +81,6 @@ final class LibraryAddSessionState {
       ownedCatalogRefs: ownedRefs,
     );
   }
-
-  /// Add uses Core catalog matches only. Provider results are no longer a
-  /// selectable source for new catalog records.
-  List<ProviderSearchCandidate> visibleProviderResults(
-    LibraryAddResultPolicy policy,
-  ) =>
-      const <ProviderSearchCandidate>[];
 
   LibraryAddSessionState copyWith({
     LibraryAddDialogMode? mode,

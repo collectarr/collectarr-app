@@ -17,7 +17,6 @@ class LibraryAddBottomBar extends StatelessWidget {
   String? get defaultTags => request.defaultTags;
   Color get accent => request.accent;
   CatalogSearchCandidate? get selectedItem => request.selectedItem;
-  ProviderSearchCandidate? get selectedCandidate => request.selectedCandidate;
   LibraryAddTarget get addTarget => request.addTarget;
   int get addCount => request.addCount;
   bool get hasCheckedSelection => request.hasCheckedSelection;
@@ -47,29 +46,21 @@ class LibraryAddBottomBar extends StatelessWidget {
 
   Widget _buildResponsiveMenu(BuildContext context) {
     final palette = appPalette(context);
-    final hasSelection = hasCheckedSelection ||
-        selectedItem != null ||
-        selectedCandidate != null;
-    final previewOnly =
-        !hasCheckedSelection && (selectedCandidate?.previewOnly ?? false);
+    final hasSelection = hasCheckedSelection || selectedItem != null;
     final effectiveCount = addCount > 0 ? addCount : (hasSelection ? 1 : 0);
-    final addLabel = previewOnly
-        ? 'Select a release to add'
-        : hasCheckedSelection
+    final addLabel = hasCheckedSelection
+        ? LibraryAddCopy.addToTargetLabel(
+            count: effectiveCount,
+            type: type,
+            target: addTarget,
+          )
+        : effectiveCount > 0
             ? LibraryAddCopy.addToTargetLabel(
                 count: effectiveCount,
                 type: type,
                 target: addTarget,
               )
-            : selectedCandidate != null
-                ? _localCandidateAddLabel()
-                : effectiveCount > 0
-                    ? LibraryAddCopy.addToTargetLabel(
-                        count: effectiveCount,
-                        type: type,
-                        target: addTarget,
-                      )
-                    : 'Select a ${type.identity.singularLabel.toLowerCase()} to add';
+            : 'Select a ${type.identity.singularLabel.toLowerCase()} to add';
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -125,7 +116,7 @@ class LibraryAddBottomBar extends StatelessWidget {
               children: [
                 Expanded(
                   child: FilledButton(
-                    onPressed: isAdding || previewOnly ? null : onAdd,
+                    onPressed: isAdding ? null : onAdd,
                     style: libraryAddFilledButtonStyle(accent),
                     child: isAdding
                         ? const SizedBox.square(
@@ -143,15 +134,6 @@ class LibraryAddBottomBar extends StatelessWidget {
     );
   }
 
-  String _localCandidateAddLabel() {
-    final noun = type.identity.singularLabel.toLowerCase();
-    return switch (addTarget) {
-      LibraryAddTarget.owned => 'Add local $noun to Collection',
-      LibraryAddTarget.wishlist => 'Add local $noun to Wishlist',
-      LibraryAddTarget.track => 'Track local $noun',
-    };
-  }
-
   String _wideLayoutAddLabel() {
     return switch (addTarget) {
       LibraryAddTarget.owned => 'Add to Collection',
@@ -162,16 +144,11 @@ class LibraryAddBottomBar extends StatelessWidget {
 
   Widget _buildSegmentedTarget(BuildContext context) {
     final palette = appPalette(context);
-    final hasSelection = request.hasCheckedSelection ||
-        request.selectedItem != null ||
-        request.selectedCandidate != null;
-    final previewOnly = !request.hasCheckedSelection &&
-        (request.selectedCandidate?.previewOnly ?? false);
+    final hasSelection =
+        request.hasCheckedSelection || request.selectedItem != null;
     final effectiveCount =
         request.addCount > 0 ? request.addCount : (hasSelection ? 1 : 0);
-    final primaryLabel = previewOnly
-        ? 'Select a release to add'
-        : _primaryAddLabel(request, effectiveCount);
+    final primaryLabel = _primaryAddLabel(request, effectiveCount);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -309,8 +286,7 @@ class LibraryAddBottomBar extends StatelessWidget {
               children: [
                 Expanded(
                   child: FilledButton(
-                    onPressed:
-                        request.isAdding || previewOnly ? null : request.onAdd,
+                    onPressed: request.isAdding ? null : request.onAdd,
                     style: libraryAddFilledButtonStyle(request.accent),
                     child: request.isAdding
                         ? const SizedBox.square(
@@ -342,13 +318,6 @@ ButtonStyle _kindOutlinedButtonStyle(Color accent) {
 }
 
 String _primaryAddLabel(LibraryAddBottomBarRequest request, int count) {
-  if (request.selectedCandidate != null && !request.hasCheckedSelection) {
-    return switch (request.addTarget) {
-      LibraryAddTarget.owned => 'Add to Collection',
-      LibraryAddTarget.wishlist => 'Add to Wishlist',
-      LibraryAddTarget.track => 'Track in Library',
-    };
-  }
   if (count <= 0) {
     return switch (request.addTarget) {
       LibraryAddTarget.owned => 'Select items to add',

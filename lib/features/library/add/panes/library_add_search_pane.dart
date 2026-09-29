@@ -12,25 +12,16 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.error,
     required this.accent,
     required this.results,
-    required this.providerResults,
-    required this.queuedProviderIngests,
-    required this.selectedProvider,
-    required this.searchedProvider,
     required this.selectedResultId,
-    required this.selectedProviderCandidateId,
     required this.checkedResultIds,
-    required this.checkedProviderIds,
     required this.ownedCatalogRefs,
     this.coreMatchSummary,
-    this.providerMatchSummary,
     required this.isWideLayout,
     required this.resultPolicy,
     required this.resultPolicyState,
     required this.onResultPolicyOptionChanged,
     required this.onSelectResult,
-    required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
-    required this.onToggleProviderCheck,
     required this.onSearchCore,
   });
 
@@ -39,26 +30,16 @@ class LibraryAddSearchPane extends StatelessWidget {
   final String? error;
   final Color accent;
   final List<CatalogSearchCandidate> results;
-  final List<ProviderSearchCandidate> providerResults;
-  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
-  final String selectedProvider;
-  final bool searchedProvider;
   final String? selectedResultId;
-  final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
-  final Set<String> checkedProviderIds;
   final Set<CatalogEntityRef> ownedCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
-  final String? Function(ProviderSearchCandidate candidate)?
-      providerMatchSummary;
   final bool isWideLayout;
   final LibraryAddResultPolicy resultPolicy;
   final LibraryAddResultPolicyState resultPolicyState;
   final void Function(String id, bool value) onResultPolicyOptionChanged;
   final ValueChanged<String> onSelectResult;
-  final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
-  final ValueChanged<String> onToggleProviderCheck;
   final VoidCallback onSearchCore;
 
   @override
@@ -83,26 +64,26 @@ class LibraryAddSearchPane extends StatelessWidget {
               type: type,
               accent: accent,
               useGridResults: resultPolicy.useGridResults,
-              selectedProvider: selectedProvider,
+              selectedProvider: '',
               isBusy: isBusy,
               error: error,
-              searchedProvider: searchedProvider,
+              searchedProvider: false,
               results: results,
-              providerResults: providerResults,
+              providerResults: const [],
               resultPolicy: resultPolicy,
-              queuedProviderIngests: queuedProviderIngests,
+              queuedProviderIngests: const {},
               selectedResultId: selectedResultId,
-              selectedProviderCandidateId: selectedProviderCandidateId,
+              selectedProviderCandidateId: null,
               checkedResultIds: checkedResultIds,
-              checkedProviderIds: checkedProviderIds,
+              checkedProviderIds: const {},
               ownedCatalogRefs: ownedCatalogRefs,
               coreMatchSummary: coreMatchSummary,
-              providerMatchSummary: providerMatchSummary,
+              providerMatchSummary: null,
               onSearchCore: onSearchCore,
               onSelectResult: onSelectResult,
-              onSelectProviderCandidate: onSelectProviderCandidate,
+              onSelectProviderCandidate: (_) {},
               onToggleResultCheck: onToggleResultCheck,
-              onToggleProviderCheck: onToggleProviderCheck,
+              onToggleProviderCheck: (_) {},
             ),
           ),
         ],

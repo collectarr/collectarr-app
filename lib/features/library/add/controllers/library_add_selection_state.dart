@@ -6,23 +6,19 @@ import 'package:flutter/foundation.dart';
 class LibraryAddSelectionState {
   const LibraryAddSelectionState({
     this.selectedResultId,
-    this.selectedProviderCandidateId,
     this.selectedBundleReleaseId,
     this.selectedReferenceEditionId,
     this.selectedReferenceVariantId,
     this.checkedResultIds = const {},
-    this.checkedProviderIds = const {},
     this.referenceType = LibraryAddReferenceType.media,
     this.resultPolicyState = const LibraryAddResultPolicyState(),
   });
 
   final String? selectedResultId;
-  final String? selectedProviderCandidateId;
   final String? selectedBundleReleaseId;
   final String? selectedReferenceEditionId;
   final String? selectedReferenceVariantId;
   final Set<String> checkedResultIds;
-  final Set<String> checkedProviderIds;
   final LibraryAddReferenceType referenceType;
   final LibraryAddResultPolicyState resultPolicyState;
 
@@ -32,8 +28,6 @@ class LibraryAddSelectionState {
     String? selectedId,
     String? selectedResultId,
     bool clearSelectedResultId = false,
-    String? selectedProviderCandidateId,
-    bool clearSelectedProviderCandidateId = false,
     String? selectedBundleReleaseId,
     bool clearSelectedBundleReleaseId = false,
     String? selectedReferenceEditionId,
@@ -41,7 +35,6 @@ class LibraryAddSelectionState {
     String? selectedReferenceVariantId,
     bool clearSelectedReferenceVariantId = false,
     Set<String>? checkedResultIds,
-    Set<String>? checkedProviderIds,
     LibraryAddReferenceType? referenceType,
     LibraryAddResultPolicyState? resultPolicyState,
   }) {
@@ -49,9 +42,6 @@ class LibraryAddSelectionState {
       selectedResultId: clearSelectedResultId
           ? null
           : (selectedId ?? selectedResultId ?? this.selectedResultId),
-      selectedProviderCandidateId: clearSelectedProviderCandidateId
-          ? null
-          : (selectedProviderCandidateId ?? this.selectedProviderCandidateId),
       selectedBundleReleaseId: clearSelectedBundleReleaseId
           ? null
           : (selectedBundleReleaseId ?? this.selectedBundleReleaseId),
@@ -62,7 +52,6 @@ class LibraryAddSelectionState {
           ? null
           : (selectedReferenceVariantId ?? this.selectedReferenceVariantId),
       checkedResultIds: checkedResultIds ?? this.checkedResultIds,
-      checkedProviderIds: checkedProviderIds ?? this.checkedProviderIds,
       referenceType: referenceType ?? this.referenceType,
       resultPolicyState: resultPolicyState ?? this.resultPolicyState,
     );

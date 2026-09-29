@@ -618,22 +618,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       isOwnedCatalogItem: (item) =>
           ownedByCatalogRef.containsKey(item.reference),
     );
-    final visibleProvider = state.visibleProviderResults(resultPolicy);
-    final selectedCandidate = state.selectedCandidate;
     final selectedItem = state.selectedItem;
     final checkedCoreCount = state.search.results
         .where((item) =>
             state.selection.checkedResultIds.contains(item.reference.id))
         .length;
-    final checkedProviderCount = state.search.providerResults
-        .where(
-          (candidate) =>
-              state.selection.checkedProviderIds
-                  .contains(candidate.localCatalogId) &&
-              !candidate.previewOnly,
-        )
-        .length;
-    final checkedSelectionCount = checkedCoreCount + checkedProviderCount;
+    final checkedSelectionCount = checkedCoreCount;
     final hasCheckedSelection = checkedSelectionCount > 0;
 
     final addCapability = libraryAddForKind(widget.type.kind);
@@ -660,7 +650,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         queryController: _queryController,
         identifierController: _identifierController,
         isSearching: state.search.isSearching,
-        isSearchingProvider: state.search.isSearchingProvider,
         onModeChanged: _selectAddMode,
         onSearch: () {
           _controller.dismissSuggestions();
@@ -750,7 +739,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   queryController: _queryController,
                   identifierController: _identifierController,
                   isSearching: state.search.isBusy,
-                  isSearchingProvider: state.search.isSearchingProvider,
                   onModeChanged: _selectAddMode,
                   onSearch: () {
                     _controller.dismissSuggestions();
@@ -822,29 +810,26 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 error: state.search.error,
                 accent: accent,
                 results: visibleCore,
-                providerResults: visibleProvider,
-                queuedProviderIngests: state.preview.queuedProviderIngests,
-                selectedProvider: state.search.selectedProvider,
-                searchedProvider: state.search.searchedProvider,
+                providerResults: const [],
+                queuedProviderIngests: const {},
+                selectedProvider: '',
+                searchedProvider: false,
                 selectedResultId: state.selection.selectedResultId,
-                selectedProviderCandidateId:
-                    state.selection.selectedProviderCandidateId,
+                selectedProviderCandidateId: null,
                 checkedResultIds: state.selection.checkedResultIds,
-                checkedProviderIds: state.selection.checkedProviderIds,
+                checkedProviderIds: const {},
                 ownedCatalogRefs: ownedByCatalogRef.keys.toSet(),
                 coreMatchSummary: (item) => addCapability.search.presentation
                     .coreMatchSummary(item, searchContext),
-                providerMatchSummary: (candidate) => addCapability
-                    .search.presentation
-                    .providerMatchSummary(candidate, searchContext),
+                providerMatchSummary: null,
                 resultPolicy: resultPolicy,
                 resultPolicyState: state.selection.resultPolicyState,
                 onResultPolicyOptionChanged: _controller.setResultPolicyOption,
                 isWideLayout: constraints.maxWidth >= 720,
                 onSelectResult: _controller.selectResult,
-                onSelectProviderCandidate: _controller.selectProviderCandidate,
+                onSelectProviderCandidate: (_) {},
                 onToggleResultCheck: _controller.toggleCheckedResult,
-                onToggleProviderCheck: _controller.toggleCheckedProvider,
+                onToggleProviderCheck: (_) {},
                 onSearchCore: _controller.executeSearch,
               );
 
@@ -856,31 +841,17 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     error: searchPaneRequest.error,
                     accent: searchPaneRequest.accent,
                     results: searchPaneRequest.results,
-                    providerResults: searchPaneRequest.providerResults,
-                    queuedProviderIngests:
-                        searchPaneRequest.queuedProviderIngests,
-                    selectedProvider: searchPaneRequest.selectedProvider,
-                    searchedProvider: searchPaneRequest.searchedProvider,
                     selectedResultId: searchPaneRequest.selectedResultId,
-                    selectedProviderCandidateId:
-                        searchPaneRequest.selectedProviderCandidateId,
                     checkedResultIds: searchPaneRequest.checkedResultIds,
-                    checkedProviderIds: searchPaneRequest.checkedProviderIds,
                     ownedCatalogRefs: searchPaneRequest.ownedCatalogRefs,
                     coreMatchSummary: searchPaneRequest.coreMatchSummary,
-                    providerMatchSummary:
-                        searchPaneRequest.providerMatchSummary,
                     isWideLayout: searchPaneRequest.isWideLayout,
                     resultPolicy: searchPaneRequest.resultPolicy,
                     resultPolicyState: searchPaneRequest.resultPolicyState,
                     onResultPolicyOptionChanged:
                         searchPaneRequest.onResultPolicyOptionChanged,
                     onSelectResult: searchPaneRequest.onSelectResult,
-                    onSelectProviderCandidate:
-                        searchPaneRequest.onSelectProviderCandidate,
                     onToggleResultCheck: searchPaneRequest.onToggleResultCheck,
-                    onToggleProviderCheck:
-                        searchPaneRequest.onToggleProviderCheck,
                     onSearchCore: searchPaneRequest.onSearchCore,
                   );
 
@@ -890,23 +861,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 isWideLayout: isWideLayout,
                 previewPaneBuilder: addCapability.previewPaneBuilder,
                 item: selectedItem,
-                candidate: selectedCandidate,
-                candidatePreview: selectedCandidate == null
-                    ? null
-                    : state.preview
-                        .providerPreviews[selectedCandidate.localCatalogId],
-                isFetchingPreview: (selectedCandidate != null &&
-                        state.preview.pendingProviderPreviewIds
-                            .contains(selectedCandidate.localCatalogId)) ||
-                    (selectedItem != null &&
-                        state.preview.pendingHydratedResultRefs
-                            .contains(selectedItem.reference)),
-                providerLabel:
-                    libraryMetadataForKind(widget.type.kind).providerLabel(
-                  state.search.selectedProvider,
-                ),
-                searched: state.search.results.isNotEmpty ||
-                    state.search.searchedProvider,
+                candidate: null,
+                candidatePreview: null,
+                isFetchingPreview: selectedItem != null &&
+                    state.preview.pendingHydratedResultRefs
+                        .contains(selectedItem.reference),
+                providerLabel: '',
+                searched: state.search.results.isNotEmpty,
                 addTarget: state.target,
                 referenceType: state.selection.referenceType,
                 availableBundleReleases: selectedItem == null
@@ -980,7 +941,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           defaultTags: state.defaultTags,
           accent: accent,
           selectedItem: selectedItem,
-          selectedCandidate: selectedCandidate,
           addTarget: state.target,
           addCount: checkedSelectionCount > 0 ? checkedSelectionCount : 1,
           hasCheckedSelection: hasCheckedSelection,

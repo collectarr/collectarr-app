@@ -87,12 +87,6 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     );
   }
 
-  void setSelectedProvider(String provider) {
-    state = state.copyWith(
-      search: state.search.copyWith(selectedProvider: provider),
-    );
-  }
-
   Future<void> fetchSuggestions(String query) async {
     if (api == null || catalog == null) return;
     _suggestionsCancelToken?.cancel('Superseded by a newer autocomplete');
@@ -139,7 +133,6 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
       ),
       selection: state.selection.copyWith(
         selectedResultId: item.reference.id,
-        clearSelectedProviderCandidateId: true,
       ),
     );
     _ensureSelectedResultLoaded(item.reference.id);
@@ -163,9 +156,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     state = state.copyWith(
       search: state.search.copyWith(
         coreSearchGeneration: state.search.coreSearchGeneration + 1,
-        providerSearchGeneration: state.search.providerSearchGeneration + 1,
         isSearching: false,
-        isSearchingProvider: false,
       ),
     );
     final searchContext = _searchContext();
@@ -189,12 +180,9 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         clearError: true,
         coreSearchGeneration: searchGeneration,
         results: const [],
-        providerResults: const [],
-        searchedProvider: false,
       ),
       selection: state.selection.copyWith(
         clearSelectedResultId: true,
-        clearSelectedProviderCandidateId: true,
       ),
       preview: const LibraryAddPreviewState.initial(),
     );
@@ -269,9 +257,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     state = state.copyWith(
       search: state.search.copyWith(
         coreSearchGeneration: state.search.coreSearchGeneration + 1,
-        providerSearchGeneration: state.search.providerSearchGeneration + 1,
         isSearching: false,
-        isSearchingProvider: false,
         isScanningCover: false,
       ),
     );
@@ -308,10 +294,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     _coreSearchCancelToken?.cancel('Superseded by identifier lookup');
     _coreSearchCancelToken = null;
     state = state.copyWith(
-      search: state.search.copyWith(
-        providerSearchGeneration: state.search.providerSearchGeneration + 1,
-        isSearchingProvider: false,
-      ),
+      search: state.search.copyWith(),
     );
     final cancelToken = CancelToken();
     _coreSearchCancelToken = cancelToken;
@@ -322,12 +305,9 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         isSearching: true,
         clearError: true,
         coreSearchGeneration: searchGeneration,
-        providerResults: const [],
-        searchedProvider: false,
       ),
       selection: state.selection.copyWith(
         clearSelectedResultId: true,
-        clearSelectedProviderCandidateId: true,
       ),
       preview: const LibraryAddPreviewState.initial(),
     );

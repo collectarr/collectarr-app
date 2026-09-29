@@ -54,7 +54,6 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.queryController,
     required this.identifierController,
     required this.isSearching,
-    required this.isSearchingProvider,
     required this.onModeChanged,
     required this.onSearch,
     required this.onQueryChanged,
@@ -82,7 +81,6 @@ class LibraryAddModeBar extends StatefulWidget {
   final TextEditingController queryController;
   final TextEditingController identifierController;
   final bool isSearching;
-  final bool isSearchingProvider;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
@@ -179,7 +177,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
       queryController: widget.queryController,
       identifierController: widget.identifierController,
       isSearching: widget.isSearching,
-      isSearchingProvider: widget.isSearchingProvider,
       onModeChanged: widget.onModeChanged,
       onSearch: _handleSearch,
       onQueryChanged: widget.onQueryChanged,
@@ -207,7 +204,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
 
   @override
   Widget build(BuildContext context) {
-    final isBusy = widget.isSearching || widget.isSearchingProvider;
+    final isBusy = widget.isSearching;
     final searchLabels =
         libraryPresentationForKind(widget.type.kind).searchFieldLabels;
     final palette = appPalette(context);

@@ -57,10 +57,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
                 mode: LibraryAddDialogMode.search,
                 target: LibraryAddTarget.owned,
                 search: LibraryAddSearchState.initial(
-                  selectedProvider: libraryMetadataForKind(type?.kind ?? kind)
-                          .defaultSupportedOption(kind)
-                          ?.id ??
-                      libraryMetadataForKind(kind).defaultProviderId,
                   advancedFilters: libraryAddForKind(kind)
                       .search
                       .input
@@ -190,7 +186,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     state = state.copyWith(
       selection: state.selection.copyWith(
         selectedResultId: id,
-        clearSelectedProviderCandidateId: true,
         clearSelectedBundleReleaseId: true,
         clearSelectedReferenceEditionId: true,
         clearSelectedReferenceVariantId: true,
@@ -201,19 +196,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     unawaited(_ensureBundleReleasesLoaded(id));
   }
 
-  void selectProviderCandidate(String id) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(
-        selectedProviderCandidateId: id,
-        clearSelectedResultId: true,
-        clearSelectedBundleReleaseId: true,
-        clearSelectedReferenceEditionId: true,
-        clearSelectedReferenceVariantId: true,
-        referenceType: LibraryAddReferenceType.media,
-      ),
-    );
-  }
-
   void toggleCheckedResult(String id) {
     final updated = Set<String>.from(state.selection.checkedResultIds);
     if (!updated.remove(id)) {
@@ -221,16 +203,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     }
     state = state.copyWith(
       selection: state.selection.copyWith(checkedResultIds: updated),
-    );
-  }
-
-  void toggleCheckedProvider(String id) {
-    final updated = Set<String>.from(state.selection.checkedProviderIds);
-    if (!updated.remove(id)) {
-      updated.add(id);
-    }
-    state = state.copyWith(
-      selection: state.selection.copyWith(checkedProviderIds: updated),
     );
   }
 
@@ -357,12 +329,9 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
           showAdvancedSearch: result.showAdvancedFields,
           coverScanPrefill: result,
           results: const [],
-          providerResults: const [],
-          searchedProvider: false,
         ),
         selection: state.selection.copyWith(
           clearSelectedResultId: true,
-          clearSelectedProviderCandidateId: true,
         ),
         preview: const LibraryAddPreviewState.initial(),
       );
@@ -790,7 +759,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         state = state.copyWith(
           search: state.search.copyWith(
             isSearching: false,
-            isSearchingProvider: false,
             isScanningCover: false,
             error:
                 'Saved metadata session was cleared after $action was rejected. '
@@ -815,10 +783,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       mode: LibraryAddDialogMode.search,
       target: LibraryAddTarget.owned,
       search: LibraryAddSearchState.initial(
-        selectedProvider: libraryMetadataForKind(type.kind)
-                .defaultSupportedOption(type.kind)
-                ?.id ??
-            libraryMetadataForKind(type.kind).defaultProviderId,
         advancedFilters: _searchCapability.input.initialAdvancedFilters,
       ),
       selection: LibraryAddSelectionState(

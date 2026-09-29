@@ -193,7 +193,6 @@ class LibraryAddModeBarRequest {
     required this.queryController,
     required this.identifierController,
     required this.isSearching,
-    required this.isSearchingProvider,
     required this.onModeChanged,
     required this.onSearch,
     required this.onQueryChanged,
@@ -221,7 +220,6 @@ class LibraryAddModeBarRequest {
   final TextEditingController queryController;
   final TextEditingController identifierController;
   final bool isSearching;
-  final bool isSearchingProvider;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
@@ -311,7 +309,6 @@ class LibraryAddBottomBarRequest {
     required this.defaultTags,
     required this.accent,
     required this.selectedItem,
-    required this.selectedCandidate,
     required this.addTarget,
     required this.addCount,
     this.hasCheckedSelection = false,
@@ -333,7 +330,6 @@ class LibraryAddBottomBarRequest {
   final String? defaultTags;
   final Color accent;
   final CatalogSearchCandidate? selectedItem;
-  final ProviderSearchCandidate? selectedCandidate;
   final LibraryAddTarget addTarget;
   final int addCount;
   final bool hasCheckedSelection;

@@ -158,7 +158,7 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
     final request = widget.request;
     final labels = widget.labels;
     final palette = appPalette(context);
-    final isBusy = request.isSearching || request.isSearchingProvider;
+    final isBusy = request.isSearching;
     final isBarcode = request.mode == LibraryAddDialogMode.identifier;
     final isSearch = request.mode == LibraryAddDialogMode.search;
     final searchButtonLabel = labels.searchButtonLabel ??
