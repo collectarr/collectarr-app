@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -68,6 +69,9 @@ class LibraryAddManualPaneRequest {
     required this.linksController,
     required this.isAdding,
     required this.defaultCondition,
+    this.conditions = const [],
+    this.locations = const [],
+    this.defaultLocationId,
     required this.defaultLocationLabel,
     required this.defaultPurchaseDate,
     required this.defaultTags,
@@ -106,6 +110,9 @@ class LibraryAddManualPaneRequest {
   final TextEditingController linksController;
   final bool isAdding;
   final String defaultCondition;
+  final List<String> conditions;
+  final List<StorageLocation> locations;
+  final String? defaultLocationId;
   final String? defaultLocationLabel;
   final DateTime? defaultPurchaseDate;
   final String? defaultTags;

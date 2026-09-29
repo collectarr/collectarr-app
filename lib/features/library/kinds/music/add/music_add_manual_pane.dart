@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_manual_personal_tab.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
@@ -94,6 +95,11 @@ class MusicAddManualPane extends StatelessWidget {
             draft: draft,
             accent: request.accent,
           ),
+        ),
+        LibraryAddManualPaneTab(
+          label: 'Personal',
+          icon: Icons.person_outline,
+          content: LibraryAddManualPersonalTab(request: request),
         ),
         LibraryAddManualPaneTab(
           label: 'Covers',

@@ -1,0 +1,240 @@
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+/// Shared personal-copy fields supported by the manual Add submission path.
+final class LibraryAddManualPersonalTab extends StatelessWidget {
+  const LibraryAddManualPersonalTab({
+    super.key,
+    required this.request,
+  });
+
+  final LibraryAddManualPaneRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    final current = request.commonDraft ?? const LibraryAddCommonDraft();
+    final condition = current.condition ?? request.defaultCondition;
+    final locationId = current.locationId ?? request.defaultLocationId;
+    final date = current.purchaseDate ?? request.defaultPurchaseDate;
+    final fields = <Widget>[
+      if (request.conditions.isNotEmpty)
+        DropdownButtonFormField<String>(
+          key: const ValueKey('manual-condition'),
+          initialValue: request.conditions.contains(condition)
+              ? condition
+              : request.conditions.first,
+          decoration: const InputDecoration(labelText: 'Condition'),
+          items: [
+            for (final value in request.conditions)
+              DropdownMenuItem(value: value, child: Text(value)),
+          ],
+          onChanged: (value) {
+            if (value != null) _updateCommon(condition: value);
+          },
+        )
+      else
+        TextFormField(
+          key: const ValueKey('manual-condition'),
+          initialValue: condition,
+          decoration: const InputDecoration(labelText: 'Condition'),
+          onChanged: (value) => _updateCommon(condition: value),
+        ),
+      _locationField(locationId),
+      _purchaseDateField(context, date),
+      TextFormField(
+        key: const ValueKey('manual-quantity'),
+        initialValue: current.quantity.toString(),
+        decoration: const InputDecoration(labelText: 'Quantity'),
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        validator: (value) {
+          final quantity = int.tryParse(value?.trim() ?? '');
+          return quantity == null || quantity < 1
+              ? 'Enter a quantity greater than zero'
+              : null;
+        },
+        onChanged: (value) {
+          final quantity = int.tryParse(value.trim());
+          if (quantity != null && quantity > 0) {
+            _updateCommon(quantity: quantity);
+          }
+        },
+      ),
+      TextFormField(
+        key: const ValueKey('manual-price'),
+        initialValue: current.pricePaidCents == null
+            ? ''
+            : (current.pricePaidCents! / 100).toStringAsFixed(2),
+        decoration: const InputDecoration(labelText: 'Purchase Price'),
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        onChanged: (value) {
+          final text = value.trim();
+          if (text.isEmpty) {
+            _updateCommon(pricePaidCents: null);
+            return;
+          }
+          final amount = double.tryParse(text);
+          if (amount != null && amount.isFinite && amount >= 0) {
+            _updateCommon(pricePaidCents: (amount * 100).round());
+          }
+        },
+      ),
+      TextFormField(
+        key: const ValueKey('manual-currency'),
+        initialValue: current.currency ?? '',
+        decoration: const InputDecoration(labelText: 'Currency'),
+        onChanged: (value) => _updateCommon(currency: value.trim()),
+      ),
+      TextFormField(
+        key: const ValueKey('manual-store'),
+        initialValue: current.purchaseStore ?? '',
+        decoration: const InputDecoration(labelText: 'Purchase Store'),
+        onChanged: (value) => _updateCommon(purchaseStore: value),
+      ),
+      TextField(
+        controller: request.tagsController,
+        decoration: InputDecoration(
+          labelText: 'Tags',
+          helperText: request.defaultTags == null
+              ? null
+              : 'Default: ${request.defaultTags}',
+        ),
+      ),
+      TextField(
+        controller: request.personalNotesController,
+        decoration: const InputDecoration(labelText: 'Notes'),
+        minLines: 2,
+        maxLines: 4,
+      ),
+    ];
+
+    return EditSection(
+      title: 'Personal',
+      accent: request.accent,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth >= 680
+              ? (constraints.maxWidth - 12) / 2
+              : constraints.maxWidth;
+          return Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              for (var index = 0; index < fields.length; index++)
+                SizedBox(
+                  width:
+                      index >= fields.length - 2 ? constraints.maxWidth : width,
+                  child: fields[index],
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _locationField(String? selectedId) {
+    if (request.locations.isEmpty) {
+      return TextFormField(
+        key: ValueKey('manual-location-${request.defaultLocationLabel}'),
+        initialValue: request.defaultLocationLabel ?? '',
+        readOnly: true,
+        decoration: const InputDecoration(labelText: 'Location'),
+      );
+    }
+    final selected =
+        request.locations.any((location) => location.id == selectedId)
+            ? selectedId
+            : null;
+    return DropdownButtonFormField<String>(
+      key: ValueKey('manual-location-$selected'),
+      initialValue: selected,
+      decoration: const InputDecoration(labelText: 'Location'),
+      items: [
+        for (final location in request.locations)
+          DropdownMenuItem(
+            value: location.id,
+            child: Text(location.fullPath(request.locations)),
+          ),
+      ],
+      onChanged: (value) {
+        if (value != null) _updateCommon(locationId: value);
+      },
+    );
+  }
+
+  Widget _purchaseDateField(BuildContext context, DateTime? currentDate) =>
+      InkWell(
+        onTap: () async {
+          final selected = await showDatePicker(
+            context: context,
+            initialDate: currentDate ?? DateTime.now(),
+            firstDate: DateTime(1),
+            lastDate: DateTime(9999),
+          );
+          if (selected == null) return;
+          request.purchaseDateController.text = _dateText(selected);
+          _updateCommon(purchaseDate: selected);
+        },
+        child: InputDecorator(
+          decoration: const InputDecoration(
+            labelText: 'Purchase Date',
+            suffixIcon: Icon(Icons.calendar_month_outlined),
+          ),
+          child: Text(
+            currentDate == null ? 'Select a date' : _dateText(currentDate),
+            style: TextStyle(
+              color: currentDate == null
+                  ? appPalette(context).textMuted
+                  : appPalette(context).textPrimary,
+            ),
+          ),
+        ),
+      );
+
+  void _updateCommon({
+    String? condition,
+    Object? purchaseDate = _unchanged,
+    Object? pricePaidCents = _unchanged,
+    Object? currency = _unchanged,
+    Object? purchaseStore = _unchanged,
+    int? quantity,
+    String? locationId,
+  }) {
+    final current = request.commonDraft ?? const LibraryAddCommonDraft();
+    request.onCommonDraftChanged?.call(
+      LibraryAddCommonDraft(
+        condition: condition ?? current.condition,
+        purchaseDate: identical(purchaseDate, _unchanged)
+            ? current.purchaseDate
+            : purchaseDate as DateTime?,
+        pricePaidCents: identical(pricePaidCents, _unchanged)
+            ? current.pricePaidCents
+            : pricePaidCents as int?,
+        currency: identical(currency, _unchanged)
+            ? current.currency
+            : currency as String?,
+        personalNotes: current.personalNotes,
+        quantity: quantity ?? current.quantity,
+        tags: current.tags,
+        locationId: locationId ?? current.locationId,
+        purchaseStore: identical(purchaseStore, _unchanged)
+            ? current.purchaseStore
+            : purchaseStore as String?,
+        collectionStatus: current.collectionStatus,
+        isDigital: current.isDigital,
+      ),
+    );
+  }
+
+  static String _dateText(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-'
+      '${date.month.toString().padLeft(2, '0')}-'
+      '${date.day.toString().padLeft(2, '0')}';
+}
+
+const Object _unchanged = Object();

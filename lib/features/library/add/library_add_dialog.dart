@@ -380,6 +380,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       linksController: _manualDraft.linksController,
       isAdding: state.isAdding || state.submitState.isLoading,
       defaultCondition: state.defaultCondition,
+      conditions: _conditionOptions,
+      locations: _availableLocations,
+      defaultLocationId: state.defaultLocationId,
       defaultLocationLabel:
           locationPathForId(_availableLocations, state.defaultLocationId),
       defaultPurchaseDate: state.defaultPurchaseDate,
