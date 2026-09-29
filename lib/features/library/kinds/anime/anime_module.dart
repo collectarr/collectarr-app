@@ -10,7 +10,6 @@ export 'calendar/anime_calendar_contributor.dart';
 export 'data/anime_catalog_transport_codec.dart';
 export 'integrations/catalog/anime_catalog_lookup.dart';
 export 'integrations/collection_csv/anime_collection_csv_projection.dart';
-export 'integrations/tmdb/anime_tmdb_import_contribution.dart';
 export 'ownership/anime_owned_contributor.dart';
 export 'page.dart';
 export 'provider/anime_provider_correction_patch.dart';

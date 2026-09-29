@@ -15,8 +15,6 @@ import 'package:collectarr_app/features/library/config/library_shelf_extension_c
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_kind_contribution.dart';
-import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_tracking_import_contribution.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -64,13 +62,6 @@ final class LibraryKindRegistry {
 }
 
 final defaultLibraryKindRegistry = (() {
-  registerTmdbTrackingImportContribution(
-    CatalogMediaKind.tv,
-    const TvTrackingImportContribution(),
-  );
-  registerTmdbImportKindContribution(const AnimeTmdbImportContribution());
-  registerTmdbImportKindContribution(const MovieTmdbImportContribution());
-  registerTmdbImportKindContribution(const TvTmdbImportContribution());
   return LibraryKindRegistry(collectarrKindRegistrationsList);
 })();
 
