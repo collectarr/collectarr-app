@@ -1,6 +1,6 @@
+import 'package:collectarr_app/features/providers/transport/provider_candidate_preview.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/providers/domain/contracts/provider_conn
 import 'package:collectarr_app/features/providers/transport/provider_preview_common.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 
-Future<LibraryAddProviderCandidatePreview?> loadComicProviderCandidatePreview(
+Future<ProviderCandidatePreview?> loadComicProviderCandidatePreview(
   ProviderConnector provider,
   ProviderSearchCandidate candidate,
 ) async {
@@ -20,7 +20,7 @@ Future<LibraryAddProviderCandidatePreview?> loadComicProviderCandidatePreview(
     candidate.providerItemId,
     kind: candidate.kind,
   );
-  return LibraryAddProviderCandidatePreview(
+  return ProviderCandidatePreview(
     candidate: candidate,
     preview: providerPreviewFromComicEnvelope(envelope),
   );

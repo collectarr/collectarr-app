@@ -5,9 +5,6 @@ import 'book_manual_candidate.dart';
 final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   kind: CatalogMediaKind.book,
   initialDraftBuilder: BookAddDraft.new,
-  typedProviderCandidateProjectionBuilder: (candidate) =>
-      bookCatalogTransportFromTypedCandidate(
-          candidate as BookProviderCandidate),
   coreCatalogProjectionBuilder: bookCatalogTransportFromCoreItem,
   manualDraftBuilder: BookAddManualDraft.new,
   manualCandidateBuilder: buildBookManualCandidate,
@@ -57,9 +54,6 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: _buildBookCoreSearchInput,
-    ),
-    provider: LibraryAddProviderSearchCapability(
-      queryBuilder: _buildBookProviderQuery,
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
@@ -74,10 +68,6 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
                   ? metadata.authors
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is BookProviderCandidate
-                    ? [candidate.summary]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: bookIsbnFilterId,
@@ -91,10 +81,6 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
                   ? [metadata.barcode, metadata.itemNumber]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is BookProviderCandidate
-                    ? [candidate.providerItemId]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: bookPublisherFilterId,
@@ -108,10 +94,6 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
                   ? [metadata.publisher, metadata.originalPublisher]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is BookProviderCandidate
-                    ? [candidate.publisher]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: bookYearFilterId,
@@ -125,16 +107,9 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
                   ? [metadata.originalPublicationDate?.year]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is BookProviderCandidate
-                    ? [candidate.series?.volumeStartYear]
-                    : const <Object?>[],
           ),
         ],
       ),
-      strategy:
-          LibraryAddTypedProviderSearchStrategy(searchBookProviderCandidates),
-      candidatePreviewLoader: loadBookProviderCandidatePreview,
     ),
   ),
   manualPaneBuilder: buildBookAddManualPane,
@@ -217,17 +192,6 @@ MetadataSearchQuery _buildBookCoreSearchInput(
     barcode: _optionalBookText(isbn.isNotEmpty ? isbn : context.identifierCode),
     limit: limit,
   );
-}
-
-String _buildBookProviderQuery(LibraryAddSearchContext context) {
-  return buildLibraryAddSearchQuery([
-    context.query,
-    context.textValueFor(bookAuthorFilterId),
-    context.textValueFor(bookIsbnFilterId),
-    context.textValueFor(bookPublisherFilterId),
-    context.textValueFor(bookYearFilterId),
-    context.identifierCode,
-  ]);
 }
 
 String? _optionalBookText(String value) {

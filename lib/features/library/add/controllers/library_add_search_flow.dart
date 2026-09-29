@@ -103,7 +103,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
           searchContext,
           limit: _autocompleteLimit,
         ),
-        ranking: _searchCapability.provider.ranking,
+        ranking: _searchCapability.core.ranking,
         searchContext: searchContext,
         cancelToken: cancelToken,
       );
@@ -207,7 +207,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
           limit: 20,
         ),
         timeout: _coreSearchTimeout,
-        ranking: _searchCapability.provider.ranking,
+        ranking: _searchCapability.core.ranking,
         searchContext: searchContext,
         cancelToken: cancelToken,
       );

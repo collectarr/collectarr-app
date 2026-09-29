@@ -1,24 +1,20 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_unsupported_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
-import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
-import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 import 'package:flutter/widgets.dart';
 
 export 'library_add_result_policy.dart';
@@ -33,74 +29,10 @@ typedef LibraryAddCoreSearchInputBuilder = MetadataSearchQuery Function(
   required int limit,
 });
 
-typedef LibraryAddProviderQueryBuilder = String Function(
-  LibraryAddSearchContext context,
-);
-
-typedef LibraryAddProviderKindOverridesBuilder = Iterable<LibraryAddSearchScope>
-    Function(
-  LibraryAddSearchContext context,
-);
-
 typedef LibraryAddCoreSearchResultFilter = List<CatalogSearchCandidate>
     Function(
   List<CatalogSearchCandidate> items,
   LibraryAddSearchContext context,
-);
-
-typedef LibraryAddTypedProviderSearchBuilder
-    = Future<List<ProviderSearchCandidate>> Function(
-  ProviderConnector provider, {
-  required String query,
-  required CatalogMediaKind kind,
-  required int limit,
-  ProviderCancellationToken? cancellationToken,
-});
-
-typedef LibraryAddTypedProviderSearchContextBuilder
-    = Future<List<ProviderSearchCandidate>> Function(
-  ProviderConnector provider, {
-  required String query,
-  required CatalogMediaKind kind,
-  required int limit,
-  required LibraryAddSearchContext context,
-  ProviderCancellationToken? cancellationToken,
-});
-
-typedef LibraryAddTypedProviderSearchResultFilter
-    = List<ProviderSearchCandidate> Function(
-  List<ProviderSearchCandidate> candidates,
-  LibraryAddSearchContext context,
-);
-
-@immutable
-class LibraryAddProviderCandidatePreview {
-  const LibraryAddProviderCandidatePreview({
-    required this.candidate,
-    required this.preview,
-  });
-
-  final ProviderSearchCandidate candidate;
-  final AdminProviderPreview preview;
-}
-
-typedef LibraryAddTypedProviderCandidatePreviewLoader
-    = Future<LibraryAddProviderCandidatePreview?> Function(
-  ProviderConnector provider,
-  ProviderSearchCandidate candidate,
-);
-
-typedef LibraryAddProviderGroupHydrationPredicate = bool Function(
-  LibraryAddSearchContext context,
-);
-
-typedef LibraryAddSearchInputPredicate = bool Function(
-  LibraryAddSearchContext context,
-);
-
-typedef LibraryAddCoverScanFilterValuesBuilder
-    = Map<LibraryAddFilterId, LibraryAddFilterValue> Function(
-  LibraryCoverScanResult result,
 );
 
 typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
@@ -135,9 +67,6 @@ typedef LibraryAddManualProposalBuilder = Map<String, Object?>? Function(
   required String title,
 });
 
-typedef LibraryAddTypedProviderCandidateProjection = CatalogSearchCandidate
-    Function(ProviderSearchCandidate candidate);
-
 typedef LibraryAddCoreCatalogProjection = CatalogSearchCandidate Function(
   CatalogSearchCandidate item,
 );
@@ -146,14 +75,12 @@ class LibraryAddSearchCapability {
   const LibraryAddSearchCapability({
     required this.input,
     required this.core,
-    required this.provider,
     this.coverScan,
     this.presentation = const LibraryAddSearchPresentationCapability(),
   });
 
   final LibraryAddSearchInputCapability input;
   final LibraryAddCoreSearchCapability core;
-  final LibraryAddProviderSearchCapability provider;
   final LibraryAddCoverScanCapability? coverScan;
   final LibraryAddSearchPresentationCapability presentation;
 }
@@ -174,13 +101,19 @@ class LibraryAddSearchInputCapability {
       searchInputPredicate?.call(context) ?? context.hasAnyInput;
 }
 
+typedef LibraryAddSearchInputPredicate = bool Function(
+  LibraryAddSearchContext context,
+);
+
 class LibraryAddCoreSearchCapability {
   const LibraryAddCoreSearchCapability({
     required this.inputBuilder,
+    required this.ranking,
     this.resultFilter,
   });
 
   final LibraryAddCoreSearchInputBuilder inputBuilder;
+  final LibraryAddSearchRanking ranking;
   final LibraryAddCoreSearchResultFilter? resultFilter;
 
   List<CatalogSearchCandidate> filterResults(
@@ -190,158 +123,6 @@ class LibraryAddCoreSearchCapability {
       resultFilter?.call(items, context) ?? items;
 }
 
-class LibraryAddProviderSearchCapability {
-  const LibraryAddProviderSearchCapability({
-    required this.queryBuilder,
-    required this.ranking,
-    required this.strategy,
-    required this.candidatePreviewLoader,
-    this.kindOverridesBuilder,
-    this.resultPolicy = const LibraryAddProviderResultPolicy(),
-  });
-
-  final LibraryAddProviderQueryBuilder queryBuilder;
-  final LibraryAddSearchRanking ranking;
-  final LibraryAddProviderSearchStrategy strategy;
-  final LibraryAddTypedProviderCandidatePreviewLoader candidatePreviewLoader;
-  final LibraryAddProviderKindOverridesBuilder? kindOverridesBuilder;
-  final LibraryAddProviderResultPolicy resultPolicy;
-
-  Iterable<LibraryAddSearchScope> kindOverrides(
-    LibraryAddSearchContext context,
-  ) =>
-      kindOverridesBuilder?.call(context) ?? const [];
-
-  Future<List<ProviderSearchCandidate>> search(
-    ProviderConnector provider, {
-    required String query,
-    required CatalogMediaKind kind,
-    required LibraryAddSearchContext context,
-    int limit = 25,
-    ProviderCancellationToken? cancellationToken,
-  }) =>
-      strategy.search(
-        provider,
-        query: query,
-        kind: kind,
-        limit: limit,
-        context: context,
-        cancellationToken: cancellationToken,
-      );
-}
-
-sealed class LibraryAddProviderSearchStrategy {
-  const LibraryAddProviderSearchStrategy();
-
-  Future<List<ProviderSearchCandidate>> search(
-    ProviderConnector provider, {
-    required String query,
-    required CatalogMediaKind kind,
-    required int limit,
-    required LibraryAddSearchContext context,
-    ProviderCancellationToken? cancellationToken,
-  });
-}
-
-final class LibraryAddConnectorSearchStrategy
-    extends LibraryAddProviderSearchStrategy {
-  const LibraryAddConnectorSearchStrategy();
-
-  @override
-  Future<List<ProviderSearchCandidate>> search(
-    ProviderConnector provider, {
-    required String query,
-    required CatalogMediaKind kind,
-    required int limit,
-    required LibraryAddSearchContext context,
-    ProviderCancellationToken? cancellationToken,
-  }) async {
-    final hits = await provider.searchHits(
-      query,
-      kind: kind,
-      limit: limit,
-      cancellationToken: cancellationToken,
-    );
-    return [
-      for (final hit in hits)
-        ProviderSearchHitCandidate.fromHit(
-          hit,
-          provider: provider.descriptor.name,
-        ),
-    ];
-  }
-}
-
-final class LibraryAddTypedProviderSearchStrategy
-    extends LibraryAddProviderSearchStrategy {
-  const LibraryAddTypedProviderSearchStrategy(this.searchBuilder);
-
-  final LibraryAddTypedProviderSearchBuilder searchBuilder;
-
-  @override
-  Future<List<ProviderSearchCandidate>> search(
-    ProviderConnector provider, {
-    required String query,
-    required CatalogMediaKind kind,
-    required int limit,
-    required LibraryAddSearchContext context,
-    ProviderCancellationToken? cancellationToken,
-  }) =>
-      searchBuilder(
-        provider,
-        query: query,
-        kind: kind,
-        limit: limit,
-        cancellationToken: cancellationToken,
-      );
-}
-
-final class LibraryAddContextualProviderSearchStrategy
-    extends LibraryAddProviderSearchStrategy {
-  const LibraryAddContextualProviderSearchStrategy(this.searchBuilder);
-
-  final LibraryAddTypedProviderSearchContextBuilder searchBuilder;
-
-  @override
-  Future<List<ProviderSearchCandidate>> search(
-    ProviderConnector provider, {
-    required String query,
-    required CatalogMediaKind kind,
-    required int limit,
-    required LibraryAddSearchContext context,
-    ProviderCancellationToken? cancellationToken,
-  }) =>
-      searchBuilder(
-        provider,
-        query: query,
-        kind: kind,
-        limit: limit,
-        context: context,
-        cancellationToken: cancellationToken,
-      );
-}
-
-class LibraryAddProviderResultPolicy {
-  const LibraryAddProviderResultPolicy({
-    this.filter,
-    this.hydrationPredicate,
-    this.removeGroupsWithoutVisibleChildren = false,
-  });
-
-  final LibraryAddTypedProviderSearchResultFilter? filter;
-  final LibraryAddProviderGroupHydrationPredicate? hydrationPredicate;
-  final bool removeGroupsWithoutVisibleChildren;
-
-  List<ProviderSearchCandidate> filterResults(
-    List<ProviderSearchCandidate> candidates,
-    LibraryAddSearchContext context,
-  ) =>
-      filter?.call(candidates, context) ?? candidates;
-
-  bool shouldHydrateGroups(LibraryAddSearchContext context) =>
-      hydrationPredicate?.call(context) ?? false;
-}
-
 class LibraryAddCoverScanCapability {
   const LibraryAddCoverScanCapability({
     this.queryBuilder,
@@ -349,7 +130,9 @@ class LibraryAddCoverScanCapability {
   });
 
   final String? Function(LibraryCoverScanResult result)? queryBuilder;
-  final LibraryAddCoverScanFilterValuesBuilder? filterValuesBuilder;
+  final Map<LibraryAddFilterId, LibraryAddFilterValue> Function(
+    LibraryCoverScanResult result,
+  )? filterValuesBuilder;
 
   String? searchQuery(LibraryCoverScanResult result) =>
       queryBuilder?.call(result) ?? result.query;
@@ -364,15 +147,12 @@ class LibraryAddSearchPresentationCapability {
   const LibraryAddSearchPresentationCapability({
     this.controlsBuilder,
     this.coreMatchSummaryBuilder,
-    this.providerMatchSummaryBuilder,
   });
 
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
       controlsBuilder;
   final LibraryAddMatchSummaryBuilder<CatalogSearchCandidate>?
       coreMatchSummaryBuilder;
-  final LibraryAddMatchSummaryBuilder<ProviderSearchCandidate>?
-      providerMatchSummaryBuilder;
 
   String? coreMatchSummary(
     CatalogSearchCandidate item,
@@ -380,28 +160,12 @@ class LibraryAddSearchPresentationCapability {
   ) {
     final custom = coreMatchSummaryBuilder?.call(item, context);
     if (custom != null) return custom;
-    return _matchesQuery(item.summary.primaryLabel, context.query)
+    final label = item.summary.primaryLabel.trim().toLowerCase();
+    final query = context.query.trim().toLowerCase();
+    return label.isNotEmpty && query.isNotEmpty && label.contains(query)
         ? 'Title'
         : null;
   }
-
-  String? providerMatchSummary(
-    ProviderSearchCandidate candidate,
-    LibraryAddSearchContext context,
-  ) {
-    final custom = providerMatchSummaryBuilder?.call(candidate, context);
-    if (custom != null) return custom;
-    return _matchesQuery(candidate.title, context.query) ? 'Title' : null;
-  }
-}
-
-bool _matchesQuery(String candidate, String query) {
-  final normalizedCandidate = candidate.trim().toLowerCase();
-  final normalizedQuery = query.trim().toLowerCase();
-  return normalizedCandidate.isNotEmpty &&
-      normalizedQuery.isNotEmpty &&
-      (normalizedCandidate == normalizedQuery ||
-          normalizedCandidate.contains(normalizedQuery));
 }
 
 abstract interface class LibraryAddCapability<
@@ -443,10 +207,6 @@ abstract interface class LibraryAddCapability<
   LibraryAddSearchCapability get search;
   LibraryAddResultPolicy get resultPolicy;
 
-  CatalogSearchCandidate catalogCandidateFromProviderCandidate(
-    ProviderSearchCandidate candidate,
-  );
-
   CatalogSearchCandidate catalogCandidateFromCoreItem(
     CatalogSearchCandidate item,
   );
@@ -462,10 +222,13 @@ abstract interface class LibraryAddCapability<
     LibraryAddPreviewPaneRequest request,
   );
 
-  AddOwnedItemCommand buildCommand(CatalogSearchCandidate item,
-      LibraryAddCommonDraft common, LibraryAddKindDraft draft,
-      {CatalogEntityRef? targetRef,
-      LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()});
+  AddOwnedItemCommand buildCommand(
+    CatalogSearchCandidate item,
+    LibraryAddCommonDraft common,
+    LibraryAddKindDraft draft, {
+    CatalogEntityRef? targetRef,
+    LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
+  });
 
   AddOwnedItemCommand buildCommandFromDetails(
     CatalogSearchCandidate item,
@@ -505,7 +268,6 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.ownedPayloadBuilder,
     this.digitalCopyFlagBuilder,
     this.mediaTargetRefBuilder,
-    this.typedProviderCandidateProjectionBuilder,
     required this.coreCatalogProjectionBuilder,
     this.resultPolicy = const LibraryAddResultPolicy.identity(),
   });
@@ -517,8 +279,9 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddManualCandidateBuilder? manualCandidateBuilder;
   final LibraryAddManualProposalBuilder? manualProposalBuilder;
   final Widget Function(
-          BuildContext context, LibraryAddManualPaneRequest request)?
-      manualPaneBuilder;
+    BuildContext context,
+    LibraryAddManualPaneRequest request,
+  )? manualPaneBuilder;
   @override
   final LibraryAddHeaderBuilder? headerBuilder;
   @override
@@ -536,11 +299,12 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddOwnedPayloadBuilder<TDraft>? ownedPayloadBuilder;
   final LibraryAddDigitalCopyFlagBuilder? digitalCopyFlagBuilder;
   final LibraryAddMediaTargetRefBuilder? mediaTargetRefBuilder;
-  final LibraryAddTypedProviderCandidateProjection?
-      typedProviderCandidateProjectionBuilder;
   final LibraryAddCoreCatalogProjection coreCatalogProjectionBuilder;
   @override
   final LibraryAddResultPolicy resultPolicy;
+
+  @override
+  final String manualCandidateValidationMessage;
 
   @override
   TDraft createInitialDraft() => initialDraftBuilder();
@@ -552,20 +316,6 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   @override
   CatalogEntityRef? mediaTargetRef(CatalogSearchCandidate item) =>
       mediaTargetRefBuilder?.call(item);
-
-  @override
-  CatalogSearchCandidate catalogCandidateFromProviderCandidate(
-    ProviderSearchCandidate candidate,
-  ) {
-    final typedProjection = typedProviderCandidateProjectionBuilder;
-    if (typedProjection != null) {
-      return typedProjection(candidate);
-    }
-    throw StateError(
-      'Kind ${kind.apiValue} received an unsupported provider candidate '
-      'without a typed projection.',
-    );
-  }
 
   @override
   CatalogSearchCandidate catalogCandidateFromCoreItem(
@@ -588,35 +338,43 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   Map<String, Object?>? buildManualProposalData(
     LibraryKindAddDraft draft, {
     required String title,
-  }) {
-    return manualProposalBuilder?.call(draft, title: title);
-  }
-
-  @override
-  final String manualCandidateValidationMessage;
+  }) =>
+      manualProposalBuilder?.call(draft, title: title);
 
   @override
   Widget buildManualPane(
     BuildContext context,
     LibraryAddManualPaneRequest request,
-  ) {
-    if (manualPaneBuilder != null) {
-      return manualPaneBuilder!(context, request);
-    }
-    return LibraryAddUnsupportedManualPane(request: request);
-  }
+  ) =>
+      manualPaneBuilder?.call(context, request) ??
+      LibraryAddUnsupportedManualPane(request: request);
 
   @override
   Widget? buildPreviewPane(
     BuildContext context,
     LibraryAddPreviewPaneRequest request,
-  ) {
-    return previewPaneBuilder?.call(context, request);
+  ) =>
+      previewPaneBuilder?.call(context, request);
+
+  TDraft _resolveDraft(
+    LibraryAddKindDraft? draft, {
+    required String operation,
+  }) {
+    if (draft == null) return createInitialDraft();
+    if (draft is TDraft) return draft;
+    throw StateError(
+      'Cannot $operation for kind ${kind.apiValue}: expected a $TDraft draft, '
+      'but received ${draft.runtimeType}. The supplied draft was not replaced.',
+    );
   }
 
-  OwnedItemCreatePayload _buildOwnedPayload(CatalogSearchCandidate item,
-      LibraryAddCommonDraft common, TDraft draft, JsonEncodable details,
-      {String? kindValue}) {
+  OwnedItemCreatePayload _buildOwnedPayload(
+    CatalogSearchCandidate item,
+    LibraryAddCommonDraft common,
+    TDraft draft,
+    JsonEncodable details, {
+    String? kindValue,
+  }) {
     try {
       final payload = ownedPayloadBuilder?.call(
         item,
@@ -639,21 +397,14 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     }
   }
 
-  TDraft _resolveDraft(LibraryAddKindDraft? draft,
-      {required String operation}) {
-    if (draft == null) return createInitialDraft();
-    if (draft is TDraft) return draft;
-    throw StateError(
-      'Cannot $operation for kind ${kind.apiValue}: expected a $TDraft draft, '
-      'but received ${draft.runtimeType}. The supplied draft was not replaced.',
-    );
-  }
-
   @override
-  AddOwnedItemCommand buildCommand(CatalogSearchCandidate item,
-      LibraryAddCommonDraft common, LibraryAddKindDraft draft,
-      {CatalogEntityRef? targetRef,
-      LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
+  AddOwnedItemCommand buildCommand(
+    CatalogSearchCandidate item,
+    LibraryAddCommonDraft common,
+    LibraryAddKindDraft draft, {
+    CatalogEntityRef? targetRef,
+    LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
+  }) {
     final effectiveDraft = _resolveDraft(
       draft,
       operation: 'build an add command',

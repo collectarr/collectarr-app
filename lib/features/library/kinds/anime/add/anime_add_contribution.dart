@@ -5,9 +5,6 @@ import 'anime_manual_candidate.dart';
 final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
   kind: CatalogMediaKind.anime,
   initialDraftBuilder: AnimeAddDraft.new,
-  typedProviderCandidateProjectionBuilder: (candidate) =>
-      animeCatalogTransportFromTypedCandidate(
-          candidate as AnimeProviderCandidate),
   coreCatalogProjectionBuilder: animeCatalogTransportFromCoreItem,
   manualDraftBuilder: AnimeAddManualDraft.new,
   manualCandidateBuilder: buildAnimeManualCandidate,
@@ -62,9 +59,6 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
     ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: buildAnimeCoreSearchInput,
-    ),
-    provider: LibraryAddProviderSearchCapability(
-      queryBuilder: buildAnimeProviderQuery,
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
@@ -79,10 +73,6 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is AnimeProviderCandidate
-                    ? [candidate.series?.seriesTitle]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: animeStudioFilterId,
@@ -96,10 +86,6 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
                   ? [...metadata.studios, ...metadata.producers]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is AnimeProviderCandidate
-                    ? [candidate.publisher, candidate.summary]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: animeYearFilterId,
@@ -113,18 +99,9 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
                   ? [metadata.seasonYear, metadata.startDate?.year]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is AnimeProviderCandidate
-                    ? [candidate.series?.volumeStartYear]
-                    : const <Object?>[],
           ),
         ],
       ),
-      strategy:
-          LibraryAddTypedProviderSearchStrategy(searchAnimeProviderCandidates),
-      candidatePreviewLoader: loadAnimeProviderCandidatePreview,
-      kindOverridesBuilder: (context) =>
-          libraryAddKindOverridesForChrome(animeAddChrome, context),
     ),
     presentation: LibraryAddSearchPresentationCapability(
       controlsBuilder: buildLibraryAddKindFilterRow,
@@ -134,9 +111,7 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
     mediaLabel: 'Series',
     supportsSeasonScope: true,
     coreScopeForItem: animeAddResultScope,
-    providerScopeForCandidate: animeAddProviderResultScope,
     coreGroupTitleBuilder: animeAddGroupTitle,
-    providerCandidateIsGroup: animeAddProviderCandidateIsGroup,
   ),
   manualPaneBuilder: buildAnimeAddManualPane,
   chrome: animeAddChrome,
@@ -199,16 +174,6 @@ MetadataSearchQuery buildAnimeCoreSearchInput(
   );
 }
 
-String buildAnimeProviderQuery(LibraryAddSearchContext context) {
-  return buildLibraryAddSearchQuery([
-    context.query,
-    context.textValueFor(animeSeriesFilterId),
-    context.textValueFor(animeStudioFilterId),
-    context.textValueFor(animeYearFilterId),
-    context.identifierCode,
-  ]);
-}
-
 String? optionalAnimeText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
@@ -231,18 +196,6 @@ AnimeAddResultScope animeAddResultScope(CatalogSearchCandidate item) {
     ].any((value) => value?.trim().isNotEmpty == true)) {
       return AnimeAddResultScope.release;
     }
-  }
-  return AnimeAddResultScope.media;
-}
-
-AnimeAddResultScope animeAddProviderResultScope(
-  AnimeProviderCandidate candidate,
-) {
-  if (candidate.searchRole == ProviderSearchRole.season) {
-    return AnimeAddResultScope.season;
-  }
-  if (candidate.searchRole.isCollectibleRelease) {
-    return AnimeAddResultScope.release;
   }
   return AnimeAddResultScope.media;
 }

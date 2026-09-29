@@ -7,10 +7,6 @@ import 'comic_manual_candidate.dart';
 final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   kind: CatalogMediaKind.comic,
   initialDraftBuilder: ComicAddDraft.new,
-  typedProviderCandidateProjectionBuilder: (candidate) =>
-      comicCatalogTransportFromTypedCandidate(
-    candidate as ComicProviderCandidate,
-  ),
   coreCatalogProjectionBuilder: comicCatalogTransportFromCoreItem,
   manualDraftBuilder: ComicAddManualDraft.new,
   manualCandidateBuilder: buildComicManualCandidate,
@@ -66,9 +62,6 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
     ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: buildComicCoreSearchInput,
-    ),
-    provider: LibraryAddProviderSearchCapability(
-      queryBuilder: buildComicProviderQuery,
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
@@ -83,10 +76,6 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const [];
             },
-            typedProviderValues: (candidate) =>
-                candidate is ComicProviderCandidate
-                    ? [candidate.series?.seriesTitle]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: comicIssueFilterId,
@@ -98,10 +87,6 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
                   .kindMetadata;
               return metadata is ComicMedia ? [metadata.issueNumber] : const [];
             },
-            typedProviderValues: (candidate) =>
-                candidate is ComicProviderCandidate
-                    ? [candidate.issueNumber]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: comicPublisherFilterId,
@@ -115,10 +100,6 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
                   ? [metadata.publisher, metadata.imprint]
                   : const [];
             },
-            typedProviderValues: (candidate) =>
-                candidate is ComicProviderCandidate
-                    ? [candidate.publisher]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: comicYearFilterId,
@@ -136,15 +117,9 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
                     ]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is ComicProviderCandidate
-                    ? [candidate.series?.volumeStartYear]
-                    : const <Object?>[],
           ),
         ],
       ),
-      strategy: LibraryAddTypedProviderSearchStrategy(searchComicProvider),
-      candidatePreviewLoader: loadComicProviderCandidatePreview,
     ),
     coverScan: LibraryAddCoverScanCapability(
       queryBuilder: comicCoverScanQuery,
@@ -362,17 +337,6 @@ MetadataSearchQuery buildComicCoreSearchInput(
     barcode: optionalText(context.identifierCode),
     limit: limit,
   );
-}
-
-String buildComicProviderQuery(LibraryAddSearchContext context) {
-  return buildLibraryAddSearchQuery([
-    context.query,
-    context.textValueFor(comicSeriesFilterId),
-    context.textValueFor(comicIssueFilterId),
-    context.textValueFor(comicPublisherFilterId),
-    context.textValueFor(comicYearFilterId),
-    context.identifierCode,
-  ]);
 }
 
 Map<LibraryAddFilterId, LibraryAddFilterValue> comicCoverScanFilterValues(

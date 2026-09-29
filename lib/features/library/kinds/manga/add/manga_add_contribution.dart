@@ -5,10 +5,6 @@ import 'manga_manual_candidate.dart';
 final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
   kind: CatalogMediaKind.manga,
   initialDraftBuilder: MangaAddDraft.new,
-  typedProviderCandidateProjectionBuilder: (candidate) =>
-      mangaCatalogTransportFromTypedCandidate(
-    candidate as MangaProviderCandidate,
-  ),
   coreCatalogProjectionBuilder: mangaCatalogTransportFromCoreItem,
   manualDraftBuilder: MangaAddManualDraft.new,
   manualCandidateBuilder: buildMangaManualCandidate,
@@ -58,9 +54,6 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
     ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: buildMangaCoreSearchInput,
-    ),
-    provider: LibraryAddProviderSearchCapability(
-      queryBuilder: buildMangaProviderQuery,
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
@@ -75,10 +68,6 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is MangaProviderCandidate
-                    ? [candidate.series?.seriesTitle]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: mangaVolumeFilterId,
@@ -92,10 +81,6 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
                   ? [metadata.itemNumber, metadata.volumeNumber]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is MangaProviderCandidate
-                    ? [candidate.issueNumber]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: mangaPublisherFilterId,
@@ -113,10 +98,6 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
                     ]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is MangaProviderCandidate
-                    ? [candidate.publisher]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: mangaYearFilterId,
@@ -133,16 +114,9 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
                     ]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is MangaProviderCandidate
-                    ? [candidate.series?.volumeStartYear]
-                    : const <Object?>[],
           ),
         ],
       ),
-      strategy:
-          LibraryAddTypedProviderSearchStrategy(searchMangaProviderCandidates),
-      candidatePreviewLoader: loadMangaProviderCandidatePreview,
     ),
   ),
   manualPaneBuilder: buildMangaAddManualPane,
@@ -216,17 +190,6 @@ MetadataSearchQuery buildMangaCoreSearchInput(
     barcode: optionalMangaText(context.identifierCode),
     limit: limit,
   );
-}
-
-String buildMangaProviderQuery(LibraryAddSearchContext context) {
-  return buildLibraryAddSearchQuery([
-    context.query,
-    context.textValueFor(mangaSeriesFilterId),
-    context.textValueFor(mangaVolumeFilterId),
-    context.textValueFor(mangaPublisherFilterId),
-    context.textValueFor(mangaYearFilterId),
-    context.identifierCode,
-  ]);
 }
 
 String? optionalMangaText(String value) {

@@ -5,8 +5,6 @@ import '../edit/music_edit_contribution.dart';
 final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   kind: CatalogMediaKind.music,
   initialDraftBuilder: MusicAddDraft.new,
-  typedProviderCandidateProjectionBuilder:
-      musicCatalogTransportFromTypedProviderCandidate,
   coreCatalogProjectionBuilder: musicCatalogTransportFromCoreItem,
   manualDraftBuilder: MusicAddManualDraft.new,
   manualCandidateBuilder: buildMusicManualCandidate,
@@ -56,9 +54,6 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
         for (final item in items)
           if (musicAddCoreCandidateMatchesMedium(item, context)) item,
       ],
-    ),
-    provider: LibraryAddProviderSearchCapability(
-      queryBuilder: buildMusicProviderQuery,
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
@@ -70,13 +65,6 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
                   .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
               return [group.artist];
             },
-            typedProviderValues: (candidate) => [
-              switch (candidate) {
-                MusicReleaseCandidate release => release.artist,
-                MusicReleaseGroupCandidate group => group.artist,
-                _ => null,
-              },
-            ],
           ),
           LibraryAddSearchRankField(
             id: musicLabelFilterId,
@@ -87,16 +75,6 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
                   .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
               return [group.primaryRelease?.publisher];
             },
-            typedProviderValues: (candidate) => [
-              switch (candidate) {
-                MusicReleaseCandidate release => release.publisher,
-                MusicReleaseGroupCandidate group => group.releases
-                    .map((release) => release.publisher)
-                    .whereType<String>()
-                    .firstOrNull,
-                _ => null,
-              },
-            ],
           ),
           LibraryAddSearchRankField(
             id: musicYearFilterId,
@@ -110,30 +88,8 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
                 group.recordingDate?.year,
               ];
             },
-            typedProviderValues: (candidate) => [
-              switch (candidate) {
-                MusicReleaseCandidate release => release.releaseDate?.year,
-                MusicReleaseGroupCandidate group =>
-                  group.originalReleaseDate?.year,
-                _ => null,
-              },
-            ],
           ),
         ],
-      ),
-      strategy: LibraryAddContextualProviderSearchStrategy(
-          searchMusicProviderCandidatesWithContext),
-      candidatePreviewLoader: loadMusicProviderCandidatePreview,
-      resultPolicy: LibraryAddProviderResultPolicy(
-        filter: (candidates, context) => [
-          for (final candidate in candidates)
-            if (musicAddProviderCandidateMatchesMedium(candidate, context))
-              candidate,
-        ],
-        hydrationPredicate: (context) =>
-            musicAddProviderMediumQuery(context) == null &&
-            context.identifierCode.trim().isEmpty,
-        removeGroupsWithoutVisibleChildren: true,
       ),
     ),
     presentation: LibraryAddSearchPresentationCapability(
@@ -206,17 +162,6 @@ MetadataSearchQuery buildMusicCoreSearchInput(
     barcode: optionalMusicText(context.identifierCode),
     limit: limit,
   );
-}
-
-String buildMusicProviderQuery(LibraryAddSearchContext context) {
-  return buildLibraryAddSearchQuery([
-    context.query,
-    context.textValueFor(musicArtistFilterId),
-    context.textValueFor(musicLabelFilterId),
-    context.textValueFor(musicYearFilterId),
-    context.identifierCode,
-    musicAddProviderMediumQuery(context),
-  ]);
 }
 
 String? optionalMusicText(String value) {

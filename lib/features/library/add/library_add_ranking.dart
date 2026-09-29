@@ -1,15 +1,9 @@
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 typedef LibraryAddMetadataSearchScore = int Function(
   CatalogSearchCandidate item,
-  LibraryAddSearchContext context,
-);
-
-typedef LibraryAddProviderSearchScore = int Function(
-  ProviderSearchCandidate candidate,
   LibraryAddSearchContext context,
 );
 
@@ -19,66 +13,27 @@ class LibraryAddSearchRankField {
     required this.exactWeight,
     required this.containsWeight,
     required this.metadataValues,
-    this.typedProviderValues,
   });
 
   final LibraryAddFilterId id;
   final int exactWeight;
   final int containsWeight;
   final Iterable<Object?> Function(CatalogSearchCandidate item) metadataValues;
-  final Iterable<Object?> Function(ProviderSearchCandidate candidate)?
-      typedProviderValues;
 }
 
 class LibraryAddSearchRanking {
-  const LibraryAddSearchRanking({
-    required this.scoreMetadata,
-    required this.scoreProvider,
-    required this.maxScore,
-  });
+  const LibraryAddSearchRanking({required this.scoreMetadata});
 
   final LibraryAddMetadataSearchScore scoreMetadata;
-  final LibraryAddProviderSearchScore scoreProvider;
-  final int Function(LibraryAddSearchContext context) maxScore;
 
   List<CatalogSearchCandidate> rankMetadata(
     List<CatalogSearchCandidate> items,
     LibraryAddSearchContext context,
   ) {
-    if (items.length < 2 || !context.hasAnyInput) {
-      return items;
-    }
+    if (items.length < 2 || !context.hasAnyInput) return items;
     return _stableRank(items, (item) => scoreMetadata(item, context));
   }
-
-  List<ProviderSearchCandidate> rankProvider(
-    List<ProviderSearchCandidate> items,
-    LibraryAddSearchContext context,
-  ) {
-    if (items.length < 2 || !context.hasAnyInput) {
-      return items;
-    }
-    return _stableRank(items, (candidate) => scoreProvider(candidate, context));
-  }
-
-  bool shouldSearchProviderForCoreResults(
-    List<CatalogSearchCandidate> items,
-    LibraryAddSearchContext context, {
-    double confidenceThreshold = libraryAddProviderFallbackConfidenceThreshold,
-  }) {
-    if (items.isEmpty) {
-      return true;
-    }
-    final possibleScore = maxScore(context);
-    if (possibleScore <= 0) {
-      return true;
-    }
-    final confidence = scoreMetadata(items.first, context) / possibleScore;
-    return confidence < confidenceThreshold;
-  }
 }
-
-const libraryAddProviderFallbackConfidenceThreshold = 0.72;
 
 LibraryAddSearchRanking buildLibraryAddSearchRanking({
   required List<LibraryAddSearchRankField> fields,
@@ -104,44 +59,7 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
     return score;
   }
 
-  int scoreProvider(
-    ProviderSearchCandidate candidate,
-    LibraryAddSearchContext context,
-  ) {
-    var score = _scoreText(
-      candidate.title,
-      context.query,
-      exactWeight: 100,
-      containsWeight: 36,
-    );
-    for (final field in fields) {
-      final values =
-          field.typedProviderValues?.call(candidate) ?? const <Object?>[];
-      score += _scoreField(
-        context.textValueFor(field.id),
-        values,
-        exactWeight: field.exactWeight,
-        containsWeight: field.containsWeight,
-      );
-    }
-    return score;
-  }
-
-  int maxScore(LibraryAddSearchContext context) {
-    var score = context.query.trim().isEmpty ? 0 : 100;
-    for (final field in fields) {
-      if (_normalize(context.textValueFor(field.id)).isNotEmpty) {
-        score += field.exactWeight;
-      }
-    }
-    return score;
-  }
-
-  return LibraryAddSearchRanking(
-    scoreMetadata: scoreMetadata,
-    scoreProvider: scoreProvider,
-    maxScore: maxScore,
-  );
+  return LibraryAddSearchRanking(scoreMetadata: scoreMetadata);
 }
 
 List<T> _stableRank<T>(List<T> items, int Function(T item) score) {
@@ -149,9 +67,7 @@ List<T> _stableRank<T>(List<T> items, int Function(T item) score) {
   indexed.sort((left, right) {
     final leftScore = score(left.$2);
     final rightScore = score(right.$2);
-    if (leftScore != rightScore) {
-      return rightScore.compareTo(leftScore);
-    }
+    if (leftScore != rightScore) return rightScore.compareTo(leftScore);
     return left.$1.compareTo(right.$1);
   });
   return indexed.map((entry) => entry.$2).toList(growable: false);
@@ -184,12 +100,8 @@ int _scoreText(
 }) {
   final normalizedCandidate = _normalize(candidate);
   final normalizedHint = _normalize(hint);
-  if (normalizedCandidate.isEmpty || normalizedHint.isEmpty) {
-    return 0;
-  }
-  if (normalizedCandidate == normalizedHint) {
-    return exactWeight;
-  }
+  if (normalizedCandidate.isEmpty || normalizedHint.isEmpty) return 0;
+  if (normalizedCandidate == normalizedHint) return exactWeight;
   if (normalizedCandidate.contains(normalizedHint) ||
       normalizedHint.contains(normalizedCandidate)) {
     return containsWeight;
@@ -202,16 +114,15 @@ int _scoreText(
   return 0;
 }
 
-String _normalize(Object? value) {
-  return value
-          ?.toString()
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
-          .replaceAll(RegExp(r'\s+'), ' ')
-          .trim() ??
-      '';
-}
+String _normalize(Object? value) =>
+    value
+        ?.toString()
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim() ??
+    '';
 
 List<CatalogSearchCandidate> filterAndRankCatalogItems(
   List<CatalogSearchCandidate> items,
@@ -219,9 +130,7 @@ List<CatalogSearchCandidate> filterAndRankCatalogItems(
   LibraryAddSearchContext context, {
   int minimumScore = 1,
 }) {
-  if (items.isEmpty || !context.hasAnyInput) {
-    return items;
-  }
+  if (items.isEmpty || !context.hasAnyInput) return items;
   final ranked = ranking.rankMetadata(items, context);
   return [
     for (final item in ranked)

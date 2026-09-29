@@ -1,6 +1,6 @@
+import 'package:collectarr_app/features/providers/transport/provider_candidate_preview.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/providers/transport/provider_raw_envelop
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 
-Future<LibraryAddProviderCandidatePreview?> loadGameProviderCandidatePreview(
+Future<ProviderCandidatePreview?> loadGameProviderCandidatePreview(
   ProviderConnector provider,
   ProviderSearchCandidate candidate,
 ) async {
@@ -21,7 +21,7 @@ Future<LibraryAddProviderCandidatePreview?> loadGameProviderCandidatePreview(
     candidate.providerItemId,
     kind: candidate.kind,
   );
-  return LibraryAddProviderCandidatePreview(
+  return ProviderCandidatePreview(
     candidate: candidate,
     preview: providerPreviewFromGameEnvelope(envelope),
   );

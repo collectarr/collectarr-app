@@ -5,10 +5,6 @@ import 'boardgame_manual_candidate.dart';
 final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
   kind: CatalogMediaKind.boardgame,
   initialDraftBuilder: BoardgameAddDraft.new,
-  typedProviderCandidateProjectionBuilder: (candidate) =>
-      boardGameCatalogTransportFromTypedCandidate(
-    candidate as BoardGameProviderCandidate,
-  ),
   coreCatalogProjectionBuilder: boardGameCatalogTransportFromCoreItem,
   manualDraftBuilder: BoardgameAddManualDraft.new,
   manualCandidateBuilder: buildBoardgameManualCandidate,
@@ -58,9 +54,6 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
     ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: buildBoardGameCoreSearchInput,
-    ),
-    provider: LibraryAddProviderSearchCapability(
-      queryBuilder: buildBoardGameProviderQuery,
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
@@ -75,10 +68,6 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
                   ? [...metadata.designers, ...metadata.artists]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is BoardGameProviderCandidate
-                    ? [candidate.summary]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: boardGamePublisherFilterId,
@@ -92,10 +81,6 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
                   ? [...metadata.publishers, metadata.publisher]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is BoardGameProviderCandidate
-                    ? [candidate.publisher]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: boardGameYearFilterId,
@@ -109,16 +94,9 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
                   ? [metadata.yearPublished]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is BoardGameProviderCandidate
-                    ? [candidate.series?.volumeStartYear]
-                    : const <Object?>[],
           ),
         ],
       ),
-      strategy: LibraryAddTypedProviderSearchStrategy(
-          searchBoardGameProviderCandidates),
-      candidatePreviewLoader: loadBoardGameProviderCandidatePreview,
     ),
   ),
   manualPaneBuilder: buildBoardgameAddManualPane,
@@ -179,16 +157,6 @@ MetadataSearchQuery buildBoardGameCoreSearchInput(
     barcode: optionalBoardGameText(context.identifierCode),
     limit: limit,
   );
-}
-
-String buildBoardGameProviderQuery(LibraryAddSearchContext context) {
-  return buildLibraryAddSearchQuery([
-    context.query,
-    context.textValueFor(boardGameDesignerFilterId),
-    context.textValueFor(boardGamePublisherFilterId),
-    context.textValueFor(boardGameYearFilterId),
-    context.identifierCode,
-  ]);
 }
 
 String? optionalBoardGameText(String value) {

@@ -5,10 +5,6 @@ import 'movie_manual_candidate.dart';
 final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   kind: CatalogMediaKind.movie,
   initialDraftBuilder: MovieAddDraft.new,
-  typedProviderCandidateProjectionBuilder: (candidate) =>
-      movieCatalogTransportFromTypedCandidate(
-    candidate as MovieProviderCandidate,
-  ),
   coreCatalogProjectionBuilder: movieCatalogTransportFromCoreItem,
   manualDraftBuilder: MovieAddManualDraft.new,
   manualCandidateBuilder: buildMovieManualCandidate,
@@ -72,9 +68,6 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
     ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: buildMovieCoreSearchInput,
-    ),
-    provider: LibraryAddProviderSearchCapability(
-      queryBuilder: buildMovieProviderQuery,
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
@@ -89,10 +82,6 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is MovieProviderCandidate
-                    ? [candidate.series?.seriesTitle]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: movieYearFilterId,
@@ -106,18 +95,9 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
                   ? [metadata.releaseDate?.year]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) =>
-                candidate is MovieProviderCandidate
-                    ? [candidate.series?.volumeStartYear]
-                    : const <Object?>[],
           ),
         ],
       ),
-      strategy:
-          LibraryAddTypedProviderSearchStrategy(searchMovieProviderCandidates),
-      candidatePreviewLoader: loadMovieProviderCandidatePreview,
-      kindOverridesBuilder: (context) =>
-          libraryAddKindOverridesForChrome(movieAddChrome, context),
     ),
     presentation: LibraryAddSearchPresentationCapability(
       controlsBuilder: buildLibraryAddKindFilterRow,
@@ -127,9 +107,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
     mediaLabel: 'Media',
     supportsSeasonScope: false,
     coreScopeForItem: movieAddResultScope,
-    providerScopeForCandidate: movieAddProviderResultScope,
     coreGroupTitleBuilder: movieAddGroupTitle,
-    providerCandidateIsGroup: movieAddProviderCandidateIsGroup,
   ),
 );
 
@@ -171,15 +149,6 @@ MetadataSearchQuery buildMovieCoreSearchInput(
   );
 }
 
-String buildMovieProviderQuery(LibraryAddSearchContext context) {
-  return buildLibraryAddSearchQuery([
-    context.query,
-    context.textValueFor(movieCollectionFilterId),
-    context.textValueFor(movieYearFilterId),
-    context.identifierCode,
-  ]);
-}
-
 String? optionalMovieText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
@@ -197,15 +166,6 @@ MovieAddResultScope movieAddResultScope(CatalogSearchCandidate item) {
         metadata.barcode,
         metadata.variant,
       ].any((value) => value?.trim().isNotEmpty == true)) {
-    return MovieAddResultScope.release;
-  }
-  return MovieAddResultScope.media;
-}
-
-MovieAddResultScope movieAddProviderResultScope(
-  MovieProviderCandidate candidate,
-) {
-  if (candidate.searchRole.isCollectibleRelease) {
     return MovieAddResultScope.release;
   }
   return MovieAddResultScope.media;

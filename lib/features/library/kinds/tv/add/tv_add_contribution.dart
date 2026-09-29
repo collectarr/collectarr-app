@@ -5,8 +5,6 @@ import 'tv_manual_candidate.dart';
 final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   kind: CatalogMediaKind.tv,
   initialDraftBuilder: TvAddDraft.new,
-  typedProviderCandidateProjectionBuilder: (candidate) =>
-      tvCatalogTransportFromTypedCandidate(candidate as TvProviderCandidate),
   coreCatalogProjectionBuilder: tvCatalogTransportFromCoreItem,
   manualDraftBuilder: TvAddManualDraft.new,
   manualCandidateBuilder: buildTvManualCandidate,
@@ -61,9 +59,6 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
     ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: buildTvCoreSearchInput,
-    ),
-    provider: LibraryAddProviderSearchCapability(
-      queryBuilder: buildTvProviderQuery,
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
@@ -78,9 +73,6 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) => candidate is TvProviderCandidate
-                ? [candidate.series?.seriesTitle]
-                : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: tvNetworkFilterId,
@@ -98,9 +90,6 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
                     ]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) => candidate is TvProviderCandidate
-                ? [candidate.publisher, candidate.summary]
-                : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: tvYearFilterId,
@@ -117,17 +106,9 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
                     ]
                   : const <Object?>[];
             },
-            typedProviderValues: (candidate) => candidate is TvProviderCandidate
-                ? [candidate.series?.volumeStartYear]
-                : const <Object?>[],
           ),
         ],
       ),
-      strategy:
-          LibraryAddTypedProviderSearchStrategy(searchTvProviderCandidates),
-      candidatePreviewLoader: loadTvProviderCandidatePreview,
-      kindOverridesBuilder: (context) =>
-          libraryAddKindOverridesForChrome(tvAddChrome, context),
     ),
     presentation: LibraryAddSearchPresentationCapability(
       controlsBuilder: buildLibraryAddKindFilterRow,
@@ -137,9 +118,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
     mediaLabel: 'Series',
     supportsSeasonScope: true,
     coreScopeForItem: tvAddResultScope,
-    providerScopeForCandidate: tvAddProviderResultScope,
     coreGroupTitleBuilder: tvAddGroupTitle,
-    providerCandidateIsGroup: tvAddProviderCandidateIsGroup,
   ),
   manualPaneBuilder: buildTvAddManualPane,
   chrome: tvAddChrome,
@@ -204,16 +183,6 @@ MetadataSearchQuery buildTvCoreSearchInput(
   );
 }
 
-String buildTvProviderQuery(LibraryAddSearchContext context) {
-  return buildLibraryAddSearchQuery([
-    context.query,
-    context.textValueFor(tvShowFilterId),
-    context.textValueFor(tvNetworkFilterId),
-    context.textValueFor(tvYearFilterId),
-    context.identifierCode,
-  ]);
-}
-
 String? optionalTvText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
@@ -236,18 +205,6 @@ TvAddResultScope tvAddResultScope(CatalogSearchCandidate item) {
     ].any((value) => value?.trim().isNotEmpty == true)) {
       return TvAddResultScope.release;
     }
-  }
-  return TvAddResultScope.media;
-}
-
-TvAddResultScope tvAddProviderResultScope(
-  TvProviderCandidate candidate,
-) {
-  if (candidate.searchRole == ProviderSearchRole.season) {
-    return TvAddResultScope.season;
-  }
-  if (candidate.searchRole.isCollectibleRelease) {
-    return TvAddResultScope.release;
   }
   return TvAddResultScope.media;
 }

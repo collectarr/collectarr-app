@@ -1,5 +1,5 @@
+import 'package:collectarr_app/features/providers/transport/provider_candidate_preview.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_search_filters.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/providers/transport/provider_search_cand
 import 'package:collectarr_app/features/providers/domain/models/provider_image_candidate.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 
-Future<LibraryAddProviderCandidatePreview?> loadMusicProviderCandidatePreview(
+Future<ProviderCandidatePreview?> loadMusicProviderCandidatePreview(
   ProviderConnector provider,
   ProviderSearchCandidate candidate,
 ) async {
@@ -23,7 +23,7 @@ Future<LibraryAddProviderCandidatePreview?> loadMusicProviderCandidatePreview(
   final musicMetadata = typedMetadata;
   if (candidate case final MusicReleaseCandidate release) {
     if (release.isHydrated) {
-      return LibraryAddProviderCandidatePreview(
+      return ProviderCandidatePreview(
         candidate: candidate,
         preview: providerPreviewFromMusicReleaseCandidate(release),
       );
@@ -31,12 +31,12 @@ Future<LibraryAddProviderCandidatePreview?> loadMusicProviderCandidatePreview(
     final envelope = await musicMetadata.fetchCandidate(release.providerItemId);
     final hydrated = envelope.payload;
     if (hydrated is MusicReleaseCandidate) {
-      return LibraryAddProviderCandidatePreview(
+      return ProviderCandidatePreview(
         candidate: hydrated,
         preview: providerPreviewFromMusicReleaseCandidate(hydrated),
       );
     }
-    return LibraryAddProviderCandidatePreview(
+    return ProviderCandidatePreview(
       candidate: candidate,
       preview: providerPreviewFromMusicReleaseCandidate(release),
     );
@@ -45,12 +45,12 @@ Future<LibraryAddProviderCandidatePreview?> loadMusicProviderCandidatePreview(
     final envelope = await musicMetadata.fetchCandidate(group.providerItemId);
     final hydrated = envelope.payload;
     if (hydrated is MusicReleaseGroupCandidate) {
-      return LibraryAddProviderCandidatePreview(
+      return ProviderCandidatePreview(
         candidate: hydrated,
         preview: providerPreviewFromMusicReleaseGroupCandidate(hydrated),
       );
     }
-    return LibraryAddProviderCandidatePreview(
+    return ProviderCandidatePreview(
       candidate: candidate,
       preview: providerPreviewFromMusicReleaseGroupCandidate(group),
     );

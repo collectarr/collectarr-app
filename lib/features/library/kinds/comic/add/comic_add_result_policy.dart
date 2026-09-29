@@ -1,9 +1,6 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add/comic_search_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 
 const comicAddHideOwnedOptionId = 'comic.hide-owned';
 const comicAddHideVariantsOptionId = 'comic.hide-variants';
@@ -41,23 +38,7 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
     }
     return true;
   },
-  typedProviderResultVisibility: (candidate, context) {
-    return candidate is! ComicProviderCandidate ||
-        !(context.optionIsEnabled(comicAddHideVariantsOptionId) &&
-            candidate.searchRole == ProviderSearchRole.variant);
-  },
   coreGroupTitleBuilder: _comicGroupTitle,
-  typedProviderGroupTitleBuilder: (candidate) =>
-      candidate is ComicProviderCandidate
-          ? _comicProviderGroupTitle(candidate)
-          : candidate.title,
-  typedProviderCandidateIsGroup: (candidate) =>
-      candidate is ComicProviderCandidate &&
-      _comicProviderCandidateIsGroup(candidate),
-  typedProviderCandidateComparator: (left, right) =>
-      left is ComicProviderCandidate && right is ComicProviderCandidate
-          ? compareComicIssueCandidates(left, right)
-          : left.title.toLowerCase().compareTo(right.title.toLowerCase()),
 );
 
 bool _comicItemIsVariant(CatalogSearchCandidate item) {
@@ -77,29 +58,4 @@ String _comicGroupTitle(CatalogSearchCandidate item) {
     }
   }
   return item.summary.primaryLabel;
-}
-
-String _comicProviderGroupTitle(ComicProviderCandidate candidate) {
-  final seriesTitle = candidate.series?.seriesTitle?.trim();
-  if (seriesTitle != null && seriesTitle.isNotEmpty) {
-    return seriesTitle;
-  }
-  return candidate.title.trim();
-}
-
-bool _comicProviderCandidateIsGroup(ComicProviderCandidate candidate) {
-  return switch (candidate.searchRole) {
-    ProviderSearchRole.work ||
-    ProviderSearchRole.releaseGroup ||
-    ProviderSearchRole.series ||
-    ProviderSearchRole.volume =>
-      true,
-    ProviderSearchRole.issue ||
-    ProviderSearchRole.variant ||
-    ProviderSearchRole.release ||
-    ProviderSearchRole.edition ||
-    ProviderSearchRole.season ||
-    ProviderSearchRole.episode =>
-      false,
-  };
 }
