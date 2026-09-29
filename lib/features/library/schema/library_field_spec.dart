@@ -2,6 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
+typedef LibraryVocabularyValueChanged = void Function({
+  required String fieldId,
+  required String? listName,
+  required String? value,
+});
+
+typedef LibraryVocabularyValuesChanged = void Function({
+  required String fieldId,
+  required String? listName,
+  required Set<String> values,
+});
+
 typedef LibraryFieldVisibility<TDraft> = bool Function(TDraft draft);
 typedef LibraryFieldValidator<TDraft> = String? Function(TDraft draft);
 

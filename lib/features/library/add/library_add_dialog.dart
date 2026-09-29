@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_contracts.dart';
@@ -100,6 +101,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   bool _isClosing = false;
   bool _manualDialogOpen = false;
   bool _hasOpenedManualDialog = false;
+  final Map<String, ({String listName, Set<String> values})>
+      _manualVocabularyValues = {};
 
   void _closeDialog([LibraryAddDialogResult? result]) {
     if (!mounted || _isClosing) return;
@@ -239,6 +242,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (oldWidget.type.kind != widget.type.kind) {
       _manualDraft.dispose();
       _hasOpenedManualDialog = false;
+      _manualVocabularyValues.clear();
       _manualDraft = LibraryAddManualDraft(
         customFieldValues: widget.customFieldValues,
         itemImages: widget.itemImages,
@@ -417,7 +421,66 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             .toList();
         _notifyManualDraftChanged();
       },
+      onVocabularyValueChanged: _recordManualVocabularyValue,
+      onVocabularyValuesChanged: _recordManualVocabularyValues,
     );
+  }
+
+  void _recordManualVocabularyValue({
+    required String fieldId,
+    required String? listName,
+    required String? value,
+  }) {
+    if (listName == null || value == null || value.trim().isEmpty) {
+      _manualVocabularyValues.remove(fieldId);
+      return;
+    }
+    _manualVocabularyValues[fieldId] = (
+      listName: listName,
+      values: {value.trim()},
+    );
+  }
+
+  void _recordManualVocabularyValues({
+    required String fieldId,
+    required String? listName,
+    required Set<String> values,
+  }) {
+    final customValues = values
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toSet();
+    if (listName == null || customValues.isEmpty) {
+      _manualVocabularyValues.remove(fieldId);
+      return;
+    }
+    _manualVocabularyValues[fieldId] = (
+      listName: listName,
+      values: customValues,
+    );
+  }
+
+  Future<void> _persistManualVocabularyValues() async {
+    if (_manualVocabularyValues.isEmpty) return;
+    final valuesByList = <String, Set<String>>{};
+    for (final pending in _manualVocabularyValues.values) {
+      final values = valuesByList.putIfAbsent(
+        pending.listName,
+        () => <String>{},
+      );
+      values.addAll(pending.values);
+    }
+    final repository = PickListRepository(ref.read(localDatabaseProvider));
+    for (final entry in valuesByList.entries) {
+      for (final value in entry.value) {
+        await repository.addValue(
+          entry.key,
+          value,
+          mediaKind: widget.type.kind.apiValue,
+        );
+      }
+    }
+    _manualVocabularyValues.clear();
   }
 
   void _notifyManualDraftChanged() {
@@ -458,6 +521,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         catalogItem: catalogItem,
         source: 'Manual Add form',
       );
+      await _persistManualVocabularyValues();
       if (!mounted) return;
       showAppToast(
         context,
@@ -537,7 +601,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
     if (!mounted) return null;
     final success = await _controller.submitSelectedItem(candidate);
-    if (success && mounted) return candidate.reference.id;
+    if (success && mounted) {
+      await _persistManualVocabularyValues();
+      return candidate.reference.id;
+    }
     if (mounted) {
       final error = _controller.state.submitState.error;
       _controller.reportSubmissionError(

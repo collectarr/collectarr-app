@@ -212,6 +212,9 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       formContent: AddSchemaRenderer<ComicAddManualDraft>.embedded(
         schema: schema,
         draft: comicDraft,
+        mediaKind: request.kind.apiValue,
+        onVocabularyValueChanged: request.onVocabularyValueChanged,
+        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
       ),
     );
   }

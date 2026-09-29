@@ -20,18 +20,6 @@ import 'library_field_spec.dart';
 
 enum LibraryFieldSpecControlMode { add, edit }
 
-typedef LibraryVocabularyValueChanged = void Function({
-  required String fieldId,
-  required String? listName,
-  required String? value,
-});
-
-typedef LibraryVocabularyValuesChanged = void Function({
-  required String fieldId,
-  required String? listName,
-  required Set<String> values,
-});
-
 /// Builds the controls described by a field spec for both Add and Edit forms.
 ///
 /// The two form renderers still own their layout and submission lifecycle.

@@ -183,6 +183,9 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
       formContent: AddSchemaRenderer<MangaAddManualDraft>.embedded(
         schema: schema,
         draft: draft,
+        mediaKind: request.kind.apiValue,
+        onVocabularyValueChanged: request.onVocabularyValueChanged,
+        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
       ),
     );
   }

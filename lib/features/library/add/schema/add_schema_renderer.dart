@@ -26,6 +26,8 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
         title: title,
         submitLabel: submitLabel,
         mediaKind: mediaKind,
+        onVocabularyValueChanged: null,
+        onVocabularyValuesChanged: null,
         embedded: false,
       );
 
@@ -35,6 +37,8 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
     required TDraft draft,
     String? title,
     String? mediaKind,
+    LibraryVocabularyValueChanged? onVocabularyValueChanged,
+    LibraryVocabularyValuesChanged? onVocabularyValuesChanged,
   }) : this._(
           key: key,
           schema: schema,
@@ -43,6 +47,8 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
           onCancel: null,
           title: title,
           mediaKind: mediaKind,
+          onVocabularyValueChanged: onVocabularyValueChanged,
+          onVocabularyValuesChanged: onVocabularyValuesChanged,
           submitLabel: 'Add',
           embedded: true,
         );
@@ -55,6 +61,8 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
     required this.onCancel,
     required this.title,
     required this.mediaKind,
+    required this.onVocabularyValueChanged,
+    required this.onVocabularyValuesChanged,
     required this.submitLabel,
     required bool embedded,
   }) : _embedded = embedded;
@@ -66,6 +74,8 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
   final String? title;
   final String submitLabel;
   final String? mediaKind;
+  final LibraryVocabularyValueChanged? onVocabularyValueChanged;
+  final LibraryVocabularyValuesChanged? onVocabularyValuesChanged;
   final bool _embedded;
 
   @override
@@ -201,9 +211,13 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
       LibraryFieldSpecControlBuilder<TDraft>(
         context: context,
         draft: widget.draft,
-        mode: LibraryFieldSpecControlMode.add,
+        mode: widget._embedded
+            ? LibraryFieldSpecControlMode.edit
+            : LibraryFieldSpecControlMode.add,
         controllerFor: _controllerFor,
         mediaKind: widget.mediaKind,
+        onVocabularyValueChanged: widget.onVocabularyValueChanged,
+        onVocabularyValuesChanged: widget.onVocabularyValuesChanged,
         onChanged: () {
           if (mounted) setState(() => _validationError = null);
         },

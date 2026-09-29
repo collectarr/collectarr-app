@@ -32,6 +32,9 @@ class TvAddManualPane extends StatelessWidget {
       formContent: AddSchemaRenderer<TvAddManualDraft>.embedded(
         schema: tvAddSchema,
         draft: draft,
+        mediaKind: request.kind.apiValue,
+        onVocabularyValueChanged: request.onVocabularyValueChanged,
+        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
       ),
     );
   }

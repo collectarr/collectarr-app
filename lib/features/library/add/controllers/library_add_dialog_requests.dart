@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
 import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 
 // Pluggable pane builder typedefs and their request payloads for the
 // library add dialog. Extracted from library_add_dialog.dart to keep the
@@ -80,6 +81,8 @@ class LibraryAddManualPaneRequest {
     this.onCustomFieldValuesChanged,
     this.itemImages = const [],
     this.onItemImagesChanged,
+    this.onVocabularyValueChanged,
+    this.onVocabularyValuesChanged,
   });
 
   final CatalogMediaKind kind;
@@ -117,6 +120,8 @@ class LibraryAddManualPaneRequest {
   final ValueChanged<Map<String, String?>>? onCustomFieldValuesChanged;
   final List<ItemImage> itemImages;
   final ValueChanged<List<ItemImageEdit>>? onItemImagesChanged;
+  final LibraryVocabularyValueChanged? onVocabularyValueChanged;
+  final LibraryVocabularyValuesChanged? onVocabularyValuesChanged;
 
   TDraft manualDraftAs<TDraft extends LibraryKindAddDraft>() =>
       manualDraft as TDraft;

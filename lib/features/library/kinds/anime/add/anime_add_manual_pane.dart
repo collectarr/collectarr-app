@@ -32,6 +32,9 @@ class AnimeAddManualPane extends StatelessWidget {
       formContent: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
         schema: animeAddSchema,
         draft: draft,
+        mediaKind: request.kind.apiValue,
+        onVocabularyValueChanged: request.onVocabularyValueChanged,
+        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
       ),
     );
   }

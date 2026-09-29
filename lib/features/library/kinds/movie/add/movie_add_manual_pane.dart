@@ -33,6 +33,9 @@ class MovieAddManualPane extends StatelessWidget {
       formContent: AddSchemaRenderer<MovieAddManualDraft>.embedded(
         schema: movieAddSchema,
         draft: draft,
+        mediaKind: request.kind.apiValue,
+        onVocabularyValueChanged: request.onVocabularyValueChanged,
+        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
       ),
     );
   }

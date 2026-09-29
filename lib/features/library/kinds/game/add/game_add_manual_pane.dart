@@ -32,6 +32,9 @@ class GameAddManualPane extends StatelessWidget {
       formContent: AddSchemaRenderer<GameAddManualDraft>.embedded(
         schema: gameAddSchema,
         draft: draft,
+        mediaKind: request.kind.apiValue,
+        onVocabularyValueChanged: request.onVocabularyValueChanged,
+        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
       ),
     );
   }

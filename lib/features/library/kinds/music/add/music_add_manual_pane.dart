@@ -33,7 +33,9 @@ class MusicAddManualPane extends StatelessWidget {
       formContent: AddSchemaRenderer<MusicAddManualDraft>.embedded(
         schema: musicAddSchema,
         draft: draft,
-        mediaKind: 'music',
+        mediaKind: request.kind.apiValue,
+        onVocabularyValueChanged: request.onVocabularyValueChanged,
+        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
       ),
     );
   }

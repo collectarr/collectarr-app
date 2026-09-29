@@ -33,6 +33,9 @@ class BoardgameAddManualPane extends StatelessWidget {
       formContent: AddSchemaRenderer<BoardgameAddManualDraft>.embedded(
         schema: boardGameAddSchema,
         draft: draft,
+        mediaKind: request.kind.apiValue,
+        onVocabularyValueChanged: request.onVocabularyValueChanged,
+        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
       ),
     );
   }
