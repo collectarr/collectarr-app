@@ -127,8 +127,6 @@ String mangaChildrenTitle(int count) => 'Volumes ($count)';
 Future<List<LibraryHierarchyNode>> fetchMangaVolumes({
   required ApiClient api,
   required String itemId,
-  String? provider,
-  String? providerItemId,
 }) async {
   final work =
       await api.getMangaWorkDto(itemId).timeout(const Duration(seconds: 60));

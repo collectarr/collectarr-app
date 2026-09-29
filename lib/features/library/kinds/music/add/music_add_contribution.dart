@@ -106,8 +106,6 @@ String musicChildrenTitle(int count) => 'Discs ($count)';
 Future<List<LibraryHierarchyNode>> fetchMusicTracks({
   required ApiClient api,
   required String itemId,
-  String? provider,
-  String? providerItemId,
 }) async {
   final groupDto = await api
       .getMusicReleaseGroupDto(itemId)

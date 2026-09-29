@@ -5,7 +5,5 @@ abstract interface class LibraryHierarchyDataCapability {
   Future<List<LibraryHierarchyNode>> fetchChildren({
     required ApiClient api,
     required String itemId,
-    String? provider,
-    String? providerItemId,
   });
 }

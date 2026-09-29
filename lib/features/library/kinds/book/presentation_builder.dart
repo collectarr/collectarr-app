@@ -413,7 +413,6 @@ class BookLibraryMediaPresentationBuilder
       sections.add(
         HierarchyChildrenSection(
           itemId: item.node.workId,
-          canHydrateFromCore: true,
           kind: CatalogMediaKind.book,
         ),
       );

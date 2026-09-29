@@ -10,26 +10,13 @@ class HierarchyChildrenSection extends ConsumerWidget {
   const HierarchyChildrenSection({
     super.key,
     required this.kind,
+    required this.itemId,
     this.title,
-    this.provider,
-    this.providerItemId,
-    this.itemId,
-    this.canHydrateFromCore = false,
-  })  : assert(
-          itemId != null || (provider != null && providerItemId != null),
-          'Provide itemId or provider + providerItemId.',
-        ),
-        assert(
-          itemId == null || (provider == null && providerItemId == null),
-          'Use either itemId or provider + providerItemId.',
-        );
+  });
 
   final CatalogMediaKind kind;
+  final String itemId;
   final String? title;
-  final String? provider;
-  final String? providerItemId;
-  final String? itemId;
-  final bool canHydrateFromCore;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,9 +24,6 @@ class HierarchyChildrenSection extends ConsumerWidget {
       libraryHierarchyProvider((
         kind: kind,
         itemId: itemId,
-        provider: provider,
-        providerItemId: providerItemId,
-        canHydrateFromCore: canHydrateFromCore,
       )),
     );
 
