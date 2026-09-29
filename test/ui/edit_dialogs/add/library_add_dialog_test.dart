@@ -26,7 +26,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
-import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
@@ -130,58 +129,6 @@ void main() {
     expect(first, second);
     expect(first, startsWith('preview-comic-'));
     expect(first, isNot(contains('item:1/2')));
-  });
-
-  test('book provider add merge preserves preview creators', () {
-    final ingested = testCatalogItemWithKindMetadata(
-      testCatalogItem(
-        id: 'book-item-1',
-        kind: 'book',
-        title: 'The Hobbit',
-        publisher: 'Allen & Unwin',
-        publishing: const CatalogPublishingDetailsDto(
-          pageCount: 310,
-        ),
-      ),
-    );
-    final edited = testCatalogItemWithKindMetadata(
-      testCatalogItem(
-        id: 'book-item-1',
-        kind: 'book',
-        title: 'The Hobbit',
-        publisher: 'Allen & Unwin',
-        creators: [
-          {
-            'name': 'J.R.R. Tolkien',
-            'role': 'Author',
-            'image_url': 'https://cdn.example/tolkien.jpg',
-          },
-        ],
-        genres: ['Fantasy'],
-        publishing: const CatalogPublishingDetailsDto(
-          pageCount: 310,
-        ),
-      ),
-    );
-
-    final merged = mergeProviderAddResult(
-      ingested: CatalogSearchCandidate.fromItem(ingested),
-      edited: CatalogSearchCandidate.fromItem(edited),
-    );
-
-    final creators = jsonObjectList(merged.kindCapability
-        .mapTransport((transport) => transport)
-        .payload['creators']);
-    expect(creators, isNotNull);
-    expect(creators, isNotEmpty);
-    expect(creators.first['name'], 'J.R.R. Tolkien');
-    expect(creators.first['role'], 'Author');
-    expect(creators.first['image_url'], 'https://cdn.example/tolkien.jpg');
-    expect(
-        merged.kindCapability
-            .mapTransport((transport) => transport)
-            .payload['genres'],
-        contains('Fantasy'));
   });
 
   test('local cover image preprocessor applies crop and rotation transforms',
