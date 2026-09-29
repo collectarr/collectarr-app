@@ -39,20 +39,25 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
   int? limit,
   CancelToken? cancelToken,
 }) async {
-  final rows = await api.searchMetadata(
-    libraryMetadataSearchQuery(
-      kind,
-      query: query,
-      series: series,
-      issueNumber: issueNumber,
-      publisher: publisher,
-      year: year,
-      barcode: barcode,
-      limit: limit,
-    ),
-    cancelToken: cancelToken,
+  final capability = libraryMetadataForKind(kind);
+  final input = libraryMetadataSearchQuery(
+    kind,
+    query: query,
+    series: series,
+    issueNumber: issueNumber,
+    publisher: publisher,
+    year: year,
+    barcode: barcode,
+    limit: limit,
   );
-  final decoder = libraryMetadataForKind(kind).catalogMetadataDecoder;
+  final rows = capability.catalogSearchBuilder == null
+      ? await api.searchMetadata(input, cancelToken: cancelToken)
+      : await capability.catalogSearchBuilder!(
+          api: api,
+          query: input,
+          cancelToken: cancelToken,
+        );
+  final decoder = capability.catalogMetadataDecoder;
   return [
     for (final row in rows)
       CatalogSearchCandidate.fromApiJson(
@@ -98,13 +103,29 @@ Future<CatalogSearchCandidate> lookupLibraryBarcode(
       'Barcode is not supported for ${kind.apiValue}: $barcode',
     );
   }
-  final decoder = libraryMetadataForKind(kind).catalogMetadataDecoder;
+  final capability = libraryMetadataForKind(kind);
+  final searchBuilder = capability.catalogSearchBuilder;
+  final row = searchBuilder == null
+      ? await api.lookupBarcode(
+          resolvedBarcode,
+          kind: kind.apiValue,
+          cancelToken: cancelToken,
+        )
+      : (await searchBuilder(
+          api: api,
+          query: MetadataSearchQuery(
+            kind: kind.apiValue,
+            barcode: resolvedBarcode,
+            limit: 1,
+          ),
+          cancelToken: cancelToken,
+        ))
+          .firstOrNull;
+  if (row == null) {
+    throw StateError('Core found no catalog item for barcode $resolvedBarcode.');
+  }
   return CatalogSearchCandidate.fromApiJson(
-    json: await api.lookupBarcode(
-      resolvedBarcode,
-      kind: kind.apiValue,
-      cancelToken: cancelToken,
-    ),
-    metadataDecoder: decoder,
+    json: row,
+    metadataDecoder: capability.catalogMetadataDecoder,
   );
 }

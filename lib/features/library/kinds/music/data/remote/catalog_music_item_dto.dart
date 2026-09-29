@@ -218,6 +218,24 @@ final class CatalogMusicItemDto {
         if (discs.isNotEmpty)
           'discs': discs.map((disc) => disc.toJson()).toList(),
       };
+
+  /// Projects one flat Music item into the shared catalog search envelope.
+  ///
+  /// Music-specific fields stay owned by this DTO; the shared candidate only
+  /// receives the generic envelope plus the untouched Music payload.
+  Map<String, dynamic> toSearchJson() => {
+        'id': id,
+        'kind': 'music',
+        'title': title,
+        if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+        if (thumbnailImageUrl != null)
+          'thumbnail_image_url': thumbnailImageUrl,
+        if (releaseDate != null) 'release_date': releaseDate,
+        if (releaseDateParts != null)
+          'release_date_parts': releaseDateParts,
+        if (revision > 0) 'revision': revision,
+        'music': toProposalData(),
+      };
 }
 
 final class CatalogMusicDiscDto {

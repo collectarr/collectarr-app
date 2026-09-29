@@ -1,7 +1,16 @@
 import 'package:flutter/widgets.dart';
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+import 'package:dio/dio.dart';
+
+typedef LibraryMetadataCatalogSearchBuilder =
+    Future<List<Map<String, dynamic>>> Function({
+  required ApiClient api,
+  required MetadataSearchQuery query,
+  CancelToken? cancelToken,
+});
 
 typedef LibraryMetadataSearchQueryBuilder = MetadataSearchQuery Function({
   required LibraryWorkspaceSource source,
@@ -26,12 +35,14 @@ class LibraryMetadataCapability {
     this.supportsServerCompare = false,
     this.compareBuilder,
     this.searchQueryBuilder,
+    this.catalogSearchBuilder,
   });
 
   final LibraryMetadataCatalogDecoder catalogMetadataDecoder;
   final bool supportsServerCompare;
   final MetadataCompareBuilder? compareBuilder;
   final LibraryMetadataSearchQueryBuilder? searchQueryBuilder;
+  final LibraryMetadataCatalogSearchBuilder? catalogSearchBuilder;
 
   MetadataSearchQuery searchQueryFor({
     required LibraryWorkspaceSource source,

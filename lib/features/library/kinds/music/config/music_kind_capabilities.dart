@@ -69,8 +69,9 @@ final musicKindIdentity = const LibraryKindIdentity(
 );
 
 final musicKindMetadata = const LibraryMetadataCapability(
-  catalogMetadataDecoder: MusicReleaseGroup.fromJson,
+  catalogMetadataDecoder: MusicCatalogMapper.decodeMetadataPayload,
   searchQueryBuilder: musicMetadataSearchQuery,
+  catalogSearchBuilder: searchMusicCatalogItems,
   supportsServerCompare: true,
   compareBuilder: buildMusicMetadataComparePanels,
 );
