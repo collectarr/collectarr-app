@@ -1,5 +1,3 @@
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
@@ -11,7 +9,6 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -185,22 +182,6 @@ abstract class LibraryMediaPresentationBuilder {
   String buildAddPreviewTitle({required CatalogSearchCandidate item}) =>
       item.summary.primaryLabel;
 
-  CatalogSearchCandidate mergeProviderAddResult({
-    required CatalogSearchCandidate ingested,
-    required CatalogSearchCandidate edited,
-  });
-
-  /// Serializes a provider proposal using the selected kind's catalog schema.
-  ///
-  /// Mixed hosts pass the returned payload through without decoding catalog
-  /// fields themselves.
-  Map<String, dynamic> buildProviderProposalPayload({
-    required CatalogSearchCandidate item,
-  }) =>
-      throw UnsupportedError(
-        'This library kind does not support provider metadata proposals.',
-      );
-
   /// Provides the kind-owned catalog description shown by generic Add chrome.
   String? buildAddPreviewSynopsis({required CatalogSearchCandidate item}) =>
       null;
@@ -240,25 +221,6 @@ abstract class LibraryMediaPresentationBuilder {
   }) =>
       const [];
 
-  List<(String, String?)> buildAddPreviewMetadataRowsForCandidate({
-    required ProviderSearchCandidate candidate,
-    required LibraryMediaPreviewLabels previewLabels,
-  }) =>
-      const [];
-
-  List<(String, String?)> buildAddPreviewMetadataRowsForSearchCandidate({
-    required ProviderSearchCandidate candidate,
-    required LibraryMediaPreviewLabels previewLabels,
-  }) {
-    return const [];
-  }
-
-  List<(String, String?)> buildAddPreviewMetadataRowsForFullPreview({
-    required AdminProviderPreview preview,
-    required LibraryMediaPreviewLabels previewLabels,
-  }) =>
-      const [];
-
   List<LibraryGroupModeCategory>? buildGroupModeCategories(
     List<String> modes,
   ) =>
@@ -268,112 +230,6 @@ abstract class LibraryMediaPresentationBuilder {
     required CatalogSearchCandidate item,
   }) {
     return null;
-  }
-
-  /// Expands a provider-owned structural group preview into the concrete
-  /// provider candidates that should appear under that group in Add.
-  ///
-  /// The default is empty because most provider candidates have no child
-  /// collection to project. Kinds with grouped provider results can override
-  /// this at their typed presentation boundary.
-  List<ProviderSearchCandidate> buildProviderGroupPreviewChildren({
-    required ProviderSearchCandidate groupCandidate,
-    required AdminProviderPreview preview,
-  }) {
-    return const [];
-  }
-
-  List<ProviderSearchCandidate>
-      buildProviderGroupPreviewChildrenForSearchCandidate({
-    required ProviderSearchCandidate groupCandidate,
-    required AdminProviderPreview preview,
-  }) {
-    return const [];
-  }
-
-  Widget? buildAddPreviewPane({
-    required BuildContext context,
-    required Color accent,
-    required String singularLabel,
-    required LibraryMediaPreviewLabels previewLabels,
-    required CatalogSearchCandidate? item,
-    required ProviderSearchCandidate? candidate,
-    required AdminProviderPreview? preview,
-    required bool isFetchingPreview,
-    required String providerLabel,
-  }) {
-    return null;
-  }
-
-  /// Typed kinds may render a Core-backed item without accepting the legacy
-  /// all-kinds provider candidate as an input. Provider-backed previews use
-  /// [buildAddPreviewPaneForSearchCandidate] below.
-  Widget? buildAddPreviewPaneForCoreItem({
-    required BuildContext context,
-    required Color accent,
-    required String singularLabel,
-    required LibraryMediaPreviewLabels previewLabels,
-    required CatalogSearchCandidate? item,
-    required AdminProviderPreview? preview,
-    required bool isFetchingPreview,
-    required String providerLabel,
-  }) {
-    return buildAddPreviewPane(
-      context: context,
-      accent: accent,
-      singularLabel: singularLabel,
-      previewLabels: previewLabels,
-      item: item,
-      candidate: null,
-      preview: preview,
-      isFetchingPreview: isFetchingPreview,
-      providerLabel: providerLabel,
-    );
-  }
-
-  Widget? buildAddPreviewPaneForSearchCandidate({
-    required BuildContext context,
-    required Color accent,
-    required String singularLabel,
-    required LibraryMediaPreviewLabels previewLabels,
-    required CatalogSearchCandidate? item,
-    required ProviderSearchCandidate? candidate,
-    required AdminProviderPreview? preview,
-    required bool isFetchingPreview,
-    required String providerLabel,
-  }) {
-    if (candidate == null) {
-      return buildAddPreviewPaneForCoreItem(
-        context: context,
-        accent: accent,
-        singularLabel: singularLabel,
-        previewLabels: previewLabels,
-        item: item,
-        preview: preview,
-        isFetchingPreview: isFetchingPreview,
-        providerLabel: providerLabel,
-      );
-    }
-    return buildAddPreviewPane(
-      context: context,
-      accent: accent,
-      singularLabel: singularLabel,
-      previewLabels: previewLabels,
-      item: item,
-      candidate: candidate,
-      preview: preview,
-      isFetchingPreview: isFetchingPreview,
-      providerLabel: providerLabel,
-    );
-  }
-
-  List<Widget> buildAddPreviewSections({
-    required Color accent,
-    required CatalogMediaKind kind,
-    required String provider,
-    required String providerItemId,
-  }) {
-    return const [];
   }
 
   LibraryMetadataPresentation buildMetadataPresentation({

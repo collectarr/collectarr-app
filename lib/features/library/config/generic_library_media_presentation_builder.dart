@@ -12,13 +12,6 @@ class GenericLibraryMediaPresentationBuilder
   final LibraryMetadataLabels metadataLabels;
 
   @override
-  CatalogSearchCandidate mergeProviderAddResult({
-    required CatalogSearchCandidate ingested,
-    required CatalogSearchCandidate edited,
-  }) =>
-      edited;
-
-  @override
   CatalogSearchCandidate mergeHydratedAddItem({
     required CatalogSearchCandidate hydrated,
     required CatalogSearchCandidate fallback,

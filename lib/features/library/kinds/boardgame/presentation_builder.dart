@@ -1,11 +1,8 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_fields.dart';
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_candidates.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -150,51 +147,6 @@ class BoardGameLibraryMediaPresentationBuilder
   }
 
   @override
-  Map<String, dynamic> buildProviderProposalPayload({
-    required CatalogSearchCandidate item,
-  }) =>
-      item.kindCapability
-          .mapTransport((transport) => transport.toSyncPayload());
-
-  @override
-  CatalogSearchCandidate mergeProviderAddResult({
-    required CatalogSearchCandidate ingested,
-    required CatalogSearchCandidate edited,
-  }) {
-    final ingestedMetadata = ingested.boardGameCatalogFields;
-    final editedMetadata = edited.boardGameCatalogFields;
-    final merged = CatalogSearchCandidate.fromItem(
-        ingested.kindCapability.mapTransport((transport) => transport.copyWith(
-              title: edited.summary.primaryLabel,
-              displayTitle:
-                  editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
-              localizedTitle: editedMetadata.localizedTitle ??
-                  ingestedMetadata.localizedTitle,
-              originalTitle: editedMetadata.originalTitle ??
-                  ingestedMetadata.originalTitle,
-              searchAliases: editedMetadata.searchAliases.isNotEmpty
-                  ? editedMetadata.searchAliases
-                  : ingestedMetadata.searchAliases,
-              sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
-              synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
-              coverImageUrl: editedMetadata.coverImageUrl ??
-                  ingestedMetadata.coverImageUrl,
-              thumbnailImageUrl: editedMetadata.thumbnailImageUrl ??
-                  ingestedMetadata.thumbnailImageUrl,
-              coverImageData: editedMetadata.coverImageData ??
-                  ingestedMetadata.coverImageData,
-            )));
-    return edited.kindCapability.mapTransport(
-      (transport) => CatalogSearchCandidate.fromItem(
-        merged.kindCapability.mapTransport(
-          (mergedTransport) =>
-              mergedTransport.withKindMetadata(transport.kindMetadata),
-        ),
-      ),
-    );
-  }
-
-  @override
   CatalogSearchCandidate mergeHydratedAddItem({
     required CatalogSearchCandidate hydrated,
     required CatalogSearchCandidate fallback,
@@ -273,113 +225,6 @@ class BoardGameLibraryMediaPresentationBuilder
             .mapTransport((transport) => transport)
             .identifierCode
       ),
-    ];
-  }
-
-  @override
-  List<(String, String?)> buildAddPreviewMetadataRowsForCandidate({
-    required ProviderSearchCandidate candidate,
-    required LibraryMediaPreviewLabels previewLabels,
-  }) {
-    if (candidate is! BoardGameProviderCandidate) return const [];
-    return [
-      if (candidate.series?.seriesTitle != null)
-        (
-          previewLabels.labelFor('series', fallback: 'Series'),
-          candidate.series!.seriesTitle
-        ),
-      if (candidate.issueNumber != null)
-        (
-          previewLabels.labelFor('item_number', fallback: 'Number'),
-          candidate.issueNumber
-        ),
-      if (candidate.publisher != null)
-        (
-          previewLabels.labelFor('publisher', fallback: 'Publisher'),
-          candidate.publisher
-        ),
-      if (candidate.series?.volumeStartYear != null)
-        ('Year', candidate.series!.volumeStartYear.toString()),
-      if (candidate.variantName != null)
-        (
-          previewLabels.labelFor('variant', fallback: 'Variant'),
-          candidate.variantName
-        ),
-      if (candidate.issueCount != null)
-        (
-          previewLabels.labelFor('item_count', fallback: 'Items'),
-          candidate.issueCount.toString()
-        ),
-    ];
-  }
-
-  @override
-  List<(String, String?)> buildAddPreviewMetadataRowsForFullPreview({
-    required AdminProviderPreview preview,
-    required LibraryMediaPreviewLabels previewLabels,
-  }) {
-    final series = preview.series;
-    final publishing = preview.publishing;
-    final music = preview.music;
-    final video = preview.video;
-    final game = preview.game;
-    final releaseDate = preview.releaseDate;
-    final releaseDateText = releaseDate == null
-        ? null
-        : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}';
-    final musicCatalogNumber = (music?['catalog_number'] as String?)?.trim();
-    final musicReleaseStatus = (music?['release_status'] as String?)?.trim();
-    final gamePlatforms = (game?['platforms'] as List<dynamic>?)
-        ?.map((value) => value.toString().trim())
-        .where((value) => value.isNotEmpty)
-        .toList();
-    final runtimeMinutes = (video?['runtime_minutes'] as num?)?.toInt();
-    final pageCount = publishing?.pageCount?.toString();
-    final seriesGroup = publishing?.seriesGroup?.trim();
-    return [
-      if (series?.seriesTitle != null)
-        (
-          previewLabels.labelFor('series', fallback: 'Series'),
-          series!.seriesTitle
-        ),
-      if (preview.publisher != null)
-        (
-          previewLabels.labelFor('publisher', fallback: 'Publisher'),
-          preview.publisher
-        ),
-      if (releaseDateText != null) ('Released', releaseDateText),
-      if (series?.volumeStartYear != null)
-        ('Year', series!.volumeStartYear.toString()),
-      if (preview.itemNumber != null)
-        (
-          previewLabels.labelFor('item_number', fallback: 'Number'),
-          preview.itemNumber
-        ),
-      if (preview.identifierCode != null)
-        (
-          previewLabels.labelFor('barcode', fallback: 'Barcode'),
-          preview.identifierCode,
-        ),
-      if (preview.isbn != null) ('ISBN', preview.isbn),
-      if (preview.country != null) ('Country', preview.country),
-      if (preview.language != null) ('Language', preview.language),
-      if (preview.physicalFormatLabel != null)
-        ('Format', preview.physicalFormatLabel),
-      if (preview.variantName != null)
-        (
-          previewLabels.labelFor('variant', fallback: 'Variant'),
-          preview.variantName
-        ),
-      if (musicCatalogNumber != null && musicCatalogNumber.isNotEmpty)
-        ('Catalog No.', musicCatalogNumber),
-      if (gamePlatforms != null && gamePlatforms.isNotEmpty)
-        ('Platforms', gamePlatforms.join(', ')),
-      if (runtimeMinutes != null) ('Runtime', '$runtimeMinutes min'),
-      if (pageCount != null) ('Pages', pageCount),
-      if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
-        ('Release Status', musicReleaseStatus),
-      if (seriesGroup != null && seriesGroup.isNotEmpty)
-        ('Series Group', seriesGroup),
     ];
   }
 
