@@ -6,9 +6,9 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 // ---------------------------------------------------------------------------
 // Unified grouped search results.
 //
-// Merges Core transport results and Provider candidates
-// (ProviderSearchCandidate) into series groups, displayed collapsed by default
-// so the user picks a series first, then drills down into individual items.
+// Core results represent concrete catalog items, so each result remains an
+// individual selectable row. Provider groups are retained for legacy previews
+// until the remaining provider UI is removed.
 // ---------------------------------------------------------------------------
 
 // -- Data model --------------------------------------------------------------
@@ -52,10 +52,9 @@ class LibraryAddUnifiedSearchGroup {
 
 // -- Grouping logic ----------------------------------------------------------
 
-/// Builds a unified list of [LibraryAddUnifiedSearchGroup] from Core and Provider
-/// results.  Provider groups are created first (preserving search order),
-/// then Core items are merged into matching groups or added as new groups
-/// at the top.
+/// Builds the result rows from Core catalog items and any legacy provider
+/// previews. Each Core item gets its own row rather than being nested under a
+/// title-based parent group.
 List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   required List<CatalogSearchCandidate> coreResults,
   required List<ProviderSearchCandidate> providerResults,
@@ -78,10 +77,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
     artists[key] = value;
   }
 
-  // -- index used to merge Core items into existing Provider groups ----------
-  // Maps each lowercase title to the first key that uses it.
-  final titleIndex = <String, String>{};
-
+  // -- group initialization --------------------------------------------------
   void ensureKey(String key, String title) {
     if (!titles.containsKey(key)) {
       orderedKeys.add(key);
@@ -90,7 +86,6 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       providerItemsMap[key] = [];
       sourceSets[key] = {};
     }
-    titleIndex.putIfAbsent(title.toLowerCase(), () => key);
   }
 
   // 1. Process Provider results first.
@@ -111,32 +106,17 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
     }
   }
 
-  // 2. Process Core results and merge into a matching Provider group when the
-  //    titles match, otherwise create a Core-only group at the front.
+  // 2. Keep Core catalog items flat. A title match does not imply that two
+  //    concrete editions are the same catalog item.
   final coreOnlyKeys = <String>[];
   for (final item in coreResults) {
-    final groupTitle = resultPolicy.coreGroupTitle(item);
-    final lowerTitle = groupTitle.toLowerCase();
-    final existingKey = titleIndex[lowerTitle];
-
-    if (existingKey != null) {
-      coreItems[existingKey]!.add(item);
-      sourceSets[existingKey]!.add('core');
-      years[existingKey] ??= coreGroupYear?.call(item);
-      coverUrls[existingKey] ??= item.summary.imageUrl;
-      setArtist(existingKey, resultPolicy.coreGroupArtist(item));
-    } else {
-      final key = 'core::$lowerTitle';
-      if (!titles.containsKey(key)) {
-        coreOnlyKeys.add(key);
-      }
-      ensureKey(key, groupTitle);
-      coreItems[key]!.add(item);
-      sourceSets[key]!.add('core');
-      setArtist(key, resultPolicy.coreGroupArtist(item));
-      years[key] ??= coreGroupYear?.call(item);
-      coverUrls[key] ??= item.summary.imageUrl;
-    }
+    final key = 'core::${item.reference.id}';
+    coreOnlyKeys.add(key);
+    ensureKey(key, item.summary.primaryLabel);
+    coreItems[key]!.add(item);
+    sourceSets[key]!.add('core');
+    years[key] = coreGroupYear?.call(item);
+    coverUrls[key] = item.summary.imageUrl;
   }
 
   // Reorder: put core-only groups at the top (they are the best matches).
