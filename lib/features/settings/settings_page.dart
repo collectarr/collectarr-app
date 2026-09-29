@@ -17,13 +17,10 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
-import 'package:collectarr_app/features/settings/settings_data_import_widgets.dart';
-import 'package:collectarr_app/features/settings/settings_provider_integrations.dart';
 import 'package:collectarr_app/features/settings/settings_library_nav_widgets.dart';
+import 'package:collectarr_app/features/settings/settings_proposal_history.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
-import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings_widgets.dart';
-import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
@@ -67,7 +64,7 @@ enum SettingsSection {
   connection('Connection', Icons.route_outlined),
   libraries('Libraries', Icons.view_comfy_alt_outlined),
   appearance('Appearance', Icons.palette_outlined),
-  providers('Providers', Icons.hub_outlined),
+  proposals('Proposals', Icons.fact_check_outlined),
   data('Data', Icons.backup_outlined),
   account('Account', Icons.account_circle_outlined),
   logs('Logs', Icons.bug_report_outlined);
@@ -126,7 +123,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         );
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final uiPreferences = ref.watch(uiPreferencesProvider);
-    final tmdbImportSettings = ref.watch(tmdbImportSettingsProvider);
     final metadataProposalHistory = ref.watch(_metadataProposalHistoryProvider);
     final deviceId = ref.watch(_deviceIdentityProvider);
     final selectedLibraryKind = ref.watch(selectedLibraryKindProvider);
@@ -150,7 +146,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         mediaCatalog: mediaCatalog,
         navPreferences: navPreferences,
         uiPreferences: uiPreferences,
-        tmdbImportSettings: tmdbImportSettings,
         metadataProposalHistory: metadataProposalHistory,
         deviceId: deviceId,
         isAndroidPlatform: isAndroidPlatform,
@@ -316,7 +311,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     required List<CatalogMediaType> mediaCatalog,
     required LibraryNavPreferences navPreferences,
     required UiPreferences uiPreferences,
-    required TmdbImportSettings tmdbImportSettings,
     required AsyncValue<List<MetadataProposalRecord>> metadataProposalHistory,
     required AsyncValue<String> deviceId,
     required bool isAndroidPlatform,
@@ -329,9 +323,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             mediaCatalog, navPreferences, isAndroidPlatform);
       case SettingsSection.appearance:
         return _buildAppearanceSection(uiPreferences);
-      case SettingsSection.providers:
-        return _buildProvidersSection(
-            tmdbImportSettings, metadataProposalHistory);
+      case SettingsSection.proposals:
+        return _buildProposalsSection(metadataProposalHistory);
       case SettingsSection.data:
         return _buildDataSection();
       case SettingsSection.account:
@@ -817,40 +810,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Widget _buildProvidersSection(
-    TmdbImportSettings tmdbImportSettings,
+  Widget _buildProposalsSection(
     AsyncValue<List<MetadataProposalRecord>> metadataProposalHistory,
   ) {
     return _SettingsTabBody(
       children: [
-        _SettingsPanel(
-          icon: Icons.link_outlined,
-          title: 'Personal list accounts',
-          child: const SettingsProviderAccountsPanel(),
-        ),
-        _SettingsPanel(
-          icon: Icons.hub_outlined,
-          title: 'Catalog providers',
-          child: const SettingsCatalogSourcesPanel(),
-        ),
-        _SettingsPanel(
-          icon: Icons.file_download_outlined,
-          title: 'Import from services and files',
-          child: SettingsImportSourcesGrid(
-            tmdbSettings: tmdbImportSettings,
-          ),
-        ),
-        _SettingsPanel(
-          icon: Icons.sync_outlined,
-          title: 'Import activity and review',
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TmdbImportJobsPanel(),
-              TmdbPendingImportsPanel(),
-            ],
-          ),
-        ),
         _SettingsPanel(
           icon: Icons.outbox_outlined,
           title: 'Metadata proposals',
