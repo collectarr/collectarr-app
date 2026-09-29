@@ -96,10 +96,6 @@ final musicKindTrackingTopology = const LibraryTrackingTopology(
 
 final musicKindOwnership = const LibraryOwnershipCapability.releaseOnly();
 
-final musicKindProviderPreviewPolicy = const LibraryProviderPreviewPolicy(
-  preferredSource: LibraryProviderPreviewSource.typedCandidate,
-);
-
 final musicKindActions = const LibraryEntityActionCapability(
   work: LibraryEntityActionSet.work,
   release: LibraryEntityActionSet.release,

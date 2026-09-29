@@ -15,7 +15,6 @@ export 'package:collectarr_app/features/library/config/library_relation_capabili
 export 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
 export 'package:collectarr_app/features/library/config/library_catalog_target_capability.dart';
 export 'package:collectarr_app/features/library/config/library_ownership_capability.dart';
-export 'package:collectarr_app/features/library/config/library_provider_preview_policy.dart';
 export 'package:collectarr_app/features/library/metadata/library_field_ownership.dart';
 export 'package:collectarr_app/features/library/metadata/library_personal_field_contributor.dart';
 export 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
