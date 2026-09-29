@@ -17,6 +17,7 @@ abstract final class MusicVocabularyIds {
   static const creditRole = VocabularyId<String>('music.credit_role');
   static const country = VocabularyId<String>('music.country');
   static const studio = VocabularyId<String>('music.studio');
+  static const soundType = VocabularyId<String>('music.sound_type');
   static const vinylColor = VocabularyId<String>('music.vinyl_color');
 }
 
@@ -258,6 +259,14 @@ abstract final class MusicVocabularies {
     valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(_studioValues),
   );
 
+  static const soundType = VocabularyDefinition<String>(
+    id: MusicVocabularyIds.soundType,
+    label: 'Sound',
+    multiValue: true,
+    valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(_soundTypeValues),
+    builtIns: ['Mono', 'Stereo', 'Quadraphonic', 'Dolby Atmos'],
+  );
+
   static const all = <VocabularyDefinition<dynamic>>[
     condition,
     format,
@@ -268,6 +277,7 @@ abstract final class MusicVocabularies {
     creditRole,
     country,
     studio,
+    soundType,
     vinylColor,
   ];
 }
@@ -294,6 +304,12 @@ Iterable<String?> _recordLabelCatalogValues(MusicReleaseGroup group) {
 
 Iterable<String?> _studioValues(MusicReleaseGroup group) =>
     vocabularyValues(group.studios);
+
+Iterable<String?> _soundTypeValues(MusicReleaseGroup group) =>
+    vocabularyValues([
+      for (final release in group.releases)
+        for (final medium in release.mediums) medium.soundType,
+    ]);
 
 Iterable<String?> _genreValues(MusicReleaseGroup group) {
   return vocabularyValues([group.genres]);

@@ -14,6 +14,7 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
   Iterable<String>? recordLabelOptions,
   Iterable<String>? packagingOptions,
   Iterable<String>? studioOptions,
+  Iterable<String>? soundTypeOptions,
   FutureOr<void> Function()? onManageFormat,
   FutureOr<void> Function()? onManageCountry,
   FutureOr<void> Function()? onManageRecordLabel,
@@ -22,7 +23,7 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
     AddSchema<MusicAddManualDraft>(
       title: (_) => 'Manual music album',
       validate: (draft) {
-        if (draft.year != null && draft.year! < 1) {
+        if (draft.releaseDate != null && draft.releaseDate!.year < 1) {
           return 'Release year must be greater than zero';
         }
         return null;
@@ -32,6 +33,18 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
           id: 'album',
           label: 'Album details',
           fields: [
+            LibraryTextFieldSpec<MusicAddManualDraft>(
+              id: 'sort_title',
+              label: 'Sort Title',
+              value: (draft) => draft.sortTitle,
+              setValue: (draft, value) => draft.sortTitle = value,
+            ),
+            LibraryTextFieldSpec<MusicAddManualDraft>(
+              id: 'subtitle',
+              label: 'Subtitle',
+              value: (draft) => draft.subtitle,
+              setValue: (draft, value) => draft.subtitle = value,
+            ),
             LibraryTextFieldSpec<MusicAddManualDraft>(
               id: 'artist',
               label: 'Artist',
@@ -49,12 +62,6 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
               options:
                   _options(genreOptions ?? MusicVocabularies.genre.builtIns),
             ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'cover_image_url',
-              label: 'Cover image URL',
-              value: (draft) => draft.coverImageUrl,
-              setValue: (draft, value) => draft.coverImageUrl = value,
-            ),
             LibraryMultiVocabularyFieldSpec<MusicAddManualDraft, String>(
               id: 'studios',
               label: 'Studio',
@@ -67,12 +74,43 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
                 studioOptions ?? MusicVocabularies.studio.builtIns,
               ),
             ),
+            LibraryDateFieldSpec<MusicAddManualDraft>(
+              id: 'release_date',
+              label: 'Release Date',
+              value: (draft) => draft.releaseDate,
+              setValue: (draft, value) => draft.releaseDate = value,
+            ),
+            LibraryDateFieldSpec<MusicAddManualDraft>(
+              id: 'original_release_date',
+              label: 'Original Release Date',
+              value: (draft) => draft.originalReleaseDate,
+              setValue: (draft, value) => draft.originalReleaseDate = value,
+            ),
+            LibraryDateFieldSpec<MusicAddManualDraft>(
+              id: 'recording_date',
+              label: 'Recording Date',
+              value: (draft) => draft.recordingDate,
+              setValue: (draft, value) => draft.recordingDate = value,
+            ),
           ],
         ),
         AddSectionSpec<MusicAddManualDraft>(
           id: 'edition',
           label: 'Edition details',
           fields: [
+            LibraryVocabularyFieldSpec<MusicAddManualDraft, String>(
+              id: 'record_label',
+              label: 'Label',
+              value: (draft) => _nullable(draft.recordLabel),
+              setValue: (draft, value) => draft.recordLabel = value ?? '',
+              options: _options(
+                recordLabelOptions ?? MusicVocabularies.recordLabel.builtIns,
+              ),
+              pickListKey: MusicVocabularyIds.recordLabel.value,
+              onManage: onManageRecordLabel == null
+                  ? null
+                  : (_) => onManageRecordLabel(),
+            ),
             LibraryVocabularyFieldSpec<MusicAddManualDraft, String>(
               id: 'format',
               label: 'Format',
@@ -97,7 +135,7 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
             ),
             LibraryTextFieldSpec<MusicAddManualDraft>(
               id: 'catalog_number',
-              label: 'Catalog number',
+              label: 'Cat No',
               value: (draft) => draft.catalogNumber,
               setValue: (draft, value) => draft.catalogNumber = value,
             ),
@@ -119,31 +157,91 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
               onManage:
                   onManageCountry == null ? null : (_) => onManageCountry(),
             ),
-            LibraryDateFieldSpec<MusicAddManualDraft>(
-              id: 'release_date',
-              label: 'Release date',
-              value: (draft) => draft.releaseDate,
-              setValue: (draft, value) => draft.releaseDate = value,
+            LibraryTextFieldSpec<MusicAddManualDraft>(
+              id: 'cover_image_url',
+              label: 'Front cover URL',
+              value: (draft) => draft.coverImageUrl,
+              setValue: (draft, value) => draft.coverImageUrl = value,
+            ),
+            LibraryTextFieldSpec<MusicAddManualDraft>(
+              id: 'back_cover_image_url',
+              label: 'Back cover URL',
+              value: (draft) => draft.backCoverImageUrl,
+              setValue: (draft, value) => draft.backCoverImageUrl = value,
+            ),
+            LibraryTextFieldSpec<MusicAddManualDraft>(
+              id: 'thumbnail_image_url',
+              label: 'Thumbnail URL',
+              value: (draft) => draft.thumbnailImageUrl,
+              setValue: (draft, value) => draft.thumbnailImageUrl = value,
+            ),
+          ],
+        ),
+        AddSectionSpec<MusicAddManualDraft>(
+          id: 'technical',
+          label: 'Pressing details',
+          fields: [
+            LibrarySelectFieldSpec<MusicAddManualDraft, bool>(
+              id: 'is_live',
+              label: 'Recording Type',
+              value: (draft) => draft.isLive,
+              setValue: (draft, value) => draft.isLive = value,
+              options: const [
+                LibraryFieldOption(value: false, label: 'Studio recording'),
+                LibraryFieldOption(value: true, label: 'Live recording'),
+              ],
+            ),
+            LibraryMultiVocabularyFieldSpec<MusicAddManualDraft, String>(
+              id: 'sound_types',
+              label: 'Sound',
+              pickListKey: MusicVocabularyIds.soundType.value,
+              pluralLabel: 'Sound types',
+              values: (draft) => draft.soundTypes.toSet(),
+              setValues: (draft, values) =>
+                  draft.soundTypes = values.toList(growable: false),
+              options: _options(
+                soundTypeOptions ?? MusicVocabularies.soundType.builtIns,
+              ),
             ),
             LibraryVocabularyFieldSpec<MusicAddManualDraft, String>(
-              id: 'record_label',
-              label: 'Record label',
-              value: (draft) => _nullable(draft.recordLabel),
-              setValue: (draft, value) => draft.recordLabel = value ?? '',
-              options: _options(
-                recordLabelOptions ?? MusicVocabularies.recordLabel.builtIns,
-              ),
-              pickListKey: MusicVocabularyIds.recordLabel.value,
-              onManage: onManageRecordLabel == null
-                  ? null
-                  : (_) => onManageRecordLabel(),
+              id: 'vinyl_color',
+              label: 'Vinyl Color',
+              value: (draft) => _nullable(draft.vinylColor),
+              setValue: (draft, value) => draft.vinylColor = value ?? '',
+              options: _options(MusicVocabularies.vinylColor.builtIns),
+              pickListKey: MusicVocabularyIds.vinylColor.value,
+            ),
+            LibraryTextFieldSpec<MusicAddManualDraft>(
+              id: 'vinyl_weight',
+              label: 'Vinyl Weight',
+              value: (draft) => draft.vinylWeight,
+              setValue: (draft, value) => draft.vinylWeight = value,
             ),
             LibraryNumberFieldSpec<MusicAddManualDraft>(
-              id: 'year',
-              label: 'Year',
-              value: (draft) => draft.year,
-              setValue: (draft, value) => draft.year = value?.toInt(),
+              id: 'rpm',
+              label: 'RPM',
+              value: (draft) => draft.rpm,
+              setValue: (draft, value) => draft.rpm = value?.toInt(),
               minimum: 1,
+            ),
+            LibraryTextFieldSpec<MusicAddManualDraft>(
+              id: 'extra',
+              label: 'Extra',
+              value: (draft) => draft.extra,
+              setValue: (draft, value) => draft.extra = value,
+              maxLines: 3,
+            ),
+            LibraryTextFieldSpec<MusicAddManualDraft>(
+              id: 'spars',
+              label: 'SPARS',
+              value: (draft) => draft.spars,
+              setValue: (draft, value) => draft.spars = value,
+            ),
+            LibraryTextFieldSpec<MusicAddManualDraft>(
+              id: 'box_set',
+              label: 'Box Set',
+              value: (draft) => draft.boxSet,
+              setValue: (draft, value) => draft.boxSet = value,
             ),
           ],
         ),

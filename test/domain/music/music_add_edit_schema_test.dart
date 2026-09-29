@@ -46,7 +46,7 @@ void main() {
         'studios',
       ]),
     );
-    draft.year = 0;
+    draft.releaseDate = DateTime.utc(0);
     expect(
       musicAddSchema.validate!(draft),
       'Release year must be greater than zero',
@@ -249,7 +249,7 @@ void main() {
     expect(item.catalogNumber, '7243');
     expect(item.barcode, '123456789');
     expect(item.packaging, 'Gatefold');
-    expect(item.country, 'FR');
+    expect(item.country, 'France');
     expect(item.studios, ['Studio 1', 'Studio 2']);
     expect(item.releaseDate, '2001-03-12');
     expect(item.coverImageUrl, 'https://example.test/cover.jpg');

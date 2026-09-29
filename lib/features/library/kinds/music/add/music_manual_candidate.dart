@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
 
 /// Builds the typed flat catalog candidate used by Music's manual Add flow.
@@ -22,7 +23,7 @@ CatalogSearchCandidate? buildMusicManualCandidate(
   final normalizedTitle = title.trim();
   final proposal = buildMusicManualProposalData(draft, title: normalizedTitle);
   if (proposal == null) return null;
-  final releaseDate = draft.releaseDate ?? _yearDate(draft.year);
+  final releaseDate = draft.releaseDate;
   final id = 'manual-music-${DateTime.now().microsecondsSinceEpoch}';
   final itemJson = <String, dynamic>{
     'id': id,
@@ -31,12 +32,7 @@ CatalogSearchCandidate? buildMusicManualCandidate(
     'artist': _textOrNull(draft.artist),
     'revision': 1,
     ...proposal,
-    if (releaseDate != null)
-      'release_date': releaseDate.toIso8601String().split('T').first,
   };
-  _normalizePartialDate(itemJson, 'original_release_date');
-  _normalizePartialDate(itemJson, 'recording_date');
-  _normalizePartialDate(itemJson, 'release_date');
   final musicItem = CatalogMusicItemDto.fromJson(itemJson);
   final item = CatalogItemDto.raw(
     id: id,
@@ -66,22 +62,27 @@ Map<String, Object?>? buildMusicManualProposalData(
   }
 
   final artist = _textOrNull(draft.artist);
-  final date = draft.releaseDate;
-  final releaseDate = date == null
-      ? (draft.year == null ? null : <String, Object?>{'year': draft.year})
-      : <String, Object?>{
-          'year': date.year,
-          'month': date.month,
-          'day': date.day,
-        };
+  final releaseDate = _dateString(draft.releaseDate);
   final format = _textOrNull(draft.format);
   final barcode = _textOrNull(draft.barcode);
-  final country = _textOrNull(draft.countryCode);
+  final countryCode = _textOrNull(draft.countryCode);
+  final country = countryCode == null
+      ? null
+      : _textOrNull(musicCountryName(countryCode) ?? countryCode);
   final cover = _textOrNull(draft.coverImageUrl);
+  final backCover = _textOrNull(draft.backCoverImageUrl);
+  final thumbnail = _textOrNull(draft.thumbnailImageUrl);
+  final originalReleaseDate = _dateString(draft.originalReleaseDate);
+  final recordingDate = _dateString(draft.recordingDate);
 
   return {
     'title': title.trim(),
+    if (_textOrNull(draft.sortTitle) case final value?) 'sort_title': value,
+    if (_textOrNull(draft.subtitle) case final value?) 'subtitle': value,
     if (releaseDate != null) 'release_date': releaseDate,
+    if (originalReleaseDate != null)
+      'original_release_date': originalReleaseDate,
+    if (recordingDate != null) 'recording_date': recordingDate,
     if (artist != null)
       'artist_credits': [
         <String, Object?>{'name': artist}
@@ -95,24 +96,23 @@ Map<String, Object?>? buildMusicManualProposalData(
     if (country != null) 'country': country,
     if (_textOrNull(draft.packaging) case final value?) 'packaging': value,
     if (draft.studios.isNotEmpty) 'studios': List<String>.of(draft.studios),
+    if (draft.isLive != null) 'is_live': draft.isLive,
+    if (draft.soundTypes.isNotEmpty)
+      'sound_types': List<String>.of(draft.soundTypes),
+    if (_textOrNull(draft.vinylColor) case final value?) 'vinyl_color': value,
+    if (_textOrNull(draft.vinylWeight) case final value?) 'vinyl_weight': value,
+    if (draft.rpm != null) 'rpm': draft.rpm,
+    if (_textOrNull(draft.extra) case final value?) 'extra': value,
+    if (_textOrNull(draft.spars) case final value?) 'spars': value,
+    if (_textOrNull(draft.boxSet) case final value?) 'box_set': value,
     if (cover != null) 'cover_image_url': cover,
+    if (backCover != null) 'back_cover_image_url': backCover,
+    if (thumbnail != null) 'thumbnail_image_url': thumbnail,
   };
 }
 
-DateTime? _yearDate(int? year) =>
-    year == null || year < 1 ? null : DateTime.utc(year);
-
-void _normalizePartialDate(Map<String, dynamic> payload, String field) {
-  final value = payload[field];
-  if (value is! Map) return;
-  final parts = Map<String, dynamic>.from(value);
-  payload['${field}_parts'] = parts;
-  payload[field] = [
-    parts['year']?.toString().padLeft(4, '0'),
-    if (parts['month'] != null) parts['month'].toString().padLeft(2, '0'),
-    if (parts['day'] != null) parts['day'].toString().padLeft(2, '0'),
-  ].whereType<String>().join('-');
-}
+String? _dateString(DateTime? date) =>
+    date?.toIso8601String().split('T').first;
 
 String? _textOrNull(String value) {
   final text = value.trim();
