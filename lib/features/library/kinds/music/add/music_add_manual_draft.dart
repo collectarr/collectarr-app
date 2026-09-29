@@ -13,11 +13,9 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
     this.packaging = '',
     this.catalogNumber = '',
     this.barcode = '',
-    this.upc = '',
     this.countryCode = '',
     this.releaseDate,
     this.recordLabel = '',
-    this.language = '',
     this.year,
   }) : genres = List<String>.of(genres);
 
@@ -28,11 +26,9 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
   String packaging;
   String catalogNumber;
   String barcode;
-  String upc;
   String countryCode;
   DateTime? releaseDate;
   String recordLabel;
-  String language;
   int? year;
 
   @override

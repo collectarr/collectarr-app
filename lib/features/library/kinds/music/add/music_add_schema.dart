@@ -125,12 +125,6 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
                   ? null
                   : (_) => onManageRecordLabel(),
             ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'language',
-              label: 'Language',
-              value: (draft) => draft.language,
-              setValue: (draft, value) => draft.language = value,
-            ),
             LibraryNumberFieldSpec<MusicAddManualDraft>(
               id: 'year',
               label: 'Year',

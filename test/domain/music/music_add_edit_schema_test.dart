@@ -232,7 +232,6 @@ void main() {
     draft.format = 'Vinyl';
     draft.packaging = 'Gatefold';
     draft.countryCode = 'FR';
-    draft.language = 'fra';
     draft.releaseDate = DateTime.utc(2001, 3, 12);
     draft.genres = ['Electronic', 'House'];
     draft.coverImageUrl = 'https://example.test/cover.jpg';

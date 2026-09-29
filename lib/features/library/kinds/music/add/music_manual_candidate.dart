@@ -75,7 +75,7 @@ Map<String, Object?>? buildMusicManualProposalData(
           'day': date.day,
         };
   final format = _textOrNull(draft.format);
-  final barcode = _textOrNull(draft.barcode) ?? _textOrNull(draft.upc);
+  final barcode = _textOrNull(draft.barcode);
   final country = _textOrNull(draft.countryCode);
   final cover = _textOrNull(draft.coverImageUrl);
 
@@ -94,7 +94,6 @@ Map<String, Object?>? buildMusicManualProposalData(
       'catalog_number': value,
     if (country != null) 'country': country,
     if (_textOrNull(draft.packaging) case final value?) 'packaging': value,
-    if (_textOrNull(draft.language) case final value?) 'language': value,
     if (cover != null) 'cover_image_url': cover,
   };
 }
