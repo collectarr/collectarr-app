@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND.
 // Source: tool/core_contracts/catalog-item-v1.json
-// Contract SHA-256: 00beaf52fb5aaf36ebfc7960886d84cfd760dcd88a828f63e09b5e3486cbef8d
+// Contract SHA-256: 1b7f0cef01a7d11989a4bf1067bdcee576de7b3b075bc359b9168fcae82c671e
 const catalogItemV1SchemaVersion = 1;
 const catalogItemV1ContractVersion = '1.0.0';
 
@@ -329,6 +329,7 @@ const Map<String, Set<String>> catalogItemV1FieldsByKind = {
     'variant_name',
   },
   'music': {
+    'artist',
     'artist_credits',
     'back_cover_image_url',
     'barcode',
@@ -363,7 +364,7 @@ const Map<String, Set<String>> catalogItemV1FieldsByKind = {
     'sort_title',
     'sound_types',
     'spars',
-    'studios',
+    'studio',
     'subtitle',
     'thumbnail_image_url',
     'title',

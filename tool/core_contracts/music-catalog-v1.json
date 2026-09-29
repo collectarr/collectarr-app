@@ -445,13 +445,6 @@
           ],
           "title": "Studio"
         },
-        "studios": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Studios",
-          "type": "array"
-        },
         "subtitle": {
           "anyOf": [
             {
@@ -506,7 +499,6 @@
         "title",
         "artist_credits",
         "genres",
-        "studios",
         "sound_types",
         "composers",
         "conductors",
@@ -579,8 +571,8 @@
   "$id": "https://schemas.collectarr.app/music-catalog/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "4bc7a97920bacdf2c2855de0da1ac539991972b7",
-  "generatedAt": "2026-09-29T20:34:44.364699Z",
+  "coreCommit": "e81a0b2d9965dc6c928155f2d31594b69e38e875",
+  "generatedAt": "2026-09-29T21:44:46.772955Z",
   "roots": {
     "disc": {
       "$ref": "#/$defs/CatalogMusicDiscResponse"

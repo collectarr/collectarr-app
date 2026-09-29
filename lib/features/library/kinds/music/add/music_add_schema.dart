@@ -54,6 +54,12 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
               value: (draft) => draft.coverImageUrl,
               setValue: (draft, value) => draft.coverImageUrl = value,
             ),
+            LibraryTextFieldSpec<MusicAddManualDraft>(
+              id: 'studio',
+              label: 'Studio',
+              value: (draft) => draft.studio,
+              setValue: (draft, value) => draft.studio = value,
+            ),
           ],
         ),
         AddSectionSpec<MusicAddManualDraft>(

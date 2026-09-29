@@ -232,6 +232,7 @@ void main() {
     draft.format = 'Vinyl';
     draft.packaging = 'Gatefold';
     draft.countryCode = 'FR';
+    draft.studio = 'Studio 1';
     draft.releaseDate = DateTime.utc(2001, 3, 12);
     draft.genres = ['Electronic', 'House'];
     draft.coverImageUrl = 'https://example.test/cover.jpg';
@@ -248,6 +249,7 @@ void main() {
     expect(item.barcode, '123456789');
     expect(item.packaging, 'Gatefold');
     expect(item.country, 'FR');
+    expect(item.studio, 'Studio 1');
     expect(item.releaseDate, '2001-03-12');
     expect(item.coverImageUrl, 'https://example.test/cover.jpg');
 

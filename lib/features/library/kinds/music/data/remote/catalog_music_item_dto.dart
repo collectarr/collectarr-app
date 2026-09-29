@@ -27,7 +27,6 @@ final class CatalogMusicItemDto implements JsonEncodable {
     this.genres = const [],
     this.packaging,
     this.studio,
-    this.studios = const [],
     this.country,
     this.isLive,
     this.soundTypes = const [],
@@ -86,7 +85,6 @@ final class CatalogMusicItemDto implements JsonEncodable {
       genres: _stringList(json['genres']),
       packaging: _string(json['packaging']),
       studio: _string(json['studio']),
-      studios: _stringList(json['studios']),
       country: _string(json['country']),
       isLive: json['is_live'] as bool?,
       soundTypes: _stringList(json['sound_types']),
@@ -156,7 +154,6 @@ final class CatalogMusicItemDto implements JsonEncodable {
   final List<String> genres;
   final String? packaging;
   final String? studio;
-  final List<String> studios;
   final String? country;
   final bool? isLive;
   final List<String> soundTypes;
@@ -207,10 +204,7 @@ final class CatalogMusicItemDto implements JsonEncodable {
         if (catalogNumber != null) 'catalog_number': catalogNumber,
         if (genres.isNotEmpty) 'genres': genres,
         if (packaging != null) 'packaging': packaging,
-        if (studios.isNotEmpty)
-          'studios': studios
-        else if (studio != null && studio!.trim().isNotEmpty)
-          'studios': [studio],
+        if (studio != null) 'studio': studio,
         if (country != null) 'country': country,
         if (isLive != null) 'is_live': isLive,
         if (soundTypes.isNotEmpty) 'sound_types': soundTypes,

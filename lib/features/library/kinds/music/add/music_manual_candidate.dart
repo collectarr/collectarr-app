@@ -94,6 +94,7 @@ Map<String, Object?>? buildMusicManualProposalData(
       'catalog_number': value,
     if (country != null) 'country': country,
     if (_textOrNull(draft.packaging) case final value?) 'packaging': value,
+    if (_textOrNull(draft.studio) case final value?) 'studio': value,
     if (cover != null) 'cover_image_url': cover,
   };
 }

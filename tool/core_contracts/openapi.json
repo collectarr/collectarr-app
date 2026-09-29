@@ -1186,20 +1186,6 @@
             ],
             "title": "Studio"
           },
-          "studios": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Studios"
-          },
           "subtitle": {
             "anyOf": [
               {
@@ -9143,13 +9129,6 @@
             ],
             "title": "Studio"
           },
-          "studios": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Studios",
-            "type": "array"
-          },
           "subtitle": {
             "anyOf": [
               {
@@ -9204,7 +9183,6 @@
           "title",
           "artist_credits",
           "genres",
-          "studios",
           "sound_types",
           "composers",
           "conductors",
