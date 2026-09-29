@@ -310,7 +310,7 @@ void main() {
     final smartList = SmartList.fromRow(
       'smart-1',
       'Movies',
-      '{"quick_view":"unknown_view","sort_column":"unknown_sort","filter":{"ownership":"unknown"}}',
+      '{"schema_version":1,"quick_view":"unknown_view","sort_column":"unknown_sort","filter":{"ownership":"unknown"}}',
     );
 
     expect(smartList.quickView, isNull);

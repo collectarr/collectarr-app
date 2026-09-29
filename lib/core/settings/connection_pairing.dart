@@ -22,15 +22,17 @@ class ConnectionPairing {
     if (trimmed.isEmpty) {
       throw const FormatException('Pairing code is empty');
     }
-    final decoded = trimmed.startsWith(prefix)
-        ? utf8.decode(base64Url.decode(trimmed.substring(prefix.length)))
-        : trimmed;
+    if (!trimmed.startsWith(prefix)) {
+      throw const FormatException('Unsupported pairing code format');
+    }
+    final decoded =
+        utf8.decode(base64Url.decode(trimmed.substring(prefix.length)));
     final json = jsonDecode(decoded);
     if (json is! Map<String, dynamic>) {
       throw const FormatException('Pairing code must contain an object');
     }
     final version = json['version'];
-    if (version != null && version != 1) {
+    if (version != 1) {
       throw FormatException('Unsupported pairing code version: $version');
     }
     final metadataBaseUrl = json['metadata_base_url'];

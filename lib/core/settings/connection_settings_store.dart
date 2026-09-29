@@ -8,9 +8,7 @@ class ConnectionSettingsStore {
 
   static const _metadataBaseUrlKey = 'collectarr.settings.metadata_base_url';
   static const _syncBaseUrlKey = 'collectarr.settings.sync_base_url';
-  static const _syncKeyKey = 'collectarr.settings.sync_key';
   static const _secureSyncKeyKey = 'collectarr.settings.sync_key';
-  static const _legacyPublicSyncKey = 'collectarr-sync-dev-key';
   static const _preferOnlineFirstSyncKey =
       'collectarr.settings.prefer_online_first_sync';
 
@@ -18,20 +16,7 @@ class ConnectionSettingsStore {
 
   Future<ConnectionSettings> read() async {
     final prefs = await SharedPreferences.getInstance();
-    var syncKey = await _secureStorage.read(key: _secureSyncKeyKey);
-    if (syncKey == null) {
-      final legacySyncKey = prefs.getString(_syncKeyKey)?.trim();
-      if (legacySyncKey != null &&
-          legacySyncKey.isNotEmpty &&
-          legacySyncKey != _legacyPublicSyncKey) {
-        await _secureStorage.write(
-          key: _secureSyncKeyKey,
-          value: legacySyncKey,
-        );
-        syncKey = legacySyncKey;
-      }
-    }
-    await prefs.remove(_syncKeyKey);
+    final syncKey = await _secureStorage.read(key: _secureSyncKeyKey);
     return ConnectionSettings(
       metadataBaseUrl: (prefs.getString(_metadataBaseUrlKey) ??
               ConnectionSettings.defaultMetadataBaseUrl)
@@ -56,7 +41,6 @@ class ConnectionSettingsStore {
       key: _secureSyncKeyKey,
       value: settings.syncKey.trim(),
     );
-    await prefs.remove(_syncKeyKey);
     await prefs.setBool(
       _preferOnlineFirstSyncKey,
       settings.preferOnlineFirstSync,
@@ -68,7 +52,6 @@ class ConnectionSettingsStore {
     await prefs.remove(_metadataBaseUrlKey);
     await prefs.remove(_syncBaseUrlKey);
     await _secureStorage.delete(key: _secureSyncKeyKey);
-    await prefs.remove(_syncKeyKey);
     await prefs.remove(_preferOnlineFirstSyncKey);
   }
 

@@ -16,9 +16,9 @@ enum LibraryEntityScope {
     final normalized = value?.toString().trim().toLowerCase();
     return switch (normalized) {
       'work' => LibraryEntityScope.work,
-      'release' || 'edition' => LibraryEntityScope.release,
+      'release' => LibraryEntityScope.release,
       'copy' => LibraryEntityScope.copy,
-      _ => throw FormatException('Unsupported provider entity scope: $value'),
+      _ => throw FormatException('Unsupported library entity scope: $value'),
     };
   }
 }

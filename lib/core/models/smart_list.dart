@@ -61,7 +61,7 @@ class SmartList {
   Map<String, dynamic> toJson() {
     final effectiveSortRules = this.effectiveSortRules;
     return {
-      'schema_version': 2,
+      'schema_version': 1,
       'name': name,
       if (mediaKind != null) 'media_kind': mediaKind,
       if (entityScope != null) 'entity_scope': entityScope!.apiValue,
@@ -84,8 +84,7 @@ class SmartList {
 
   factory SmartList.fromRow(String id, String name, String criteriaJson) {
     final json = _criteriaObject(criteriaJson);
-    final schemaVersion = _schemaVersion(json);
-    _validateCriteria(json, schemaVersion);
+    _validateCriteria(json);
     final mediaKind = json['media_kind'] as String?;
     final entityScope = _scopeFromValue(json['entity_scope']);
     final decodedSortRules = _sortRulesFromJson(
@@ -114,7 +113,6 @@ class SmartList {
       json['filter'] == null
           ? const <String, dynamic>{}
           : Map<String, dynamic>.from(json['filter'] as Map),
-      schemaVersion: schemaVersion,
       mediaKind: mediaKind,
       entityScope: entityScope,
     );
@@ -157,23 +155,13 @@ class SmartList {
     return result;
   }
 
-  static int _schemaVersion(Map<String, dynamic> json) {
+  static void _validateCriteria(Map<String, dynamic> json) {
     final rawVersion = json['schema_version'];
-    if (rawVersion == null) return 1;
-    if (rawVersion is! int) {
+    if (rawVersion != 1) {
       throw const FormatException(
-        'SmartList schema_version must be an integer.',
+        'Unsupported SmartList criteria schema version.',
       );
     }
-    if (rawVersion != 1 && rawVersion != 2) {
-      throw FormatException(
-        'Unsupported SmartList schema_version: $rawVersion.',
-      );
-    }
-    return rawVersion;
-  }
-
-  static void _validateCriteria(Map<String, dynamic> json, int schemaVersion) {
     _validateOptionalType(json, 'media_kind', (value) => value is String);
     _validateOptionalType(json, 'entity_scope', (value) => value is String);
     _validateOptionalType(json, 'search_query', (value) => value is String);
@@ -255,21 +243,6 @@ class SmartList {
           }
         }
       }
-      if (schemaVersion == 1) {
-        for (final key in const [
-          'series',
-          'location',
-          'tag',
-          'grade',
-          'condition',
-          'publisher',
-          'release_year',
-          'country',
-          'language',
-        ]) {
-          _validateOptionalType(filter, key, (value) => value is String);
-        }
-      }
     }
   }
 
@@ -308,7 +281,6 @@ class SmartList {
   static ({LibraryFilterSelection selection, List<String> degraded})
       _filterFromJson(
     Map<String, dynamic> json, {
-    required int schemaVersion,
     required String? mediaKind,
     required LibraryEntityScope? entityScope,
   }) {
@@ -319,29 +291,7 @@ class SmartList {
       for (final entry in rawFields.entries) {
         final value = entry.value?.toString().trim();
         if (value != null && value.isNotEmpty) {
-          final token = _normalizeFilterFieldId(entry.key.toString());
-          fieldValues[token] = value;
-          if (!_isKnownField(token, mediaKind, entityScope)) {
-            degraded.add(token);
-          }
-        }
-      }
-    }
-    if (schemaVersion < 2) {
-      for (final key in const [
-        'series',
-        'location',
-        'tag',
-        'grade',
-        'condition',
-        'publisher',
-        'release_year',
-        'country',
-        'language',
-      ]) {
-        final value = json[key]?.toString().trim();
-        if (value != null && value.isNotEmpty) {
-          final token = _normalizeFilterFieldId(key);
+          final token = _stableToken(entry.key.toString());
           fieldValues[token] = value;
           if (!_isKnownField(token, mediaKind, entityScope)) {
             degraded.add(token);
@@ -381,10 +331,6 @@ class SmartList {
       ),
       degraded: List.unmodifiable(degraded.toSet()),
     );
-  }
-
-  static String _normalizeFilterFieldId(String id) {
-    return id == 'release_year' ? 'year' : id;
   }
 
   static T? _enumByNameOrNull<T>(Map<String, T> values, Object? rawValue) {

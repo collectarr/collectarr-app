@@ -23,48 +23,29 @@ void main() {
     );
 
     final settings = await store.read();
-    final prefs = await SharedPreferences.getInstance();
 
     expect(settings.metadataBaseUrl, 'http://metadata.local:8010');
     expect(settings.syncBaseUrl, 'http://sync.local:8020');
     expect(settings.syncKey, 'local-key');
-    expect(prefs.getString('collectarr.settings.sync_key'), isNull);
     expect(settings.isLoaded, isTrue);
   });
 
-  test('migrates an existing sync key into secure storage', () async {
+  test('does not read sync keys from the old shared-preferences location',
+      () async {
     SharedPreferences.setMockInitialValues({
       'collectarr.settings.sync_key': 'existing-sync-secret',
     });
-    final store = ConnectionSettingsStore();
-
-    final settings = await store.read();
-    final prefs = await SharedPreferences.getInstance();
-    final reread = await store.read();
-
-    expect(settings.syncKey, 'existing-sync-secret');
-    expect(reread.syncKey, 'existing-sync-secret');
-    expect(prefs.getString('collectarr.settings.sync_key'), isNull);
-  });
-
-  test('removes the known public default instead of migrating it', () async {
-    SharedPreferences.setMockInitialValues({
-      'collectarr.settings.sync_key': 'collectarr-sync-dev-key',
-    });
 
     final settings = await ConnectionSettingsStore().read();
-    final prefs = await SharedPreferences.getInstance();
 
     expect(ConnectionSettings.defaultSyncKey, isEmpty);
     expect(settings.syncKey, isEmpty);
-    expect(prefs.getString('collectarr.settings.sync_key'), isNull);
   });
 
   test('connection settings reset to compile-time defaults', () async {
     SharedPreferences.setMockInitialValues({
       'collectarr.settings.metadata_base_url': 'http://metadata.local',
       'collectarr.settings.sync_base_url': 'http://sync.local',
-      'collectarr.settings.sync_key': 'secret',
     });
     final store = ConnectionSettingsStore();
 
@@ -80,7 +61,6 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'collectarr.settings.metadata_base_url': 'http://metadata.local',
       'collectarr.settings.sync_base_url': 'http://sync.local',
-      'collectarr.settings.sync_key': 'secret',
     });
     final container = ProviderContainer(
       overrides: [
@@ -151,14 +131,13 @@ void main() {
     expect(settings.syncKey, 'local-key');
   });
 
-  test('connection pairing code can decode raw json for manual recovery', () {
-    final settings = const ConnectionPairing().decode(
-      '{"version":1,"metadata_base_url":"http://core","sync_base_url":"http://sync","sync_key":"key"}',
+  test('connection pairing rejects unprefixed payloads', () {
+    expect(
+      () => const ConnectionPairing().decode(
+        '{"version":1,"metadata_base_url":"http://core","sync_base_url":"http://sync","sync_key":"key"}',
+      ),
+      throwsFormatException,
     );
-
-    expect(settings.metadataBaseUrl, 'http://core');
-    expect(settings.syncBaseUrl, 'http://sync');
-    expect(settings.syncKey, 'key');
   });
 
   test('connection presets apply endpoint URLs without changing sync key', () {
