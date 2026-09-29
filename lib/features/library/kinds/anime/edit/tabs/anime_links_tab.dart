@@ -22,17 +22,17 @@ class AnimeEditLinksTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final providerLinks =
+    final catalogLinks =
         item.kindCapability.mapTransport((transport) => transport.trailerUrls);
     return EditTabShell(
       children: [
-        if (providerLinks.isNotEmpty)
+        if (catalogLinks.isNotEmpty)
           EditSection(
-            title: 'Provider links',
+            title: 'Catalog links',
             accent: accent,
             child: LibraryExternalLinksSection(
-              title: 'Provider links',
-              links: providerLinks,
+              title: 'Catalog links',
+              links: catalogLinks,
               accent: accent,
             ),
           ),

@@ -1,17 +1,13 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:dio/dio.dart';
 
 import '../../../helpers/test_constants.dart';
-import '../../../helpers/json_test_helpers.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/money.dart';
@@ -21,19 +17,9 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_search_unified.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
-import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
-import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
-import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
-import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -47,7 +33,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/library_add_test_harness.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 Finder textFieldByKeyOrLabel(String keyName, String label) {
   final keyFinder = find.byKey(ValueKey(keyName));
@@ -114,23 +99,6 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('preview catalog ids stay deterministic and reserved', () {
-    final first = buildPreviewCatalogItemId(
-      kind: 'comic',
-      provider: 'anilist',
-      providerItemId: 'item:1/2',
-    );
-    final second = buildPreviewCatalogItemId(
-      kind: 'comic',
-      provider: 'anilist',
-      providerItemId: 'item:1/2',
-    );
-
-    expect(first, second);
-    expect(first, startsWith('preview-comic-'));
-    expect(first, isNot(contains('item:1/2')));
-  });
-
   test('local cover image preprocessor applies crop and rotation transforms',
       () async {
     final pngBytes = await _generateSolidPngBytes(width: 2, height: 3);
@@ -166,9 +134,6 @@ void main() {
         overrides: [
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -225,9 +190,6 @@ void main() {
         overrides: [
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
           localDatabaseProvider.overrideWithValue(db),
         ],
         child: MaterialApp(
@@ -248,64 +210,6 @@ void main() {
     expect(find.text('Short Box 1'), findsOneWidget);
   });
 
-  testWidgets('generic add dialog searches provider candidates',
-      (tester) async {
-    // Build a mock JWT with far-future expiry so AuthController restores
-    // an admin session from SharedPreferences.
-    final futureExp = DateTime.now()
-            .toUtc()
-            .add(const Duration(days: 365))
-            .millisecondsSinceEpoch ~/
-        1000;
-    final payload = base64Url.encode(
-      utf8.encode(jsonEncode({'exp': futureExp})),
-    );
-    final mockToken = 'header.$payload.signature';
-    SharedPreferences.setMockInitialValues({
-      'collectarr.auth.token': mockToken,
-      'collectarr.auth.is_admin': true,
-    });
-    tester.view.physicalSize = const Size(1100, 760);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final api = _FakeLibraryAddApiClient();
-    const providerSearchType = ComicRegistration();
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(api),
-          providerRegistryProvider
-              .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
-        ],
-        child: MaterialApp(
-          home: Scaffold(
-            body: LibraryAddDialog(
-              type: providerSearchType,
-              autoLookupInitialIdentifier: false,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.enterText(
-      find.byKey(const ValueKey('library-add-query-field')),
-      'Naruto',
-    );
-    await tester.tap(find.text('Search Comics'));
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Naruto Vol. 1'), findsOneWidget);
-    expect(find.byTooltip('Queue Core ingest'), findsNothing);
-    expect(find.byTooltip('Propose metadata to Core'), findsNothing);
-  });
-
   testWidgets(
       'comic add dialog applies local cover scan hints to search fields',
       (tester) async {
@@ -322,9 +226,6 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -406,9 +307,6 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -462,9 +360,6 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -519,9 +414,6 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -594,9 +486,6 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -690,50 +579,6 @@ void main() {
     expect(textField.controller!.text, 'Batman 423 1988 DC');
   });
 
-  test('provider candidate reranking favors exact local scan hints', () {
-    final ranked = comicKindAdd.search.provider.ranking.rankProvider(
-      const [
-        ComicIssueCandidate(
-          provider: 'comicvine',
-          providerItemId: 'comicvine-detective-423',
-          title: 'Detective Comics #423',
-          publisher: 'DC',
-          issueNumber: '423',
-          series: ProviderSeriesHint(
-            seriesTitle: 'Detective Comics',
-            volumeStartYear: 1988,
-          ),
-        ),
-        ComicIssueCandidate(
-          provider: 'comicvine',
-          providerItemId: 'comicvine-423',
-          title: 'Batman #423 (match)',
-          publisher: 'DC',
-          issueNumber: '423',
-          series: ProviderSeriesHint(
-            seriesTitle: 'Batman',
-            volumeStartYear: 1988,
-          ),
-        ),
-      ],
-      LibraryAddSearchContext(
-        query: 'Batman',
-        advancedFilters: {
-          LibraryAddFilterId('comic.series'):
-              const LibraryAddTextFilterValue('Batman'),
-          LibraryAddFilterId('comic.issue'):
-              const LibraryAddTextFilterValue('423'),
-          LibraryAddFilterId('comic.publisher'):
-              const LibraryAddTextFilterValue('DC'),
-          LibraryAddFilterId('comic.year'):
-              const LibraryAddTextFilterValue('1988'),
-        },
-      ),
-    );
-
-    expect(ranked.first.title, 'Batman #423 (match)');
-  });
-
   testWidgets(
       'comic add dialog applies edited review label from real review dialog',
       (tester) async {
@@ -747,9 +592,6 @@ void main() {
         overrides: [
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -980,50 +822,6 @@ void main() {
     expect(reviewedImage!.extractedText, 'Batman 423 1988 DC');
   });
 
-  testWidgets('provider search does not claim fallback when results are mixed',
-      (tester) async {
-    tester.view.physicalSize = const Size(1100, 760);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final api = _FakeLibraryAddApiClient();
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(api),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
-        ],
-        child: MaterialApp(
-          home: Scaffold(
-            body: LibraryAddDialog(
-              type: const ComicRegistration(),
-              autoLookupInitialIdentifier: false,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.enterText(
-      find.byKey(const ValueKey('library-add-query-field')),
-      'Over the Garden Wall',
-    );
-    await tester.tap(find.text('Search Comics'));
-    await pumpUntilSettled(tester);
-
-    expect(
-        find.text('GCD unavailable, Comic Vine fallback used.'), findsNothing);
-    // Mixed-provider summary text removed; provider badges are sufficient.
-    expect(
-      find.text('Showing matches from GCD and Comic Vine.'),
-      findsNothing,
-    );
-  });
-
   testWidgets('movie manual action opens manual pane', (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -1035,9 +833,6 @@ void main() {
         overrides: [
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -1071,9 +866,6 @@ void main() {
         overrides: [
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Builder(
@@ -1116,9 +908,6 @@ void main() {
         overrides: [
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -1143,122 +932,6 @@ void main() {
     expect(find.text('Manual', skipOffstage: false), findsWidgets);
   });
 
-  testWidgets('showLibraryAddDialog uses comic-specific preview pane',
-      (tester) async {
-    tester.view.physicalSize = const Size(1100, 760);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final api = _FakeLibraryAddApiClient();
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(api),
-          localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith(() => TestAdminAuthController()),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
-        ],
-        child: MaterialApp(
-          home: Builder(
-            builder: (context) => Scaffold(
-              body: FilledButton(
-                onPressed: () {
-                  showLibraryAddDialog(
-                    context: context,
-                    type: const ComicRegistration(),
-                  );
-                },
-                child: const Text('Open comic add'),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text('Open comic add'));
-    await pumpUntilSettled(tester);
-
-    await tester.enterText(
-      find.byKey(const ValueKey('library-add-query-field')),
-      'Batman',
-    );
-    await tester.tap(find.text('Search Comics'));
-    await pumpUntilSettled(tester);
-
-    await tester.tap(find.text('423').first);
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Issue identity'), findsOneWidget);
-  });
-
-  testWidgets('showLibraryAddDialog uses comic-specific search shell',
-      (tester) async {
-    tester.view.physicalSize = const Size(1280, 760);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final api = _FakeLibraryAddApiClient();
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(api),
-          localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith(() => TestAdminAuthController()),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
-        ],
-        child: MaterialApp(
-          home: Builder(
-            builder: (context) => Scaffold(
-              body: FilledButton(
-                onPressed: () {
-                  showLibraryAddDialog(
-                    context: context,
-                    type: const ComicRegistration(),
-                  );
-                },
-                child: const Text('Open comic add'),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text('Open comic add'));
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Add Comics'), findsOneWidget);
-    expect(find.text('Add Comics from Collectarr Core'), findsNothing);
-    expect(find.text('Variant Description'), findsOneWidget);
-
-    await tester.enterText(
-      find.byKey(const ValueKey('library-add-query-field')),
-      'Batman',
-    );
-    await tester.tap(find.text('Search Comics'));
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Series'), findsOneWidget);
-    expect(find.text('Issue'), findsOneWidget);
-    expect(find.text('Release Date'), findsOneWidget);
-    expect(find.text('Format'), findsOneWidget);
-    expect(find.text('Batman'), findsWidgets);
-    expect(find.text('423'), findsOneWidget);
-  });
-
   testWidgets('showLibraryAddDialog opens movie edit modal from manual action',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
@@ -1271,9 +944,6 @@ void main() {
         overrides: [
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Builder(
@@ -1302,111 +972,6 @@ void main() {
     expect(find.text('Save'), findsNothing);
   });
 
-  testWidgets('showLibraryAddDialog uses movie-specific preview pane',
-      (tester) async {
-    tester.view.physicalSize = const Size(1100, 760);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final api = _FakeLibraryAddApiClient();
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(api),
-          localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith(() => TestAdminAuthController()),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
-        ],
-        child: MaterialApp(
-          home: Builder(
-            builder: (context) => Scaffold(
-              body: FilledButton(
-                onPressed: () {
-                  showLibraryAddDialog(
-                    context: context,
-                    type: const MovieRegistration(),
-                  );
-                },
-                child: const Text('Open movie add'),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text('Open movie add'));
-    await pumpUntilSettled(tester);
-
-    await tester.enterText(
-      find.byKey(const ValueKey('library-add-query-field')),
-      'Blade Runner',
-    );
-    await tester.tap(find.text('Search Movies'));
-    await pumpUntilSettled(tester);
-
-    await tester.tap(find.text('Blade Runner 2049').first);
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Release overview'), findsOneWidget);
-  });
-
-  testWidgets('showLibraryAddDialog uses movie-specific search shell',
-      (tester) async {
-    tester.view.physicalSize = const Size(1280, 760);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final api = _FakeLibraryAddApiClient();
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(api),
-          localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith(() => TestAdminAuthController()),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
-        ],
-        child: MaterialApp(
-          home: Builder(
-            builder: (context) => Scaffold(
-              body: FilledButton(
-                onPressed: () {
-                  showLibraryAddDialog(
-                    context: context,
-                    type: const MovieRegistration(),
-                  );
-                },
-                child: const Text('Open movie add'),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text('Open movie add'));
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Add Movies'), findsOneWidget);
-    expect(find.text('Add Movies from Collectarr Core'), findsNothing);
-    expect(find.text('Find movies or box sets'), findsOneWidget);
-    expect(find.text('Movies'), findsWidgets);
-    expect(find.text('TV'), findsNothing);
-    expect(find.text('Box Sets'), findsOneWidget);
-  });
-
   testWidgets('core search results explain why a movie matched', (
     tester,
   ) async {
@@ -1424,12 +989,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          providerRegistryProvider
-              .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
           authControllerProvider.overrideWith(() => TestAdminAuthController()),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -1474,9 +1034,6 @@ void main() {
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(
             () => TestAdminAuthController(),
-          ),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
         child: MaterialApp(
@@ -1540,9 +1097,6 @@ void main() {
           ),
           authControllerProvider.overrideWith(
             () => TestAdminAuthController(),
-          ),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
         child: MaterialApp(
@@ -1612,9 +1166,6 @@ void main() {
           authControllerProvider.overrideWith(
             () => TestAdminAuthController(),
           ),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -1660,9 +1211,6 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(() => TestAdminAuthController()),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -1713,9 +1261,6 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(() => TestAdminAuthController()),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -1777,9 +1322,6 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(() => TestAdminAuthController()),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -1828,110 +1370,6 @@ void main() {
     expect(anyTextContaining('Sketch Cover'), findsWidgets);
   });
 
-  testWidgets('barcode lookup falls back to provider search on Core miss',
-      (tester) async {
-    SharedPreferences.setMockInitialValues({
-      'collectarr.auth.token': _jwtExpiringAt(
-        DateTime.now().toUtc().add(const Duration(hours: 1)),
-      ),
-      'collectarr.auth.email': 'admin@test.com',
-      'collectarr.auth.is_admin': true,
-    });
-    tester.view.physicalSize = const Size(1100, 760);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final api = _FakeLibraryAddApiClient();
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(api),
-          providerRegistryProvider
-              .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
-        ],
-        child: MaterialApp(
-          home: Scaffold(
-            body: LibraryAddDialog(
-              type: const MusicRegistration(),
-              autoLookupInitialIdentifier: false,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text('Barcode'));
-    await pumpUntilSettled(tester);
-
-    await tester.enterText(
-      find.byKey(const ValueKey('library-add-barcode-field')),
-      '012345678905',
-    );
-
-    await tester.tap(find.text('Lookup barcode'));
-    await pumpUntilSettled(tester);
-
-    expect(api.lastLookupBarcode, '012345678905');
-    expect(api.lastLookupKind, 'music');
-    expect(find.textContaining('Provider result 012345678905'), findsWidgets);
-  });
-
-  testWidgets('music provider search works with artist-only advanced search',
-      (tester) async {
-    SharedPreferences.setMockInitialValues({
-      'collectarr.auth.token': _jwtExpiringAt(
-        DateTime.now().toUtc().add(const Duration(hours: 1)),
-      ),
-      'collectarr.auth.email': 'admin@test.com',
-      'collectarr.auth.is_admin': true,
-    });
-    tester.view.physicalSize = const Size(1100, 760);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final api = _FakeLibraryAddApiClient();
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(api),
-          providerRegistryProvider
-              .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
-        ],
-        child: MaterialApp(
-          home: Scaffold(
-            body: LibraryAddDialog(
-              type: const MusicRegistration(),
-              autoLookupInitialIdentifier: false,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.byTooltip('Show advanced fields'));
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.byKey(const ValueKey('library-add-series-field')),
-      'Daft Punk',
-    );
-    await tester.tap(find.byTooltip('Search').first);
-    await pumpUntilSettled(tester);
-
-    expect(api.lastSearchKind, 'music');
-    expect(api.lastSearchSeries, 'Daft Punk');
-    expect(find.textContaining('Provider result Daft Punk'), findsWidgets);
-  });
-
   testWidgets('music core add hydrates full metadata before persist',
       (tester) async {
     configureLibraryAddDesktopViewport(tester);
@@ -1945,9 +1383,6 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(
@@ -1978,137 +1413,6 @@ void main() {
     final rows = await CatalogSnapshotRepository(db).findAll();
     expect(rows, isNotEmpty);
     expect(rows.single.id, 'music-core-1');
-  });
-
-  testWidgets('music provider add persists preview track list for non-admin',
-      (tester) async {
-    configureLibraryAddDesktopViewport(tester);
-
-    final api = _FakeLibraryAddApiClient();
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(api),
-          localDatabaseProvider.overrideWithValue(db),
-          providerRegistryProvider
-              .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
-        ],
-        child: MaterialApp(
-          home: Scaffold(
-            body: LibraryAddDialog(
-              type: const MusicRegistration(),
-              autoLookupInitialIdentifier: false,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.byTooltip('Show advanced fields'));
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.byKey(const ValueKey('library-add-series-field')),
-      'Daft Punk',
-    );
-    await tester.tap(find.byTooltip('Search').first);
-    await pumpUntilSettled(tester);
-
-    final groupNode = find.byType(LibraryAddUnifiedGroupNode).first;
-    await tester.tap(
-      find.descendant(of: groupNode, matching: find.byType(InkWell)).first,
-    );
-    await pumpUntilSettled(tester);
-    final childTiles =
-        find.descendant(of: groupNode, matching: find.byType(InkWell));
-    expect(childTiles, findsNWidgets(2));
-    await tester.tap(childTiles.last);
-    await pumpUntilSettled(tester);
-
-    await tester.tap(find.byType(FilledButton).last);
-    await pumpUntilSettled(tester);
-
-    final rows = await CatalogSnapshotRepository(db).findAll();
-    expect(rows, isNotEmpty);
-    final cached = await CatalogSnapshotRepository(db).findByRef(
-      rows.single.catalogRef,
-    );
-    final music = MusicCatalogMapper.mapMetadataItemToMusic(cached!);
-    expect(music.primaryRelease?.trackCount, 2);
-    expect(music.primaryRelease?.tracks, hasLength(2));
-    expect(
-      music.primaryRelease?.tracks.map((track) => track.title),
-      contains('One More Time'),
-    );
-  });
-
-  testWidgets('add dialog can toggle Core and Provider result visibility',
-      (tester) async {
-    configureLibraryAddDesktopViewport(tester);
-
-    final api = _FakeLibraryAddApiClient();
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(api),
-          localDatabaseProvider.overrideWithValue(db),
-          providerRegistryProvider
-              .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
-          authControllerProvider.overrideWith(() => TestAdminAuthController()),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
-        ],
-        child: MaterialApp(
-          home: Scaffold(
-            body: LibraryAddDialog(
-              type: const MovieRegistration(),
-              autoLookupInitialIdentifier: false,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.enterText(
-      find.byKey(const ValueKey('library-add-query-field')),
-      'Blade Runner',
-    );
-    await tester.tap(find.text('Search Movies'));
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Blade Runner 2049'), findsWidgets);
-    expect(find.text('Fallback candidate'), findsWidgets);
-    expect(find.text('Media'), findsOneWidget);
-    expect(find.text('Releases'), findsOneWidget);
-
-    await tester.tap(find.text('Core results'));
-    await pumpUntilSettled(tester);
-    expect(find.text('Blade Runner 2049'), findsNothing);
-    expect(find.text('Fallback candidate'), findsWidgets);
-
-    await tester.tap(find.text('Provider results'));
-    await pumpUntilSettled(tester);
-    expect(find.text('Fallback candidate'), findsNothing);
-
-    await tester.tap(find.text('Core results'));
-    await pumpUntilSettled(tester);
-    expect(find.text('Blade Runner 2049'), findsWidgets);
-
-    await tester.tap(find.text('Media'));
-    await pumpUntilSettled(tester);
-    expect(find.text('Blade Runner 2049'), findsNothing);
-    expect(find.text('Fallback candidate'), findsNothing);
-
-    await tester.tap(find.text('Media'));
-    await pumpUntilSettled(tester);
-    expect(find.text('Blade Runner 2049'), findsWidgets);
   });
 
   testWidgets('showLibraryAddDialog pushes fullscreen route on compact screen',
@@ -2161,21 +1465,11 @@ void main() {
 class _FakeLibraryAddApiClient extends ApiClient {
   _FakeLibraryAddApiClient() : super(baseUrl: 'http://unused');
 
-  String? lastProvider;
-  String? lastProviderQuery;
-  String? lastProviderKind;
-  String? lastProviderSeries;
   String? lastSearchQuery;
   String? lastSearchKind;
   String? lastSearchSeries;
   String? lastLookupBarcode;
   String? lastLookupKind;
-  String? lastProposalProvider;
-  String? lastProposalProviderItemId;
-  String? lastProposalTitle;
-  String? lastIngestProvider;
-  String? lastIngestProviderItemId;
-  int providerPreviewCallCount = 0;
 
   static const _searchFixtures = <String, List<Map<String, dynamic>>>{
     'comic|Batman|': [
@@ -2431,101 +1725,6 @@ class _FakeLibraryAddApiClient extends ApiClient {
     lastLookupKind = kind;
     throw StateError('not found');
   }
-
-  @override
-  Future<Map<String, dynamic>> createMetadataProposal({
-    required String provider,
-    required String query,
-    String? providerItemId,
-    String? title,
-    String? summary,
-    String? imageUrl,
-    Map<String, dynamic>? metadataPayload,
-  }) async {
-    lastProposalProvider = provider;
-    lastProposalProviderItemId = providerItemId;
-    lastProposalTitle = title;
-    return const {
-      'id': 'proposal-1',
-      'status': 'pending',
-    };
-  }
-
-  @override
-  Future<AdminProviderIngestResult> adminProviderIngest({
-    required String provider,
-    required String providerItemId,
-    String? kind,
-  }) async {
-    lastIngestProvider = provider;
-    lastIngestProviderItemId = providerItemId;
-    if (providerItemId == 'openlibrary-1') {
-      return const AdminProviderIngestResult(
-        itemId: 'book-item-1',
-        created: true,
-        item: AdminMetadataItem(
-          id: 'book-item-1',
-          kind: 'book',
-          title: 'The Hobbit',
-          canonicalFieldValues: {
-            'series_title': 'Middle-earth Tales',
-            'publisher': 'Allen & Unwin',
-            'page_count': 310,
-          },
-          providerLinks: [
-            AdminProviderLink(
-              provider: 'openlibrary',
-              entityType: 'item',
-              providerItemId: 'openlibrary-1',
-            ),
-          ],
-          editions: [
-            AdminEdition(
-              id: 'edition-book-1',
-              title: 'Standard Edition',
-              publisher: 'Allen & Unwin',
-              variants: [
-                AdminVariant(
-                  id: 'variant-book-1',
-                  name: 'Hardcover',
-                  isPrimary: true,
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
-    return const AdminProviderIngestResult(
-      itemId: 'music-item-1',
-      created: true,
-      item: AdminMetadataItem(
-        id: 'music-item-1',
-        kind: 'music',
-        title: 'Provider result Discovery',
-      ),
-    );
-  }
-
-  @override
-  Future<AdminProviderIngestJob> adminCreateProviderIngestJob({
-    required String provider,
-    required String providerItemId,
-    int maxAttempts = 3,
-  }) async {
-    lastIngestProvider = provider;
-    lastIngestProviderItemId = providerItemId;
-    return AdminProviderIngestJob(
-      id: 'job-1',
-      provider: provider,
-      providerItemId: providerItemId,
-      status: 'queued',
-      attempts: 0,
-      maxAttempts: maxAttempts,
-      createdAt: DateTime.utc(2026),
-      updatedAt: DateTime.utc(2026),
-    );
-  }
 }
 
 class _FakeCoverImagePreprocessor implements LibraryCoverImagePreprocessor {
@@ -2617,19 +1816,6 @@ class _FakeCoverImageReview implements LibraryCoverImageReview {
   }
 }
 
-String _jwtExpiringAt(DateTime expiresAt) {
-  final encodedHeader = _base64UrlJson({'alg': 'none', 'typ': 'JWT'});
-  final encodedPayload = _base64UrlJson({
-    'sub': '00000000-0000-0000-0000-000000000001',
-    'exp': expiresAt.millisecondsSinceEpoch ~/ 1000,
-  });
-  return '$encodedHeader.$encodedPayload.signature';
-}
-
-String _base64UrlJson(Map<String, Object> value) {
-  return base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
-}
-
 Future<Uint8List> _generateSolidPngBytes({
   required int width,
   required int height,
@@ -2643,277 +1829,4 @@ Future<Uint8List> _generateSolidPngBytes({
   final image = await recorder.endRecording().toImage(width, height);
   final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
   return byteData!.buffer.asUint8List();
-}
-
-ProviderConnectorRegistry _buildTestProviderRegistry() {
-  return InMemoryProviderConnectorRegistry([
-    _FakeMetadataProvider(name: 'anilist', defaultKind: 'comic').toConnector(),
-    _FakeMetadataProvider(name: 'tmdb', defaultKind: 'movie').toConnector(),
-    _FakeMetadataProvider(name: 'musicbrainz', defaultKind: 'music')
-        .toConnector(),
-    _FakeMetadataProvider(name: 'openlibrary', defaultKind: 'book')
-        .toConnector(),
-    _FakeMetadataProvider(name: 'comicvine', defaultKind: 'comic')
-        .toConnector(),
-    _FakeMetadataProvider(name: 'gcd', defaultKind: 'comic').toConnector(),
-    _FakeMetadataProvider(name: 'igdb', defaultKind: 'game').toConnector(),
-  ]);
-}
-
-class _FakeMetadataProvider
-    implements ProviderRawMetadataCapability, MusicProviderMetadataCapability {
-  _FakeMetadataProvider({required this.name, required this.defaultKind});
-
-  final String name;
-  final String defaultKind;
-
-  @override
-  CatalogMediaKind get kind => CatalogMediaKind.music;
-
-  ProviderConnector toConnector() => ProviderConnector(
-        id: ProviderId.fromValue(name) ?? ProviderId.tmdb,
-        descriptor: descriptor,
-        rawMetadata: this,
-        typedMetadata: name == 'musicbrainz' ? this : null,
-      );
-
-  ProviderDescriptor get descriptor => ProviderDescriptor(
-        name: name,
-        displayName: name,
-        kind: catalogMediaKindFromApiValue(defaultKind),
-        supportedKinds: [catalogMediaKindFromApiValue(defaultKind)],
-      );
-
-  @override
-  Future<List<MusicProviderCandidate>> searchCandidates(
-    String query, {
-    required CatalogMediaKind kind,
-    required LibraryEntityScope entityScope,
-    int limit = 25,
-    ProviderCancellationToken? cancellationToken,
-  }) async {
-    if (kind != CatalogMediaKind.music || name != 'musicbrainz') {
-      return const <MusicProviderCandidate>[];
-    }
-    final title = query.trim().isEmpty
-        ? 'Provider result Daft Punk'
-        : 'Provider result $query';
-    final release = _musicRelease(title);
-    if (entityScope == LibraryEntityScope.work) {
-      return [
-        MusicReleaseGroupCandidate(
-          identity: const ProviderEntityIdentity(
-            provider: 'musicbrainz',
-            externalId: 'fake-group',
-            scope: LibraryEntityScope.work,
-          ),
-          title: title,
-          artist: 'Daft Punk',
-          releases: [
-            MusicReleaseSummaryCandidate(
-              providerItemId: release.providerItemId,
-              title: release.title,
-              format: 'CD',
-            ),
-          ],
-          provenance: release.provenance,
-        ),
-      ];
-    }
-    return [release];
-  }
-
-  @override
-  Future<ProviderEnvelope<MusicProviderCandidate>> fetchCandidate(
-    String providerItemId,
-  ) async {
-    final title = 'Provider result Daft Punk';
-    final release = _musicRelease(title);
-    final MusicProviderCandidate candidate =
-        providerItemId.startsWith('release-group:')
-            ? MusicReleaseGroupCandidate(
-                identity: const ProviderEntityIdentity(
-                  provider: 'musicbrainz',
-                  externalId: 'fake-group',
-                  scope: LibraryEntityScope.work,
-                ),
-                title: title,
-                artist: 'Daft Punk',
-                releases: [
-                  MusicReleaseSummaryCandidate(
-                    providerItemId: release.providerItemId,
-                    title: release.title,
-                    format: 'CD',
-                  ),
-                ],
-                provenance: release.provenance,
-              )
-            : release;
-    return ProviderEnvelope<MusicProviderCandidate>(
-      provider: candidate.provider,
-      providerItemId: candidate.providerItemId,
-      entityScope: candidate.entityScope,
-      payload: candidate,
-      provenance: candidate is MusicReleaseCandidate
-          ? candidate.provenance
-          : (candidate as MusicReleaseGroupCandidate).provenance,
-    );
-  }
-
-  MusicReleaseCandidate _musicRelease(String title) {
-    return MusicReleaseCandidate(
-      identity: const ProviderEntityIdentity(
-        provider: 'musicbrainz',
-        externalId: 'musicbrainz-1',
-        scope: LibraryEntityScope.release,
-      ),
-      title: title,
-      releaseGroupId: 'fake-group',
-      releaseGroupTitle: title,
-      artist: 'Daft Punk',
-      publisher: 'Virgin',
-      provenance: const ProviderProvenance(
-        fetchedAt: '2026-09-16T00:00:00Z',
-      ),
-      isHydrated: true,
-      mediums: const [
-        MusicMediumCandidate(
-          mediumNumber: 1,
-          format: 'CD',
-          trackCount: 2,
-          tracks: [
-            MusicTrackCandidate(
-              position: 1,
-              title: 'One More Time',
-              durationMs: 320000,
-            ),
-            MusicTrackCandidate(
-              position: 2,
-              title: 'Aerodynamic',
-              durationMs: 212000,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  @override
-  Future<List<ProviderSearchResult>> search(
-    String query, {
-    CatalogMediaKind? kind,
-    int limit = 25,
-    ProviderCancellationToken? cancellationToken,
-  }) async {
-    if (name == 'anilist' || query == 'Naruto') {
-      return [
-        ProviderSearchResult(
-          provider: 'anilist',
-          providerItemId: 'anilist-1',
-          title: 'Naruto Vol. 1',
-          kind: kind ?? catalogMediaKindFromApiValue(defaultKind),
-          entityScope: LibraryEntityScope.release,
-          searchRole: ProviderSearchRole.release,
-          summary: 'A ninja candidate.',
-          imageUrl: 'https://example.test/naruto.jpg',
-        ),
-      ];
-    }
-    if (name == 'tmdb' && query == 'Blade Runner') {
-      return [
-        ProviderSearchResult(
-          provider: 'tmdb',
-          providerItemId: 'tmdb-1',
-          title: 'Fallback candidate',
-          kind: CatalogMediaKind.movie,
-          entityScope: LibraryEntityScope.work,
-          searchRole: ProviderSearchRole.work,
-          summary: 'Different result.',
-          imageUrl: 'https://example.test/fallback.jpg',
-          payload: {'publisher': 'Studio Canal'},
-        ),
-      ];
-    }
-    final displayTitle = query.isNotEmpty
-        ? 'Provider result $query'
-        : 'Provider result Daft Punk';
-    return [
-      ProviderSearchResult(
-        provider: name,
-        providerItemId: '$name-1',
-        title: displayTitle,
-        kind: kind ?? catalogMediaKindFromApiValue(defaultKind),
-        entityScope: LibraryEntityScope.release,
-        searchRole: ProviderSearchRole.release,
-        summary: 'Provider summary',
-        imageUrl: 'https://example.test/$name.jpg',
-      ),
-    ];
-  }
-
-  @override
-  Future<ProviderRawEnvelope> fetchItem(
-    String providerItemId, {
-    CatalogMediaKind? kind,
-  }) async {
-    final mediaKind = kind ?? catalogMediaKindFromApiValue(defaultKind);
-    if (providerItemId == 'musicbrainz-1' ||
-        mediaKind == CatalogMediaKind.music ||
-        name == 'musicbrainz') {
-      return ProviderRawEnvelope(
-        provider: name,
-        providerItemId: providerItemId,
-        kind: CatalogMediaKind.music,
-        payload: ProviderNormalizedPayload({
-          'title': 'Provider result Discovery',
-          'series_title': 'Daft Punk',
-          'publisher': 'Virgin',
-          'track_count': 2,
-          'tracks': [
-            {
-              'position': 1,
-              'title': 'One More Time',
-              'duration_seconds': 320,
-            },
-            {
-              'position': 2,
-              'title': 'Aerodynamic',
-              'duration_seconds': 212,
-            },
-          ],
-        }),
-        provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
-        images: const [],
-        attribution: const ProviderAttribution(required: false),
-      );
-    }
-    return ProviderRawEnvelope(
-      provider: name,
-      providerItemId: providerItemId,
-      kind: mediaKind,
-      payload: ProviderNormalizedPayload({
-        'title': 'Provider item $providerItemId',
-      }),
-      provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
-      images: const [],
-      attribution: const ProviderAttribution(required: false),
-    );
-  }
-
-  Future<ProviderRawEnvelope?> searchByBarcode(
-    String barcode, {
-    CatalogMediaKind? kind,
-  }) async {
-    return ProviderRawEnvelope(
-      provider: name,
-      providerItemId: '$name-$barcode',
-      kind: kind ?? catalogMediaKindFromApiValue(defaultKind),
-      payload: ProviderNormalizedPayload({
-        'title': 'Barcode item $barcode',
-      }),
-      provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
-      images: const [],
-      attribution: const ProviderAttribution(required: false),
-    );
-  }
 }

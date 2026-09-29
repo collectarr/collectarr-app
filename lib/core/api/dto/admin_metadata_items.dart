@@ -7,7 +7,6 @@ class AdminMetadataItem {
     required this.title,
     this.canonicalFieldValues = const <String, dynamic>{},
     this.itemNumber,
-    this.providerLinks = const [],
     this.editions = const [],
   });
 
@@ -20,7 +19,6 @@ class AdminMetadataItem {
   /// opaque so it does not become a second field registry.
   final Map<String, dynamic> canonicalFieldValues;
   final String? itemNumber;
-  final List<AdminProviderLink> providerLinks;
   final List<AdminEdition> editions;
 
   String get displayTitle {
@@ -64,10 +62,6 @@ class AdminMetadataItem {
             entry.key: entry.value,
       },
       itemNumber: json['item_number'] as String?,
-      providerLinks: [
-        for (final link in (json['provider_links'] as List<dynamic>? ?? []))
-          AdminProviderLink.fromJson(link as Map<String, dynamic>),
-      ],
       editions: [
         for (final edition in (json['editions'] as List<dynamic>? ?? []))
           AdminEdition.fromJson(edition as Map<String, dynamic>),
@@ -175,32 +169,6 @@ class AdminVariant {
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
-    );
-  }
-}
-
-class AdminProviderLink {
-  const AdminProviderLink({
-    required this.provider,
-    required this.entityType,
-    required this.providerItemId,
-    this.siteUrl,
-    this.apiUrl,
-  });
-
-  final String provider;
-  final String entityType;
-  final String providerItemId;
-  final String? siteUrl;
-  final String? apiUrl;
-
-  factory AdminProviderLink.fromJson(Map<String, dynamic> json) {
-    return AdminProviderLink(
-      provider: json['provider'] as String? ?? '',
-      entityType: json['entity_type'] as String? ?? '',
-      providerItemId: json['provider_item_id']?.toString() ?? '',
-      siteUrl: json['site_url'] as String?,
-      apiUrl: json['api_url'] as String?,
     );
   }
 }

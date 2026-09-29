@@ -194,36 +194,3 @@ class SerialAuthorityCache extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
-
-class ProviderAccountsCache extends Table {
-  TextColumn get id => text()();
-  TextColumn get provider => text()();
-  TextColumn get displayName => text()();
-  TextColumn get authType => text()();
-  TextColumn get remoteAccountId => text().nullable()();
-  TextColumn get remoteHandle => text().nullable()();
-  TextColumn get username => text().nullable()();
-  TextColumn get avatarUrl => text().nullable()();
-  DateTimeColumn get connectedAt => dateTime().nullable()();
-  DateTimeColumn get lastSyncAt => dateTime().nullable()();
-  TextColumn get enabledCapabilitiesJson => text()();
-  TextColumn get syncPolicyJson => text()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-class ProviderItemLinksCache extends Table {
-  TextColumn get accountId => text()();
-  TextColumn get provider => text()();
-  TextColumn get remoteItemId => text()();
-  TextColumn get remoteEntryId => text().nullable()();
-  TextColumn get localEntityRefJson => text()();
-  TextColumn get baseSnapshotJson => text().nullable()();
-  DateTimeColumn get lastPulledAt => dateTime().nullable()();
-  DateTimeColumn get lastPushedAt => dateTime().nullable()();
-  TextColumn get remoteRevision => text().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {accountId, remoteItemId};
-}

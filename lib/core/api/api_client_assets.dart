@@ -28,12 +28,9 @@ class _AssetsApiClient {
     return AdminImageCacheStats.fromJson(data);
   }
 
-  Future<AdminImageCachePurgeResult> adminPurgeImageCache({
-    String? provider,
-  }) async {
+  Future<AdminImageCachePurgeResult> adminPurgeImageCache() async {
     final response = await _client._dio.post<Map<String, dynamic>>(
       '/api/v1/admin/image-cache/purge',
-      queryParameters: {if (provider != null) 'provider': provider},
     );
     final data = response.data;
     if (data == null) {
@@ -103,7 +100,6 @@ class _AssetsApiClient {
     required String imageType,
     required String imageDataBase64,
     String? sourceUrl,
-    String? provider,
     bool isPrimary = false,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
@@ -112,7 +108,6 @@ class _AssetsApiClient {
         'image_type': imageType,
         'image_data_base64': imageDataBase64,
         if (sourceUrl != null) 'source_url': sourceUrl,
-        if (provider != null) 'provider': provider,
         'is_primary': isPrimary,
       },
     );

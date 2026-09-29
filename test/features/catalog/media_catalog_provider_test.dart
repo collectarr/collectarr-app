@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   setUp(resetMediaCatalogCacheForTesting);
 
-  test('media catalog provider falls back when Core is unavailable', () async {
+  test('media catalog cache falls back when Core is unavailable', () async {
     final container = ProviderContainer(
       overrides: [
         apiClientProvider.overrideWithValue(_FailingCatalogApiClient()),
@@ -30,12 +30,6 @@ void main() {
       ]),
     );
     expect(
-      catalog
-          .firstWhere((type) => _isKind(type, CatalogMediaKind.comic))
-          .providers,
-      containsAll(['comicvine', 'mangadex', 'anilist']),
-    );
-    expect(
         catalog
             .firstWhere((type) => _isKind(type, CatalogMediaKind.movie))
             .routeSegments,
@@ -49,8 +43,6 @@ void main() {
         singularLabel: 'Movie',
         pluralLabel: 'Movies',
         routeSegments: ['movies'],
-        defaultProvider: 'tmdb',
-        providers: ['tmdb'],
       ),
     ]);
     final first = ProviderContainer(
@@ -83,8 +75,6 @@ void main() {
               singularLabel: 'Movie',
               pluralLabel: 'Movies',
               routeSegments: ['movies'],
-              defaultProvider: 'tmdb',
-              providers: ['tmdb'],
               physicalFormats: [
                 CatalogPhysicalFormat(
                   id: 'hd-dvd',
@@ -121,24 +111,18 @@ void main() {
               singularLabel: 'Album',
               pluralLabel: 'Albums',
               routeSegments: ['music'],
-              defaultProvider: 'musicbrainz',
-              providers: ['musicbrainz'],
             ),
             const CatalogMediaType(
               kind: 'movie',
               singularLabel: 'Film',
               pluralLabel: 'Films',
               routeSegments: ['movies'],
-              defaultProvider: 'tmdb',
-              providers: ['tmdb'],
             ),
             const CatalogMediaType(
               kind: 'boardgame',
               singularLabel: 'Boardgame',
               pluralLabel: 'Boardgame',
               routeSegments: ['boardgames'],
-              defaultProvider: 'bgg',
-              providers: ['bgg'],
             ),
           ]),
         ),

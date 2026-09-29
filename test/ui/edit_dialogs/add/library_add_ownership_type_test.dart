@@ -1,6 +1,4 @@
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
-import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
+﻿import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,9 +21,6 @@ void main() {
         overrides: [
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
         ],
         child: MaterialApp(
           home: Scaffold(

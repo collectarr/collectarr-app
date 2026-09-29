@@ -11,7 +11,6 @@ export 'data/remote/catalog_music_item_dto.dart';
 export 'data/remote/music_catalog_remote_source.dart';
 export 'integrations/catalog/music_catalog_lookup.dart';
 export 'integrations/collection_csv/music_collection_csv_projection.dart';
-export 'integrations/musicbrainz/music_musicbrainz_provider_adapter.dart';
 export 'ownership/music_owned_contributor.dart';
 export 'page.dart';
 export 'tracking/music_tracking_state_codec.dart';

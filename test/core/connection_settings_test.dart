@@ -166,7 +166,7 @@ void main() {
   });
 
   test('connection diagnostics explains stale metadata sessions', () {
-    final requestOptions = RequestOptions(path: '/metadata/providers/search');
+    final requestOptions = RequestOptions(path: '/api/v1/search');
     final error = DioException(
       requestOptions: requestOptions,
       response: Response<Map<String, dynamic>>(
@@ -191,7 +191,7 @@ void main() {
   });
 
   test('connection diagnostics explains missing metadata sign-in', () {
-    final requestOptions = RequestOptions(path: '/metadata/providers/search');
+    final requestOptions = RequestOptions(path: '/api/v1/search');
     final error = DioException(
       requestOptions: requestOptions,
       response: Response<Map<String, dynamic>>(

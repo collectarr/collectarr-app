@@ -1,4 +1,3 @@
-import '../../models/provider_link.dart';
 import '../../models/partial_date.dart';
 
 class BundleReleaseContentSummary {
@@ -284,7 +283,6 @@ class BundleReleaseDetail extends BundleReleaseSummary {
     required super.title,
     required super.contentSummary,
     required this.members,
-    required this.providerLinks,
     this.franchiseId,
     super.bundleType,
     super.format,
@@ -307,7 +305,6 @@ class BundleReleaseDetail extends BundleReleaseSummary {
     super.volumeName,
   });
   final String? franchiseId;
-  final List<ProviderLink> providerLinks;
   final List<BundleReleaseMember> members;
 
   factory BundleReleaseDetail.fromJson(Map<String, dynamic> json) {
@@ -337,10 +334,6 @@ class BundleReleaseDetail extends BundleReleaseSummary {
       volumeId: summary.volumeId,
       volumeName: summary.volumeName,
       franchiseId: json['franchise_id'] as String?,
-      providerLinks: (json['provider_links'] as List<dynamic>? ?? const [])
-          .whereType<Map<String, dynamic>>()
-          .map(ProviderLink.fromJson)
-          .toList(growable: false),
       members: (json['members'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
           .map(BundleReleaseMember.fromJson)

@@ -4,11 +4,11 @@ const movieCollectionFilterId = LibraryAddFilterId('movie.collection');
 const movieYearFilterId = LibraryAddFilterId('movie.year');
 const movieSearchScope = LibraryAddSearchScope(
   kind: CatalogMediaKind.movie,
-  providerValue: 'movie',
+  catalogValue: 'movie',
 );
 const movieCollectionSearchScope = LibraryAddSearchScope(
   kind: CatalogMediaKind.movie,
-  providerValue: 'collection',
+  catalogValue: 'collection',
 );
 
 final movieAddChrome = LibraryAddChromeConfig(

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -17,15 +16,12 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import '../helpers/json_test_helpers.dart';
 
 void main() {
-  test('media catalog parses provider defaults and physical formats', () {
+  test('media catalog parses route labels and physical formats', () {
     final mediaType = CatalogMediaType.fromJson({
       'kind': 'movie',
       'singular_label': 'Movie',
       'plural_label': 'Movies',
       'route_segments': ['movies', 'movie'],
-      'default_provider': 'tmdb',
-      'providers': ['tmdb'],
-      'provider_search_policy': 'core_miss_then_configured_providers',
       'is_top_level': true,
       'physical_formats': [
         {
@@ -39,10 +35,6 @@ void main() {
     });
 
     expect(mediaType.kind, 'movie');
-    expect(mediaType.defaultProvider, 'tmdb');
-    expect(mediaType.providers, ['tmdb']);
-    expect(
-        mediaType.providerSearchPolicy, 'core_miss_then_configured_providers');
     expect(mediaType.routeSegments, ['movies', 'movie']);
     expect(mediaType.physicalFormats.single.id, 'blu-ray');
     expect(mediaType.physicalFormats.single.aliases, ['bluray', 'blu ray']);
@@ -228,38 +220,6 @@ void main() {
       }).catalogRef.id,
       'edition-1',
     );
-  });
-
-  test('provider preview parses music tracks', () {
-    final preview = AdminProviderPreview.fromJson({
-      'provider': 'musicbrainz',
-      'provider_item_id': 'release-1',
-      'kind': 'music',
-      'title': 'Discovery',
-      'track_count': 2,
-      'tracks': [
-        {
-          'position': 1,
-          'title': 'One More Time',
-          'duration_seconds': 320,
-          'artist': 'Daft Punk',
-          'disc_number': 1,
-        },
-        {
-          'position': 2,
-          'title': 'Aerodynamic',
-          'duration_seconds': 212,
-          'artist': 'Daft Punk',
-          'disc_number': 1,
-        },
-      ],
-    });
-
-    expect(preview.trackCount, 2);
-    expect(preview.tracks, hasLength(2));
-    expect(preview.tracks.first.title, 'One More Time');
-    expect(preview.tracks.first.durationSeconds, 320);
-    expect(preview.tracks.first.artist, 'Daft Punk');
   });
 
   test('typed TV episode parses runtime and air date', () {

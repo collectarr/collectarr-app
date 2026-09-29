@@ -49,44 +49,6 @@ void main() {
     expect(comicKindIdentity.kind, CatalogMediaKind.comic);
     expect(comicKindIdentity.singularLabel, 'Comic');
     expect(comicKindIdentity.pluralLabel, 'Comics');
-    expect(comicKindMetadata.defaultProviderId, 'gcd');
-    expect(
-      comicKindMetadata.defaultSupportedOption(comicKindIdentity.kind)?.id,
-      'gcd',
-    );
-    expect(
-      comicKindMetadata.defaultSupportedOption(comicKindIdentity.kind)?.id,
-      'gcd',
-    );
-    expect(
-      comicKindMetadata.supportsProvider('gcd', comicKindIdentity.kind),
-      isTrue,
-    );
-    expect(
-      comicKindMetadata.supportsProvider(
-        'comicvine',
-        comicKindIdentity.kind,
-      ),
-      isTrue,
-    );
-    expect(
-      comicKindMetadata
-          .defaultSupportedOption(comicKindIdentity.kind)
-          ?.usagePolicy
-          ?.summary,
-      contains('CC BY-SA'),
-    );
-    final apiKeyIds = comicKindMetadata.providers
-        .where((provider) => provider.requiresApiKey)
-        .map((provider) => provider.id)
-        .toList();
-    expect(apiKeyIds, contains('comicvine'));
-    expect(comicKindMetadata.providerLabel('gcd'), 'GCD');
-    expect(comicKindMetadata.providerLabel('comicvine'), 'Comic Vine');
-    expect(
-      comicKindMetadata.providerLabel('unknown-provider'),
-      'unknown-provider',
-    );
     expect(comicKindTrackingProfile, comicTrackingProfile);
     expect(comicKindPresentation, comicLibraryMediaPresentation);
     expect(comicKindAdd.headerBuilder, isNotNull);
@@ -115,25 +77,6 @@ void main() {
     expect(mangaKindIdentity.kind, CatalogMediaKind.manga);
     expect(mangaKindIdentity.singularLabel, 'Manga');
     expect(mangaKindIdentity.pluralLabel, 'Manga');
-    expect(mangaKindMetadata.defaultProviderId, 'hardcover');
-    expect(
-      mangaKindMetadata.defaultSupportedOption(mangaKindIdentity.kind)?.id,
-      'hardcover',
-    );
-    expect(
-      mangaKindMetadata.supportsProvider(
-        'mangadex',
-        mangaKindIdentity.kind,
-      ),
-      isTrue,
-    );
-    expect(
-      mangaKindMetadata.supportsProvider(
-        'anilist',
-        mangaKindIdentity.kind,
-      ),
-      isTrue,
-    );
     expect(mangaKindTrackingProfile, mangaTrackingProfile);
     expect(mangaKindPresentation, mangaLibraryMediaPresentation);
     expect(
@@ -208,25 +151,12 @@ void main() {
 
   test('anime and tv runtimes are first-class video kinds', () {
     expect(animeKindIdentity.kind, CatalogMediaKind.anime);
-    expect(animeKindMetadata.defaultProviderId, 'anilist');
-    expect(
-      animeKindMetadata.supportsProvider(
-        'anilist',
-        animeKindIdentity.kind,
-      ),
-      isTrue,
-    );
     expect(
         animeKindEditCapabilities.presentationCapability.editRegistry
             .builderForScope(LibraryEntityScope.work),
         isNotNull);
 
     expect(tvKindIdentity.kind, CatalogMediaKind.tv);
-    expect(tvKindMetadata.defaultProviderId, 'tmdb');
-    expect(
-      tvKindMetadata.supportsProvider('tmdb', tvKindIdentity.kind),
-      isTrue,
-    );
     expect(
         tvKindEditCapabilities.presentationCapability.editRegistry
             .builderForScope(LibraryEntityScope.work),
@@ -456,7 +386,7 @@ void main() {
     );
   });
 
-  test('library kind registry resolves runtimes and providers', () {
+  test('library kind registry resolves runtimes', () {
     final registrations = defaultLibraryKindRegistry.allKinds;
     expect(
         registrations
@@ -477,84 +407,7 @@ void main() {
         same(const ComicRegistration()));
     expect(defaultLibraryKindRegistry.getByKind(CatalogMediaKind.manga),
         same(const MangaRegistration()));
-    for (final kind in [
-      CatalogMediaKind.game,
-      CatalogMediaKind.boardgame,
-      CatalogMediaKind.book,
-      CatalogMediaKind.movie,
-      CatalogMediaKind.tv,
-      CatalogMediaKind.anime,
-      CatalogMediaKind.music,
-    ]) {
-      final expectedProvider = switch (kind) {
-        CatalogMediaKind.game => 'igdb',
-        CatalogMediaKind.boardgame => 'bgg',
-        CatalogMediaKind.book => 'hardcover',
-        CatalogMediaKind.movie || CatalogMediaKind.tv => 'tmdb',
-        CatalogMediaKind.anime => 'anilist',
-        CatalogMediaKind.music => 'musicbrainz',
-        _ => throw ArgumentError.value(kind),
-      };
-      expect(
-        collectarrKindMetadata[kind]!.defaultProviderId,
-        expectedProvider,
-      );
-    }
     expect(defaultLibraryKindRegistry.tryGet(CatalogMediaKind.unknown), isNull);
-    expect(
-      collectarrKindMetadata[CatalogMediaKind.comic]!
-          .providers
-          .map((row) => row.id),
-      containsAll(['gcd', 'comicvine']),
-    );
-    expect(
-      collectarrKindMetadata[CatalogMediaKind.manga]!
-          .providers
-          .map((row) => row.id),
-      ['hardcover', 'comicvine', 'anilist', 'mangadex'],
-    );
-    expect(
-      collectarrKindMetadata[CatalogMediaKind.book]!
-          .providers
-          .map((row) => row.id),
-      ['hardcover', 'openlibrary'],
-    );
-    expect(
-      collectarrKindMetadata[CatalogMediaKind.game]!
-          .providers
-          .map((row) => row.id),
-      ['igdb'],
-    );
-    expect(
-      collectarrKindMetadata[CatalogMediaKind.boardgame]!
-          .providers
-          .map((row) => row.id),
-      ['bgg'],
-    );
-    expect(
-      collectarrKindMetadata[CatalogMediaKind.movie]!
-          .providers
-          .map((row) => row.id),
-      ['tmdb'],
-    );
-    expect(
-      collectarrKindMetadata[CatalogMediaKind.tv]!
-          .providers
-          .map((row) => row.id),
-      ['tmdb'],
-    );
-    expect(
-      collectarrKindMetadata[CatalogMediaKind.anime]!
-          .providers
-          .map((row) => row.id),
-      ['anilist'],
-    );
-    expect(
-      collectarrKindMetadata[CatalogMediaKind.music]!
-          .providers
-          .map((row) => row.id),
-      ['musicbrainz'],
-    );
     expect(
       defaultLibraryKindRegistry.tryGet(CatalogMediaKind.unknown),
       isNull,
@@ -659,11 +512,11 @@ void main() {
       [
         const LibraryAddSearchScope(
           kind: CatalogMediaKind.movie,
-          providerValue: 'movie',
+          catalogValue: 'movie',
         ),
         const LibraryAddSearchScope(
           kind: CatalogMediaKind.movie,
-          providerValue: 'collection',
+          catalogValue: 'collection',
         ),
       ],
     );
@@ -676,14 +529,14 @@ void main() {
       {
         const LibraryAddSearchScope(
           kind: CatalogMediaKind.movie,
-          providerValue: 'movie',
+          catalogValue: 'movie',
         ),
       },
     );
     expect(
       const LibraryAddSearchScope(
         kind: CatalogMediaKind.movie,
-        providerValue: 'collection',
+        catalogValue: 'collection',
       ).kind,
       CatalogMediaKind.movie,
     );
@@ -920,11 +773,6 @@ void main() {
     expect(
       musicKindPresentation.compactBucketIcon,
       Icons.person_2_outlined,
-    );
-    expect(bookKindPresentation.emptyStateProviderSummarySuffix, '');
-    expect(
-      movieKindPresentation.emptyStateProviderSummarySuffix,
-      ' Physical formats are tracked as editions.',
     );
     expect(
       libraryKindWorkspaceForKind(CatalogMediaKind.movie)

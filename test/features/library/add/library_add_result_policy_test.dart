@@ -4,8 +4,6 @@ import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_result_polic
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
-import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -111,36 +109,6 @@ void main() {
         ),
       },
     );
-    final visibleProviders = comicAddResultPolicy.filterProviderResults(
-      candidates: const [
-        ComicIssueCandidate(
-          provider: 'gcd',
-          providerItemId: 'regular',
-          title: 'Regular Comic',
-          issueNumber: '1',
-        ),
-        ComicVariantCandidate(
-          provider: 'gcd',
-          providerItemId: 'variant',
-          title: 'Variant Comic',
-        ),
-      ],
-      state: state,
-    );
-
     expect(visible.map((item) => item.reference.id), ['comic-regular']);
-    expect(visibleProviders.map((candidate) => candidate.providerItemId),
-        ['regular']);
-    expect(
-      comicAddResultPolicy.isProviderGroupCandidate(
-        const ComicIssueCandidate(
-          provider: 'gcd',
-          providerItemId: 'series',
-          title: 'Regular Comic',
-          searchRoleOverride: ProviderSearchRole.series,
-        ),
-      ),
-      isTrue,
-    );
   });
 }

@@ -1,12 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
@@ -31,7 +28,6 @@ void main() {
       client: client,
       db: db,
       queue: SyncQueueRepository(db),
-      catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
       trackingRecords: TrackingStorageRepository(
         db,
@@ -56,17 +52,6 @@ void main() {
     expect(trackingRow.statusStorageValue, 'Completed');
     expect(trackingRow.rating, 9);
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
-    final catalogItem = await CatalogSnapshotRepository(db).findByRef(
-      const CatalogEntityRef(
-        kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityTypeId('work'),
-        id: 'comic-1',
-      ),
-    );
-    expect(catalogItem?.title, 'Absolute Batman');
-    expect(catalogItem?.coverImageUrl, 'https://cdn.example/absolute.jpg');
-    expect(catalogItem?.thumbnailImageUrl,
-        'https://cdn.example/absolute-thumb.jpg');
     expect(locations.map((location) => location.id), ['room']);
     expect(locations.single.name, 'Office');
     expect(customEpisode?.seriesId.value, 'tv-series-1');
@@ -95,7 +80,6 @@ void main() {
       client: _RejectedSyncClient(),
       db: db,
       queue: queue,
-      catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
       trackingRecords: TrackingStorageRepository(
         db,
@@ -147,7 +131,6 @@ void main() {
       client: client,
       db: db,
       queue: queue,
-      catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
       trackingRecords: TrackingStorageRepository(
         db,
@@ -229,23 +212,6 @@ class _FakeSyncClient extends CollectarrSyncClient {
             'name': 'Office',
             'description': 'Main room',
             'sort_order': 1,
-          },
-        },
-        {
-          'entity_type': 'library_item_snapshot',
-          'entity_id': 'comic-1',
-          'action': 'upsert',
-          'source_device_id': 'desktop',
-          'client_changed_at': '2026-05-12T07:30:00.000Z',
-          'changed_at': '2026-05-12T09:00:00.000Z',
-          'payload': {
-            'kind': 'comic',
-            'title': 'Absolute Batman',
-            'item_number': '1',
-            'cover_image_url': 'https://cdn.example/absolute.jpg',
-            'thumbnail_image_url': 'https://cdn.example/absolute-thumb.jpg',
-            'publisher': 'DC',
-            'release_year': 2024,
           },
         },
         {

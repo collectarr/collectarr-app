@@ -4,7 +4,7 @@ const animeSeriesFilterId = LibraryAddFilterId('anime.series');
 const animeStudioFilterId = LibraryAddFilterId('anime.studio');
 const animeSearchScope = LibraryAddSearchScope(
   kind: CatalogMediaKind.anime,
-  providerValue: 'anime',
+  catalogValue: 'anime',
 );
 const animeYearFilterId = LibraryAddFilterId('anime.year');
 

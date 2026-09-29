@@ -3,11 +3,9 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add/comic_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -17,30 +15,6 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Comic Kind Vertical Slice Tests (C9)', () {
-    test('Comic Add projection builds typed metadata from Core payload', () {
-      final providerCandidate = CatalogSearchCandidate.fromItem(
-        CatalogItemDto.raw(
-          id: 'comic-300',
-          mediaKind: CatalogMediaKind.comic,
-          common: const CatalogCommonDto(title: 'Spider-Man'),
-          payload: const {
-            'issue_number': '300',
-            'publisher': 'Marvel Comics',
-          },
-        ),
-      );
-
-      final candidate = comicCatalogTransportFromCoreItem(providerCandidate);
-      final metadata = candidate.kindCapability
-          .mapTransport((transport) => transport.kindMetadata);
-
-      expect(metadata, isA<ComicMedia>());
-      final comic = metadata as ComicMedia;
-      expect(comic.title, 'Spider-Man');
-      expect(comic.issueNumber, '300');
-      expect(comic.publisher, 'Marvel Comics');
-    });
-
     test(
         'ComicMedia and ComicKeyEvent serialize and deserialize full domain fields',
         () {

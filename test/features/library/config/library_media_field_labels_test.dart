@@ -88,8 +88,6 @@ void main() {
         'Top Franchises');
     expect(gameKindPresentation.statsLabels.labelFor('top_publisher'),
         'Top Publishers / Studios');
-    expect(comicKindMetadata.usesTreeProviderCandidates, isTrue);
-    expect(bookKindMetadata.usesTreeProviderCandidates, isFalse);
   });
 
   test('filter definitions are kind-owned and grade is not universal', () {

@@ -66,7 +66,7 @@ final class LibraryAddSearchScopesFilterValue extends LibraryAddFilterValue {
 
   @override
   String get displayValue =>
-      scopes.map((scope) => scope.providerValue).join(' ');
+      scopes.map((scope) => scope.catalogValue).join(' ');
 
   @override
   bool get hasValue => scopes.isNotEmpty;

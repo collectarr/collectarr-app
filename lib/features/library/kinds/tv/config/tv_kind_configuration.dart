@@ -5,7 +5,7 @@ const tvNetworkFilterId = LibraryAddFilterId('tv.network');
 const tvYearFilterId = LibraryAddFilterId('tv.year');
 const tvSearchScope = LibraryAddSearchScope(
   kind: CatalogMediaKind.tv,
-  providerValue: 'tv',
+  catalogValue: 'tv',
 );
 
 final tvAddChrome = LibraryAddChromeConfig(

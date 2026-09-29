@@ -17,13 +17,11 @@ final class KindContractManifest {
     required this.activeKinds,
     required this.mandatoryParticipants,
     required this.optionalParticipants,
-    required this.providerKindParticipants,
   });
 
   final Set<CatalogMediaKind> activeKinds;
   final Map<String, Set<CatalogMediaKind>> mandatoryParticipants;
   final Map<String, Set<CatalogMediaKind>> optionalParticipants;
-  final Map<String, Set<CatalogMediaKind>> providerKindParticipants;
 }
 
 const kindContractManifest = KindContractManifest(
@@ -97,43 +95,5 @@ const kindContractManifest = KindContractManifest(
     },
     'tracking': activeTypedKinds,
     'hierarchy': activeTypedKinds,
-    'providerIntegration': activeTypedKinds,
-  },
-  providerKindParticipants: {
-    'anilist': {
-      CatalogMediaKind.anime,
-      CatalogMediaKind.manga,
-    },
-    'bgg': {
-      CatalogMediaKind.boardgame,
-    },
-    'comicvine': {
-      CatalogMediaKind.comic,
-      CatalogMediaKind.manga,
-    },
-    'gcd': {
-      CatalogMediaKind.comic,
-    },
-    'hardcover': {
-      CatalogMediaKind.book,
-      CatalogMediaKind.manga,
-    },
-    'igdb': {
-      CatalogMediaKind.game,
-    },
-    'mangadex': {
-      CatalogMediaKind.manga,
-    },
-    'musicbrainz': {
-      CatalogMediaKind.music,
-    },
-    'openlibrary': {
-      CatalogMediaKind.book,
-    },
-    'tmdb': {
-      CatalogMediaKind.anime,
-      CatalogMediaKind.movie,
-      CatalogMediaKind.tv,
-    },
   },
 );

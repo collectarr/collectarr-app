@@ -54,7 +54,6 @@ void main() {
       'activity',
       'tracking',
       'hierarchy',
-      'providerIntegration',
     };
 
     expect(
@@ -68,36 +67,6 @@ void main() {
         reason: '${entry.key} contains an unknown kind',
       );
     }
-  });
-
-  test('provider manifest declares every mapped provider-kind pair', () {
-    const expected = {
-      'anilist': {
-        CatalogMediaKind.anime,
-        CatalogMediaKind.manga,
-      },
-      'bgg': {CatalogMediaKind.boardgame},
-      'comicvine': {
-        CatalogMediaKind.comic,
-        CatalogMediaKind.manga,
-      },
-      'gcd': {CatalogMediaKind.comic},
-      'hardcover': {
-        CatalogMediaKind.book,
-        CatalogMediaKind.manga,
-      },
-      'igdb': {CatalogMediaKind.game},
-      'mangadex': {CatalogMediaKind.manga},
-      'musicbrainz': {CatalogMediaKind.music},
-      'openlibrary': {CatalogMediaKind.book},
-      'tmdb': {
-        CatalogMediaKind.anime,
-        CatalogMediaKind.movie,
-        CatalogMediaKind.tv,
-      },
-    };
-
-    expect(kindContractManifest.providerKindParticipants, equals(expected));
   });
 
   test('release manifest names every typed release participant', () {

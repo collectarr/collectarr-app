@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/admin/admin_page.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -20,7 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/test_constants.dart';
 
 void main() {
-  testWidgets('admin page searches provider metadata and ingests a result',
+  testWidgets('admin page manages catalog proposals without provider ingest',
       (tester) async {
     final api = _FakeAdminApiClient();
     final db = LocalDatabase(NativeDatabase.memory());
@@ -55,23 +54,18 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    // ─── Dashboard tab (default) ───
+    // â”€â”€â”€ Dashboard tab (default) â”€â”€â”€
     expect(find.text('Metadata dashboard'), findsOneWidget);
     expect(find.text('1 live'), findsOneWidget);
     expect(find.text('3 registered'), findsOneWidget);
     expect(find.text('12 items'), findsOneWidget);
     expect(find.text('75% covers'), findsOneWidget);
-    expect(find.text('92% provider IDs'), findsOneWidget);
-    expect(find.text('1 failures'), findsOneWidget);
-    expect(find.text('5 ok'), findsOneWidget);
     expect(find.text('12 docs'), findsOneWidget);
     expect(find.text('Shared contract in sync'), findsOneWidget);
     expect(find.text('Normalized drift clear'), findsOneWidget);
-    expect(find.text('GCD'), findsWidgets);
     expect(find.text('Metadata proposal activity'), findsOneWidget);
     expect(find.text('1 recent approve'), findsOneWidget);
     expect(find.text('1 recent reject'), findsOneWidget);
-    expect(find.text('Approved via provider'), findsOneWidget);
     expect(find.text('Rejected proposal'), findsOneWidget);
     expect(find.text('Collection schema'), findsOneWidget);
     expect(find.text('Schema explorer'), findsOneWidget);
@@ -82,7 +76,7 @@ void main() {
     expect(api.reindexCount, 1);
     expect(find.text('Reindexed 12'), findsOneWidget);
 
-    // ─── Stats tab ───
+    // â”€â”€â”€ Stats tab â”€â”€â”€
     await tester.tap(find.widgetWithText(Tab, 'Stats'));
     await pumpUntilSettled(tester);
     expect(find.text('Catalog stats'), findsOneWidget);
@@ -92,7 +86,7 @@ void main() {
     expect(find.textContaining('cache usage'), findsOneWidget);
     expect(find.textContaining('Mirroring enabled'), findsOneWidget);
 
-    // ─── Logs tab ───
+    // â”€â”€â”€ Logs tab â”€â”€â”€
     await tester.tap(find.text('Logs'));
     await pumpUntilSettled(tester);
 
@@ -103,22 +97,16 @@ void main() {
     expect(find.text('metadata.correction'), findsOneWidget);
     expect(find.text('admin@example.com'), findsOneWidget);
 
-    // ─── Providers tab ───
-    await tester.tap(find.widgetWithText(Tab, 'Providers'));
+    // â”€â”€â”€ Proposals tab â”€â”€â”€
+    await tester.tap(find.widgetWithText(Tab, 'Proposals'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Metadata proposals'), findsOneWidget);
     expect(find.text('2 pending'), findsOneWidget);
     expect(find.text('1 approved'), findsOneWidget);
     expect(find.text('1 rejected'), findsOneWidget);
-    expect(find.text('Manual GCD correction'), findsOneWidget);
-    expect(find.text('remote image only'), findsWidgets);
+    expect(find.text('Manual user correction'), findsOneWidget);
 
-    await tester
-        .tap(find.widgetWithText(OutlinedButton, 'Review in search').first);
-    await pumpUntilSettled(tester);
-
-    expect(find.textContaining('Reviewing proposal:'), findsOneWidget);
     await tester
         .tap(find.widgetWithText(OutlinedButton, 'Edit metadata').first);
     await pumpUntilSettled(tester);
@@ -129,7 +117,7 @@ void main() {
       findsOneWidget,
     );
     await tester.enterText(find.widgetWithText(TextFormField, 'Title').first,
-        'Manual GCD correction updated');
+        'Manual user correction updated');
     await tester.enterText(
       find.widgetWithText(TextFormField, 'Platforms (comma separated)').first,
       'PlayStation 5, Nintendo Switch',
@@ -144,7 +132,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save changes').first);
     await pumpUntilSettled(tester);
     expect(api.lastUpdatedProposalId, 'proposal-1');
-    expect(api.lastUpdatedProposalTitle, 'Manual GCD correction updated');
+    expect(api.lastUpdatedProposalTitle, 'Manual user correction updated');
     expect(
       api.lastUpdatedProposalMetadataPayload?['platforms'],
       ['PlayStation 5', 'Nintendo Switch'],
@@ -161,7 +149,7 @@ void main() {
       ],
     );
     expect(find.text('Proposal metadata updated.'), findsOneWidget);
-    expect(find.text('Manual GCD correction updated'), findsWidgets);
+    expect(find.text('Manual user correction updated'), findsWidgets);
 
     await _scrollUntilVisible(
       tester,
@@ -171,9 +159,9 @@ void main() {
     await tester
         .tap(find.widgetWithText(FilledButton, 'Approve proposal').first);
     await pumpUntilSettled(tester);
-    expect(find.text('Approve linked proposal?'), findsOneWidget);
+    expect(find.text('Approve proposal?'), findsOneWidget);
     final approveDialog = find.ancestor(
-      of: find.text('Approve linked proposal?'),
+      of: find.text('Approve proposal?'),
       matching: find.byType(AlertDialog),
     );
     await tester.tap(
@@ -185,10 +173,9 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(api.lastApprovedProposalId, 'proposal-1');
-    expect(api.lastApprovedProposalProviderItemId, '12345');
     expect(
       find.text(
-        'Proposal approved with selected provider item.',
+        'Proposal approved.',
         skipOffstage: false,
       ),
       findsOneWidget,
@@ -207,76 +194,6 @@ void main() {
       find.text('Proposal rejected.', skipOffstage: false),
       findsOneWidget,
     );
-
-    // Provider ingest by ID
-    await tester.tap(find.widgetWithText(FilledButton, 'Open add dialog'));
-    await pumpUntilSettled(tester);
-    final providerIngestDialog = find.ancestor(
-      of: find.text('Add metadata from provider'),
-      matching: find.byType(AlertDialog),
-    );
-    await tester.tap(find
-        .descendant(
-          of: providerIngestDialog,
-          matching: find.byType(CompactSearchDropdownFormField<String>),
-        )
-        .first);
-    await pumpUntilSettled(tester);
-    await tester.tap(find.textContaining('Comic').last);
-    await pumpUntilSettled(tester);
-    await tester.tap(find.text('Known ID'));
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Provider item ID'),
-      'direct-123',
-    );
-    await tester.tap(find.widgetWithText(FilledButton, 'Add to catalog'));
-    await pumpUntilSettled(tester);
-
-    expect(api.lastIngestProvider, 'gcd');
-    expect(api.lastIngestProviderItemId, 'direct-123');
-
-    await tester.tap(find.widgetWithText(FilledButton, 'Open add dialog'));
-    await pumpUntilSettled(tester);
-    final providerSearchDialog = find.ancestor(
-      of: find.text('Add metadata from provider'),
-      matching: find.byType(AlertDialog),
-    );
-    await tester.tap(find
-        .descendant(
-          of: providerSearchDialog,
-          matching: find.byType(CompactSearchDropdownFormField<String>),
-        )
-        .first);
-    await pumpUntilSettled(tester);
-    await tester.tap(find.textContaining('Comic').last);
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Provider query'),
-      'Batman #1',
-    );
-    await tester.tap(find.widgetWithText(FilledButton, 'Search provider'));
-    await tester.pump();
-    await tester.pump();
-    await pumpUntilSettled(tester);
-
-    expect(api.lastSearchProvider, 'gcd');
-    expect(api.lastSearchQuery, 'Batman #1');
-    expect(api.lastSearchKind, 'comic');
-
-    // Scroll down to find the provider result and ingest it.
-    await _scrollUntilVisible(
-      tester,
-      find.widgetWithText(FilledButton, 'Ingest'),
-    );
-    expect(find.text('Absolute Batman #1'), findsWidgets);
-    expect(find.text('12345'), findsOneWidget);
-
-    await tester.tap(find.widgetWithText(FilledButton, 'Ingest').first);
-    await pumpUntilSettled(tester);
-
-    expect(api.lastIngestProvider, 'gcd');
-    expect(api.lastIngestProviderItemId, '12345');
   });
 
   testWidgets('admin page persists series tag corrections for books',
@@ -361,7 +278,7 @@ void main() {
     );
 
     await pumpUntilSettled(tester);
-    await tester.tap(find.widgetWithText(Tab, 'Providers'));
+    await tester.tap(find.widgetWithText(Tab, 'Proposals'));
     await pumpUntilSettled(tester);
     await tester
         .tap(find.widgetWithText(OutlinedButton, 'Edit metadata').first);
@@ -418,10 +335,10 @@ void main() {
     expect(find.text('Find catalog items'), findsOneWidget);
 
     // Tap Providers tab
-    await tester.tap(find.widgetWithText(Tab, 'Providers'));
+    await tester.tap(find.widgetWithText(Tab, 'Proposals'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Provider status'), findsOneWidget);
+    expect(find.text('Metadata proposals'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 11));
@@ -487,11 +404,9 @@ class _AdminAuthController extends AuthController {
 class _FakeAdminApiClient extends ApiClient {
   _FakeAdminApiClient() : super(baseUrl: 'http://metadata.local');
 
-  String? lastSearchProvider;
   String? lastSearchQuery;
   String? lastSearchKind;
   String? lastApprovedProposalId;
-  String? lastApprovedProposalProviderItemId;
   String? lastUpdatedProposalId;
   String? lastUpdatedProposalTitle;
   Map<String, dynamic>? lastUpdatedProposalMetadataPayload;
@@ -500,10 +415,7 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastUpdatedUserDisplayName;
   String? lastUpdatedUserRole;
   bool? lastUpdatedUserIsActive;
-  String? lastPurgedImageProvider;
   String? lastSeriesTagsSeriesId;
-  String? lastIngestProvider;
-  String? lastIngestProviderItemId;
   String? lastInspectKind;
   String? lastInspectId;
   String? lastCatalogUpdateTitle;
@@ -533,15 +445,10 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastCatalogUpdatePhysicalFormat;
   String? lastBundleUpdateId;
   String? lastBundleUpdateTitle;
-  String? lastQueuedProviderItemId;
-  int? lastRetryHistoryId;
   List<String>? lastSeriesTags;
-  bool retryResolved = false;
   bool catalogUpdated = false;
   bool bundleUpdated = false;
-  bool queuedJobCreated = false;
   int catalogUpdateCount = 0;
-  int runPendingCount = 0;
   int reindexCount = 0;
   final List<AdminUser> _users = [
     AdminUser(
@@ -565,18 +472,12 @@ class _FakeAdminApiClient extends ApiClient {
       updatedAt: DateTime.utc(2026, 5, 14, 10),
     ),
   ];
-  final Map<String, int> _imageProviders = {'gcd': 12, 'comicvine': 4};
   final List<AdminMetadataProposal> _pendingProposals = [
     const AdminMetadataProposal(
       id: 'proposal-1',
-      provider: 'gcd',
-      providerItemId: 'manual-123',
-      query: 'Absolute Batman manual correction',
-      title: 'Manual GCD correction',
-      summary: 'Needs a provider-backed match before ingest.',
-      metadataPayload: {
-        'kind': 'game',
-        'genres': ['Action'],
+      kind: 'game',
+      catalogItem: {
+        'title': 'Manual user correction',
         'platforms': ['PlayStation 5'],
         'external_links': [
           {'label': 'Store', 'url': 'https://example.com/store'},
@@ -586,14 +487,11 @@ class _FakeAdminApiClient extends ApiClient {
     ),
     const AdminMetadataProposal(
       id: 'proposal-2',
-      provider: 'comicvine',
-      query: 'Variant cleanup proposal',
-      title: 'Variant cleanup',
-      summary: 'Reject this duplicate suggestion.',
+      kind: 'comic',
+      catalogItem: {'title': 'Variant cleanup'},
       status: 'pending',
     ),
   ];
-
   @override
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
     return const [
@@ -602,24 +500,18 @@ class _FakeAdminApiClient extends ApiClient {
         singularLabel: 'Comic',
         pluralLabel: 'Comics',
         routeSegments: ['comics', 'comic'],
-        defaultProvider: 'gcd',
-        providers: ['gcd', 'comicvine'],
       ),
       CatalogMediaType(
         kind: 'manga',
         singularLabel: 'Manga',
         pluralLabel: 'Manga',
         routeSegments: ['manga'],
-        defaultProvider: 'anilist',
-        providers: ['anilist', 'comicvine'],
       ),
       CatalogMediaType(
         kind: 'anime',
         singularLabel: 'Anime',
         pluralLabel: 'Anime',
         routeSegments: ['anime'],
-        defaultProvider: 'anilist',
-        providers: ['anilist', 'tmdb'],
       ),
     ];
   }
@@ -644,62 +536,6 @@ class _FakeAdminApiClient extends ApiClient {
   }
 
   @override
-  Future<List<AdminProviderStatus>> adminProviderStatuses() async {
-    return const [
-      AdminProviderStatus(
-        name: 'gcd',
-        displayName: 'GCD',
-        kind: 'comic',
-        status: 'live',
-        isConfigured: true,
-        supportsSearch: true,
-        supportsIngest: true,
-        requiresUserKey: false,
-        nonCommercialOnly: false,
-        allowsRedistribution: true,
-        allowsImageMirroring: false,
-        imagePolicy: 'remote_image_only',
-        requiresAttribution: true,
-        licenseName: 'CC BY-SA',
-        message: 'Ready',
-      ),
-      AdminProviderStatus(
-        name: 'comicvine',
-        displayName: 'ComicVine',
-        kind: 'comic',
-        supportedKinds: ['comic', 'manga'],
-        status: 'stub',
-        isConfigured: false,
-        supportsSearch: true,
-        supportsIngest: true,
-        requiresUserKey: true,
-        nonCommercialOnly: true,
-        allowsRedistribution: false,
-        allowsImageMirroring: false,
-        imagePolicy: 'remote_image_only',
-        requiresAttribution: true,
-        message: 'Set COMICVINE_API_KEY',
-      ),
-      AdminProviderStatus(
-        name: 'igdb',
-        displayName: 'IGDB',
-        kind: 'game',
-        status: 'stub',
-        isConfigured: false,
-        supportsSearch: true,
-        supportsIngest: true,
-        requiresUserKey: true,
-        nonCommercialOnly: false,
-        allowsRedistribution: false,
-        allowsImageMirroring: false,
-        imagePolicy: 'remote_image_only',
-        requiresAttribution: true,
-        message: 'Planned game provider',
-      ),
-    ];
-  }
-
-  @override
   Future<AdminCatalogSummary> adminCatalogSummary() async {
     return AdminCatalogSummary(
       items: 12,
@@ -712,15 +548,11 @@ class _FakeAdminApiClient extends ApiClient {
       volumes: 4,
       editions: 12,
       variants: 15,
-      providerLinks: 20,
       imageAssets: 0,
       imageCacheEntries: 0,
       pendingProposals: 2,
       missingCoverItems: 3,
-      missingProviderLinkItems: 1,
       duplicateCandidateGroups: 0,
-      providerIngestSuccesses: retryResolved ? 6 : 5,
-      providerIngestFailures: retryResolved ? 0 : 1,
     );
   }
 
@@ -919,11 +751,10 @@ class _FakeAdminApiClient extends ApiClient {
       return [
         AdminAuditLogEntry(
           id: 'proposal-audit-1',
-          action: 'metadata_proposal.approve_provider',
+          action: 'metadata_proposal.approve',
           actorEmail: 'admin@example.com',
           entityType: 'metadata_proposal',
           entityId: 'proposal-1',
-          detailsJson: const {'provider': 'gcd'},
           createdAt: DateTime.utc(2026, 5, 14, 9, 20),
         ),
         AdminAuditLogEntry(
@@ -932,7 +763,6 @@ class _FakeAdminApiClient extends ApiClient {
           actorEmail: 'admin@example.com',
           entityType: 'metadata_proposal',
           entityId: 'proposal-2',
-          detailsJson: const {'provider': 'comicvine'},
           createdAt: DateTime.utc(2026, 5, 14, 9, 25),
         ),
       ];
@@ -953,44 +783,15 @@ class _FakeAdminApiClient extends ApiClient {
   }
 
   @override
-  Future<List<AdminProviderIngestHistoryEntry>>
-      adminProviderIngestHistory() async {
-    if (retryResolved) {
-      return [
-        AdminProviderIngestHistoryEntry(
-          id: 8,
-          timestamp: DateTime.utc(2026, 5, 14, 9, 10),
-          provider: 'gcd',
-          providerItemId: 'failed-123',
-          status: 'created',
-          attempts: 1,
-          itemId: 'item-1',
-        ),
-      ];
-    }
-    return [
-      AdminProviderIngestHistoryEntry(
-        id: 7,
-        timestamp: DateTime.utc(2026, 5, 14, 9, 5),
-        provider: 'gcd',
-        providerItemId: 'failed-123',
-        status: 'failed',
-        attempts: 2,
-        error: 'Provider timeout',
-      ),
-    ];
-  }
-
-  @override
   Future<AdminMetadataProposalSummary> adminMetadataProposalSummary() async {
     return AdminMetadataProposalSummary(
       pending: _pendingProposals
-          .where((proposal) =>
-              proposal.id != lastApprovedProposalId &&
-              proposal.id != lastRejectedProposalId)
+          .where((proposal) => proposal.status == 'pending')
           .length,
-      approved: 1 + (lastApprovedProposalId == null ? 0 : 1),
-      rejected: 1 + (lastRejectedProposalId == null ? 0 : 1),
+      approved:
+          1 + _pendingProposals.where((p) => p.status == 'approved').length,
+      rejected:
+          1 + _pendingProposals.where((p) => p.status == 'rejected').length,
       total: _pendingProposals.length + 2,
     );
   }
@@ -998,202 +799,97 @@ class _FakeAdminApiClient extends ApiClient {
   @override
   Future<List<AdminMetadataProposal>> adminMetadataProposals({
     String status = 'pending',
-    String? provider,
   }) async {
-    Iterable<AdminMetadataProposal> proposals;
-    if (status == 'pending') {
-      proposals = _pendingProposals.where((proposal) {
-        if (lastApprovedProposalId == proposal.id ||
-            lastRejectedProposalId == proposal.id) {
-          return false;
-        }
-        return true;
-      });
-    } else if (status == 'approved') {
-      proposals = const [
+    if (status == 'approved') {
+      return const [
         AdminMetadataProposal(
           id: 'proposal-approved-1',
-          provider: 'gcd',
-          query: 'Approved proposal',
-          title: 'Approved proposal',
+          kind: 'comic',
+          catalogItem: {'title': 'Approved proposal'},
           status: 'approved',
         ),
       ];
-    } else {
-      proposals = const [
+    }
+    if (status == 'rejected') {
+      return const [
         AdminMetadataProposal(
           id: 'proposal-rejected-1',
-          provider: 'comicvine',
-          query: 'Rejected proposal',
-          title: 'Rejected proposal',
+          kind: 'comic',
+          catalogItem: {'title': 'Rejected proposal'},
           status: 'rejected',
         ),
       ];
     }
-    if (provider != null && provider.isNotEmpty) {
-      proposals = proposals.where((proposal) => proposal.provider == provider);
-    }
-    return proposals.toList(growable: false);
+    return _pendingProposals
+        .where((proposal) => proposal.status == status)
+        .toList(growable: false);
   }
 
   @override
-  Future<AdminProviderIngestResult> adminApproveMetadataProposal({
+  Future<AdminMetadataProposal> adminApproveMetadataProposal({
     required String proposalId,
   }) async {
-    lastApprovedProposalId = proposalId;
-    return const AdminProviderIngestResult(
-      itemId: 'item-1',
-      created: true,
-      item: AdminMetadataItem(
-        id: 'item-1',
-        kind: 'comic',
-        title: 'Absolute Batman',
-      ),
+    final index =
+        _pendingProposals.indexWhere((proposal) => proposal.id == proposalId);
+    if (index < 0) throw StateError('Unknown proposal: $proposalId');
+    final current = _pendingProposals[index];
+    final updated = AdminMetadataProposal(
+      id: current.id,
+      kind: current.kind,
+      catalogItem: current.catalogItem,
+      status: 'approved',
+      reviewNote: current.reviewNote,
+      createdAt: current.createdAt,
     );
+    _pendingProposals[index] = updated;
+    lastApprovedProposalId = proposalId;
+    return updated;
   }
 
   @override
   Future<AdminMetadataProposal> adminUpdateMetadataProposal({
     required String proposalId,
-    String? query,
-    String? providerItemId,
-    String? title,
-    String? summary,
-    String? imageUrl,
-    Map<String, dynamic>? metadataPayload,
+    required Map<String, dynamic> catalogItem,
+    String? reviewNote,
   }) async {
     final index =
         _pendingProposals.indexWhere((proposal) => proposal.id == proposalId);
-    if (index < 0) {
-      throw StateError('Unknown proposal: $proposalId');
-    }
+    if (index < 0) throw StateError('Unknown proposal: $proposalId');
     final current = _pendingProposals[index];
     final updated = AdminMetadataProposal(
       id: current.id,
-      provider: current.provider,
-      query: query ?? current.query,
+      kind: current.kind,
+      catalogItem: Map<String, dynamic>.unmodifiable(catalogItem),
       status: current.status,
-      providerItemId: providerItemId ?? current.providerItemId,
-      title: title ?? current.title,
-      summary: summary ?? current.summary,
-      imageUrl: imageUrl ?? current.imageUrl,
-      metadataPayload: metadataPayload ?? current.metadataPayload,
+      reviewNote: reviewNote ?? current.reviewNote,
+      createdAt: current.createdAt,
     );
     _pendingProposals[index] = updated;
     lastUpdatedProposalId = proposalId;
-    lastUpdatedProposalTitle = updated.title;
-    lastUpdatedProposalMetadataPayload = updated.metadataPayload;
+    lastUpdatedProposalTitle = catalogItem['title'] as String?;
+    lastUpdatedProposalMetadataPayload = catalogItem;
     return updated;
-  }
-
-  @override
-  Future<AdminProviderIngestResult>
-      adminApproveMetadataProposalWithProviderItem({
-    required String proposalId,
-    required String provider,
-    required String providerItemId,
-    String? kind,
-  }) async {
-    lastApprovedProposalId = proposalId;
-    lastApprovedProposalProviderItemId = providerItemId;
-    return const AdminProviderIngestResult(
-      itemId: 'item-1',
-      created: true,
-      item: AdminMetadataItem(
-        id: 'item-1',
-        kind: 'comic',
-        title: 'Absolute Batman',
-      ),
-    );
   }
 
   @override
   Future<AdminMetadataProposal> adminRejectMetadataProposal({
     required String proposalId,
   }) async {
-    lastRejectedProposalId = proposalId;
-    return const AdminMetadataProposal(
-      id: 'proposal-2',
-      provider: 'comicvine',
-      query: 'Variant cleanup proposal',
-      title: 'Variant cleanup',
+    final index =
+        _pendingProposals.indexWhere((proposal) => proposal.id == proposalId);
+    if (index < 0) throw StateError('Unknown proposal: $proposalId');
+    final current = _pendingProposals[index];
+    final updated = AdminMetadataProposal(
+      id: current.id,
+      kind: current.kind,
+      catalogItem: current.catalogItem,
       status: 'rejected',
+      reviewNote: current.reviewNote,
+      createdAt: current.createdAt,
     );
-  }
-
-  @override
-  Future<AdminProviderIngestJobSummary> adminProviderIngestJobSummary() async {
-    return AdminProviderIngestJobSummary(
-      queued: runPendingCount > 0 ? (queuedJobCreated ? 1 : 0) : 1,
-      running: 0,
-      failed: retryResolved ? 0 : 1,
-      done: runPendingCount > 0 ? 1 : 0,
-      dueQueued: runPendingCount > 0 ? 0 : 1,
-      staleRunning: 0,
-      nextRunAt: runPendingCount > 0 ? null : DateTime.utc(2026, 5, 14, 9, 15),
-      latestFailureAt: retryResolved ? null : DateTime.utc(2026, 5, 14, 9, 5),
-    );
-  }
-
-  @override
-  Future<List<AdminProviderIngestJob>> adminProviderIngestJobs({
-    String? status,
-    String? provider,
-    String? query,
-    int limit = 25,
-  }) async {
-    final jobs = [
-      AdminProviderIngestJob(
-        id: 'job-1',
-        provider: 'gcd',
-        providerItemId: 'queued-123',
-        status: runPendingCount > 0 ? 'done' : 'queued',
-        attempts: runPendingCount > 0 ? 1 : 0,
-        maxAttempts: 3,
-        nextRunAt:
-            runPendingCount > 0 ? null : DateTime.utc(2026, 5, 14, 9, 15),
-        createdAt: DateTime.utc(2026, 5, 14, 9, 0),
-        updatedAt: DateTime.utc(2026, 5, 14, 9, 0),
-        itemId: runPendingCount > 0 ? 'item-1' : null,
-      ),
-      if (queuedJobCreated)
-        AdminProviderIngestJob(
-          id: 'job-2',
-          provider: 'gcd',
-          providerItemId: 'queued-direct',
-          status: 'queued',
-          attempts: 0,
-          maxAttempts: 3,
-          createdAt: DateTime.utc(2026, 5, 14, 9, 2),
-          updatedAt: DateTime.utc(2026, 5, 14, 9, 2),
-        ),
-    ];
-    if (status == null || status.isEmpty) {
-      return _filterJobs(jobs, provider, query);
-    }
-    return _filterJobs(
-      jobs.where((job) => job.status == status).toList(growable: false),
-      provider,
-      query,
-    );
-  }
-
-  List<AdminProviderIngestJob> _filterJobs(
-    List<AdminProviderIngestJob> jobs,
-    String? provider,
-    String? query,
-  ) {
-    final normalizedQuery = query?.trim().toLowerCase();
-    return jobs.where((job) {
-      if (provider != null && provider.isNotEmpty && job.provider != provider) {
-        return false;
-      }
-      if (normalizedQuery != null && normalizedQuery.isNotEmpty) {
-        return job.providerItemId.toLowerCase().contains(normalizedQuery) ||
-            (job.lastError?.toLowerCase().contains(normalizedQuery) ?? false);
-      }
-      return true;
-    }).toList(growable: false);
+    _pendingProposals[index] = updated;
+    lastRejectedProposalId = proposalId;
+    return updated;
   }
 
   @override
@@ -1214,13 +910,6 @@ class _FakeAdminApiClient extends ApiClient {
         'barcode': '76194138584600121',
         'page_count': 48,
       },
-      providerLinks: [
-        AdminProviderLink(
-          provider: 'gcd',
-          entityType: 'item',
-          providerItemId: '12346',
-        ),
-      ],
       editions: [
         AdminEdition(
           id: 'edition-2',
@@ -1320,119 +1009,6 @@ class _FakeAdminApiClient extends ApiClient {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> adminProviderSearch({
-    required String provider,
-    required String query,
-    String? kind,
-  }) async {
-    lastSearchProvider = provider;
-    lastSearchQuery = query;
-    lastSearchKind = kind;
-    return const [
-      {
-        'provider': 'gcd',
-        'provider_item_id': '12345',
-        'title': 'Absolute Batman #1',
-        'kind': 'comic',
-        'summary': 'DC issue metadata',
-        'entity_scope': 'release',
-        'search_role': 'issue',
-      },
-    ];
-  }
-
-  @override
-  Future<AdminProviderIngestResult> adminProviderIngest({
-    required String provider,
-    required String providerItemId,
-    String? kind,
-  }) async {
-    lastIngestProvider = provider;
-    lastIngestProviderItemId = providerItemId;
-    return const AdminProviderIngestResult(
-      itemId: 'item-1',
-      created: true,
-      item: AdminMetadataItem(
-        id: 'item-1',
-        kind: 'comic',
-        title: 'Absolute Batman',
-        itemNumber: '1A',
-        canonicalFieldValues: {
-          'series_title': 'Absolute Batman',
-          'publisher': 'DC Comics',
-          'barcode': '76194138584600111',
-          'page_count': 48,
-        },
-        providerLinks: [
-          AdminProviderLink(
-            provider: 'gcd',
-            entityType: 'item',
-            providerItemId: '12345',
-          ),
-        ],
-        editions: [
-          AdminEdition(
-            id: 'edition-1',
-            title: 'Standard Edition',
-            publisher: 'DC Comics',
-            variants: [
-              AdminVariant(
-                id: 'variant-1',
-                name: 'Cover A',
-                isPrimary: true,
-                barcode: '76194138584600111',
-                coverPriceCents: 499,
-                currency: 'USD',
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Future<AdminProviderIngestResult> adminRetryProviderIngest({
-    required int historyId,
-  }) async {
-    lastRetryHistoryId = historyId;
-    retryResolved = true;
-    return adminProviderIngest(provider: 'gcd', providerItemId: 'failed-123');
-  }
-
-  @override
-  Future<AdminProviderIngestJob> adminCreateProviderIngestJob({
-    required String provider,
-    required String providerItemId,
-    int maxAttempts = 3,
-  }) async {
-    lastQueuedProviderItemId = providerItemId;
-    queuedJobCreated = true;
-    return AdminProviderIngestJob(
-      id: 'job-2',
-      provider: provider,
-      providerItemId: providerItemId,
-      status: 'queued',
-      attempts: 0,
-      maxAttempts: maxAttempts,
-      createdAt: DateTime.utc(2026, 5, 14, 9, 2),
-      updatedAt: DateTime.utc(2026, 5, 14, 9, 2),
-    );
-  }
-
-  @override
-  Future<AdminProviderIngestJobRunResult> adminRunPendingProviderIngestJobs({
-    int limit = 5,
-  }) async {
-    runPendingCount += 1;
-    return AdminProviderIngestJobRunResult(
-      processed: 1,
-      recovered: 0,
-      jobs: await adminProviderIngestJobs(),
-    );
-  }
-
-  @override
   Future<List<AdminUser>> adminListUsers() async {
     return List<AdminUser>.from(_users);
   }
@@ -1467,38 +1043,23 @@ class _FakeAdminApiClient extends ApiClient {
 
   @override
   Future<AdminImageCacheStats> adminImageCacheStats() async {
-    final totalEntries =
-        _imageProviders.values.fold<int>(0, (sum, item) => sum + item);
-    final totalSizeBytes = totalEntries * 1024 * 128;
+    const totalEntries = 16;
+    const totalSizeBytes = totalEntries * 1024 * 128;
     const maxSizeBytes = 1024 * 1024 * 8;
-    return AdminImageCacheStats(
+    return const AdminImageCacheStats(
       totalEntries: totalEntries,
       totalSizeBytes: totalSizeBytes,
       maxSizeBytes: maxSizeBytes,
       usagePercent: totalSizeBytes / maxSizeBytes * 100,
       mirroringEnabled: true,
-      providers: Map<String, int>.from(_imageProviders),
     );
   }
 
   @override
-  Future<AdminImageCachePurgeResult> adminPurgeImageCache(
-      {String? provider}) async {
-    lastPurgedImageProvider = provider;
-    if (provider == null || provider.isEmpty) {
-      final deletedEntries =
-          _imageProviders.values.fold<int>(0, (sum, item) => sum + item);
-      _imageProviders.updateAll((key, value) => 0);
-      return AdminImageCachePurgeResult(
-        deletedEntries: deletedEntries,
-        freedBytes: deletedEntries * 1024 * 128,
-      );
-    }
-    final deletedEntries = _imageProviders[provider] ?? 0;
-    _imageProviders[provider] = 0;
-    return AdminImageCachePurgeResult(
-      deletedEntries: deletedEntries,
-      freedBytes: deletedEntries * 1024 * 128,
+  Future<AdminImageCachePurgeResult> adminPurgeImageCache() async {
+    return const AdminImageCachePurgeResult(
+      deletedEntries: 16,
+      freedBytes: 16 * 1024 * 128,
     );
   }
 }
@@ -1512,8 +1073,6 @@ class _BookAdminApiClient extends _FakeAdminApiClient {
         singularLabel: 'Book',
         pluralLabel: 'Books',
         routeSegments: ['books', 'book'],
-        defaultProvider: 'openlibrary',
-        providers: ['openlibrary', 'hardcover'],
       ),
     ];
   }

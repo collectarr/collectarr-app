@@ -21,8 +21,6 @@ part 'local_database.g.dart';
   ReadingQueueCache,
   PickListValuesCache,
   SerialAuthorityCache,
-  ProviderAccountsCache,
-  ProviderItemLinksCache,
   ...collectarrKindTableTypes,
 ])
 class LocalDatabase extends _$LocalDatabase {

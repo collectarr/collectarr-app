@@ -167,8 +167,6 @@ void main() {
       singularLabel: 'Podcast',
       pluralLabel: 'Podcasts',
       routeSegments: ['podcasts'],
-      defaultProvider: 'podindex',
-      providers: ['podindex'],
       isTopLevel: true,
     );
     final podcast = testCatalogItem(

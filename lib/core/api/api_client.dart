@@ -308,9 +308,7 @@ class ApiClient {
     return _catalogApi.metadataFieldSchema(editableOnly: editableOnly);
   }
 
-  /// Creates a provider-independent proposal against one exact canonical
-  /// Core entity. This intentionally uses the versioned endpoint directly;
-  /// it must not be routed through the legacy provider proposal transport.
+  /// Creates a proposal against one exact canonical Core entity.
   Future<CanonicalCorrectionProposal> proposeCanonicalCorrection({
     required CatalogMediaKind kind,
     required String entityType,
@@ -575,10 +573,8 @@ class ApiClient {
     return _assetsApi.adminImageCacheStats();
   }
 
-  Future<AdminImageCachePurgeResult> adminPurgeImageCache({
-    String? provider,
-  }) async {
-    return _assetsApi.adminPurgeImageCache(provider: provider);
+  Future<AdminImageCachePurgeResult> adminPurgeImageCache() async {
+    return _assetsApi.adminPurgeImageCache();
   }
 
   Future<AdminUser> adminUpdateUser(
@@ -629,7 +625,6 @@ class ApiClient {
     required String imageType,
     required String imageDataBase64,
     String? sourceUrl,
-    String? provider,
     bool isPrimary = false,
   }) async {
     return _assetsApi.addEntityImage(
@@ -638,7 +633,6 @@ class ApiClient {
       imageType: imageType,
       imageDataBase64: imageDataBase64,
       sourceUrl: sourceUrl,
-      provider: provider,
       isPrimary: isPrimary,
     );
   }
@@ -706,38 +700,13 @@ class ApiClient {
       return raw;
     }
     if (parsed.hasScheme) {
-      return _rewriteKnownProviderImageUrl(parsed) ?? raw;
+      return raw;
     }
     if (!raw.startsWith('/')) {
       return raw;
     }
     final base = Uri.tryParse(baseUrl);
     return base?.resolve(raw).toString() ?? raw;
-  }
-
-  String? _rewriteKnownProviderImageUrl(Uri uri) {
-    final host = uri.host.toLowerCase();
-    if (!host.endsWith('mangadex.org')) {
-      return null;
-    }
-    final segments = uri.pathSegments;
-    if (segments.length < 2 || segments.first != 'covers') {
-      return null;
-    }
-    final providerItemId = segments[1].trim();
-    if (providerItemId.isEmpty) {
-      return null;
-    }
-    final base = Uri.tryParse(baseUrl);
-    if (base == null) {
-      return null;
-    }
-    return base
-        .resolve(
-          '/api/v1/metadata/providers/mangadex/images/'
-          '${Uri.encodeComponent(providerItemId)}',
-        )
-        .toString();
   }
 }
 

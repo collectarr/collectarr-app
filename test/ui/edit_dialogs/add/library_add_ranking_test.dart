@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
-import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _publisherFilterId = LibraryAddFilterId('test.publisher');
@@ -21,9 +20,6 @@ final _ranking = buildLibraryAddSearchRanking(
             .mapTransport((transport) => transport)
             .payload['publisher']
       ],
-      typedProviderValues: (candidate) => candidate is ComicProviderCandidate
-          ? [candidate.publisher]
-          : const <Object?>[],
     ),
     LibraryAddSearchRankField(
       id: _yearFilterId,
@@ -31,9 +27,6 @@ final _ranking = buildLibraryAddSearchRanking(
       containsWeight: 20,
       metadataValues: (item) =>
           [item.kindCapability.toImportTransport().payload['release_year']],
-      typedProviderValues: (candidate) => candidate is ComicProviderCandidate
-          ? [candidate.series?.volumeStartYear]
-          : const <Object?>[],
     ),
     LibraryAddSearchRankField(
       id: _issueFilterId,
@@ -44,9 +37,6 @@ final _ranking = buildLibraryAddSearchRanking(
             .mapTransport((transport) => transport)
             .payload['item_number']
       ],
-      typedProviderValues: (candidate) => candidate is ComicProviderCandidate
-          ? [candidate.issueNumber]
-          : const <Object?>[],
     ),
   ],
 );
@@ -172,46 +162,6 @@ void main() {
           '1');
     });
 
-    test('ranks provider candidates using the same kind-owned fields', () {
-      const candidates = [
-        ComicIssueCandidate(
-          provider: 'test',
-          providerItemId: 'id-1',
-          title: 'Batman',
-          publisher: 'IDW',
-        ),
-        ComicIssueCandidate(
-          provider: 'test',
-          providerItemId: 'id-2',
-          title: 'Batman',
-          publisher: 'DC Comics',
-        ),
-      ];
-      final result = _ranking.rankProvider(
-        candidates,
-        _context(
-          query: 'Batman',
-          advancedFilters: {
-            _publisherFilterId: const LibraryAddTextFilterValue('DC Comics'),
-          },
-        ),
-      );
-      expect((result.first as ComicProviderCandidate).publisher, 'DC Comics');
-    });
-
-    test('falls back to provider when the top Core match is not confident', () {
-      final items = [_item(title: 'Batman', publisher: 'DC Comics')];
-      final context = _context(
-        query: 'Batman',
-        advancedFilters: {
-          _publisherFilterId: const LibraryAddTextFilterValue('DC Comics'),
-        },
-      );
-      expect(
-        _ranking.shouldSearchProviderForCoreResults(items, context),
-        isFalse,
-      );
-    });
   });
 
   group('filterAndRankCatalogItems', () {

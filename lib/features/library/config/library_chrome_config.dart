@@ -5,20 +5,20 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 class LibraryAddSearchScope {
   const LibraryAddSearchScope({
     required this.kind,
-    required this.providerValue,
+    required this.catalogValue,
   });
 
   final CatalogMediaKind kind;
-  final String providerValue;
+  final String catalogValue;
 
   @override
   bool operator ==(Object other) =>
       other is LibraryAddSearchScope &&
       other.kind == kind &&
-      other.providerValue == providerValue;
+      other.catalogValue == catalogValue;
 
   @override
-  int get hashCode => Object.hash(kind, providerValue);
+  int get hashCode => Object.hash(kind, catalogValue);
 }
 
 class LibraryEditChromeConfig {

@@ -1,108 +1,53 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/providers/musicbrainz/music_musicbrainz_integration.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/providers/musicbrainz/music_musicbrainz_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_data_factories.dart';
 
 void main() {
-  test('MusicBrainz mapper creates release-group/release/medium/track graph',
-      () {
-    final group = MusicMusicBrainzMapper.releaseGroupFromNative(
-      MusicBrainzRelease.fromJson({
-        'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
-        'title': 'The Dark Side of the Moon',
-        'release-group': {
-          'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6e',
-          'title': 'The Dark Side of the Moon',
-        },
-        'date': '1973-03-01',
-        'country': 'GB',
-        'artist-credit': [
-          {
-            'artist': {
-              'id': '83d91898-7763-47d7-b03b-b92132375c47',
-              'name': 'Pink Floyd',
-            },
-          },
-        ],
-        'label-info': [
-          {
-            'catalog-number': 'SHVL 804',
-            'label': {'name': 'Harvest'},
-          },
-        ],
-        'media': [
-          {
-            'format': 'Vinyl',
-            'tracks': [
-              {'position': 1, 'title': 'Speak to Me', 'length': 67000},
-            ],
-          },
-        ],
-      }),
-    );
-    final release = group.primaryRelease!;
-    final medium = release.mediums.single;
-
-    expect(group.id.value, startsWith('musicbrainz:'));
-    expect(group.artist, 'Pink Floyd');
-    expect(release.publisher, 'Harvest');
-    expect(release.catalogNumber, 'SHVL 804');
-    expect(medium.mediumType, 'Vinyl');
-    expect(medium.releaseId, release.id);
-    expect(medium.tracks.single.mediumId, medium.id);
-    expect(medium.tracks.single.durationMs, 67000);
-  });
-
-  test('Music integration exposes provider mapping and forces Music kind', () {
-    final integration = MusicMusicBrainzIntegration();
-    final mapped = integration.mapNative(
-      MusicBrainzRelease.fromJson({
-        'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
-        'title': 'Album',
-        'release-group': {
-          'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6e',
-          'title': 'Album',
-        },
-      }),
-    );
-    expect(mapped.id.value, startsWith('musicbrainz:'));
-    expect(mapped.releaseGroupId.value, startsWith('musicbrainz:'));
-  });
-
   test('Music hierarchy renders medium containers and track leaves', () {
-    final release = MusicMusicBrainzMapper.fromNative(
-      MusicBrainzRelease.fromJson({
-        'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
-        'title': 'Album',
-        'release-group': {
-          'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6e',
-          'title': 'Album',
-        },
-        'media': [
-          {
-            'format': 'Vinyl',
-            'tracks': [
-              {'position': 1, 'title': 'Opening', 'length': 61000},
-              {'position': 2, 'title': 'Closer', 'length': 122000},
-            ],
-          },
-        ],
-      }),
+    final releaseId = MusicReleaseId('album-release');
+    final mediumId = MusicMediumId('album-medium');
+    final release = MusicRelease(
+      id: releaseId,
+      releaseGroupId: MusicReleaseGroupId('album'),
+      title: 'Album',
+      mediums: [
+        MusicMedium(
+          id: mediumId,
+          releaseId: releaseId,
+          mediumNumber: 1,
+          mediumType: 'Vinyl',
+          tracks: [
+            MusicTrack(
+              id: MusicTrackId('track-1'),
+              mediumId: mediumId,
+              position: '1',
+              title: 'Opening',
+              durationMs: 61000,
+            ),
+            MusicTrack(
+              id: MusicTrackId('track-2'),
+              mediumId: mediumId,
+              position: '2',
+              title: 'Closer',
+              durationMs: 122000,
+            ),
+          ],
+        ),
+      ],
     );
 
     final nodes = MusicHierarchyMapper.toLibraryNodes(release);

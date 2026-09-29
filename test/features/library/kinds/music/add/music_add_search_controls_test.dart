@@ -30,7 +30,6 @@ void main() {
       queryController: queryController,
       identifierController: identifierController,
       isSearching: false,
-      isSearchingProvider: false,
       onModeChanged: (_) {},
       onSearch: () => searches++,
       onQueryChanged: (_) {},
