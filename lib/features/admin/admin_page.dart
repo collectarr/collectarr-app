@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
-import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_page_data_loader.dart';
 import 'package:collectarr_app/features/admin/admin_dashboard_widgets.dart';
 import 'package:collectarr_app/features/admin/admin_primitives.dart';
@@ -69,7 +68,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   AdminCatalogSummary? _summary;
   AdminNormalizedMetadataDriftReport? _normalizedMetadataDrift;
   SharedMetadataContractDrift? _metadataContractDrift;
-  AdminImageCacheStats? _dashboardImageCacheStats;
   AdminSearchStatus? _searchStatus;
   AdminSearchReindexResult? _lastReindex;
   var _searchHistory = const <AdminSearchHistoryEntry>[];
@@ -181,7 +179,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     return AdminStatsTab(
       isLoadingDashboard: _isLoadingDashboard,
       summary: _summary,
-      imageCacheStats: _dashboardImageCacheStats,
       dashboardErrorMessage: _dashboardErrorMessage,
       onRefreshDashboard: _loadDashboard,
     );
@@ -207,7 +204,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _summary = dashboard.summary;
         _normalizedMetadataDrift = dashboard.normalizedMetadataDrift;
         _metadataContractDrift = contractDrift;
-        _dashboardImageCacheStats = dashboard.imageCacheStats;
         _searchStatus = dashboard.searchStatus;
         _searchHistory = dashboard.searchHistory;
         _auditLogs = dashboard.auditLogs;

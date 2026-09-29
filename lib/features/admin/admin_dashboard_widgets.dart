@@ -253,17 +253,15 @@ class _DashboardSection extends StatelessWidget {
 class _DashboardStatsOverview extends StatelessWidget {
   const _DashboardStatsOverview({
     required this.summary,
-    required this.imageCacheStats,
     required this.errorMessage,
   });
 
   final AdminCatalogSummary? summary;
-  final AdminImageCacheStats? imageCacheStats;
   final String? errorMessage;
 
   @override
   Widget build(BuildContext context) {
-    if (summary == null && imageCacheStats == null) {
+    if (summary == null) {
       if (errorMessage != null) {
         return AdminMessageRow(message: errorMessage!, isError: true);
       }
@@ -283,7 +281,6 @@ class _DashboardStatsOverview extends StatelessWidget {
         }
         return left.key.compareTo(right.key);
       });
-    final cache = imageCacheStats;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -312,29 +309,6 @@ class _DashboardStatsOverview extends StatelessWidget {
               icon: Icons.image_outlined,
               label: '${summary?.imageAssets ?? 0} image assets',
             ),
-            AdminStatusChip(
-              icon: Icons.storage_outlined,
-              label: '${summary?.imageCacheEntries ?? 0} cache entries',
-            ),
-            if (cache != null) ...[
-              AdminStatusChip(
-                icon: Icons.data_usage_outlined,
-                label: '${cache.usagePercent.toStringAsFixed(1)}% cache usage',
-              ),
-              AdminStatusChip(
-                icon: Icons.sd_storage_outlined,
-                label:
-                    '${_statsFormatBytes(cache.totalSizeBytes)} / ${_statsFormatBytes(cache.maxSizeBytes)}',
-              ),
-              AdminStatusChip(
-                icon: cache.mirroringEnabled
-                    ? Icons.check_circle_outline
-                    : Icons.block_outlined,
-                label: cache.mirroringEnabled
-                    ? 'Mirroring enabled'
-                    : 'Mirroring disabled',
-              ),
-            ],
           ],
         ),
         if (errorMessage != null) ...[
@@ -521,19 +495,6 @@ String _statsKindLabel(String kind) {
       (kind.isEmpty ? 'Unknown' : kind);
 }
 
-String _statsFormatBytes(int bytes) {
-  if (bytes < 1024) {
-    return '$bytes B';
-  }
-  if (bytes < 1024 * 1024) {
-    return '${(bytes / 1024).toStringAsFixed(1)} KB';
-  }
-  if (bytes < 1024 * 1024 * 1024) {
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-  }
-  return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
-}
-
 class AdminDashboardTab extends StatelessWidget {
   const AdminDashboardTab({
     super.key,
@@ -634,14 +595,12 @@ class AdminStatsTab extends StatelessWidget {
     super.key,
     required this.isLoadingDashboard,
     required this.summary,
-    required this.imageCacheStats,
     required this.dashboardErrorMessage,
     required this.onRefreshDashboard,
   });
 
   final bool isLoadingDashboard;
   final AdminCatalogSummary? summary;
-  final AdminImageCacheStats? imageCacheStats;
   final String? dashboardErrorMessage;
   final VoidCallback onRefreshDashboard;
 
@@ -665,7 +624,6 @@ class AdminStatsTab extends StatelessWidget {
           ),
           child: _DashboardStatsOverview(
             summary: summary,
-            imageCacheStats: imageCacheStats,
             errorMessage: dashboardErrorMessage,
           ),
         ),

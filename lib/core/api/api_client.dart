@@ -569,14 +569,6 @@ class ApiClient {
     return _assetsApi.adminListUsers();
   }
 
-  Future<AdminImageCacheStats> adminImageCacheStats() async {
-    return _assetsApi.adminImageCacheStats();
-  }
-
-  Future<AdminImageCachePurgeResult> adminPurgeImageCache() async {
-    return _assetsApi.adminPurgeImageCache();
-  }
-
   Future<AdminUser> adminUpdateUser(
     String userId, {
     String? role,

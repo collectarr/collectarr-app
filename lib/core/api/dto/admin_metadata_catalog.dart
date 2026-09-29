@@ -11,7 +11,6 @@ class AdminCatalogSummary {
     required this.editions,
     required this.variants,
     required this.imageAssets,
-    required this.imageCacheEntries,
     required this.pendingProposals,
     required this.missingCoverItems,
     required this.duplicateCandidateGroups,
@@ -24,7 +23,6 @@ class AdminCatalogSummary {
   final int editions;
   final int variants;
   final int imageAssets;
-  final int imageCacheEntries;
   final int pendingProposals;
   final int missingCoverItems;
   final int duplicateCandidateGroups;
@@ -51,7 +49,6 @@ class AdminCatalogSummary {
       editions: json['editions'] as int? ?? 0,
       variants: json['variants'] as int? ?? 0,
       imageAssets: json['image_assets'] as int? ?? 0,
-      imageCacheEntries: json['image_cache_entries'] as int? ?? 0,
       pendingProposals: json['pending_proposals'] as int? ?? 0,
       missingCoverItems: json['missing_cover_items'] as int? ?? 0,
       duplicateCandidateGroups: json['duplicate_candidate_groups'] as int? ?? 0,

@@ -13,7 +13,6 @@ class AdminPageDataLoader {
       api.adminCatalogSummary(),
       api.adminNormalizedMetadataDrift(),
       api.metadataNormalizedManifest(),
-      api.adminImageCacheStats(),
       api.adminSearchStatus(),
       api.adminSearchHistory(),
       api.adminAuditLogs(limit: 8),
@@ -24,12 +23,11 @@ class AdminPageDataLoader {
       summary: results[0] as AdminCatalogSummary,
       normalizedMetadataDrift: results[1] as AdminNormalizedMetadataDriftReport,
       normalizedManifest: results[2] as MetadataNormalizedManifest,
-      imageCacheStats: results[3] as AdminImageCacheStats,
-      searchStatus: results[4] as AdminSearchStatus,
-      searchHistory: results[5] as List<AdminSearchHistoryEntry>,
-      auditLogs: results[6] as List<AdminAuditLogEntry>,
-      proposalSummary: results[7] as AdminMetadataProposalSummary,
-      proposalHistory: results[8] as List<AdminAuditLogEntry>,
+      searchStatus: results[3] as AdminSearchStatus,
+      searchHistory: results[4] as List<AdminSearchHistoryEntry>,
+      auditLogs: results[5] as List<AdminAuditLogEntry>,
+      proposalSummary: results[6] as AdminMetadataProposalSummary,
+      proposalHistory: results[7] as List<AdminAuditLogEntry>,
     );
   }
 
@@ -52,7 +50,6 @@ class AdminDashboardData {
     required this.summary,
     required this.normalizedMetadataDrift,
     required this.normalizedManifest,
-    required this.imageCacheStats,
     required this.searchStatus,
     required this.searchHistory,
     required this.auditLogs,
@@ -63,7 +60,6 @@ class AdminDashboardData {
   final AdminCatalogSummary summary;
   final AdminNormalizedMetadataDriftReport normalizedMetadataDrift;
   final MetadataNormalizedManifest normalizedManifest;
-  final AdminImageCacheStats imageCacheStats;
   final AdminSearchStatus searchStatus;
   final List<AdminSearchHistoryEntry> searchHistory;
   final List<AdminAuditLogEntry> auditLogs;

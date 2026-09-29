@@ -18,27 +18,6 @@ class _AssetsApiClient {
         .toList(growable: false);
   }
 
-  Future<AdminImageCacheStats> adminImageCacheStats() async {
-    final response = await _client._dio
-        .get<Map<String, dynamic>>('/api/v1/admin/image-cache/stats');
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/api/v1/admin/image-cache/stats returned empty body');
-    }
-    return AdminImageCacheStats.fromJson(data);
-  }
-
-  Future<AdminImageCachePurgeResult> adminPurgeImageCache() async {
-    final response = await _client._dio.post<Map<String, dynamic>>(
-      '/api/v1/admin/image-cache/purge',
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/api/v1/admin/image-cache/purge returned empty body');
-    }
-    return AdminImageCachePurgeResult.fromJson(data);
-  }
-
   Future<AdminUser> adminUpdateUser(
     String userId, {
     String? role,

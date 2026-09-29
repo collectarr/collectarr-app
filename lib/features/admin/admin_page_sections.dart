@@ -139,12 +139,6 @@ extension _AdminPageSections on _AdminPageState {
         ),
         const SizedBox(height: 12),
         AdminPanel(
-          icon: Icons.image_outlined,
-          title: 'Image cache',
-          child: const AdminImageCachePanel(),
-        ),
-        const SizedBox(height: 12),
-        AdminPanel(
           icon: Icons.monitor_heart_outlined,
           title: 'Diagnostics',
           child: const AdminDiagnosticsPanel(),

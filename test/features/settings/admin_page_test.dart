@@ -83,7 +83,6 @@ void main() {
     expect(find.text('Comics: 7'), findsOneWidget);
     expect(find.text('Books: 3'), findsOneWidget);
     expect(find.text('Music: 2'), findsOneWidget);
-    expect(find.textContaining('cache usage'), findsOneWidget);
     expect(find.textContaining('Mirroring enabled'), findsOneWidget);
 
     // â”€â”€â”€ Logs tab â”€â”€â”€
@@ -549,7 +548,6 @@ class _FakeAdminApiClient extends ApiClient {
       editions: 12,
       variants: 15,
       imageAssets: 0,
-      imageCacheEntries: 0,
       pendingProposals: 2,
       missingCoverItems: 3,
       duplicateCandidateGroups: 0,
@@ -1041,27 +1039,6 @@ class _FakeAdminApiClient extends ApiClient {
     return updated;
   }
 
-  @override
-  Future<AdminImageCacheStats> adminImageCacheStats() async {
-    const totalEntries = 16;
-    const totalSizeBytes = totalEntries * 1024 * 128;
-    const maxSizeBytes = 1024 * 1024 * 8;
-    return const AdminImageCacheStats(
-      totalEntries: totalEntries,
-      totalSizeBytes: totalSizeBytes,
-      maxSizeBytes: maxSizeBytes,
-      usagePercent: totalSizeBytes / maxSizeBytes * 100,
-      mirroringEnabled: true,
-    );
-  }
-
-  @override
-  Future<AdminImageCachePurgeResult> adminPurgeImageCache() async {
-    return const AdminImageCachePurgeResult(
-      deletedEntries: 16,
-      freedBytes: 16 * 1024 * 128,
-    );
-  }
 }
 
 class _BookAdminApiClient extends _FakeAdminApiClient {
