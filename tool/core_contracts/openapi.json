@@ -143,18 +143,6 @@
             "title": "Affected Items",
             "type": "integer"
           },
-          "item": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Item"
-          },
           "ok": {
             "title": "Ok",
             "type": "boolean"
@@ -274,31 +262,6 @@
           "item_ids"
         ],
         "title": "AdminDuplicateIgnoreRequest",
-        "type": "object"
-      },
-      "AdminDuplicateMergeRequest": {
-        "properties": {
-          "source_item_ids": {
-            "items": {
-              "format": "uuid",
-              "type": "string"
-            },
-            "maxItems": 49,
-            "minItems": 1,
-            "title": "Source Item Ids",
-            "type": "array"
-          },
-          "target_item_id": {
-            "format": "uuid",
-            "title": "Target Item Id",
-            "type": "string"
-          }
-        },
-        "required": [
-          "target_item_id",
-          "source_item_ids"
-        ],
-        "title": "AdminDuplicateMergeRequest",
         "type": "object"
       },
       "AdminDuplicateQueueSummaryResponse": {
@@ -475,62 +438,6 @@
           "created_at"
         ],
         "title": "AdminDuplicateReviewEntryResponse",
-        "type": "object"
-      },
-      "AdminDuplicateReviewRequest": {
-        "properties": {
-          "decision": {
-            "pattern": "^(ignore|merge)$",
-            "title": "Decision",
-            "type": "string"
-          },
-          "item_ids": {
-            "items": {
-              "format": "uuid",
-              "type": "string"
-            },
-            "maxItems": 50,
-            "title": "Item Ids",
-            "type": "array"
-          },
-          "note": {
-            "anyOf": [
-              {
-                "maxLength": 1000,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Note"
-          },
-          "source_item_ids": {
-            "items": {
-              "format": "uuid",
-              "type": "string"
-            },
-            "maxItems": 49,
-            "title": "Source Item Ids",
-            "type": "array"
-          },
-          "target_item_id": {
-            "anyOf": [
-              {
-                "format": "uuid",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Target Item Id"
-          }
-        },
-        "required": [
-          "decision"
-        ],
-        "title": "AdminDuplicateReviewRequest",
         "type": "object"
       },
       "AdminMetadataCorrectionRequest": {
@@ -16963,98 +16870,6 @@
           }
         ],
         "summary": "Ignore Duplicate Candidate",
-        "tags": [
-          "admin"
-        ]
-      }
-    },
-    "/api/v1/admin/duplicates/merge": {
-      "post": {
-        "operationId": "merge_duplicate_candidate_api_v1_admin_duplicates_merge_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AdminDuplicateMergeRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminDuplicateActionResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "summary": "Merge Duplicate Candidate",
-        "tags": [
-          "admin"
-        ]
-      }
-    },
-    "/api/v1/admin/duplicates/review": {
-      "post": {
-        "operationId": "review_duplicate_candidate_api_v1_admin_duplicates_review_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AdminDuplicateReviewRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminDuplicateActionResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "summary": "Review Duplicate Candidate",
         "tags": [
           "admin"
         ]
