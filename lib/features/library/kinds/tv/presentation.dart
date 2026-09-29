@@ -127,7 +127,7 @@ final tvLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: tvLibraryBucketLabelBuilder,
   cardPresentationBuilder: buildTvCardPresentation,
   compactBucketIcon: Icons.tv_outlined,
-  emptyStateProviderSummarySuffix: ' Episodes are tracked as seasons.',
+  emptyStateSummarySuffix: ' Episodes are tracked as seasons.',
   previewLabels: tvPreviewLabels,
   statsLabels: tvStatsLabels,
   filterDefinitions: tvLibraryFilterDefinitions,

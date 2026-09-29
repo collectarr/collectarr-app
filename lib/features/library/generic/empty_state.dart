@@ -92,24 +92,6 @@ class LibraryEmptyState extends StatelessWidget {
                               icon: const Icon(Icons.add),
                               label: const Text('Add from Collectarr Core'),
                             ),
-                          if (!hasActiveFilter &&
-                              libraryMetadataForKind(type.kind)
-                                  .supportedProvidersForKind(type.kind)
-                                  .isEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(
-                                'Manual add is enabled even without provider search.',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color: palette.textMuted,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                              ),
-                            ),
                         ],
                       ),
                     ),
@@ -125,13 +107,6 @@ class LibraryEmptyState extends StatelessWidget {
 }
 
 String _emptyStateSummary(LibraryKindRegistration type) {
-  final supportedProviders =
-      libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind);
-  if (supportedProviders.isEmpty) {
-    return 'No providers are registered for this library yet.';
-  }
-  final providers = supportedProviders.map((p) => p.label).join(', ');
-  final suffix =
-      libraryPresentationForKind(type.kind).emptyStateProviderSummarySuffix;
-  return 'Search Core via $providers, scan a barcode, or add a manual local item.$suffix';
+  final suffix = libraryPresentationForKind(type.kind).emptyStateSummarySuffix;
+  return 'Search Collectarr Core, or propose a missing ${type.identity.singularLabel.toLowerCase()}.$suffix';
 }

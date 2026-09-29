@@ -295,12 +295,6 @@ class _LibraryReleaseDetailPageState
               onFilterByValue: request.onFilterByValue,
             ),
             const SizedBox(height: 16),
-            LibraryDetailProviderSection(
-              type: request.type,
-              accent: request.accent,
-              onFilterByValue: request.onFilterByValue,
-            ),
-            const SizedBox(height: 16),
             WatchHistorySection(
               catalogRef: itemRef,
               accent: request.accent,
