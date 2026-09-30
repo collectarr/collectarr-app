@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_crew
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_discs_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_edition_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_links_tab.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_media_tab.dart';
+import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_catalog_item_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_specs_tab.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +58,7 @@ Widget? buildMovieCustomTabView({
         accent: accent,
         movieEdit: movieEdit,
       ),
-    'catalog_item' => MovieEditMediaTab(
+    'catalog_item' => MovieEditCatalogItemTab(
         draft: draft,
         movieEdit: movieEdit,
         accent: accent,

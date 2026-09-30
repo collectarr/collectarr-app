@@ -6,8 +6,8 @@ import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draf
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
-class MovieEditMediaTab extends StatelessWidget {
-  const MovieEditMediaTab({
+class MovieEditCatalogItemTab extends StatelessWidget {
+  const MovieEditCatalogItemTab({
     super.key,
     required this.draft,
     required this.movieEdit,
