@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 
-abstract final class MusicReleaseGroupWorkspaceFields {
+abstract final class MusicCatalogItemWorkspaceFields {
   static final title = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.title,
     label: 'Title',
@@ -26,36 +26,27 @@ abstract final class MusicReleaseGroupWorkspaceFields {
   );
 
   static final releaseDate = dateField<MusicKind, MusicWorkspaceProjection>(
-    id: MusicFieldIds.releaseGroupReleaseDate,
+    id: MusicFieldIds.releaseDate,
     label: 'Release Date',
-    getValue: (dto) => dto.music.releaseDate,
-    entityScope: LibraryEntityScope.work,
-  );
-
-  static final releaseCount = numberField<MusicKind, MusicWorkspaceProjection>(
-    id: MusicFieldIds.releaseCount,
-    label: 'Release count',
-    getValue: (dto) => dto.releaseCount,
+    getValue: (dto) => dto.releaseDate,
     entityScope: LibraryEntityScope.work,
   );
 
   static final trackCount = numberField<MusicKind, MusicWorkspaceProjection>(
-    id: MusicFieldIds.releaseGroupTrackCount,
+    id: MusicFieldIds.trackCount,
     label: 'Track count',
-    getValue: (dto) => dto.music.trackCount,
+    getValue: (dto) => dto.trackCount,
     entityScope: LibraryEntityScope.work,
   );
 
-  static final listenCount =
-      numberField<MusicKind, MusicWorkspaceProjection>(
+  static final listenCount = numberField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.listenCount,
     label: 'Listen count',
     getValue: (dto) => dto.listenCount,
     entityScope: LibraryEntityScope.work,
   );
 
-  static final lastListened =
-      dateField<MusicKind, MusicWorkspaceProjection>(
+  static final lastListened = dateField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.lastListened,
     label: 'Last listened',
     getValue: (dto) => dto.lastListened,

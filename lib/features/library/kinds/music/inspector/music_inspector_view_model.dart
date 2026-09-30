@@ -4,24 +4,19 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_owned_ite
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 
 /// Fully typed read model used by the Music inspector.
 ///
 /// The generic inspector host still owns navigation and chrome, but Music
-/// resolves its graph once here. The individual sections never need to
-/// rehydrate a transport DTO or guess whether a row represents a group,
-/// release, medium, or owned copy.
+/// resolves the concrete album and its contained discs/tracks once here.
 final class MusicInspectorViewModel {
   const MusicInspectorViewModel({
-    required this.group,
-    required this.release,
+    required this.music,
     required this.mediums,
     required this.tracks,
     this.owned,
@@ -32,14 +27,8 @@ final class MusicInspectorViewModel {
         ? item.source.catalogData! as MusicWorkspaceCatalogData
         : _fallbackMusicCatalog(item.source);
 
-    final scopedRelease = item.dto is MusicWorkspaceProjection
-        ? (item.dto as MusicWorkspaceProjection).release
-        : catalog.release;
-    // One Music Catalog Item is one concrete album edition. Resolve only the
-    // edition represented by this item; never expose sibling releases as
-    // separate catalog choices.
-    final release = scopedRelease ?? catalog.music.primaryRelease;
-    final detailReleases = [if (release != null) release];
+    final music = catalog.music;
+    final detailReleases = [music];
     final mediums = <MusicMedium>[
       for (final entry in detailReleases) ...entry.mediums,
     ];
@@ -57,8 +46,7 @@ final class MusicInspectorViewModel {
     ];
 
     return MusicInspectorViewModel(
-      group: catalog.music,
-      release: release,
+      music: music,
       mediums: List<MusicMedium>.unmodifiable(mediums),
       tracks: List<MusicTrackListEntry>.unmodifiable(tracks),
       owned:
@@ -66,8 +54,7 @@ final class MusicInspectorViewModel {
     );
   }
 
-  final MusicReleaseGroup group;
-  final MusicRelease? release;
+  final MusicRelease music;
   final List<MusicMedium> mediums;
   final List<MusicTrackListEntry> tracks;
   final MusicOwnedItem? owned;
@@ -113,8 +100,8 @@ MusicWorkspaceCatalogData _fallbackMusicCatalog(
     id: rootId.isEmpty ? 'unknown-music-item' : rootId,
   );
   return MusicWorkspaceCatalogData.fromMusic(
-    MusicReleaseGroup(
-      id: MusicReleaseGroupId(ref.id),
+    MusicRelease(
+      id: MusicReleaseId(ref.id),
       title: source.title,
       coverImageUrl: source.catalogSummary?.imageUrl,
     ),

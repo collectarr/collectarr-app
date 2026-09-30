@@ -2,10 +2,11 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_header_title.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_images_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_images_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
@@ -40,7 +41,6 @@ final class _MusicReleaseEditDialog extends ConsumerStatefulWidget {
 
 final class _MusicReleaseEditDialogState
     extends ConsumerState<_MusicReleaseEditDialog> {
-  late final MusicReleaseGroup _group;
   late final MusicRelease _release;
   late final MusicReleaseEditDraft _draft;
   late final MusicReleaseCreditsEditor _creditsEditor;
@@ -57,20 +57,7 @@ final class _MusicReleaseEditDialogState
     super.initState();
     final transport = widget.request.kindItem.kindCapability
         .mapTransport((transport) => transport);
-    final canonical = transport.kindMetadata;
-    _group = canonical is MusicReleaseGroup
-        ? canonical
-        : MusicReleaseGroup.fromJson(transport.payload);
-    final requestedReleaseId = switch (widget.request.node) {
-      LibraryReleaseRef(:final releaseId) => releaseId,
-      LibraryCopyRef(:final releaseId) => releaseId,
-      _ => null,
-    };
-    _release = resolveMusicReleaseForEdit(
-      _group,
-      requestedReleaseId: requestedReleaseId,
-      editPrimaryRelease: widget.request.editPrimaryRelease,
-    );
+    _release = MusicCatalogMapper.mapMetadataItemToMusic(transport);
     _draft = MusicReleaseEditDraft.fromRelease(
       _release,
       trackingSummary: widget.request.trackingSummary,
@@ -106,7 +93,10 @@ final class _MusicReleaseEditDialogState
         schema: musicReleaseEditSchema,
         model: _release,
         draft: _draft,
-        title: musicReleaseEditSchema.title?.call(_release) ?? _release.title,
+        title: musicEditHeaderTitle(
+          title: _release.title,
+          artist: _release.artist,
+        ),
         icon: widget.request.type.identity.icon,
         mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
@@ -244,15 +234,14 @@ final class _MusicReleaseEditDialogState
           if (!mounted || !context.mounted) return;
           await _persistPendingCustomFieldVocabularyValues();
           if (!mounted || !context.mounted) return;
-          final updatedGroup = _replaceRelease(_group, updatedRelease);
           final candidate =
               widget.request.kindItem.kindCapability.withKindMetadata(
-            updatedGroup,
+            updatedRelease,
           );
           Navigator.of(context).pop(
             LibraryEditSelection(
               kindItem: candidate,
-              scope: LibraryEntityScope.release,
+              scope: LibraryEntityScope.work,
               customFieldEdits: Map.unmodifiable(_customFieldEdits),
               tracking: _draft.trackingSelection(
                 widget.request.kindItem.reference.rootScope,
@@ -274,57 +263,4 @@ final class _MusicReleaseEditDialogState
     }
     _pendingCustomFieldVocabularyValues.clear();
   }
-}
-
-MusicRelease resolveMusicReleaseForEdit(
-  MusicReleaseGroup group, {
-  required String? requestedReleaseId,
-  bool editPrimaryRelease = false,
-}) {
-  if (requestedReleaseId != null) {
-    for (final release in group.releases) {
-      if (release.id.value == requestedReleaseId) return release;
-    }
-    throw StateError(
-      'Music release "$requestedReleaseId" is not present in the canonical release group graph',
-    );
-  }
-  if (!editPrimaryRelease) {
-    throw StateError(
-      'Music release edit requires an explicit release selection or primary-release intent',
-    );
-  }
-  final primary = group.primaryRelease;
-  if (primary != null) return primary;
-  throw StateError('Music release edit requires a concrete release');
-}
-
-MusicReleaseGroup _replaceRelease(
-  MusicReleaseGroup group,
-  MusicRelease updatedRelease,
-) {
-  return MusicReleaseGroup(
-    id: group.id,
-    title: group.title,
-    sortTitle: group.sortTitle,
-    artist: group.artist,
-    originalTitle: group.originalTitle,
-    originalReleaseDate: group.originalReleaseDate,
-    recordingDate: group.recordingDate,
-    studios: group.studios,
-    isLive: group.isLive,
-    genres: group.genres,
-    coverImageUrl: group.coverImageUrl,
-    coverImageKey: group.coverImageKey,
-    localCoverImagePath: group.localCoverImagePath,
-    localBackImagePath: group.localBackImagePath,
-    localThumbnailImagePath: group.localThumbnailImagePath,
-    releases: [
-      for (final release in group.releases)
-        release.id == updatedRelease.id ? updatedRelease : release,
-    ],
-    externalLinks: group.externalLinks,
-    createdAt: group.createdAt,
-    updatedAt: group.updatedAt,
-  );
 }

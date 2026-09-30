@@ -2,14 +2,12 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
@@ -161,104 +159,6 @@ void main() {
     expect(ownedRows.single.locationId, isNull);
   });
 
-  test(
-      'adds edition-referenced owned item using the selected edition without forcing a physical variant',
-      () async {
-    final fixture = _WorkflowFixture();
-    addTearDown(fixture.dispose);
-
-    await addLibraryItemsToTarget(
-      catalog: fixture.catalog,
-      ownedMutations: fixture.ownedMutations,
-      wishlistMutations: fixture.wishlistMutations,
-      trackingMutations: fixture.trackingMutations,
-      items: [_comicWithRelease('comic-release-1')],
-      target: LibraryAddTarget.owned,
-      referenceType: LibraryAddReferenceType.edition,
-    );
-
-    final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
-
-    // The owned row is keyed by its root catalog item; the selected edition
-    // remains the structural target reference on the aggregate.
-    expect(ownedRows.single.itemId, 'comic-release-1');
-    expect(ownedRows.single.targetRef?.entityType.apiValue, 'edition');
-    expect(ownedRows.single.targetRef?.id, 'edition-1');
-  });
-
-  test(
-      'adds edition-referenced wishlist item using an explicit edition variant',
-      () async {
-    final fixture = _WorkflowFixture();
-    addTearDown(fixture.dispose);
-
-    await addLibraryItemsToTarget(
-      catalog: fixture.catalog,
-      ownedMutations: fixture.ownedMutations,
-      wishlistMutations: fixture.wishlistMutations,
-      trackingMutations: fixture.trackingMutations,
-      items: [_comicWithMultipleReleases('comic-release-2')],
-      target: LibraryAddTarget.wishlist,
-      referenceType: LibraryAddReferenceType.edition,
-      editionSelectionsByCatalogRef: {
-        CatalogEntityRef(
-          kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('work'),
-          id: 'comic-release-2',
-        ): LibraryAddEditionSelection(
-          editionId: 'edition-2',
-          variantId: 'variant-2b',
-        ),
-      },
-    );
-
-    final wishlistRows =
-        await fixture.db.select(fixture.db.wishlistItemsCache).get();
-
-    final variantRef = CatalogEntityRef.fromJson(
-      jsonDecode(wishlistRows.single.catalogRefJson) as Map<String, dynamic>,
-    );
-    expect(variantRef.entityType, const CatalogEntityTypeId('release'));
-    expect(variantRef.id, 'variant-2b');
-    expect(variantRef.rootId, 'comic-release-2');
-  });
-
-  test('adds wishlist item against a bundle release catalog reference',
-      () async {
-    final fixture = _WorkflowFixture();
-    addTearDown(fixture.dispose);
-
-    await addLibraryItemsToTarget(
-      catalog: fixture.catalog,
-      ownedMutations: fixture.ownedMutations,
-      wishlistMutations: fixture.wishlistMutations,
-      trackingMutations: fixture.trackingMutations,
-      items: [_comic('comic-bundle-1')],
-      target: LibraryAddTarget.wishlist,
-      referenceType: LibraryAddReferenceType.bundleRelease,
-      bundleReleaseIdsByCatalogRef: {
-        CatalogEntityRef(
-          kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('work'),
-          id: 'comic-bundle-1',
-        ): 'bundle-1',
-      },
-    );
-
-    final wishlistRows =
-        await fixture.db.select(fixture.db.wishlistItemsCache).get();
-
-    final bundleRef = CatalogEntityRef.fromJson(
-      jsonDecode(wishlistRows.single.catalogRefJson) as Map<String, dynamic>,
-    );
-    expect(
-      bundleRef.entityType,
-      const CatalogEntityTypeId('bundle_release'),
-    );
-    expect(bundleRef.id, 'bundle-1');
-    expect(bundleRef.rootId, 'comic-bundle-1');
-  });
-
   test('adds tracking-only entry when target is track', () async {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
@@ -271,14 +171,6 @@ void main() {
       items: [_comic('comic-track-1')],
       target: LibraryAddTarget.track,
       defaults: const LibraryAddDefaults(readStatus: 'reading'),
-      referenceType: LibraryAddReferenceType.bundleRelease,
-      bundleReleaseIdsByCatalogRef: {
-        CatalogEntityRef(
-          kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('work'),
-          id: 'comic-track-1',
-        ): 'bundle-ignored',
-      },
     );
 
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
@@ -326,14 +218,10 @@ Future<void> addLibraryItemsToTarget({
   required TrackingMutations trackingMutations,
   required Iterable<CatalogSearchCandidate> items,
   required LibraryAddTarget target,
-  LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
   LibraryAddDefaults defaults = const LibraryAddDefaults(),
   LibraryAddCommonDraft? commonDraft,
   LibraryAddTrackingDraft? trackingDraft,
   Map<CatalogEntityRef, LibraryAddKindDraft> kindDraftsByCatalogRef = const {},
-  Map<CatalogEntityRef, LibraryAddEditionSelection>
-      editionSelectionsByCatalogRef = const {},
-  Map<CatalogEntityRef, String> bundleReleaseIdsByCatalogRef = const {},
 }) {
   return const LibraryAddCoordinator().add(
     LibraryAddBatchRequest(
@@ -345,13 +233,10 @@ Future<void> addLibraryItemsToTarget({
       ),
       items: items,
       target: target,
-      referenceType: referenceType,
       defaults: defaults,
       commonDraft: commonDraft,
       trackingDraft: trackingDraft,
       kindDraftsByCatalogRef: kindDraftsByCatalogRef,
-      editionSelectionsByCatalogRef: editionSelectionsByCatalogRef,
-      bundleReleaseIdsByCatalogRef: bundleReleaseIdsByCatalogRef,
     ),
   );
 }
@@ -403,36 +288,6 @@ CatalogSearchCandidate _comic(String id) {
   );
 }
 
-CatalogSearchCandidate _comicWithRelease(String id) {
-  return CatalogSearchCandidate.fromItem(
-    testCatalogItemWithKindMetadata(
-      testCatalogItem(
-        id: id,
-        kind: 'comic',
-        title: 'Batman #1',
-        itemNumber: '1',
-        publisher: 'DC',
-        editions: const [
-          CatalogEditionDto(
-            id: 'edition-1',
-            title: 'Direct Edition',
-            physicalFormat: 'single_issue',
-            physicalFormatLabel: 'Single Issue',
-            variants: [
-              CatalogVariantDto(
-                id: 'variant-1',
-                name: 'Cover A',
-                variantType: 'cover',
-                isPrimary: true,
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
 CatalogSearchCandidate _digitalMovie(String id) {
   return CatalogSearchCandidate.fromItem(
     testCatalogItemWithKindMetadata(
@@ -448,51 +303,3 @@ CatalogSearchCandidate _digitalMovie(String id) {
   );
 }
 
-CatalogSearchCandidate _comicWithMultipleReleases(String id) {
-  return CatalogSearchCandidate.fromItem(
-    testCatalogItemWithKindMetadata(
-      testCatalogItem(
-        id: id,
-        kind: 'comic',
-        title: 'Detective Comics #27',
-        itemNumber: '27',
-        publisher: 'DC',
-        editions: const [
-          CatalogEditionDto(
-            id: 'edition-1',
-            title: 'Standard Edition',
-            physicalFormat: 'single_issue',
-            physicalFormatLabel: 'Single Issue',
-            variants: [
-              CatalogVariantDto(
-                id: 'variant-1',
-                name: 'Cover A',
-                variantType: 'cover',
-                isPrimary: true,
-              ),
-            ],
-          ),
-          CatalogEditionDto(
-            id: 'edition-2',
-            title: 'Collector Edition',
-            physicalFormat: 'single_issue',
-            physicalFormatLabel: 'Collector Issue',
-            variants: [
-              CatalogVariantDto(
-                id: 'variant-2a',
-                name: 'Foil Cover',
-                variantType: 'foil',
-              ),
-              CatalogVariantDto(
-                id: 'variant-2b',
-                name: 'Sketch Cover',
-                variantType: 'sketch',
-                isPrimary: true,
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-}

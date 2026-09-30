@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:flutter/foundation.dart';
 
@@ -69,9 +68,13 @@ final class MusicOwnedItem {
   bool get isSold => soldAt != null;
 
   void validateCatalogItemOwnership() {
-    requireMusicOwnedCatalogItem(
-      catalogRef: catalogRef,
-    );
+    if (catalogRef.mediaKind != CatalogMediaKind.music ||
+        !catalogRef.isKnown ||
+        catalogRef.entityType != CatalogEntityTypeId.root) {
+      throw StateError(
+        'Music owned copies must target their concrete Music Catalog Item',
+      );
+    }
   }
 
   Map<String, dynamic> toJson() => {

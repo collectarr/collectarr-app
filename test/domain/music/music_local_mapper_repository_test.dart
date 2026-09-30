@@ -2,112 +2,77 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/remote/music_remote_source.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('MusicRepository round-trips release-group/release/medium/track',
+  test('MusicRepository round-trips one album and its contained disc data',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = MusicRepository(db);
-    final group = _group();
-    final release = group.primaryRelease!;
-    final medium = release.mediums.single;
+    final album = _album();
+    final medium = album.mediums.single;
 
-    await repository.updateReleaseGroup(group);
+    await repository.updateRelease(album);
 
-    final restoredGroup = await repository.getReleaseGroup(group.id);
-    final restoredRelease = await repository.getRelease(release.id);
-    expect(restoredGroup?.title, 'The Wall');
-    expect(restoredGroup?.externalLinks.single.url,
+    final restored = await repository.getRelease(album.id);
+    expect(restored?.title, 'The Wall');
+    expect(restored?.artist, 'Pink Floyd');
+    expect(restored?.externalLinks.single.url,
         'https://music.example.test/the-wall');
-    expect(restoredGroup?.localCoverImagePath, '/cache/music/group-cover.jpg');
-    expect(restoredGroup?.localBackImagePath, '/cache/music/group-back.jpg');
-    expect(
-        restoredGroup?.localThumbnailImagePath, '/cache/music/group-thumb.jpg');
-    expect(restoredGroup?.primaryRelease?.id, release.id);
-    expect(restoredRelease?.releaseGroupId, group.id);
-    expect(restoredRelease?.externalLinks.single.url,
-        'https://music.example.test/release-1');
-    expect(restoredRelease?.physicalFormat, 'vinyl');
-    expect(restoredRelease?.physicalFormatLabel, 'Vinyl');
-    expect(restoredRelease?.boxSetName, 'The Wall collection');
-    expect(restoredRelease?.contributions.single.displayName, 'Pink Floyd');
-    expect(restoredRelease?.contributions.single.imageUrl,
+    expect(restored?.localCoverImagePath, '/cache/music/album-cover.jpg');
+    expect(restored?.localBackImagePath, '/cache/music/album-back.jpg');
+    expect(restored?.localThumbnailImagePath, '/cache/music/album-thumb.jpg');
+    expect(restored?.physicalFormat, 'vinyl');
+    expect(restored?.physicalFormatLabel, 'Vinyl');
+    expect(restored?.boxSetName, 'The Wall collection');
+    expect(restored?.contributions.single.displayName, 'Pink Floyd');
+    expect(restored?.contributions.single.imageUrl,
         'https://music.example.test/pink-floyd.jpg');
-    expect(restoredRelease?.mediums.single.id, medium.id);
-    expect(
-        restoredRelease?.mediums.single.tracks.single.title, 'In the Flesh?');
-    expect(restoredRelease?.tracks.single.durationMs, 187000);
-    expect((await repository.search('floyd')).single.id, release.id);
-    expect((await repository.searchReleaseGroups('floyd')).single.id, group.id);
-    expect((await repository.getMedium(release.id, medium.id))?.mediumType,
+    expect(restored?.mediums.single.id, medium.id);
+    expect(restored?.mediums.single.tracks.single.title, 'In the Flesh?');
+    expect(restored?.tracks.single.durationMs, 187000);
+    expect((await repository.search('floyd')).single.id, album.id);
+    expect((await repository.getMedium(album.id, medium.id))?.mediumType,
         'Vinyl');
     expect(
-        (await repository.getTrack(medium.id, medium.tracks.single.id))
-            ?.position,
-        'A1');
+      (await repository.getTrack(medium.id, medium.tracks.single.id))?.position,
+      'A1',
+    );
   });
 
-  test('MusicRepository preserves release box-set membership', () async {
+  test('MusicRepository preserves album box-set membership', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = MusicRepository(db);
-    final group = MusicReleaseGroup(
-      id: const MusicReleaseGroupId('box-group'),
-      title: 'Box group',
-      releases: [
-        MusicRelease(
-          id: const MusicReleaseId('box-release'),
-          releaseGroupId: const MusicReleaseGroupId('box-group'),
-          title: 'Box release',
-          boxSetMembership: const MusicBoxSetMembership(
-            boxSetRef: CatalogEntityRef(
-              kind: CatalogMediaKind.music,
-              entityType: CatalogEntityTypeId('box_set'),
-              id: 'box-1',
-            ),
-            sequenceNumber: 3,
-          ),
+    final album = MusicRelease(
+      id: const MusicReleaseId('box-album'),
+      title: 'Box album',
+      boxSetMembership: const MusicBoxSetMembership(
+        boxSetRef: CatalogEntityRef(
+          kind: CatalogMediaKind.music,
+          entityType: CatalogEntityTypeId('box_set'),
+          id: 'box-1',
         ),
-      ],
+        sequenceNumber: 3,
+      ),
     );
 
-    await repository.updateReleaseGroup(group);
+    await repository.updateRelease(album);
 
-    final restored =
-        await repository.getRelease(const MusicReleaseId('box-release'));
+    final restored = await repository.getRelease(album.id);
     expect(restored?.boxSetMembership?.boxSetRef.id, 'box-1');
     expect(restored?.boxSetMembership?.sequenceNumber, 3);
-  });
-
-  test(
-      'MusicRepository populates and then reads a remote release through cache',
-      () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    final expected = _group().primaryRelease!;
-    final repository = MusicRepository(db, remote: _FakeMusicRemote(expected));
-
-    final first = await repository.getRelease(expected.id);
-    final second = await repository.getRelease(expected.id);
-
-    expect(first?.id, expected.id);
-    expect(second?.releaseGroupId, expected.releaseGroupId);
-    expect(second?.mediums.single.tracks.single.id,
-        expected.mediums.single.tracks.single.id);
   });
 
   test('MusicLocalMapper round-trips the complete owned copy', () async {
@@ -118,7 +83,7 @@ void main() {
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
         entityType: CatalogEntityTypeId.root,
-        id: 'group-1',
+        id: 'album-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),
       isDigital: false,
@@ -195,26 +160,26 @@ void main() {
         'SHVL 804 A-2');
   });
 
-  test('MusicRepository enforces typed graph ownership', () async {
+  test('MusicRepository enforces ownership of contained disc data', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = MusicRepository(db);
-    final release = _group().primaryRelease!;
-    final medium = release.mediums.single;
+    final album = _album();
+    final medium = album.mediums.single;
     final badMedium = MusicMedium(
       id: medium.id,
-      releaseId: const MusicReleaseId('other-release'),
+      releaseId: const MusicReleaseId('other-album'),
       mediumNumber: 1,
     );
     final badTrack = MusicTrack(
       id: medium.tracks.single.id,
-      mediumId: const MusicMediumId('other-medium'),
+      mediumId: const MusicMediumId('other-disc'),
       position: '1',
       title: 'Wrong parent',
     );
 
     expect(
-      () => repository.updateMedium(release.id, badMedium),
+      () => repository.updateMedium(album.id, badMedium),
       throwsStateError,
     );
     expect(
@@ -223,88 +188,58 @@ void main() {
     );
     expect(
       () => MusicLocalMapper.toReleaseRow(
-        MusicRelease(
-          id: MusicReleaseId(''),
-          releaseGroupId: MusicReleaseGroupId('group-1'),
-          title: 'Draft',
-        ),
+        MusicRelease(id: MusicReleaseId(''), title: 'Draft'),
       ),
       throwsStateError,
     );
   });
 
-  test('Music schema exposes dedicated graph tables at schema version 3', () {
+  test('Music starts from the clean v1 local database baseline', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     expect(db.schemaVersion, 1);
   });
 }
 
-MusicReleaseGroup _group() {
-  return MusicReleaseGroup(
-    id: MusicReleaseGroupId('group-1'),
-    title: 'The Wall',
-    artist: 'Pink Floyd',
-    localCoverImagePath: '/cache/music/group-cover.jpg',
-    localBackImagePath: '/cache/music/group-back.jpg',
-    localThumbnailImagePath: '/cache/music/group-thumb.jpg',
-    externalLinks: const [
-      MusicExternalLink(
-        url: 'https://music.example.test/the-wall',
-        title: 'Artist site',
-      ),
-    ],
-    releases: [
-      MusicRelease(
-        id: MusicReleaseId('release-1'),
-        releaseGroupId: MusicReleaseGroupId('group-1'),
-        title: 'The Wall',
-        publisher: 'Harvest',
-        catalogNumber: 'SHDW 804',
-        boxSetName: 'The Wall collection',
-        externalLinks: const [
-          MusicExternalLink(
-            url: 'https://music.example.test/release-1',
-            title: 'Pressing page',
-          ),
-        ],
-        mediums: [
-          MusicMedium(
-            id: MusicMediumId('medium-1'),
-            releaseId: MusicReleaseId('release-1'),
-            mediumNumber: 1,
-            mediumType: 'Vinyl',
-            tracks: [
-              MusicTrack(
-                id: MusicTrackId('track-1'),
-                mediumId: MusicMediumId('medium-1'),
-                position: 'A1',
-                title: 'In the Flesh?',
-                durationMs: 187000,
-              ),
-            ],
-          ),
-        ],
-        contributions: [
-          MusicReleaseContribution(
-            id: MusicReleaseContributionId('contribution-1'),
-            releaseId: MusicReleaseId('release-1'),
-            personId: 'pink-floyd',
-            role: 'Artist',
-            displayName: 'Pink Floyd',
-            imageUrl: 'https://music.example.test/pink-floyd.jpg',
-          ),
-        ],
-      ),
-    ],
-  );
-}
-
-final class _FakeMusicRemote implements MusicRemoteSource {
-  const _FakeMusicRemote(this.release);
-
-  final MusicRelease release;
-
-  @override
-  Future<MusicRelease> fetchRelease(MusicReleaseId id) async => release;
-}
+MusicRelease _album() => MusicRelease(
+      id: const MusicReleaseId('album-1'),
+      title: 'The Wall',
+      artist: 'Pink Floyd',
+      localCoverImagePath: '/cache/music/album-cover.jpg',
+      localBackImagePath: '/cache/music/album-back.jpg',
+      localThumbnailImagePath: '/cache/music/album-thumb.jpg',
+      externalLinks: const [
+        MusicExternalLink(
+          url: 'https://music.example.test/the-wall',
+          title: 'Album page',
+        ),
+      ],
+      boxSetName: 'The Wall collection',
+      mediums: [
+        MusicMedium(
+          id: const MusicMediumId('disc-1'),
+          releaseId: const MusicReleaseId('album-1'),
+          mediumNumber: 1,
+          mediumType: 'Vinyl',
+          tracks: [
+            MusicTrack(
+              id: const MusicTrackId('track-1'),
+              mediumId: const MusicMediumId('disc-1'),
+              position: 'A1',
+              title: 'In the Flesh?',
+              durationMs: 187000,
+            ),
+          ],
+        ),
+      ],
+      contributions: [
+        MusicReleaseContribution(
+          id: const MusicReleaseContributionId('contribution-1'),
+          releaseId: const MusicReleaseId('album-1'),
+          personId: 'pink-floyd',
+          role: 'Artist',
+          displayName: 'Pink Floyd',
+          imageUrl: 'https://music.example.test/pink-floyd.jpg',
+        ),
+      ],
+    );

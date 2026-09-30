@@ -1486,10 +1486,6 @@ void main() {
 
   testWidgets('music kind uses dedicated edit dialog tabs and music fields',
       (tester) async {
-    markTestSkipped(
-      'Music work/release editing is covered by the dedicated typed dialogs.',
-    );
-    return;
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -1515,29 +1511,31 @@ void main() {
         barcode: '781207102222',
         releaseYear: 1998,
         releaseDate: DateTime.utc(1998, 5, 23),
-        series: const CatalogSeriesDetailsDto(seriesTitle: 'Ad Infinitum'),
         music: const {
-          'track_count': 2,
+          'artist': 'Ad Infinitum',
           'catalog_number': 'KDCD 1022',
-          'release_status': 'Official',
-          'tracks': [
+          'genres': ['Rock', 'Progressive Rock'],
+          'discs': [
             {
-              'title': 'Ad Infinitum',
-              'position': '1',
-              'duration_seconds': 506,
-            },
-            {
-              'title': 'Immortality',
-              'position': '2',
-              'duration_seconds': 421,
+              'id': 'disc-1',
+              'disc_number': 1,
+              'tracks': [
+                {
+                  'id': 'track-1',
+                  'title': 'Ad Infinitum',
+                  'position': '1',
+                  'duration_ms': 506000,
+                },
+                {
+                  'id': 'track-2',
+                  'title': 'Immortality',
+                  'position': '2',
+                  'duration_ms': 421000,
+                },
+              ],
             },
           ],
         },
-        creators: [
-          {'name': 'Ad Infinitum', 'role': 'Artist'},
-          {'name': 'Melissa Bonny', 'role': 'Vocals'},
-        ],
-        genres: ['Rock', 'Progressive Rock'],
       ),
     );
     final ownedItem = testOwnedItem(
@@ -1581,29 +1579,26 @@ void main() {
     await tester.tap(find.text('Open'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Release Group'), findsOneWidget);
-    expect(find.text('Release'), findsAtLeastNWidgets(1));
+    expect(find.text('Release Group'), findsNothing);
+    expect(find.text('Release'), findsNothing);
+    expect(find.text('Main'), findsOneWidget);
     expect(find.text('Links'), findsOneWidget);
     expect(find.text('Value'), findsNothing);
 
-    await tester.tap(find.text('Release Group'));
-    await pumpUntilSettled(tester);
     await tester.enterText(
         find.widgetWithText(TextField, 'Artist').first, 'cAd');
-    await tester.tap(find.text('Release').first);
-    await pumpUntilSettled(tester);
     await tester.enterText(
-      find.widgetWithText(TextField, 'Catalog number').first,
+      find.widgetWithText(TextField, 'Cat No').first,
       'KDCD 1022-R',
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final group = selection?.kindItem.kindCapability.mapTransport(
+    final album = selection?.kindItem.kindCapability.mapTransport(
       MusicCatalogMapper.mapMetadataItemToMusic,
     );
-    expect(group?.artist, 'cAd');
-    expect(group?.primaryRelease?.catalogNumber, 'KDCD 1022-R');
+    expect(album?.artist, 'cAd');
+    expect(album?.catalogNumber, 'KDCD 1022-R');
   });
 
   testWidgets('game kind saves platforms via main tab chips', (tester) async {

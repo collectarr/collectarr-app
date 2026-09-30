@@ -22,11 +22,13 @@ void requireKnownOwnedRef(
   OwnedCopyRef ref, [
   String name = 'ownedRef',
 ]) {
-  if (ref.kind.isUnknown || ref.id.value.trim().isEmpty) {
+  if (ref.kind.isUnknown ||
+      ref.itemId.trim().isEmpty ||
+      ref.id.value.trim().isEmpty) {
     throw ArgumentError.value(
       ref,
       name,
-      'Expected a known owned reference with a non-empty id.',
+      'Expected a known owned reference with a kind, item ID, and copy ID.',
     );
   }
 }
@@ -45,6 +47,12 @@ void requireMatchingOwnedCatalogKinds(
     throw ArgumentError(
       'The $ownedName kind (${ownedRef.kind.apiValue}) must match '
       'the $catalogName kind (${catalogRef.kind.apiValue}).',
+    );
+  }
+  if (catalogRef.rootScope.id != ownedRef.itemId) {
+    throw ArgumentError(
+      'The $ownedName item ID (${ownedRef.itemId}) must match the root '
+      'Catalog Item ID (${catalogRef.rootScope.id}).',
     );
   }
 }

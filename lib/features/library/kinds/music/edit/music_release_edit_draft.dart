@@ -176,6 +176,10 @@ final class MusicReleaseEditDraft {
     bool replaceRpm = false,
     String? spars,
     bool replaceSpars = false,
+    String? matrixNumberSideA,
+    bool replaceMatrixNumberSideA = false,
+    String? matrixNumberSideB,
+    bool replaceMatrixNumberSideB = false,
   }) {
     final index = mediums.indexWhere((medium) => medium.id == mediumId);
     if (index < 0) return;
@@ -191,6 +195,10 @@ final class MusicReleaseEditDraft {
       replaceRpm: replaceRpm,
       spars: spars,
       replaceSpars: replaceSpars,
+      matrixNumberSideA: matrixNumberSideA,
+      replaceMatrixNumberSideA: replaceMatrixNumberSideA,
+      matrixNumberSideB: matrixNumberSideB,
+      replaceMatrixNumberSideB: replaceMatrixNumberSideB,
     );
   }
 
@@ -555,6 +563,10 @@ MusicMedium _copyMedium(
   bool replaceRpm = false,
   String? spars,
   bool replaceSpars = false,
+  String? matrixNumberSideA,
+  bool replaceMatrixNumberSideA = false,
+  String? matrixNumberSideB,
+  bool replaceMatrixNumberSideB = false,
   List<MusicTrack>? tracks,
 }) {
   return MusicMedium(
@@ -572,6 +584,12 @@ MusicMedium _copyMedium(
     cddbId: medium.cddbId,
     leadoutOffset: medium.leadoutOffset,
     bpDiscId: medium.bpDiscId,
+    matrixNumberSideA: replaceMatrixNumberSideA
+        ? matrixNumberSideA
+        : matrixNumberSideA ?? medium.matrixNumberSideA,
+    matrixNumberSideB: replaceMatrixNumberSideB
+        ? matrixNumberSideB
+        : matrixNumberSideB ?? medium.matrixNumberSideB,
     soundType: replaceSoundType ? soundType : soundType ?? medium.soundType,
     vinylColor:
         replaceVinylColor ? vinylColor : vinylColor ?? medium.vinylColor,

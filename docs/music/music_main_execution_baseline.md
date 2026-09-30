@@ -1,48 +1,50 @@
-# Music Catalog Flattening Status
+# Music Catalog Item Cutover Status
 
-This document records the current Music cutover state. The active plan is the
-repository's flattened catalog plan; the notes below describe code that still
-needs migration and must not be read as a compatibility contract.
+This document records the current App Music implementation. It does not claim
+that the nine-kind Catalog Item cutover is complete.
 
-## Current boundaries
+## Active Music path
 
-- Core serves one concrete Music Catalog Item per album edition, with discs
-  and tracks contained by that item.
-- App manual Add builds the same flat Music item payload and uses the shared
-  Add/Edit dialog shell. User proposals contain kind-owned Music catalog data.
-- New Music Owned Copies target the Catalog Item directly. Per-disc condition
-  and storage placement remain personal copy details; matrix numbers remain
-  catalog pressing identifiers shared by copies of the same item.
-- App persistence, workspace projections, and catalog editing still contain
-  Release Group and Release types. Those structures are not the target model
-  and must be removed as each consumer moves to the flat item.
-- Music lifecycle tracking now targets the Catalog Item and keeps its existing
-  personal Sync path. Listening history also targets the Catalog Item and may
-  identify the Owned Copy used. Its event history remains App-owned and is not
-  part of Core catalog data or the Music release hierarchy.
-- Music's edit surface still has separate Release Group and Release dialogs.
-  Consolidate their catalog fields into one item editor without changing the
-  visible controls or the separate Owned Copy form.
+- Core exposes one flat Music Catalog Item per concrete album edition. Discs,
+  ordered tracks, credits, covers, and links are contained catalog data.
+- App search and manual Add use the flat kind-owned Music payload. Manual Add
+  and Edit share the edit dialog scaffold, and proposals use the same Music
+  catalog fields.
+- App maps one Music Catalog Item to its root workspace row. The Music Release
+  Group model, serializer, dialog, workspace schema, preference codec, and
+  Release projection have been removed. The Music scope selector is not shown.
+- App-owned copies target the concrete Music Catalog Item. Copy condition,
+  location, purchase data, notes, personal images, per-copy storage placement,
+  and listening activity stay in App-owned storage and Sync.
+- Listening events target one Music Catalog Item and may optionally identify
+  the Owned Copy used.
 
-## Cutover rules
+## Remaining boundaries
 
-- Treat a concrete album edition as one Catalog Item. It has no parent album
-  group or synthetic release child.
-- Keep discs, ordered tracks, credits, and external links as Music-owned
-  catalog data.
-- Keep condition, location, purchase details, notes, per-disc storage, matrix
-  runouts, images, and listening history in App-owned personal data.
-- Personal Sync continues to carry Owned Copies and personal activity. Core
-  Catalog Item data never enters Sync.
-- The final App baseline is a fresh schema v1. Old Work/Release databases and
-  backups are unsupported; do not add compatibility decoding or upgrade paths.
-- Music's field ledger is based on the saved CLZ Music Edit form. Exact CLZ
-  parity for the other kinds remains unverified until their Edit captures are
-  available.
+- The domain model and Drift table still use some historical `Release` names.
+  Each row is the root Catalog Item; there is no separate editable Release
+  entity in the Music catalog graph. Rename those symbols only as part of a
+  coherent persistence/API update, not as compatibility aliases.
+- The generic App workspace still represents root items with its `work` scope
+  type because the other eight kinds have not completed the shared cutover.
+  Music has no separate Release scope or selector.
+- The other eight kinds still have active Work/Release paths in App. Their
+  field ledgers remain provisional where CLZ Edit-form captures are missing.
+
+## Field confidence and reset
+
+- The Music field ledger is grounded in the saved CLZ Music Edit form.
+- Exact CLZ parity for Anime, Board Game, Book, Comic, Game, Manga, Movie, and
+  TV remains unverified pending their Edit-form captures.
+- App's final schema is a fresh Drift v1 baseline. Old Work/Release databases
+  and backups are unsupported; do not add compatibility decoding or upgrade
+  paths.
+- Personal Sync carries Owned Copies and personal activity only. Core Catalog
+  Item data never enters Sync.
 
 ## Verification policy
 
-Do not claim the Music cutover is complete until active Add/Edit, persistence,
-workspace, owned-copy, tracking/listening, backup, export, and personal Sync
-paths use the flat Catalog Item identity and no Music Release Group or Release
-identity is reachable from the app.
+Do not report the coordinated nine-kind cutover complete until every active
+Add/Edit, persistence, workspace, Owned Copy, backup, export, and Sync path uses
+Catalog Item and Owned Copy references, and the old graph has no reachable
+consumer.

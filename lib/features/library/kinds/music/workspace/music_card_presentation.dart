@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -43,11 +43,10 @@ LibraryCardPresentation buildMusicCardPresentation(
 
 /// Returns the primary artist name for a music item.
 String? musicCardArtist(LibraryProjectionView item) {
-  final group = _musicGroup(item);
-  final groupArtist = group?.artist?.trim();
-  if (groupArtist != null && groupArtist.isNotEmpty) return groupArtist;
-  final creators = group?.primaryRelease?.contributions ??
-      const <MusicReleaseContribution>[];
+  final album = _musicCatalogItem(item);
+  final albumArtist = album?.artist?.trim();
+  if (albumArtist != null && albumArtist.isNotEmpty) return albumArtist;
+  final creators = album?.contributions ?? const <MusicReleaseContribution>[];
   for (final creator in creators) {
     final rawName = (creator.displayName ?? '').trim();
     if (rawName.isEmpty) continue;
@@ -71,9 +70,9 @@ String? musicCardDuration(LibraryProjectionView item) {
   if (runtimeFact != null && runtimeFact.isNotEmpty) {
     return runtimeFact;
   }
-  final totalDurationMs = _musicGroup(item)?.tracks.fold<int>(
+  final totalDurationMs = _musicCatalogItem(item)?.tracks.fold<int>(
         0,
-        (total, track) => total + (track.track.durationMs ?? 0),
+        (total, track) => total + (track.durationMs ?? 0),
       );
   final totalSeconds = totalDurationMs == null || totalDurationMs == 0
       ? null
@@ -92,7 +91,7 @@ String? musicCardDuration(LibraryProjectionView item) {
 
 /// Returns the track count for the album.
 int? musicCardTrackCount(LibraryProjectionView item) {
-  return _musicGroup(item)?.trackCount ??
+  return _musicCatalogItem(item)?.trackCount ??
       int.tryParse(
         _metadataFactValue(
               _metadataPresentationForEntry(item),
@@ -102,7 +101,7 @@ int? musicCardTrackCount(LibraryProjectionView item) {
       );
 }
 
-MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {
+MusicRelease? _musicCatalogItem(LibraryProjectionView item) {
   final catalog = item.source.catalogData;
   return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }

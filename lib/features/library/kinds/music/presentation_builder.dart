@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_track_list.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_candidate_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
@@ -49,9 +49,8 @@ class MusicLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! MusicWorkspaceCatalogData) return const [];
     final item = catalog.music;
-    final release = item.primaryRelease;
     final identifier = normalizeLibraryDuplicateIdentifier(
-      release?.barcode ?? release?.upc,
+      item.barcode ?? item.upc,
     );
     if (identifier == null) return const [];
     return [
@@ -185,15 +184,14 @@ class MusicLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final group = _musicGroup(item);
-    final release = group?.primaryRelease;
-    final medium = release?.mediums.firstOrNull;
-    final artist = group?.artist;
-    final barcode = release?.barcode ?? release?.upc;
-    final publisher = release?.publisher;
-    final releaseDate = release?.releaseDate ?? group?.originalReleaseDate;
-    final country = musicCountryName(release?.countryCode);
-    final language = release?.language;
+    final album = _musicCatalogItem(item);
+    final medium = album?.mediums.firstOrNull;
+    final artist = album?.artist;
+    final barcode = album?.barcode ?? album?.upc;
+    final publisher = album?.publisher;
+    final releaseDate = album?.releaseDate;
+    final country = musicCountryName(album?.countryCode);
+    final language = album?.language;
 
     return LibraryMetadataPresentation(
       labels: metadataLabels,
@@ -217,10 +215,10 @@ class MusicLibraryMediaPresentationBuilder
               onTap: tapFor(medium.mediumType!)),
         if (barcode != null)
           LibraryDetailField(label: 'Barcode', value: barcode),
-        if (release?.catalogNumber != null)
+        if (album?.catalogNumber != null)
           LibraryDetailField(
             label: 'Catalog #',
-            value: release!.catalogNumber!,
+            value: album!.catalogNumber!,
           ),
       ],
       contextFacts: [
@@ -237,24 +235,23 @@ class MusicLibraryMediaPresentationBuilder
               formatPresentationNullableDate(releaseDate) ??
                   releaseDate?.year.toString(),
             )),
-        if (group?.trackCount != null)
+        if (album?.trackCount != null)
           LibraryDetailField(
-              label: 'Tracks', value: group!.trackCount.toString()),
-        if (release?.mediums.isNotEmpty == true)
+              label: 'Tracks', value: album!.trackCount.toString()),
+        if (album?.mediums.isNotEmpty == true)
           LibraryDetailField(
-              label: 'Medium count', value: release!.mediums.length.toString()),
-        if (release?.catalogNumber != null)
+              label: 'Disc count', value: album!.mediums.length.toString()),
+        if (album?.catalogNumber != null)
+          LibraryDetailField(label: 'Catalog #', value: album!.catalogNumber!),
+        if (album?.releaseStatus != null)
           LibraryDetailField(
-              label: 'Catalog #', value: release!.catalogNumber!),
-        if (release?.releaseStatus != null)
-          LibraryDetailField(
-              label: 'Release Status', value: release!.releaseStatus!),
+              label: 'Release Status', value: album!.releaseStatus!),
         if (country != null)
           LibraryDetailField(label: 'Country', value: country),
         if (language != null)
           LibraryDetailField(label: 'Language', value: language),
-        if (group?.tracks.isNotEmpty == true)
-          LibraryDetailField(label: 'Length', value: _musicDuration(group!)),
+        if (album?.tracks.isNotEmpty == true)
+          LibraryDetailField(label: 'Length', value: _musicDuration(album!)),
         if (medium?.vinylColor != null)
           LibraryDetailField(label: 'Vinyl color', value: medium!.vinylColor!),
         if (medium?.rpm != null)
@@ -265,15 +262,13 @@ class MusicLibraryMediaPresentationBuilder
                 ? 'Missing'
                 : 'Ready'),
         LibraryDetailField(
-            label: 'Metadata',
-            value:
-                group == null || group.releases.isEmpty ? 'Missing' : 'Ready'),
+            label: 'Metadata', value: album == null ? 'Missing' : 'Ready'),
       ],
       sections: {
         'creators': LibraryMetadataSection(
           values: [
             for (final contribution
-                in release?.contributions ?? const <MusicReleaseContribution>[])
+                in album?.contributions ?? const <MusicReleaseContribution>[])
               contribution.toJson(),
           ],
           placement: LibraryMetadataSectionPlacement.credits,
@@ -281,7 +276,7 @@ class MusicLibraryMediaPresentationBuilder
           completenessWeight: 12,
         ),
         'genres': LibraryMetadataSection(
-          values: group?.genres ?? const <String>[],
+          values: album?.genres ?? const <String>[],
         ),
       },
     );
@@ -304,7 +299,7 @@ class MusicLibraryMediaPresentationBuilder
         ),
       ];
     }
-    final trackCount = model.release?.trackCount ?? model.group.trackCount;
+    final trackCount = model.music.trackCount;
     if (trackCount <= 0) return const <Widget>[];
     return [
       MusicInspectorTrackListUnavailable(
@@ -315,15 +310,15 @@ class MusicLibraryMediaPresentationBuilder
   }
 }
 
-MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {
+MusicRelease? _musicCatalogItem(LibraryProjectionView item) {
   final catalog = item.source.catalogData;
   return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }
 
-String _musicDuration(MusicReleaseGroup group) {
-  final totalSeconds = group.tracks.fold<int>(
+String _musicDuration(MusicRelease item) {
+  final totalSeconds = item.tracks.fold<int>(
     0,
-    (total, entry) => total + (entry.track.durationMs ?? 0) ~/ 1000,
+    (total, track) => total + (track.durationMs ?? 0) ~/ 1000,
   );
   final minutes = totalSeconds ~/ 60;
   final seconds = totalSeconds % 60;

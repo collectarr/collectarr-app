@@ -69,22 +69,24 @@ void main() {
         publisher: 'Columbia',
         releaseDate: DateTime.utc(1959, 8, 17),
         barcode: '074646528825',
-        variant: 'Remastered',
-        editionTitle: 'Anniversary Edition',
-        physicalFormat: 'vinyl',
-        physicalFormatLabel: 'LP',
         payload: const {
-          'releases': [
+          'music': {
+            'format': 'Remastered',
+            'label': 'Columbia',
+            'release_date': '1959-08-17',
+            'barcode': '074646528825',
+            'catalog_number': 'CK  CS 8163',
+            'box_set': 'Anniversary Edition',
+            'discs': [
             {
-              'id': 'release-1',
-              'title': 'Kind of Blue',
-              'catalog_number': 'CK  CS 8163',
-              'format': 'Remastered',
+              'id': 'disc-1',
+              'disc_number': 1,
+              'tracks': [
+                {'id': 'track-1', 'position': '1', 'title': 'So What'},
+              ],
             },
           ],
-          'tracks': [
-            {'number': '1', 'title': 'So What'},
-          ],
+          },
         },
       )).asShelfCatalogItem,
     ) as MusicWorkspaceCatalogData;
@@ -93,7 +95,6 @@ void main() {
       catalogData: MusicWorkspaceCatalogData.fromMusic(
         catalogData.music,
         ref: catalogData.ref,
-        release: catalogData.music.releases.single,
       ),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',

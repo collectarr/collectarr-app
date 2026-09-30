@@ -4,24 +4,21 @@ import 'package:collectarr_app/features/library/kinds/music/data/local/music_loc
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:drift/drift.dart';
 
-/// Typed Music repository for the release-group -> release -> medium -> track
-/// graph. A group and a concrete release intentionally have separate APIs.
+/// Stores concrete Music Catalog Items and their contained discs and tracks.
 final class MusicRepository
-    implements ReadRepository<MusicReleaseGroupId, MusicReleaseGroup> {
+    implements ReadRepository<MusicReleaseId, MusicRelease> {
   MusicRepository(this._db);
 
   final LocalDatabase _db;
 
   @override
-  Future<MusicReleaseGroup?> findById(MusicReleaseGroupId id) =>
-      getReleaseGroup(id);
+  Future<MusicRelease?> findById(MusicReleaseId id) => getRelease(id);
 
   Future<MusicRelease?> getRelease(MusicReleaseId id) async {
     final row = await (_db.select(_db.musicReleaseRows)
@@ -29,35 +26,6 @@ final class MusicRepository
         .getSingleOrNull();
     if (row != null) return _hydrateRelease(row);
     return null;
-  }
-
-  Future<MusicReleaseGroup?> getReleaseGroup(MusicReleaseGroupId id) async {
-    final item = await getRelease(MusicReleaseId(id.value));
-    return item == null ? null : _groupWorkspaceView(item);
-  }
-
-  Future<List<MusicReleaseGroup>> searchReleaseGroups(
-      [String query = '']) async {
-    final normalizedQuery = query.trim();
-    final select = _db.select(_db.musicReleaseRows);
-    if (normalizedQuery.isNotEmpty) {
-      final pattern = '%$normalizedQuery%';
-      select.where(
-        (table) =>
-            table.title.like(pattern) |
-            table.artist.like(pattern) |
-            table.originalTitle.like(pattern),
-      );
-    }
-    select.orderBy([
-      (table) => OrderingTerm.asc(table.title),
-      (table) => OrderingTerm.asc(table.id),
-    ]);
-    final rows = await select.get();
-    return [
-      for (final row in rows)
-        _groupWorkspaceView(await _hydrateRelease(row)),
-    ];
   }
 
   Future<List<MusicRelease>> search([String query = '']) async {
@@ -176,46 +144,6 @@ final class MusicRepository
       (_db.select(_db.musicReleaseLocalDetailsRows)
             ..where((table) => table.releaseId.equals(releaseId.value)))
           .getSingleOrNull();
-
-  Future<void> updateReleaseGroup(MusicReleaseGroup group) async {
-    _require(group.id.value, 'MusicReleaseGroup');
-    final item = group.primaryRelease;
-    if (item == null || item.id.value != group.id.value) {
-      throw StateError(
-        'A Music Catalog Item must be one concrete album with a matching id',
-      );
-    }
-    await updateRelease(
-      MusicRelease.fromJson({
-        ...item.toJson(),
-        'id': group.id.value,
-        'title': group.title,
-        'sort_title': group.sortTitle,
-        'artist': group.artist,
-        'original_title': group.originalTitle,
-        'original_release_date_parts': group.originalReleaseDateParts?.toJson(),
-        'original_release_date': group.originalReleaseDateParts?.isoString ??
-            group.originalReleaseDate?.toIso8601String(),
-        'recording_date_parts': group.recordingDateParts?.toJson(),
-        'recording_date': group.recordingDateParts?.isoString ??
-            group.recordingDate?.toIso8601String(),
-        'studios': group.studios,
-        'is_live': group.isLive,
-        'genres': group.genres,
-        'artist_credits': group.artistCredits
-            .map((credit) => credit.toJson())
-            .toList(growable: false),
-        'cover_image_url': group.coverImageUrl ?? item.coverImageUrl,
-        'cover_image_key': group.coverImageKey ?? item.coverImageKey,
-        'external_links': group.externalLinks
-            .map((link) => link.toJson())
-            .toList(growable: false),
-        'local_cover_image_path': group.localCoverImagePath,
-        'local_back_image_path': group.localBackImagePath,
-        'local_thumbnail_image_path': group.localThumbnailImagePath,
-      }),
-    );
-  }
 
   Future<void> updateRelease(MusicRelease release) async {
     _require(release.id.value, 'MusicRelease');
@@ -527,28 +455,3 @@ final class MusicRepository
     }
   }
 }
-
-MusicReleaseGroup _groupWorkspaceView(MusicRelease item) => MusicReleaseGroup(
-      id: MusicReleaseGroupId(item.id.value),
-      title: item.title,
-      sortTitle: item.sortTitle,
-      artist: item.artist,
-      originalTitle: item.originalTitle,
-      originalReleaseDate: item.originalReleaseDate,
-      originalReleaseDateParts: item.originalReleaseDateParts,
-      recordingDate: item.recordingDate,
-      recordingDateParts: item.recordingDateParts,
-      studios: item.studios,
-      isLive: item.isLive,
-      genres: item.genres,
-      artistCredits: item.artistCredits,
-      coverImageUrl: item.coverImageUrl,
-      coverImageKey: item.coverImageKey,
-      releases: [item],
-      externalLinks: item.externalLinks,
-      localCoverImagePath: item.localCoverImagePath,
-      localBackImagePath: item.localBackImagePath,
-      localThumbnailImagePath: item.localThumbnailImagePath,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    );

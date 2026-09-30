@@ -119,6 +119,7 @@ final class OwnedItemMutations {
         OwnedItemAdded(
           OwnedCopyRef(
             kind: catalogRef.mediaKind,
+            itemId: catalogRef.rootScope.id,
             id: OwnedCopyId(newItemId),
           ),
         ),

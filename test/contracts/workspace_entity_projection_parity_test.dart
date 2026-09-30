@@ -156,13 +156,13 @@ void main() {
         id: release!.id,
         title: release.title,
       ),
-    MusicReleaseWorkspaceDto(:final release) => (
-        id: release!.id.value,
-        title: release.title,
+    MusicCatalogItemWorkspaceDto(:final music) => (
+        id: music.id.value,
+        title: music.title,
       ),
-    MusicOwnedCopyWorkspaceDto(:final release) => (
-        id: release!.id.value,
-        title: release.title,
+    MusicOwnedCopyWorkspaceDto(:final music) => (
+        id: music.id.value,
+        title: music.title,
       ),
     TvWorkspaceDto(:final release) => (
         id: release!.id,

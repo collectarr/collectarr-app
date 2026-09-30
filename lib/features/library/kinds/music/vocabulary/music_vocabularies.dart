@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_owned_rep
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 
@@ -140,7 +140,7 @@ abstract final class MusicVocabularies {
     id: MusicVocabularyIds.format,
     label: 'Format',
     valuesFrom:
-        TypedVocabularyProjector<MusicReleaseGroup>(_formatCatalogValues),
+        TypedVocabularyProjector<MusicRelease>(_formatCatalogValues),
     builtIns: [
       'Vinyl (12" LP)',
       'Vinyl (7" Single)',
@@ -156,7 +156,7 @@ abstract final class MusicVocabularies {
   static const packaging = VocabularyDefinition<String>(
     id: MusicVocabularyIds.packaging,
     label: 'Packaging',
-    valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(
+    valuesFrom: TypedVocabularyProjector<MusicRelease>(
       _packagingCatalogValues,
     ),
     builtIns: [
@@ -172,7 +172,7 @@ abstract final class MusicVocabularies {
   static const recordLabel = VocabularyDefinition<String>(
     id: MusicVocabularyIds.recordLabel,
     label: 'Record Label',
-    valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(
+    valuesFrom: TypedVocabularyProjector<MusicRelease>(
       _recordLabelCatalogValues,
     ),
     builtIns: [
@@ -193,7 +193,7 @@ abstract final class MusicVocabularies {
     id: MusicVocabularyIds.genre,
     label: 'Genre',
     multiValue: true,
-    valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(_genreValues),
+    valuesFrom: TypedVocabularyProjector<MusicRelease>(_genreValues),
     builtIns: [
       'Rock',
       'Pop',
@@ -211,7 +211,7 @@ abstract final class MusicVocabularies {
   static const mediaType = VocabularyDefinition<String>(
     id: MusicVocabularyIds.mediaType,
     label: 'Media Type',
-    valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(_mediaTypeValues),
+    valuesFrom: TypedVocabularyProjector<MusicRelease>(_mediaTypeValues),
     builtIns: [
       'Vinyl',
       'CD',
@@ -224,7 +224,7 @@ abstract final class MusicVocabularies {
   static const creditRole = VocabularyDefinition<String>(
     id: MusicVocabularyIds.creditRole,
     label: 'Credit Role',
-    valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(_creditRoleValues),
+    valuesFrom: TypedVocabularyProjector<MusicRelease>(_creditRoleValues),
     builtIns: [
       'Artist',
       'Performer',
@@ -240,14 +240,14 @@ abstract final class MusicVocabularies {
   static const country = VocabularyDefinition<String>(
     id: MusicVocabularyIds.country,
     label: 'Country',
-    valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(_countryValues),
+    valuesFrom: TypedVocabularyProjector<MusicRelease>(_countryValues),
     builtIns: musicCountryCodes,
   );
 
   static const vinylColor = VocabularyDefinition<String>(
     id: MusicVocabularyIds.vinylColor,
     label: 'Vinyl Color',
-    valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(
+    valuesFrom: TypedVocabularyProjector<MusicRelease>(
       _vinylColorValues,
     ),
   );
@@ -256,14 +256,14 @@ abstract final class MusicVocabularies {
     id: MusicVocabularyIds.studio,
     label: 'Studio',
     multiValue: true,
-    valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(_studioValues),
+    valuesFrom: TypedVocabularyProjector<MusicRelease>(_studioValues),
   );
 
   static const soundType = VocabularyDefinition<String>(
     id: MusicVocabularyIds.soundType,
     label: 'Sound',
     multiValue: true,
-    valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(_soundTypeValues),
+    valuesFrom: TypedVocabularyProjector<MusicRelease>(_soundTypeValues),
     builtIns: ['Mono', 'Stereo', 'Quadraphonic', 'Dolby Atmos'],
   );
 
@@ -282,62 +282,53 @@ abstract final class MusicVocabularies {
   ];
 }
 
-Iterable<String?> _formatCatalogValues(MusicReleaseGroup group) sync* {
+Iterable<String?> _formatCatalogValues(MusicRelease item) sync* {
   yield* vocabularyValues([
-    for (final release in group.releases)
-      for (final medium in release.mediums) medium.mediumType,
-    for (final release in group.releases) release.releaseType,
+    for (final medium in item.mediums) medium.mediumType,
+    item.releaseType,
   ]);
 }
 
-Iterable<String?> _packagingCatalogValues(MusicReleaseGroup group) {
-  return vocabularyValues([
-    for (final release in group.releases) release.packaging,
-  ]);
+Iterable<String?> _packagingCatalogValues(MusicRelease item) {
+  return vocabularyValues([item.packaging]);
 }
 
-Iterable<String?> _recordLabelCatalogValues(MusicReleaseGroup group) {
-  return vocabularyValues([
-    for (final release in group.releases) release.publisher,
-  ]);
+Iterable<String?> _recordLabelCatalogValues(MusicRelease item) {
+  return vocabularyValues([item.publisher]);
 }
 
-Iterable<String?> _studioValues(MusicReleaseGroup group) =>
-    vocabularyValues(group.studios);
+Iterable<String?> _studioValues(MusicRelease item) =>
+    vocabularyValues(item.studios);
 
-Iterable<String?> _soundTypeValues(MusicReleaseGroup group) =>
+Iterable<String?> _soundTypeValues(MusicRelease item) =>
     vocabularyValues([
-      for (final release in group.releases)
-        for (final medium in release.mediums) medium.soundType,
+      item.soundTypes,
+      for (final medium in item.mediums) medium.soundType,
     ]);
 
-Iterable<String?> _genreValues(MusicReleaseGroup group) {
-  return vocabularyValues([group.genres]);
+Iterable<String?> _genreValues(MusicRelease item) {
+  return vocabularyValues([item.genres]);
 }
 
-Iterable<String?> _mediaTypeValues(MusicReleaseGroup group) {
+Iterable<String?> _mediaTypeValues(MusicRelease item) {
   return vocabularyValues([
-    for (final release in group.releases)
-      for (final medium in release.mediums) medium.mediumType,
+    for (final medium in item.mediums) medium.mediumType,
   ]);
 }
 
-Iterable<String?> _creditRoleValues(MusicReleaseGroup group) {
+Iterable<String?> _creditRoleValues(MusicRelease item) {
   return vocabularyValues([
-    for (final release in group.releases)
-      for (final contribution in release.contributions) contribution.role,
+    for (final contribution in item.contributions) contribution.role,
   ]);
 }
 
-Iterable<String?> _countryValues(MusicReleaseGroup group) {
-  return vocabularyValues([
-    for (final release in group.releases) release.countryCode,
-  ]);
+Iterable<String?> _countryValues(MusicRelease item) {
+  return vocabularyValues([item.countryCode]);
 }
 
-Iterable<String?> _vinylColorValues(MusicReleaseGroup group) sync* {
+Iterable<String?> _vinylColorValues(MusicRelease item) sync* {
   yield* vocabularyValues([
-    for (final release in group.releases)
-      for (final medium in release.mediums) medium.vinylColor,
+    item.vinylColor,
+    for (final medium in item.mediums) medium.vinylColor,
   ]);
 }

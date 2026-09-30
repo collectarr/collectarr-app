@@ -154,10 +154,24 @@ final class TypedOwnedKindContributor<TItem> implements OwnedKindContributor {
   final OwnedKindMarkDeleted<TItem> markDeleted;
   final OwnedKindUpdateLocation<TItem> updateItemLocation;
 
-  OwnedCopyRef _refFor(TItem item) => OwnedCopyRef(
-        kind: kind,
-        id: OwnedCopyId(itemId(item)),
+  OwnedCopyRef _refFor(TItem item) {
+    final catalogRef = summary(item).catalogRef;
+    if (catalogRef == null) {
+      throw StateError(
+        'The ${kind.apiValue} owned projection is missing catalogRef.',
       );
+    }
+    if (catalogRef.mediaKind != kind) {
+      throw StateError(
+        'The $kind owned projection returned a ${catalogRef.mediaKind} catalogRef.',
+      );
+    }
+    return OwnedCopyRef(
+      kind: kind,
+      itemId: catalogRef.rootScope.id,
+      id: OwnedCopyId(itemId(item)),
+    );
+  }
 
   ({JsonMap payload, bool isDeleted}) _syncPayload(TItem item) {
     final payload = JsonMap.from(toJson(item));

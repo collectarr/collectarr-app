@@ -54,18 +54,55 @@ final class CatalogMusicItemDto implements JsonEncodable {
   }) : studios = List<String>.unmodifiable(studios);
 
   factory CatalogMusicItemDto.fromJson(Map<String, dynamic> json) {
-    const hierarchicalMusicKeys = {
-      'release_group',
-      'release_group_id',
-      'release_id',
-      'releases',
-      'mediums',
+    const allowedKeys = {
+      'id',
+      'kind',
+      'title',
+      'sort_title',
+      'subtitle',
+      'artist',
+      'artist_credits',
+      'original_release_date',
+      'original_release_date_parts',
+      'recording_date',
+      'recording_date_parts',
+      'release_date',
+      'release_date_parts',
+      'label',
+      'format',
+      'barcode',
+      'catalog_number',
+      'genres',
+      'packaging',
+      'studios',
+      'country',
+      'is_live',
+      'sound_types',
+      'vinyl_color',
+      'vinyl_weight',
+      'rpm',
+      'extra',
+      'spars',
+      'box_set',
+      'composers',
+      'conductors',
+      'choruses',
+      'compositions',
+      'orchestras',
+      'songwriters',
+      'producers',
+      'engineers',
+      'musicians',
+      'external_links',
+      'cover_image_url',
+      'back_cover_image_url',
+      'thumbnail_image_url',
+      'revision',
+      'discs',
     };
-    for (final key in hierarchicalMusicKeys) {
-      if (json.containsKey(key)) {
-        throw FormatException(
-          'Music Catalog Item payload is flat; "$key" is not supported.',
-        );
+    for (final key in json.keys) {
+      if (!allowedKeys.contains(key)) {
+        throw FormatException('Unrecognized Music Catalog Item field "$key".');
       }
     }
 

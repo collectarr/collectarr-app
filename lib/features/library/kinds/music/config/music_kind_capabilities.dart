@@ -3,6 +3,7 @@ import 'music_kind_configuration.dart';
 import '../actions/music_log_listen_action.dart';
 import '../add/music_add_contribution.dart';
 import '../data/remote/catalog_music_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 
 final musicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.music,
@@ -36,10 +37,6 @@ final musicKindWorkCapability = const DefaultWorkProjectionCapability();
 
 final ReleaseProjectionCapability<MusicWorkspaceProjection>?
     musicKindReleaseCapability = null;
-
-final musicKindReleaseDetailSource = null;
-
-final musicKindCatalogTarget = const MusicCatalogTargetCapability();
 
 final LibraryRelationCapability? musicKindRelations = null;
 
@@ -101,7 +98,7 @@ final musicKindOwnership = const LibraryOwnershipCapability.allowEverywhere();
 
 final musicKindActions = const LibraryEntityActionCapability(
   work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
+  release: LibraryEntityActionSet(),
   copy: LibraryEntityActionSet.copy,
   semanticActions: {
     // Listening history belongs to the concrete catalog item, matching the
@@ -137,7 +134,7 @@ final musicKindInspector = LibraryInspectorCapability(
 );
 
 final musicKindLinkedMetadata =
-    TypedLibraryLinkedMetadataCapability<MusicReleaseGroup>(
+    TypedLibraryLinkedMetadataCapability<MusicRelease>(
   musicLinkedMetadata,
   musicLinkedMetadataValues,
 );

@@ -321,7 +321,12 @@ class EditSchemaRendererState<TModel, TDraft>
         for (final section in sections) ...[
           Text(section.label, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 8),
-          _buildFieldWrap(context, section.fields),
+          _buildFieldWrap(
+            context,
+            section.fields,
+            maxColumns: section.maxColumns,
+            fullWidthFieldIds: section.fullWidthFieldIds,
+          ),
           const SizedBox(height: 18),
         ],
       ],
@@ -329,23 +334,32 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   Widget _buildFieldWrap(
-    BuildContext context,
-    List<LibraryFieldSpec<TDraft>> fields,
-  ) {
+      BuildContext context, List<LibraryFieldSpec<TDraft>> fields,
+      {required int maxColumns, required Set<String> fullWidthFieldIds}) {
     final visibleFields = fields
         .where((field) => field.isVisible(widget.draft))
         .toList(growable: false);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final wide = constraints.maxWidth >= 680;
-        final width =
-            wide ? (constraints.maxWidth - 12) / 2 : constraints.maxWidth;
+        final columns = constraints.maxWidth >= 960
+            ? maxColumns
+            : constraints.maxWidth >= 680
+                ? math.min(maxColumns, 2)
+                : 1;
+        final width = columns == 1
+            ? constraints.maxWidth
+            : (constraints.maxWidth - 12 * (columns - 1)) / columns;
         return Wrap(
           spacing: 12,
           runSpacing: 12,
           children: [
             for (final field in visibleFields)
-              SizedBox(width: width, child: _buildField(field)),
+              SizedBox(
+                width: fullWidthFieldIds.contains(field.id)
+                    ? constraints.maxWidth
+                    : width,
+                child: _buildField(field),
+              ),
           ],
         );
       },

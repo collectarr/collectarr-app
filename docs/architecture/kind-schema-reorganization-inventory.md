@@ -1,6 +1,13 @@
 ﻿# Kind Workspace and Form Inventory
 
-Captured from the workspace field declarations, identifier modules, scope contributions, and Add/Edit schema IDs present on 2026-09-24. This ledger records the fields, identifiers, defaults, and persistence consumers inventoried before schema extraction. The semantic rows remain valid; each kind section links to the explicit live Work, Release, and Copy schema files after migration.
+> Historical snapshot captured on 2026-09-24 before Music was flattened. The
+> Music-specific source paths and Release Group/Release scopes below are no
+> longer current. Use [the Music field ledger](music-catalog-field-inventory.md)
+> for Music decisions and [current status](current-status.md) for the active
+> architecture. The other eight kinds still use some Work/Release consumers
+> while their Catalog Item cutover proceeds.
+
+This inventory records the fields, identifiers, defaults, and persistence consumers inventoried before schema extraction. It is retained as a historical audit, not as an implementation plan.
 
 For workspace fields, the projected source is taken from each field callback where it is a direct DTO expression. Context-dependent callbacks are marked derived; inspect the linked declaration before moving them. Columns, sorts, groups, defaults, facets, and form IDs are listed alongside the per-scope field rows so that file extraction can preserve the whole surface.
 

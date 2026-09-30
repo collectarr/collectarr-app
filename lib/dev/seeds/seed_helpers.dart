@@ -47,7 +47,12 @@ CatalogEntityRef seedCatalogRef(CatalogMediaKind kind, String itemId) {
 }
 
 OwnedCopyRef seedOwnedRef(CatalogMediaKind kind, String itemId) {
-  return OwnedCopyRef(kind: kind, id: OwnedCopyId(itemId));
+  final catalogItemId = itemId.replaceFirst('seed-owned-', '');
+  return OwnedCopyRef(
+    kind: kind,
+    itemId: catalogItemId,
+    id: OwnedCopyId(itemId),
+  );
 }
 
 /// Rebuilds a transport fixture while preserving its common catalog fields.

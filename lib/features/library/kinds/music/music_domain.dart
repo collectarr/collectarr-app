@@ -1,8 +1,6 @@
 export 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
-export 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
-export 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
@@ -18,8 +16,6 @@ export 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
 export 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-export 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_draft.dart';
-export 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';

@@ -53,7 +53,7 @@ Future<void> runMusicLogListenAction(
     final now = DateTime.now().toUtc();
     final ownedRef = action.ownedItem?.ref;
     final container = ProviderScope.containerOf(action.buildContext);
-    await container.read(musicListeningRepositoryProvider).upsert(
+    await container.read(musicListeningMutationsProvider).upsert(
           MusicListenEvent(
             id: 'listen-${now.microsecondsSinceEpoch}',
             catalogRef: catalogRef,

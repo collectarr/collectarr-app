@@ -1,19 +1,24 @@
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Music Core results group by album title and artist', () {
-    final candidate = testCatalogItem(
-      kind: 'music',
-      title: 'Transport title',
-      music: {
-        'title': 'Kind of Blue',
-        'artist': 'Miles Davis',
-      },
-    ).asSearchCandidate;
+  test('Music search result is one concrete album with kind-owned details', () {
+    final result = CatalogMusicItemDto.fromJson({
+      'id': 'album-1',
+      'kind': 'music',
+      'title': 'Kind of Blue (2025 Vinyl)',
+      'artist': 'Miles Davis',
+      'label': 'Columbia',
+      'format': 'Vinyl',
+      'barcode': '0196588000000',
+      'discs': const <Map<String, Object?>>[],
+    }).toSearchJson();
 
-    expect(musicAddResultPolicy.coreGroupTitle(candidate), 'Kind of Blue');
-    expect(musicAddResultPolicy.coreGroupArtist(candidate), 'Miles Davis');
+    expect(result['id'], 'album-1');
+    expect(result['title'], 'Kind of Blue (2025 Vinyl)');
+    expect(result['music'], containsPair('artist', 'Miles Davis'));
+    expect(result['music'], containsPair('format', 'Vinyl'));
+    expect(result, isNot(contains('release_group')));
+    expect(result, isNot(contains('releases')));
   });
 }

@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocab
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
@@ -117,17 +116,10 @@ void main() {
       );
       expect(
         MusicVocabularies.packaging.valuesFrom!(
-          MusicReleaseGroup(
-            id: MusicReleaseGroupId('vocab-group'),
+          MusicRelease(
+            id: const MusicReleaseId('vocab-album'),
             title: 'Typed Album',
-            releases: [
-              MusicRelease(
-                id: MusicReleaseId('vocab-release'),
-                releaseGroupId: MusicReleaseGroupId('vocab-group'),
-                title: 'Typed Album',
-                packaging: 'Digipak',
-              ),
-            ],
+            packaging: 'Digipak',
           ),
         ),
         contains('Digipak'),

@@ -21,7 +21,6 @@ import 'package:collectarr_app/features/library/workspace/entry/library_entity_r
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
@@ -155,14 +154,8 @@ void main() {
       title: 'Test album',
     );
     final release = MusicRelease(
-      id: MusicReleaseId('music-1:release'),
-      releaseGroupId: MusicReleaseGroupId(catalog.id),
+      id: MusicReleaseId(catalog.id),
       title: catalog.title,
-    );
-    final music = MusicReleaseGroup(
-      id: MusicReleaseGroupId(catalog.id),
-      title: catalog.title,
-      releases: [release],
     );
     await CatalogTransportRepository(db).upsertTransportItems([catalog]);
     final ownedRepository = MusicOwnedRepository(db);
@@ -173,14 +166,14 @@ void main() {
       itemId: catalog.id,
       kind: catalog.kind,
       catalogData: MusicWorkspaceCatalogData.fromMusic(
-        music,
+        release,
         ref: catalog.catalogRef,
       ),
       ownedItem: owned,
     );
     final copyNode = LibraryCopyRef(
       workId: catalog.id,
-      releaseId: owned.targetRef!.id,
+      releaseId: catalog.id,
       ownedRef: owned.ref,
     );
     final copyWorkspace = libraryKindWorkspaceForKind(type.kind);

@@ -661,7 +661,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             ItemImage(
               id: edit.id,
               ownedRef: existingById[edit.id]?.ownedRef ??
-                  OwnedCopyRef.fromKey('${widget.type.kind.apiValue}:draft'),
+                  OwnedCopyRef.fromKey(
+                    '${widget.type.kind.apiValue}:draft:draft',
+                  ),
               imageData: imageData,
               imageType: edit.imageType,
               caption: edit.caption,

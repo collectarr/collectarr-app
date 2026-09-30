@@ -1,7 +1,7 @@
 /// Editable, kind-owned child values for a manual Music Catalog Item.
 ///
-/// These drafts contain no release-group or release identity. Their sequence
-/// in the parent list defines their catalog order.
+/// These drafts contain disc and track data for the selected concrete Music
+/// Catalog Item. Their sequence in the parent list defines catalog order.
 final class MusicAddManualNamedCredit {
   MusicAddManualNamedCredit({
     this.name = '',

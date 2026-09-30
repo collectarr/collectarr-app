@@ -9,11 +9,11 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
-import '../helpers/json_test_helpers.dart';
 
 void main() {
   test('media catalog parses route labels and physical formats', () {
@@ -88,79 +88,54 @@ void main() {
     expect(payload['release_date'], '2024-10-09T00:00:00.000Z');
   });
 
-  test('catalog item preserves canonical metadata contract fields', () {
-    final item = CatalogItemDto.fromJson({
+  test('Music Catalog Item DTO preserves its flat album and disc contract', () {
+    final musicDto = CatalogMusicItemDto.fromJson({
       'id': 'music-1',
       'kind': 'music',
       'title': 'Discovery',
-      'publisher': 'Daft Life',
+      'artist': 'Daft Punk',
+      'label': 'Daft Life',
+      'format': 'CD',
       'catalog_number': 'DISC-2001',
-      'track_count': 2,
-      'tracks': [
+      'release_date': '2001-03-12',
+      'discs': [
         {
-          'position': 1,
-          'title': 'One More Time',
-          'duration_seconds': 320,
-        },
-        {
-          'position': 2,
-          'title': 'Aerodynamic',
-          'duration_seconds': 212,
-        },
-      ],
-      'platforms': ['CD', 'Digital'],
-      'release_status': 'Official',
-      'release_date': '2001-03-12T00:00:00.000Z',
-      'editions': [
-        {
-          'id': 'edition-1',
-          'title': 'Deluxe CD',
-          'format': 'CD',
-          'publisher': 'Daft Life',
-          'physical_format': 'cd',
-          'physical_format_label': 'CD',
-          'variants': [
+          'id': 'disc-1',
+          'disc_number': 1,
+          'tracks': [
             {
-              'id': 'variant-1',
-              'name': 'Limited Slipcase',
-              'variant_type': 'physical',
-              'barcode': '123456789012',
-              'is_primary': true,
-            }
+              'id': 'track-1',
+              'position': '1',
+              'title': 'One More Time',
+              'duration_ms': 320000,
+            },
+            {
+              'id': 'track-2',
+              'position': '2',
+              'title': 'Aerodynamic',
+              'duration_ms': 212000,
+            },
           ],
-        }
+        },
       ],
     });
+    final item = testCatalogItem(
+      id: musicDto.id,
+      kind: 'music',
+      title: musicDto.title,
+      payload: {'music': musicDto.toProposalData()},
+    );
 
     final music = MusicCatalogMapper.mapDtoToMusic(item);
-    expect(music, isA<MusicReleaseGroup>());
+    expect(music.id.value, 'music-1');
     expect(music.title, 'Discovery');
-    expect(music.primaryRelease?.catalogNumber, 'DISC-2001');
+    expect(music.artist, 'Daft Punk');
+    expect(music.publisher, 'Daft Life');
+    expect(music.catalogNumber, 'DISC-2001');
     expect(music.trackCount, 2);
-    expect(item.payload['catalog_number'], 'DISC-2001');
-    expect(item.payload['track_count'], 2);
-    final tracks = jsonObjectList(item.payload['tracks']);
-    expect(tracks, hasLength(2));
-    expect(tracks.first['title'], 'One More Time');
-    expect(item.payload['platforms'], ['CD', 'Digital']);
-    expect(item.payload['release_status'], 'Official');
-    expect(item.editions, hasLength(1));
-    expect(item.editions.single.title, 'Deluxe CD');
-    expect(item.editions.single.variants, hasLength(1));
-    expect(item.editions.single.variants.single.name, 'Limited Slipcase');
-    expect(item.editions.single.variants.single.isPrimary, isTrue);
-
-    final payload = item.toSyncPayload();
-
-    expect(payload['catalog_number'], 'DISC-2001');
-    expect(payload['track_count'], 2);
-    expect(
-        ((payload['tracks'] as List).first as Map)['title'], 'One More Time');
-    final editionPayload = (payload['editions'] as List).single as Map;
-    expect(editionPayload['title'], 'Deluxe CD');
-    expect(payload['platforms'], ['CD', 'Digital']);
-    expect(payload['release_status'], 'Official');
-    expect(payload['release_date'], '2001-03-12T00:00:00.000Z');
+    expect(music.mediums.single.tracks.first.title, 'One More Time');
+    expect(music.mediums.single.tracks.first.durationMs, 320000);
+    expect(music.releaseDateParts?.isoString, '2001-03-12');
   });
 
   test('catalog item exposes typed detail views for non-music media', () {

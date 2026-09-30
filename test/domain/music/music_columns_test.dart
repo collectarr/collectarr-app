@@ -48,7 +48,7 @@ void main() {
       containsAll([
         'music.artist',
         'music.title',
-        'music.release_group.track_count',
+        'music.track_count',
       ]),
     );
   });

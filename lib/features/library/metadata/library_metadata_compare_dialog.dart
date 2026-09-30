@@ -70,16 +70,10 @@ class _LibraryMetadataCompareDialogState
     });
     try {
       final api = ref.read(apiClientProvider);
-      final dto = await api.getTypedMetadataItem(
+      final payload = JsonMap.from(await api.getCatalogItemJson(
         kind: widget.kind,
         id: widget.itemId,
-      );
-      final payload = JsonMap.from({
-        ...dto.raw,
-        'id': dto.id,
-        'title': dto.title,
-        if (dto.kind != null) 'kind': dto.kind,
-      });
+      ));
       if (!mounted) {
         return;
       }

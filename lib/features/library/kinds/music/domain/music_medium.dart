@@ -20,6 +20,8 @@ final class MusicMedium {
     this.cddbId,
     this.leadoutOffset,
     this.bpDiscId,
+    this.matrixNumberSideA,
+    this.matrixNumberSideB,
     this.soundType,
     this.vinylColor,
     this.vinylWeight,
@@ -46,6 +48,8 @@ final class MusicMedium {
   final String? cddbId;
   final int? leadoutOffset;
   final String? bpDiscId;
+  final String? matrixNumberSideA;
+  final String? matrixNumberSideB;
   final String? soundType;
   final String? vinylColor;
   final String? vinylWeight;
@@ -79,6 +83,8 @@ final class MusicMedium {
       cddbId: _text(json['cddb_id']),
       leadoutOffset: _int(json['leadout_offset']),
       bpDiscId: _text(json['bp_disc_id']),
+      matrixNumberSideA: _text(json['matrix_number_side_a']),
+      matrixNumberSideB: _text(json['matrix_number_side_b']),
       soundType: _text(json['sound_type']),
       vinylColor: _text(json['vinyl_color']),
       vinylWeight: _text(json['vinyl_weight']),
@@ -109,6 +115,10 @@ final class MusicMedium {
         if (cddbId != null) 'cddb_id': cddbId,
         if (leadoutOffset != null) 'leadout_offset': leadoutOffset,
         if (bpDiscId != null) 'bp_disc_id': bpDiscId,
+        if (matrixNumberSideA != null)
+          'matrix_number_side_a': matrixNumberSideA,
+        if (matrixNumberSideB != null)
+          'matrix_number_side_b': matrixNumberSideB,
         if (soundType != null) 'sound_type': soundType,
         if (vinylColor != null) 'vinyl_color': vinylColor,
         if (vinylWeight != null) 'vinyl_weight': vinylWeight,

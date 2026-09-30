@@ -1,20 +1,13 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-/// Structural values shared by the three Music workspace entities.
-///
-/// This is intentionally an interface, not an entity DTO. Each workspace
-/// scope below has its own concrete projection and its own projector.
 abstract interface class MusicWorkspaceProjection
     implements LibraryWorkspaceDto {
   WorkspaceCommonProjection get common;
   PersonalCopyProjection get personal;
-  MusicReleaseGroup get music;
-  MusicRelease? get release;
+  MusicRelease get music;
   MusicCatalogItemListeningSummary? get listeningSummary;
 
   String? get currency;
@@ -27,7 +20,6 @@ abstract interface class MusicWorkspaceProjection
   String? get boxSet;
   String? get publisher;
   String? get genre;
-  int? get releaseCount;
   DateTime? get releaseDate;
   String? get identifierCode;
   String? get barcode;
@@ -43,15 +35,12 @@ abstract interface class MusicWorkspaceProjection
   List<Map<String, dynamic>> get credits;
 }
 
-/// Presentation values shared by entity projections without introducing a
-/// semantic Music base entity.
 abstract class MusicWorkspaceProjectionValues
     implements MusicWorkspaceProjection {
   MusicWorkspaceProjectionValues({
     required this.common,
     required this.personal,
     required this.music,
-    required this.release,
     this.listeningSummary,
   });
 
@@ -60,9 +49,7 @@ abstract class MusicWorkspaceProjectionValues
   @override
   final PersonalCopyProjection personal;
   @override
-  final MusicReleaseGroup music;
-  @override
-  final MusicRelease? release;
+  final MusicRelease music;
   @override
   final MusicCatalogItemListeningSummary? listeningSummary;
 
@@ -81,106 +68,10 @@ abstract class MusicWorkspaceProjectionValues
   String? get currency => common.currency;
 
   @override
-  String? get artist => music.artist ?? _releaseArtist;
-
-  @override
-  String? get catalogNumber => release?.catalogNumber;
-
-  @override
-  String? get format =>
-      release?.mediums.firstOrNull?.mediumType ?? release?.releaseType;
-
-  @override
-  String? get referenceFormatLabel => format;
-
-  @override
-  String? get releaseType => release?.releaseType;
-
-  @override
-  String? get packaging => release?.packaging;
-
-  @override
-  String? get boxSet => release?.boxSetTitle;
-
-  @override
-  String? get publisher => release?.publisher;
-
-  @override
-  String? get genre => music.genres.isEmpty ? null : music.genres.join(', ');
-
-  @override
-  int? get releaseCount => music.releases.length;
-
-  @override
-  DateTime? get releaseDate => release?.releaseDate;
-
-  @override
-  String? get identifierCode => release?.barcode ?? release?.upc;
-
-  @override
-  String? get barcode => identifierCode;
-
-  @override
-  String? get country => release?.countryCode;
-
-  @override
-  String? get language => release?.language;
-
-  @override
-  @override
-  @override
-  int? get listenCount => listeningSummary?.totalListenCount;
-
-  @override
-  DateTime? get lastListened => listeningSummary?.lastListened;
-
-  String? get coverImageUrl => release?.coverImageUrl ?? common.coverImageUrl;
-
-  @override
-  int? get discCount {
-    final release = this.release;
-    return release == null || release.mediums.isEmpty
-        ? null
-        : release.mediums.length;
-  }
-
-  @override
-  int? get trackCount {
-    final release = this.release;
-    return release?.tracks.isNotEmpty == true
-        ? release!.tracks.length
-        : music.trackCount;
-  }
-
-  @override
-  String? get releaseStatus => release?.releaseStatus;
-
-  @override
-  bool? get isLive => music.isLive;
-
-  @override
-  List<String> get genres => music.genres;
-
-  @override
-  List<Map<String, dynamic>> get credits => [
-        for (final contribution
-            in release?.contributions ?? const <MusicReleaseContribution>[])
-          contribution.toJson(),
-      ];
-
-  @override
-  Iterable<String> get searchTokens => [
-        if (artist != null) artist!,
-        if (publisher != null) publisher!,
-        if (identifierCode != null) identifierCode!,
-        if (catalogNumber != null) catalogNumber!,
-        ...genres,
-      ];
-
-  String? get _releaseArtist {
-    final release = this.release;
-    if (release == null) return null;
-    for (final contribution in release.contributions) {
+  String? get artist {
+    final value = music.artist?.trim();
+    if (value != null && value.isNotEmpty) return value;
+    for (final contribution in music.contributions) {
       final role = contribution.role.trim().toLowerCase();
       if (!(role.contains('artist') ||
           role.contains('performer') ||
@@ -193,25 +84,91 @@ abstract class MusicWorkspaceProjectionValues
     }
     return null;
   }
+
+  @override
+  String? get catalogNumber => music.catalogNumber;
+
+  @override
+  String? get format => music.physicalFormatLabel ?? music.releaseType;
+
+  @override
+  String? get referenceFormatLabel => format;
+
+  @override
+  String? get releaseType => music.releaseType;
+
+  @override
+  String? get packaging => music.packaging;
+
+  @override
+  String? get boxSet => music.boxSetTitle;
+
+  @override
+  String? get publisher => music.publisher;
+
+  @override
+  String? get genre => music.genres.isEmpty ? null : music.genres.join(', ');
+
+  @override
+  DateTime? get releaseDate => music.releaseDate;
+
+  @override
+  String? get identifierCode => music.barcode ?? music.upc;
+
+  @override
+  String? get barcode => identifierCode;
+
+  @override
+  String? get country => music.countryCode;
+
+  @override
+  String? get language => music.language;
+
+  @override
+  int? get listenCount => listeningSummary?.totalListenCount;
+
+  @override
+  DateTime? get lastListened => listeningSummary?.lastListened;
+
+  String? get coverImageUrl => music.coverImageUrl ?? common.coverImageUrl;
+
+  @override
+  int? get discCount => music.mediums.isEmpty ? null : music.mediums.length;
+
+  @override
+  int? get trackCount => music.trackCount;
+
+  @override
+  String? get releaseStatus => music.releaseStatus;
+
+  @override
+  bool? get isLive => music.isLive;
+
+  @override
+  List<String> get genres => music.genres;
+
+  @override
+  List<Map<String, dynamic>> get credits => [
+        for (final credit in music.contributions) credit.toJson(),
+        for (final credit in music.artistCredits) credit.toJson(),
+      ];
+
+  @override
+  Iterable<String> get searchTokens => [
+        if (artist != null) artist!,
+        if (publisher != null) publisher!,
+        if (identifierCode != null) identifierCode!,
+        if (catalogNumber != null) catalogNumber!,
+        ...genres,
+      ];
 }
 
-final class MusicReleaseGroupWorkspaceDto
+final class MusicCatalogItemWorkspaceDto
     extends MusicWorkspaceProjectionValues {
-  MusicReleaseGroupWorkspaceDto({
+  MusicCatalogItemWorkspaceDto({
     required super.common,
     required super.personal,
     required super.music,
-    required super.release,
-    super.listeningSummary,
-  });
-}
-
-final class MusicReleaseWorkspaceDto extends MusicWorkspaceProjectionValues {
-  MusicReleaseWorkspaceDto({
-    required super.common,
-    required super.personal,
-    required super.music,
-    required super.release,
     super.listeningSummary,
   });
 }
@@ -221,7 +178,6 @@ final class MusicOwnedCopyWorkspaceDto extends MusicWorkspaceProjectionValues {
     required super.common,
     required super.personal,
     required super.music,
-    required super.release,
     super.listeningSummary,
   });
 }

@@ -79,8 +79,7 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'anime.media': 15,
   'anime.episode': 30,
   'anime.release': 15,
-  'music.release': 15,
-  'music.release_group': 15,
+  'music.item': 15,
   'music.medium': 15,
   'music.track': 15,
 };

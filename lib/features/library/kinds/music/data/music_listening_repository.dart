@@ -114,6 +114,7 @@ MusicListenEvent _fromRow(MusicListenEventsRow row) => MusicListenEvent(
           ? null
           : OwnedCopyRef(
               kind: CatalogMediaKind.music,
+              itemId: row.catalogItemId,
               id: OwnedCopyId(row.ownedCopyId!),
             ),
       listenedAt: row.listenedAt,
@@ -135,6 +136,12 @@ void _validateEvent(MusicListenEvent event) {
       when owned.kind != CatalogMediaKind.music) {
     throw StateError(
       'Music listen events can only reference Music owned copies',
+    );
+  }
+  if (event.ownedRef case final owned?
+      when owned.itemId != event.catalogRef.id) {
+    throw StateError(
+      'The Music owned copy must belong to the event Catalog Item',
     );
   }
 }

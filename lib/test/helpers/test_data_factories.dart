@@ -618,6 +618,7 @@ LibraryOwnedItemDispatch testOwnedItemDispatchFrom(TestOwnedItem item) {
 OwnedCopyRef _testOwnedCopyRef(CatalogEntityRef catalogRef, String id) =>
     OwnedCopyRef(
       kind: catalogRef.mediaKind,
+      itemId: catalogRef.rootScope.id,
       id: OwnedCopyId(id),
     );
 

@@ -194,13 +194,6 @@ class ApiClient {
     ];
   }
 
-  Future<TypedMetadataResponse> getTypedMetadataItem({
-    required CatalogMediaKind kind,
-    required String id,
-  }) async {
-    return _catalogApi.getTypedMetadataItem(kind: kind, id: id);
-  }
-
   Future<Map<String, dynamic>> getCatalogItemJson({
     required CatalogMediaKind kind,
     required String id,

@@ -162,6 +162,7 @@ mixin CollectionCsvKindOwnedImportSupport {
     return OwnedImportTransport(
       ref: OwnedCopyRef(
         kind: input.catalogRef.kind,
+        itemId: input.catalogRef.rootScope.id,
         id: OwnedCopyId(input.id),
       ),
       catalogRef: input.catalogRef,

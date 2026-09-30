@@ -89,7 +89,7 @@ void main() {
         ).asShelfCatalogItem),
       );
       const node = LibraryWorkRef(workId: 'music-1');
-      final dto = const MusicReleaseGroupWorkspaceProjector().project(
+      final dto = const MusicCatalogItemWorkspaceProjector().project(
         source: source,
         entity: node,
       );

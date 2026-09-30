@@ -69,6 +69,7 @@ final class TestOwnedItem {
 
   OwnedCopyRef get ref => OwnedCopyRef(
         kind: catalogRef.mediaKind,
+        itemId: catalogRef.rootScope.id,
         id: OwnedCopyId(id),
       );
 

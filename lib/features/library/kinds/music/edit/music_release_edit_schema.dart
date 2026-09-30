@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_header_title.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
@@ -7,64 +8,79 @@ import 'package:flutter/material.dart';
 
 final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
     EditSchema(
-  title: (release) {
-    final artist = release.artist?.trim();
-    return artist == null || artist.isEmpty
-        ? release.title
-        : '${release.title} / $artist';
+  title: (item) {
+    return musicEditHeaderTitle(title: item.title, artist: item.artist);
   },
   validate: (_, draft) {
     if (draft.values.title.trim().isEmpty) return 'Title is required';
     if (draft.hasIncompleteContributions) {
-      return 'Complete or remove each unfinished release credit';
+      return 'Complete or remove each unfinished music credit';
     }
     return null;
   },
   tabs: [
     EditTabSpec<MusicReleaseEditDraft>(
-      id: 'release',
-      label: 'Release',
-      icon: Icons.album_outlined,
+      id: 'main',
+      label: 'Main',
+      icon: Icons.music_note_outlined,
       sections: [
         EditSectionSpec<MusicReleaseEditDraft>(
-          id: 'identity',
-          label: 'Identity',
-          fields: musicReleaseFields(
-            values: (draft) => draft.values,
-            include: {
-              'title',
-              'sort_title',
-              'subtitle',
-              'release_type',
-              'release_status',
-              'release_date',
-            },
-          ),
-        ),
-        EditSectionSpec<MusicReleaseEditDraft>(
-          id: 'edition',
-          label: 'Edition',
-          fields: musicReleaseFields(
-            values: (draft) => draft.values,
-            include: {
-              'record_label',
-              'catalog_number',
-              'barcode',
-              'upc',
-              'country',
-              'language',
-              'packaging',
-              'box_set_ref',
-              'box_set_name',
-              'box_set_position',
-            },
-          ),
+          id: 'catalog_item',
+          label: 'Catalog Item',
+          maxColumns: 3,
+          fullWidthFieldIds: const {'genres'},
+          fields: _fields([
+            'title',
+            'release_date',
+            'original_release_date',
+            'sort_title',
+            'record_label',
+            'recording_date',
+            'subtitle',
+            'format',
+            'barcode',
+            'artist',
+            'catalog_number',
+            'genres',
+          ]),
         ),
       ],
     ),
     EditTabSpec<MusicReleaseEditDraft>(
-      id: 'tracking',
-      label: 'Tracking',
+      id: 'details',
+      label: 'Details',
+      icon: Icons.info_outline,
+      sections: [
+        EditSectionSpec<MusicReleaseEditDraft>(
+          id: 'additional_details',
+          label: 'Additional details',
+          fields: _fields([
+            'original_title',
+            'is_live',
+            'studios',
+            'country',
+            'language',
+            'release_type',
+            'release_status',
+            'packaging',
+            'box_set_ref',
+            'box_set_name',
+            'box_set_position',
+            'upc',
+            'cover_image_url',
+            'sound_types',
+            'vinyl_color',
+            'vinyl_weight',
+            'rpm',
+            'extra',
+            'spars',
+          ]),
+        ),
+      ],
+    ),
+    EditTabSpec<MusicReleaseEditDraft>(
+      id: 'personal',
+      label: 'Personal',
       icon: Icons.headphones_outlined,
       sections: [
         EditSectionSpec<MusicReleaseEditDraft>(
@@ -87,7 +103,7 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
             LibraryNumberFieldSpec<MusicReleaseEditDraft>(
               id: 'tracking_rating',
               label: 'Rating',
-              value: (draft) => draft.trackingRating,
+              value: (draft) => draft.trackingRating?.toDouble(),
               setValue: (draft, value) => draft.trackingRating = value?.toInt(),
               minimum: 0,
               maximum: 5,
@@ -105,3 +121,11 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
     ),
   ],
 );
+
+List<LibraryFieldSpec<MusicReleaseEditDraft>> _fields(List<String> ids) {
+  final all = musicReleaseFields<MusicReleaseEditDraft>(
+    values: (draft) => draft.values,
+  );
+  final fieldsById = {for (final field in all) field.id: field};
+  return [for (final id in ids) fieldsById[id]!];
+}

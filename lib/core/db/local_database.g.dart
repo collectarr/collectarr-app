@@ -42506,6 +42506,18 @@ class $MusicMediumRowsTable extends MusicMediumRows
   late final GeneratedColumn<String> bpDiscId = GeneratedColumn<String>(
       'bp_disc_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _matrixNumberSideAMeta =
+      const VerificationMeta('matrixNumberSideA');
+  @override
+  late final GeneratedColumn<String> matrixNumberSideA =
+      GeneratedColumn<String>('matrix_number_side_a', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _matrixNumberSideBMeta =
+      const VerificationMeta('matrixNumberSideB');
+  @override
+  late final GeneratedColumn<String> matrixNumberSideB =
+      GeneratedColumn<String>('matrix_number_side_b', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _soundTypeMeta =
       const VerificationMeta('soundType');
   @override
@@ -42561,6 +42573,8 @@ class $MusicMediumRowsTable extends MusicMediumRows
         cddbId,
         leadoutOffset,
         bpDiscId,
+        matrixNumberSideA,
+        matrixNumberSideB,
         soundType,
         vinylColor,
         vinylWeight,
@@ -42651,6 +42665,18 @@ class $MusicMediumRowsTable extends MusicMediumRows
       context.handle(_bpDiscIdMeta,
           bpDiscId.isAcceptableOrUnknown(data['bp_disc_id']!, _bpDiscIdMeta));
     }
+    if (data.containsKey('matrix_number_side_a')) {
+      context.handle(
+          _matrixNumberSideAMeta,
+          matrixNumberSideA.isAcceptableOrUnknown(
+              data['matrix_number_side_a']!, _matrixNumberSideAMeta));
+    }
+    if (data.containsKey('matrix_number_side_b')) {
+      context.handle(
+          _matrixNumberSideBMeta,
+          matrixNumberSideB.isAcceptableOrUnknown(
+              data['matrix_number_side_b']!, _matrixNumberSideBMeta));
+    }
     if (data.containsKey('sound_type')) {
       context.handle(_soundTypeMeta,
           soundType.isAcceptableOrUnknown(data['sound_type']!, _soundTypeMeta));
@@ -42723,6 +42749,10 @@ class $MusicMediumRowsTable extends MusicMediumRows
           .read(DriftSqlType.int, data['${effectivePrefix}leadout_offset']),
       bpDiscId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}bp_disc_id']),
+      matrixNumberSideA: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}matrix_number_side_a']),
+      matrixNumberSideB: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}matrix_number_side_b']),
       soundType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}sound_type']),
       vinylColor: attachedDatabase.typeMapping
@@ -42760,6 +42790,8 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
   final String? cddbId;
   final int? leadoutOffset;
   final String? bpDiscId;
+  final String? matrixNumberSideA;
+  final String? matrixNumberSideB;
   final String? soundType;
   final String? vinylColor;
   final String? vinylWeight;
@@ -42781,6 +42813,8 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
       this.cddbId,
       this.leadoutOffset,
       this.bpDiscId,
+      this.matrixNumberSideA,
+      this.matrixNumberSideB,
       this.soundType,
       this.vinylColor,
       this.vinylWeight,
@@ -42822,6 +42856,12 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
     }
     if (!nullToAbsent || bpDiscId != null) {
       map['bp_disc_id'] = Variable<String>(bpDiscId);
+    }
+    if (!nullToAbsent || matrixNumberSideA != null) {
+      map['matrix_number_side_a'] = Variable<String>(matrixNumberSideA);
+    }
+    if (!nullToAbsent || matrixNumberSideB != null) {
+      map['matrix_number_side_b'] = Variable<String>(matrixNumberSideB);
     }
     if (!nullToAbsent || soundType != null) {
       map['sound_type'] = Variable<String>(soundType);
@@ -42872,6 +42912,12 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
       bpDiscId: bpDiscId == null && nullToAbsent
           ? const Value.absent()
           : Value(bpDiscId),
+      matrixNumberSideA: matrixNumberSideA == null && nullToAbsent
+          ? const Value.absent()
+          : Value(matrixNumberSideA),
+      matrixNumberSideB: matrixNumberSideB == null && nullToAbsent
+          ? const Value.absent()
+          : Value(matrixNumberSideB),
       soundType: soundType == null && nullToAbsent
           ? const Value.absent()
           : Value(soundType),
@@ -42907,6 +42953,10 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
       cddbId: serializer.fromJson<String?>(json['cddbId']),
       leadoutOffset: serializer.fromJson<int?>(json['leadoutOffset']),
       bpDiscId: serializer.fromJson<String?>(json['bpDiscId']),
+      matrixNumberSideA:
+          serializer.fromJson<String?>(json['matrixNumberSideA']),
+      matrixNumberSideB:
+          serializer.fromJson<String?>(json['matrixNumberSideB']),
       soundType: serializer.fromJson<String?>(json['soundType']),
       vinylColor: serializer.fromJson<String?>(json['vinylColor']),
       vinylWeight: serializer.fromJson<String?>(json['vinylWeight']),
@@ -42934,6 +42984,8 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
       'cddbId': serializer.toJson<String?>(cddbId),
       'leadoutOffset': serializer.toJson<int?>(leadoutOffset),
       'bpDiscId': serializer.toJson<String?>(bpDiscId),
+      'matrixNumberSideA': serializer.toJson<String?>(matrixNumberSideA),
+      'matrixNumberSideB': serializer.toJson<String?>(matrixNumberSideB),
       'soundType': serializer.toJson<String?>(soundType),
       'vinylColor': serializer.toJson<String?>(vinylColor),
       'vinylWeight': serializer.toJson<String?>(vinylWeight),
@@ -42958,6 +43010,8 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
           Value<String?> cddbId = const Value.absent(),
           Value<int?> leadoutOffset = const Value.absent(),
           Value<String?> bpDiscId = const Value.absent(),
+          Value<String?> matrixNumberSideA = const Value.absent(),
+          Value<String?> matrixNumberSideB = const Value.absent(),
           Value<String?> soundType = const Value.absent(),
           Value<String?> vinylColor = const Value.absent(),
           Value<String?> vinylWeight = const Value.absent(),
@@ -42985,6 +43039,12 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
         leadoutOffset:
             leadoutOffset.present ? leadoutOffset.value : this.leadoutOffset,
         bpDiscId: bpDiscId.present ? bpDiscId.value : this.bpDiscId,
+        matrixNumberSideA: matrixNumberSideA.present
+            ? matrixNumberSideA.value
+            : this.matrixNumberSideA,
+        matrixNumberSideB: matrixNumberSideB.present
+            ? matrixNumberSideB.value
+            : this.matrixNumberSideB,
         soundType: soundType.present ? soundType.value : this.soundType,
         vinylColor: vinylColor.present ? vinylColor.value : this.vinylColor,
         vinylWeight: vinylWeight.present ? vinylWeight.value : this.vinylWeight,
@@ -43020,6 +43080,12 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
           ? data.leadoutOffset.value
           : this.leadoutOffset,
       bpDiscId: data.bpDiscId.present ? data.bpDiscId.value : this.bpDiscId,
+      matrixNumberSideA: data.matrixNumberSideA.present
+          ? data.matrixNumberSideA.value
+          : this.matrixNumberSideA,
+      matrixNumberSideB: data.matrixNumberSideB.present
+          ? data.matrixNumberSideB.value
+          : this.matrixNumberSideB,
       soundType: data.soundType.present ? data.soundType.value : this.soundType,
       vinylColor:
           data.vinylColor.present ? data.vinylColor.value : this.vinylColor,
@@ -43048,6 +43114,8 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
           ..write('cddbId: $cddbId, ')
           ..write('leadoutOffset: $leadoutOffset, ')
           ..write('bpDiscId: $bpDiscId, ')
+          ..write('matrixNumberSideA: $matrixNumberSideA, ')
+          ..write('matrixNumberSideB: $matrixNumberSideB, ')
           ..write('soundType: $soundType, ')
           ..write('vinylColor: $vinylColor, ')
           ..write('vinylWeight: $vinylWeight, ')
@@ -43060,27 +43128,30 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      releaseId,
-      mediumNumber,
-      mediumType,
-      title,
-      trackCount,
-      expectedTrackCount,
-      missingTrackCount,
-      missingTrackPositionsJson,
-      toc,
-      cddbId,
-      leadoutOffset,
-      bpDiscId,
-      soundType,
-      vinylColor,
-      vinylWeight,
-      rpm,
-      spars,
-      createdAt,
-      updatedAt);
+  int get hashCode => Object.hashAll([
+        id,
+        releaseId,
+        mediumNumber,
+        mediumType,
+        title,
+        trackCount,
+        expectedTrackCount,
+        missingTrackCount,
+        missingTrackPositionsJson,
+        toc,
+        cddbId,
+        leadoutOffset,
+        bpDiscId,
+        matrixNumberSideA,
+        matrixNumberSideB,
+        soundType,
+        vinylColor,
+        vinylWeight,
+        rpm,
+        spars,
+        createdAt,
+        updatedAt
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -43098,6 +43169,8 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
           other.cddbId == this.cddbId &&
           other.leadoutOffset == this.leadoutOffset &&
           other.bpDiscId == this.bpDiscId &&
+          other.matrixNumberSideA == this.matrixNumberSideA &&
+          other.matrixNumberSideB == this.matrixNumberSideB &&
           other.soundType == this.soundType &&
           other.vinylColor == this.vinylColor &&
           other.vinylWeight == this.vinylWeight &&
@@ -43121,6 +43194,8 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
   final Value<String?> cddbId;
   final Value<int?> leadoutOffset;
   final Value<String?> bpDiscId;
+  final Value<String?> matrixNumberSideA;
+  final Value<String?> matrixNumberSideB;
   final Value<String?> soundType;
   final Value<String?> vinylColor;
   final Value<String?> vinylWeight;
@@ -43143,6 +43218,8 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
     this.cddbId = const Value.absent(),
     this.leadoutOffset = const Value.absent(),
     this.bpDiscId = const Value.absent(),
+    this.matrixNumberSideA = const Value.absent(),
+    this.matrixNumberSideB = const Value.absent(),
     this.soundType = const Value.absent(),
     this.vinylColor = const Value.absent(),
     this.vinylWeight = const Value.absent(),
@@ -43166,6 +43243,8 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
     this.cddbId = const Value.absent(),
     this.leadoutOffset = const Value.absent(),
     this.bpDiscId = const Value.absent(),
+    this.matrixNumberSideA = const Value.absent(),
+    this.matrixNumberSideB = const Value.absent(),
     this.soundType = const Value.absent(),
     this.vinylColor = const Value.absent(),
     this.vinylWeight = const Value.absent(),
@@ -43193,6 +43272,8 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
     Expression<String>? cddbId,
     Expression<int>? leadoutOffset,
     Expression<String>? bpDiscId,
+    Expression<String>? matrixNumberSideA,
+    Expression<String>? matrixNumberSideB,
     Expression<String>? soundType,
     Expression<String>? vinylColor,
     Expression<String>? vinylWeight,
@@ -43218,6 +43299,8 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
       if (cddbId != null) 'cddb_id': cddbId,
       if (leadoutOffset != null) 'leadout_offset': leadoutOffset,
       if (bpDiscId != null) 'bp_disc_id': bpDiscId,
+      if (matrixNumberSideA != null) 'matrix_number_side_a': matrixNumberSideA,
+      if (matrixNumberSideB != null) 'matrix_number_side_b': matrixNumberSideB,
       if (soundType != null) 'sound_type': soundType,
       if (vinylColor != null) 'vinyl_color': vinylColor,
       if (vinylWeight != null) 'vinyl_weight': vinylWeight,
@@ -43243,6 +43326,8 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
       Value<String?>? cddbId,
       Value<int?>? leadoutOffset,
       Value<String?>? bpDiscId,
+      Value<String?>? matrixNumberSideA,
+      Value<String?>? matrixNumberSideB,
       Value<String?>? soundType,
       Value<String?>? vinylColor,
       Value<String?>? vinylWeight,
@@ -43266,6 +43351,8 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
       cddbId: cddbId ?? this.cddbId,
       leadoutOffset: leadoutOffset ?? this.leadoutOffset,
       bpDiscId: bpDiscId ?? this.bpDiscId,
+      matrixNumberSideA: matrixNumberSideA ?? this.matrixNumberSideA,
+      matrixNumberSideB: matrixNumberSideB ?? this.matrixNumberSideB,
       soundType: soundType ?? this.soundType,
       vinylColor: vinylColor ?? this.vinylColor,
       vinylWeight: vinylWeight ?? this.vinylWeight,
@@ -43320,6 +43407,12 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
     if (bpDiscId.present) {
       map['bp_disc_id'] = Variable<String>(bpDiscId.value);
     }
+    if (matrixNumberSideA.present) {
+      map['matrix_number_side_a'] = Variable<String>(matrixNumberSideA.value);
+    }
+    if (matrixNumberSideB.present) {
+      map['matrix_number_side_b'] = Variable<String>(matrixNumberSideB.value);
+    }
     if (soundType.present) {
       map['sound_type'] = Variable<String>(soundType.value);
     }
@@ -43363,6 +43456,8 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
           ..write('cddbId: $cddbId, ')
           ..write('leadoutOffset: $leadoutOffset, ')
           ..write('bpDiscId: $bpDiscId, ')
+          ..write('matrixNumberSideA: $matrixNumberSideA, ')
+          ..write('matrixNumberSideB: $matrixNumberSideB, ')
           ..write('soundType: $soundType, ')
           ..write('vinylColor: $vinylColor, ')
           ..write('vinylWeight: $vinylWeight, ')
@@ -76185,6 +76280,8 @@ typedef $$MusicMediumRowsTableCreateCompanionBuilder = MusicMediumRowsCompanion
   Value<String?> cddbId,
   Value<int?> leadoutOffset,
   Value<String?> bpDiscId,
+  Value<String?> matrixNumberSideA,
+  Value<String?> matrixNumberSideB,
   Value<String?> soundType,
   Value<String?> vinylColor,
   Value<String?> vinylWeight,
@@ -76209,6 +76306,8 @@ typedef $$MusicMediumRowsTableUpdateCompanionBuilder = MusicMediumRowsCompanion
   Value<String?> cddbId,
   Value<int?> leadoutOffset,
   Value<String?> bpDiscId,
+  Value<String?> matrixNumberSideA,
+  Value<String?> matrixNumberSideB,
   Value<String?> soundType,
   Value<String?> vinylColor,
   Value<String?> vinylWeight,
@@ -76269,6 +76368,14 @@ class $$MusicMediumRowsTableFilterComposer
 
   ColumnFilters<String> get bpDiscId => $composableBuilder(
       column: $table.bpDiscId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get matrixNumberSideA => $composableBuilder(
+      column: $table.matrixNumberSideA,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get matrixNumberSideB => $composableBuilder(
+      column: $table.matrixNumberSideB,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get soundType => $composableBuilder(
       column: $table.soundType, builder: (column) => ColumnFilters(column));
@@ -76345,6 +76452,14 @@ class $$MusicMediumRowsTableOrderingComposer
   ColumnOrderings<String> get bpDiscId => $composableBuilder(
       column: $table.bpDiscId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get matrixNumberSideA => $composableBuilder(
+      column: $table.matrixNumberSideA,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get matrixNumberSideB => $composableBuilder(
+      column: $table.matrixNumberSideB,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get soundType => $composableBuilder(
       column: $table.soundType, builder: (column) => ColumnOrderings(column));
 
@@ -76415,6 +76530,12 @@ class $$MusicMediumRowsTableAnnotationComposer
   GeneratedColumn<String> get bpDiscId =>
       $composableBuilder(column: $table.bpDiscId, builder: (column) => column);
 
+  GeneratedColumn<String> get matrixNumberSideA => $composableBuilder(
+      column: $table.matrixNumberSideA, builder: (column) => column);
+
+  GeneratedColumn<String> get matrixNumberSideB => $composableBuilder(
+      column: $table.matrixNumberSideB, builder: (column) => column);
+
   GeneratedColumn<String> get soundType =>
       $composableBuilder(column: $table.soundType, builder: (column) => column);
 
@@ -76477,6 +76598,8 @@ class $$MusicMediumRowsTableTableManager extends RootTableManager<
             Value<String?> cddbId = const Value.absent(),
             Value<int?> leadoutOffset = const Value.absent(),
             Value<String?> bpDiscId = const Value.absent(),
+            Value<String?> matrixNumberSideA = const Value.absent(),
+            Value<String?> matrixNumberSideB = const Value.absent(),
             Value<String?> soundType = const Value.absent(),
             Value<String?> vinylColor = const Value.absent(),
             Value<String?> vinylWeight = const Value.absent(),
@@ -76500,6 +76623,8 @@ class $$MusicMediumRowsTableTableManager extends RootTableManager<
             cddbId: cddbId,
             leadoutOffset: leadoutOffset,
             bpDiscId: bpDiscId,
+            matrixNumberSideA: matrixNumberSideA,
+            matrixNumberSideB: matrixNumberSideB,
             soundType: soundType,
             vinylColor: vinylColor,
             vinylWeight: vinylWeight,
@@ -76523,6 +76648,8 @@ class $$MusicMediumRowsTableTableManager extends RootTableManager<
             Value<String?> cddbId = const Value.absent(),
             Value<int?> leadoutOffset = const Value.absent(),
             Value<String?> bpDiscId = const Value.absent(),
+            Value<String?> matrixNumberSideA = const Value.absent(),
+            Value<String?> matrixNumberSideB = const Value.absent(),
             Value<String?> soundType = const Value.absent(),
             Value<String?> vinylColor = const Value.absent(),
             Value<String?> vinylWeight = const Value.absent(),
@@ -76546,6 +76673,8 @@ class $$MusicMediumRowsTableTableManager extends RootTableManager<
             cddbId: cddbId,
             leadoutOffset: leadoutOffset,
             bpDiscId: bpDiscId,
+            matrixNumberSideA: matrixNumberSideA,
+            matrixNumberSideB: matrixNumberSideB,
             soundType: soundType,
             vinylColor: vinylColor,
             vinylWeight: vinylWeight,

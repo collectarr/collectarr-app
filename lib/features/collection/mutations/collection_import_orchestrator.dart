@@ -428,7 +428,11 @@ final class CollectionImportOrchestrator {
     final projection = _profileForKind(kind);
     if (projection != null) {
       final ownedRef = existingSummary?.ref ??
-          OwnedCopyRef(kind: kind, id: OwnedCopyId(idGenerator()));
+          OwnedCopyRef(
+            kind: kind,
+            itemId: catalogRef.rootScope.id,
+            id: OwnedCopyId(idGenerator()),
+          );
       final transport = projection.ownedItemImportTransport(
         CollectionCsvOwnedImport(
           id: ownedRef.id.value,

@@ -6,8 +6,8 @@ final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceProjection>(
     LibraryEntityScope.work:
         TypedLibraryEntityWorkspace<MusicWorkspaceProjection>(
       scope: LibraryEntityScope.work,
-      fields: musicReleaseGroupWorkspaceSchema.toRegistry(),
-      projector: const MusicReleaseGroupWorkspaceProjector(),
+      fields: musicCatalogItemWorkspaceSchema.toRegistry(),
+      projector: const MusicCatalogItemWorkspaceProjector(),
     ),
     LibraryEntityScope.copy:
         TypedLibraryEntityWorkspace<MusicWorkspaceProjection>(
@@ -18,11 +18,4 @@ final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceProjection>(
   },
   hierarchy: musicKindHierarchy,
   trackingTopology: musicKindTrackingTopology,
-  trackingTargetResolver: (node, rootRef) => switch (node) {
-    LibraryReleaseRef(:final releaseId) => musicReleaseRefForRoot(
-        rootRef,
-        releaseId,
-      ),
-    _ => rootRef,
-  },
 );

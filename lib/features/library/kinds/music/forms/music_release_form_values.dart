@@ -7,6 +7,13 @@ final class MusicReleaseFormValues {
     this.title = '',
     this.sortTitle = '',
     this.subtitle = '',
+    this.artist = '',
+    this.originalTitle = '',
+    this.originalReleaseDate,
+    this.recordingDate,
+    List<String> studios = const [],
+    this.isLive,
+    List<String> genres = const [],
     this.releaseType = '',
     this.releaseStatus = '',
     this.releaseDate,
@@ -19,16 +26,31 @@ final class MusicReleaseFormValues {
     this.packaging = '',
     this.physicalFormat = '',
     this.physicalFormatLabel = '',
+    List<String> soundTypes = const [],
+    this.vinylColor = '',
+    this.vinylWeight = '',
+    this.rpm,
+    this.spars = '',
+    this.extra = '',
     this.boxSetName = '',
     this.coverImageUrl = '',
     this.boxSetMembership,
-  });
+  })  : studios = List.of(studios),
+        genres = List.of(genres),
+        soundTypes = List.of(soundTypes);
 
   factory MusicReleaseFormValues.fromRelease(MusicRelease release) =>
       MusicReleaseFormValues(
         title: release.title,
         sortTitle: release.sortTitle ?? '',
         subtitle: release.subtitle ?? '',
+        artist: release.artist ?? '',
+        originalTitle: release.originalTitle ?? '',
+        originalReleaseDate: release.originalReleaseDate,
+        recordingDate: release.recordingDate,
+        studios: release.studios,
+        isLive: release.isLive,
+        genres: release.genres,
         releaseType: release.releaseType ?? '',
         releaseStatus: release.releaseStatus ?? '',
         releaseDate: release.releaseDate,
@@ -41,6 +63,12 @@ final class MusicReleaseFormValues {
         packaging: release.packaging ?? '',
         physicalFormat: release.physicalFormat ?? '',
         physicalFormatLabel: release.physicalFormatLabel ?? '',
+        soundTypes: release.soundTypes,
+        vinylColor: release.vinylColor ?? '',
+        vinylWeight: release.vinylWeight ?? '',
+        rpm: release.rpm,
+        spars: release.spars ?? '',
+        extra: release.extra ?? '',
         boxSetName: release.boxSetName ?? '',
         coverImageUrl: release.coverImageUrl ?? '',
         boxSetMembership: release.boxSetMembership,
@@ -49,6 +77,13 @@ final class MusicReleaseFormValues {
   String title;
   String sortTitle;
   String subtitle;
+  String artist;
+  String originalTitle;
+  DateTime? originalReleaseDate;
+  DateTime? recordingDate;
+  List<String> studios;
+  bool? isLive;
+  List<String> genres;
   String releaseType;
   String releaseStatus;
   DateTime? releaseDate;
@@ -61,6 +96,12 @@ final class MusicReleaseFormValues {
   String packaging;
   String physicalFormat;
   String physicalFormatLabel;
+  List<String> soundTypes;
+  String vinylColor;
+  String vinylWeight;
+  int? rpm;
+  String spars;
+  String extra;
   String boxSetName;
   String coverImageUrl;
   MusicBoxSetMembership? boxSetMembership;

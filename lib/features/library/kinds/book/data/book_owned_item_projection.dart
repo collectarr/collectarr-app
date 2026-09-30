@@ -16,6 +16,7 @@ final class BookOwnedItemProjection {
     return OwnedCopySummary(
       ref: OwnedCopyRef(
         kind: item.catalogRef.mediaKind,
+        itemId: item.catalogRef.rootScope.id,
         id: OwnedCopyId(item.id.value),
       ),
       catalogRef: item.catalogRef,

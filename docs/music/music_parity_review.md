@@ -1,47 +1,40 @@
-# Music parity review
+# Music Catalog Item parity review
 
-Reviewed against the updated Music implementation plan after the typed graph,
-entity split, release edit flow, listening history, ownership integrity and
-workspace schema work.
+This review describes the flattened App Music path. The field-level CLZ
+decisions are recorded in [music-catalog-field-inventory.md](../architecture/music-catalog-field-inventory.md).
 
-## Complete in this checkout
+## Implemented
 
-- Release Group -> Release -> Medium -> Track is the canonical catalog graph.
-- Owned Music items require a concrete Release target.
-- Release Group, Release and Owned Copy workspace schemas are selected by
-  structural node/scope.
-- Release editing is separate from Group editing and includes independent
-  Owned Copies and Release tracking sections.
-- Track artist and track headers survive the typed graph, local storage and
-  inspector/export paths.
-- Per-medium storage and per-side matrix/runout data are retained during copy
-  edits, including untouched media entries.
-- Multiple listen events are stored against a Music Catalog Item, with an
-  optional Owned Copy reference. Derived per-item summaries feed Music stats;
-  there is no release-group listening breakdown.
-- Box-set membership is typed, mapped through Core/provider/catalog/local
-  boundaries, editable on a Release, visible in the inspector, and groupable
-  in the Release workspace.
-- Generic item images support front/back plus booklet/disc/label/other roles
-  without a second Music image store.
-- Manual Add exposes Music release fields including catalog number, barcode,
-  date, label, country, format and packaging.
+- Search and manual Add represent one concrete album edition as one Music
+  Catalog Item. Search results do not expose a parent album group or nested
+  selectable release list.
+- Manual Add and Edit share the edit dialog scaffold. The Music editor presents
+  the album title and artist in its header and keeps its kind-owned fields,
+  vocabulary controls, credits, discs, tracks, covers, personal images, and
+  links in Music tabs.
+- The App mapper, local repository, and workspace project one Catalog Item with
+  contained disc and track data. There is no Music Release Group model or
+  separate Release workspace scope.
+- Copy-specific condition, purchase details, location, notes, personal images,
+  and per-copy storage placement remain in Owned Copy data. Listening events
+  target the Catalog Item and can optionally name the copy used.
+- Matrix numbers on catalog discs are shared pressing data; observed matrix
+  runouts and storage placement on an individual physical copy remain personal
+  Owned Copy details.
 
-## Partial by design
+## Remaining naming and cutover work
 
-- Workspace rows still expose one structural `ownedSummary`; quantity remains
-  the aggregate for a copy row. The Release editor is the authoritative view
-  for enumerating multiple physical copies.
-- Listening summaries are enriched into typed Music workspace DTO rows and
-  consumed by Music stats from the Catalog Item identity.
-- The previous monolithic edit runtime has been removed. The unscoped catalog
-  editor is a typed Group/Release/Links composition, while structural nodes
-  dispatch to their dedicated dialogs.
+- Some App domain and Drift identifiers retain historical `Release` names even
+  though the row represents the root Music Catalog Item. They do not create a
+  separate catalog level. A rename must update the local schema and all direct
+  callers together.
+- The generic workspace still calls the root scope `work` for the eight kinds
+  that retain Work/Release. Music has no Release scope selector; the broader
+  shared scope contract remains until those kinds are cut over.
+- The coordinated nine-kind cutover is still in progress. Do not infer its
+  completion from the Music-only flattening.
 
 ## Verification
 
-- `flutter analyze --fatal-warnings --fatal-infos`: green.
-- Targeted Music/domain/config/UI tests: green (`115` passed, `3` skipped).
-- `git diff --check`: required before the final commit.
-- Full repository test status is documented in the baseline: `30` unrelated
-  UI/fixture failures remain outside this Music implementation slice.
+The implementation was statically analyzed during this change. No Flutter or
+Dart test suite was run.

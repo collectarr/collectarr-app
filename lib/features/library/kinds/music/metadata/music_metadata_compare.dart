@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dar
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:flutter/material.dart';
 
-/// Compares the serialized Music release-group graph at the transport boundary.
+/// Compares flat Music Catalog Item fields and contained disc data.
 ///
 /// The editor and domain never consume these maps. They are decoded only for
 /// the server-compare presentation, where a map is the actual wire format.
@@ -40,44 +40,38 @@ List<MetadataDiffEntry> _musicMetadataEntries(
   Map<String, dynamic> local,
   Map<String, dynamic> server,
 ) {
-  final localRelease = _release(local);
-  final serverRelease = _release(server);
+  final localItem = _musicItem(local);
+  final serverItem = _musicItem(server);
   return [
-    _entry('Title', local['title'], server['title']),
-    _entry('Sort title', local['sort_title'], server['sort_title']),
-    _entry('Original title', local['original_title'], server['original_title']),
-    _entry('Artist', local['artist'], server['artist']),
-    _listEntry('Studio', local['studios'], server['studios']),
-    _dateEntry('Original release date', local['original_release_date'],
-        server['original_release_date']),
-    _dateEntry(
-        'Recording date', local['recording_date'], server['recording_date']),
-    _entry('Release title', localRelease['title'], serverRelease['title']),
-    _entry('Subtitle', localRelease['subtitle'], serverRelease['subtitle']),
-    _entry('Release type', localRelease['release_type'],
-        serverRelease['release_type']),
-    _entry('Release status', localRelease['release_status'],
-        serverRelease['release_status']),
-    _dateEntry('Release date', localRelease['release_date'],
-        serverRelease['release_date']),
-    _entry(
-        'Record label', localRelease['publisher'], serverRelease['publisher']),
+    _entry('Title', localItem['title'], serverItem['title']),
+    _entry('Sort title', localItem['sort_title'], serverItem['sort_title']),
+    _entry('Original title', localItem['original_title'],
+        serverItem['original_title']),
+    _entry('Artist', localItem['artist'], serverItem['artist']),
+    _listEntry('Studio', localItem['studios'], serverItem['studios']),
+    _dateEntry('Original release date', localItem['original_release_date'],
+        serverItem['original_release_date']),
+    _dateEntry('Recording date', localItem['recording_date'],
+        serverItem['recording_date']),
+    _entry('Subtitle', localItem['subtitle'], serverItem['subtitle']),
+    _entry('Release type', localItem['release_type'], serverItem['release_type']),
+    _entry('Release status', localItem['release_status'], serverItem['release_status']),
+    _dateEntry('Release date', localItem['release_date'], serverItem['release_date']),
+    _entry('Record label', localItem['publisher'], serverItem['publisher']),
     _entry(
         'Country',
-        musicCountryName(localRelease['country_code']?.toString()),
-        musicCountryName(serverRelease['country_code']?.toString())),
-    _entry('Language', localRelease['language'], serverRelease['language']),
-    _entry('Barcode', localRelease['barcode'], serverRelease['barcode']),
-    _entry('UPC', localRelease['upc'], serverRelease['upc']),
-    _entry('Catalog number', localRelease['catalog_number'],
-        serverRelease['catalog_number']),
-    _entry('Packaging', localRelease['packaging'], serverRelease['packaging']),
-    _listEntry('Genres', local['genres'], server['genres']),
-    _entry('Live recording', local['is_live'] == true ? 'Yes' : 'No',
-        server['is_live'] == true ? 'Yes' : 'No'),
-    _entry('Release count', _maps(local['releases']).length,
-        _maps(server['releases']).length),
-    _entry('Medium count', _mediums(local).length, _mediums(server).length),
+        musicCountryName(localItem['country_code']?.toString()),
+        musicCountryName(serverItem['country_code']?.toString())),
+    _entry('Language', localItem['language'], serverItem['language']),
+    _entry('Barcode', localItem['barcode'], serverItem['barcode']),
+    _entry('UPC', localItem['upc'], serverItem['upc']),
+    _entry('Catalog number', localItem['catalog_number'],
+        serverItem['catalog_number']),
+    _entry('Packaging', localItem['packaging'], serverItem['packaging']),
+    _listEntry('Genres', localItem['genres'], serverItem['genres']),
+    _entry('Live recording', localItem['is_live'] == true ? 'Yes' : 'No',
+        serverItem['is_live'] == true ? 'Yes' : 'No'),
+    _entry('Disc count', _mediums(local).length, _mediums(server).length),
     _entry('Track count', _trackCount(local), _trackCount(server)),
   ];
 }
@@ -107,8 +101,8 @@ List<MetadataDiffEntry> _contributionEntries(
   Map<String, dynamic> local,
   Map<String, dynamic> server,
 ) {
-  final localValues = _maps(_release(local)['contributions']);
-  final serverValues = _maps(_release(server)['contributions']);
+  final localValues = _maps(_musicItem(local)['contributions']);
+  final serverValues = _maps(_musicItem(server)['contributions']);
   final count = math.max(localValues.length, serverValues.length);
   return [
     for (var index = 0; index < count; index++)
@@ -170,13 +164,13 @@ String _mediumText(Map<String, dynamic>? value) {
   return lines.join('\n');
 }
 
-Map<String, dynamic> _release(Map<String, dynamic> group) {
-  final releases = _maps(group['releases']);
-  return releases.isEmpty ? group : releases.first;
+Map<String, dynamic> _musicItem(Map<String, dynamic> value) {
+  final nested = value['music'];
+  return nested is Map ? Map<String, dynamic>.from(nested) : value;
 }
 
-List<Map<String, dynamic>> _mediums(Map<String, dynamic> group) =>
-    _maps(_release(group)['mediums']);
+List<Map<String, dynamic>> _mediums(Map<String, dynamic> value) =>
+    _maps(_musicItem(value)['mediums']);
 
 int _trackCount(Map<String, dynamic> group) {
   final mediums = _mediums(group);

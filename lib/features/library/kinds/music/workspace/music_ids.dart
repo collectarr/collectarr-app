@@ -8,8 +8,6 @@ abstract final class MusicFieldIds {
   static const publisher =
       LibraryFieldId<MusicKind, String?>('music.publisher');
   static const genre = LibraryFieldId<MusicKind, String?>('music.genre');
-  static const releaseCount =
-      LibraryFieldId<MusicKind, int?>('music.release_count');
   static const format = LibraryFieldId<MusicKind, String?>('music.format');
   static const releaseType =
       LibraryFieldId<MusicKind, String?>('music.release_type');
@@ -19,17 +17,11 @@ abstract final class MusicFieldIds {
   static const packaging =
       LibraryFieldId<MusicKind, String?>('music.packaging');
   static const boxSet = LibraryFieldId<MusicKind, String?>('music.box_set');
-  static const releaseGroupReleaseDate = LibraryFieldId<MusicKind, DateTime?>(
-    'music.release_group.release_date',
-  );
   static const releaseDate = LibraryFieldId<MusicKind, DateTime?>(
-    'music.release.release_date',
-  );
-  static const releaseGroupTrackCount = LibraryFieldId<MusicKind, int?>(
-    'music.release_group.track_count',
+    'music.release_date',
   );
   static const trackCount = LibraryFieldId<MusicKind, int?>(
-    'music.release.track_count',
+    'music.track_count',
   );
   static const barcode = LibraryFieldId<MusicKind, String?>('music.barcode');
   static const rating = LibraryFieldId<MusicKind, int?>('music.rating');
@@ -69,14 +61,8 @@ abstract final class MusicSortIds {
   static const artist = LibrarySortId<MusicKind>('music.artist');
   static const title = LibrarySortId<MusicKind>('music.title');
   static const publisher = LibrarySortId<MusicKind>('music.publisher');
-  static const releaseGroupReleaseDate =
-      LibrarySortId<MusicKind>('music.release_group.release_date');
-  static const releaseDate =
-      LibrarySortId<MusicKind>('music.release.release_date');
-  static const releaseGroupTrackCount =
-      LibrarySortId<MusicKind>('music.release_group.track_count');
-  static const trackCount =
-      LibrarySortId<MusicKind>('music.release.track_count');
+  static const releaseDate = LibrarySortId<MusicKind>('music.release_date');
+  static const trackCount = LibrarySortId<MusicKind>('music.track_count');
   static const rating = LibrarySortId<MusicKind>('music.rating');
   static const pricePaid = LibrarySortId<MusicKind>('music.price_paid');
   static const updatedAt = LibrarySortId<MusicKind>('music.updated_at');

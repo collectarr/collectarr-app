@@ -12,9 +12,8 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
@@ -42,8 +41,7 @@ import 'package:url_launcher/url_launcher.dart';
 MusicInspectorViewModel _musicModel(LibraryProjectionView item) =>
     MusicInspectorViewModel.from(item);
 
-MusicReleaseGroup? _musicGroup(LibraryProjectionView item) =>
-    _musicModel(item).group;
+MusicRelease? _musicItem(LibraryProjectionView item) => _musicModel(item).music;
 
 Widget buildMusicInspectorPanel(
   BuildContext context,
@@ -260,7 +258,7 @@ class _MusicListeningSection extends ConsumerWidget {
       if (shouldSave != true || !context.mounted) return;
       final now = DateTime.now().toUtc();
       final owned = model.owned;
-      await ref.read(musicListeningRepositoryProvider).upsert(
+      await ref.read(musicListeningMutationsProvider).upsert(
             MusicListenEvent(
               id: 'listen-${now.microsecondsSinceEpoch}',
               catalogRef: catalogRef,
@@ -268,6 +266,7 @@ class _MusicListeningSection extends ConsumerWidget {
                   ? null
                   : OwnedCopyRef(
                       kind: CatalogMediaKind.music,
+                      itemId: catalogRef.id,
                       id: OwnedCopyId(owned.id.value),
                     ),
               listenedAt: now,
@@ -378,7 +377,7 @@ class _MusicListenEventTile extends ConsumerWidget {
       );
       if (shouldSave != true || !context.mounted) return;
       final now = DateTime.now().toUtc();
-      await ref.read(musicListeningRepositoryProvider).upsert(
+      await ref.read(musicListeningMutationsProvider).upsert(
             MusicListenEvent(
               id: event.id,
               catalogRef: event.catalogRef,
@@ -419,7 +418,7 @@ class _MusicListenEventTile extends ConsumerWidget {
       ),
     );
     if (confirmed != true || !context.mounted) return;
-    await ref.read(musicListeningRepositoryProvider).markDeleted(
+    await ref.read(musicListeningMutationsProvider).markDeleted(
           event,
           DateTime.now().toUtc(),
         );
@@ -442,8 +441,8 @@ class _MusicInspectorHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final group = _musicGroup(inspector.item);
-    final artist = group?.artist?.trim();
+    final music = _musicItem(inspector.item);
+    final artist = music?.artist?.trim();
     return LibraryInspectorTitleCard(
       item: inspector.item,
       eyebrow: artist,
@@ -460,8 +459,8 @@ class _MusicInspectorMain extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final model = _musicModel(inspector.item);
-    final group = model.group;
-    final release = model.release;
+    final music = model.music;
+    final release = music;
     final tracks = model.tracks;
     final palette = appPalette(context);
     final discGroups = _groupTracksByDisc(tracks);
@@ -469,10 +468,9 @@ class _MusicInspectorMain extends ConsumerWidget {
     final totalTracks = tracks.where((entry) => !entry.isHeader).length;
     final totalDuration = _formatTotalDuration(tracks);
     final dto = inspector.item.dto;
-    final coverUrl = release?.coverImageUrl ?? group.coverImageUrl;
-    final releaseImages = release == null
-        ? const <MusicReleaseImage>[]
-        : ref.watch(musicReleaseImagesProvider(release.id.value)).maybeWhen(
+    final coverUrl = release.coverImageUrl ?? music.coverImageUrl;
+    final releaseImages =
+        ref.watch(musicReleaseImagesProvider(release.id.value)).maybeWhen(
               data: (images) => images,
               orElse: () => const <MusicReleaseImage>[],
             );
@@ -487,7 +485,7 @@ class _MusicInspectorMain extends ConsumerWidget {
             image.imageType == 'back_cover')
         .firstOrNull;
     final formatLabel =
-        release?.mediums.firstOrNull?.mediumType ?? release?.packaging ?? '-';
+        release.mediums.firstOrNull?.mediumType ?? release.packaging ?? '-';
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -511,7 +509,7 @@ class _MusicInspectorMain extends ConsumerWidget {
                     height: 164,
                     child: _MusicInspectorCover(
                       title: dto.primaryLabel,
-                      group: group,
+                      item: music,
                       imageUrl: coverUrl,
                       frontCoverBytes: releaseFrontCover?.imageData,
                       backCoverBytes: releaseBackCover?.imageData,
@@ -526,7 +524,7 @@ class _MusicInspectorMain extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        release?.title ?? group.title,
+                        release.title,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: palette.textPrimary,
                               fontWeight: FontWeight.w700,
@@ -544,10 +542,10 @@ class _MusicInspectorMain extends ConsumerWidget {
                           if (totalDuration != null) totalDuration,
                         ].join(' | '),
                       ),
-                      if (release?.catalogNumber?.trim().isNotEmpty == true)
+                      if (release.catalogNumber?.trim().isNotEmpty == true)
                         LibraryInspectorInfoLine(
                           icon: Icons.confirmation_number_outlined,
-                          text: 'Cat No ${release?.catalogNumber}',
+                          text: 'Cat No ${release.catalogNumber}',
                         ),
                       if (discGroups.isNotEmpty) ...[
                         const SizedBox(height: 10),
@@ -662,14 +660,14 @@ class _MusicInspectorTracks extends StatelessWidget {
             TextButton.icon(
               onPressed: tracks.isEmpty
                   ? null
-                  : () => _copyTracks(context, tracks, group: model.group),
+                  : () => _copyTracks(context, tracks, item: model.music),
               icon: const Icon(Icons.copy, size: 16),
               label: const Text('Copy'),
             ),
             TextButton.icon(
               onPressed: tracks.isEmpty
                   ? null
-                  : () => _printTracks(context, tracks, group: model.group),
+                  : () => _printTracks(context, tracks, item: model.music),
               icon: const Icon(Icons.print_outlined, size: 16),
               label: const Text('Print'),
             ),
@@ -834,7 +832,7 @@ class _MusicMediumDetailsCard extends StatelessWidget {
 final class _MusicInspectorCover extends StatefulWidget {
   const _MusicInspectorCover({
     required this.title,
-    required this.group,
+    required this.item,
     required this.imageUrl,
     this.frontCoverBytes,
     this.backCoverBytes,
@@ -843,7 +841,7 @@ final class _MusicInspectorCover extends StatefulWidget {
   });
 
   final String title;
-  final MusicReleaseGroup group;
+  final MusicRelease item;
   final String? imageUrl;
   final Uint8List? frontCoverBytes;
   final Uint8List? backCoverBytes;
@@ -869,9 +867,8 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
   @override
   void didUpdateWidget(covariant _MusicInspectorCover oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.group.localCoverImagePath !=
-            widget.group.localCoverImagePath ||
-        oldWidget.group.localBackImagePath != widget.group.localBackImagePath ||
+    if (oldWidget.item.localCoverImagePath != widget.item.localCoverImagePath ||
+        oldWidget.item.localBackImagePath != widget.item.localBackImagePath ||
         oldWidget.frontCoverBytes != widget.frontCoverBytes ||
         oldWidget.backCoverBytes != widget.backCoverBytes ||
         oldWidget.imageUrl != widget.imageUrl) {
@@ -885,8 +882,8 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
   Future<void> _loadLocalCovers() async {
     final generation = ++_loadGeneration;
     final bytes = await Future.wait<Uint8List?>([
-      _readCover(widget.group.localCoverImagePath),
-      _readCover(widget.group.localBackImagePath),
+      _readCover(widget.item.localCoverImagePath),
+      _readCover(widget.item.localBackImagePath),
     ]);
     if (!mounted || generation != _loadGeneration) return;
     setState(() {
@@ -993,11 +990,7 @@ class _MusicProductDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = _musicModel(inspector.item);
-    final group = model.group;
-    final release = model.release;
-    if (release == null) {
-      return const Text('Album metadata is unavailable.');
-    }
+    final release = model.music;
     final medium = release.mediums.firstOrNull;
     final rows = <(String, String)>[
       if (release.subtitle?.trim().isNotEmpty == true)
@@ -1034,12 +1027,12 @@ class _MusicProductDetails extends StatelessWidget {
         ('Vinyl color', medium!.vinylColor!),
       if (medium?.vinylWeight?.trim().isNotEmpty == true)
         ('Vinyl weight', medium!.vinylWeight!),
-      if (group.localCoverImagePath?.trim().isNotEmpty == true)
-        ('Local cover', group.localCoverImagePath!),
-      if (group.localBackImagePath?.trim().isNotEmpty == true)
-        ('Local back', group.localBackImagePath!),
-      if (group.localThumbnailImagePath?.trim().isNotEmpty == true)
-        ('Local thumbnail', group.localThumbnailImagePath!),
+      if (release.localCoverImagePath?.trim().isNotEmpty == true)
+        ('Local cover', release.localCoverImagePath!),
+      if (release.localBackImagePath?.trim().isNotEmpty == true)
+        ('Local back', release.localBackImagePath!),
+      if (release.localThumbnailImagePath?.trim().isNotEmpty == true)
+        ('Local thumbnail', release.localThumbnailImagePath!),
     ];
     return LibraryDetailFieldTable(
       fields: [
@@ -1113,9 +1106,8 @@ class _MusicInspectorCredits extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final release = _musicModel(inspector.item).release;
-    final contributions =
-        release?.contributions ?? const <MusicReleaseContribution>[];
+    final release = _musicModel(inspector.item).music;
+    final contributions = release.contributions;
     final creditRows = libraryCreatorsGroupedByRole([
       for (final contribution in contributions) contribution.toJson(),
     ]);
@@ -1304,7 +1296,7 @@ Color inspectorActionColor(BuildContext context) {
 Future<void> _copyTracks(
   BuildContext context,
   List<MusicTrackListEntry> tracks, {
-  required MusicReleaseGroup group,
+  required MusicRelease item,
 }) async {
   final rows = <List<String>>[
     [
@@ -1321,8 +1313,8 @@ Future<void> _copyTracks(
     ],
     for (final track in tracks)
       [
-        group.artist ?? '',
-        group.title,
+        item.artist ?? '',
+        item.title,
         track.releaseTitle ?? '',
         track.discNumber.toString(),
         track.isHeader ? track.title : '',
@@ -1350,7 +1342,7 @@ Future<void> _copyTracks(
 Future<void> _printTracks(
   BuildContext context,
   List<MusicTrackListEntry> tracks, {
-  required MusicReleaseGroup group,
+  required MusicRelease item,
 }) async {
   final rows = <List<String>>[
     [
@@ -1367,8 +1359,8 @@ Future<void> _printTracks(
     ],
     for (final track in tracks)
       [
-        group.artist ?? '',
-        group.title,
+        item.artist ?? '',
+        item.title,
         track.releaseTitle ?? '',
         track.discNumber.toString(),
         track.isHeader ? track.title : '',
@@ -1662,16 +1654,15 @@ bool _matchesTrackTerms(MusicTrackListEntry track, List<String> terms) {
 Uri? _ebayUri(LibraryProjectionView item) {
   final dto = item.dto;
   final model = _musicModel(item);
-  final group = model.group;
-  final release = model.release;
-  if (release == null) return null;
+  final music = model.music;
+  final release = music;
   final barcode = (release.barcode ?? release.upc)?.trim();
   if (barcode == null || barcode.isEmpty) {
     return null;
   }
   final query = <String>[
     barcode,
-    if (group.artist?.trim().isNotEmpty == true) group.artist!.trim(),
+    if (music.artist?.trim().isNotEmpty == true) music.artist!.trim(),
     dto.primaryLabel,
     if (release.releaseDate != null) release.releaseDate!.year.toString(),
   ].join(' ');

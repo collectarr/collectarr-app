@@ -228,8 +228,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
 List<MusicRelease> _musicReleasesFor(LibraryProjectionView item) {
   final dto = item.dto;
   if (dto is! MusicWorkspaceProjection) return const <MusicRelease>[];
-  final release = dto.release ?? dto.music.primaryRelease;
-  return release == null ? const <MusicRelease>[] : [release];
+  return [dto.music];
 }
 
 List<MusicMedium> _musicMediaFor(LibraryProjectionView item) => [

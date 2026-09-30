@@ -3,95 +3,12 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_group_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 
-typedef MusicReleaseGroupValuesReader<TDraft> = MusicReleaseGroupFormValues
-    Function(TDraft draft);
 typedef MusicReleaseValuesReader<TDraft> = MusicReleaseFormValues Function(
     TDraft draft);
-
-List<LibraryFieldSpec<TDraft>> musicReleaseGroupFields<TDraft>({
-  required MusicReleaseGroupValuesReader<TDraft> values,
-  Set<String>? include,
-  Iterable<String>? genreOptions,
-}) =>
-    _included<TDraft>([
-      _text<TDraft>(
-        id: 'title',
-        label: 'Title',
-        read: (draft) => values(draft).title,
-        write: (draft, value) => values(draft).title = value,
-      ),
-      _text<TDraft>(
-        id: 'sort_title',
-        label: 'Sort Title',
-        read: (draft) => values(draft).sortTitle,
-        write: (draft, value) => values(draft).sortTitle = value,
-      ),
-      _text<TDraft>(
-        id: 'artist',
-        label: 'Artist',
-        read: (draft) => values(draft).artist,
-        write: (draft, value) => values(draft).artist = value,
-      ),
-      _text<TDraft>(
-        id: 'original_title',
-        label: 'Original title',
-        read: (draft) => values(draft).originalTitle,
-        write: (draft, value) => values(draft).originalTitle = value,
-      ),
-      LibrarySelectFieldSpec<TDraft, bool>(
-        id: 'is_live',
-        label: 'Recording type',
-        value: (draft) => values(draft).isLive,
-        setValue: (draft, value) => values(draft).isLive = value,
-        options: const [
-          LibraryFieldOption(value: true, label: 'Live recording'),
-          LibraryFieldOption(value: false, label: 'Studio recording'),
-        ],
-      ),
-      LibraryDateFieldSpec<TDraft>(
-        id: 'original_release_date',
-        label: 'Original release date',
-        value: (draft) => values(draft).originalReleaseDate,
-        setValue: (draft, value) => values(draft).originalReleaseDate = value,
-      ),
-      LibraryDateFieldSpec<TDraft>(
-        id: 'recording_date',
-        label: 'Recording date',
-        value: (draft) => values(draft).recordingDate,
-        setValue: (draft, value) => values(draft).recordingDate = value,
-      ),
-      LibraryMultiVocabularyFieldSpec<TDraft, String>(
-        id: 'studios',
-        label: 'Studio',
-        pickListKey: MusicVocabularyIds.studio.value,
-        pluralLabel: 'Studios',
-        values: (draft) => values(draft).studios.toSet(),
-        setValues: (draft, next) =>
-            values(draft).studios = next.toList(growable: false),
-        options: _options(MusicVocabularies.studio.builtIns),
-      ),
-      LibraryMultiVocabularyFieldSpec<TDraft, String>(
-        id: 'genres',
-        label: 'Genre',
-        pickListKey: MusicVocabularyIds.genre.value,
-        pluralLabel: 'Genres',
-        values: (draft) => values(draft).genres.toSet(),
-        setValues: (draft, next) =>
-            values(draft).genres = next.toList(growable: false),
-        options: _options(genreOptions ?? MusicVocabularies.genre.builtIns),
-      ),
-      _text<TDraft>(
-        id: 'cover_image_url',
-        label: 'Cover image URL',
-        read: (draft) => values(draft).coverImageUrl,
-        write: (draft, value) => values(draft).coverImageUrl = value,
-      ),
-    ], include);
 
 List<LibraryFieldSpec<TDraft>> musicReleaseFields<TDraft>({
   required MusicReleaseValuesReader<TDraft> values,
@@ -123,6 +40,60 @@ List<LibraryFieldSpec<TDraft>> musicReleaseFields<TDraft>({
         label: 'Subtitle',
         read: (draft) => values(draft).subtitle,
         write: (draft, value) => values(draft).subtitle = value,
+      ),
+      _text<TDraft>(
+        id: 'artist',
+        label: 'Artist',
+        read: (draft) => values(draft).artist,
+        write: (draft, value) => values(draft).artist = value,
+      ),
+      _text<TDraft>(
+        id: 'original_title',
+        label: 'Original title',
+        read: (draft) => values(draft).originalTitle,
+        write: (draft, value) => values(draft).originalTitle = value,
+      ),
+      LibraryDateFieldSpec<TDraft>(
+        id: 'original_release_date',
+        label: 'Original release date',
+        value: (draft) => values(draft).originalReleaseDate,
+        setValue: (draft, value) => values(draft).originalReleaseDate = value,
+      ),
+      LibraryDateFieldSpec<TDraft>(
+        id: 'recording_date',
+        label: 'Recording date',
+        value: (draft) => values(draft).recordingDate,
+        setValue: (draft, value) => values(draft).recordingDate = value,
+      ),
+      LibraryMultiVocabularyFieldSpec<TDraft, String>(
+        id: 'studios',
+        label: 'Studio',
+        pickListKey: MusicVocabularyIds.studio.value,
+        pluralLabel: 'Studios',
+        values: (draft) => values(draft).studios.toSet(),
+        setValues: (draft, next) =>
+            values(draft).studios = next.toList(growable: false),
+        options: _options(MusicVocabularies.studio.builtIns),
+      ),
+      LibrarySelectFieldSpec<TDraft, bool>(
+        id: 'is_live',
+        label: 'Recording type',
+        value: (draft) => values(draft).isLive,
+        setValue: (draft, value) => values(draft).isLive = value,
+        options: const [
+          LibraryFieldOption(value: true, label: 'Live recording'),
+          LibraryFieldOption(value: false, label: 'Studio recording'),
+        ],
+      ),
+      LibraryMultiVocabularyFieldSpec<TDraft, String>(
+        id: 'genres',
+        label: 'Genre',
+        pickListKey: MusicVocabularyIds.genre.value,
+        pluralLabel: 'Genres',
+        values: (draft) => values(draft).genres.toSet(),
+        setValues: (draft, next) =>
+            values(draft).genres = next.toList(growable: false),
+        options: _options(MusicVocabularies.genre.builtIns),
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'format',
@@ -190,6 +161,54 @@ List<LibraryFieldSpec<TDraft>> musicReleaseFields<TDraft>({
         label: 'UPC',
         read: (draft) => values(draft).upc,
         write: (draft, value) => values(draft).upc = value,
+      ),
+      _text<TDraft>(
+        id: 'cover_image_url',
+        label: 'Cover image URL',
+        read: (draft) => values(draft).coverImageUrl,
+        write: (draft, value) => values(draft).coverImageUrl = value,
+      ),
+      LibraryMultiVocabularyFieldSpec<TDraft, String>(
+        id: 'sound_types',
+        label: 'Sound',
+        pickListKey: MusicVocabularyIds.soundType.value,
+        pluralLabel: 'Sound types',
+        values: (draft) => values(draft).soundTypes.toSet(),
+        setValues: (draft, next) =>
+            values(draft).soundTypes = next.toList(growable: false),
+        options: _options(MusicVocabularies.soundType.builtIns),
+      ),
+      LibraryVocabularyFieldSpec<TDraft, String>(
+        id: 'vinyl_color',
+        label: 'Vinyl color',
+        value: (draft) => _nullable(values(draft).vinylColor),
+        setValue: (draft, value) => values(draft).vinylColor = value ?? '',
+        options: _options(MusicVocabularies.vinylColor.builtIns),
+        pickListKey: MusicVocabularyIds.vinylColor.value,
+      ),
+      _text<TDraft>(
+        id: 'vinyl_weight',
+        label: 'Vinyl weight',
+        read: (draft) => values(draft).vinylWeight,
+        write: (draft, value) => values(draft).vinylWeight = value,
+      ),
+      LibraryNumberFieldSpec<TDraft>(
+        id: 'rpm',
+        label: 'RPM',
+        value: (draft) => values(draft).rpm?.toDouble(),
+        setValue: (draft, value) => values(draft).rpm = value?.toInt(),
+      ),
+      _text<TDraft>(
+        id: 'extra',
+        label: 'Extra',
+        read: (draft) => values(draft).extra,
+        write: (draft, value) => values(draft).extra = value,
+      ),
+      _text<TDraft>(
+        id: 'spars',
+        label: 'SPARS',
+        read: (draft) => values(draft).spars,
+        write: (draft, value) => values(draft).spars = value,
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'country',

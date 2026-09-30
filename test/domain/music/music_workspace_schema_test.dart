@@ -5,51 +5,35 @@ import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_owned_copy_workspace_schema.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_release_group_workspace_schema.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_release_workspace_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_item_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Music workspace schemas keep entity-owned fields separate', () {
-    final groupFieldIds = _fieldIds(musicReleaseGroupWorkspaceSchema.fields);
-    final groupColumnIds = _columnIds(musicReleaseGroupWorkspaceSchema.columns);
-    final groupGroupIds = _groupIds(musicReleaseGroupWorkspaceSchema.groups);
+  test('Music workspace schemas separate catalog items from owned copies', () {
+    final itemFieldIds = _fieldIds(musicCatalogItemWorkspaceSchema.fields);
+    final itemColumnIds = _columnIds(musicCatalogItemWorkspaceSchema.columns);
+    final itemGroupIds = _groupIds(musicCatalogItemWorkspaceSchema.groups);
 
-    expect(groupFieldIds, contains(MusicFieldIds.title.value));
-    expect(groupFieldIds, contains(MusicFieldIds.artist.value));
-    expect(groupFieldIds, contains(MusicFieldIds.genre.value));
-    expect(groupFieldIds, contains(MusicFieldIds.releaseCount.value));
-    expect(groupFieldIds, contains(MusicFieldIds.listenCount.value));
-    expect(groupFieldIds, contains(MusicFieldIds.lastListened.value));
-    expect(groupFieldIds, isNot(contains(MusicFieldIds.condition.value)));
-    expect(groupFieldIds, isNot(contains(MusicFieldIds.location.value)));
-    expect(groupFieldIds, isNot(contains(MusicFieldIds.pricePaid.value)));
-    expect(groupFieldIds, isNot(contains(MusicFieldIds.catalogNumber.value)));
-    expect(groupColumnIds, isNot(contains(MusicFieldIds.condition.value)));
-    expect(groupGroupIds, isNot(contains(MusicGroupIds.condition.value)));
-
-    final releaseFieldIds = _fieldIds(musicReleaseWorkspaceSchema.fields);
-    expect(releaseFieldIds, contains(MusicFieldIds.catalogNumber.value));
-    expect(releaseFieldIds, contains(MusicFieldIds.barcode.value));
-    expect(releaseFieldIds, contains(MusicFieldIds.format.value));
-    expect(releaseFieldIds, contains(MusicFieldIds.releaseType.value));
-    expect(releaseFieldIds, contains(MusicFieldIds.releaseStatus.value));
-    expect(releaseFieldIds, contains(MusicFieldIds.language.value));
-    expect(releaseFieldIds, contains(MusicFieldIds.packaging.value));
-    expect(releaseFieldIds, contains(MusicFieldIds.boxSet.value));
-    expect(releaseFieldIds, isNot(contains(MusicFieldIds.listenCount.value)));
-    expect(releaseFieldIds, isNot(contains(MusicFieldIds.lastListened.value)));
-    expect(releaseFieldIds, isNot(contains(MusicFieldIds.condition.value)));
-    expect(releaseFieldIds, isNot(contains(MusicFieldIds.location.value)));
+    expect(itemFieldIds, contains(MusicFieldIds.title.value));
+    expect(itemFieldIds, contains(MusicFieldIds.artist.value));
+    expect(itemFieldIds, contains(MusicFieldIds.genre.value));
+    expect(itemFieldIds, contains(MusicFieldIds.releaseDate.value));
+    expect(itemFieldIds, contains(MusicFieldIds.trackCount.value));
+    expect(itemFieldIds, contains(MusicFieldIds.listenCount.value));
+    expect(itemFieldIds, contains(MusicFieldIds.lastListened.value));
+    expect(itemFieldIds, isNot(contains(MusicFieldIds.condition.value)));
+    expect(itemFieldIds, isNot(contains(MusicFieldIds.location.value)));
+    expect(itemFieldIds, isNot(contains(MusicFieldIds.pricePaid.value)));
+    expect(itemFieldIds, isNot(contains(MusicFieldIds.catalogNumber.value)));
+    expect(itemColumnIds, isNot(contains(MusicFieldIds.condition.value)));
+    expect(itemGroupIds, isNot(contains(MusicGroupIds.condition.value)));
 
     final copyFieldIds = _fieldIds(musicOwnedCopyWorkspaceSchema.fields);
     expect(copyFieldIds, contains(MusicFieldIds.condition.value));
@@ -65,19 +49,9 @@ void main() {
     expect(copyFieldIds, isNot(contains(MusicFieldIds.catalogNumber.value)));
   });
 
-  test('generic workspace selects Music schema from structural node type', () {
+  test('Music workspace exposes catalog item and copy scopes only', () {
     final titleSchema = musicKindWorkspace.fieldsForNode(
       const LibraryWorkRef(workId: 'group-1'),
-    );
-    final releaseSchema = musicKindWorkspace.fieldsForNode(
-      const LibraryReleaseRef(
-        workId: 'group-1',
-        releaseId: 'release-1',
-        release: LibraryWorkspaceReleaseSummary(
-          id: 'release-1',
-          title: 'Release 1',
-        ),
-      ),
     );
     final copySchema = musicKindWorkspace.fieldsForNode(
       const LibraryCopyRef(
@@ -91,10 +65,6 @@ void main() {
     );
 
     expect(titleSchema.findColumnDefinition(MusicFieldIds.condition), isNull);
-    expect(
-      releaseSchema.findColumnDefinition(MusicFieldIds.catalogNumber),
-      isNotNull,
-    );
     expect(copySchema.findColumnDefinition(MusicFieldIds.condition), isNotNull);
     expect(
       copySchema.findColumnDefinition(MusicFieldIds.catalogNumber),
@@ -106,10 +76,10 @@ void main() {
     final workspace = musicKindWorkspace;
     final mediaGroups =
         workspace.availableGroupIdsForScope(LibraryEntityScope.work);
-    final releaseGroups =
-        workspace.availableGroupIdsForScope(LibraryEntityScope.release);
     final mediaSorts =
         workspace.availableSortIdsForScope(LibraryEntityScope.work);
+    final releaseGroups =
+        workspace.availableGroupIdsForScope(LibraryEntityScope.release);
     final releaseSorts =
         workspace.availableSortIdsForScope(LibraryEntityScope.release);
 
@@ -117,77 +87,60 @@ void main() {
       mediaGroups.map((id) => id.value),
       containsAll(['music.artist', 'music.genre']),
     );
-    expect(releaseGroups.map((id) => id.value), contains('music.publisher'));
+    expect(releaseGroups, isEmpty);
     expect(
         mediaSorts.map((id) => id.value), isNot(contains('music.publisher')));
     expect(
-      releaseSorts.map((id) => id.value),
-      contains('music.release.track_count'),
+      releaseSorts,
+      isEmpty,
     );
   });
 
-  test('release nodes resolve an exact Music tracking target', () {
-    const groupRef = CatalogEntityRef(
+  test('Music tracking stays attached to its catalog item', () {
+    const itemRef = CatalogEntityRef(
       kind: CatalogMediaKind.music,
       entityType: CatalogEntityTypeId.root,
-      id: 'group-1',
+      id: 'album-1',
     );
-    const releaseNode = LibraryReleaseRef(
-      workId: 'group-1',
-      releaseId: 'release-2',
-      release: LibraryWorkspaceReleaseSummary(
-        id: 'release-2',
-        title: 'Release 2',
-      ),
-    );
-
     final target = musicKindWorkspace.trackingTargetForNode(
-      releaseNode,
-      groupRef,
+      const LibraryWorkRef(workId: 'album-1'),
+      itemRef,
     );
 
-    expect(target.entityType.apiValue, 'release');
-    expect(target.id, 'release-2');
-    expect(target.rootId, 'group-1');
+    expect(target.entityType, CatalogEntityTypeId.root);
+    expect(target.id, 'album-1');
+    expect(target.rootId, 'album-1');
   });
 
-  test('Music workspace artist falls back to a typed release credit', () {
-    final group = MusicReleaseGroup(
-      id: const MusicReleaseGroupId('group-1'),
+  test('Music workspace derives its artist from item credits', () {
+    final item = MusicRelease(
+      id: const MusicReleaseId('album-1'),
       title: 'Compilation',
-      releases: [
-        MusicRelease(
-          id: const MusicReleaseId('release-1'),
-          releaseGroupId: const MusicReleaseGroupId('group-1'),
-          title: 'Compilation',
-          barcode: '123',
-          catalogNumber: 'CAT-1',
-          boxSetMembership: const MusicBoxSetMembership(
-            boxSetRef: CatalogEntityRef(
-              kind: CatalogMediaKind.music,
-              entityType: CatalogEntityTypeId('box_set'),
-              id: 'box-1',
-            ),
-            sequenceNumber: 1,
-          ),
-          boxSetName: 'The Box',
-          contributions: [
-            MusicReleaseContribution(
-              id: const MusicReleaseContributionId('credit-1'),
-              releaseId: const MusicReleaseId('release-1'),
-              personId: 'artist-1',
-              role: 'Performer',
-              displayName: 'Typed Artist',
-            ),
-          ],
+      barcode: '123',
+      catalogNumber: 'CAT-1',
+      boxSetMembership: const MusicBoxSetMembership(
+        boxSetRef: CatalogEntityRef(
+          kind: CatalogMediaKind.music,
+          entityType: CatalogEntityTypeId('box_set'),
+          id: 'box-1',
+        ),
+        sequenceNumber: 1,
+      ),
+      boxSetName: 'The Box',
+      contributions: [
+        MusicReleaseContribution(
+          id: const MusicReleaseContributionId('credit-1'),
+          releaseId: const MusicReleaseId('album-1'),
+          personId: 'artist-1',
+          role: 'Performer',
+          displayName: 'Typed Artist',
         ),
       ],
     );
-    final dto = MusicReleaseGroupWorkspaceDto(
+    final dto = MusicCatalogItemWorkspaceDto(
       common: const WorkspaceCommonProjection(title: 'Compilation'),
       personal: PersonalCopyProjection(),
-      music: group,
-      release: group.primaryRelease!,
+      music: item,
     );
 
     expect(dto.artist, 'Typed Artist');

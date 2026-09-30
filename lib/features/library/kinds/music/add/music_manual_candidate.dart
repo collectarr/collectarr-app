@@ -55,8 +55,7 @@ CatalogSearchCandidate? buildMusicManualCandidate(
 
 /// Builds a flat Core proposal directly from the Music Add form values.
 ///
-/// Proposal data must not recreate a synthetic Release Group and Release just
-/// to serialize the fields displayed by the form.
+/// Proposal data follows the flat Music Catalog Item contract shown by the form.
 Map<String, Object?>? buildMusicManualProposalData(
   LibraryKindAddDraft draft, {
   required String title,

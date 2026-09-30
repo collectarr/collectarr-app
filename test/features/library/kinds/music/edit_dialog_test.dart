@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/music_physical_media
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -16,41 +16,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('music release edit never falls back from a stale release id', () {
-    final group = MusicReleaseGroup(
-      id: MusicReleaseGroupId('group-edit'),
-      title: 'Album',
-      releases: [
-        MusicRelease(
-          id: const MusicReleaseId('release-primary'),
-          releaseGroupId: const MusicReleaseGroupId('group-edit'),
-          title: 'Primary',
-        ),
-      ],
+  test('music edit header uses album and artist without an Edit prefix', () {
+    final title = musicReleaseEditSchema.title!(
+      MusicRelease(
+        id: const MusicReleaseId('album-edit'),
+        title: 'Test Album',
+        artist: 'Test Artist',
+      ),
     );
 
-    expect(
-      () => resolveMusicReleaseForEdit(
-        group,
-        requestedReleaseId: 'release-stale',
-      ),
-      throwsStateError,
-    );
-    expect(
-      () => resolveMusicReleaseForEdit(
-        group,
-        requestedReleaseId: null,
-      ),
-      throwsStateError,
-    );
-    expect(
-      resolveMusicReleaseForEdit(
-        group,
-        requestedReleaseId: null,
-        editPrimaryRelease: true,
-      ).id.value,
-      'release-primary',
-    );
+    expect(title, 'Test Album / Test Artist');
+    expect(title, isNot(startsWith('Edit')));
   });
 
   testWidgets('music links tab exposes editable external links',
@@ -76,7 +52,6 @@ void main() {
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.deepPurple,
-      editPrimaryRelease: true,
     );
 
     await tester.pumpWidget(
@@ -110,7 +85,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       find.byKey(const ValueKey('musicReleaseCoverImageUrlField')),
-      findsOneWidget,
+      findsNothing,
     );
 
     final linksTab = find.text('Links').last;
@@ -158,7 +133,6 @@ void main() {
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.deepPurple,
-      editPrimaryRelease: true,
       physicalFormats: musicPhysicalMediaFormats,
       customFieldDefinitions: [
         CustomFieldDefinition(

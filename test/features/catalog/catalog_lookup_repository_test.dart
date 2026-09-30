@@ -23,7 +23,6 @@ import 'package:collectarr_app/features/library/kinds/manga/data/manga_repositor
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
@@ -201,19 +200,12 @@ Future<void> _seedTypedItem(
         ),
       );
     case CatalogMediaKind.music:
-      await MusicRepository(db).updateReleaseGroup(
-        MusicReleaseGroup(
-          id: MusicReleaseGroupId(id),
+      await MusicRepository(db).updateRelease(
+        MusicRelease(
+          id: MusicReleaseId(id),
           title: '${kind.apiValue} title',
-          releases: [
-            MusicRelease(
-              id: MusicReleaseId('$id-release'),
-              releaseGroupId: MusicReleaseGroupId(id),
-              title: '${kind.apiValue} title',
-              catalogNumber: itemNumber,
-              barcode: barcode,
-            ),
-          ],
+          catalogNumber: itemNumber,
+          barcode: barcode,
         ),
       );
     case CatalogMediaKind.unknown:

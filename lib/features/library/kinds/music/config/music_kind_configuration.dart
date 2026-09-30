@@ -1,4 +1,5 @@
 import '../music_module_dependencies.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 
 const musicArtistFilterId = musicAddArtistFilterId;
 const musicLabelFilterId = musicAddLabelFilterId;
@@ -86,17 +87,16 @@ const musicAddChrome = LibraryAddChromeConfig(
   editionReferenceHelperLabel: 'Add a personal copy of this album.',
 );
 
-Iterable<String?> musicLinkedMetadataValues(MusicReleaseGroup group) => [
-      group.artist,
-      group.primaryRelease?.publisher,
-      group.primaryRelease?.countryCode,
-      group.primaryRelease?.language,
-      ...?group.primaryRelease?.contributions
-          .map((credit) => credit.displayName),
-      ...group.genres,
+Iterable<String?> musicLinkedMetadataValues(MusicRelease music) => [
+      music.artist,
+      music.publisher,
+      music.countryCode,
+      music.language,
+      ...music.contributions.map((credit) => credit.displayName),
+      ...music.genres,
     ];
 
-MusicReleaseGroup? musicLinkedMetadata(LibraryWorkspaceSource source) {
+MusicRelease? musicLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }
@@ -106,11 +106,10 @@ MetadataSearchQuery musicMetadataSearchQuery({
   required String title,
 }) {
   final metadata = musicLinkedMetadata(source);
-  final release = metadata?.primaryRelease;
   return MetadataSearchQuery(
     query: title,
-    barcode: release?.barcode ?? release?.upc,
-    publisher: release?.publisher,
+    barcode: metadata?.barcode ?? metadata?.upc,
+    publisher: metadata?.publisher,
     year: metadata?.originalReleaseDate?.year,
     limit: 5,
   );

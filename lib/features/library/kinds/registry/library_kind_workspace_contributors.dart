@@ -39,7 +39,7 @@ LibraryReleaseDetailSource? libraryReleaseDetailSourceForKind(
 LibraryCatalogTargetCapability libraryCatalogTargetForKind(
   CatalogMediaKind kind,
 ) =>
-    collectarrKindCatalogTargets[kind]!;
+    collectarrKindCatalogTargets[kind] ?? const RootCatalogTargetCapability();
 
 LibraryKindToolbarModule? libraryToolbarForKind(CatalogMediaKind kind) =>
     collectarrKindToolbars[kind];

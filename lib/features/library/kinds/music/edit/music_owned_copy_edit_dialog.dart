@@ -7,10 +7,11 @@ import 'package:collectarr_app/features/library/edit/sections/item_images_edit_s
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_copy_media_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_header_title.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
@@ -56,13 +57,8 @@ final class _MusicOwnedCopyEditDialogState
     }
     final transport = widget.request.kindItem.kindCapability
         .mapTransport((transport) => transport);
-    final raw = transport.kindMetadata;
-    final group = raw is MusicReleaseGroup
-        ? raw
-        : MusicReleaseGroup.fromJson(transport.payload);
-    final album = group.primaryRelease;
-    if (album == null ||
-        copy.catalogRef.rootScope.id != node.workId ||
+    final album = MusicCatalogMapper.mapMetadataItemToMusic(transport);
+    if (copy.catalogRef.rootScope.id != node.workId ||
         copy.catalogRef != widget.request.kindItem.reference.rootScope) {
       throw StateError(
           'The Music copy does not belong to the selected Catalog Item');
@@ -78,7 +74,10 @@ final class _MusicOwnedCopyEditDialogState
         schema: musicOwnedEditSchema,
         model: _copy,
         draft: _draft,
-        title: 'Edit copy - ${_release.title}',
+        title: musicEditHeaderTitle(
+          title: _release.title,
+          artist: _release.artist,
+        ),
         icon: Icons.library_music_outlined,
         mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,

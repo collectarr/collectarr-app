@@ -25,6 +25,7 @@ final class ComicOwnedRepository
     final readingRow = await (_db.select(_db.comicReadingRows)
           ..where((table) => table.ownedRefKey.equals(OwnedCopyRef(
                 kind: CatalogMediaKind.comic,
+                itemId: row.itemId,
                 id: OwnedCopyId(id.value),
               ).key)))
         .getSingleOrNull();

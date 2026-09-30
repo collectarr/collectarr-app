@@ -2,72 +2,8 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_externa
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_group_form_values.dart';
-
-abstract final class MusicReleaseGroupFormAdapter {
-  static MusicReleaseGroup create(
-    MusicReleaseGroupFormValues values, {
-    required MusicReleaseGroupId id,
-    List<MusicRelease> releases = const [],
-  }) =>
-      MusicReleaseGroup(
-        id: id,
-        title: values.title.trim(),
-        sortTitle: _text(values.sortTitle),
-        artist: _text(values.artist),
-        originalTitle: _text(values.originalTitle),
-        originalReleaseDate: values.originalReleaseDate,
-        recordingDate: values.recordingDate,
-        studios: List.unmodifiable(values.studios),
-        isLive: values.isLive,
-        genres: List.unmodifiable(values.genres),
-        coverImageUrl: _text(values.coverImageUrl),
-        releases: List.unmodifiable(releases),
-      );
-
-  static MusicReleaseGroup update(
-    MusicReleaseGroup original,
-    MusicReleaseGroupFormValues values, {
-    List<MusicRelease>? releases,
-    required List<MusicExternalLink> externalLinks,
-    required String? localCoverImagePath,
-    required String? localBackImagePath,
-    required String? localThumbnailImagePath,
-  }) =>
-      MusicReleaseGroup(
-        id: original.id,
-        title: values.title.trim(),
-        sortTitle: _text(values.sortTitle),
-        artist: _text(values.artist),
-        originalTitle: _text(values.originalTitle),
-        originalReleaseDate: values.originalReleaseDate,
-        originalReleaseDateParts:
-            values.originalReleaseDate == original.originalReleaseDate
-                ? original.originalReleaseDateParts
-                : null,
-        recordingDate: values.recordingDate,
-        recordingDateParts: values.recordingDate == original.recordingDate
-            ? original.recordingDateParts
-            : null,
-        studios: List.unmodifiable(values.studios),
-        isLive: values.isLive,
-        genres: List.unmodifiable(values.genres),
-        artistCredits: original.artistCredits,
-        coverImageUrl: _text(values.coverImageUrl),
-        coverImageKey: original.coverImageKey,
-        externalLinks: List.unmodifiable(externalLinks),
-        releases: List.unmodifiable(releases ?? original.releases),
-        localCoverImagePath: localCoverImagePath,
-        localBackImagePath: localBackImagePath,
-        localThumbnailImagePath: localThumbnailImagePath,
-        createdAt: original.createdAt,
-        updatedAt: original.updatedAt,
-      );
-}
-
 abstract final class MusicReleaseFormAdapter {
   static MusicRelease create(
     MusicReleaseFormValues values, {
@@ -79,6 +15,13 @@ abstract final class MusicReleaseFormAdapter {
         title: values.title.trim(),
         sortTitle: _text(values.sortTitle),
         subtitle: _text(values.subtitle),
+        artist: _text(values.artist),
+        originalTitle: _text(values.originalTitle),
+        originalReleaseDate: values.originalReleaseDate,
+        recordingDate: values.recordingDate,
+        studios: List.unmodifiable(values.studios),
+        isLive: values.isLive,
+        genres: List.unmodifiable(values.genres),
         releaseType: _text(values.releaseType),
         releaseStatus: _text(values.releaseStatus),
         releaseDate: values.releaseDate,
@@ -89,6 +32,12 @@ abstract final class MusicReleaseFormAdapter {
         upc: _text(values.upc),
         catalogNumber: _text(values.catalogNumber),
         packaging: _text(values.packaging),
+        soundTypes: List.unmodifiable(values.soundTypes),
+        vinylColor: _text(values.vinylColor),
+        vinylWeight: _text(values.vinylWeight),
+        rpm: values.rpm,
+        spars: _text(values.spars),
+        extra: _text(values.extra),
         boxSetName: _text(values.boxSetName),
         coverImageUrl: _text(values.coverImageUrl),
         boxSetMembership: values.boxSetMembership,
@@ -107,15 +56,20 @@ abstract final class MusicReleaseFormAdapter {
         title: values.title.trim(),
         sortTitle: _text(values.sortTitle),
         subtitle: _text(values.subtitle),
-        artist: original.artist,
-        originalTitle: original.originalTitle,
-        originalReleaseDate: original.originalReleaseDate,
-        originalReleaseDateParts: original.originalReleaseDateParts,
-        recordingDate: original.recordingDate,
-        recordingDateParts: original.recordingDateParts,
-        studios: original.studios,
-        isLive: original.isLive,
-        genres: original.genres,
+        artist: _text(values.artist),
+        originalTitle: _text(values.originalTitle),
+        originalReleaseDate: values.originalReleaseDate,
+        originalReleaseDateParts:
+            values.originalReleaseDate == original.originalReleaseDate
+                ? original.originalReleaseDateParts
+                : null,
+        recordingDate: values.recordingDate,
+        recordingDateParts: values.recordingDate == original.recordingDate
+            ? original.recordingDateParts
+            : null,
+        studios: List.unmodifiable(values.studios),
+        isLive: values.isLive,
+        genres: List.unmodifiable(values.genres),
         releaseType: _text(values.releaseType),
         releaseStatus: _text(values.releaseStatus),
         releaseDate: values.releaseDate,
@@ -137,12 +91,12 @@ abstract final class MusicReleaseFormAdapter {
         localCoverImagePath: original.localCoverImagePath,
         localBackImagePath: original.localBackImagePath,
         localThumbnailImagePath: original.localThumbnailImagePath,
-        extra: original.extra,
-        soundTypes: original.soundTypes,
-        vinylColor: original.vinylColor,
-        vinylWeight: original.vinylWeight,
-        rpm: original.rpm,
-        spars: original.spars,
+        soundTypes: List.unmodifiable(values.soundTypes),
+        vinylColor: _text(values.vinylColor),
+        vinylWeight: _text(values.vinylWeight),
+        rpm: values.rpm,
+        spars: _text(values.spars),
+        extra: _text(values.extra),
         externalLinks:
             List.unmodifiable(externalLinks ?? original.externalLinks),
         boxSetMembership: values.boxSetMembership,

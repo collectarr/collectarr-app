@@ -1,11 +1,11 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
@@ -22,7 +22,6 @@ void main() {
     final mediumId = MusicMediumId('album-medium');
     final release = MusicRelease(
       id: releaseId,
-      releaseGroupId: MusicReleaseGroupId('album'),
       title: 'Album',
       mediums: [
         MusicMedium(
@@ -66,8 +65,8 @@ void main() {
     expect(musicTrackingProfile.normalizeStorageValue('completed'), 'Listened');
 
     final entries = [
-      _musicSource('group-1', 'Album One', 'Pink Floyd', 'Vinyl', 10),
-      _musicSource('group-2', 'Album Two', 'Pink Floyd', 'CD', 5),
+      _musicSource('album-1', 'Album One', 'Pink Floyd', 'Vinyl', 10),
+      _musicSource('album-2', 'Album Two', 'Pink Floyd', 'CD', 5),
     ];
 
     expect(MusicStatsCapability.totalTracks(entries), 15);
@@ -83,11 +82,10 @@ void main() {
   });
 
   test('Music listening aggregates feed workspace-aware stats', () {
-    final source = _musicSource('group-listens', 'Album', 'Artist', 'Vinyl', 2);
+    final source = _musicSource('album-listens', 'Album', 'Artist', 'Vinyl', 2);
     final catalog = source.catalogData! as MusicWorkspaceCatalogData;
-    final catalogRef = CatalogEntityRef(
+    final catalogRef = CatalogItemRef(
       kind: CatalogMediaKind.music,
-      entityType: CatalogEntityTypeId.root,
       id: catalog.music.id.value,
     );
     final events = [
@@ -128,42 +126,38 @@ LibraryWorkspaceSource _musicSource(
   String mediumType,
   int trackCount,
 ) {
-  final release = MusicRelease(
-    id: MusicReleaseId('$id-release'),
-    releaseGroupId: MusicReleaseGroupId(id),
+  final musicItem = MusicRelease(
+    id: MusicReleaseId(id),
     title: title,
+    artist: artist,
     publisher: 'Harvest',
     releaseType: mediumType,
     mediums: [
       MusicMedium(
         id: MusicMediumId('$id-medium'),
-        releaseId: MusicReleaseId('$id-release'),
+        releaseId: MusicReleaseId(id),
         mediumNumber: 1,
         mediumType: mediumType,
         trackCount: trackCount,
       ),
     ],
   );
-  final group = MusicReleaseGroup(
-    id: MusicReleaseGroupId(id),
-    title: title,
-    artist: artist,
-    genres: id == 'group-1' ? ['Progressive Rock', 'Rock'] : ['Rock'],
-    releases: [release],
-  );
-  final item = testCatalogItem(
+  final musicWithGenres = MusicRelease.fromJson({
+    ...musicItem.toJson(),
+    'genres': id == 'album-1' ? ['Progressive Rock', 'Rock'] : ['Rock'],
+  });
+  final catalogItem = testCatalogItem(
     id: id,
     kind: 'music',
     title: title,
-    payload: group.toJson(),
-  ).withKindMetadata(group);
+    payload: musicWithGenres.toJson(),
+  ).withKindMetadata(musicWithGenres);
   return testLibraryWorkspaceSource(
     itemId: id,
     kind: 'music',
     catalogData: MusicWorkspaceCatalogData.fromMusic(
-      group,
-      ref: item.catalogRef,
-      release: release,
+      musicWithGenres,
+      ref: catalogItem.catalogRef,
     ),
   );
 }

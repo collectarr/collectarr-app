@@ -10,24 +10,20 @@ All nine kinds have typed manual Add schemas and kind-owned form values, field s
 and create/update adapters. Each dedicated catalog Edit schema imports the same
 kind field-spec module as its Add schema. Add and Edit share the input control
 builder for fields whose behavior matches; their section/tab layout and submit
-lifecycle stay separate. Add field IDs are unique across combined scopes, so
-distinct Work and Release values cannot share a renderer controller.
+lifecycle stay separate. Music uses one Catalog Item form and one Owned Copy
+form; it has no Release Group or Release edit scope.
 
-Music keeps separate Release Group, Release, and Owned Copy models. Manual Add
-composes Release Group and Release fields, while Owned Copy and tracking stay in
-their personal edit flow.
-
-The generic Core-candidate editor remains a distinct kind-owned correction and
-transport-edit flow. It operates on `CatalogSearchCandidate` and also owns
-relations, images, links, and personal/tracking panels; it is not a compatibility
-alias for the typed catalog entity forms.
+User proposals remain available. They contain source-neutral, kind-owned
+Catalog Item fields from the same Add/Edit definitions and are reviewed by
+Core. Provider search, ingestion, and provider-derived payloads are not part of
+this flow.
 
 ## Target contract
 
 - Define fields once per kind and scope (`work`, `release`, `copy`) and use those definitions in Add and Edit wherever the fields match. The kind owns field labels, validation, and reusable field widgets.
 - Keep form values typed and independent of Flutter. `TextEditingController` and `FocusNode` belong only to a UI session that disposes them.
 - Use the same field schema and typed values for Add and Edit. A single kind-owned mapper or codec may expose both `create(values)` and `update(original, values)`; separate adapter classes or files are not required. Add must supply new identity and defaults, while Edit must preserve existing identity and unrelated data. Use explicit `unchanged` / `clear` / `set` semantics only where a partial update needs to distinguish those operations.
-- Let the shared dialog host handle layout, navigation, loading, and errors. The kind owns fields, initial values, validation, Core/provider conversion, and persistence commands.
+- Let the shared dialog host handle layout, navigation, loading, and errors. The kind owns fields, initial values, validation, Core conversion, and persistence commands.
 - Compose personal ownership and tracking panels separately from catalog metadata where they have different destinations or permissions.
 
 ## Implementation sequence
@@ -36,7 +32,7 @@ alias for the typed catalog entity forms.
 2. **Classify fields — complete.** The per-kind inventory records Add/Edit IDs and owners. Typed field specs separate catalog scopes from personal data; Work and Release IDs are distinct when their values differ.
 3. **Pilot with Movie — complete.** Movie Add and dedicated Work/Release Edit use typed values and shared field specs with kind-owned create/update adapters.
 4. **Extract small shared widgets — complete.** `LibraryFieldSpecControlBuilder` renders common field controls for Add and Edit. Inline Add selects and Edit pick-list dialogs remain separate where their interactions differ.
-5. **Expand by kind — complete.** All nine kinds use shared kind-owned field specs in manual Add and dedicated catalog Edit. Music retains separate Release Group, Release, and Copy models.
+5. **Expand by kind — complete.** All nine kinds use shared kind-owned field specs in manual Add and dedicated catalog Edit. Music has one flat Catalog Item form and a separate Owned Copy form.
 6. **Remove migrated paths — complete.** Superseded controller-backed catalog form drafts and duplicate Add field definitions were removed. Active Core-candidate correction sessions, nested kind editors, and personal ownership/tracking flows remain because they have separate targets and behavior; no compatibility aliases were retained.
 
 ## Completion criteria
@@ -50,7 +46,7 @@ alias for the typed catalog entity forms.
 ## Progress
 
 - All nine kinds now provide a kind-owned manual candidate builder. Each builder maps its manual form into its typed catalog model, and the Add host no longer falls back to the current search selection.
-- `submitCurrentSelection()` now reports success only when at least one Core or provider item was submitted. A cancelled provider edit and stale or empty selections return failure.
+- `submitCurrentSelection()` now reports success only when at least one selected Core Catalog Item or manual proposal was submitted. Empty selections return failure.
 - Movie manual Add now builds its candidate from `MovieCatalogFormValues`. The values model has no Flutter imports or input controllers; Add's input controllers are owned and disposed by the schema renderer.
 - Movie Add and Edit now share typed field definitions for matching work and release fields. The `MovieMedia` adapter updates the movie-level fields and the `MovieRelease` adapter updates edition-level fields while preserving unknown payload data and matched contributor/character identities.
 - The combined Core-candidate editor still uses each kind's edit-session contract through the generic shell. Compatibility review in the [all-kind schema reorganization plan](kind-schema-reorganization-plan.md) found that this flow edits Core correction transport values and owns existing relations, links, images, and personal/tracking panels, while the typed Add/Edit schemas edit persisted kind entities. Keep these as separate targets; the combined editor is not a duplicate typed form or a compatibility alias.
@@ -61,7 +57,7 @@ alias for the typed catalog entity forms.
 - Book Add and its Media and Edition Edit schemas share `BookCatalogFormValues`, kind-owned field specs, and catalog adapters. Its controller-backed catalog drafts were removed. The manual Add `Signed by` control was removed because the manual candidate did not include it and Book ownership already has a separate signed-copy field.
 - Game Add and its Media and Release Edit schemas share `GameCatalogFormValues`, kind-owned field specs, and adapters. The controller-backed manual Add, media Edit, and release Edit drafts were removed. The adapters preserve unknown payload fields and support explicit clearing of modeled values. The combined Core-candidate editor remains a separate kind-owned correction flow.
 - Board Game Add and its Media and Edition Edit schemas share `BoardGameCatalogFormValues`, kind-owned field specs, and adapters. Manual Add uses the schema renderer and the same Work/Edition definitions as Edit. The old controller-backed catalog drafts were removed. The combined Core-candidate editor remains a separate kind-owned correction flow.
-- Music Add and Release Group/Release Edit now share typed, scope-specific values, field definitions, and create/update adapters. The manual Music form now uses the schema renderer, and the controller-backed manual draft plus the duplicate release-group Add draft were removed. Copy and tracking remain separate from catalog metadata; release media, tracks, credits, images, and links remain in their dedicated edit panels.
+- Music Add and Edit use one flat Catalog Item value model and shared field definitions. The Add form and direct Edit dialog share the edit dialog scaffold. Copy and listening data remain App-owned; discs, tracks, credits, covers, and links remain kind-owned album content.
 - All nine kinds have typed shared field definitions between Add and dedicated Edit schemas. The combined Core-candidate editor uses a different transport model and Core correction submission, so its kind-owned edit-session definitions remain isolated rather than duplicated as aliases in the typed form catalog.
 - Add and Edit now delegate matching field controls to `LibraryFieldSpecControlBuilder`; the two renderers keep their own layout and save state.
 - Anime, Manga, and TV Add field IDs were corrected where one form combines multiple entity scopes. Manga's duplicate language input was removed; Game Release now validates its required title.

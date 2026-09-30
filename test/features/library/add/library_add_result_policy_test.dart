@@ -1,79 +1,11 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_result_policy.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('TV Add policy classifies and filters media scopes', () {
-    final series = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
-      'id': 'tv-series',
-      'kind': 'tv',
-      'title': 'Example Show',
-    }));
-    final season = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
-      'id': 'tv-season',
-      'kind': 'tv',
-      'title': 'Example Show',
-      'series': {
-        'series_title': 'Example Show',
-        'season_number': 1,
-      },
-    }));
-    final release = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
-      'id': 'tv-release',
-      'kind': 'tv',
-      'title': 'Example Show',
-      'item_number': 'Disc 1',
-      'physical_format': 'Blu-ray',
-    }));
-    final policy = tvKindAdd.resultPolicy;
-
-    final visible = policy.filterCoreResults(
-      items: [series, season, release],
-      state: const LibraryAddResultPolicyState(
-        values: {
-          tvAddMediaOptionId: false,
-          tvAddSeasonOptionId: true,
-          tvAddReleaseOptionId: false,
-        },
-      ),
-    );
-
-    expect(visible.map((item) => item.reference.id), ['tv-season']);
-  });
-
-  test('TV Add policy keeps all scopes visible by default', () {
-    final series = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
-      'id': 'tv-series',
-      'kind': 'tv',
-      'title': 'Example Show',
-    }));
-    final season = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
-      'id': 'tv-season',
-      'kind': 'tv',
-      'title': 'Example Show',
-      'series': {'season_number': 2},
-    }));
-    final release = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
-      'id': 'tv-release',
-      'kind': 'tv',
-      'title': 'Example Show',
-      'item_number': 'Disc 1',
-      'variant': 'Season Box Set',
-    }));
-
-    final visible = tvKindAdd.resultPolicy.filterCoreResults(
-      items: [series, season, release],
-      state: const LibraryAddResultPolicyState(),
-    );
-
-    expect(visible, hasLength(3));
-  });
-
   test('Comic Add policy owns owned and variant visibility', () {
     final owned = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
       'id': 'comic-owned',

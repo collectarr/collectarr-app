@@ -5,7 +5,11 @@ import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 
 String _ownedSeedKey(CatalogMediaKind kind, String id) =>
-    OwnedCopyRef(kind: kind, id: OwnedCopyId(id)).key;
+    OwnedCopyRef(
+      kind: kind,
+      itemId: id.replaceFirst('seed-owned-', ''),
+      id: OwnedCopyId(id),
+    ).key;
 
 Future<void> seedCustomFields(CustomFieldRepository repo) async {
   final now = DateTime.now().toUtc();

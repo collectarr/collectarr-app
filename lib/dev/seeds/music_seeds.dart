@@ -45,129 +45,91 @@ void enrichMusicSeedPayload(
   Map<String, dynamic> payload,
 ) {
   final musicMap = payload['music'] is Map
-      ? payload['music'] as Map
+      ? Map<String, dynamic>.from(payload['music'] as Map)
       : const <String, dynamic>{};
-  final musicTracks = musicMap['tracks'];
-  payload.putIfAbsent(
-    'track_count',
-    () =>
-        musicMap['track_count'] ??
-        (musicTracks is List && musicTracks.isNotEmpty
-            ? musicTracks.length
-            : 10),
-  );
-  payload.putIfAbsent('catalog_number', () => 'SEED-${item.id}');
-  payload.putIfAbsent(
-    'original_release_date',
-    () => item.releaseDate?.toUtc().toIso8601String(),
-  );
-  payload.putIfAbsent(
-    'recording_date',
-    () => item.releaseDate?.toUtc().toIso8601String(),
-  );
-  payload.putIfAbsent('artist', () => _seedMusicArtist(item));
-  payload.putIfAbsent('is_live', () => false);
-  payload.putIfAbsent('composition', () => item.title);
+  payload['music'] = {
+    ...musicMap,
+    'artist': _seedMusicArtist(item),
+    'label': item.publisher,
+    'format': item.physicalFormat ?? 'Digital',
+    'barcode': item.barcode,
+    'catalog_number': musicMap['catalog_number'] ?? 'SEED-${item.id}',
+    'release_date': item.releaseDate?.toUtc().toIso8601String(),
+    'original_release_date': item.releaseDate?.toUtc().toIso8601String(),
+    'recording_date': item.releaseDate?.toUtc().toIso8601String(),
+    'country': item.payload['country']?.toString(),
+    'genres': item.payload['genres'] ?? const <String>[],
+    'is_live': false,
+  };
 }
 
 List<String> validateMusicSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final payload = item.payload;
-  seedRequirePositiveInt(issues, prefix, 'track_count', payload['track_count']);
-  seedRequireTrackList(issues, prefix, payload['tracks']);
-  final tracks = payload['tracks'];
-  final trackCount = payload['track_count'];
-  if (tracks is List && trackCount is int && tracks.length != trackCount) {
-    issues.add('$prefix: track_count must equal the number of track objects');
+  final music = item.payload['music'];
+  if (music is! Map) {
+    issues.add('$prefix: music payload is required');
+    return issues;
   }
-  seedRequireText(issues, prefix, 'catalog_number', payload['catalog_number']);
+  seedRequireText(issues, prefix, 'music.catalog_number', music['catalog_number']);
+  final discs = music['discs'];
+  if (discs is! List || discs.isEmpty) {
+    issues.add('$prefix: music.discs must contain at least one disc');
+  }
   return issues;
 }
 
 List<String> validateMusicSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final releases = seedRequireObjectList(
+  final music = item.payload['music'];
+  if (music is! Map) return ['$prefix: music payload is required'];
+  final discs = seedRequireObjectList(
     issues,
     prefix,
-    'releases',
-    item.payload['releases'],
+    'music.discs',
+    music['discs'],
   );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'releases',
-    releases,
-    kind: CatalogMediaKind.music,
-    parentId: item.id,
-    parentKey: 'release_group_id',
-    titleKey: 'title',
-  );
-  for (var releaseIndex = 0; releaseIndex < releases.length; releaseIndex++) {
-    final release = releases[releaseIndex];
-    final mediums = seedRequireObjectList(
+  for (var discIndex = 0; discIndex < discs.length; discIndex++) {
+    final disc = discs[discIndex];
+    seedRequireText(
       issues,
       prefix,
-      'releases[$releaseIndex].mediums',
-      release['mediums'],
+      'music.discs[$discIndex].id',
+      disc['id'],
     );
-    seedValidateChildren(
+    seedRequirePositiveNumber(
       issues,
       prefix,
-      'releases[$releaseIndex].mediums',
-      mediums,
-      kind: CatalogMediaKind.music,
-      parentId: release['id']?.toString() ?? '',
-      parentKey: 'release_id',
-      titleKey: 'title',
+      'music.discs[$discIndex].disc_number',
+      disc['disc_number'],
     );
-    for (var mediumIndex = 0; mediumIndex < mediums.length; mediumIndex++) {
-      final medium = mediums[mediumIndex];
-      final tracks = seedRequireObjectList(
+    final tracks = seedRequireObjectList(
+      issues,
+      prefix,
+      'music.discs[$discIndex].tracks',
+      disc['tracks'],
+    );
+    for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
+      final track = tracks[trackIndex];
+      seedRequireText(
         issues,
         prefix,
-        'releases[$releaseIndex].mediums[$mediumIndex].tracks',
-        medium['tracks'],
+        'music.discs[$discIndex].tracks[$trackIndex].id',
+        track['id'],
       );
-      for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
-        final track = tracks[trackIndex];
-        seedRequireText(
-          issues,
-          prefix,
-          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].id',
-          track['id'],
-        );
-        seedRequireText(
-          issues,
-          prefix,
-          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].medium_id',
-          track['medium_id'],
-        );
-        if (track['medium_id']?.toString() != medium['id']?.toString()) {
-          issues.add(
-            '$prefix: releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].medium_id must reference the parent medium',
-          );
-        }
-        seedRequireText(
-          issues,
-          prefix,
-          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].title',
-          track['title'],
-        );
-        seedRequirePositiveNumber(
-          issues,
-          prefix,
-          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].position',
-          track['position'],
-        );
-        seedRequirePositiveNumber(
-          issues,
-          prefix,
-          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].duration_ms',
-          track['duration_ms'],
-        );
-      }
+      seedRequireText(
+        issues,
+        prefix,
+        'music.discs[$discIndex].tracks[$trackIndex].position',
+        track['position'],
+      );
+      seedRequireText(
+        issues,
+        prefix,
+        'music.discs[$discIndex].tracks[$trackIndex].title',
+        track['title'],
+      );
     }
   }
   return issues;
@@ -216,73 +178,67 @@ List<String> validateMusicSeedOwned(MusicOwnedItem item) {
 }
 
 CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
-  final music = item.payload['music'];
-  final musicPayload =
-      music is Map ? Map<String, dynamic>.from(music) : <String, dynamic>{};
-  final rawTracks = musicPayload['tracks'];
-  final releaseId = '${item.id}-release-01';
-  final mediumId = '$releaseId-medium-01';
-  final tracks = rawTracks is List && rawTracks.isNotEmpty
-      ? [
-          for (var index = 0; index < rawTracks.length; index++)
-            _musicSeedTrack(rawTracks[index], item, mediumId, index),
-        ]
-      : [
-          _musicSeedTrack(
-            {
-              'title': '${item.title} — Track 1',
-              'track_number': '1',
-              'duration_seconds': 180,
-            },
-            item,
-            mediumId,
-            0,
-          ),
-        ];
-  final medium = {
-    'id': mediumId,
-    'kind': 'music',
-    'release_id': releaseId,
-    'medium_number': 1,
-    'medium_type': item.physicalFormat ?? 'Digital',
-    'title': item.editionTitle ?? item.title,
-    'track_count': tracks.length,
-    'tracks': tracks,
-    'media_condition': 'excellent',
-    'sound_type': 'stereo',
-    'spars': 'none',
-    'rpm': 33,
-    'vinyl_color': 'black',
-    'vinyl_weight': '180g',
-  };
-  final release = {
-    'id': releaseId,
-    'kind': 'music',
-    'release_group_id': item.id,
-    'title': item.editionTitle ?? item.title,
-    'publisher': item.publisher,
-    'catalog_number': musicPayload['catalog_number'] ?? 'SEED-${item.id}',
-    'barcode': item.barcode,
-    'release_date': item.releaseDate?.toUtc().toIso8601String(),
-    'release_type': 'Album',
-    'release_status': musicPayload['release_status'] ?? 'Official',
-    'country_code': item.payload['country']?.toString(),
-    'language': item.payload['language']?.toString(),
-    'packaging': item.physicalFormatLabel,
-    'cover_image_url': item.coverImageUrl,
-    'mediums': [medium],
-  };
+  final rawMusic = item.payload['music'];
+  final source = rawMusic is Map
+      ? Map<String, dynamic>.from(rawMusic)
+      : <String, dynamic>{};
+  final rawTracks = source['tracks'] is Iterable
+      ? (source['tracks'] as Iterable).toList(growable: false)
+      : const <Object?>[];
+  final rawDiscs = source['discs'] is Iterable
+      ? (source['discs'] as Iterable).toList(growable: false)
+      : const <Object?>[];
+  final discCount = rawDiscs.isEmpty ? 1 : rawDiscs.length;
+  final discs = <Map<String, dynamic>>[];
+  for (var discIndex = 0; discIndex < discCount; discIndex++) {
+    final rawDisc = rawDiscs.isEmpty ? null : rawDiscs[discIndex];
+    final disc = rawDisc is Map
+        ? Map<String, dynamic>.from(rawDisc)
+        : const <String, dynamic>{};
+    final discNumber = disc['disc_number'] is int
+        ? disc['disc_number'] as int
+        : discIndex + 1;
+    final discId = '${item.id}:disc:$discNumber';
+    final sourceTracks = disc['tracks'] is Iterable
+        ? (disc['tracks'] as Iterable).toList(growable: false)
+        : rawTracks.where((track) {
+            if (track is! Map) return discIndex == 0;
+            final number = track['disc_number'];
+            return number == null ? discIndex == 0 : number == discNumber;
+          }).toList(growable: false);
+    final tracks = [
+      for (var index = 0; index < sourceTracks.length; index++)
+        _musicSeedTrack(sourceTracks[index], item, discId, index),
+    ];
+    discs.add({
+      'id': discId,
+      'disc_number': discNumber,
+      if (disc['name'] is String) 'title': disc['name'],
+      if (disc['matrix_number_side_a'] is String)
+        'matrix_number_side_a': disc['matrix_number_side_a'],
+      if (disc['matrix_number_side_b'] is String)
+        'matrix_number_side_b': disc['matrix_number_side_b'],
+      'tracks': tracks,
+    });
+  }
   return withSeedPayload(item, {
-    'release_group_id': item.id,
-    'artist': _seedMusicArtist(item),
-    'original_release_date': item.releaseDate?.toUtc().toIso8601String(),
-    'recording_date': item.releaseDate?.toUtc().toIso8601String(),
-    'is_live': false,
-    'releases': [release],
-    'track_count': tracks.length,
+    'music': {
+      ...source,
+      'artist': _seedMusicArtist(item),
+      'label': item.publisher,
+      'format': item.physicalFormat ?? 'Digital',
+      'barcode': item.barcode,
+      'catalog_number': source['catalog_number'] ?? 'SEED-${item.id}',
+      'release_date': item.releaseDate?.toUtc().toIso8601String(),
+      'original_release_date': item.releaseDate?.toUtc().toIso8601String(),
+      'recording_date': item.releaseDate?.toUtc().toIso8601String(),
+      'country': item.payload['country']?.toString(),
+      'genres': item.payload['genres'] ?? const <String>[],
+      'is_live': false,
+      'discs': discs,
+    },
   });
 }
-
 String? _seedMusicArtist(CatalogItemDto item) {
   final rawCreators = item.payload['creators'];
   final creators = rawCreators is Iterable
@@ -300,7 +256,7 @@ String? _seedMusicArtist(CatalogItemDto item) {
 Map<String, dynamic> _musicSeedTrack(
   Object? raw,
   CatalogItemDto item,
-  String mediumId,
+  String discId,
   int index,
 ) {
   final source =
@@ -308,18 +264,16 @@ Map<String, dynamic> _musicSeedTrack(
   final durationSeconds = source['duration_seconds'];
   final trackNumber = (index + 1).toString().padLeft(2, '0');
   return {
-    ...source,
-    'id': '$mediumId-track-$trackNumber',
-    'kind': 'music',
-    'medium_id': mediumId,
-    'position': source['position'] ?? source['track_number'] ?? index + 1,
-    'title': source['title'] ?? '${item.title} — Track ${index + 1}',
-    if (durationSeconds is num) 'duration_ms': durationSeconds.toInt() * 1000,
-    'composition': source['composition'] ?? item.title,
-    'instrument': source['instrument'] ?? 'ensemble',
+    'id': '$discId-track-$trackNumber',
+    'position':
+        (source['position'] ?? source['track_number'] ?? index + 1).toString(),
+    'title': source['title'] ?? '${item.title} - Track ${index + 1}',
+    if (source['artist'] is String) 'artist': source['artist'],
+    if (source['duration_ms'] is int) 'duration_ms': source['duration_ms'],
+    if (durationSeconds is num && source['duration_ms'] == null)
+      'duration_ms': durationSeconds.toInt() * 1000,
   };
 }
-
 List<CatalogItemDto> musicSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-music-01',

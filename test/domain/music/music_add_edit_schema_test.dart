@@ -1,262 +1,91 @@
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_manual_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_candidate_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_group_form_values.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('MusicAddSchema exposes Music-owned manual release fields', () {
-    final draft = MusicAddManualDraft();
-    addTearDown(draft.dispose);
-
-    final fieldIds = [
-      for (final section in musicAddSchema.sections)
-        for (final field in section.fields) field.id,
-    ];
-
-    expect(
-      fieldIds,
-      containsAll([
-        'format',
-        'catalog_number',
-        'barcode',
-        'country',
-        'packaging',
-        'release_date',
-        'artist',
-        'record_label',
-        'genres',
-        'studios',
-      ]),
+  test('the Music edit schema edits one concrete Catalog Item', () {
+    final item = MusicRelease(
+      id: const MusicReleaseId('album-1'),
+      title: 'Album',
+      artist: 'Artist',
     );
-    draft.releaseDate = DateTime.utc(0);
-    expect(
-      musicAddSchema.validate!(draft),
-      'Release year must be greater than zero',
-    );
+    final draft = MusicReleaseEditDraft.fromRelease(item);
+
+    expect(musicReleaseEditSchema.title!(item), 'Album / Artist');
+    expect(musicReleaseEditSchema.tabs.map((tab) => tab.id), [
+      'main',
+      'details',
+      'personal',
+    ]);
+    expect(musicReleaseEditSchema.validate!(item, draft), isNull);
+    draft.values.title = '';
+    expect(musicReleaseEditSchema.validate!(item, draft), 'Title is required');
   });
 
-  test('Music release-group and release drafts round-trip canonically', () {
-    final group = MusicReleaseGroup(
-      id: MusicReleaseGroupId('group-1'),
-      title: 'The Wall',
-      artist: 'Pink Floyd',
-      sortTitle: 'Wall, The',
-      originalTitle: 'The Wall (Original)',
-      originalReleaseDate: DateTime.utc(1979, 11, 30),
-      recordingDate: DateTime.utc(1979, 1, 1),
-      studios: ['Britannia Row'],
-      isLive: false,
-      genres: ['Progressive Rock'],
-      createdAt: DateTime.utc(2020, 1, 1),
-      updatedAt: DateTime.utc(2020, 1, 2),
-      releases: [
-        MusicRelease(
-          id: MusicReleaseId('release-1'),
-          releaseGroupId: MusicReleaseGroupId('group-1'),
-          title: 'The Wall',
-          sortTitle: 'Wall, The',
-          subtitle: 'Remastered',
-          releaseType: 'Album',
-          releaseStatus: 'Official',
-          releaseDate: DateTime.utc(1979, 11, 30),
-          publisher: 'Harvest',
-          countryCode: 'GB',
-          language: 'eng',
-          barcode: '5099902987613',
-          upc: '5099902987613',
-          packaging: 'Jewel Case',
-          boxSetMembership: const MusicBoxSetMembership(
-            boxSetRef: CatalogEntityRef(
-              kind: CatalogMediaKind.music,
-              entityType: CatalogEntityTypeId('box_set'),
-              id: 'box-1',
-            ),
-            sequenceNumber: 2,
-          ),
-          coverImageUrl: 'https://example.test/wall.jpg',
-          createdAt: DateTime.utc(2020, 1, 1),
-          updatedAt: DateTime.utc(2020, 1, 2),
-          mediums: [
-            MusicMedium(
-              id: MusicMediumId('medium-1'),
-              releaseId: MusicReleaseId('release-1'),
-              mediumNumber: 1,
-              mediumType: 'Vinyl',
-              tracks: [
-                MusicTrack(
-                  id: MusicTrackId('track-1'),
-                  mediumId: MusicMediumId('medium-1'),
-                  position: 'A1',
-                  title: 'In the Flesh?',
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
+  test('form updates preserve the disc and track child graph', () {
+    final disc = MusicMedium(
+      id: const MusicMediumId('disc-1'),
+      releaseId: const MusicReleaseId('album-1'),
+      mediumNumber: 1,
+      matrixNumberSideA: 'A1',
+      matrixNumberSideB: 'B1',
     );
-    final groupDraft = MusicReleaseGroupEditDraft.fromReleaseGroup(group);
-    groupDraft.values
-      ..title = 'The Wall (Remastered)'
-      ..sortTitle = 'Wall Remastered'
-      ..artist = 'Pink Floyd & Guests'
-      ..originalTitle = 'The Wall'
-      ..originalReleaseDate = DateTime.utc(1980, 1, 1)
-      ..recordingDate = DateTime.utc(1978, 1, 1)
-      ..studios = ['New Studio', 'Abbey Road']
-      ..isLive = true
+    final original = MusicRelease(
+      id: const MusicReleaseId('album-1'),
+      title: 'Original title',
+      artist: 'Original artist',
+      mediums: [disc],
+    );
+    final values = MusicReleaseFormValues.fromRelease(original)
+      ..title = 'Updated title'
+      ..artist = 'Updated artist'
       ..genres = ['Rock'];
-    final releaseDraft =
-        MusicReleaseEditDraft.fromRelease(group.primaryRelease!);
-    releaseDraft.values
-      ..title = 'The Wall - 2026 Edition'
-      ..sortTitle = 'Wall - 2026'
-      ..subtitle = 'Deluxe'
-      ..releaseType = 'Album'
-      ..releaseStatus = 'Official'
-      ..releaseDate = DateTime.utc(2026, 3, 1)
-      ..publisher = 'Columbia'
-      ..countryCode = 'US'
-      ..language = 'eng'
-      ..barcode = '999'
-      ..upc = '999'
-      ..catalogNumber = 'SHDW 804'
-      ..packaging = 'Digipak'
-      ..coverImageUrl = 'https://example.test/new-wall.jpg';
-    final ownedDraft = MusicOwnedDetailsDraft(
-      media: const [
-        MusicOwnedMediumDetails(
-          mediumIndex: 1,
-          storageDevice: 'Shelf 1',
-          storageSlot: 'A-01',
-          matrixRunouts: [
-            MusicMatrixRunout(side: 'A', runoutText: 'A-1'),
+
+    final updated = MusicReleaseFormAdapter.update(original, values);
+
+    expect(updated.id, original.id);
+    expect(updated.title, 'Updated title');
+    expect(updated.artist, 'Updated artist');
+    expect(updated.genres, ['Rock']);
+    expect(updated.mediums.single.matrixNumberSideA, 'A1');
+    expect(updated.mediums.single.matrixNumberSideB, 'B1');
+  });
+
+  test('Music transport accepts a flat item with contained discs', () {
+    final dto = CatalogMusicItemDto.fromJson({
+      'id': 'album-1',
+      'kind': 'music',
+      'title': 'Album',
+      'artist': 'Artist',
+      'format': 'Vinyl',
+      'discs': [
+        {
+          'id': 'disc-1',
+          'disc_number': 1,
+          'matrix_number_side_a': 'A1',
+          'tracks': [
+            {'id': 'track-1', 'position': '1', 'title': 'Opening'},
           ],
-        ),
+        },
       ],
-      signedBy: 'David Gilmour',
-      lastCleanedDate: DateTime.utc(2026, 2, 1),
-    );
+    });
 
-    final editedGroup = groupDraft.toReleaseGroup();
-    final editedRelease = releaseDraft.toRelease();
-    final editedOwned = ownedDraft.toDetails();
-
-    expect(editedGroup.title, 'The Wall (Remastered)');
-    expect(editedGroup.artist, 'Pink Floyd & Guests');
-    expect(editedGroup.studios, ['New Studio', 'Abbey Road']);
-    expect(editedGroup.genres, ['Rock']);
-    expect(editedGroup.createdAt, group.createdAt);
-    expect(editedGroup.updatedAt, group.updatedAt);
-    expect(editedRelease.title, 'The Wall - 2026 Edition');
-    expect(editedRelease.publisher, 'Columbia');
-    expect(editedRelease.barcode, '999');
-    expect(editedRelease.catalogNumber, 'SHDW 804');
-    expect(editedRelease.packaging, 'Digipak');
-    expect(editedRelease.boxSetMembership?.boxSetRef.id, 'box-1');
-    expect(editedRelease.boxSetMembership?.sequenceNumber, 2);
-    expect(editedRelease.createdAt, group.primaryRelease!.createdAt);
-    expect(editedRelease.updatedAt, group.primaryRelease!.updatedAt);
-    expect(editedRelease.releaseGroupId, group.id);
-    expect(editedOwned.media.single.storageDevice, 'Shelf 1');
-    expect(editedOwned.media.single.storageSlot, 'A-01');
-    expect(editedOwned.signedBy, 'David Gilmour');
-    expect(editedOwned.lastCleanedDate, DateTime.utc(2026, 2, 1));
-    expect(editedOwned.media.single.matrixRunouts.single.runoutText, 'A-1');
+    expect(dto.discs.single.discNumber, 1);
+    expect(dto.discs.single.tracks.single.title, 'Opening');
     expect(
-      musicReleaseEditSchema.validate!(group.primaryRelease!, releaseDraft),
-      isNull,
+      () => CatalogMusicItemDto.fromJson({
+        'id': 'album-1',
+        'kind': 'music',
+        'title': 'Album',
+        'release_group_id': 'group-1',
+      }),
+      throwsFormatException,
     );
-    expect(musicReleaseGroupEditSchema.validate!(group, groupDraft), isNull);
-    expect(musicOwnedEditSchema.tabs, isNotEmpty);
-  });
-
-  test('Music scoped form adapters create a canonical group and release', () {
-    final groupId = MusicReleaseGroupId('group-1');
-    final releaseId = MusicReleaseId('release-1');
-    final release = MusicReleaseFormAdapter.create(
-      MusicReleaseFormValues(title: 'Discovery', physicalFormat: 'CD'),
-      id: releaseId,
-      releaseGroupId: groupId,
-      mediums: [
-        MusicMedium(
-          id: MusicMediumId('release-1:medium:1'),
-          releaseId: releaseId,
-          mediumNumber: 1,
-          mediumType: 'CD',
-        ),
-      ],
-    );
-    final group = MusicReleaseGroupFormAdapter.create(
-      MusicReleaseGroupFormValues(
-        title: 'Discovery',
-        artist: 'Daft Punk',
-        genres: ['Electronic'],
-      ),
-      id: groupId,
-      releases: [release],
-    );
-
-    expect(group.id.value, 'group-1');
-    expect(group.artist, 'Daft Punk');
-    expect(group.genres, ['Electronic']);
-    expect(group.releases.single.id.value, 'release-1');
-    expect(group.releases.single.releaseGroupId, group.id);
-    expect(group.releases.single.mediums.single.mediumType, 'CD');
-  });
-
-  test('manual Music candidate is one flat catalog edition', () {
-    final draft = MusicAddManualDraft();
-    addTearDown(draft.dispose);
-    draft.artist = 'Daft Punk';
-    draft.recordLabel = 'Virgin';
-    draft.catalogNumber = '7243';
-    draft.barcode = '123456789';
-    draft.format = 'Vinyl';
-    draft.packaging = 'Gatefold';
-    draft.countryCode = 'FR';
-    draft.studios = ['Studio 1', 'Studio 2'];
-    draft.releaseDate = DateTime.utc(2001, 3, 12);
-    draft.genres = ['Electronic', 'House'];
-    draft.coverImageUrl = 'https://example.test/cover.jpg';
-
-    final candidate = buildMusicManualCandidate(draft, title: 'Discovery');
-
-    expect(candidate, isNotNull);
-    final item = musicCatalogItemFromCandidate(candidate!);
-    expect(item.title, 'Discovery');
-    expect(item.artist, 'Daft Punk');
-    expect(item.genres, ['Electronic', 'House']);
-    expect(item.label, 'Virgin');
-    expect(item.catalogNumber, '7243');
-    expect(item.barcode, '123456789');
-    expect(item.packaging, 'Gatefold');
-    expect(item.country, 'France');
-    expect(item.studios, ['Studio 1', 'Studio 2']);
-    expect(item.releaseDate, '2001-03-12');
-    expect(item.coverImageUrl, 'https://example.test/cover.jpg');
-
-    final payload = candidate.kindCapability.toCatalogItemPayload();
-    expect(payload.containsKey('release_group_id'), isFalse);
-    expect(payload.containsKey('releases'), isFalse);
-    expect(payload.containsKey('mediums'), isFalse);
   });
 }

@@ -42,6 +42,26 @@ abstract interface class LibraryCatalogTargetCapability {
   LibraryCatalogTargetParts parts(CatalogEntityRef? ref);
 }
 
+/// Resolves every selection to its containing Catalog Item.
+///
+/// Use this when a kind has no independently addressable catalog child that
+/// can own copies or activity.
+final class RootCatalogTargetCapability
+    implements LibraryCatalogTargetCapability {
+  const RootCatalogTargetCapability();
+
+  @override
+  CatalogEntityRef resolve(
+    CatalogEntityRef root,
+    LibraryCatalogTargetSelection selection,
+  ) =>
+      root.rootScope;
+
+  @override
+  LibraryCatalogTargetParts parts(CatalogEntityRef? ref) =>
+      const LibraryCatalogTargetParts();
+}
+
 /// Opaque path projection used by generic selection widgets.
 final class LibraryCatalogTargetParts {
   const LibraryCatalogTargetParts({

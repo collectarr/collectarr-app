@@ -1,38 +1,33 @@
 # Music field capability matrix
 
-This is the implementation-plan audit for the typed Music graph. “Round-trip”
-means load -> edit/draft -> save -> reload. “Projection” means the field is
-available for read-only display but does not have a canonical write path in
-that layer.
+This matrix describes ownership and active App/Core boundaries for the flat
+Music Catalog Item. It replaces the former Release Group/Release graph audit.
+Use [the Music field ledger](../architecture/music-catalog-field-inventory.md)
+for the CLZ labels and v1 field names.
 
-| Field | Scope | Domain | DB | Provider | Sync | CSV in | CSV out | Add | Edit | Inspector | Workspace | Stats |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Track Artist | Release | Full | Full | Full | Full | N/A | Full | N/A | Full | Full | Projection | N/A |
-| Track Header | Release | Full | Full | Full | Full | N/A | Full | N/A | Full | Full | N/A | Excluded |
-| Storage Device / Slot | Copy | Full | Full | N/A | Full | N/A | Full | N/A | Full | Full | Full | N/A |
-| Matrix / Runout | Copy | Full | Full | N/A | Full | N/A | Full | N/A | Full | Full | N/A | N/A |
-| Signed By | Copy | Full | Full | N/A | Full | N/A | Full | N/A | Full | Full | Full | Full |
-| Last Cleaned | Copy | Full | Full | N/A | Full | N/A | Full | N/A | Full | Full | Full | Candidate |
-| Listen Event / history | Release | Full | Full | N/A | Full | N/A | Projection | N/A | CRUD | CRUD | Full | Full |
-| Catalog Number | Release | Full | Full | Full | Full | Full | Full | Full | Full | Full | Full | N/A |
-| Box Set + position | Release | Full | Typed relation | Full | Full | N/A | Projection | N/A | Full | Full | Full | N/A |
-| Image role/order/caption | Copy | Full | Full | N/A | Full | N/A | Full | N/A | Full | Full | Hero/extra | N/A |
-| Group/release/copy scope | Structural | Full | N/A | N/A | N/A | N/A | N/A | N/A | N/A | Full | Full | N/A |
-| Group/release aggregates | Group/Release | Derived | N/A | N/A | N/A | N/A | N/A | N/A | Read-only | Full | Full | Full |
+| Data | Target | Meaning | Owner |
+| --- | --- | --- | --- |
+| Album title, artist, dates, label, format, barcode, Cat No, genres | Catalog Item | Facts shared by copies of this concrete edition | Core catalog |
+| Covers and source-neutral links | Catalog Item | Shared album artwork and references | Core catalog |
+| Credits | Catalog Item | People and classical credits for the album | Core catalog |
+| Discs, disc titles, matrix sides | Contained Catalog Item data | Ordered album content and pressing identifiers | Core catalog |
+| Tracks and track credits | Contained disc data | Ordered track list; not a separate workspace entity | Core catalog |
+| Status, condition, purchase/value data, location, notes, rating, tags | Owned Copy | Personal facts for one distinguishable copy | App and Sync |
+| Storage device, slot, observed runouts, personal images | Owned Copy | Physical details and images for one copy | App and Sync |
+| Listening events | Catalog Item, optional Owned Copy | User activity for an album; copy is recorded only when known | App and Sync |
 
-## Boundary rules
+## Boundaries
 
-- A Copy always points at a concrete Release; the Release Group is only the
-  root context.
-- Release tracking is canonical and writable; Group tracking/listening is a
-  derived read-only projection.
-- Catalog/provider payloads are mapped through typed accessors and explicit
-  mappers; box-set membership is persisted through a dedicated relation.
-- Generic workspace code selects a schema structurally and does not interpret
-  Music roles, releases, or box-set semantics.
-
-## Known non-green verification boundary
-
-The targeted Music/domain/config suite is green. The repository-wide Flutter
-suite still has pre-existing failures in unrelated UI/fixture areas; see
-`music_main_execution_baseline.md` for the recorded baseline and scope.
+- One search result represents one concrete album edition and has its own
+  Catalog Item identity. Search does not return an album-group parent with
+  nested selectable releases.
+- Add, Edit, local persistence, and workspace read the flat item payload.
+  Discs and tracks remain Music-owned child data.
+- No Music Release Group model, Release workspace projection, or Release scope
+  selector remains active in App. Some local Dart and Drift symbols retain
+  historical `Release` names for the root Catalog Item.
+- Providers, provider IDs, provider ingest, and canonical catalog payloads are
+  outside personal Sync. Sync carries Owned Copies and personal activity.
+- Music is grounded in the saved CLZ Music Edit form. Exact CLZ parity for the
+  other eight kinds remains unverified until their Edit-form captures are
+  available.

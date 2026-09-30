@@ -277,6 +277,7 @@ final class ComicLocalMapper {
     return ComicReadingRowsCompanion.insert(
       ownedRefKey: OwnedCopyRef(
         kind: CatalogMediaKind.comic,
+        itemId: item.catalogRef.rootScope.id,
         id: OwnedCopyId(item.id.value),
       ).key,
       rating: Value(item.reading.rating),

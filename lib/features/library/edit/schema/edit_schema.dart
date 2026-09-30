@@ -40,12 +40,16 @@ final class EditSectionSpec<TDraft> {
     required this.id,
     required this.label,
     required this.fields,
+    this.maxColumns = 2,
+    this.fullWidthFieldIds = const <String>{},
     this.visibleWhen,
   });
 
   final String id;
   final String label;
   final List<LibraryFieldSpec<TDraft>> fields;
+  final int maxColumns;
+  final Set<String> fullWidthFieldIds;
   final LibraryFieldVisibility<TDraft>? visibleWhen;
 
   bool isVisible(TDraft draft) => visibleWhen?.call(draft) ?? true;

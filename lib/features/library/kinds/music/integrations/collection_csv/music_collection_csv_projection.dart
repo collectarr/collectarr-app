@@ -119,8 +119,7 @@ final class MusicCollectionCsvProjection
   List<String> catalogCells(LibraryWorkspaceSource entry) {
     final catalog = entry.catalogData;
     final music = catalog is MusicWorkspaceCatalogData ? catalog.music : null;
-    final release =
-        catalog is MusicWorkspaceCatalogData ? catalog.release : null;
+    final release = catalog is MusicWorkspaceCatalogData ? catalog.music : null;
     final physicalFormat = release?.physicalFormat ?? release?.packaging ?? '';
     final physicalFormatLabel = release?.physicalFormatLabel ?? physicalFormat;
     return [

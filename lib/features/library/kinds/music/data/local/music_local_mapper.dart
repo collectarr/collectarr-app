@@ -350,6 +350,8 @@ final class MusicLocalMapper {
       cddbId: Value(medium.cddbId),
       leadoutOffset: Value(medium.leadoutOffset),
       bpDiscId: Value(medium.bpDiscId),
+      matrixNumberSideA: Value(medium.matrixNumberSideA),
+      matrixNumberSideB: Value(medium.matrixNumberSideB),
       createdAt: medium.createdAt,
       updatedAt: medium.updatedAt,
     );
@@ -379,6 +381,8 @@ final class MusicLocalMapper {
       cddbId: row.cddbId,
       leadoutOffset: row.leadoutOffset,
       bpDiscId: row.bpDiscId,
+      matrixNumberSideA: row.matrixNumberSideA,
+      matrixNumberSideB: row.matrixNumberSideB,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );

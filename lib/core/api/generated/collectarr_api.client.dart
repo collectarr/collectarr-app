@@ -53,39 +53,6 @@ class CollectarrApiClient {
         .toList(growable: false);
   }
 
-  Future<TypedMetadataResponse> getTypedMetadataItem({
-    required CatalogMediaKind kind,
-    required String id,
-  }) async {
-    switch (kind) {
-      case CatalogMediaKind.comic:
-        return getComicWorkDto(id);
-      case CatalogMediaKind.manga:
-        return getMangaWorkDto(id);
-      case CatalogMediaKind.anime:
-        return getAnimeSeriesDto(id);
-      case CatalogMediaKind.movie:
-        return getMovieWorkDto(id);
-      case CatalogMediaKind.tv:
-        return getTvSeriesDto(id);
-      case CatalogMediaKind.book:
-        return getBookWorkDto(id);
-      case CatalogMediaKind.game:
-        return getGameWorkDto(id);
-      case CatalogMediaKind.boardgame:
-        return getBoardGameWorkDto(id);
-      case CatalogMediaKind.music:
-        return _fetchTypedMetadataItem(
-          '/api/v1/metadata/music/items/${Uri.encodeComponent(id)}',
-          RawTypedMetadataResponse.fromJson,
-        );
-      default:
-        throw UnsupportedError(
-          'Unsupported metadata kind: ${kind.apiValue}',
-        );
-    }
-  }
-
   /// Fetches one flattened, kind-owned Catalog Item response.
   ///
   /// This is the canonical read path for Add/Edit catalog data. It does not

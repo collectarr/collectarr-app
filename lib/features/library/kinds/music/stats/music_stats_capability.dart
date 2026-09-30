@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
@@ -25,18 +25,16 @@ final class MusicStatsCapability implements LibraryStatsCapability {
       LibraryWorkspaceSource entry) {
     final catalog = entry.catalogData;
     final music = _music(entry);
-    final release =
-        catalog is MusicWorkspaceCatalogData ? catalog.release : null;
     if (catalog == null || music == null) return null;
-    final secondary = release?.publisher?.trim();
+    final secondary = music.publisher?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup: music.artist?.trim(),
       secondaryGroup: secondary,
       hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
-          release?.mediums.any(
-                  (medium) => medium.mediumType?.trim().isNotEmpty == true) ==
-              true,
+          music.mediums.any(
+            (medium) => medium.mediumType?.trim().isNotEmpty == true,
+          ),
       hasReleaseDate:
           music.originalReleaseDate != null || catalog.releaseDate != null,
     );
@@ -205,7 +203,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   static int totalMedia(Iterable<LibraryWorkspaceSource> entries) {
     return entries.fold<int>(
       0,
-      (total, entry) => total + (_music(entry)?.mediumCount ?? 0),
+      (total, entry) => total + (_music(entry)?.mediums.length ?? 0),
     );
   }
 
@@ -241,27 +239,24 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   static Map<String, int> countFormats(
       Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(
-        entries,
-        (music) => [
-              for (final release in music.releases) ...[
-                if (release.releaseType != null) release.releaseType!,
-                for (final medium in release.mediums)
-                  if (medium.mediumType != null) medium.mediumType!,
-              ],
-            ]);
+      entries,
+      (music) => [
+        if (music.releaseType != null) music.releaseType!,
+        for (final medium in music.mediums)
+          if (medium.mediumType != null) medium.mediumType!,
+      ],
+    );
   }
 
   static Map<String, int> countLabels(
       Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(
-        entries,
-        (music) => [
-              for (final release in music.releases)
-                if (release.publisher != null) release.publisher!,
-            ]);
+      entries,
+      (music) => [if (music.publisher != null) music.publisher!],
+    );
   }
 
-  static MusicReleaseGroup? _music(LibraryWorkspaceSource entry) {
+  static MusicRelease? _music(LibraryWorkspaceSource entry) {
     return _catalog(entry)?.music;
   }
 
@@ -274,7 +269,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
 
   static Map<String, int> _countMany(
     Iterable<LibraryWorkspaceSource> entries,
-    Iterable<String> Function(MusicReleaseGroup music) valuesFor,
+    Iterable<String> Function(MusicRelease music) valuesFor,
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {

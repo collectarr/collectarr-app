@@ -192,11 +192,11 @@ class _AdminApiClient {
     required String kind,
     required String id,
   }) async {
-    final typed = await _client.getTypedMetadataItem(
+    final item = await _client.getCatalogItemJson(
       kind: catalogMediaKindFromApiValue(kind),
       id: id,
     );
-    return AdminMetadataItem.fromJson(_client._resolveImageUrls(typed.raw));
+    return AdminMetadataItem.fromJson(item);
   }
 
   Future<AdminMetadataProposalSummary> adminMetadataProposalSummary() async {

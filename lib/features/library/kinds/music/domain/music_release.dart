@@ -9,7 +9,10 @@ import 'music_external_link.dart';
 import 'music_release_relations.dart';
 import 'music_track.dart';
 
-/// MusicBrainz release: a concrete pressing/edition in a release group.
+/// One concrete Music Catalog Item representing an album edition.
+///
+/// Discs and tracks are contained children. The historical class name does
+/// not represent a separate Release scope or parent album grouping.
 @immutable
 final class MusicRelease implements JsonEncodable {
   MusicRelease({

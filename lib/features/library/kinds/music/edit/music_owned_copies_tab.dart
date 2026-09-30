@@ -523,5 +523,6 @@ String? _nullable(String value) {
 
 OwnedCopyRef _ownedRef(MusicOwnedItem item) => OwnedCopyRef(
       kind: CatalogMediaKind.music,
+      itemId: item.catalogRef.rootScope.id,
       id: OwnedCopyId(item.id.value),
     );

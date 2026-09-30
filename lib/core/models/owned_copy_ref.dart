@@ -5,57 +5,88 @@ import 'money.dart';
 
 /// Stable cross-kind identity for one App-owned copy.
 ///
-/// This reference contains no Catalog Item identity or kind-specific copy
-/// fields. Those are represented by separate references and kind-owned data.
+/// The Catalog Item ID and copy ID together identify the personal record;
+/// kind-owned copy fields remain in their owning domain models.
 @immutable
 final class OwnedCopyRef {
-  const OwnedCopyRef({required this.kind, required this.id});
+  const OwnedCopyRef({
+    required this.kind,
+    required this.itemId,
+    required this.id,
+  });
 
   final CatalogMediaKind kind;
+  final String itemId;
   final OwnedCopyId id;
 
-  String get key => '${kind.apiValue}:${id.value}';
+  String get key =>
+      '${kind.apiValue}:${Uri.encodeComponent(itemId)}:${Uri.encodeComponent(id.value)}';
 
   factory OwnedCopyRef.fromKey(String key) {
-    final separator = key.indexOf(':');
-    if (separator <= 0 || separator == key.length - 1) {
-      throw const FormatException('OwnedCopyRef key must be <kind>:<id>');
-    }
-    final kind = catalogMediaKindFromApiValue(key.substring(0, separator));
-    final id = key.substring(separator + 1);
-    if (kind.isUnknown || id.trim().isEmpty) {
+    final parts = key.split(':');
+    if (parts.length != 3 ||
+        parts.first.isEmpty ||
+        parts[1].isEmpty ||
+        parts[2].isEmpty) {
       throw const FormatException(
-        'OwnedCopyRef key must contain a known kind and non-empty id',
+        'OwnedCopyRef key must be <kind>:<item-id>:<copy-id>',
       );
     }
-    return OwnedCopyRef(kind: kind, id: OwnedCopyId(id));
+    final kind = catalogMediaKindFromApiValue(parts.first);
+    final itemId = Uri.decodeComponent(parts[1]);
+    final copyId = Uri.decodeComponent(parts[2]);
+    if (kind.isUnknown || itemId.trim().isEmpty || copyId.trim().isEmpty) {
+      throw const FormatException(
+        'OwnedCopyRef key must contain a known kind, item ID, and copy ID',
+      );
+    }
+    return OwnedCopyRef(
+      kind: kind,
+      itemId: itemId,
+      id: OwnedCopyId(copyId),
+    );
   }
 
   Map<String, Object?> toJson() => {
         'kind': kind.apiValue,
-        'id': id.value,
+        'item_id': itemId,
+        'copy_id': id.value,
       };
 
   factory OwnedCopyRef.fromJson(Map<String, Object?> json) {
     final rawKind = json['kind'];
-    final rawId = json['id'];
-    if (rawKind is! String || rawId is! String || rawId.trim().isEmpty) {
-      throw const FormatException('OwnedCopyRef requires kind and id');
+    final rawItemId = json['item_id'];
+    final rawCopyId = json['copy_id'];
+    if (rawKind is! String ||
+        rawItemId is! String ||
+        rawCopyId is! String ||
+        rawItemId.trim().isEmpty ||
+        rawCopyId.trim().isEmpty) {
+      throw const FormatException(
+        'OwnedCopyRef requires kind, item_id, and copy_id',
+      );
     }
     final kind = catalogMediaKindFromApiValue(rawKind);
     if (kind.isUnknown) {
       throw FormatException('OwnedCopyRef requires a known kind: $rawKind');
     }
-    return OwnedCopyRef(kind: kind, id: OwnedCopyId(rawId));
+    return OwnedCopyRef(
+      kind: kind,
+      itemId: rawItemId,
+      id: OwnedCopyId(rawCopyId),
+    );
   }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is OwnedCopyRef && kind == other.kind && id == other.id;
+      other is OwnedCopyRef &&
+          kind == other.kind &&
+          itemId == other.itemId &&
+          id == other.id;
 
   @override
-  int get hashCode => Object.hash(kind, id);
+  int get hashCode => Object.hash(kind, itemId, id);
 }
 
 /// Decodes a cross-kind Owned Copy reference at a transport boundary.

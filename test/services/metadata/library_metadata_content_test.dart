@@ -27,7 +27,7 @@ void main() {
       ).asShelfCatalogItem),
     );
     const node = LibraryWorkRef(workId: 'music-1');
-    final dto = const MusicReleaseGroupWorkspaceProjector().project(
+    final dto = const MusicCatalogItemWorkspaceProjector().project(
       source: source,
       entity: node,
     );
@@ -66,11 +66,11 @@ void main() {
         id: 'music-1',
         kind: 'music',
         title: 'Discovery',
-        music: const {'track_count': 10},
+        music: const {'discs': <Map<String, Object?>>[]},
       ).asShelfCatalogItem),
     );
     const nodeMusic = LibraryWorkRef(workId: 'music-1');
-    final dtoMusic = const MusicReleaseGroupWorkspaceProjector().project(
+    final dtoMusic = const MusicCatalogItemWorkspaceProjector().project(
       source: sourceMusic,
       entity: nodeMusic,
     );

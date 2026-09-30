@@ -50,6 +50,12 @@ final class MusicListenEvent {
         if (deletedAt != null) 'deleted_at': deletedAt!.toIso8601String(),
       };
 
+  /// Payload for Sync, where the event ID is carried by the outer entity key.
+  Map<String, dynamic> toSyncPayload() {
+    final payload = toJson()..remove('id');
+    return payload;
+  }
+
   factory MusicListenEvent.fromJson(Map<String, dynamic> json) {
     final rawCatalog = json['catalog_ref'];
     if (rawCatalog is! Map) {

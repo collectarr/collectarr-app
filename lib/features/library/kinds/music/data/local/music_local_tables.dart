@@ -97,7 +97,7 @@ class MusicReleaseBoxSetMembershipRows extends Table {
   Set<Column> get primaryKey => {releaseId};
 }
 
-/// Lossless artist credits for both release groups and concrete releases.
+/// Lossless artist credits attached to a concrete Music Catalog Item.
 class MusicArtistCreditsRows extends Table {
   TextColumn get id => text()();
   TextColumn get targetType => text()();
@@ -140,6 +140,8 @@ class MusicMediumRows extends Table {
   TextColumn get cddbId => text().nullable()();
   IntColumn get leadoutOffset => integer().nullable()();
   TextColumn get bpDiscId => text().nullable()();
+  TextColumn get matrixNumberSideA => text().nullable()();
+  TextColumn get matrixNumberSideB => text().nullable()();
   TextColumn get soundType => text().nullable()();
   TextColumn get vinylColor => text().nullable()();
   TextColumn get vinylWeight => text().nullable()();

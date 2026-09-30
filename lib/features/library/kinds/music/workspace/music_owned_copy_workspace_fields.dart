@@ -215,6 +215,7 @@ abstract final class MusicOwnedCopyWorkspaceFields {
       return UpdateOwnedItemCommand(
         ownedRef: OwnedCopyRef(
           kind: CatalogMediaKind.music,
+          itemId: owned.catalogRef.rootScope.id,
           id: OwnedCopyId(owned.id.value),
         ),
         payload: MusicOwnedItemUpdatePayload(

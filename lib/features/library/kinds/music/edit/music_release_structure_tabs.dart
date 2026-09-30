@@ -78,6 +78,28 @@ final class _MusicReleaseStructureTabState
                 onChanged: (value) => draft.updateMediumTitle(medium.id, value),
               ),
               TextFormField(
+                key: ValueKey('musicMediumMatrixSideA_${medium.id.value}'),
+                initialValue: medium.matrixNumberSideA ?? '',
+                decoration:
+                    const InputDecoration(labelText: 'Matrix number Side A'),
+                onChanged: (value) => draft.updateMediumTechnicalDetails(
+                  medium.id,
+                  matrixNumberSideA: value,
+                  replaceMatrixNumberSideA: true,
+                ),
+              ),
+              TextFormField(
+                key: ValueKey('musicMediumMatrixSideB_${medium.id.value}'),
+                initialValue: medium.matrixNumberSideB ?? '',
+                decoration:
+                    const InputDecoration(labelText: 'Matrix number Side B'),
+                onChanged: (value) => draft.updateMediumTechnicalDetails(
+                  medium.id,
+                  matrixNumberSideB: value,
+                  replaceMatrixNumberSideB: true,
+                ),
+              ),
+              TextFormField(
                 key: ValueKey('musicMediumSoundType_${medium.id.value}'),
                 initialValue: medium.soundType ?? '',
                 decoration: const InputDecoration(labelText: 'Sound type'),

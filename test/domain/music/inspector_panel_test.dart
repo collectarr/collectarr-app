@@ -5,13 +5,11 @@ import 'package:collectarr_app/features/library/kinds/music/inspector_panel.dart
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,13 +34,13 @@ void main() {
       title: 'Lupus Dei',
       artist: 'Powerwolf',
       media: [
-        _medium('music-1-medium-1', 'music-1-release', 1, [
+        _medium('music-1-medium-1', 'music-1', 1, [
           _track('music-1-track-1', 'music-1-medium-1', '1',
               'Lupus Daemonis (Intro)', 77000),
           _track(
               'music-1-track-2', 'music-1-medium-1', '11', 'Lupus Dei', 370000),
         ]),
-        _medium('music-1-medium-2', 'music-1-release', 2, [
+        _medium('music-1-medium-2', 'music-1', 2, [
           _track('music-1-track-3', 'music-1-medium-2', '2',
               'Mr Sinister (Live)', 287000),
         ]),
@@ -54,7 +52,7 @@ void main() {
       ownedSummary: testOwnedSummary(ownedItem),
     );
     final node = graph.ref;
-    final dto = const MusicReleaseWorkspaceProjector().project(
+    final dto = const MusicCatalogItemWorkspaceProjector().project(
       source: source,
       entity: node,
     );
@@ -123,7 +121,7 @@ void main() {
       title: 'Lupus Dei',
       artist: 'Powerwolf',
       media: [
-        _medium('music-2-medium-1', 'music-2-release', 1, [
+        _medium('music-2-medium-1', 'music-2', 1, [
           _track('music-2-track-1', 'music-2-medium-1', '1',
               'Lupus Daemonis (Intro)', null),
           _track('music-2-track-2', 'music-2-medium-1', '3',
@@ -137,7 +135,7 @@ void main() {
       ownedSummary: testOwnedSummary(ownedItem),
     );
     final node = graph.ref;
-    final dto = const MusicReleaseWorkspaceProjector().project(
+    final dto = const MusicCatalogItemWorkspaceProjector().project(
       source: source,
       entity: node,
     );
@@ -202,32 +200,21 @@ void main() {
   });
 }
 
-({MusicWorkspaceCatalogData catalog, LibraryReleaseRef ref}) _musicGraph({
+({MusicWorkspaceCatalogData catalog, LibraryWorkRef ref}) _musicGraph({
   required String workId,
   required String title,
   required String artist,
   required List<MusicMedium> media,
 }) {
-  final releaseId = '$workId-release';
   final release = MusicRelease(
-    id: MusicReleaseId(releaseId),
-    releaseGroupId: MusicReleaseGroupId(workId),
-    title: title,
-    mediums: media,
-  );
-  final group = MusicReleaseGroup(
-    id: MusicReleaseGroupId(workId),
+    id: MusicReleaseId(workId),
     title: title,
     artist: artist,
-    releases: [release],
+    mediums: media,
   );
   return (
-    catalog: MusicWorkspaceCatalogData.fromMusic(group, release: release),
-    ref: LibraryReleaseRef(
-      workId: workId,
-      releaseId: releaseId,
-      release: LibraryWorkspaceReleaseSummary(id: releaseId, title: title),
-    ),
+    catalog: MusicWorkspaceCatalogData.fromMusic(release),
+    ref: LibraryWorkRef(workId: workId),
   );
 }
 

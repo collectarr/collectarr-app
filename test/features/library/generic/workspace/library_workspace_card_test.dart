@@ -7,10 +7,8 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,17 +84,11 @@ void main() {
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
       catalogData: MusicWorkspaceCatalogData.fromMusic(
-        MusicReleaseGroup(
-          id: const MusicReleaseGroupId('music-1'),
+        MusicRelease(
+          id: const MusicReleaseId('music-1'),
           title: 'Discovery',
-          releases: [
-            MusicRelease(
-              id: const MusicReleaseId('music-1:release'),
-              releaseGroupId: const MusicReleaseGroupId('music-1'),
-              title: 'Discovery',
-              publisher: 'Virgin',
-            ),
-          ],
+          artist: 'Daft Punk',
+          publisher: 'Virgin',
         ),
         ref: const CatalogEntityRef(
           kind: CatalogMediaKind.music,
@@ -110,15 +102,8 @@ void main() {
         personalNotes: 'Japanese pressing',
       )),
     );
-    const node = LibraryReleaseRef(
-      workId: 'music-1',
-      releaseId: 'music-1:release',
-      release: LibraryWorkspaceReleaseSummary(
-        id: 'music-1:release',
-        title: 'Discovery',
-      ),
-    );
-    final dto = const MusicReleaseWorkspaceProjector().project(
+    const node = LibraryWorkRef(workId: 'music-1');
+    final dto = const MusicCatalogItemWorkspaceProjector().project(
       source: source,
       entity: node,
     );

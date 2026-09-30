@@ -1,327 +1,167 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
-import 'package:collectarr_app/features/library/kinds/music/release/music_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('projects a work without fabricating a Music release', () {
-    final rootRef = CatalogEntityRef(
-      kind: CatalogMediaKind.music,
-      entityType: CatalogEntityTypeId.root,
-      id: 'missing-group',
-    );
-    final source = LibraryWorkspaceSource(
-      itemId: 'missing-group',
-      catalogSummary: CatalogDisplaySummary.root(
-        kind: CatalogMediaKind.music,
-        id: 'missing-group',
-        primaryLabel: 'Recovered album',
-      ),
-      catalogData: MusicWorkspaceCatalogData.fromMusic(
-        MusicReleaseGroup(
-          id: MusicReleaseGroupId('missing-group'),
-          title: 'Recovered album',
-          releases: const [],
-        ),
-        ref: rootRef,
-      ),
-    );
+  test('projects one concrete album without an intermediate catalog node', () {
+    final album = _album();
+    final source = _source(album);
 
-    final dto = const MusicReleaseGroupWorkspaceProjector().project(
+    final dto = const MusicCatalogItemWorkspaceProjector().project(
       source: source,
-      entity: const LibraryWorkRef(workId: 'missing-group'),
+      entity: const LibraryWorkRef(workId: 'album-1'),
     );
 
-    expect(dto.title, 'Recovered album');
-    expect(dto.music.id.value, 'missing-group');
-    expect(dto.release, isNull);
+    expect(dto.title, 'The Wall');
+    expect(dto.music.id, const MusicReleaseId('album-1'));
+    expect(dto.music.artist, 'Pink Floyd');
+    expect(dto.music.mediums, hasLength(1));
+    expect(dto.music.tracks, hasLength(2));
+    expect(dto.trackCount, 2);
   });
 
-  test('maps a canonical Music release group into a workspace release', () {
-    final group = MusicReleaseGroup(
-      id: MusicReleaseGroupId('group-1'),
-      title: 'The Wall',
-      artist: 'Pink Floyd',
-      genres: ['Rock'],
-      releases: [
-        MusicRelease(
-          id: MusicReleaseId('release-1'),
-          releaseGroupId: MusicReleaseGroupId('group-1'),
-          title: 'The Wall',
-          mediums: [
-            MusicMedium(
-              id: MusicMediumId('medium-1'),
-              releaseId: MusicReleaseId('release-1'),
-              mediumNumber: 1,
-              mediumType: 'Vinyl',
-              tracks: [
-                MusicTrack(
-                  id: MusicTrackId('track-1'),
-                  mediumId: MusicMediumId('medium-1'),
-                  position: 'A1',
-                  title: 'In the Flesh?',
-                  durationMs: 187000,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
-    );
-    final release = (MusicWorkspaceCatalogData.fromMusic(group).lookupRelease(
-      'release-1',
-    ) as MusicReleaseFound)
-        .release;
-
-    expect(release.id, const MusicReleaseId('release-1'));
-    expect(release.releaseGroupId, group.id);
-    expect(release.title, 'The Wall');
-    expect(release.mediums.single.mediumType, 'Vinyl');
-    expect(
-        release.mediums.single.tracks.single.id, const MusicTrackId('track-1'));
-    expect(release.tracks.single.durationMs, 187000);
-  });
-
-  test('selects a concrete release without imposing video hierarchy', () {
-    final group = MusicReleaseGroup.fromJson({
-      'id': 'group-2',
-      'title': 'Discovery',
+  test('contained disc and track ownership follows its album', () {
+    final album = MusicRelease.fromJson({
+      'id': 'album-2',
+      'title': 'Discovery CD',
       'artist': 'Daft Punk',
-      'releases': [
+      'mediums': [
         {
-          'id': 'release-cd',
-          'release_group_id': 'group-2',
-          'title': 'Discovery CD',
-          'release_type': 'Album',
-          'mediums': <Map<String, dynamic>>[],
+          'id': 'disc-1',
+          'release_id': 'album-2',
+          'medium_number': 1,
+          'medium_type': 'CD',
+          'tracks': [
+            {
+              'id': 'track-1',
+              'medium_id': 'disc-1',
+              'position': '1',
+              'title': 'One More Time',
+            },
+          ],
         },
       ],
     });
-    final lookup = MusicWorkspaceCatalogData.fromMusic(group).lookupRelease(
-      'release-cd',
-    );
-    final release = (lookup as MusicReleaseFound).release;
 
-    expect(release.id.value, 'release-cd');
-    expect(release.releaseGroupId.value, 'group-2');
-    expect(release.title, 'Discovery CD');
-    expect(release.mediums, isEmpty);
+    expect(album.id.value, 'album-2');
+    expect(album.mediums.single.releaseId, album.id);
+    expect(album.mediums.single.tracks.single.mediumId,
+        album.mediums.single.id);
+    expect(album.mediums.single.tracks.single.title, 'One More Time');
   });
 
-  test('does not fabricate a stale release for a copy projection', () {
-    final group = MusicReleaseGroup(
-      id: MusicReleaseGroupId('group-stale'),
-      title: 'Stale target',
-      releases: const [],
+  test('Music vocabularies project the album catalog fields', () {
+    final album = _album();
+
+    expect(MusicVocabularies.genre.valuesFrom!(album), contains('Rock'));
+    expect(MusicVocabularies.mediaType.valuesFrom!(album), contains('Vinyl'));
+    expect(
+      MusicVocabularies.creditRole.valuesFrom!(album),
+      contains('Performer'),
     );
-    final rootRef = CatalogEntityRef(
+    expect(MusicVocabularies.country.valuesFrom!(album), contains('GB'));
+  });
+
+  test('Music listening summary is attached to the concrete album item', () {
+    final album = _album();
+    final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.music,
       entityType: CatalogEntityTypeId.root,
-      id: group.id.value,
-    );
-
-    expect(
-      () => const MusicOwnedCopyWorkspaceProjector().project(
-        source: LibraryWorkspaceSource(
-          itemId: 'group-stale',
-          catalogData: MusicWorkspaceCatalogData.fromMusic(
-            group,
-            ref: rootRef,
-          ),
-        ),
-        entity: LibraryCopyRef(
-          workId: 'group-stale',
-          releaseId: 'release-missing',
-          ownedRef: OwnedCopyRef(
-            kind: CatalogMediaKind.music,
-            id: OwnedCopyId('copy-1'),
-          ),
-        ),
-      ),
-      throwsStateError,
-    );
-  });
-
-  test('Music vocabularies project canonical release-group fields', () {
-    final group = MusicReleaseGroup(
-      id: MusicReleaseGroupId('group-vocab'),
-      title: 'Kind of Blue',
-      artist: 'Miles Davis',
-      genres: ['Jazz'],
-      releases: [
-        MusicRelease(
-          id: MusicReleaseId('release-vocab'),
-          releaseGroupId: MusicReleaseGroupId('group-vocab'),
-          title: 'Kind of Blue',
-          publisher: 'Columbia Records',
-          countryCode: 'US',
-          mediums: [
-            MusicMedium(
-              id: MusicMediumId('medium-vocab'),
-              releaseId: MusicReleaseId('release-vocab'),
-              mediumNumber: 1,
-              mediumType: 'Vinyl LP',
-              tracks: [
-                MusicTrack(
-                  id: MusicTrackId('track-vocab'),
-                  mediumId: MusicMediumId('medium-vocab'),
-                  position: '1',
-                  title: 'So What',
-                ),
-              ],
-            ),
-          ],
-          contributions: [
-            MusicReleaseContribution(
-              id: MusicReleaseContributionId('contribution-1'),
-              releaseId: MusicReleaseId('release-vocab'),
-              personId: 'person-miles-davis',
-              role: 'Performer',
-              displayName: 'Miles Davis',
-            ),
-          ],
-        ),
-      ],
-    );
-
-    expect(MusicVocabularies.genre.valuesFrom!(group), contains('Jazz'));
-    expect(
-        MusicVocabularies.mediaType.valuesFrom!(group), contains('Vinyl LP'));
-    expect(
-        MusicVocabularies.creditRole.valuesFrom!(group), contains('Performer'));
-    expect(MusicVocabularies.country.valuesFrom!(group), contains('US'));
-  });
-
-  test('release workspace keeps tracking state scoped to each release', () {
-    final groupId = MusicReleaseGroupId('group-tracking');
-    final groupRef = CatalogEntityRef(
-      kind: CatalogMediaKind.music,
-      entityType: CatalogEntityTypeId.root,
-      id: groupId.value,
-    );
-    final releaseOne = MusicRelease(
-      id: const MusicReleaseId('release-one'),
-      releaseGroupId: groupId,
-      title: 'Release One',
-    );
-    final releaseTwo = MusicRelease(
-      id: const MusicReleaseId('release-two'),
-      releaseGroupId: groupId,
-      title: 'Release Two',
-    );
-    final group = MusicReleaseGroup(
-      id: groupId,
-      title: 'Tracked Group',
-      releases: [releaseOne, releaseTwo],
-    );
-    final releaseOneRef = musicReleaseRefForRoot(groupRef, releaseOne.id.value);
-    final releaseTwoRef = musicReleaseRefForRoot(groupRef, releaseTwo.id.value);
-    final releaseOneTracking = TrackingSummary(
-      id: 'tracking-one',
-      catalogRef: releaseOneRef,
-      status: MediaTrackingStatus.completed,
-      updatedAt: DateTime.utc(2026, 1, 1),
-    );
-    final source = LibraryWorkspaceSource(
-      itemId: groupId.value,
-      catalogData: MusicWorkspaceCatalogData.fromMusic(
-        group,
-        ref: groupRef,
-      ),
-      trackingSummary: releaseOneTracking,
-      trackingSummaries: [releaseOneTracking],
-    );
-
-    final items =
-        const MusicReleaseProjectionCapability<MusicWorkspaceProjection>()
-            .projectReleases(
-      source: source,
-      type: const MusicRegistration(),
-      projector: const MusicReleaseWorkspaceProjector(),
-      customFieldDefinitions: const [],
-      customFieldValuesByDefinitionByItem: const {},
-      customFieldValuesByItem: const {},
-    );
-
-    expect(items, hasLength(2));
-    expect(items[0].dto.personal.isTracked, isTrue);
-    expect(items[0].dto.personal.trackingStatus, 'Completed');
-    expect(items[1].dto.personal.isTracked, isFalse);
-    expect(items[1].dto.personal.trackingStatus, isNull);
-    expect(source.trackingSummaryFor(releaseTwoRef), isNull);
-  });
-
-  test('Music workspace projects Catalog Item listening values',
-      () {
-    final groupId = MusicReleaseGroupId('group-listening');
-    final groupRef = CatalogEntityRef(
-      kind: CatalogMediaKind.music,
-      entityType: CatalogEntityTypeId.root,
-      id: groupId.value,
-    );
-    final releaseOne = MusicRelease(
-      id: const MusicReleaseId('release-listening-one'),
-      releaseGroupId: groupId,
-      title: 'Release One',
-    );
-    final releaseTwo = MusicRelease(
-      id: const MusicReleaseId('release-listening-two'),
-      releaseGroupId: groupId,
-      title: 'Release Two',
-    );
-    final group = MusicReleaseGroup(
-      id: groupId,
-      title: 'Listened Group',
-      releases: [releaseOne, releaseTwo],
+      id: album.id.value,
     );
     final events = [
       MusicListenEvent(
         id: 'listen-one',
-        catalogRef: groupRef,
+        catalogRef: CatalogItemRef(kind: catalogRef.kind, id: album.id.value),
         listenedAt: DateTime.utc(2026, 1, 2),
       ),
       MusicListenEvent(
         id: 'listen-two',
-        catalogRef: groupRef,
+        catalogRef: CatalogItemRef(kind: catalogRef.kind, id: album.id.value),
         listenedAt: DateTime.utc(2026, 2, 3),
       ),
     ];
-    final source = LibraryWorkspaceSource(
-      itemId: groupId.value,
-      catalogData: MusicWorkspaceCatalogData.fromMusic(
-        group,
-        ref: groupRef,
-        listeningSummary: MusicCatalogItemListeningSummary.fromEvents(
-          catalogItemId: groupId.value,
-          events: events,
-        ),
-      ),
+    final summary = MusicCatalogItemListeningSummary.fromEvents(
+      catalogItemId: album.id.value,
+      events: events,
     );
+    final source = _source(album, listeningSummary: summary);
 
-    final dto = const MusicReleaseGroupWorkspaceProjector().project(
+    final dto = const MusicCatalogItemWorkspaceProjector().project(
       source: source,
-      entity: const LibraryWorkRef(workId: 'group-listening'),
+      entity: const LibraryWorkRef(workId: 'album-1'),
     );
 
     expect(dto.listenCount, 2);
     expect(dto.lastListened, DateTime.utc(2026, 2, 3));
   });
 }
+
+LibraryWorkspaceSource _source(
+  MusicRelease album, {
+  MusicCatalogItemListeningSummary? listeningSummary,
+}) =>
+    LibraryWorkspaceSource(
+      itemId: album.id.value,
+      catalogData: MusicWorkspaceCatalogData.fromMusic(
+        album,
+        ref: CatalogEntityRef(
+          kind: CatalogMediaKind.music,
+          entityType: CatalogEntityTypeId.root,
+          id: album.id.value,
+        ),
+        listeningSummary: listeningSummary,
+      ),
+    );
+
+MusicRelease _album() => MusicRelease(
+      id: const MusicReleaseId('album-1'),
+      title: 'The Wall',
+      artist: 'Pink Floyd',
+      genres: const ['Rock'],
+      publisher: 'Harvest',
+      countryCode: 'GB',
+      mediums: [
+        MusicMedium(
+          id: const MusicMediumId('disc-1'),
+          releaseId: const MusicReleaseId('album-1'),
+          mediumNumber: 1,
+          mediumType: 'Vinyl',
+          tracks: [
+            MusicTrack(
+              id: const MusicTrackId('track-1'),
+              mediumId: const MusicMediumId('disc-1'),
+              position: 'A1',
+              title: 'In the Flesh?',
+              durationMs: 187000,
+            ),
+            MusicTrack(
+              id: const MusicTrackId('track-2'),
+              mediumId: const MusicMediumId('disc-1'),
+              position: 'A2',
+              title: 'The Thin Ice',
+            ),
+          ],
+        ),
+      ],
+      contributions: [
+        MusicReleaseContribution(
+          id: const MusicReleaseContributionId('contribution-1'),
+          releaseId: const MusicReleaseId('album-1'),
+          personId: 'person-pink-floyd',
+          role: 'Performer',
+          displayName: 'Pink Floyd',
+        ),
+      ],
+    );

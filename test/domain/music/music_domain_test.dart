@@ -1,4 +1,5 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -91,9 +92,8 @@ void main() {
     final sessions = [
       MusicListenEvent(
         id: 'session-1',
-        catalogRef: const CatalogEntityRef(
+        catalogRef: const CatalogItemRef(
           kind: CatalogMediaKind.music,
-          entityType: CatalogEntityTypeId.root,
           id: 'album-1',
         ),
         listenedAt: DateTime.utc(2026, 8, 1, 20),
@@ -102,9 +102,8 @@ void main() {
       ),
       MusicListenEvent(
         id: 'session-2',
-        catalogRef: const CatalogEntityRef(
+        catalogRef: const CatalogItemRef(
           kind: CatalogMediaKind.music,
-          entityType: CatalogEntityTypeId.root,
           id: 'album-1',
         ),
         listenedAt: DateTime.utc(2026, 8, 15, 21, 30),
@@ -124,8 +123,13 @@ void main() {
     expect(musicKindAdd.createInitialDraft(), isA<MusicAddDraft>());
     expect(
       musicKindEditCapabilities.presentationCapability.editRegistry
-          .builderForScope(LibraryEntityScope.release),
+          .builderForScope(LibraryEntityScope.work),
       isNotNull,
+    );
+    expect(
+      musicKindEditCapabilities.presentationCapability.editRegistry
+          .builderForScope(LibraryEntityScope.release),
+      isNull,
     );
     expect(const MusicOwnedDetailsCodec(), isA<MusicOwnedDetailsCodec>());
     expect(const MusicOwnedDetailsCodec().defaultDetails(),

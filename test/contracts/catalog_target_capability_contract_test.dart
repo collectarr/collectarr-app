@@ -68,5 +68,6 @@ void main() {
         expect(targetCapability.parts(bundle).groupId, 'bundle-1');
       });
     }
+
   });
 }

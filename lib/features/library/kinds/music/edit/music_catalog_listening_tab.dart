@@ -98,7 +98,7 @@ final class MusicCatalogListeningTab extends ConsumerWidget {
     final notes = await _notesDialog(context, title: 'Log listen');
     if (notes == null || !context.mounted) return;
     final listenedAt = DateTime.utc(date.year, date.month, date.day);
-    await ref.read(musicListeningRepositoryProvider).upsert(
+    await ref.read(musicListeningMutationsProvider).upsert(
           MusicListenEvent(
             id: 'listen-${DateTime.now().microsecondsSinceEpoch}',
             catalogRef: catalogRef,
@@ -122,7 +122,7 @@ final class MusicCatalogListeningTab extends ConsumerWidget {
       initial: event.notes,
     );
     if (notes == null || !context.mounted) return;
-    await ref.read(musicListeningRepositoryProvider).upsert(
+    await ref.read(musicListeningMutationsProvider).upsert(
           MusicListenEvent(
             id: event.id,
             catalogRef: event.catalogRef,
@@ -162,7 +162,7 @@ final class MusicCatalogListeningTab extends ConsumerWidget {
       ),
     );
     if (confirmed != true || !context.mounted) return;
-    await ref.read(musicListeningRepositoryProvider).markDeleted(
+    await ref.read(musicListeningMutationsProvider).markDeleted(
           event,
           DateTime.now().toUtc(),
         );
