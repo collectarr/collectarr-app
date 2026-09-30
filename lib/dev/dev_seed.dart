@@ -64,8 +64,7 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'comic.release': 15,
   'comic.reading': 15,
   'manga.media': 15,
-  'book.media': 15,
-  'book.release': 15,
+  'book.catalog_item': 15,
   'game.media': 15,
   'game.release': 15,
   'boardgame.media': 15,
@@ -159,8 +158,9 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'comic.release': (await db.select(db.comicReleaseRows).get()).length,
     'comic.reading': (await db.select(db.comicReadingRows).get()).length,
     'manga.media': (await db.select(db.mangaMediaRows).get()).length,
-    'book.media': (await db.select(db.bookMediaRows).get()).length,
-    'book.release': (await db.select(db.bookReleaseRows).get()).length,
+    'book.catalog_item': (await CatalogItemCacheRepository(db)
+            .findAll(kind: CatalogMediaKind.book))
+        .length,
     'game.media': (await db.select(db.gameMediaRows).get()).length,
     'game.release': (await db.select(db.gameReleaseRows).get()).length,
     'boardgame.media': (await db.select(db.boardGameMediaRows).get()).length,
@@ -214,18 +214,11 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     }
   }
 
-  final bookMedia = await db.select(db.bookMediaRows).get();
-  final bookMediaIds = bookMedia.map((row) => row.id).toSet();
-  final bookReleases = await db.select(db.bookReleaseRows).get();
-  for (final row in bookReleases.where((row) => isSeed(row.mediaId))) {
-    if (!bookMediaIds.contains(row.mediaId)) {
-      issues.add('book release ${row.id} has missing media ${row.mediaId}');
-    }
-    if (row.workId != row.mediaId) {
-      issues.add(
-        'book release ${row.id} points to work ${row.workId}, '
-        'expected ${row.mediaId}',
-      );
+  final bookItems =
+      await CatalogItemCacheRepository(db).findAll(kind: CatalogMediaKind.book);
+  for (final item in bookItems.where((item) => isSeed(item.id))) {
+    if (item.title.trim().isEmpty) {
+      issues.add('Book Catalog Item ${item.id} has an empty title');
     }
   }
 
@@ -830,16 +823,13 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     'anime seed tracking units are missing season/episode coordinates',
   );
 
-  final bookReleases = (await db.select(db.bookReleaseRows).get())
-      .where((row) => row.id.startsWith('seed-'));
+  final bookItems = (await CatalogItemCacheRepository(db)
+          .findAll(kind: CatalogMediaKind.book))
+      .where((item) => item.id.startsWith('seed-'));
   require(
-    bookReleases.every(
-      (row) =>
-          row.workId?.startsWith('seed-book-') == true &&
-          row.displayTitle?.trim().isNotEmpty == true &&
-          row.isbn?.trim().isNotEmpty == true,
-    ),
-    'book seed editions are missing typed edition metadata',
+    bookItems.every(
+        (item) => item.id.trim().isNotEmpty && item.title.trim().isNotEmpty),
+    'Book seed Catalog Items are missing canonical identity fields',
   );
   final boardGameEditions = (await db.select(db.boardGameEditionRows).get())
       .where((row) => row.id.startsWith('seed-'));

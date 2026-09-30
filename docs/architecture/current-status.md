@@ -76,9 +76,9 @@ Catalog transport now writes every Core item into a shared Drift cache keyed
 by `(kind, item_id)`. Snapshot reads and batched reference hydration use this
 flat cache. Book, Movie, and Music use it as their only active catalog store.
 The other six per-kind repositories are still dual-written because
-unconverted screens depend on them. The old Book media and release tables
-remain registered for schema cleanup, but Book catalog reads and writes no
-longer use them.
+unconverted screens depend on them. Book's catalog facts no longer have
+per-kind media or release tables; its remaining owned-copy and tracking data
+stays in App-owned tables while the broader personal-data cutover proceeds.
 Book calendar events now read each concrete item's release date from this cache
 instead of loading a `BookMedia` row from the old per-kind table. The Book
 barcode/ISBN lookup also reads root identifiers and contained printing ISBNs
@@ -86,9 +86,9 @@ from the cache. The Book workspace now exposes one combined Catalog Item field
 and column schema; it no longer registers a separate Release workspace or
 fetches nested volumes for browsing. The generic workspace registry still maps
 that root through its transitional `work` scope. Book's Edit adapters still
-contain legacy `BookMedia` and `BookRelease` models, while owned-copy state
-continues to use its separate App-owned tables. The Book field ledger remains
-provisional until its Edit-form capture is available.
+contain legacy `BookMedia` and `BookRelease` models, while owned-copy and
+tracking state continue to use separate App-owned tables. The Book field
+ledger remains provisional until its Edit-form capture is available.
 
 Music-owned copies created through Add target the concrete Music Catalog Item
 directly and persist only that `catalog_ref`; they do not carry a redundant

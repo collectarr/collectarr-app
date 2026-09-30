@@ -8,9 +8,6 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dar
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
@@ -151,13 +148,14 @@ Future<void> _seedTypedItem(
             id: id, title: '${kind.apiValue} title', rawPayload: rawPayload),
       );
     case CatalogMediaKind.book:
-      await BookRepository(db).updateMedia(
-        BookMedia(
-          id: BookMediaId(id),
-          title: '${kind.apiValue} title',
-          rawPayload: rawPayload,
-        ),
-      );
+      await CatalogTransportRepository(db).upsertTransportItems([
+        CatalogItemDto.fromJson({
+          'id': id,
+          'kind': kind.apiValue,
+          'title': '${kind.apiValue} title',
+          ...rawPayload,
+        }),
+      ]);
     case CatalogMediaKind.game:
       await GameRepository(db).updateMedia(
         GameMedia(

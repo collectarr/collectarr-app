@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/local/book_local_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/local/book_owned_item_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:drift/drift.dart';
@@ -17,7 +17,7 @@ final class BookOwnedRepository
     final row = await (_db.select(_db.bookOwnedItemsRows)
           ..where((table) => table.id.equals(id.value)))
         .getSingleOrNull();
-    return row == null ? null : BookLocalMapper.fromOwnedItemRow(row);
+    return row == null ? null : BookOwnedItemLocalMapper.fromRow(row);
   }
 
   Future<List<BookOwnedItem>> listActive() async {
@@ -25,13 +25,13 @@ final class BookOwnedRepository
           ..where((table) => table.deletedAt.isNull())
           ..orderBy([(table) => OrderingTerm.desc(table.updatedAt)]))
         .get();
-    return [for (final row in rows) BookLocalMapper.fromOwnedItemRow(row)];
+    return [for (final row in rows) BookOwnedItemLocalMapper.fromRow(row)];
   }
 
   Future<void> upsert(BookOwnedItem item) {
     return _db
         .into(_db.bookOwnedItemsRows)
-        .insertOnConflictUpdate(BookLocalMapper.toOwnedItemRow(item));
+        .insertOnConflictUpdate(BookOwnedItemLocalMapper.toRow(item));
   }
 
   Future<void> upsertAll(Iterable<BookOwnedItem> items) async {
@@ -40,7 +40,7 @@ final class BookOwnedRepository
     await _db.batch((batch) {
       batch.insertAll(
         _db.bookOwnedItemsRows,
-        values.map(BookLocalMapper.toOwnedItemRow).toList(growable: false),
+        values.map(BookOwnedItemLocalMapper.toRow).toList(growable: false),
         mode: InsertMode.insertOrReplace,
       );
     });

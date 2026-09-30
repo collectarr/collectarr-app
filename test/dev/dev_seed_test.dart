@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -103,6 +104,7 @@ void main() {
         .copyWith(
           ref: OwnedCopyRef(
             kind: CatalogMediaKind.movie,
+            itemId: mismatched.itemId,
             id: OwnedCopyId(mismatched.id.value),
           ),
           catalogRef: mismatched.catalogRef,
@@ -235,16 +237,17 @@ void main() {
         reason: 'Incomplete auxiliary seed data for ${entry.key}',
       );
     }
-    final bookReleases = await db.select(db.bookReleaseRows).get();
+    final bookItems = await CatalogItemCacheRepository(db).findAll(
+      kind: CatalogMediaKind.book,
+    );
     expect(
-      bookReleases.every(
-        (row) =>
-            row.workId?.startsWith('seed-book-') == true &&
-            row.displayTitle?.trim().isNotEmpty == true &&
-            row.isbn?.trim().isNotEmpty == true,
-      ),
+      bookItems.where((item) => item.id.startsWith('seed-book-')).every(
+            (item) =>
+                item.title.trim().isNotEmpty &&
+                item.barcode?.trim().isNotEmpty == true,
+          ),
       isTrue,
-      reason: 'Book seed editions must retain typed edition metadata',
+      reason: 'Book seed Catalog Items must retain title and ISBN data',
     );
     final boardGameEditions = await db.select(db.boardGameEditionRows).get();
     expect(
@@ -270,14 +273,13 @@ void main() {
       isTrue,
       reason: 'TV seed releases must retain series and episode metadata',
     );
-    final musicTracks = await db.select(db.musicTrackRows).get();
+    final musicItems = await CatalogItemCacheRepository(db).findAll(
+      kind: CatalogMediaKind.music,
+    );
     expect(
-      musicTracks.every(
-        (row) =>
-            row.mediumId.startsWith('seed-music-') && row.durationMs != null,
-      ),
+      musicItems.every(_hasMusicTracksWithDurations),
       isTrue,
-      reason: 'Music seed tracks must retain media and duration metadata',
+      reason: 'Music seed tracks must retain album and duration metadata',
     );
     final boardGamePlaySessions =
         await db.select(db.boardGamePlaySessionsRows).get();
@@ -694,6 +696,25 @@ void main() {
     expect(typedTrackingUnitCountsAfterSecondSeed, typedTrackingUnitCounts);
     expect(auxiliaryCountsAfterSecondSeed, auxiliaryCounts);
   });
+}
+
+bool _hasMusicTracksWithDurations(CatalogItemDto item) {
+  final musicValue = item.payload['music'];
+  if (musicValue is! Map) return false;
+  final music = Map<String, dynamic>.from(musicValue);
+  final discsValue = music['discs'];
+  if (discsValue is! Iterable) return false;
+  for (final discValue in discsValue) {
+    if (discValue is! Map) return false;
+    final tracksValue = Map<String, dynamic>.from(discValue)['tracks'];
+    if (tracksValue is! Iterable) return false;
+    for (final trackValue in tracksValue) {
+      if (trackValue is! Map) return false;
+      final track = Map<String, dynamic>.from(trackValue);
+      if (track['duration_ms'] is! num) return false;
+    }
+  }
+  return true;
 }
 
 int _countKind(List<CatalogItemDto> rows, CatalogMediaKind kind) {
