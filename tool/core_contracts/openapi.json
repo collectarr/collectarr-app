@@ -173,11 +173,6 @@
             "title": "Has Cover Conflicts",
             "type": "boolean"
           },
-          "has_provider_conflicts": {
-            "default": false,
-            "title": "Has Provider Conflicts",
-            "type": "boolean"
-          },
           "item_ids": {
             "items": {
               "format": "uuid",
@@ -3253,16 +3248,6 @@
             "title": "Normalized Value",
             "type": "string"
           },
-          "source_provider": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ExternalProvider"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "value": {
             "title": "Value",
             "type": "string"
@@ -3807,7 +3792,7 @@
       },
       "CanonicalCorrectionProposalCreate": {
         "additionalProperties": false,
-        "description": "A provider-independent proposal against one canonical entity.",
+        "description": "A source-neutral proposal against one canonical entity.",
         "properties": {
           "base_hash": {
             "anyOf": [
@@ -10114,20 +10099,6 @@
             "title": "Character Id",
             "type": "string"
           },
-          "external_ids": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "type": "string"
-                },
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "External Ids"
-          },
           "image_url": {
             "anyOf": [
               {
@@ -10247,16 +10218,6 @@
           "normalized_value": {
             "title": "Normalized Value",
             "type": "string"
-          },
-          "source_provider": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ExternalProvider"
-              },
-              {
-                "type": "null"
-              }
-            ]
           },
           "value": {
             "title": "Value",
@@ -11117,22 +11078,6 @@
         ],
         "title": "CreatorResponse",
         "type": "object"
-      },
-      "ExternalProvider": {
-        "enum": [
-          "anilist",
-          "bgg",
-          "comicvine",
-          "gcd",
-          "hardcover",
-          "igdb",
-          "mangadex",
-          "musicbrainz",
-          "openlibrary",
-          "tmdb"
-        ],
-        "title": "ExternalProvider",
-        "type": "string"
       },
       "FacetEntityIdsRequest": {
         "properties": {
