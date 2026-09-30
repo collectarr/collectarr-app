@@ -159,8 +159,7 @@ void main() {
 
     final videoItem = MovieCatalogMapper.mapDtoToMovie(item);
     expect(videoItem, isA<MovieCatalogItem>());
-    expect(videoItem.videoDetails, isNotNull);
-    expect(videoItem.videoDetails.runtimeMinutes, 164);
+    expect(videoItem.runtimeMinutes, 164);
   });
 
   test('personal models preserve catalog entity refs in sync payloads', () {
@@ -358,18 +357,18 @@ void main() {
       'kinds': ['book'],
       'ownership_by_kind': {
         'book': {
-          'scope': 'work',
+          'scope': 'catalog_item',
           'write_target': 'core_canonical',
-          'source_entity_type': 'book_work',
-          'source_table': 'book_works',
+          'source_entity_type': 'catalog_book_item',
+          'source_table': 'book_items',
         },
       },
     });
 
     final ownership = spec.ownershipForKind('book');
-    expect(ownership.scope, MetadataFieldScope.work);
+    expect(ownership.scope, MetadataFieldScope.catalogItem);
     expect(ownership.writeTarget, MetadataWriteTarget.coreCanonical);
-    expect(ownership.sourceEntityType, 'book_work');
-    expect(ownership.sourceTable, 'book_works');
+    expect(ownership.sourceEntityType, 'catalog_book_item');
+    expect(ownership.sourceTable, 'book_items');
   });
 }
