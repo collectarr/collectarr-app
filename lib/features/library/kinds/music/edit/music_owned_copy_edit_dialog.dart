@@ -35,7 +35,7 @@ final class _MusicOwnedCopyEditDialog extends StatefulWidget {
 final class _MusicOwnedCopyEditDialogState
     extends State<_MusicOwnedCopyEditDialog> {
   late final MusicOwnedItem _copy;
-  late final MusicAlbum _release;
+  late final MusicAlbum _album;
   late final MusicOwnedEditDraft _draft;
   List<ItemImageEdit> _imageEdits = const [];
 
@@ -64,7 +64,7 @@ final class _MusicOwnedCopyEditDialogState
           'The Music copy does not belong to the selected Catalog Item');
     }
     _copy = copy;
-    _release = album;
+    _album = album;
     _draft = MusicOwnedEditDraft.fromItem(copy);
   }
 
@@ -75,8 +75,8 @@ final class _MusicOwnedCopyEditDialogState
         model: _copy,
         draft: _draft,
         title: musicEditHeaderTitle(
-          title: _release.title,
-          artist: _release.artist,
+          title: _album.title,
+          artist: _album.artist,
         ),
         icon: Icons.library_music_outlined,
         mediaKind: widget.request.type.kind.apiValue,
@@ -91,7 +91,7 @@ final class _MusicOwnedCopyEditDialogState
             icon: Icons.album_outlined,
             content: MusicOwnedCopyMediaTab(
               draft: _draft,
-              mediums: _release.mediums,
+              mediums: _album.mediums,
               accent: widget.request.accent,
             ),
           ),

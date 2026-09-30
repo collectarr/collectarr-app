@@ -42,25 +42,25 @@ final class _MusicAlbumEditDialog extends ConsumerStatefulWidget {
 
 final class _MusicAlbumEditDialogState
     extends ConsumerState<_MusicAlbumEditDialog> {
-  late final MusicAlbum _release;
+  late final MusicAlbum _album;
   late final MusicAlbumEditDraft _draft;
   late final MusicAlbumCreditsEditor _creditsEditor;
   late final Future<void> _imagesLoaded;
   late Map<String, String?> _customFieldEdits;
   final Map<String, ({String listName, String value, String? mediaKind})>
       _pendingCustomFieldVocabularyValues = {};
-  List<MusicAlbumImage> _releaseImages = const [];
-  var _releaseImagesReady = false;
-  var _releaseImagesDirty = false;
+  List<MusicAlbumImage> _albumImages = const [];
+  var _albumImagesReady = false;
+  var _albumImagesDirty = false;
 
   @override
   void initState() {
     super.initState();
     final transport = widget.request.kindItem.kindCapability
         .mapTransport((transport) => transport);
-    _release = MusicCatalogMapper.mapMetadataItemToMusic(transport);
-    _draft = MusicAlbumEditDraft.fromRelease(
-      _release,
+    _album = MusicCatalogMapper.mapMetadataItemToMusic(transport);
+    _draft = MusicAlbumEditDraft.fromAlbum(
+      _album,
       trackingSummary: widget.request.trackingSummary,
     );
     _creditsEditor = MusicAlbumCreditsEditor(draft: _draft);
@@ -80,11 +80,11 @@ final class _MusicAlbumEditDialogState
   Future<void> _loadReleaseImages() async {
     final images = await MusicAlbumImageRepository(
       ref.read(localDatabaseProvider),
-    ).listForAlbum(_release.id.value);
+    ).listForAlbum(_album.id.value);
     if (!mounted) return;
     setState(() {
-      _releaseImages = images;
-      _releaseImagesReady = true;
+      _albumImages = images;
+      _albumImagesReady = true;
     });
   }
 
@@ -92,11 +92,11 @@ final class _MusicAlbumEditDialogState
   Widget build(BuildContext context) =>
       LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>(
         schema: musicAlbumEditSchema,
-        model: _release,
+        model: _album,
         draft: _draft,
         title: musicEditHeaderTitle(
-          title: _release.title,
-          artist: _release.artist,
+          title: _album.title,
+          artist: _album.artist,
         ),
         icon: widget.request.type.identity.icon,
         mediaKind: widget.request.type.kind.apiValue,
@@ -105,8 +105,8 @@ final class _MusicAlbumEditDialogState
         coreCorrectionSourceBuilder: () =>
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
-          originalFields: _release.toJson(),
-          proposedFields: _draft.toRelease().toJson(),
+          originalFields: _album.toJson(),
+          proposedFields: _draft.toAlbum().toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
@@ -178,14 +178,14 @@ final class _MusicAlbumEditDialogState
           EditSchemaExtraTab(
             label: 'Covers',
             icon: Icons.photo_camera_outlined,
-            content: _releaseImagesReady
+            content: _albumImagesReady
                 ? MusicAlbumCoversTab(
-                    albumId: _release.id.value,
+                    albumId: _album.id.value,
                     draft: _draft,
-                    images: _releaseImages,
+                    images: _albumImages,
                     onImagesChanged: (images) => setState(() {
-                      _releaseImages = images;
-                      _releaseImagesDirty = true;
+                      _albumImages = images;
+                      _albumImagesDirty = true;
                     }),
                   )
                 : const Center(child: CircularProgressIndicator()),
@@ -193,14 +193,14 @@ final class _MusicAlbumEditDialogState
           EditSchemaExtraTab(
             label: 'My Images',
             icon: Icons.collections_outlined,
-            content: _releaseImagesReady
+            content: _albumImagesReady
                 ? MusicAlbumMyImagesTab(
-                    albumId: _release.id.value,
-                    images: _releaseImages,
+                    albumId: _album.id.value,
+                    images: _albumImages,
                     accent: widget.request.accent,
                     onImagesChanged: (images) => setState(() {
-                      _releaseImages = images;
-                      _releaseImagesDirty = true;
+                      _albumImages = images;
+                      _albumImagesDirty = true;
                     }),
                   )
                 : const Center(child: CircularProgressIndicator()),
@@ -216,7 +216,7 @@ final class _MusicAlbumEditDialogState
         ],
         onSave: (_) async {
           await _imagesLoaded;
-          final updatedRelease = _draft.toRelease();
+          final updatedAlbum = _draft.toAlbum();
           if (_draft.hasOwnedMediumIndexChanges) {
             await MusicOwnedRepository(ref.read(localDatabaseProvider))
                 .remapMediumDetails(
@@ -225,17 +225,17 @@ final class _MusicAlbumEditDialogState
               removedIndexes: _draft.removedOwnedMediumIndexes,
             );
           }
-          if (_releaseImagesDirty) {
+          if (_albumImagesDirty) {
             await MusicAlbumImageRepository(ref.read(localDatabaseProvider))
-                .replaceForAlbum(_release.id.value, _releaseImages);
-            ref.invalidate(musicAlbumImagesProvider(_release.id.value));
+                .replaceForAlbum(_album.id.value, _albumImages);
+            ref.invalidate(musicAlbumImagesProvider(_album.id.value));
           }
           if (!mounted || !context.mounted) return;
           await _persistPendingCustomFieldVocabularyValues();
           if (!mounted || !context.mounted) return;
           final candidate =
               widget.request.kindItem.kindCapability.withKindMetadata(
-            updatedRelease,
+            updatedAlbum,
           );
           Navigator.of(context).pop(
             LibraryEditSelection(

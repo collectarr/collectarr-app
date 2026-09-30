@@ -15,7 +15,7 @@ void main() {
       title: 'Album',
       artist: 'Artist',
     );
-    final draft = MusicAlbumEditDraft.fromRelease(item);
+    final draft = MusicAlbumEditDraft.fromAlbum(item);
 
     expect(musicAlbumEditSchema.title!(item), 'Album / Artist');
     expect(musicAlbumEditSchema.tabs.map((tab) => tab.id), [
@@ -42,7 +42,7 @@ void main() {
       artist: 'Original artist',
       mediums: [disc],
     );
-    final values = MusicAlbumFormValues.fromRelease(original)
+    final values = MusicAlbumFormValues.fromAlbum(original)
       ..title = 'Updated title'
       ..artist = 'Updated artist'
       ..genres = ['Rock'];

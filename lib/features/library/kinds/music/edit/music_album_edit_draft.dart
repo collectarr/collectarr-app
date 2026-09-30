@@ -11,22 +11,22 @@ import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_
 import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
 
 final class MusicAlbumEditDraft {
-  MusicAlbumEditDraft.fromRelease(
-    MusicAlbum release, {
+  MusicAlbumEditDraft.fromAlbum(
+    MusicAlbum album, {
     TrackingSummary? trackingSummary,
-  })  : original = release,
-        values = MusicAlbumFormValues.fromRelease(release),
-        contributions = List.of(release.contributions),
+  })  : original = album,
+        values = MusicAlbumFormValues.fromAlbum(album),
+        contributions = List.of(album.contributions),
         mediums = [
-          for (final medium in release.mediums) _copyMedium(medium),
+          for (final medium in album.mediums) _copyMedium(medium),
         ],
-        externalLinks = List.of(release.externalLinks),
+        externalLinks = List.of(album.externalLinks),
         trackingStatus = trackingSummary?.statusStorageValue,
         trackingRating = trackingSummary?.rating,
         trackingNotes = trackingSummary?.notes,
         _trackingSummary = trackingSummary {
     _originalMediumNumbers = {
-      for (final medium in release.mediums)
+      for (final medium in album.mediums)
         medium.id.value: medium.mediumNumber,
     };
   }
@@ -60,7 +60,7 @@ final class MusicAlbumEditDraft {
       );
       if (previousId != entry.key) {
         throw StateError(
-          'Music release ${original.id.value} has duplicate original '
+          'Music album ${original.id.value} has duplicate original '
           'medium number ${entry.value}; disc details cannot be remapped safely.',
         );
       }
@@ -69,7 +69,7 @@ final class MusicAlbumEditDraft {
       final previous = remap[entry.value];
       if (previous != null && previous != newNumber) {
         throw StateError(
-          'Music release ${original.id.value} has duplicate original '
+          'Music album ${original.id.value} has duplicate original '
           'medium number ${entry.value}; disc details cannot be remapped safely.',
         );
       }
@@ -498,7 +498,7 @@ final class MusicAlbumEditDraft {
     );
   }
 
-  MusicAlbum toRelease() => MusicAlbumFormAdapter.update(
+  MusicAlbum toAlbum() => MusicAlbumFormAdapter.update(
         original,
         values,
         mediums: mediums,

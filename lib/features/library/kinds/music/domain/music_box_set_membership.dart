@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:flutter/foundation.dart';
 
-/// The relationship between a concrete Music release and its box set.
+/// The relationship between a concrete Music album and its box set.
 ///
 /// A box set is represented as an opaque catalog reference. Music owns the
 /// meaning of the relationship; generic catalog code only transports it.
