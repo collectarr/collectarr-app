@@ -124,13 +124,10 @@ final class LibraryAddSubmissionService {
         dependencies: request.dependencies,
         items: items,
         target: request.target,
-        referenceType: request.referenceType,
         defaults: request.defaults,
         commonDraft: request.commonDraft,
         trackingDraft: request.trackingDraft,
         kindDraftsByCatalogRef: request.kindDraftsByCatalogRef,
-        editionSelectionsByCatalogRef: request.editionSelectionsByCatalogRef,
-        bundleReleaseIdsByCatalogRef: request.bundleReleaseIdsByCatalogRef,
       ),
     );
     return LibraryAddBatchSubmissionResult(submittedCount: items.length);

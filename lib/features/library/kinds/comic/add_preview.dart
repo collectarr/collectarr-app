@@ -1,7 +1,6 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter/material.dart';
@@ -23,16 +22,10 @@ class _ComicAddPreviewPane extends StatelessWidget {
     final palette = appPalette(context);
     final selectedItem = request.item;
     if (selectedItem == null) return const SizedBox.shrink();
-    final selectedBundle =
-        request.referenceType == LibraryAddReferenceType.bundleRelease
-            ? request.selectedBundleReleaseDetail
-            : null;
-    final title = selectedBundle?.title ?? selectedItem.summary.primaryLabel;
-    final itemNumber = selectedBundle == null
-        ? (selectedItem.kindCapability
-            .mapTransport((transport) => transport)
-            .payload['item_number'] as String?)
-        : null;
+    final title = selectedItem.summary.primaryLabel;
+    final itemNumber = selectedItem.kindCapability
+        .mapTransport((transport) => transport)
+        .payload['item_number'] as String?;
     final displayEditionLabel = (selectedItem.kindCapability
             .mapTransport((transport) => transport)
             .payload['edition_title'] as String?) ??
@@ -40,8 +33,7 @@ class _ComicAddPreviewPane extends StatelessWidget {
             .mapTransport((transport) => transport)
             .payload['physical_format_label'] as String?);
     final synopsis = selectedItem.comicCatalogFields.synopsis;
-    final coverUrl = selectedBundle?.coverImageUrl ??
-        selectedItem.comicCatalogFields.coverImageUrl;
+    final coverUrl = selectedItem.comicCatalogFields.coverImageUrl;
     final rows = libraryAddMetadataRowsForItem(selectedItem, request.type);
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -173,60 +165,6 @@ class _ComicAddPreviewPane extends StatelessWidget {
             Expanded(
               child: ListView(
                 children: [
-                  LibraryAddReferenceSelector(
-                    type: request.type,
-                    accent: request.accent,
-                    addTarget: request.addTarget,
-                    referenceType: request.referenceType,
-                    item: selectedItem,
-                    bundleReleases: request.availableBundleReleases,
-                    selectedBundleReleaseId: request.selectedBundleReleaseId,
-                    selectedEditionId: request.selectedEditionId,
-                    selectedVariantId: request.selectedVariantId,
-                    isLoadingBundleReleases: request.isLoadingBundleReleases,
-                    onReferenceTypeChanged: request.onReferenceTypeChanged,
-                    onEditionSelected: request.onEditionSelected,
-                    onVariantSelected: request.onVariantSelected,
-                    onBundleReleaseSelected: request.onBundleReleaseSelected,
-                  ),
-                  const SizedBox(height: 12),
-                  if (request.referenceType ==
-                      LibraryAddReferenceType.bundleRelease) ...[
-                    Text(
-                      'Bundle contents',
-                      style: TextStyle(
-                        color: request.accent,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    if (request.selectedBundleReleaseId != null &&
-                        request.isLoadingBundleReleaseDetail)
-                      Row(
-                        children: [
-                          const SizedBox.square(
-                            dimension: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Loading bundle contents...',
-                            style: TextStyle(color: palette.textMuted),
-                          ),
-                        ],
-                      )
-                    else if (selectedBundle != null)
-                      LibraryBundleDetailCard(
-                        detail: selectedBundle,
-                        accent: request.accent,
-                      )
-                    else
-                      Text(
-                        'Select a bundle release to preview its members.',
-                        style: TextStyle(color: palette.textMuted),
-                      ),
-                    const SizedBox(height: 14),
-                  ],
                   Text(
                     'Issue details',
                     style: TextStyle(

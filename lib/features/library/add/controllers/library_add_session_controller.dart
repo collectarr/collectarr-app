@@ -15,14 +15,10 @@ import 'package:collectarr_app/features/library/add/library_add_collection_workf
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_hydration_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_submission_service.dart';
@@ -103,36 +99,11 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   @override
   set state(LibraryAddSessionState newState) => value = newState;
 
-  CatalogEntityRef _selectedWishlistRef(CatalogSearchCandidate item) {
-    final selection = state.selection;
-    return libraryCatalogTargetForKind(item.summary.kind).resolve(
-      item.reference,
-      LibraryCatalogTargetSelection(
-        referenceType: selection.referenceType,
-        firstId: selection.selectedReferenceEditionId,
-        secondId: selection.selectedReferenceVariantId,
-        groupId: selection.selectedBundleReleaseId,
-      ),
-    );
-  }
+  CatalogEntityRef _selectedWishlistRef(CatalogSearchCandidate item) =>
+      item.reference;
 
-  CatalogEntityRef _selectedTargetRef(CatalogSearchCandidate item) {
-    final selection = state.selection;
-    final resolved = libraryCatalogTargetForKind(item.summary.kind).resolve(
-      item.reference,
-      LibraryCatalogTargetSelection(
-        referenceType: selection.referenceType,
-        firstId: selection.selectedReferenceEditionId,
-        secondId: selection.selectedReferenceVariantId,
-        groupId: selection.selectedBundleReleaseId,
-      ),
-    );
-    if (resolved == item.reference) {
-      return libraryAddForKind(item.summary.kind).mediaTargetRef(item) ??
-          resolved;
-    }
-    return resolved;
-  }
+  CatalogEntityRef _selectedTargetRef(CatalogSearchCandidate item) =>
+      item.reference;
 
   LibraryAddSubmissionRequest _submissionRequest(
     List<CatalogSearchCandidate> candidates, {
@@ -186,14 +157,9 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     state = state.copyWith(
       selection: state.selection.copyWith(
         selectedResultId: id,
-        clearSelectedBundleReleaseId: true,
-        clearSelectedReferenceEditionId: true,
-        clearSelectedReferenceVariantId: true,
-        referenceType: LibraryAddReferenceType.media,
       ),
     );
     unawaited(_ensureSelectedResultLoaded(id));
-    unawaited(_ensureBundleReleasesLoaded(id));
   }
 
   void toggleCheckedResult(String id) {
@@ -204,66 +170,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     state = state.copyWith(
       selection: state.selection.copyWith(checkedResultIds: updated),
     );
-  }
-
-  void setReferenceType(LibraryAddReferenceType value) {
-    if (state.target == LibraryAddTarget.track) return;
-    final bundles = state.preview.bundleReleasesForItem(state.selectedItem);
-    String? firstBundleId;
-    if (value == LibraryAddReferenceType.bundleRelease) {
-      firstBundleId = state.selection.selectedBundleReleaseId ??
-          (bundles.isNotEmpty ? bundles.first.id : null);
-    }
-    state = state.copyWith(
-      selection: state.selection.copyWith(
-        referenceType: value,
-        selectedBundleReleaseId: firstBundleId,
-        clearSelectedBundleReleaseId:
-            value != LibraryAddReferenceType.bundleRelease,
-        clearSelectedReferenceEditionId:
-            value != LibraryAddReferenceType.edition,
-        clearSelectedReferenceVariantId:
-            value != LibraryAddReferenceType.edition,
-      ),
-    );
-    if (value == LibraryAddReferenceType.bundleRelease &&
-        firstBundleId != null) {
-      unawaited(_ensureBundleReleaseDetailLoaded(firstBundleId));
-    }
-  }
-
-  void selectReferenceEdition(String editionId) {
-    final item = state.selectedItem;
-    if (item == null) return;
-    final releases = libraryPresentationForKind(item.summary.kind)
-        .builder
-        .buildReleaseOptions(item: item);
-    final selectedRelease = previewReleaseForItem(releases, editionId);
-    state = state.copyWith(
-      selection: state.selection.copyWith(
-        selectedReferenceEditionId: selectedRelease?.id,
-        clearSelectedReferenceVariantId: true,
-      ),
-    );
-  }
-
-  void selectReferenceVariant(String variantId) {
-    final normalized = variantId.trim().isEmpty ? null : variantId.trim();
-    state = state.copyWith(
-      selection: state.selection.copyWith(
-        selectedReferenceVariantId: normalized,
-        clearSelectedReferenceVariantId: normalized == null,
-      ),
-    );
-  }
-
-  void selectBundleRelease(String bundleReleaseId) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(
-        selectedBundleReleaseId: bundleReleaseId,
-      ),
-    );
-    unawaited(_ensureBundleReleaseDetailLoaded(bundleReleaseId));
   }
 
   void setResultPolicyOption(String id, bool value) {
@@ -416,134 +322,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     }
   }
 
-  @override
-  Future<void> _ensureBundleReleasesLoaded(String itemId) async {
-    if (api == null) return;
-    final selected = state.search.results
-        .where((item) => item.reference.id == itemId)
-        .firstOrNull;
-    if (selected == null) return;
-    final catalogRef = selected.reference;
-    if (state.preview.bundleReleasesByCatalogRef.containsKey(catalogRef) ||
-        state.preview.isBundleReleasesPending(catalogRef)) {
-      return;
-    }
-
-    final searchGen = state.search.coreSearchGeneration;
-    final pending = Set<CatalogEntityRef>.from(
-      state.preview.pendingBundleReleaseCatalogRefs,
-    )..add(catalogRef);
-    state = state.copyWith(
-      preview: state.preview.copyWith(
-        pendingBundleReleaseCatalogRefs: pending,
-      ),
-    );
-
-    try {
-      final bundleReleases = await hydrationService.loadBundleReleases(
-        api: api!,
-        itemId: itemId,
-      );
-      if (searchGen != state.search.coreSearchGeneration) return;
-
-      final firstBundleId = state.selection.selectedBundleReleaseId ??
-          (bundleReleases.isNotEmpty ? bundleReleases.first.id : null);
-      final releasesMap =
-          Map<CatalogEntityRef, List<LibraryBundleSummary>>.from(
-        state.preview.bundleReleasesByCatalogRef,
-      );
-      releasesMap[catalogRef] = bundleReleases;
-      final pendingUpdated = Set<CatalogEntityRef>.from(
-        state.preview.pendingBundleReleaseCatalogRefs,
-      )..remove(catalogRef);
-
-      state = state.copyWith(
-        preview: state.preview.copyWith(
-          bundleReleasesByCatalogRef: releasesMap,
-          pendingBundleReleaseCatalogRefs: pendingUpdated,
-        ),
-        selection: state.selection.referenceType ==
-                LibraryAddReferenceType.bundleRelease
-            ? state.selection.copyWith(selectedBundleReleaseId: firstBundleId)
-            : null,
-      );
-
-      if (state.selection.referenceType ==
-              LibraryAddReferenceType.bundleRelease &&
-          firstBundleId != null) {
-        unawaited(_ensureBundleReleaseDetailLoaded(firstBundleId));
-      }
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_add',
-        message: 'Failed to load bundle releases for $itemId.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      final pendingUpdated = Set<CatalogEntityRef>.from(
-        state.preview.pendingBundleReleaseCatalogRefs,
-      )..remove(catalogRef);
-      state = state.copyWith(
-        preview: state.preview.copyWith(
-          pendingBundleReleaseCatalogRefs: pendingUpdated,
-        ),
-      );
-    }
-  }
-
-  Future<void> _ensureBundleReleaseDetailLoaded(String bundleReleaseId) async {
-    if (api == null) return;
-    if (state.preview.bundleReleaseDetailsById.containsKey(bundleReleaseId) ||
-        state.preview.isBundleReleaseDetailPending(bundleReleaseId)) {
-      return;
-    }
-
-    final searchGen = state.search.coreSearchGeneration;
-    final pending =
-        Set<String>.from(state.preview.pendingBundleReleaseDetailIds)
-          ..add(bundleReleaseId);
-    state = state.copyWith(
-      preview: state.preview.copyWith(pendingBundleReleaseDetailIds: pending),
-    );
-
-    try {
-      final bundleRelease = await hydrationService.loadBundleReleaseDetail(
-        api: api!,
-        bundleReleaseId: bundleReleaseId,
-      );
-      if (searchGen != state.search.coreSearchGeneration) return;
-
-      final detailsMap = Map<String, LibraryBundleDetail>.from(
-        state.preview.bundleReleaseDetailsById,
-      );
-      detailsMap[bundleReleaseId] = bundleRelease;
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingBundleReleaseDetailIds)
-            ..remove(bundleReleaseId);
-      state = state.copyWith(
-        preview: state.preview.copyWith(
-          bundleReleaseDetailsById: detailsMap,
-          pendingBundleReleaseDetailIds: pendingUpdated,
-        ),
-      );
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_add',
-        message: 'Failed to load bundle release detail for $bundleReleaseId.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingBundleReleaseDetailIds)
-            ..remove(bundleReleaseId);
-      state = state.copyWith(
-        preview: state.preview.copyWith(
-          pendingBundleReleaseDetailIds: pendingUpdated,
-        ),
-      );
-    }
-  }
-
   void updateCommonDraft(
       LibraryAddCommonDraft Function(LibraryAddCommonDraft) update) {
     state = state.copyWith(commonDraft: update(state.commonDraft));
@@ -674,7 +452,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
           startedAt: state.trackingDraft.startedAt,
           finishedAt: state.trackingDraft.finishedAt,
         ),
-        referenceType: state.selection.referenceType,
         defaults: LibraryAddDefaults(
           condition: state.defaultCondition,
           purchaseDate: state.defaultPurchaseDate,

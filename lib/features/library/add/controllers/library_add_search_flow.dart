@@ -12,7 +12,6 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
   Future<bool> _handleAuthExpiration(Object error, String action);
   void selectResult(String id);
   Future<void> _ensureSelectedResultLoaded(String itemId);
-  Future<void> _ensureBundleReleasesLoaded(String itemId);
   Timer? _searchDebounceTimer;
   Timer? _autocompleteTimer;
   CancelToken? _coreSearchCancelToken;
@@ -142,7 +141,6 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
       ),
     );
     _ensureSelectedResultLoaded(item.reference.id);
-    _ensureBundleReleasesLoaded(item.reference.id);
   }
 
   void dismissSuggestions() {

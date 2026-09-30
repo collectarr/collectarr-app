@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -39,16 +38,6 @@ class LibraryAddDefaults {
   }
 }
 
-class LibraryAddEditionSelection {
-  const LibraryAddEditionSelection({
-    required this.editionId,
-    this.variantId,
-  });
-
-  final String editionId;
-  final String? variantId;
-}
-
 final class LibraryAddMutationDependencies {
   const LibraryAddMutationDependencies({
     required this.catalog,
@@ -68,26 +57,19 @@ final class LibraryAddBatchRequest {
     required this.dependencies,
     required this.items,
     required this.target,
-    this.referenceType = LibraryAddReferenceType.media,
     this.defaults = const LibraryAddDefaults(),
     this.commonDraft,
     this.trackingDraft,
     this.kindDraftsByCatalogRef = const {},
-    this.editionSelectionsByCatalogRef = const {},
-    this.bundleReleaseIdsByCatalogRef = const {},
   });
 
   final LibraryAddMutationDependencies dependencies;
   final Iterable<CatalogSearchCandidate> items;
   final LibraryAddTarget target;
-  final LibraryAddReferenceType referenceType;
   final LibraryAddDefaults defaults;
   final LibraryAddCommonDraft? commonDraft;
   final LibraryAddTrackingDraft? trackingDraft;
   final Map<CatalogEntityRef, LibraryAddKindDraft> kindDraftsByCatalogRef;
-  final Map<CatalogEntityRef, LibraryAddEditionSelection>
-      editionSelectionsByCatalogRef;
-  final Map<CatalogEntityRef, String> bundleReleaseIdsByCatalogRef;
 }
 
 /// Pure application orchestration for already-selected catalog results.
@@ -101,13 +83,10 @@ final class LibraryAddCoordinator {
     final trackingMutations = request.dependencies.trackingMutations;
     final items = request.items;
     final target = request.target;
-    final referenceType = request.referenceType;
     final defaults = request.defaults;
     final commonDraft = request.commonDraft;
     final trackingDraft = request.trackingDraft;
     final kindDraftsByCatalogRef = request.kindDraftsByCatalogRef;
-    final editionSelectionsByCatalogRef = request.editionSelectionsByCatalogRef;
-    final bundleReleaseIdsByCatalogRef = request.bundleReleaseIdsByCatalogRef;
 
     final values = items.toList(growable: false);
     if (values.isEmpty) {
@@ -125,17 +104,7 @@ final class LibraryAddCoordinator {
       final digitalOwnedItem =
           libraryAddForKind(item.summary.kind).digitalCopyFlag(item);
       final isDigitalOwnedItem = digitalOwnedItem == true;
-      final reference = _resolveReferenceForItem(
-        item,
-        mediaTargetRef: target == LibraryAddTarget.wishlist
-            ? null
-            : libraryAddForKind(item.summary.kind).mediaTargetRef(item),
-        referenceType: target == LibraryAddTarget.track
-            ? LibraryAddReferenceType.media
-            : referenceType,
-        editionSelection: editionSelectionsByCatalogRef[item.reference],
-        bundleReleaseId: bundleReleaseIdsByCatalogRef[item.reference],
-      );
+      final reference = item.reference;
 
       final itemCommon = LibraryAddCommonDraft(
         condition: isDigitalOwnedItem ? null : baseCommon.condition,
@@ -159,7 +128,7 @@ final class LibraryAddCoordinator {
             itemCommon,
             kindDraftsByCatalogRef[item.reference] ??
                 capability.createInitialDraft(),
-            targetRef: reference.catalogRef,
+            targetRef: reference,
             tracking: baseTracking,
           );
           final ownedItem = await ownedMutations.addOwnedItem(addCmd);
@@ -167,7 +136,7 @@ final class LibraryAddCoordinator {
           if (tracking != null) {
             await trackingMutations.syncOwnedTrackingState(
               ownedItem,
-              targetRef: reference.catalogRef,
+              targetRef: reference,
               status: tracking.status,
               rating: tracking.rating,
               startedAt: tracking.startedAt,
@@ -178,13 +147,13 @@ final class LibraryAddCoordinator {
           break;
         case LibraryAddTarget.wishlist:
           await wishlistMutations.addToWishlist(
-            reference.catalogRef,
+            reference,
           );
           break;
         case LibraryAddTarget.track:
           await trackingMutations.addLocalOnlyTrackingState(
             item.reference,
-            targetRef: reference.catalogRef,
+            targetRef: reference,
             status: baseTracking.readStatus == null
                 ? null
                 : mediaTrackingStatusFromValue(baseTracking.readStatus),
@@ -194,69 +163,4 @@ final class LibraryAddCoordinator {
       }
     }
   }
-}
-
-_ResolvedAddReference _resolveReferenceForItem(
-  CatalogSearchCandidate item, {
-  CatalogEntityRef? mediaTargetRef,
-  required LibraryAddReferenceType referenceType,
-  LibraryAddEditionSelection? editionSelection,
-  String? bundleReleaseId,
-}) {
-  switch (referenceType) {
-    case LibraryAddReferenceType.media:
-      return _ResolvedAddReference(
-        catalogRef: mediaTargetRef ?? item.reference,
-      );
-    case LibraryAddReferenceType.bundleRelease:
-      return _ResolvedAddReference(
-        catalogRef: libraryCatalogTargetForKind(item.summary.kind).resolve(
-          item.reference,
-          LibraryCatalogTargetSelection(
-            referenceType: referenceType,
-            groupId: bundleReleaseId,
-          ),
-        ),
-      );
-    case LibraryAddReferenceType.edition:
-      final explicitEditionId = editionSelection?.editionId.trim();
-      if (explicitEditionId != null && explicitEditionId.isNotEmpty) {
-        final variantId = editionSelection?.variantId?.trim();
-        return _ResolvedAddReference(
-          catalogRef: libraryCatalogTargetForKind(item.summary.kind).resolve(
-            item.reference,
-            LibraryCatalogTargetSelection(
-              referenceType: referenceType,
-              firstId: explicitEditionId,
-              secondId: variantId?.isEmpty == true ? null : variantId,
-            ),
-          ),
-        );
-      }
-      final releases = libraryPresentationForKind(item.summary.kind)
-          .builder
-          .buildReleaseOptions(item: item);
-      if (releases.isEmpty) {
-        return _ResolvedAddReference(catalogRef: item.reference);
-      }
-      final firstRelease = releases.first;
-      final explicitVariantId = editionSelection?.variantId?.trim();
-      return _ResolvedAddReference(
-        catalogRef: libraryCatalogTargetForKind(item.summary.kind).resolve(
-          item.reference,
-          LibraryCatalogTargetSelection(
-            referenceType: referenceType,
-            firstId: firstRelease.id,
-            secondId:
-                explicitVariantId?.isEmpty == true ? null : explicitVariantId,
-          ),
-        ),
-      );
-  }
-}
-
-class _ResolvedAddReference {
-  const _ResolvedAddReference({required this.catalogRef});
-
-  final CatalogEntityRef catalogRef;
 }

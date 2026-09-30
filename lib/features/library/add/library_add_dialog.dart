@@ -24,7 +24,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_bottom_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.dart';
@@ -917,37 +916,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     state.preview.pendingHydratedResultRefs
                         .contains(selectedItem.reference),
                 searched: state.search.results.isNotEmpty,
-                addTarget: state.target,
-                referenceType: state.selection.referenceType,
-                availableBundleReleases: selectedItem == null
-                    ? const <LibraryBundleSummary>[]
-                    : state.preview.bundleReleasesByCatalogRef[
-                            selectedItem.reference] ??
-                        const <LibraryBundleSummary>[],
-                selectedBundleReleaseId:
-                    state.selection.selectedBundleReleaseId,
-                selectedBundleReleaseDetail:
-                    state.selection.selectedBundleReleaseId == null
-                        ? null
-                        : state.preview.bundleReleaseDetailsById[
-                            state.selection.selectedBundleReleaseId],
-                selectedEditionId: state.selection.selectedReferenceEditionId,
-                selectedVariantId: state.selection.selectedReferenceVariantId,
-                isLoadingBundleReleases: selectedItem != null &&
-                    state.preview.pendingBundleReleaseCatalogRefs
-                        .contains(selectedItem.reference),
-                isLoadingBundleReleaseDetail:
-                    state.selection.selectedBundleReleaseId != null &&
-                        state.preview.pendingBundleReleaseDetailIds
-                            .contains(state.selection.selectedBundleReleaseId),
-                onReferenceTypeChanged: (value) =>
-                    _controller.setReferenceType(value),
-                onEditionSelected: (editionId) =>
-                    _controller.selectReferenceEdition(editionId),
-                onVariantSelected: (variantId) =>
-                    _controller.selectReferenceVariant(variantId),
-                onBundleReleaseSelected: (bundleReleaseId) =>
-                    _controller.selectBundleRelease(bundleReleaseId),
               );
 
               if (constraints.maxWidth < 720) {

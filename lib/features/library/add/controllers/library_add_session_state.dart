@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,12 +58,6 @@ final class LibraryAddSessionState {
       return preview.hydratedResultFor(item.reference) ?? item;
     }
     return null;
-  }
-
-  LibraryBundleDetail? get selectedBundleReleaseDetail {
-    final bundleReleaseId = selection.selectedBundleReleaseId;
-    if (bundleReleaseId == null) return null;
-    return preview.bundleReleaseDetailForId(bundleReleaseId);
   }
 
   List<CatalogSearchCandidate> visibleCoreResults(

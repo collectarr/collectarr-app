@@ -28,7 +28,6 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),
-  mediaTargetRefBuilder: (item) => item.reference,
   digitalCopyFlagBuilder: (item) {
     final format = musicCatalogItemFromCandidate(item).format?.toLowerCase();
     return format == null

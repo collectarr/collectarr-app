@@ -1,7 +1,6 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter/material.dart';
@@ -23,19 +22,12 @@ class _MovieAddPreviewPane extends StatelessWidget {
     final palette = appPalette(context);
     final selectedItem = request.item;
     if (selectedItem == null) return const SizedBox.shrink();
-    final selectedBundle =
-        request.referenceType == LibraryAddReferenceType.bundleRelease
-            ? request.selectedBundleReleaseDetail
-            : null;
-    final title = selectedBundle?.title ?? selectedItem.summary.primaryLabel;
-    final itemNumber = selectedBundle == null
-        ? (selectedItem.kindCapability
-            .mapTransport((transport) => transport)
-            .payload['item_number'] as String?)
-        : null;
+    final title = selectedItem.summary.primaryLabel;
+    final itemNumber = selectedItem.kindCapability
+        .mapTransport((transport) => transport)
+        .payload['item_number'] as String?;
     final synopsis = selectedItem.movieCatalogFields.synopsis;
-    final coverUrl = selectedBundle?.coverImageUrl ??
-        selectedItem.movieCatalogFields.coverImageUrl;
+    final coverUrl = selectedItem.movieCatalogFields.coverImageUrl;
     final rows = libraryAddMetadataRowsForItem(selectedItem, request.type);
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -141,23 +133,6 @@ class _MovieAddPreviewPane extends StatelessWidget {
             Expanded(
               child: ListView(
                 children: [
-                  LibraryAddReferenceSelector(
-                    type: request.type,
-                    accent: request.accent,
-                    addTarget: request.addTarget,
-                    referenceType: request.referenceType,
-                    item: selectedItem,
-                    bundleReleases: request.availableBundleReleases,
-                    selectedBundleReleaseId: request.selectedBundleReleaseId,
-                    selectedEditionId: request.selectedEditionId,
-                    selectedVariantId: request.selectedVariantId,
-                    isLoadingBundleReleases: request.isLoadingBundleReleases,
-                    onReferenceTypeChanged: request.onReferenceTypeChanged,
-                    onEditionSelected: request.onEditionSelected,
-                    onVariantSelected: request.onVariantSelected,
-                    onBundleReleaseSelected: request.onBundleReleaseSelected,
-                  ),
-                  const SizedBox(height: 12),
                   Text(
                     'Details',
                     style: TextStyle(

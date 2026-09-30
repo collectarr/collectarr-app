@@ -7,15 +7,12 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_result
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 
 // Pluggable pane builder typedefs and their request payloads for the
@@ -141,19 +138,6 @@ class LibraryAddPreviewPaneRequest {
     required this.item,
     required this.isFetchingPreview,
     required this.searched,
-    required this.addTarget,
-    required this.referenceType,
-    required this.availableBundleReleases,
-    required this.selectedBundleReleaseId,
-    required this.selectedBundleReleaseDetail,
-    required this.selectedEditionId,
-    required this.selectedVariantId,
-    required this.isLoadingBundleReleases,
-    required this.isLoadingBundleReleaseDetail,
-    required this.onReferenceTypeChanged,
-    required this.onEditionSelected,
-    required this.onVariantSelected,
-    required this.onBundleReleaseSelected,
   });
 
   final LibraryKindRegistration type;
@@ -161,19 +145,6 @@ class LibraryAddPreviewPaneRequest {
   final CatalogSearchCandidate? item;
   final bool isFetchingPreview;
   final bool searched;
-  final LibraryAddTarget addTarget;
-  final LibraryAddReferenceType referenceType;
-  final List<LibraryBundleSummary> availableBundleReleases;
-  final String? selectedBundleReleaseId;
-  final LibraryBundleDetail? selectedBundleReleaseDetail;
-  final String? selectedEditionId;
-  final String? selectedVariantId;
-  final bool isLoadingBundleReleases;
-  final bool isLoadingBundleReleaseDetail;
-  final ValueChanged<LibraryAddReferenceType> onReferenceTypeChanged;
-  final ValueChanged<String> onEditionSelected;
-  final ValueChanged<String> onVariantSelected;
-  final ValueChanged<String> onBundleReleaseSelected;
 }
 
 class LibraryAddHeaderRequest {
