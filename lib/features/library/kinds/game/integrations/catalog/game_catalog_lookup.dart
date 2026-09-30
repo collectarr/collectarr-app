@@ -71,7 +71,7 @@ final class GameCatalogLookup implements CatalogKindLookup {
   }
 
   String? _itemNumber(CatalogItemDto item) {
-    final value = item.itemNumber ?? item.payload['edition']?.toString();
+    final value = item.itemNumber ?? item.payload['edition_title']?.toString();
     final text = value?.toString().trim();
     return text == null || text.isEmpty ? null : text;
   }

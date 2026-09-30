@@ -39,8 +39,7 @@ GameCatalogFormValues gameCatalogFormValuesFromMedia(GameMedia media) {
     releaseYear: _integer(release?.rawPayload['release_year']) ??
         release?.releaseDate?.year,
     variant: _text(release?.rawPayload['variant']) ?? '',
-    backCoverImageUrl:
-        _text(release?.rawPayload['back_cover_image_url']) ?? '',
+    backCoverImageUrl: _text(release?.rawPayload['back_cover_image_url']) ?? '',
   );
 }
 
@@ -191,7 +190,7 @@ GameCatalogMetadata gameMetadataFromManualFormValues({
   return GameCatalogMetadata.fromJson({
     'id': id,
     'title': title.trim(),
-    'edition': _optional(values.releaseTitle),
+    'edition_title': _optional(values.releaseTitle),
     'sort_title': _optional(values.sortTitle),
     'subtitle': _optional(values.subtitle),
     'description': _optional(values.description),
@@ -263,12 +262,14 @@ String? _optional(String value) {
 
 String? _text(Object? value) => value?.toString().trim().letEmptyToNull();
 
-int? _integer(Object? value) => value is num
-    ? value.toInt()
-    : int.tryParse(value?.toString() ?? '');
+int? _integer(Object? value) =>
+    value is num ? value.toInt() : int.tryParse(value?.toString() ?? '');
 
 List<String> _stringList(Object? value) => value is List
-    ? [for (final entry in value) if (_text(entry) case final text?) text]
+    ? [
+        for (final entry in value)
+          if (_text(entry) case final text?) text
+      ]
     : const [];
 
 String? _seriesText(Object? value) => value is Map
