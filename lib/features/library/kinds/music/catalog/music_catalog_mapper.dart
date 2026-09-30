@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 
@@ -15,7 +16,7 @@ final class MusicCatalogMapper {
     if (metadata is MusicRelease) return metadata;
     if (metadata is CatalogMusicItemDto) return _fromTypedDto(metadata);
 
-    final payload = item.payload;
+    final payload = catalogTransportPayloadFor(item);
     final nestedMusic = payload['music'];
     final musicPayload = nestedMusic is Map
         ? <String, dynamic>{
@@ -49,8 +50,7 @@ final class MusicCatalogMapper {
               'position': track.position,
               'title': track.title,
               if (track.artist != null) 'artist': track.artist,
-              if (track.durationMs != null)
-                'duration_ms': track.durationMs,
+              if (track.durationMs != null) 'duration_ms': track.durationMs,
             },
         ],
       });
@@ -89,8 +89,7 @@ final class MusicCatalogMapper {
       if (item.extra != null) 'extra': item.extra,
       if (item.spars != null) 'spars': item.spars,
       if (item.boxSet != null) 'box_set_name': item.boxSet,
-      if (item.artistCredits.isNotEmpty)
-        'artist_credits': item.artistCredits,
+      if (item.artistCredits.isNotEmpty) 'artist_credits': item.artistCredits,
       if (item.externalLinks.isNotEmpty) 'external_links': item.externalLinks,
       if (item.coverImageUrl != null) 'cover_image_url': item.coverImageUrl,
       if (item.backCoverImageUrl != null)

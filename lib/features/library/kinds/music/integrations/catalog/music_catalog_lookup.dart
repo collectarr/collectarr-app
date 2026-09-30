@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 
 final class MusicCatalogLookup implements CatalogKindLookup {
@@ -26,7 +27,10 @@ final class MusicCatalogLookup implements CatalogKindLookup {
   Future<CatalogSearchHit?> _findByBarcode(String barcode) async {
     final normalized = normalizeCatalogLookupValue(barcode);
     if (normalized.isEmpty) return null;
-    for (final item in await MusicRepository(_db).search()) {
+    for (final dto in await CatalogItemCacheRepository(_db).findAll(
+      kind: kind,
+    )) {
+      final item = MusicCatalogMapper.mapMetadataItemToMusic(dto);
       if (_same(item.barcode, normalized) || _same(item.upc, normalized)) {
         return _hit(item);
       }
@@ -41,7 +45,10 @@ final class MusicCatalogLookup implements CatalogKindLookup {
     final normalizedTitle = normalizeCatalogLookupTitle(title);
     if (normalizedTitle.isEmpty) return null;
     final normalizedItemNumber = itemNumber?.trim();
-    for (final item in await MusicRepository(_db).search()) {
+    for (final dto in await CatalogItemCacheRepository(_db).findAll(
+      kind: kind,
+    )) {
+      final item = MusicCatalogMapper.mapMetadataItemToMusic(dto);
       if (normalizeCatalogLookupTitle(item.title) != normalizedTitle) {
         continue;
       }

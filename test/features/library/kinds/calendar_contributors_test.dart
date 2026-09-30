@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/calendar/boardgame_calendar_contributor.dart';
@@ -16,7 +18,6 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dar
 import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
@@ -25,6 +26,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:drift/native.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
@@ -46,6 +48,15 @@ void main() {
 
   test('typed release contributors load concrete kind domains', () async {
     final date = DateTime.utc(2020, 1, 2);
+    final movieDatabase = LocalDatabase(NativeDatabase.memory());
+    addTearDown(movieDatabase.close);
+    await CatalogItemCacheRepository(movieDatabase).upsert(
+      testCatalogItem(
+        id: 'movie-item',
+        kind: 'movie',
+        releaseDate: date,
+      ),
+    );
     final item = testCatalogItem(
       id: 'comic-item',
       kind: 'comic',
@@ -83,17 +94,14 @@ void main() {
               ).toSyncPayload(),
             ),
           ).contribute(_context(ids: const ['manga-item'])),
-      () => MovieCalendarContributor(
-            loadMedia: (_) async => MovieMedia.fromJson(
-              testCatalogItem(
-                id: 'movie-item',
-                kind: 'movie',
-                releaseDate: date,
-              ).toSyncPayload(),
+      () => MovieCalendarContributor().contribute(
+            _context(
+              ids: const ['movie-item'],
+              database: movieDatabase,
             ),
-          ).contribute(_context(ids: const ['movie-item'])),
+          ),
       () => MusicCalendarContributor(
-            loadRelease: (_) async => MusicRelease.fromJson(
+            loadAlbum: (_) async => MusicRelease.fromJson(
               testCatalogItem(
                 id: 'music-item',
                 kind: 'music',
@@ -181,10 +189,12 @@ void main() {
 }
 
 LibraryCalendarContext _context({
+  LocalDatabase? database,
   Iterable<String> ids = const <String>[],
   Iterable<WatchSession> watchSessions = const <WatchSession>[],
 }) {
   return LibraryCalendarContext(
+    database: database,
     catalogRefs: {
       for (final id in ids)
         CatalogEntityRef(

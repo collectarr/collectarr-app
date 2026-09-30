@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
@@ -16,14 +17,8 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 import 'package:collectarr_app/features/library/kinds/game/data/game_repository.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:drift/native.dart';
@@ -179,13 +174,15 @@ Future<void> _seedTypedItem(
         ),
       );
     case CatalogMediaKind.movie:
-      await MovieRepository(db).updateMedia(
-        MovieMedia(
-          id: MovieMediaId(id),
-          title: '${kind.apiValue} title',
-          rawPayload: rawPayload,
-        ),
-      );
+      await CatalogTransportRepository(db).upsertTransportItems([
+        CatalogItemDto.fromJson({
+          'id': id,
+          'kind': kind.apiValue,
+          'title': '${kind.apiValue} title',
+          'item_number': itemNumber,
+          if (barcode != null) 'barcode': barcode,
+        }),
+      ]);
     case CatalogMediaKind.tv:
       await TvRepository(db).updateSeries(
         TvSeries(
@@ -200,14 +197,15 @@ Future<void> _seedTypedItem(
         ),
       );
     case CatalogMediaKind.music:
-      await MusicRepository(db).updateRelease(
-        MusicRelease(
-          id: MusicReleaseId(id),
-          title: '${kind.apiValue} title',
-          catalogNumber: itemNumber,
-          barcode: barcode,
-        ),
-      );
+      await CatalogTransportRepository(db).upsertTransportItems([
+        CatalogItemDto.fromJson({
+          'id': id,
+          'kind': kind.apiValue,
+          'title': '${kind.apiValue} title',
+          'catalog_number': itemNumber,
+          if (barcode != null) 'barcode': barcode,
+        }),
+      ]);
     case CatalogMediaKind.unknown:
       throw ArgumentError('Unknown test kind: ${kind.apiValue}');
   }

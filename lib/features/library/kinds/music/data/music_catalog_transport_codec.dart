@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
@@ -10,7 +11,6 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
@@ -19,7 +19,8 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 final class MusicCatalogTransportCodec
     implements
         CatalogKindTransportCodec<MusicRelease>,
-        CatalogWorkspaceDataEnricher {
+        CatalogWorkspaceDataEnricher,
+        CatalogSharedCachePrimaryStore {
   const MusicCatalogTransportCodec();
 
   @override
@@ -34,7 +35,7 @@ final class MusicCatalogTransportCodec
 
   @override
   Future<void> upsert(LocalDatabase db, MusicRelease item) {
-    return MusicRepository(db).updateRelease(item);
+    return CatalogItemCacheRepository(db).upsert(_projection(item));
   }
 
   @override
@@ -81,7 +82,7 @@ final class MusicCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-        metadata: [for (final item in await listTransport(db)) decode(item)],
+      metadata: [for (final item in await listTransport(db)) decode(item)],
       normalizedValues: normalizedValues,
     );
   }
@@ -134,23 +135,24 @@ final class MusicCatalogTransportCodec
       );
 
   @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return upsert(db, decode(item));
-  }
+  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) =>
+      CatalogItemCacheRepository(db).upsert(item);
 
   @override
-  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final releases = await MusicRepository(db).search();
-    return [
-      for (final item in releases) _projection(item),
-    ];
-  }
+  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) =>
+      CatalogItemCacheRepository(db).findAll(kind: kind);
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final releases = await MusicRepository(db).search();
+    final items = await listTransport(db);
     return [
-      for (final item in releases) summarize(item),
+      for (final item in items)
+        CatalogDisplaySummary.root(
+          kind: kind,
+          id: item.id,
+          primaryLabel: item.resolvedDisplayTitle,
+          imageUrl: item.displayCoverUrl,
+        ),
     ];
   }
 }

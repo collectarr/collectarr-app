@@ -32,6 +32,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_storage_reposi
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 
 export 'package:collectarr_app/dev/seeds/collectarr_dev_seed_registry.g.dart';
 export 'package:collectarr_app/dev/seeds/custom_field_seeds.dart';
@@ -146,6 +147,13 @@ const devSeedAuxiliaryMinimumCounts = <String, int>{
 /// catalog code must use the owning repository/codec instead of inspecting
 /// storage tables.
 Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
+  final musicCatalogItems = await CatalogItemCacheRepository(db).findAll(
+    kind: CatalogMediaKind.music,
+  );
+  final musicAlbums = [
+    for (final item in musicCatalogItems)
+      MusicCatalogMapper.mapMetadataItemToMusic(item),
+  ];
   return {
     'comic.media': (await db.select(db.comicMediaRows).get()).length,
     'comic.release': (await db.select(db.comicReleaseRows).get()).length,
@@ -171,9 +179,15 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'anime.media': (await db.select(db.animeMediaRows).get()).length,
     'anime.episode': (await db.select(db.animeEpisodeRows).get()).length,
     'anime.release': (await db.select(db.animeReleaseRows).get()).length,
-    'music.item': (await db.select(db.musicReleaseRows).get()).length,
-    'music.medium': (await db.select(db.musicMediumRows).get()).length,
-    'music.track': (await db.select(db.musicTrackRows).get()).length,
+    'music.item': musicCatalogItems.length,
+    'music.medium': musicAlbums.fold<int>(
+      0,
+      (count, album) => count + album.mediums.length,
+    ),
+    'music.track': musicAlbums.fold<int>(
+      0,
+      (count, album) => count + album.trackCount,
+    ),
   };
 }
 
@@ -333,19 +347,26 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     }
   }
 
-  final musicReleases = await db.select(db.musicReleaseRows).get();
-  final musicReleaseIds = musicReleases.map((row) => row.id).toSet();
-  final musicMediums = await db.select(db.musicMediumRows).get();
-  final musicMediumIds = musicMediums.map((row) => row.id).toSet();
-  for (final row in musicMediums.where((row) => isSeed(row.releaseId))) {
-    if (!musicReleaseIds.contains(row.releaseId)) {
-      issues.add('music medium ${row.id} has missing release ${row.releaseId}');
-    }
-  }
-  final musicTracks = await db.select(db.musicTrackRows).get();
-  for (final row in musicTracks.where((row) => isSeed(row.mediumId))) {
-    if (!musicMediumIds.contains(row.mediumId)) {
-      issues.add('music track ${row.id} has missing medium ${row.mediumId}');
+  final musicCatalogItems = await CatalogItemCacheRepository(db).findAll(
+    kind: CatalogMediaKind.music,
+  );
+  for (final item in musicCatalogItems.where((item) => isSeed(item.id))) {
+    final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
+    for (final medium in album.mediums) {
+      if (medium.releaseId.value != item.id) {
+        issues.add(
+          'music disc ${medium.id.value} has mismatched album '
+          '${medium.releaseId.value}, expected ${item.id}',
+        );
+      }
+      for (final track in medium.tracks) {
+        if (track.mediumId != medium.id) {
+          issues.add(
+            'music track ${track.id.value} has mismatched disc '
+            '${track.mediumId.value}, expected ${medium.id.value}',
+          );
+        }
+      }
     }
   }
 
@@ -844,11 +865,21 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     ),
     'tv seed releases are missing series/episode metadata',
   );
-  final musicTracks = (await db.select(db.musicTrackRows).get())
-      .where((row) => row.id.startsWith('seed-'));
+  final musicItems = await CatalogItemCacheRepository(db).findAll(
+    kind: CatalogMediaKind.music,
+  );
+  final musicTracks = [
+    for (final item in musicItems.where((item) => item.id.startsWith('seed-')))
+      for (final medium
+          in MusicCatalogMapper.mapMetadataItemToMusic(item).mediums)
+        for (final track in medium.tracks)
+          if (track.id.value.startsWith('seed-')) track,
+  ];
   require(
     musicTracks.every(
-      (row) => row.mediumId.startsWith('seed-music-') && row.durationMs != null,
+      (track) =>
+          track.mediumId.value.startsWith('seed-music-') &&
+          track.durationMs != null,
     ),
     'music seed tracks are missing medium/duration metadata',
   );

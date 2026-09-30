@@ -65,20 +65,21 @@ Catalog Item or Owned Copy identities.
 
 Catalog transport now writes every Core item into a shared Drift cache keyed
 by `(kind, item_id)`. Snapshot reads and batched reference hydration use this
-flat cache. Movie is the first kind to use it as the only local catalog store;
-the other per-kind repositories are still dual-written because unconverted
-screens depend on them. Movie's old tables remain registered while legacy
-repository tests and form adapters are retired; removing the other tables
-requires migrating their active callers first.
+flat cache. Movie and Music use it as their only local catalog store. The
+remaining per-kind repositories are still dual-written because unconverted
+screens depend on them. The old Music and Movie tables remain registered while
+legacy repository tests and form adapters are retired; removing the remaining
+tables requires migrating their active callers first.
 
 Music-owned copies created through Add target the concrete Music Catalog Item
 directly and persist only that `catalog_ref`; they do not carry a redundant
 `target_ref` alias. The Music workspace's scope selector is hidden because this
-kind has no child Release scope. Movie's root workspace also hides the selector,
-but its older copy and catalog persistence still use the Work/Release graph.
-The remaining App cutover covers Movie persistence and editing, plus the seven
-other non-Music kinds' workspace hierarchies and all non-Music Work/Release
-storage paths.
+kind has no child Release scope. Movie's root workspace also hides the selector.
+Music and Movie catalog lookups, summaries, and offline root reads use the flat
+Catalog Item cache. The old per-kind root rows remain registered but are no
+longer read by these active catalog paths. The remaining App cutover covers
+Movie's older copy paths, plus the seven other non-Music kinds' workspace
+hierarchies and all non-Music Work/Release storage paths.
 Music lifecycle tracking records also target the Catalog Item and use the
 existing personal Sync contract. Listening history targets the same Catalog
 Item, may optionally identify the owned copy used, and now round-trips through
