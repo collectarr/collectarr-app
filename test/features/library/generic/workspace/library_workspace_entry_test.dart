@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
@@ -10,39 +10,32 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('book media falls back to primary release cover and reference ids', () {
+  test('book root keeps its cover and contained printing data', () {
     final item = BookCatalogItem(
       id: 'book-1',
-      work: const BookWorkMetadata(title: 'Example Book'),
-      publishing: const BookPublishingMetadata(),
-      releases: [
-        BookRelease(
-          id: 'edition-1',
-          title: 'Hardcover',
-          variants: [
-            BookVariantRef(
-              id: 'variant-1',
-              name: 'Hardcover',
-              coverImageUrl: 'https://example.test/release-cover.jpg',
-              isPrimary: true,
-            ),
-          ],
+      title: 'Example Book',
+      catalogMetadata: const BookCatalogMetadata(title: 'Example Book'),
+      coverImageUrl: 'https://example.test/book-cover.jpg',
+      printings: const [
+        BookCatalogPrinting(
+          id: 'printing-1',
+          printingNumber: 1,
+          isbn: '9780000000001',
         ),
       ],
     );
 
     final dto = BookWorkspaceDto(
       common: WorkspaceCommonProjection(
-        title: item.work.title,
-        coverImageUrl:
-            item.releases.firstOrNull?.variants.firstOrNull?.coverImageUrl,
+        title: item.title,
+        coverImageUrl: item.coverImageUrl,
       ),
       personal: PersonalCopyProjection(),
       book: item,
     );
 
-    expect(dto.coverImageUrl, 'https://example.test/release-cover.jpg');
-    expect(dto.book.releases, hasLength(1));
+    expect(dto.coverImageUrl, 'https://example.test/book-cover.jpg');
+    expect(dto.book.printings.single.isbn, '9780000000001');
   });
 
   test('personal copy projection prefers the typed tracking row rating', () {

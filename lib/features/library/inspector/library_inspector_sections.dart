@@ -63,10 +63,6 @@ class InspectorPersonalSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final existingOwnedItem = ownedItem;
-    final catalogReleases =
-        libraryPresentationForKind(type.kind).builder.buildWorkspaceReleases(
-              item.source,
-            );
     final snapshot = valueSnapshot ??
         LibraryValueSnapshot.fromItem(
           item,
@@ -80,9 +76,8 @@ class InspectorPersonalSection extends StatelessWidget {
         ownedItem?.currency ?? item.source.currency);
     final ownedCopyTypeLabel = existingOwnedItem?.isDigital == true
         ? 'Digital copy'
-        : buildOwnedCopyLabelFromWorkspaceReleases(
+        : buildOwnedCopyLabel(
             existingOwnedItem,
-            catalogReleases,
             0,
             collectionValue:
                 libraryOwnedEditForKind(type.kind).readOwnedCollectionValue(

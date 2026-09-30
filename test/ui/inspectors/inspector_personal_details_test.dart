@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -122,8 +121,6 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorTrackingDetailsEditor(
-              itemId: 'movie-1',
-              mediaType: 'movie',
               trackingSummary: trackingSummaryFromRecord(
                 MovieTrackingState(
                   id: 'tracking-1',
@@ -136,18 +133,6 @@ void main() {
                 ),
               ),
               profile: movieTrackingProfile,
-              releases: const [
-                LibraryWorkspaceReleaseSummary(
-                  id: 'edition-stream',
-                  title: 'Streaming',
-                  variants: [
-                    LibraryWorkspaceVariantSummary(
-                      id: 'variant-hd',
-                      name: 'HD',
-                    ),
-                  ],
-                ),
-              ],
               accent: Colors.orange,
             ),
           ),
@@ -166,83 +151,7 @@ void main() {
     final updated = await readSingleTrackingState(db);
     expect(updated.sourceTypeApiValue, 'digital');
     expect(updated.rating, 7);
-    expect(updated.catalogRef.id, 'variant-hd');
+    expect(updated.catalogRef.id, 'movie-1');
     expect(updated.updatedAt.isAfter(DateTime.utc(2026, 5, 23)), isTrue);
-  });
-
-  testWidgets('tracking edition browser exposes edition and variant selection',
-      (tester) async {
-    String? selectedEditionId;
-    String? selectedVariantId;
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: StatefulBuilder(
-            builder: (context, setState) {
-              return buildTrackingEditionBrowserForTesting(
-                releases: const [
-                  LibraryWorkspaceReleaseSummary(
-                    id: 'edition-hc',
-                    title: 'Hardcover',
-                    formatLabel: 'HC',
-                    variants: [
-                      LibraryWorkspaceVariantSummary(
-                        id: 'variant-blue',
-                        name: 'Blue foil',
-                        formatLabel: 'Foil',
-                      ),
-                      LibraryWorkspaceVariantSummary(
-                        id: 'variant-red',
-                        name: 'Red foil',
-                        formatLabel: 'Foil',
-                      ),
-                    ],
-                  ),
-                ],
-                selectedEditionId: selectedEditionId,
-                selectedVariantId: selectedVariantId,
-                accent: Colors.orange,
-                onEditionSelected: (String? value) {
-                  setState(() {
-                    selectedEditionId = value;
-                    selectedVariantId = null;
-                  });
-                },
-                onVariantSelected: (String? value) {
-                  setState(() => selectedVariantId = value);
-                },
-              );
-            },
-          ),
-        ),
-      ),
-    );
-
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Primary'), findsOneWidget);
-    expect(find.text('Hardcover'), findsOneWidget);
-    expect(find.text('Variants'), findsNothing);
-
-    await tester.tap(find.text('Hardcover'));
-    await pumpUntilSettled(tester);
-
-    expect(selectedEditionId, 'edition-hc');
-    expect(find.text('Variants'), findsOneWidget);
-    expect(find.text('Blue foil'), findsOneWidget);
-    expect(find.text('Red foil'), findsOneWidget);
-
-    await tester.tap(find.text('Red foil'));
-    await pumpUntilSettled(tester);
-
-    expect(selectedVariantId, 'variant-red');
-
-    await tester.tap(find.text('Primary'));
-    await pumpUntilSettled(tester);
-
-    expect(selectedEditionId, isNull);
-    expect(selectedVariantId, isNull);
-    expect(find.text('Variants'), findsNothing);
   });
 }

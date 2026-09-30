@@ -16,16 +16,9 @@ List<Widget> buildLibraryDetailEditorSections({
   return [
     if (trackingSummary != null)
       InspectorTrackingDetailsEditor(
-        itemId: item.node.workId,
-        mediaType: item.source.mediaKind.apiValue,
         trackingSummary: trackingSummary,
         profile: libraryTrackingProfileForKind(type.kind),
         trackingEditor: libraryInspectorForKind(type.kind).trackingEditor,
-        releases: libraryPresentationForKind(type.kind)
-            .builder
-            .buildWorkspaceReleases(
-              item.source,
-            ),
         accent: accent,
       ),
   ];

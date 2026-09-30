@@ -28,7 +28,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -302,11 +301,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (ownedCopies.isNotEmpty) {
       ownedCopiesSection = _InspectorOwnedCopiesSection(
         copies: ownedCopies,
-        releases: libraryPresentationForKind(widget.type.kind)
-            .builder
-            .buildWorkspaceReleases(
-              selected.source,
-            ),
         collectionValueReader:
             libraryOwnedEditForKind(widget.type.kind).readOwnedCollectionValue,
         ownedItemDispatch: inspectorRequest.ownedItemDispatch,
@@ -570,7 +564,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
 class _InspectorOwnedCopiesSection extends StatelessWidget {
   const _InspectorOwnedCopiesSection({
     required this.copies,
-    required this.releases,
     required this.collectionValueReader,
     required this.ownedItemDispatch,
     required this.selectedOwnedCopyRef,
@@ -580,7 +573,6 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
   });
 
   final List<OwnedCopySummary> copies;
-  final List<LibraryWorkspaceReleaseSummary> releases;
   final String? Function(LibraryOwnedItemDispatch?) collectionValueReader;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final OwnedCopyRef? selectedOwnedCopyRef;
@@ -616,9 +608,8 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                           DropdownMenuItem<OwnedCopyRef>(
                             value: copies[index].ref,
                             child: Text(
-                              buildOwnedCopyLabelFromWorkspaceReleases(
+                              buildOwnedCopyLabel(
                                     copies[index],
-                                    releases,
                                     index,
                                     collectionValue: collectionValueReader(
                                         ownedItemDispatch),

@@ -326,38 +326,14 @@ String? _preferredReleaseVariantId(LibraryWorkspaceReleaseSummary release) {
   return release.variants.isEmpty ? null : release.variants.first.id;
 }
 
-String? buildOwnedCopyLabelFromWorkspaceReleases(
+String? buildOwnedCopyLabel(
   OwnedCopySummary? item,
-  List<LibraryWorkspaceReleaseSummary> releases,
   int index, {
   String? collectionValue,
 }) {
   if (item == null) return null;
   final parts = <String>['Copy ${index + 1}'];
-  final targetParts =
-      libraryCatalogTargetForKind(item.ref.kind).parts(item.targetRef);
-  final releaseId = targetParts.firstId;
-  final variantId = targetParts.secondId;
-  LibraryWorkspaceReleaseSummary? release;
-  if (releaseId != null) {
-    release = releases.where((value) => value.id == releaseId).firstOrNull;
-  }
-  final releaseTitle = release?.title.trim();
-  if (releaseTitle != null && releaseTitle.isNotEmpty) {
-    parts.add(releaseTitle);
-  }
-  final variant = variantId == null
-      ? null
-      : release?.variants.where((value) => value.id == variantId).firstOrNull;
-  final variantName = variant?.name.trim();
-  if (variantName != null && variantName.isNotEmpty) {
-    parts.add(variantName);
-  } else {
-    final format = release?.formatLabel?.trim();
-    if (format != null && format.isNotEmpty) {
-      parts.add(format);
-    }
-  }
+  if (item.isDigital == true) parts.add('Digital');
   final collectionLabel = collectionValue?.trim();
   if (collectionLabel != null && collectionLabel.isNotEmpty) {
     parts.add(collectionLabel);
