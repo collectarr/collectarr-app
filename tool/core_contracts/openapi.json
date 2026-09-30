@@ -2887,17 +2887,6 @@
             "title": "Is Primary",
             "type": "boolean"
           },
-          "provider": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Provider"
-          },
           "source_url": {
             "anyOf": [
               {
