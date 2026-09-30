@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -233,9 +234,8 @@ final class _MusicAlbumEditDialogState
           if (!mounted || !context.mounted) return;
           await _persistPendingCustomFieldVocabularyValues();
           if (!mounted || !context.mounted) return;
-          final candidate =
-              widget.request.kindItem.kindCapability.withKindMetadata(
-            updatedAlbum,
+          final candidate = CatalogSearchCandidate.fromItem(
+            MusicCatalogMapper.toCatalogItemDto(updatedAlbum),
           );
           Navigator.of(context).pop(
             LibraryEditSelection(

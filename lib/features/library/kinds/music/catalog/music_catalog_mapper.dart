@@ -8,6 +8,138 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album.d
 final class MusicCatalogMapper {
   const MusicCatalogMapper._();
 
+  /// Encodes the local Music item using the Core Catalog Item shape.
+  /// Local persistence fields such as `mediums` and timestamps do not belong
+  /// in the Core payload; contained media is encoded as `discs` and `tracks`.
+  static CatalogItemDto toCatalogItemDto(MusicAlbum album) {
+    final music = <String, dynamic>{
+      'id': album.id.value,
+      'kind': 'music',
+      'title': album.title,
+      if (album.sortTitle != null) 'sort_title': album.sortTitle,
+      if (album.subtitle != null) 'subtitle': album.subtitle,
+      if (album.artist != null) 'artist': album.artist,
+      if (album.artistCredits.isNotEmpty)
+        'artist_credits': [
+          for (final credit in album.artistCredits)
+            {
+              'id': credit.id,
+              'name': credit.creditedName,
+              if (credit.artistId != null) 'artist_id': credit.artistId,
+              if (credit.joinPhrase != null) 'join_phrase': credit.joinPhrase,
+              if (credit.sequence != null) 'sequence': credit.sequence,
+            },
+        ],
+      if (album.originalReleaseDateParts != null) ...{
+        'original_release_date': album.originalReleaseDateParts!.isoString,
+        'original_release_date_parts': album.originalReleaseDateParts!.toJson(),
+      } else if (album.originalReleaseDate != null)
+        'original_release_date': album.originalReleaseDate!.toIso8601String(),
+      if (album.recordingDateParts != null) ...{
+        'recording_date': album.recordingDateParts!.isoString,
+        'recording_date_parts': album.recordingDateParts!.toJson(),
+      } else if (album.recordingDate != null)
+        'recording_date': album.recordingDate!.toIso8601String(),
+      if (album.releaseDateParts != null) ...{
+        'release_date': album.releaseDateParts!.isoString,
+        'release_date_parts': album.releaseDateParts!.toJson(),
+      } else if (album.releaseDate != null)
+        'release_date': album.releaseDate!.toIso8601String(),
+      if (album.labels.isNotEmpty || album.publisher != null)
+        'label': album.labels.firstOrNull?.labelName ?? album.publisher,
+      if (album.mediumTypes.isNotEmpty) 'format': album.mediumTypes.first,
+      if (album.barcode ?? album.upc case final barcode?) 'barcode': barcode,
+      if (album.catalogNumber != null) 'catalog_number': album.catalogNumber,
+      if (album.genres.isNotEmpty) 'genres': album.genres,
+      if (album.packaging != null) 'packaging': album.packaging,
+      if (album.studios.isNotEmpty) 'studios': album.studios,
+      if (album.countryCode != null) 'country': album.countryCode,
+      if (album.isLive != null) 'is_live': album.isLive,
+      if (album.soundTypes.isNotEmpty ||
+          album.mediums.any((medium) => medium.soundType != null))
+        'sound_types': {
+          ...album.soundTypes,
+          for (final medium in album.mediums)
+            if (medium.soundType case final value?) value,
+        }.toList(),
+      if (album.vinylColor != null) 'vinyl_color': album.vinylColor,
+      if (album.vinylWeight != null) 'vinyl_weight': album.vinylWeight,
+      if (album.rpm != null) 'rpm': album.rpm,
+      if (album.extra != null) 'extra': album.extra,
+      if (album.spars != null) 'spars': album.spars,
+      if (album.boxSetTitle != null) 'box_set': album.boxSetTitle,
+      if (_peopleForRole(album, 'Composer').isNotEmpty)
+        'composers': _peopleForRole(album, 'Composer'),
+      if (_peopleForRole(album, 'Conductor').isNotEmpty)
+        'conductors': _peopleForRole(album, 'Conductor'),
+      if (_peopleForRole(album, 'Songwriter').isNotEmpty)
+        'songwriters': _peopleForRole(album, 'Songwriter'),
+      if (_peopleForRole(album, 'Producer').isNotEmpty)
+        'producers': _peopleForRole(album, 'Producer'),
+      if (_peopleForRole(album, 'Engineer').isNotEmpty)
+        'engineers': _peopleForRole(album, 'Engineer'),
+      if (_peopleForRole(album, 'Musician').isNotEmpty)
+        'musicians': _peopleForRole(album, 'Musician'),
+      if (_namesForRole(album, 'Chorus').isNotEmpty)
+        'choruses': _namesForRole(album, 'Chorus'),
+      if (_namesForRole(album, 'Composition').isNotEmpty)
+        'compositions': _namesForRole(album, 'Composition'),
+      if (_namesForRole(album, 'Orchestra').isNotEmpty)
+        'orchestras': _namesForRole(album, 'Orchestra'),
+      if (album.externalLinks.isNotEmpty)
+        'external_links':
+            album.externalLinks.map((link) => link.toJson()).toList(),
+      if (album.coverImageUrl != null) 'cover_image_url': album.coverImageUrl,
+      if (album.backCoverImageUrl != null)
+        'back_cover_image_url': album.backCoverImageUrl,
+      if (album.thumbnailImageUrl != null)
+        'thumbnail_image_url': album.thumbnailImageUrl,
+      if (album.mediums.isNotEmpty)
+        'discs': [
+          for (final medium in album.mediums)
+            {
+              'id': medium.id.value,
+              'disc_number': medium.mediumNumber,
+              if (medium.title != null) 'title': medium.title,
+              if (medium.matrixNumberSideA != null)
+                'matrix_number_side_a': medium.matrixNumberSideA,
+              if (medium.matrixNumberSideB != null)
+                'matrix_number_side_b': medium.matrixNumberSideB,
+              'tracks': [
+                for (var index = 0; index < medium.tracks.length; index++)
+                  {
+                    'id': medium.tracks[index].id.value,
+                    'position': medium.tracks[index].position,
+                    'position_order': int.tryParse(
+                          medium.tracks[index].position,
+                        ) ??
+                        index + 1,
+                    'title': medium.tracks[index].title,
+                    if (medium.tracks[index].artist != null)
+                      'artist': medium.tracks[index].artist,
+                    if (medium.tracks[index].durationMs != null)
+                      'duration_ms': medium.tracks[index].durationMs,
+                  },
+              ],
+            },
+        ],
+    };
+
+    return CatalogItemDto.raw(
+      id: album.id.value,
+      mediaKind: CatalogMediaKind.music,
+      common: CatalogCommonDto(
+        title: album.title,
+        originalTitle: album.originalTitle,
+        coverImageUrl: album.coverImageUrl,
+        thumbnailImageUrl: album.thumbnailImageUrl,
+        releaseDate: album.releaseDate,
+        releaseDateParts: album.releaseDateParts,
+      ),
+      payload: {'music': music},
+    );
+  }
+
   static MusicAlbum mapDtoToMusic(CatalogItemDto dto) =>
       mapMetadataItemToMusic(dto);
 
@@ -146,6 +278,25 @@ final class MusicCatalogMapper {
     return result;
   }
 }
+
+List<Map<String, Object?>> _peopleForRole(MusicAlbum album, String role) => [
+      for (final contribution in album.contributions)
+        if (contribution.role.toLowerCase() == role.toLowerCase())
+          {
+            'id': contribution.id.value,
+            'person_id': contribution.personId,
+            'name': contribution.displayName ?? contribution.personId,
+            'role': contribution.role,
+            if (contribution.imageUrl != null)
+              'image_url': contribution.imageUrl,
+          },
+    ];
+
+List<String> _namesForRole(MusicAlbum album, String role) => [
+      for (final contribution in album.contributions)
+        if (contribution.role.toLowerCase() == role.toLowerCase())
+          contribution.displayName ?? contribution.personId,
+    ];
 
 String? _text(Object? value) {
   final normalized = value?.toString().trim();
