@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/local/game_local_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/local/game_owned_item_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:drift/drift.dart';
@@ -17,7 +17,7 @@ final class GameOwnedRepository
     final row = await (_db.select(_db.gameOwnedItemsRows)
           ..where((table) => table.id.equals(id.value)))
         .getSingleOrNull();
-    return row == null ? null : GameLocalMapper.fromOwnedItemRow(row);
+    return row == null ? null : GameOwnedItemLocalMapper.fromRow(row);
   }
 
   Future<List<GameOwnedItem>> listActive() async {
@@ -25,13 +25,13 @@ final class GameOwnedRepository
           ..where((table) => table.deletedAt.isNull())
           ..orderBy([(table) => OrderingTerm.desc(table.updatedAt)]))
         .get();
-    return [for (final row in rows) GameLocalMapper.fromOwnedItemRow(row)];
+    return [for (final row in rows) GameOwnedItemLocalMapper.fromRow(row)];
   }
 
   Future<void> upsert(GameOwnedItem item) {
     return _db
         .into(_db.gameOwnedItemsRows)
-        .insertOnConflictUpdate(GameLocalMapper.toOwnedItemRow(item));
+        .insertOnConflictUpdate(GameOwnedItemLocalMapper.toRow(item));
   }
 
   Future<void> upsertAll(Iterable<GameOwnedItem> items) async {
@@ -40,7 +40,7 @@ final class GameOwnedRepository
     await _db.batch((batch) {
       batch.insertAll(
         _db.gameOwnedItemsRows,
-        values.map(GameLocalMapper.toOwnedItemRow).toList(growable: false),
+        values.map(GameOwnedItemLocalMapper.toRow).toList(growable: false),
         mode: InsertMode.insertOrReplace,
       );
     });

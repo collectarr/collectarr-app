@@ -62,8 +62,8 @@ void main() {
       workspace: gameKindWorkspace,
       contractFiles: const [
         'test/domain/game/game_core_mapper_test.dart',
-        'test/domain/game/game_repository_test.dart',
-        'test/domain/game/game_local_mapper_test.dart',
+        'test/domain/game/game_owned_item_local_mapper_test.dart',
+        'test/features/catalog/catalog_cache_repository_test.dart',
         'test/domain/game/game_add_schema_test.dart',
         'test/domain/game/game_edit_schema_test.dart',
         'test/domain/game/game_workspace_projection_test.dart',
