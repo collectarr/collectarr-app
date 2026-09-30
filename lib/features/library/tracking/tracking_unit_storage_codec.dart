@@ -90,7 +90,7 @@ TrackingUnitStorageRow trackingUnitStorageRowFromSyncPayload({
   required DateTime updatedAt,
   required DateTime? deletedAt,
 }) {
-  final rawTargetRef = payload['catalog_ref'] ?? payload['target_ref'];
+  final rawTargetRef = payload['catalog_ref'];
   if (rawTargetRef is! Map) {
     throw const FormatException(
       'Tracking unit sync payload is missing catalog_ref',

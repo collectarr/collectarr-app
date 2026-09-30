@@ -268,7 +268,7 @@ class SyncApplyService {
     if (type != 'tracking_entry') {
       throw FormatException('Expected tracking_entry entity, got $type');
     }
-    final rawRef = payload['target_ref'] ?? payload['catalog_ref'];
+    final rawRef = payload['catalog_ref'];
     if (rawRef is! Map) {
       throw const FormatException(
         'Tracking entry sync payload is missing catalog_ref',
@@ -292,7 +292,7 @@ class SyncApplyService {
       throw FormatException('Expected tracking_unit entity, got $type');
     }
     final payload = _payload(entity);
-    final rawRef = payload['catalog_ref'] ?? payload['target_ref'];
+    final rawRef = payload['catalog_ref'];
     if (rawRef is! Map) {
       throw const FormatException(
         'Tracking unit sync payload is missing catalog_ref',
@@ -327,7 +327,7 @@ class SyncApplyService {
     if (type != 'watch_session') {
       throw FormatException('Expected watch_session entity, got $type');
     }
-    final rawRef = payload['target_ref'] ?? payload['catalog_ref'];
+    final rawRef = payload['catalog_ref'];
     final kind = rawRef is Map
         ? catalogMediaKindFromValue(rawRef['kind'])
         : CatalogMediaKind.unknown;

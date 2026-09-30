@@ -95,8 +95,7 @@ class SyncRetryMapper {
         );
       case 'tracking_unit':
         final unitPayload = change.localPayload ?? change.servicePayload;
-        final rawCatalogRef =
-            unitPayload?['catalog_ref'] ?? unitPayload?['target_ref'];
+        final rawCatalogRef = unitPayload?['catalog_ref'];
         if (rawCatalogRef is! Map) return null;
         final catalogRef = CatalogEntityRef.fromJson(
           Map<String, dynamic>.from(rawCatalogRef),
@@ -122,8 +121,7 @@ class SyncRetryMapper {
       case 'watch_session':
         final watchSessionPayload =
             change.localPayload ?? change.servicePayload;
-        final rawTargetRef = watchSessionPayload?['catalog_ref'] ??
-            watchSessionPayload?['target_ref'];
+        final rawTargetRef = watchSessionPayload?['catalog_ref'];
         if (rawTargetRef is! Map) return null;
         final targetRef = CatalogEntityRef.fromJson(
           Map<String, dynamic>.from(rawTargetRef),

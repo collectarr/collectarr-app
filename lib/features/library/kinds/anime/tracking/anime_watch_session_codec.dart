@@ -203,7 +203,7 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
   }
 
   CatalogEntityRef _targetRefFromPayload(Map<String, dynamic> payload) {
-    final raw = payload['target_ref'] ?? payload['catalog_ref'];
+    final raw = payload['catalog_ref'];
     if (raw is! Map) {
       throw const FormatException(
         'Anime watch session is missing catalog_ref',
