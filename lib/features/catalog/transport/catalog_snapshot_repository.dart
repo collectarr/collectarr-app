@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
 /// Reads complete catalog snapshots at an explicit serialization boundary.
 ///
@@ -13,16 +13,9 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 /// [CatalogDisplaySummaryRepository] instead, and kind code should decode a
 /// snapshot immediately into its concrete domain model.
 final class CatalogSnapshotRepository {
-  CatalogSnapshotRepository(
-    this._db, {
-    Iterable<CatalogKindTransportBoundary> codecs =
-        libraryCatalogTransportCodecs,
-  }) : _codecs = {
-          for (final codec in codecs) codec.kind: codec,
-        };
+  CatalogSnapshotRepository(this._db);
 
   final LocalDatabase _db;
-  final Map<CatalogMediaKind, CatalogKindTransportBoundary> _codecs;
 
   Future<Map<CatalogEntityRef, CatalogItemDto>> findByRefs(
     Iterable<CatalogEntityRef> refs,
@@ -30,15 +23,19 @@ final class CatalogSnapshotRepository {
     final wanted = refs.toSet();
     if (wanted.isEmpty) return const {};
     final result = <CatalogEntityRef, CatalogItemDto>{};
-    for (final item in await _allItems()) {
-      final itemRef = item.catalogRef;
-      for (final ref in wanted) {
-        // Shelf lookups are normally rooted, but a typed target may still be
-        // supplied by a detail/editor host. Keep the requested key so the
-        // caller never has to know which side carried the child reference.
-        if (itemRef == ref || itemRef.rootScope == ref.rootScope) {
-          result[ref] = item;
-        }
+    final requestedByItem = <CatalogItemRef, List<CatalogEntityRef>>{};
+    for (final ref in wanted) {
+      final root = ref.rootScope;
+      final itemRef = CatalogItemRef(kind: root.kind, id: root.id);
+      requestedByItem.putIfAbsent(itemRef, () => []).add(ref);
+    }
+    final items =
+        await CatalogItemCacheRepository(_db).findByRefs(requestedByItem.keys);
+    for (final item in items) {
+      final itemRef = CatalogItemRef(kind: item.mediaKind, id: item.id);
+      for (final requestedRef
+          in requestedByItem[itemRef] ?? const <CatalogEntityRef>[]) {
+        result[requestedRef] = item;
       }
     }
     return result;
@@ -85,17 +82,6 @@ final class CatalogSnapshotRepository {
   }
 
   Future<List<CatalogItemDto>> findAll({CatalogMediaKind? kind}) async {
-    return [
-      for (final item in await _allItems())
-        if (kind == null || item.mediaKind == kind) item,
-    ];
-  }
-
-  Future<List<CatalogItemDto>> _allItems() async {
-    final result = <CatalogItemDto>[];
-    for (final codec in _codecs.values) {
-      result.addAll(await codec.listTransport(_db));
-    }
-    return result;
+    return CatalogItemCacheRepository(_db).findAll(kind: kind);
   }
 }

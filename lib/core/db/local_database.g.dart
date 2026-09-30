@@ -3,6 +3,288 @@
 part of 'local_database.dart';
 
 // ignore_for_file: type=lint
+class $CatalogItemsCacheTable extends CatalogItemsCache
+    with TableInfo<$CatalogItemsCacheTable, CatalogItemsCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CatalogItemsCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _catalogKindMeta =
+      const VerificationMeta('catalogKind');
+  @override
+  late final GeneratedColumn<String> catalogKind = GeneratedColumn<String>(
+      'catalog_kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _payloadJsonMeta =
+      const VerificationMeta('payloadJson');
+  @override
+  late final GeneratedColumn<String> payloadJson = GeneratedColumn<String>(
+      'payload_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _fetchedAtMeta =
+      const VerificationMeta('fetchedAt');
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+      'fetched_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [catalogKind, itemId, payloadJson, fetchedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'catalog_items_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<CatalogItemsCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('catalog_kind')) {
+      context.handle(
+          _catalogKindMeta,
+          catalogKind.isAcceptableOrUnknown(
+              data['catalog_kind']!, _catalogKindMeta));
+    } else if (isInserting) {
+      context.missing(_catalogKindMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('payload_json')) {
+      context.handle(
+          _payloadJsonMeta,
+          payloadJson.isAcceptableOrUnknown(
+              data['payload_json']!, _payloadJsonMeta));
+    } else if (isInserting) {
+      context.missing(_payloadJsonMeta);
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(_fetchedAtMeta,
+          fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta));
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {catalogKind, itemId};
+  @override
+  CatalogItemsCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CatalogItemsCacheData(
+      catalogKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}catalog_kind'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      payloadJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}payload_json'])!,
+      fetchedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}fetched_at'])!,
+    );
+  }
+
+  @override
+  $CatalogItemsCacheTable createAlias(String alias) {
+    return $CatalogItemsCacheTable(attachedDatabase, alias);
+  }
+}
+
+class CatalogItemsCacheData extends DataClass
+    implements Insertable<CatalogItemsCacheData> {
+  final String catalogKind;
+  final String itemId;
+  final String payloadJson;
+  final DateTime fetchedAt;
+  const CatalogItemsCacheData(
+      {required this.catalogKind,
+      required this.itemId,
+      required this.payloadJson,
+      required this.fetchedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['catalog_kind'] = Variable<String>(catalogKind);
+    map['item_id'] = Variable<String>(itemId);
+    map['payload_json'] = Variable<String>(payloadJson);
+    map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    return map;
+  }
+
+  CatalogItemsCacheCompanion toCompanion(bool nullToAbsent) {
+    return CatalogItemsCacheCompanion(
+      catalogKind: Value(catalogKind),
+      itemId: Value(itemId),
+      payloadJson: Value(payloadJson),
+      fetchedAt: Value(fetchedAt),
+    );
+  }
+
+  factory CatalogItemsCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CatalogItemsCacheData(
+      catalogKind: serializer.fromJson<String>(json['catalogKind']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      payloadJson: serializer.fromJson<String>(json['payloadJson']),
+      fetchedAt: serializer.fromJson<DateTime>(json['fetchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'catalogKind': serializer.toJson<String>(catalogKind),
+      'itemId': serializer.toJson<String>(itemId),
+      'payloadJson': serializer.toJson<String>(payloadJson),
+      'fetchedAt': serializer.toJson<DateTime>(fetchedAt),
+    };
+  }
+
+  CatalogItemsCacheData copyWith(
+          {String? catalogKind,
+          String? itemId,
+          String? payloadJson,
+          DateTime? fetchedAt}) =>
+      CatalogItemsCacheData(
+        catalogKind: catalogKind ?? this.catalogKind,
+        itemId: itemId ?? this.itemId,
+        payloadJson: payloadJson ?? this.payloadJson,
+        fetchedAt: fetchedAt ?? this.fetchedAt,
+      );
+  CatalogItemsCacheData copyWithCompanion(CatalogItemsCacheCompanion data) {
+    return CatalogItemsCacheData(
+      catalogKind:
+          data.catalogKind.present ? data.catalogKind.value : this.catalogKind,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      payloadJson:
+          data.payloadJson.present ? data.payloadJson.value : this.payloadJson,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CatalogItemsCacheData(')
+          ..write('catalogKind: $catalogKind, ')
+          ..write('itemId: $itemId, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('fetchedAt: $fetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(catalogKind, itemId, payloadJson, fetchedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CatalogItemsCacheData &&
+          other.catalogKind == this.catalogKind &&
+          other.itemId == this.itemId &&
+          other.payloadJson == this.payloadJson &&
+          other.fetchedAt == this.fetchedAt);
+}
+
+class CatalogItemsCacheCompanion
+    extends UpdateCompanion<CatalogItemsCacheData> {
+  final Value<String> catalogKind;
+  final Value<String> itemId;
+  final Value<String> payloadJson;
+  final Value<DateTime> fetchedAt;
+  final Value<int> rowid;
+  const CatalogItemsCacheCompanion({
+    this.catalogKind = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.payloadJson = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CatalogItemsCacheCompanion.insert({
+    required String catalogKind,
+    required String itemId,
+    required String payloadJson,
+    required DateTime fetchedAt,
+    this.rowid = const Value.absent(),
+  })  : catalogKind = Value(catalogKind),
+        itemId = Value(itemId),
+        payloadJson = Value(payloadJson),
+        fetchedAt = Value(fetchedAt);
+  static Insertable<CatalogItemsCacheData> custom({
+    Expression<String>? catalogKind,
+    Expression<String>? itemId,
+    Expression<String>? payloadJson,
+    Expression<DateTime>? fetchedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (catalogKind != null) 'catalog_kind': catalogKind,
+      if (itemId != null) 'item_id': itemId,
+      if (payloadJson != null) 'payload_json': payloadJson,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CatalogItemsCacheCompanion copyWith(
+      {Value<String>? catalogKind,
+      Value<String>? itemId,
+      Value<String>? payloadJson,
+      Value<DateTime>? fetchedAt,
+      Value<int>? rowid}) {
+    return CatalogItemsCacheCompanion(
+      catalogKind: catalogKind ?? this.catalogKind,
+      itemId: itemId ?? this.itemId,
+      payloadJson: payloadJson ?? this.payloadJson,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (catalogKind.present) {
+      map['catalog_kind'] = Variable<String>(catalogKind.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (payloadJson.present) {
+      map['payload_json'] = Variable<String>(payloadJson.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CatalogItemsCacheCompanion(')
+          ..write('catalogKind: $catalogKind, ')
+          ..write('itemId: $itemId, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $WishlistItemsCacheTable extends WishlistItemsCache
     with TableInfo<$WishlistItemsCacheTable, WishlistItemsCacheData> {
   @override
@@ -56520,6 +56802,8 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
+  late final $CatalogItemsCacheTable catalogItemsCache =
+      $CatalogItemsCacheTable(this);
   late final $WishlistItemsCacheTable wishlistItemsCache =
       $WishlistItemsCacheTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
@@ -56665,6 +56949,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
+        catalogItemsCache,
         wishlistItemsCache,
         syncQueue,
         userMetadataOverridesCache,
@@ -56745,6 +57030,168 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       ];
 }
 
+typedef $$CatalogItemsCacheTableCreateCompanionBuilder
+    = CatalogItemsCacheCompanion Function({
+  required String catalogKind,
+  required String itemId,
+  required String payloadJson,
+  required DateTime fetchedAt,
+  Value<int> rowid,
+});
+typedef $$CatalogItemsCacheTableUpdateCompanionBuilder
+    = CatalogItemsCacheCompanion Function({
+  Value<String> catalogKind,
+  Value<String> itemId,
+  Value<String> payloadJson,
+  Value<DateTime> fetchedAt,
+  Value<int> rowid,
+});
+
+class $$CatalogItemsCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $CatalogItemsCacheTable> {
+  $$CatalogItemsCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get catalogKind => $composableBuilder(
+      column: $table.catalogKind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payloadJson => $composableBuilder(
+      column: $table.payloadJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+      column: $table.fetchedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$CatalogItemsCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $CatalogItemsCacheTable> {
+  $$CatalogItemsCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get catalogKind => $composableBuilder(
+      column: $table.catalogKind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payloadJson => $composableBuilder(
+      column: $table.payloadJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+      column: $table.fetchedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CatalogItemsCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $CatalogItemsCacheTable> {
+  $$CatalogItemsCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get catalogKind => $composableBuilder(
+      column: $table.catalogKind, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get payloadJson => $composableBuilder(
+      column: $table.payloadJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+}
+
+class $$CatalogItemsCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $CatalogItemsCacheTable,
+    CatalogItemsCacheData,
+    $$CatalogItemsCacheTableFilterComposer,
+    $$CatalogItemsCacheTableOrderingComposer,
+    $$CatalogItemsCacheTableAnnotationComposer,
+    $$CatalogItemsCacheTableCreateCompanionBuilder,
+    $$CatalogItemsCacheTableUpdateCompanionBuilder,
+    (
+      CatalogItemsCacheData,
+      BaseReferences<_$LocalDatabase, $CatalogItemsCacheTable,
+          CatalogItemsCacheData>
+    ),
+    CatalogItemsCacheData,
+    PrefetchHooks Function()> {
+  $$CatalogItemsCacheTableTableManager(
+      _$LocalDatabase db, $CatalogItemsCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CatalogItemsCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CatalogItemsCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CatalogItemsCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> catalogKind = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<String> payloadJson = const Value.absent(),
+            Value<DateTime> fetchedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CatalogItemsCacheCompanion(
+            catalogKind: catalogKind,
+            itemId: itemId,
+            payloadJson: payloadJson,
+            fetchedAt: fetchedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String catalogKind,
+            required String itemId,
+            required String payloadJson,
+            required DateTime fetchedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CatalogItemsCacheCompanion.insert(
+            catalogKind: catalogKind,
+            itemId: itemId,
+            payloadJson: payloadJson,
+            fetchedAt: fetchedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CatalogItemsCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $CatalogItemsCacheTable,
+    CatalogItemsCacheData,
+    $$CatalogItemsCacheTableFilterComposer,
+    $$CatalogItemsCacheTableOrderingComposer,
+    $$CatalogItemsCacheTableAnnotationComposer,
+    $$CatalogItemsCacheTableCreateCompanionBuilder,
+    $$CatalogItemsCacheTableUpdateCompanionBuilder,
+    (
+      CatalogItemsCacheData,
+      BaseReferences<_$LocalDatabase, $CatalogItemsCacheTable,
+          CatalogItemsCacheData>
+    ),
+    CatalogItemsCacheData,
+    PrefetchHooks Function()>;
 typedef $$WishlistItemsCacheTableCreateCompanionBuilder
     = WishlistItemsCacheCompanion Function({
   required String id,
@@ -82140,6 +82587,8 @@ typedef $$TvTrackingUnitRowsTableProcessedTableManager = ProcessedTableManager<
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
   $LocalDatabaseManager(this._db);
+  $$CatalogItemsCacheTableTableManager get catalogItemsCache =>
+      $$CatalogItemsCacheTableTableManager(_db, _db.catalogItemsCache);
   $$WishlistItemsCacheTableTableManager get wishlistItemsCache =>
       $$WishlistItemsCacheTableTableManager(_db, _db.wishlistItemsCache);
   $$SyncQueueTableTableManager get syncQueue =>

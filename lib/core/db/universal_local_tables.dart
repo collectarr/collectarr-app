@@ -1,5 +1,20 @@
 import 'package:drift/drift.dart';
 
+/// Cached source-neutral Catalog Item payload from Core.
+///
+/// Catalog Items are keyed by their owning kind and concrete item ID. Kind
+/// details remain inside the pinned kind payload rather than being split into
+/// a generic Work/Release graph.
+class CatalogItemsCache extends Table {
+  TextColumn get catalogKind => text()();
+  TextColumn get itemId => text()();
+  TextColumn get payloadJson => text()();
+  DateTimeColumn get fetchedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {catalogKind, itemId};
+}
+
 /// Drift tables shared by multiple library kinds or by app-wide services.
 ///
 /// Kind-specific table semantics live beside their owning kind. This file is

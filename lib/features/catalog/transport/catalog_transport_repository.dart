@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
@@ -97,6 +98,11 @@ final class CatalogTransportRepository {
         'Cannot persist catalog item without a supported kind: ${item.kind}',
       );
     }
-    await codec.upsertTransport(_db, item);
+    await _db.transaction(() async {
+      await CatalogItemCacheRepository(_db).upsert(item);
+      // The previous per-kind repositories still serve unconverted screens.
+      // Keep them in step while those active readers move to the flat cache.
+      await codec.upsertTransport(_db, item);
+    });
   }
 }
