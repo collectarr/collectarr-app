@@ -201,6 +201,18 @@ class ApiClient {
     return _catalogApi.getTypedMetadataItem(kind: kind, id: id);
   }
 
+  Future<Map<String, dynamic>> getCatalogItemJson({
+    required CatalogMediaKind kind,
+    required String id,
+    CancelToken? cancelToken,
+  }) {
+    return _catalogApi.getCatalogItemJson(
+      kind: kind,
+      id: id,
+      cancelToken: cancelToken,
+    );
+  }
+
   Future<ComicWorkDto> getComicWorkDto(String id) {
     return _catalogApi.getComicWorkDto(id);
   }

@@ -86,6 +86,39 @@ class CollectarrApiClient {
     }
   }
 
+  /// Fetches one flattened, kind-owned Catalog Item response.
+  ///
+  /// This is the canonical read path for Add/Edit catalog data. It does not
+  /// route through Work or Release endpoints.
+  Future<Map<String, dynamic>> getCatalogItemJson({
+    required CatalogMediaKind kind,
+    required String id,
+    CancelToken? cancelToken,
+  }) async {
+    final route = switch (kind) {
+      CatalogMediaKind.anime => 'anime',
+      CatalogMediaKind.boardgame => 'boardgames',
+      CatalogMediaKind.book => 'books',
+      CatalogMediaKind.comic => 'comics',
+      CatalogMediaKind.game => 'games',
+      CatalogMediaKind.manga => 'manga',
+      CatalogMediaKind.movie => 'movies',
+      CatalogMediaKind.music => 'music',
+      CatalogMediaKind.tv => 'tv',
+      CatalogMediaKind.unknown =>
+        throw UnsupportedError('Unknown Catalog Item kind.'),
+    };
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/v1/metadata/$route/items/${Uri.encodeComponent(id)}',
+      cancelToken: cancelToken,
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('Core returned an empty $route Catalog Item response.');
+    }
+    return _resolveImageUrls(data);
+  }
+
   Future<T> _fetchTypedMetadataItem<T extends TypedMetadataResponse>(
     String path,
     T Function(Map<String, dynamic>) factory,

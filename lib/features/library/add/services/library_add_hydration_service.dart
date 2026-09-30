@@ -16,20 +16,14 @@ final class LibraryAddHydrationService {
     if (libraryMetadataForKind(type.kind).catalogSearchResultsAreDetailed) {
       return fallback;
     }
-    final dto = await api.getTypedMetadataItem(
+    final json = await api.getCatalogItemJson(
       kind: fallback.summary.kind,
       id: itemId,
     );
-    final hydrated = CatalogSearchCandidate.fromJson({
-      ...dto.raw,
-      'id': dto.id,
-      'title': dto.title,
-      'kind': dto.kind,
-    });
-    final merged = libraryPresentationForKind(type.kind)
-        .builder
-        .mergeHydratedAddItem(hydrated: hydrated, fallback: fallback);
-    return libraryAddForKind(type.kind).catalogCandidateFromCoreItem(merged);
+    return CatalogSearchCandidate.fromApiJson(
+      json: json,
+      metadataDecoder: libraryMetadataForKind(type.kind).catalogMetadataDecoder,
+    );
   }
 
   Future<List<LibraryBundleSummary>> loadBundleReleases({
