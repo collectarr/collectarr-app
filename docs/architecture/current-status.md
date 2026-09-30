@@ -106,7 +106,8 @@ from the cache. The active flat Book projection retains printings as contained
 Catalog Item data and no longer fabricates a Release when the root response has
 no nested editions. The Book workspace now exposes one combined Catalog Item
 field and column schema; it no longer registers a separate Release workspace or
-fetches nested volumes for browsing. The generic workspace registry still maps
+fetches nested volumes for browsing. Book Add selects the Catalog Item directly
+without a nested Edition choice. The generic workspace registry still maps
 that root through its transitional `work` scope. Book's Edit adapters still
 contain legacy `BookMedia` and `BookRelease` models. Book Owned Copy editing
 now routes through the shared Book edit dialog so it can edit App-owned copy
