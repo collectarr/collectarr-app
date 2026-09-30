@@ -163,7 +163,7 @@ List<LibraryFieldSpec<TDraft>> musicReleaseFields<TDraft>({
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'record_label',
-        label: 'Record label',
+        label: 'Label',
         value: (draft) => _nullable(values(draft).publisher),
         setValue: (draft, value) => values(draft).publisher = value ?? '',
         options: _options(
@@ -175,7 +175,7 @@ List<LibraryFieldSpec<TDraft>> musicReleaseFields<TDraft>({
       ),
       _text<TDraft>(
         id: 'catalog_number',
-        label: 'Catalog number',
+        label: 'Cat No',
         read: (draft) => values(draft).catalogNumber,
         write: (draft, value) => values(draft).catalogNumber = value,
       ),

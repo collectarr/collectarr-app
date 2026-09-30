@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_release_group_form_values.dart';
 
 /// Edit session for release-group fields and its artwork/link tabs.
@@ -8,6 +9,9 @@ final class MusicReleaseGroupEditDraft {
   MusicReleaseGroupEditDraft.fromReleaseGroup(MusicReleaseGroup group)
       : original = group,
         values = MusicReleaseGroupFormValues.fromGroup(group),
+        releaseValues = group.primaryRelease == null
+            ? MusicReleaseFormValues()
+            : MusicReleaseFormValues.fromRelease(group.primaryRelease!),
         externalLinks = List<MusicExternalLink>.from(group.externalLinks),
         localCoverImagePath = group.localCoverImagePath,
         localBackImagePath = group.localBackImagePath,
@@ -15,17 +19,30 @@ final class MusicReleaseGroupEditDraft {
 
   final MusicReleaseGroup original;
   final MusicReleaseGroupFormValues values;
+  final MusicReleaseFormValues releaseValues;
   List<MusicExternalLink> externalLinks;
   String? localCoverImagePath;
   String? localBackImagePath;
   String? localThumbnailImagePath;
 
-  MusicReleaseGroup toReleaseGroup() => MusicReleaseGroupFormAdapter.update(
-        original,
-        values,
-        externalLinks: externalLinks,
-        localCoverImagePath: localCoverImagePath,
-        localBackImagePath: localBackImagePath,
-        localThumbnailImagePath: localThumbnailImagePath,
+  MusicReleaseGroup toReleaseGroup() {
+    final releases = [...original.releases];
+    final primaryRelease = original.primaryRelease;
+    if (primaryRelease != null) {
+      final releaseIndex = releases.indexOf(primaryRelease);
+      releases[releaseIndex] = MusicReleaseFormAdapter.update(
+        primaryRelease,
+        releaseValues,
       );
+    }
+    return MusicReleaseGroupFormAdapter.update(
+      original,
+      values,
+      releases: releases,
+      externalLinks: externalLinks,
+      localCoverImagePath: localCoverImagePath,
+      localBackImagePath: localBackImagePath,
+      localThumbnailImagePath: localThumbnailImagePath,
+    );
+  }
 }

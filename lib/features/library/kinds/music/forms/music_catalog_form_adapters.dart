@@ -31,6 +31,7 @@ abstract final class MusicReleaseGroupFormAdapter {
   static MusicReleaseGroup update(
     MusicReleaseGroup original,
     MusicReleaseGroupFormValues values, {
+    List<MusicRelease>? releases,
     required List<MusicExternalLink> externalLinks,
     required String? localCoverImagePath,
     required String? localBackImagePath,
@@ -58,7 +59,7 @@ abstract final class MusicReleaseGroupFormAdapter {
         coverImageUrl: _text(values.coverImageUrl),
         coverImageKey: original.coverImageKey,
         externalLinks: List.unmodifiable(externalLinks),
-        releases: original.releases,
+        releases: List.unmodifiable(releases ?? original.releases),
         localCoverImagePath: localCoverImagePath,
         localBackImagePath: localBackImagePath,
         localThumbnailImagePath: localThumbnailImagePath,

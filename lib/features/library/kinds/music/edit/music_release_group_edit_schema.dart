@@ -25,29 +25,36 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
       icon: Icons.music_note_outlined,
       sections: [
         EditSectionSpec<MusicReleaseGroupEditDraft>(
-          id: 'identity',
-          label: 'Identity',
+          id: 'album',
+          label: 'Album',
+          fields: _mainAlbumFields,
+        ),
+        EditSectionSpec<MusicReleaseGroupEditDraft>(
+          id: 'additional_details',
+          label: 'Additional details',
           fields: musicReleaseGroupFields(
             values: (draft) => draft.values,
             include: {
-              'title',
-              'sort_title',
-              'artist',
               'original_title',
               'is_live',
+              'studios',
             },
           ),
         ),
         EditSectionSpec<MusicReleaseGroupEditDraft>(
-          id: 'recording',
-          label: 'Recording',
-          fields: musicReleaseGroupFields(
-            values: (draft) => draft.values,
+          id: 'edition_details',
+          label: 'Edition details',
+          visibleWhen: (draft) => draft.original.primaryRelease != null,
+          fields: musicReleaseFields(
+            values: (draft) => draft.releaseValues,
             include: {
-              'original_release_date',
-              'recording_date',
-              'studios',
-              'genres',
+              'country',
+              'packaging',
+              'language',
+              'box_set_ref',
+              'box_set_name',
+              'box_set_position',
+              'upc',
             },
           ),
         ),
@@ -55,3 +62,34 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
     ),
   ],
 );
+
+final _mainAlbumFields = _orderedFields();
+
+List<LibraryFieldSpec<MusicReleaseGroupEditDraft>> _orderedFields() {
+  final groupFields = musicReleaseGroupFields<MusicReleaseGroupEditDraft>(
+    values: (draft) => draft.values,
+  );
+  final releaseFields = musicReleaseFields<MusicReleaseGroupEditDraft>(
+    values: (draft) => draft.releaseValues,
+  );
+  LibraryFieldSpec<MusicReleaseGroupEditDraft> find(
+    List<LibraryFieldSpec<MusicReleaseGroupEditDraft>> fields,
+    String id,
+  ) =>
+      fields.firstWhere((field) => field.id == id);
+
+  return [
+    find(groupFields, 'title'),
+    find(groupFields, 'sort_title'),
+    find(releaseFields, 'subtitle'),
+    find(groupFields, 'artist'),
+    find(releaseFields, 'release_date'),
+    find(groupFields, 'original_release_date'),
+    find(releaseFields, 'record_label'),
+    find(groupFields, 'recording_date'),
+    find(releaseFields, 'format'),
+    find(releaseFields, 'barcode'),
+    find(releaseFields, 'catalog_number'),
+    find(groupFields, 'genres'),
+  ];
+}
