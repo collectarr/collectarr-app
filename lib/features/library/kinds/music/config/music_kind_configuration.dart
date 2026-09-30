@@ -81,11 +81,9 @@ final musicTransferableFields = <TransferableField>[
 
 const musicAddChrome = LibraryAddChromeConfig(
   mediaReferenceLabel: 'Album',
-  trackScopeSummary:
-      'Tracking stays album-level here. Edition and variant scope are only available for owned or wishlist entries.',
+  trackScopeSummary: 'Tracks and listening activity belong to this album.',
   mediaReferenceHelperLabel: 'Track or save the album itself.',
-  editionReferenceHelperLabel:
-      'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
+  editionReferenceHelperLabel: 'Add a personal copy of this album.',
 );
 
 Iterable<String?> musicLinkedMetadataValues(MusicReleaseGroup group) => [
