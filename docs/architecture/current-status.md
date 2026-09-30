@@ -78,6 +78,9 @@ flat cache. Movie and Music use it as their only local catalog store. The
 remaining seven per-kind repositories are still dual-written because
 unconverted screens depend on them. The old non-Music tables remain registered
 until their active callers move to the flat cache.
+Book calendar events now read each concrete item's release date from this cache
+instead of loading a `BookMedia` row from the old per-kind table. The Book
+workspace and other legacy Book readers still require that table.
 
 Music-owned copies created through Add target the concrete Music Catalog Item
 directly and persist only that `catalog_ref`; they do not carry a redundant
