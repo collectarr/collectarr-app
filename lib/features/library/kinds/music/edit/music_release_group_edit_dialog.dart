@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_release_g
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_images_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_copies_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_catalog_listening_tab.dart';
 import 'package:flutter/material.dart';
 
 Widget buildMusicReleaseGroupLibraryEditDialog(
@@ -76,6 +77,14 @@ final class _MusicReleaseGroupEditDialogState
                 type: widget.request.type,
               ),
             ),
+          EditSchemaExtraTab(
+            label: 'Listening',
+            icon: Icons.headphones_outlined,
+            content: MusicCatalogListeningTab(
+              item: widget.request.kindItem,
+              accent: widget.request.accent,
+            ),
+          ),
           EditSchemaExtraTab(
             label: 'Covers',
             icon: Icons.photo_camera_outlined,

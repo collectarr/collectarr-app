@@ -71,8 +71,8 @@ void main() {
     ];
 
     expect(MusicStatsCapability.totalTracks(entries), 15);
-    expect(MusicStatsCapability.totalReleaseGroups(entries), 2);
-    expect(MusicStatsCapability.totalReleases(entries), 2);
+    expect(MusicStatsCapability.totalCatalogItems(entries), 2);
+    expect(MusicStatsCapability.totalMedia(entries), 2);
     expect(MusicStatsCapability.countArtists(entries), {'Pink Floyd': 2});
     expect(MusicStatsCapability.countGenres(entries), {
       'Progressive Rock': 1,
@@ -85,29 +85,26 @@ void main() {
   test('Music listening aggregates feed workspace-aware stats', () {
     final source = _musicSource('group-listens', 'Album', 'Artist', 'Vinyl', 2);
     final catalog = source.catalogData! as MusicWorkspaceCatalogData;
-    final release = catalog.release!;
-    final releaseRef = CatalogEntityRef(
+    final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.music,
-      entityType: const CatalogEntityTypeId('release'),
-      id: release.id.value,
-      rootId: catalog.music.id.value,
+      entityType: CatalogEntityTypeId.root,
+      id: catalog.music.id.value,
     );
     final events = [
       MusicListenEvent(
         id: 'listen-1',
-        releaseRef: releaseRef,
+        catalogRef: catalogRef,
         listenedAt: DateTime.utc(2026, 1, 5),
       ),
       MusicListenEvent(
         id: 'listen-2',
-        releaseRef: releaseRef,
+        catalogRef: catalogRef,
         listenedAt: DateTime.utc(2026, 2, 5),
       ),
     ];
-    final summary = MusicReleaseGroupTrackingSummary.fromEvents(
-      releaseGroupId: catalog.music.id.value,
+    final summary = MusicCatalogItemListeningSummary.fromEvents(
+      catalogItemId: catalog.music.id.value,
       events: events,
-      releaseIds: catalog.music.releases.map((entry) => entry.id.value),
     );
     final listenedSource = LibraryWorkspaceSource(
       itemId: source.itemId,
@@ -115,12 +112,8 @@ void main() {
     );
 
     expect(MusicStatsCapability.totalListens([listenedSource]), 2);
-    expect(MusicStatsCapability.countMostListenedGroups([listenedSource]),
+    expect(MusicStatsCapability.countMostListenedItems([listenedSource]),
         {'Album': 2});
-    expect(
-      MusicStatsCapability.countMostListenedReleases([listenedSource]).values,
-      contains(2),
-    );
     expect(MusicStatsCapability.countListeningByMonth([listenedSource]), {
       '2026-01': 1,
       '2026-02': 1,

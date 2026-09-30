@@ -16,8 +16,9 @@ workspace schema work.
   inspector/export paths.
 - Per-medium storage and per-side matrix/runout data are retained during copy
   edits, including untouched media entries.
-- Multiple listen events and derived Group listening summaries are available;
-  Group listening remains read-only.
+- Multiple listen events are stored against a Music Catalog Item, with an
+  optional Owned Copy reference. Derived per-item summaries feed Music stats;
+  there is no release-group listening breakdown.
 - Box-set membership is typed, mapped through Core/provider/catalog/local
   boundaries, editable on a Release, visible in the inspector, and groupable
   in the Release workspace.
@@ -31,8 +32,8 @@ workspace schema work.
 - Workspace rows still expose one structural `ownedSummary`; quantity remains
   the aggregate for a copy row. The Release editor is the authoritative view
   for enumerating multiple physical copies.
-- Listening aggregates are enriched into typed Music workspace DTO rows and
-  consumed by Music stats; the Group aggregate remains read-only.
+- Listening summaries are enriched into typed Music workspace DTO rows and
+  consumed by Music stats from the Catalog Item identity.
 - The previous monolithic edit runtime has been removed. The unscoped catalog
   editor is a typed Group/Release/Links composition, while structural nodes
   dispatch to their dedicated dialogs.

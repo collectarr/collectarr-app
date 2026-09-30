@@ -18,7 +18,7 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
     MusicReleaseGroup music, {
     CatalogEntityRef? ref,
     MusicRelease? release,
-    MusicReleaseGroupTrackingSummary? listeningSummary,
+    MusicCatalogItemListeningSummary? listeningSummary,
   }) {
     return MusicWorkspaceCatalogData(
       ref: ref ??
@@ -37,10 +37,10 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   final CatalogEntityRef ref;
   final MusicReleaseGroup music;
   final MusicRelease? release;
-  final MusicReleaseGroupTrackingSummary? listeningSummary;
+  final MusicCatalogItemListeningSummary? listeningSummary;
 
   MusicWorkspaceCatalogData copyWith({
-    MusicReleaseGroupTrackingSummary? listeningSummary,
+    MusicCatalogItemListeningSummary? listeningSummary,
   }) {
     return MusicWorkspaceCatalogData(
       ref: ref,

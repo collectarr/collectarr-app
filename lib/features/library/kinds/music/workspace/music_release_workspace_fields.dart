@@ -47,20 +47,6 @@ abstract final class MusicReleaseWorkspaceFields {
     entityScope: LibraryEntityScope.release,
   );
 
-  static final listenCount = numberField<MusicKind, MusicWorkspaceProjection>(
-    id: MusicFieldIds.listenCount,
-    label: 'Listen count',
-    getValue: (dto) => dto.listenCount,
-    entityScope: LibraryEntityScope.release,
-  );
-
-  static final lastListened = dateField<MusicKind, MusicWorkspaceProjection>(
-    id: MusicFieldIds.lastListened,
-    label: 'Last listened',
-    getValue: (dto) => dto.lastListened,
-    entityScope: LibraryEntityScope.release,
-  );
-
   static final catalogNumber = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.catalogNumber,
     label: 'Catalog Number',

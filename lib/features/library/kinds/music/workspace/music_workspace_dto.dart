@@ -15,7 +15,7 @@ abstract interface class MusicWorkspaceProjection
   PersonalCopyProjection get personal;
   MusicReleaseGroup get music;
   MusicRelease? get release;
-  MusicReleaseGroupTrackingSummary? get groupListeningSummary;
+  MusicCatalogItemListeningSummary? get listeningSummary;
 
   String? get currency;
   String? get artist;
@@ -33,11 +33,6 @@ abstract interface class MusicWorkspaceProjection
   String? get barcode;
   String? get country;
   String? get language;
-  MusicReleaseGroupTrackingSummary? get listeningSummary;
-  int? get aggregateListenCount;
-  int? get listenedReleaseCount;
-  DateTime? get aggregateLastListened;
-  MusicReleaseTrackingSummary? get releaseListeningSummary;
   int? get listenCount;
   DateTime? get lastListened;
   int? get discCount;
@@ -57,7 +52,7 @@ abstract class MusicWorkspaceProjectionValues
     required this.personal,
     required this.music,
     required this.release,
-    this.groupListeningSummary,
+    this.listeningSummary,
   });
 
   @override
@@ -69,7 +64,7 @@ abstract class MusicWorkspaceProjectionValues
   @override
   final MusicRelease? release;
   @override
-  final MusicReleaseGroupTrackingSummary? groupListeningSummary;
+  final MusicCatalogItemListeningSummary? listeningSummary;
 
   String get title => common.title;
 
@@ -132,38 +127,12 @@ abstract class MusicWorkspaceProjectionValues
   String? get language => release?.language;
 
   @override
-  MusicReleaseGroupTrackingSummary? get listeningSummary =>
-      groupListeningSummary;
+  @override
+  @override
+  int? get listenCount => listeningSummary?.totalListenCount;
 
   @override
-  int? get aggregateListenCount => listeningSummary?.totalListenCount;
-
-  @override
-  int? get listenedReleaseCount => listeningSummary?.listenedReleaseCount;
-
-  @override
-  DateTime? get aggregateLastListened => listeningSummary?.lastListened;
-
-  @override
-  MusicReleaseTrackingSummary? get releaseListeningSummary {
-    final summary = listeningSummary;
-    final release = this.release;
-    if (summary == null || release == null) return null;
-    for (final entry in summary.releaseBreakdown) {
-      if (entry.releaseId == release.id.value) return entry;
-    }
-    return null;
-  }
-
-  @override
-  int? get listenCount =>
-      releaseListeningSummary?.listenCount ??
-      (release == null ? listeningSummary?.totalListenCount : null);
-
-  @override
-  DateTime? get lastListened =>
-      releaseListeningSummary?.lastListened ??
-      (release == null ? listeningSummary?.lastListened : null);
+  DateTime? get lastListened => listeningSummary?.lastListened;
 
   String? get coverImageUrl => release?.coverImageUrl ?? common.coverImageUrl;
 
@@ -233,7 +202,7 @@ final class MusicReleaseGroupWorkspaceDto
     required super.personal,
     required super.music,
     required super.release,
-    super.groupListeningSummary,
+    super.listeningSummary,
   });
 }
 
@@ -243,7 +212,7 @@ final class MusicReleaseWorkspaceDto extends MusicWorkspaceProjectionValues {
     required super.personal,
     required super.music,
     required super.release,
-    super.groupListeningSummary,
+    super.listeningSummary,
   });
 }
 
@@ -253,6 +222,6 @@ final class MusicOwnedCopyWorkspaceDto extends MusicWorkspaceProjectionValues {
     required super.personal,
     required super.music,
     required super.release,
-    super.groupListeningSummary,
+    super.listeningSummary,
   });
 }

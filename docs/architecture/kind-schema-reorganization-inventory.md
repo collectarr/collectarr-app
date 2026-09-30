@@ -362,9 +362,8 @@ Sources: work fields `[music_release_group_workspace_fields.dart]`, release fiel
 | work | `releaseDate` | `music.release_group.release_date` | Release Date | `dto.music.releaseDate` | yes | yes | — | yes |
 | work | `releaseCount` | `music.release_count` | Release count | `dto.releaseCount` | yes | yes | — | yes |
 | work | `trackCount` | `music.release_group.track_count` | Track count | `dto.music.trackCount` | yes | yes | — | yes |
-| work | `aggregateListenCount` | `music.aggregate_listen_count` | Aggregate listens | `dto.aggregateListenCount` | yes | yes | — | yes |
-| work | `aggregateLastListened` | `music.aggregate_last_listened` | Last listened | `dto.aggregateLastListened` | yes | yes | — | yes |
-| work | `listenedReleaseCount` | `music.listened_release_count` | Listened releases | `dto.listenedReleaseCount` | yes | yes | — | yes |
+| work | `listenCount` | `music.listen_count` | Listen count | `dto.listenCount` | yes | yes | — | yes |
+| work | `lastListened` | `music.last_listened` | Last listened | `dto.lastListened` | yes | yes | — | yes |
 | work | `status` | `music.status` | Status | `context.source.isOwned/isWishlisted` | yes | — | — | yes |
 | work | `cover` | `music.cover` | Cover | `context.dto.imageUrl` | yes | — | — | yes |
 | release | `title` | `music.title` | Title | `dto.primaryLabel` | yes | yes | — | yes |
@@ -373,8 +372,6 @@ Sources: work fields `[music_release_group_workspace_fields.dart]`, release fiel
 | release | `releaseDate` | `music.release.release_date` | Release Date | `dto.release.releaseDate` | yes | yes | — | yes |
 | release | `trackCount` | `music.release.track_count` | Track count | `dto.release.trackCount` | yes | yes | — | yes |
 | release | `barcode` | `music.barcode` | Barcode | `dto.barcode` | yes | — | — | yes |
-| release | `listenCount` | `music.listen_count` | Listen count | `dto.listenCount` | yes | yes | — | yes |
-| release | `lastListened` | `music.last_listened` | Last listened | `dto.lastListened` | yes | yes | — | yes |
 | release | `catalogNumber` | `music.catalog_number` | Catalog Number | `dto.catalogNumber` | yes | — | — | — |
 | release | `format` | `music.format` | Format | `dto.format` | yes | — | yes | — |
 | release | `releaseType` | `music.release_type` | Release type | `dto.releaseType` | yes | — | — | — |

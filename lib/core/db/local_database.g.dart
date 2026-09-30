@@ -47291,29 +47291,17 @@ class $MusicListenEventsRowsTable extends MusicListenEventsRows
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _targetRefJsonMeta =
-      const VerificationMeta('targetRefJson');
+  static const VerificationMeta _catalogItemIdMeta =
+      const VerificationMeta('catalogItemId');
   @override
-  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
-      'target_ref_json', aliasedName, false,
+  late final GeneratedColumn<String> catalogItemId = GeneratedColumn<String>(
+      'catalog_item_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _releaseGroupIdMeta =
-      const VerificationMeta('releaseGroupId');
+  static const VerificationMeta _ownedCopyIdMeta =
+      const VerificationMeta('ownedCopyId');
   @override
-  late final GeneratedColumn<String> releaseGroupId = GeneratedColumn<String>(
-      'release_group_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _releaseIdMeta =
-      const VerificationMeta('releaseId');
-  @override
-  late final GeneratedColumn<String> releaseId = GeneratedColumn<String>(
-      'release_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ownedRefJsonMeta =
-      const VerificationMeta('ownedRefJson');
-  @override
-  late final GeneratedColumn<String> ownedRefJson = GeneratedColumn<String>(
-      'owned_ref_json', aliasedName, true,
+  late final GeneratedColumn<String> ownedCopyId = GeneratedColumn<String>(
+      'owned_copy_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _listenedAtMeta =
       const VerificationMeta('listenedAt');
@@ -47365,10 +47353,8 @@ class $MusicListenEventsRowsTable extends MusicListenEventsRows
   @override
   List<GeneratedColumn> get $columns => [
         id,
-        targetRefJson,
-        releaseGroupId,
-        releaseId,
-        ownedRefJson,
+        catalogItemId,
+        ownedCopyId,
         listenedAt,
         startedAt,
         finishedAt,
@@ -47394,31 +47380,19 @@ class $MusicListenEventsRowsTable extends MusicListenEventsRows
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('target_ref_json')) {
+    if (data.containsKey('catalog_item_id')) {
       context.handle(
-          _targetRefJsonMeta,
-          targetRefJson.isAcceptableOrUnknown(
-              data['target_ref_json']!, _targetRefJsonMeta));
+          _catalogItemIdMeta,
+          catalogItemId.isAcceptableOrUnknown(
+              data['catalog_item_id']!, _catalogItemIdMeta));
     } else if (isInserting) {
-      context.missing(_targetRefJsonMeta);
+      context.missing(_catalogItemIdMeta);
     }
-    if (data.containsKey('release_group_id')) {
+    if (data.containsKey('owned_copy_id')) {
       context.handle(
-          _releaseGroupIdMeta,
-          releaseGroupId.isAcceptableOrUnknown(
-              data['release_group_id']!, _releaseGroupIdMeta));
-    } else if (isInserting) {
-      context.missing(_releaseGroupIdMeta);
-    }
-    if (data.containsKey('release_id')) {
-      context.handle(_releaseIdMeta,
-          releaseId.isAcceptableOrUnknown(data['release_id']!, _releaseIdMeta));
-    }
-    if (data.containsKey('owned_ref_json')) {
-      context.handle(
-          _ownedRefJsonMeta,
-          ownedRefJson.isAcceptableOrUnknown(
-              data['owned_ref_json']!, _ownedRefJsonMeta));
+          _ownedCopyIdMeta,
+          ownedCopyId.isAcceptableOrUnknown(
+              data['owned_copy_id']!, _ownedCopyIdMeta));
     }
     if (data.containsKey('listened_at')) {
       context.handle(
@@ -47473,14 +47447,10 @@ class $MusicListenEventsRowsTable extends MusicListenEventsRows
     return MusicListenEventsRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      targetRefJson: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
-      releaseGroupId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}release_group_id'])!,
-      releaseId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}release_id']),
-      ownedRefJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_json']),
+      catalogItemId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_item_id'])!,
+      ownedCopyId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_copy_id']),
       listenedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}listened_at'])!,
       startedAt: attachedDatabase.typeMapping
@@ -47509,10 +47479,8 @@ class $MusicListenEventsRowsTable extends MusicListenEventsRows
 class MusicListenEventsRow extends DataClass
     implements Insertable<MusicListenEventsRow> {
   final String id;
-  final String targetRefJson;
-  final String releaseGroupId;
-  final String? releaseId;
-  final String? ownedRefJson;
+  final String catalogItemId;
+  final String? ownedCopyId;
   final DateTime listenedAt;
   final DateTime? startedAt;
   final DateTime? finishedAt;
@@ -47523,10 +47491,8 @@ class MusicListenEventsRow extends DataClass
   final DateTime? deletedAt;
   const MusicListenEventsRow(
       {required this.id,
-      required this.targetRefJson,
-      required this.releaseGroupId,
-      this.releaseId,
-      this.ownedRefJson,
+      required this.catalogItemId,
+      this.ownedCopyId,
       required this.listenedAt,
       this.startedAt,
       this.finishedAt,
@@ -47539,13 +47505,9 @@ class MusicListenEventsRow extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['target_ref_json'] = Variable<String>(targetRefJson);
-    map['release_group_id'] = Variable<String>(releaseGroupId);
-    if (!nullToAbsent || releaseId != null) {
-      map['release_id'] = Variable<String>(releaseId);
-    }
-    if (!nullToAbsent || ownedRefJson != null) {
-      map['owned_ref_json'] = Variable<String>(ownedRefJson);
+    map['catalog_item_id'] = Variable<String>(catalogItemId);
+    if (!nullToAbsent || ownedCopyId != null) {
+      map['owned_copy_id'] = Variable<String>(ownedCopyId);
     }
     map['listened_at'] = Variable<DateTime>(listenedAt);
     if (!nullToAbsent || startedAt != null) {
@@ -47571,14 +47533,10 @@ class MusicListenEventsRow extends DataClass
   MusicListenEventsRowsCompanion toCompanion(bool nullToAbsent) {
     return MusicListenEventsRowsCompanion(
       id: Value(id),
-      targetRefJson: Value(targetRefJson),
-      releaseGroupId: Value(releaseGroupId),
-      releaseId: releaseId == null && nullToAbsent
+      catalogItemId: Value(catalogItemId),
+      ownedCopyId: ownedCopyId == null && nullToAbsent
           ? const Value.absent()
-          : Value(releaseId),
-      ownedRefJson: ownedRefJson == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ownedRefJson),
+          : Value(ownedCopyId),
       listenedAt: Value(listenedAt),
       startedAt: startedAt == null && nullToAbsent
           ? const Value.absent()
@@ -47604,10 +47562,8 @@ class MusicListenEventsRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return MusicListenEventsRow(
       id: serializer.fromJson<String>(json['id']),
-      targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
-      releaseGroupId: serializer.fromJson<String>(json['releaseGroupId']),
-      releaseId: serializer.fromJson<String?>(json['releaseId']),
-      ownedRefJson: serializer.fromJson<String?>(json['ownedRefJson']),
+      catalogItemId: serializer.fromJson<String>(json['catalogItemId']),
+      ownedCopyId: serializer.fromJson<String?>(json['ownedCopyId']),
       listenedAt: serializer.fromJson<DateTime>(json['listenedAt']),
       startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
       finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
@@ -47623,10 +47579,8 @@ class MusicListenEventsRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'targetRefJson': serializer.toJson<String>(targetRefJson),
-      'releaseGroupId': serializer.toJson<String>(releaseGroupId),
-      'releaseId': serializer.toJson<String?>(releaseId),
-      'ownedRefJson': serializer.toJson<String?>(ownedRefJson),
+      'catalogItemId': serializer.toJson<String>(catalogItemId),
+      'ownedCopyId': serializer.toJson<String?>(ownedCopyId),
       'listenedAt': serializer.toJson<DateTime>(listenedAt),
       'startedAt': serializer.toJson<DateTime?>(startedAt),
       'finishedAt': serializer.toJson<DateTime?>(finishedAt),
@@ -47640,10 +47594,8 @@ class MusicListenEventsRow extends DataClass
 
   MusicListenEventsRow copyWith(
           {String? id,
-          String? targetRefJson,
-          String? releaseGroupId,
-          Value<String?> releaseId = const Value.absent(),
-          Value<String?> ownedRefJson = const Value.absent(),
+          String? catalogItemId,
+          Value<String?> ownedCopyId = const Value.absent(),
           DateTime? listenedAt,
           Value<DateTime?> startedAt = const Value.absent(),
           Value<DateTime?> finishedAt = const Value.absent(),
@@ -47654,11 +47606,8 @@ class MusicListenEventsRow extends DataClass
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       MusicListenEventsRow(
         id: id ?? this.id,
-        targetRefJson: targetRefJson ?? this.targetRefJson,
-        releaseGroupId: releaseGroupId ?? this.releaseGroupId,
-        releaseId: releaseId.present ? releaseId.value : this.releaseId,
-        ownedRefJson:
-            ownedRefJson.present ? ownedRefJson.value : this.ownedRefJson,
+        catalogItemId: catalogItemId ?? this.catalogItemId,
+        ownedCopyId: ownedCopyId.present ? ownedCopyId.value : this.ownedCopyId,
         listenedAt: listenedAt ?? this.listenedAt,
         startedAt: startedAt.present ? startedAt.value : this.startedAt,
         finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
@@ -47671,16 +47620,11 @@ class MusicListenEventsRow extends DataClass
   MusicListenEventsRow copyWithCompanion(MusicListenEventsRowsCompanion data) {
     return MusicListenEventsRow(
       id: data.id.present ? data.id.value : this.id,
-      targetRefJson: data.targetRefJson.present
-          ? data.targetRefJson.value
-          : this.targetRefJson,
-      releaseGroupId: data.releaseGroupId.present
-          ? data.releaseGroupId.value
-          : this.releaseGroupId,
-      releaseId: data.releaseId.present ? data.releaseId.value : this.releaseId,
-      ownedRefJson: data.ownedRefJson.present
-          ? data.ownedRefJson.value
-          : this.ownedRefJson,
+      catalogItemId: data.catalogItemId.present
+          ? data.catalogItemId.value
+          : this.catalogItemId,
+      ownedCopyId:
+          data.ownedCopyId.present ? data.ownedCopyId.value : this.ownedCopyId,
       listenedAt:
           data.listenedAt.present ? data.listenedAt.value : this.listenedAt,
       startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
@@ -47698,10 +47642,8 @@ class MusicListenEventsRow extends DataClass
   String toString() {
     return (StringBuffer('MusicListenEventsRow(')
           ..write('id: $id, ')
-          ..write('targetRefJson: $targetRefJson, ')
-          ..write('releaseGroupId: $releaseGroupId, ')
-          ..write('releaseId: $releaseId, ')
-          ..write('ownedRefJson: $ownedRefJson, ')
+          ..write('catalogItemId: $catalogItemId, ')
+          ..write('ownedCopyId: $ownedCopyId, ')
           ..write('listenedAt: $listenedAt, ')
           ..write('startedAt: $startedAt, ')
           ..write('finishedAt: $finishedAt, ')
@@ -47715,29 +47657,15 @@ class MusicListenEventsRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      targetRefJson,
-      releaseGroupId,
-      releaseId,
-      ownedRefJson,
-      listenedAt,
-      startedAt,
-      finishedAt,
-      location,
-      notes,
-      createdAt,
-      updatedAt,
-      deletedAt);
+  int get hashCode => Object.hash(id, catalogItemId, ownedCopyId, listenedAt,
+      startedAt, finishedAt, location, notes, createdAt, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MusicListenEventsRow &&
           other.id == this.id &&
-          other.targetRefJson == this.targetRefJson &&
-          other.releaseGroupId == this.releaseGroupId &&
-          other.releaseId == this.releaseId &&
-          other.ownedRefJson == this.ownedRefJson &&
+          other.catalogItemId == this.catalogItemId &&
+          other.ownedCopyId == this.ownedCopyId &&
           other.listenedAt == this.listenedAt &&
           other.startedAt == this.startedAt &&
           other.finishedAt == this.finishedAt &&
@@ -47751,10 +47679,8 @@ class MusicListenEventsRow extends DataClass
 class MusicListenEventsRowsCompanion
     extends UpdateCompanion<MusicListenEventsRow> {
   final Value<String> id;
-  final Value<String> targetRefJson;
-  final Value<String> releaseGroupId;
-  final Value<String?> releaseId;
-  final Value<String?> ownedRefJson;
+  final Value<String> catalogItemId;
+  final Value<String?> ownedCopyId;
   final Value<DateTime> listenedAt;
   final Value<DateTime?> startedAt;
   final Value<DateTime?> finishedAt;
@@ -47766,10 +47692,8 @@ class MusicListenEventsRowsCompanion
   final Value<int> rowid;
   const MusicListenEventsRowsCompanion({
     this.id = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
-    this.releaseGroupId = const Value.absent(),
-    this.releaseId = const Value.absent(),
-    this.ownedRefJson = const Value.absent(),
+    this.catalogItemId = const Value.absent(),
+    this.ownedCopyId = const Value.absent(),
     this.listenedAt = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.finishedAt = const Value.absent(),
@@ -47782,10 +47706,8 @@ class MusicListenEventsRowsCompanion
   });
   MusicListenEventsRowsCompanion.insert({
     required String id,
-    required String targetRefJson,
-    required String releaseGroupId,
-    this.releaseId = const Value.absent(),
-    this.ownedRefJson = const Value.absent(),
+    required String catalogItemId,
+    this.ownedCopyId = const Value.absent(),
     required DateTime listenedAt,
     this.startedAt = const Value.absent(),
     this.finishedAt = const Value.absent(),
@@ -47796,17 +47718,14 @@ class MusicListenEventsRowsCompanion
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        targetRefJson = Value(targetRefJson),
-        releaseGroupId = Value(releaseGroupId),
+        catalogItemId = Value(catalogItemId),
         listenedAt = Value(listenedAt),
         createdAt = Value(createdAt),
         updatedAt = Value(updatedAt);
   static Insertable<MusicListenEventsRow> custom({
     Expression<String>? id,
-    Expression<String>? targetRefJson,
-    Expression<String>? releaseGroupId,
-    Expression<String>? releaseId,
-    Expression<String>? ownedRefJson,
+    Expression<String>? catalogItemId,
+    Expression<String>? ownedCopyId,
     Expression<DateTime>? listenedAt,
     Expression<DateTime>? startedAt,
     Expression<DateTime>? finishedAt,
@@ -47819,10 +47738,8 @@ class MusicListenEventsRowsCompanion
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (targetRefJson != null) 'target_ref_json': targetRefJson,
-      if (releaseGroupId != null) 'release_group_id': releaseGroupId,
-      if (releaseId != null) 'release_id': releaseId,
-      if (ownedRefJson != null) 'owned_ref_json': ownedRefJson,
+      if (catalogItemId != null) 'catalog_item_id': catalogItemId,
+      if (ownedCopyId != null) 'owned_copy_id': ownedCopyId,
       if (listenedAt != null) 'listened_at': listenedAt,
       if (startedAt != null) 'started_at': startedAt,
       if (finishedAt != null) 'finished_at': finishedAt,
@@ -47837,10 +47754,8 @@ class MusicListenEventsRowsCompanion
 
   MusicListenEventsRowsCompanion copyWith(
       {Value<String>? id,
-      Value<String>? targetRefJson,
-      Value<String>? releaseGroupId,
-      Value<String?>? releaseId,
-      Value<String?>? ownedRefJson,
+      Value<String>? catalogItemId,
+      Value<String?>? ownedCopyId,
       Value<DateTime>? listenedAt,
       Value<DateTime?>? startedAt,
       Value<DateTime?>? finishedAt,
@@ -47852,10 +47767,8 @@ class MusicListenEventsRowsCompanion
       Value<int>? rowid}) {
     return MusicListenEventsRowsCompanion(
       id: id ?? this.id,
-      targetRefJson: targetRefJson ?? this.targetRefJson,
-      releaseGroupId: releaseGroupId ?? this.releaseGroupId,
-      releaseId: releaseId ?? this.releaseId,
-      ownedRefJson: ownedRefJson ?? this.ownedRefJson,
+      catalogItemId: catalogItemId ?? this.catalogItemId,
+      ownedCopyId: ownedCopyId ?? this.ownedCopyId,
       listenedAt: listenedAt ?? this.listenedAt,
       startedAt: startedAt ?? this.startedAt,
       finishedAt: finishedAt ?? this.finishedAt,
@@ -47874,17 +47787,11 @@ class MusicListenEventsRowsCompanion
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (targetRefJson.present) {
-      map['target_ref_json'] = Variable<String>(targetRefJson.value);
+    if (catalogItemId.present) {
+      map['catalog_item_id'] = Variable<String>(catalogItemId.value);
     }
-    if (releaseGroupId.present) {
-      map['release_group_id'] = Variable<String>(releaseGroupId.value);
-    }
-    if (releaseId.present) {
-      map['release_id'] = Variable<String>(releaseId.value);
-    }
-    if (ownedRefJson.present) {
-      map['owned_ref_json'] = Variable<String>(ownedRefJson.value);
+    if (ownedCopyId.present) {
+      map['owned_copy_id'] = Variable<String>(ownedCopyId.value);
     }
     if (listenedAt.present) {
       map['listened_at'] = Variable<DateTime>(listenedAt.value);
@@ -47920,10 +47827,8 @@ class MusicListenEventsRowsCompanion
   String toString() {
     return (StringBuffer('MusicListenEventsRowsCompanion(')
           ..write('id: $id, ')
-          ..write('targetRefJson: $targetRefJson, ')
-          ..write('releaseGroupId: $releaseGroupId, ')
-          ..write('releaseId: $releaseId, ')
-          ..write('ownedRefJson: $ownedRefJson, ')
+          ..write('catalogItemId: $catalogItemId, ')
+          ..write('ownedCopyId: $ownedCopyId, ')
           ..write('listenedAt: $listenedAt, ')
           ..write('startedAt: $startedAt, ')
           ..write('finishedAt: $finishedAt, ')
@@ -78589,10 +78494,8 @@ typedef $$MusicTrackingRowsTableProcessedTableManager = ProcessedTableManager<
 typedef $$MusicListenEventsRowsTableCreateCompanionBuilder
     = MusicListenEventsRowsCompanion Function({
   required String id,
-  required String targetRefJson,
-  required String releaseGroupId,
-  Value<String?> releaseId,
-  Value<String?> ownedRefJson,
+  required String catalogItemId,
+  Value<String?> ownedCopyId,
   required DateTime listenedAt,
   Value<DateTime?> startedAt,
   Value<DateTime?> finishedAt,
@@ -78606,10 +78509,8 @@ typedef $$MusicListenEventsRowsTableCreateCompanionBuilder
 typedef $$MusicListenEventsRowsTableUpdateCompanionBuilder
     = MusicListenEventsRowsCompanion Function({
   Value<String> id,
-  Value<String> targetRefJson,
-  Value<String> releaseGroupId,
-  Value<String?> releaseId,
-  Value<String?> ownedRefJson,
+  Value<String> catalogItemId,
+  Value<String?> ownedCopyId,
   Value<DateTime> listenedAt,
   Value<DateTime?> startedAt,
   Value<DateTime?> finishedAt,
@@ -78633,18 +78534,11 @@ class $$MusicListenEventsRowsTableFilterComposer
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get catalogItemId => $composableBuilder(
+      column: $table.catalogItemId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get releaseGroupId => $composableBuilder(
-      column: $table.releaseGroupId,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get releaseId => $composableBuilder(
-      column: $table.releaseId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get ownedRefJson => $composableBuilder(
-      column: $table.ownedRefJson, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedCopyId => $composableBuilder(
+      column: $table.ownedCopyId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get listenedAt => $composableBuilder(
       column: $table.listenedAt, builder: (column) => ColumnFilters(column));
@@ -78683,20 +78577,12 @@ class $$MusicListenEventsRowsTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson,
+  ColumnOrderings<String> get catalogItemId => $composableBuilder(
+      column: $table.catalogItemId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get releaseGroupId => $composableBuilder(
-      column: $table.releaseGroupId,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get releaseId => $composableBuilder(
-      column: $table.releaseId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get ownedRefJson => $composableBuilder(
-      column: $table.ownedRefJson,
-      builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedCopyId => $composableBuilder(
+      column: $table.ownedCopyId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get listenedAt => $composableBuilder(
       column: $table.listenedAt, builder: (column) => ColumnOrderings(column));
@@ -78735,17 +78621,11 @@ class $$MusicListenEventsRowsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => column);
+  GeneratedColumn<String> get catalogItemId => $composableBuilder(
+      column: $table.catalogItemId, builder: (column) => column);
 
-  GeneratedColumn<String> get releaseGroupId => $composableBuilder(
-      column: $table.releaseGroupId, builder: (column) => column);
-
-  GeneratedColumn<String> get releaseId =>
-      $composableBuilder(column: $table.releaseId, builder: (column) => column);
-
-  GeneratedColumn<String> get ownedRefJson => $composableBuilder(
-      column: $table.ownedRefJson, builder: (column) => column);
+  GeneratedColumn<String> get ownedCopyId => $composableBuilder(
+      column: $table.ownedCopyId, builder: (column) => column);
 
   GeneratedColumn<DateTime> get listenedAt => $composableBuilder(
       column: $table.listenedAt, builder: (column) => column);
@@ -78804,10 +78684,8 @@ class $$MusicListenEventsRowsTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> targetRefJson = const Value.absent(),
-            Value<String> releaseGroupId = const Value.absent(),
-            Value<String?> releaseId = const Value.absent(),
-            Value<String?> ownedRefJson = const Value.absent(),
+            Value<String> catalogItemId = const Value.absent(),
+            Value<String?> ownedCopyId = const Value.absent(),
             Value<DateTime> listenedAt = const Value.absent(),
             Value<DateTime?> startedAt = const Value.absent(),
             Value<DateTime?> finishedAt = const Value.absent(),
@@ -78820,10 +78698,8 @@ class $$MusicListenEventsRowsTableTableManager extends RootTableManager<
           }) =>
               MusicListenEventsRowsCompanion(
             id: id,
-            targetRefJson: targetRefJson,
-            releaseGroupId: releaseGroupId,
-            releaseId: releaseId,
-            ownedRefJson: ownedRefJson,
+            catalogItemId: catalogItemId,
+            ownedCopyId: ownedCopyId,
             listenedAt: listenedAt,
             startedAt: startedAt,
             finishedAt: finishedAt,
@@ -78836,10 +78712,8 @@ class $$MusicListenEventsRowsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String targetRefJson,
-            required String releaseGroupId,
-            Value<String?> releaseId = const Value.absent(),
-            Value<String?> ownedRefJson = const Value.absent(),
+            required String catalogItemId,
+            Value<String?> ownedCopyId = const Value.absent(),
             required DateTime listenedAt,
             Value<DateTime?> startedAt = const Value.absent(),
             Value<DateTime?> finishedAt = const Value.absent(),
@@ -78852,10 +78726,8 @@ class $$MusicListenEventsRowsTableTableManager extends RootTableManager<
           }) =>
               MusicListenEventsRowsCompanion.insert(
             id: id,
-            targetRefJson: targetRefJson,
-            releaseGroupId: releaseGroupId,
-            releaseId: releaseId,
-            ownedRefJson: ownedRefJson,
+            catalogItemId: catalogItemId,
+            ownedCopyId: ownedCopyId,
             listenedAt: listenedAt,
             startedAt: startedAt,
             finishedAt: finishedAt,

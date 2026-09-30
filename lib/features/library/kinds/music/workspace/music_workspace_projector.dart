@@ -28,7 +28,7 @@ final class MusicReleaseGroupWorkspaceProjector
       ),
       music: catalog.music,
       release: null,
-      groupListeningSummary: catalog.listeningSummary,
+      listeningSummary: catalog.listeningSummary,
     );
   }
 }
@@ -61,7 +61,7 @@ final class MusicReleaseWorkspaceProjector
       ),
       music: catalog.music,
       release: release,
-      groupListeningSummary: catalog.listeningSummary,
+      listeningSummary: catalog.listeningSummary,
     );
   }
 }
@@ -94,7 +94,7 @@ final class MusicOwnedCopyWorkspaceProjector
       ),
       music: catalog.music,
       release: release,
-      groupListeningSummary: catalog.listeningSummary,
+      listeningSummary: catalog.listeningSummary,
     );
   }
 }

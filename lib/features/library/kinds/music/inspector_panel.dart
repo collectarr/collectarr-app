@@ -24,8 +24,6 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_release_i
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/core/models/money.dart' show OwnedCopyId;
 import 'package:collectarr_app/core/models/owned_copy_projection.dart'
     show OwnedCopyRef;
@@ -179,22 +177,14 @@ class _MusicListeningSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final model = _musicModel(inspector.item);
-    final targetRef = libraryTrackingTargetForItem(
-          inspector.type,
-          inspector.item,
-        ) ??
-        inspector.item.source.catalogRef;
-    if (targetRef == null || !targetRef.isKnown) {
+    final catalogRef = (inspector.item.source.catalogRef ??
+            libraryTrackingTargetForItem(inspector.type, inspector.item))
+        ?.rootScope;
+    if (catalogRef == null || !catalogRef.isKnown) {
       return const SizedBox.shrink();
     }
-    final isRelease = _musicNodeIsReleaseLike(inspector.item.node);
-    if (isRelease) {
-      return _buildReleaseListeningSection(context, ref, model, targetRef);
-    }
     final summary = ref.watch(
-      musicReleaseGroupTrackingSummaryProvider(
-        MusicReleaseGroupId(model.group.id.value),
-      ),
+      musicCatalogItemListeningSummaryProvider(catalogRef),
     );
     return summary.when(
       loading: () => const LinearProgressIndicator(minHeight: 2),
@@ -212,12 +202,17 @@ class _MusicListeningSection extends ConsumerWidget {
                   child: Text(
                     stats.totalListenCount == 0
                         ? 'No listens logged yet.'
-                        : '${stats.totalListenCount} ${stats.totalListenCount == 1 ? 'listen' : 'listens'} / ${stats.listenedReleaseCount}/${stats.totalReleases} releases / Last ${formatDate(stats.lastListened!)}',
+                        : '${stats.totalListenCount} ${stats.totalListenCount == 1 ? 'listen' : 'listens'} / Last ${formatDate(stats.lastListened!)}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: appPalette(context).textMuted,
                           fontWeight: FontWeight.w700,
                         ),
                   ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => _logListen(context, ref, model, catalogRef),
+                  icon: const Icon(Icons.headphones_outlined, size: 16),
+                  label: const Text('Log listen'),
                 ),
               ],
             ),
@@ -232,84 +227,11 @@ class _MusicListeningSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildReleaseListeningSection(
-    BuildContext context,
-    WidgetRef ref,
-    MusicInspectorViewModel model,
-    CatalogEntityRef targetRef,
-  ) {
-    final release = model.release;
-    if (release == null) return const SizedBox.shrink();
-    final events = ref.watch(musicListeningEventsProvider(targetRef));
-    return events.when(
-      loading: () => const LinearProgressIndicator(minHeight: 2),
-      error: (error, _) => Text(
-        'Unable to load listening history: $error',
-        style: TextStyle(color: appPalette(context).textMuted),
-      ),
-      data: (history) {
-        final releaseEvents = history
-            .where(
-              (event) =>
-                  event.releaseId == release.id.value ||
-                  event.targetRef == targetRef,
-            )
-            .toList(growable: false);
-        final lastListened = releaseEvents.firstOrNull?.listenedAt;
-        final tracking = inspector.trackingSummary;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    releaseEvents.isEmpty
-                        ? 'No listens logged yet.'
-                        : '${releaseEvents.length} ${releaseEvents.length == 1 ? 'listen' : 'listens'} / Last ${formatDate(lastListened!)}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: appPalette(context).textMuted,
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => _logListen(context, ref, model, targetRef),
-                  icon: const Icon(Icons.headphones_outlined, size: 16),
-                  label: const Text('Log listen'),
-                ),
-              ],
-            ),
-            if (tracking != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                [
-                  'Status: ${tracking.statusLabel}',
-                  if (tracking.rating != null) 'Rating: ${tracking.rating}/5',
-                  if (tracking.notes?.trim().isNotEmpty == true)
-                    'Notes: ${tracking.notes!.trim()}',
-                ].join(' / '),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: appPalette(context).textMuted,
-                    ),
-              ),
-            ],
-            if (releaseEvents.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              for (final event in releaseEvents.take(5))
-                _MusicListenEventTile(event: event),
-            ],
-          ],
-        );
-      },
-    );
-  }
-
   Future<void> _logListen(
     BuildContext context,
     WidgetRef ref,
     MusicInspectorViewModel model,
-    CatalogEntityRef targetRef,
+    CatalogEntityRef catalogRef,
   ) async {
     final notesController = TextEditingController();
     try {
@@ -340,19 +262,12 @@ class _MusicListeningSection extends ConsumerWidget {
         ),
       );
       if (shouldSave != true || !context.mounted) return;
-      final release = model.release;
-      if (release == null) return;
       final now = DateTime.now().toUtc();
       final owned = model.owned;
-      final releaseRef = musicReleaseRefForRoot(
-        targetRef,
-        release.id.value,
-      );
       await ref.read(musicListeningRepositoryProvider).upsert(
             MusicListenEvent(
               id: 'listen-${now.microsecondsSinceEpoch}',
-              releaseRef: releaseRef,
-              targetRef: targetRef,
+              catalogRef: catalogRef,
               ownedRef: owned == null
                   ? null
                   : OwnedCopyRef(
@@ -367,13 +282,9 @@ class _MusicListeningSection extends ConsumerWidget {
               updatedAt: now,
             ),
           );
-      ref.invalidate(musicListeningEventsProvider(targetRef));
+      ref.invalidate(musicListeningEventsProvider(catalogRef));
+      ref.invalidate(musicCatalogItemListeningSummaryProvider(catalogRef));
       ref.invalidate(shelfProvider);
-      ref.invalidate(
-        musicReleaseGroupTrackingSummaryProvider(
-          MusicReleaseGroupId(model.group.id.value),
-        ),
-      );
     } finally {
       notesController.dispose();
     }
@@ -474,8 +385,7 @@ class _MusicListenEventTile extends ConsumerWidget {
       await ref.read(musicListeningRepositoryProvider).upsert(
             MusicListenEvent(
               id: event.id,
-              releaseRef: event.releaseRef,
-              targetRef: event.targetRef,
+              catalogRef: event.catalogRef,
               ownedRef: event.ownedRef,
               listenedAt: event.listenedAt,
               startedAt: event.startedAt,
@@ -522,14 +432,9 @@ class _MusicListenEventTile extends ConsumerWidget {
 
   void _invalidate(WidgetRef ref) {
     ref.invalidate(shelfProvider);
-    final targetRef = event.targetRef;
-    if (targetRef != null) {
-      ref.invalidate(musicListeningEventsProvider(targetRef));
-    }
+    ref.invalidate(musicListeningEventsProvider(event.catalogRef));
     ref.invalidate(
-      musicReleaseGroupTrackingSummaryProvider(
-        MusicReleaseGroupId(event.releaseGroupId),
-      ),
+      musicCatalogItemListeningSummaryProvider(event.catalogRef),
     );
   }
 }

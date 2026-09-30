@@ -59,9 +59,7 @@ final class MusicCatalogTransportCodec
     LibraryWorkspaceCatalogData data,
   ) async {
     if (data is! MusicWorkspaceCatalogData) return data;
-    final summary = await MusicListeningRepository(db).getTrackingSummary(
-      data.music.id,
-    );
+    final summary = await MusicListeningRepository(db).getSummary(data.ref);
     return data.copyWith(listeningSummary: summary);
   }
 

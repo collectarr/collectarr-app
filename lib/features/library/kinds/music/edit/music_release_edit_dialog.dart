@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_release_i
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_providers.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_listening_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_structure_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_credits_tab.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
@@ -222,16 +221,6 @@ final class _MusicReleaseEditDialogState
             icon: Icons.public,
             content: MusicReleaseLinksTab(
               draft: _draft,
-              accent: widget.request.accent,
-            ),
-          ),
-          EditSchemaExtraTab(
-            label: 'Listening',
-            icon: Icons.headphones_outlined,
-            content: MusicReleaseListeningTab(
-              item: widget.request.kindItem,
-              group: _group,
-              release: _release,
               accent: widget.request.accent,
             ),
           ),

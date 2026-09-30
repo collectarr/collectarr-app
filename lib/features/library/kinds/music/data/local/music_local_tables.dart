@@ -284,10 +284,8 @@ class MusicTrackingRows extends Table {
 /// repeated listens, so events are stored separately in the Music vertical.
 class MusicListenEventsRows extends Table {
   TextColumn get id => text()();
-  TextColumn get targetRefJson => text()();
-  TextColumn get releaseGroupId => text()();
-  TextColumn get releaseId => text().nullable()();
-  TextColumn get ownedRefJson => text().nullable()();
+  TextColumn get catalogItemId => text()();
+  TextColumn get ownedCopyId => text().nullable()();
   DateTimeColumn get listenedAt => dateTime()();
   DateTimeColumn get startedAt => dateTime().nullable()();
   DateTimeColumn get finishedAt => dateTime().nullable()();

@@ -17,9 +17,9 @@ needs migration and must not be read as a compatibility contract.
   Release Group and Release types. Those structures are not the target model
   and must be removed as each consumer moves to the flat item.
 - Music lifecycle tracking now targets the Catalog Item and keeps its existing
-  personal Sync path. Listening history still uses release-shaped references
-  and must be retargeted to the Catalog Item while preserving its full event
-  history.
+  personal Sync path. Listening history also targets the Catalog Item and may
+  identify the Owned Copy used. Its event history remains App-owned and is not
+  part of Core catalog data or the Music release hierarchy.
 - Music's edit surface still has separate Release Group and Release dialogs.
   Consolidate their catalog fields into one item editor without changing the
   visible controls or the separate Owned Copy form.

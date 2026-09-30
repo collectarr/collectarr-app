@@ -30,8 +30,6 @@ final musicReleaseWorkspaceSchema =
     MusicReleaseWorkspaceFields.packaging,
     MusicReleaseWorkspaceFields.boxSet,
     MusicReleaseWorkspaceFields.discCount,
-    MusicReleaseWorkspaceFields.listenCount,
-    MusicReleaseWorkspaceFields.lastListened,
     MusicReleaseWorkspaceFields.status,
     MusicReleaseWorkspaceFields.cover,
   ],
@@ -108,19 +106,6 @@ final musicReleaseWorkspaceSchema =
       isNumeric: true,
       defaultWidth: 80,
     ),
-    columnFromField<MusicKind, MusicWorkspaceProjection, num?>(
-      MusicReleaseWorkspaceFields.listenCount,
-      group: 'Listening',
-      defaultWidth: 90,
-    ),
-    columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
-      MusicReleaseWorkspaceFields.lastListened,
-      group: 'Listening',
-      cellValue: (context) => Text(
-        formatMusicDate(context.dto.lastListened),
-      ),
-      defaultWidth: 118,
-    ),
   ],
   sorts: [
     sortFromField<MusicKind, MusicWorkspaceProjection, String>(
@@ -142,14 +127,6 @@ final musicReleaseWorkspaceSchema =
     ),
     sortFromField<MusicKind, MusicWorkspaceProjection, num>(
       MusicReleaseWorkspaceFields.discCount,
-      defaultAscending: false,
-    ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, num>(
-      MusicReleaseWorkspaceFields.listenCount,
-      defaultAscending: false,
-    ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
-      MusicReleaseWorkspaceFields.lastListened,
       defaultAscending: false,
     ),
   ],
@@ -195,8 +172,6 @@ final musicReleaseWorkspaceSchema =
     MusicFieldIds.trackCount,
     MusicFieldIds.barcode,
     MusicFieldIds.boxSet,
-    MusicFieldIds.listenCount,
-    MusicFieldIds.lastListened,
   },
   defaultSort: MusicSortIds.artist,
   defaultGroup: MusicGroupIds.artist,

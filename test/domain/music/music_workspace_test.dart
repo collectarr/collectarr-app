@@ -269,7 +269,7 @@ void main() {
     expect(source.trackingSummaryFor(releaseTwoRef), isNull);
   });
 
-  test('Music workspace projects derived group and release listening values',
+  test('Music workspace projects Catalog Item listening values',
       () {
     final groupId = MusicReleaseGroupId('group-listening');
     final groupRef = CatalogEntityRef(
@@ -292,16 +292,15 @@ void main() {
       title: 'Listened Group',
       releases: [releaseOne, releaseTwo],
     );
-    final releaseOneRef = musicReleaseRefForRoot(groupRef, releaseOne.id.value);
     final events = [
       MusicListenEvent(
         id: 'listen-one',
-        releaseRef: releaseOneRef,
+        catalogRef: groupRef,
         listenedAt: DateTime.utc(2026, 1, 2),
       ),
       MusicListenEvent(
         id: 'listen-two',
-        releaseRef: releaseOneRef,
+        catalogRef: groupRef,
         listenedAt: DateTime.utc(2026, 2, 3),
       ),
     ];
@@ -310,10 +309,9 @@ void main() {
       catalogData: MusicWorkspaceCatalogData.fromMusic(
         group,
         ref: groupRef,
-        listeningSummary: MusicReleaseGroupTrackingSummary.fromEvents(
-          releaseGroupId: groupId.value,
+        listeningSummary: MusicCatalogItemListeningSummary.fromEvents(
+          catalogItemId: groupId.value,
           events: events,
-          releaseIds: group.releases.map((release) => release.id.value),
         ),
       ),
     );
@@ -323,9 +321,6 @@ void main() {
       entity: const LibraryWorkRef(workId: 'group-listening'),
     );
 
-    expect(dto.aggregateListenCount, 2);
-    expect(dto.listenedReleaseCount, 1);
-    expect(dto.aggregateLastListened, DateTime.utc(2026, 2, 3));
     expect(dto.listenCount, 2);
     expect(dto.lastListened, DateTime.utc(2026, 2, 3));
   });

@@ -46,27 +46,19 @@ abstract final class MusicReleaseGroupWorkspaceFields {
     entityScope: LibraryEntityScope.work,
   );
 
-  static final aggregateListenCount =
+  static final listenCount =
       numberField<MusicKind, MusicWorkspaceProjection>(
-    id: MusicFieldIds.aggregateListenCount,
-    label: 'Aggregate listens',
-    getValue: (dto) => dto.aggregateListenCount,
+    id: MusicFieldIds.listenCount,
+    label: 'Listen count',
+    getValue: (dto) => dto.listenCount,
     entityScope: LibraryEntityScope.work,
   );
 
-  static final aggregateLastListened =
+  static final lastListened =
       dateField<MusicKind, MusicWorkspaceProjection>(
-    id: MusicFieldIds.aggregateLastListened,
+    id: MusicFieldIds.lastListened,
     label: 'Last listened',
-    getValue: (dto) => dto.aggregateLastListened,
-    entityScope: LibraryEntityScope.work,
-  );
-
-  static final listenedReleaseCount =
-      numberField<MusicKind, MusicWorkspaceProjection>(
-    id: MusicFieldIds.listenedReleaseCount,
-    label: 'Listened releases',
-    getValue: (dto) => dto.listenedReleaseCount,
+    getValue: (dto) => dto.lastListened,
     entityScope: LibraryEntityScope.work,
   );
 

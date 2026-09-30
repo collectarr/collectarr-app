@@ -3,10 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,23 +18,17 @@ void main() {
 
   tearDown(() => db.close());
 
-  test('persists typed events and keeps release history scoped', () async {
-    final groupRef = _musicRef('group-1');
-    final releaseRef = CatalogEntityRef(
-      kind: CatalogMediaKind.music,
-      entityType: const CatalogEntityTypeId('release'),
-      id: 'release-1',
-      rootId: 'group-1',
-      parentId: 'group-1',
-    );
+  test('persists history against one Catalog Item and optional owned copy',
+      () async {
+    final album = _musicRef('album-1');
     final older = MusicListenEvent(
       id: 'listen-older',
-      releaseRef: releaseRef,
+      catalogRef: album,
       listenedAt: DateTime.utc(2026, 8, 1),
     );
     final newer = MusicListenEvent(
       id: 'listen-newer',
-      releaseRef: releaseRef,
+      catalogRef: album,
       ownedRef: const OwnedCopyRef(
         kind: CatalogMediaKind.music,
         id: OwnedCopyId('owned-1'),
@@ -48,90 +39,64 @@ void main() {
 
     await repository.upsertAll([older, newer]);
 
-    final events = await repository.listForTarget(groupRef);
+    final events = await repository.listForCatalogItem(album);
     expect(events.map((event) => event.id), ['listen-newer', 'listen-older']);
-    expect(events.first.releaseRef, releaseRef);
+    expect(events.first.catalogRef, album);
     expect(events.first.ownedRef?.key, 'music:owned-1');
     expect(events.first.notes, 'First pressing');
     expect(
       MusicListeningStats.fromSessions(events).lastListened?.toUtc(),
       DateTime.utc(2026, 8, 2),
     );
-
-    final releaseEvents = await repository.listForTarget(releaseRef);
-    expect(releaseEvents.map((event) => event.id), [
-      'listen-newer',
-      'listen-older',
-    ]);
+    expect(
+      await repository.listForCatalogItem(_musicRef('album-2')),
+      isEmpty,
+    );
   });
 
-  test('deleted events stay out of active history', () async {
+  test('deleted events stay out of active Catalog Item history', () async {
+    final album = _musicRef('album-1');
     final event = MusicListenEvent(
       id: 'listen-deleted',
-      releaseRef: _releaseRef('group-1', 'release-1'),
+      catalogRef: album,
       listenedAt: DateTime.utc(2026, 8, 1),
     );
     await repository.upsert(event);
     await repository.markDeleted(event, DateTime.utc(2026, 8, 3));
 
-    expect(
-      await repository
-          .listForReleaseGroup(const MusicReleaseGroupId('group-1')),
-      isEmpty,
-    );
-    final stored = await repository.findById(event.id);
-    expect(stored?.isDeleted, isTrue);
+    expect(await repository.listForCatalogItem(album), isEmpty);
+    expect((await repository.findById(event.id))?.isDeleted, isTrue);
   });
 
-  test('group tracking summary aggregates events without a stored group row',
-      () async {
-    final music = MusicRepository(db);
-    await music.updateRelease(
-      MusicRelease(
-        id: const MusicReleaseId('release-1'),
-        releaseGroupId: const MusicReleaseGroupId('group-1'),
-        title: 'Album',
-      ),
-    );
-    await music.updateRelease(
-      MusicRelease(
-        id: const MusicReleaseId('release-2'),
-        releaseGroupId: const MusicReleaseGroupId('group-1'),
-        title: 'Album Deluxe',
-      ),
-    );
+  test('Catalog Item summary aggregates its event history', () async {
+    final album = _musicRef('album-1');
     await repository.upsertAll([
       MusicListenEvent(
-        id: 'listen-release-1',
-        releaseRef: CatalogEntityRef(
-          kind: CatalogMediaKind.music,
-          entityType: const CatalogEntityTypeId('release'),
-          id: 'release-1',
-          rootId: 'group-1',
-        ),
+        id: 'listen-one',
+        catalogRef: album,
         listenedAt: DateTime.utc(2026, 8, 1),
       ),
       MusicListenEvent(
-        id: 'listen-release-2',
-        releaseRef: CatalogEntityRef(
-          kind: CatalogMediaKind.music,
-          entityType: const CatalogEntityTypeId('release'),
-          id: 'release-2',
-          rootId: 'group-1',
-        ),
+        id: 'listen-two',
+        catalogRef: album,
         listenedAt: DateTime.utc(2026, 8, 2),
+      ),
+      MusicListenEvent(
+        id: 'listen-other-album',
+        catalogRef: _musicRef('album-2'),
+        listenedAt: DateTime.utc(2026, 8, 3),
       ),
     ]);
 
-    final summary = await repository.getTrackingSummary(
-      const MusicReleaseGroupId('group-1'),
-    );
+    final summary = await repository.getSummary(album);
+    expect(summary.catalogItemId, 'album-1');
     expect(summary.totalListenCount, 2);
-    expect(summary.totalReleases, 2);
-    expect(summary.listenedReleaseCount, 2);
-    expect(summary.listenedReleases, ['release-1', 'release-2']);
     expect(summary.firstListened?.toUtc(), DateTime.utc(2026, 8, 1));
     expect(summary.lastListened?.toUtc(), DateTime.utc(2026, 8, 2));
+    expect(summary.recentEvents.map((event) => event.id), [
+      'listen-two',
+      'listen-one',
+    ]);
   });
 }
 
@@ -139,12 +104,4 @@ CatalogEntityRef _musicRef(String id) => CatalogEntityRef(
       kind: CatalogMediaKind.music,
       entityType: CatalogEntityTypeId.root,
       id: id,
-    );
-
-CatalogEntityRef _releaseRef(String groupId, String releaseId) =>
-    CatalogEntityRef(
-      kind: CatalogMediaKind.music,
-      entityType: const CatalogEntityTypeId('release'),
-      id: releaseId,
-      rootId: groupId,
     );

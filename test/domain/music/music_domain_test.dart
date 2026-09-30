@@ -91,11 +91,10 @@ void main() {
     final sessions = [
       MusicListenEvent(
         id: 'session-1',
-        releaseRef: const CatalogEntityRef(
+        catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.music,
-          entityType: CatalogEntityTypeId('release'),
-          id: 'release-1',
-          rootId: 'group-1',
+          entityType: CatalogEntityTypeId.root,
+          id: 'album-1',
         ),
         listenedAt: DateTime.utc(2026, 8, 1, 20),
         location: 'Living Room Hi-Fi',
@@ -103,11 +102,10 @@ void main() {
       ),
       MusicListenEvent(
         id: 'session-2',
-        releaseRef: const CatalogEntityRef(
+        catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.music,
-          entityType: CatalogEntityTypeId('release'),
-          id: 'release-1',
-          rootId: 'group-1',
+          entityType: CatalogEntityTypeId.root,
+          id: 'album-1',
         ),
         listenedAt: DateTime.utc(2026, 8, 15, 21, 30),
       ),

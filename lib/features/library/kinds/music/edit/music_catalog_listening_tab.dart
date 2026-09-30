@@ -2,44 +2,29 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Release-scoped CRUD for repeated listening events.
-///
-/// This is intentionally separate from the release lifecycle tracking fields
-/// in the release schema. An event is a real Music-owned record and is never
-/// collapsed into the single tracking summary.
-final class MusicReleaseListeningTab extends ConsumerWidget {
-  const MusicReleaseListeningTab({
+/// CRUD for listening events attached to one concrete Music Catalog Item.
+final class MusicCatalogListeningTab extends ConsumerWidget {
+  const MusicCatalogListeningTab({
     super.key,
     required this.item,
-    required this.group,
-    required this.release,
     required this.accent,
   });
 
   final CatalogSearchCandidate item;
-  final MusicReleaseGroup group;
-  final MusicRelease release;
   final Color accent;
 
-  CatalogEntityRef get releaseRef => musicReleaseRefForRoot(
-        item.reference,
-        release.id.value,
-      );
+  CatalogEntityRef get catalogRef => item.reference.rootScope;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final events = ref.watch(musicListeningEventsProvider(releaseRef));
+    final events = ref.watch(musicListeningEventsProvider(catalogRef));
     return EditTabShell(
       children: [
         EditSection(
@@ -61,10 +46,7 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
     WidgetRef ref,
     List<MusicListenEvent> history,
   ) {
-    final releaseEvents = history
-        .where((event) => event.releaseId == release.id.value)
-        .toList(growable: false);
-    final lastListened = releaseEvents.firstOrNull?.listenedAt;
+    final lastListened = history.firstOrNull?.listenedAt;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -72,9 +54,9 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
           children: [
             Expanded(
               child: Text(
-                releaseEvents.isEmpty
+                history.isEmpty
                     ? 'No listens logged yet.'
-                    : '${releaseEvents.length} ${releaseEvents.length == 1 ? 'listen' : 'listens'} / Last ${formatDate(lastListened!)}',
+                    : '${history.length} ${history.length == 1 ? 'listen' : 'listens'} / Last ${formatDate(lastListened!)}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: appPalette(context).textMuted,
                       fontWeight: FontWeight.w700,
@@ -88,10 +70,10 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
             ),
           ],
         ),
-        if (releaseEvents.isNotEmpty) ...[
+        if (history.isNotEmpty) ...[
           const SizedBox(height: 8),
-          for (final event in releaseEvents)
-            _MusicReleaseListenEventRow(
+          for (final event in history)
+            _MusicCatalogListenEventRow(
               event: event,
               accent: accent,
               onEdit: () => _editListen(context, ref, event),
@@ -115,7 +97,7 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
     await ref.read(musicListeningRepositoryProvider).upsert(
           MusicListenEvent(
             id: 'listen-${DateTime.now().microsecondsSinceEpoch}',
-            releaseRef: releaseRef,
+            catalogRef: catalogRef,
             listenedAt: listenedAt,
             notes: notes,
             createdAt: listenedAt,
@@ -139,8 +121,7 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
     await ref.read(musicListeningRepositoryProvider).upsert(
           MusicListenEvent(
             id: event.id,
-            releaseRef: event.releaseRef,
-            targetRef: event.targetRef,
+            catalogRef: event.catalogRef,
             ownedRef: event.ownedRef,
             listenedAt: event.listenedAt,
             startedAt: event.startedAt,
@@ -226,17 +207,13 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
 
   void _invalidate(WidgetRef ref) {
     ref.invalidate(shelfProvider);
-    ref.invalidate(musicListeningEventsProvider(releaseRef));
-    ref.invalidate(
-      musicReleaseGroupTrackingSummaryProvider(
-        MusicReleaseGroupId(group.id.value),
-      ),
-    );
+    ref.invalidate(musicListeningEventsProvider(catalogRef));
+    ref.invalidate(musicCatalogItemListeningSummaryProvider(catalogRef));
   }
 }
 
-final class _MusicReleaseListenEventRow extends StatelessWidget {
-  const _MusicReleaseListenEventRow({
+final class _MusicCatalogListenEventRow extends StatelessWidget {
+  const _MusicCatalogListenEventRow({
     required this.event,
     required this.accent,
     required this.onEdit,

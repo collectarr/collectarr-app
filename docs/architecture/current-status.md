@@ -50,8 +50,9 @@ Item directly. The existing Release Group/Release editor path still has a
 release-shaped presentation and must be consolidated before the old Music
 graph can be removed.
 Music lifecycle tracking records also target the Catalog Item and use the
-existing personal Sync contract. Listening history still uses release-shaped
-references and remains to be retargeted.
+existing personal Sync contract. Listening history now targets the same
+Catalog Item and may optionally identify the owned copy used. Local event
+storage, edit UI, and workspace statistics use that item identity.
 
 ## Contracts and field confidence
 
