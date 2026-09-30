@@ -65,9 +65,11 @@ Catalog Item or Owned Copy identities.
 
 Catalog transport now writes every Core item into a shared Drift cache keyed
 by `(kind, item_id)`. Snapshot reads and batched reference hydration use this
-flat cache; current per-kind repositories are still dual-written because
-unconverted screens depend on them. Removing those tables requires migrating
-the remaining callers first.
+flat cache. Movie is the first kind to use it as the only local catalog store;
+the other per-kind repositories are still dual-written because unconverted
+screens depend on them. Movie's old tables remain registered while legacy
+repository tests and form adapters are retired; removing the other tables
+requires migrating their active callers first.
 
 Music-owned copies created through Add target the concrete Music Catalog Item
 directly and persist only that `catalog_ref`; they do not carry a redundant

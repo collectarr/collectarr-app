@@ -4,41 +4,51 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 
 final class MovieCatalogTransportCodec
-    implements CatalogKindTransportCodec<MovieMedia> {
+    implements
+        CatalogKindTransportCodec<MovieCatalogMetadata>,
+        CatalogSharedCachePrimaryStore {
   const MovieCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.movie;
 
   @override
-  MovieMedia decode(CatalogItemDto item) {
+  MovieCatalogMetadata decode(CatalogItemDto item) {
     final metadata = item.kindMetadata;
-    if (metadata is MovieMedia) return metadata;
-    return MovieMedia.fromJson(catalogTransportPayloadFor(item));
+    if (metadata is MovieCatalogMetadata) return metadata;
+    return MovieCatalogMetadata.fromJson(catalogTransportPayloadFor(item));
   }
 
   @override
-  Future<void> upsert(LocalDatabase db, MovieMedia item) {
-    return MovieRepository(db).updateMedia(item);
+  Future<void> upsert(LocalDatabase db, MovieCatalogMetadata item) {
+    final payload = item.toJson();
+    final id = payload['id']?.toString().trim() ?? '';
+    if (id.isEmpty) {
+      throw StateError('Cannot cache a Movie Catalog Item without an id');
+    }
+    return CatalogItemCacheRepository(db).upsert(
+      CatalogItemDto.fromJson({...payload, 'id': id, 'kind': kind.apiValue}),
+    );
   }
 
   @override
-  CatalogDisplaySummary summarize(MovieMedia item) =>
+  CatalogDisplaySummary summarize(MovieCatalogMetadata item) =>
       CatalogDisplaySummary.root(
         kind: kind,
-        id: item.id.value,
+        id: item.rawPayload['id']?.toString() ?? '',
         primaryLabel: item.title,
-        imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
+        imageUrl: item.rawPayload['thumbnail_image_url']?.toString() ??
+            item.rawPayload['cover_image_url']?.toString(),
       );
 
   @override
@@ -93,7 +103,7 @@ final class MovieCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    MovieMedia item,
+    MovieCatalogMetadata item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -103,7 +113,7 @@ final class MovieCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(MovieMedia item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(MovieCatalogMetadata item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -113,22 +123,24 @@ final class MovieCatalogTransportCodec
 
   @override
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return upsert(db, decode(item));
+    return CatalogItemCacheRepository(db).upsert(item);
   }
 
   @override
-  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final media = await MovieRepository(db).search();
-    return [
-      for (final item in media) _projection(item),
-    ];
-  }
+  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) =>
+      CatalogItemCacheRepository(db).findAll(kind: kind);
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final media = await MovieRepository(db).search();
+    final items = await listTransport(db);
     return [
-      for (final item in media) summarize(item),
+      for (final item in items)
+        CatalogDisplaySummary.root(
+          kind: kind,
+          id: item.id,
+          primaryLabel: item.resolvedDisplayTitle,
+          imageUrl: item.displayCoverUrl,
+        ),
     ];
   }
 }
@@ -139,13 +151,4 @@ int? _replacementValueFromPayload(CatalogItemDto item) {
   final publishing = item.payload['publishing'];
   final nested = publishing is Map ? publishing['cover_price_cents'] : null;
   return nested is num ? nested.toInt() : null;
-}
-
-CatalogItemDto _projection(MovieMedia item) {
-  final payload = Map<String, dynamic>.from(item.rawPayload);
-  payload['id'] ??= item.id.value;
-  payload['kind'] ??= 'movie';
-  payload['title'] ??= item.title;
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(MovieMedia.fromJson(projection.payload));
 }

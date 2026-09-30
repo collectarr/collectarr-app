@@ -39,12 +39,18 @@ abstract interface class CatalogKindTransportBoundary
   LibraryWorkspaceCatalogData workspaceData(CatalogItemDto item);
 }
 
+/// Marker for kinds whose shared Catalog Item cache is their local catalog
+/// store. The transport repository skips the transitional per-kind dual-write
+/// for these codecs.
+abstract interface class CatalogSharedCachePrimaryStore {}
+
 /// Explicit schema-v1 transport adapter for one catalog kind.
 ///
 /// This is not a Library domain repository or a generic catalog model. It is
 /// the serialization boundary used by sync, admin/transport workflows, and
 /// mixed infrastructure that must persist a complete catalog snapshot. Kind
-/// code owns the mapping to and from its concrete domain graph.
+/// code owns the mapping to and from its typed catalog item; converted kinds
+/// may declare the shared item cache as their primary local store.
 abstract interface class CatalogKindTransportCodec<TCatalog>
     implements CatalogKindTransportBoundary {
   /// Decodes the transport boundary into the owning kind's concrete domain.

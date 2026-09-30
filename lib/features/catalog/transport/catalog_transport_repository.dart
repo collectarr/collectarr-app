@@ -7,11 +7,11 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_reposito
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
-/// Reads and writes the kind-owned catalog graphs.
+/// Reads and writes local projections of Core Catalog Items.
 ///
-/// Generic catalog orchestration over the typed kind repositories. No catalog
-/// payload is stored by this class; typed kind repositories own the durable
-/// representation.
+/// Every item is stored in the shared cache. Unconverted kind codecs may also
+/// dual-write a typed local projection; flat kinds opt out and use the shared
+/// cache as their sole local catalog store.
 final class CatalogTransportRepository {
   CatalogTransportRepository(
     this._db, {
@@ -100,9 +100,12 @@ final class CatalogTransportRepository {
     }
     await _db.transaction(() async {
       await CatalogItemCacheRepository(_db).upsert(item);
-      // The previous per-kind repositories still serve unconverted screens.
-      // Keep them in step while those active readers move to the flat cache.
-      await codec.upsertTransport(_db, item);
+      if (codec is! CatalogSharedCachePrimaryStore) {
+        // Unconverted kinds still have active readers of their per-kind
+        // repositories. Flat kinds opt into the shared cache as their sole
+        // local catalog store and avoid a second Media/Work/Release graph.
+        await codec.upsertTransport(_db, item);
+      }
     });
   }
 }

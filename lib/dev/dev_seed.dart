@@ -22,6 +22,7 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/dev/seeds/collectarr_dev_seed_registry.g.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
@@ -53,7 +54,7 @@ const devSeedCatalogCounts = <CatalogMediaKind, int>{
   CatalogMediaKind.comic: 15,
 };
 
-/// Minimum typed graph coverage expected from the fixture set.
+/// Minimum typed catalog-storage coverage expected from the fixture set.
 ///
 /// Some fixtures intentionally contain multiple editions/tracks, so these
 /// are lower bounds rather than exact totals.
@@ -68,8 +69,7 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'game.release': 15,
   'boardgame.media': 15,
   'boardgame.edition': 15,
-  'movie.media': 15,
-  'movie.release': 15,
+  'movie.catalog_item': 15,
   'tv.series': 15,
   'tv.season': 15,
   'tv.episode': 30,
@@ -139,11 +139,12 @@ const devSeedAuxiliaryMinimumCounts = <String, int>{
   'pick_list.values': 1,
 };
 
-/// Counts the typed catalog graph written by the development seed.
+/// Counts the typed catalog storage written by the development seed.
 ///
 /// This is intentionally a composition-root helper: the seed verifier may
-/// enumerate kind tables, while runtime catalog code must continue to use the
-/// owning kind repository/codec instead of inspecting these tables.
+/// enumerate kind tables and the shared flat Movie cache, while runtime
+/// catalog code must use the owning repository/codec instead of inspecting
+/// storage tables.
 Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
   return {
     'comic.media': (await db.select(db.comicMediaRows).get()).length,
@@ -157,8 +158,9 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'boardgame.media': (await db.select(db.boardGameMediaRows).get()).length,
     'boardgame.edition':
         (await db.select(db.boardGameEditionRows).get()).length,
-    'movie.media': (await db.select(db.movieMediaRows).get()).length,
-    'movie.release': (await db.select(db.movieReleaseRows).get()).length,
+    'movie.catalog_item': (await CatalogItemCacheRepository(db)
+            .findAll(kind: CatalogMediaKind.movie))
+        .length,
     'tv.series': (await db.select(db.tvSeriesRows).get()).length,
     'tv.season': (await db.select(db.tvSeasonRows).get()).length,
     'tv.episode': (await db.select(db.tvEpisodeRows).get()).length,
@@ -245,21 +247,14 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     }
   }
 
-  final movieMedia = await db.select(db.movieMediaRows).get();
-  final movieMediaIds = movieMedia.map((row) => row.id).toSet();
-  final movieReleases = await db.select(db.movieReleaseRows).get();
-  for (final row in movieReleases.where((row) => isSeed(row.mediaId))) {
-    if (!movieMediaIds.contains(row.mediaId)) {
-      issues.add('movie release ${row.id} has missing media ${row.mediaId}');
+  final movieItems = await CatalogItemCacheRepository(db)
+      .findAll(kind: CatalogMediaKind.movie);
+  for (final item in movieItems.where((item) => isSeed(item.id))) {
+    if (item.id.trim().isEmpty) {
+      issues.add('seed Movie Catalog Item has an empty id');
     }
-    if (row.workId != row.mediaId) {
-      issues.add(
-        'movie release ${row.id} points to work ${row.workId}, '
-        'expected ${row.mediaId}',
-      );
-    }
-    if (row.mediaJson == '[]') {
-      issues.add('movie release ${row.id} has no persisted media');
+    if (item.title.trim().isEmpty) {
+      issues.add('Movie Catalog Item ${item.id} has an empty title');
     }
   }
 
