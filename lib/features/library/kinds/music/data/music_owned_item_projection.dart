@@ -19,7 +19,6 @@ final class MusicOwnedItemProjection {
         id: OwnedCopyId(item.id.value),
       ),
       catalogRef: item.catalogRef,
-      targetRef: item.targetRef,
       isDigital: item.isDigital,
       title: item.itemId,
       createdAt: item.createdAt,

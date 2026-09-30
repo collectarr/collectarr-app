@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_fields.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
@@ -30,21 +29,11 @@ bool? resolveMusicOwnedDigitalFlag(
 }) {
   return resolveDigitalMediaFormatFlag(
     explicitDigital: ownedItem?.isDigital,
-    editionId: _musicEditionId(ownedItem?.targetRef),
-    variantId: _musicReleaseId(ownedItem?.targetRef),
+    editionId: editions.length == 1 ? editions.single.id : null,
+    variantId: null,
     releases: editions,
     fallbackFormat: fallbackFormat,
     fallbackLabel: fallbackLabel,
     formats: formats.isEmpty ? musicPhysicalMediaFormats : formats,
   );
 }
-
-String? _musicEditionId(CatalogEntityRef? ref) =>
-    switch (ref?.entityType.apiValue) {
-      'edition' => ref?.id,
-      'release' => ref?.parentId,
-      _ => null,
-    };
-
-String? _musicReleaseId(CatalogEntityRef? ref) =>
-    ref?.entityType.apiValue == 'release' ? ref?.id : null;

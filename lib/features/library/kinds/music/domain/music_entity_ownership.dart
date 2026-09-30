@@ -27,12 +27,10 @@ void requireMusicReleaseRef(
 /// release child.
 void requireMusicOwnedCatalogItem({
   required CatalogEntityRef catalogRef,
-  required CatalogEntityRef? targetRef,
 }) {
   if (catalogRef.mediaKind != CatalogMediaKind.music ||
       !catalogRef.isKnown ||
-      catalogRef.entityType != CatalogEntityTypeId.root ||
-      targetRef != catalogRef) {
+      catalogRef.entityType != CatalogEntityTypeId.root) {
     throw StateError(
       'Music owned copies must target their concrete Music Catalog Item',
     );

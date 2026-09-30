@@ -98,7 +98,6 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
       catalogRef: rootRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,
-      targetRef: rootRef,
       details: details.toDetails(),
       condition: condition,
       grade: grade,

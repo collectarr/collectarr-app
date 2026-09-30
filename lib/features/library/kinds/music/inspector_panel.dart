@@ -1086,8 +1086,6 @@ class _MusicReleaseGroupDetails extends StatelessWidget {
     final rows = <(String, String)>[
       ('Releases', group.releaseCount.toString()),
       if (inspector.item.source.ownedSummary case final owned?) ...[
-        if (owned.targetRef?.entityType.apiValue == 'release')
-          ('Owned releases', '1'),
         ('Owned copies', owned.quantity.toString()),
       ],
       if (group.genres.isNotEmpty) ('Genres', group.genres.join(', ')),

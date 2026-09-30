@@ -44,9 +44,6 @@ final musicOwnedContributor = TypedOwnedKindContributor<MusicOwnedItem>(
     if (payload is! MusicOwnedItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
-    if (!payload.canApplyTo(existing)) {
-      throw StateError('Owned update payload does not belong to music');
-    }
     return payload.applyTo(
       existing,
       updatedAt: updatedAt,

@@ -165,12 +165,10 @@ void main() {
     final row = await db.select(db.musicOwnedItemsRows).getSingle();
     final restored = MusicLocalMapper.fromOwnedItemRow(row);
 
-    expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
     expect(restored.catalogRef.entityType, CatalogEntityTypeId.root);
-    expect(restored.targetRef?.entityType.apiValue, 'release');
-    expect(restored.targetRef?.rootId, 'group-1');
+    expect(restored.toJson().containsKey('target_ref'), isFalse);
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);

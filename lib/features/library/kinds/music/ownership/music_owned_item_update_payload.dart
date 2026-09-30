@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
@@ -6,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 
 final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   const MusicOwnedItemUpdatePayload({
-    required this.targetRef,
     required this.quantity,
     required this.condition,
     required this.grade,
@@ -29,7 +27,6 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   });
 
   factory MusicOwnedItemUpdatePayload.partial({
-    Patch<CatalogEntityRef?> targetRef = const Patch.unchanged(),
     Patch<int> quantity = const Patch.unchanged(),
     Patch<String?> condition = const Patch.unchanged(),
     Patch<String?> grade = const Patch.unchanged(),
@@ -51,7 +48,6 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
     Patch<String?> ownerLabel = const Patch.unchanged(),
   }) =>
       MusicOwnedItemUpdatePayload(
-        targetRef: targetRef,
         quantity: quantity,
         condition: condition,
         grade: grade,
@@ -73,7 +69,6 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
         ownerLabel: ownerLabel,
       );
 
-  final Patch<CatalogEntityRef?> targetRef;
   final Patch<int> quantity;
   final Patch<String?> condition;
   final Patch<String?> grade;
@@ -93,15 +88,6 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<int?> indexNumber;
   final Patch<MusicOwnedDetailsDraft> details;
   final Patch<String?> ownerLabel;
-
-  bool canApplyTo(MusicOwnedItem existing) {
-    final nextTarget = targetRef.when(
-      unchanged: () => existing.catalogRef,
-      set: (value) => value,
-      clear: () => null,
-    );
-    return nextTarget == existing.catalogRef;
-  }
 
   MusicOwnedItem applyTo(
     MusicOwnedItem existing, {
@@ -125,11 +111,6 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
         unchanged: () => existing.isDigital,
         set: (value) => value,
         clear: () => null,
-      ),
-      targetRef: targetRef.when(
-        unchanged: () => existing.catalogRef,
-        set: (value) => value,
-        clear: () => existing.catalogRef,
       ),
       details: resolvedDetails,
       condition: condition.when(

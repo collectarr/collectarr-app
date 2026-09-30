@@ -218,7 +218,6 @@ abstract final class MusicOwnedCopyWorkspaceFields {
           id: OwnedCopyId(owned.id.value),
         ),
         payload: MusicOwnedItemUpdatePayload(
-          targetRef: const Patch<CatalogEntityRef?>.unchanged(),
           quantity: const Patch.unchanged(),
           condition: next == null || next.isEmpty
               ? const Patch.clear()

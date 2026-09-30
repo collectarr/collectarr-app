@@ -17,7 +17,7 @@ void main() {
       id: const MusicOwnedCopyId('owned-music-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.root,
         id: 'music-1',
       ),
       condition: 'Mint',

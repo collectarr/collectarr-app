@@ -69,8 +69,7 @@ final class _MusicOwnedCopyEditDialogState
     }
     if (selectedRelease == null ||
         copy.catalogRef.rootScope.id != node.workId ||
-        copy.catalogRef != widget.request.kindItem.reference.rootScope ||
-        copy.targetRef != copy.catalogRef) {
+        copy.catalogRef != widget.request.kindItem.reference.rootScope) {
       throw StateError(
           'The Music copy does not belong to the selected Catalog Item');
     }
@@ -116,7 +115,6 @@ final class _MusicOwnedCopyEditDialogState
         onSave: (_) {
           final details = _draft.toDetailsDraft();
           final payload = MusicOwnedItemUpdatePayload.partial(
-            targetRef: Patch.set(_copy.catalogRef),
             quantity: Patch.set(_draft.quantity),
             condition: Patch.set(_nullable(_draft.condition)),
             grade: Patch.set(_nullable(_draft.grade)),

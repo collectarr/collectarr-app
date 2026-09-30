@@ -479,7 +479,6 @@ final class MusicLocalMapper {
       itemId: item.itemId,
       createdAt: Value(item.createdAt),
       isDigital: Value(item.isDigital),
-      targetRefJson: Value(_encodeTargetRef(item.targetRef)),
       condition: Value(item.condition),
       grade: Value(item.grade),
       purchaseDate: Value(item.purchaseDate),
@@ -521,7 +520,6 @@ final class MusicLocalMapper {
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
-      targetRef: _decodeTargetRef(row.targetRefJson),
       condition: row.condition,
       grade: row.grade,
       purchaseDate: row.purchaseDate,
@@ -555,9 +553,6 @@ final class MusicLocalMapper {
     return item;
   }
 
-  static String? _encodeTargetRef(CatalogEntityRef? targetRef) =>
-      targetRef == null ? null : jsonEncode(targetRef.toJson());
-
   static String? _encodePartialDate(PartialDate? value) =>
       value == null ? null : jsonEncode(value.toJson());
 
@@ -569,13 +564,6 @@ final class MusicLocalMapper {
     } on FormatException {
       return null;
     }
-  }
-
-  static CatalogEntityRef? _decodeTargetRef(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
-    final decoded = _decodeJson(raw);
-    if (decoded is! Map) return null;
-    return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
   }
 
   static dynamic _decodeJson(String raw) {

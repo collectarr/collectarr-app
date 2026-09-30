@@ -43,12 +43,13 @@ images, pick lists, and personal sync remain App/Sync responsibilities. The
 flattened cutover must preserve those features while moving their references to
 Catalog Item or Owned Copy identities.
 
-Music-owned copies created through Add now target the concrete Music Catalog
-Item directly. However, the generic App catalog transport codec still decodes
-flat Music responses into `MusicReleaseGroup` and persists them through the old
-normalized Release Group/Release tables. The Music workspace and Edit dialogs
-also still expose those two scopes. The App-side Music graph therefore remains
-active and is the next part of the Music cutover.
+Music-owned copies created through Add target the concrete Music Catalog Item
+directly and persist only that `catalog_ref`; they do not carry a redundant
+`target_ref` alias. However, the generic App catalog transport codec still
+decodes flat Music responses into `MusicReleaseGroup` and persists them through
+the old normalized Release Group/Release tables. The Music workspace and Edit
+dialogs also still expose those two scopes. The App-side Music graph therefore
+remains active and is the next part of the Music cutover.
 Music lifecycle tracking records also target the Catalog Item and use the
 existing personal Sync contract. Listening history now targets the same
 Catalog Item and may optionally identify the owned copy used. Local event

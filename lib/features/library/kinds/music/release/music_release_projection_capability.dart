@@ -84,7 +84,7 @@ final class MusicReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
     final trackingSummary = source.trackingSummaryFor(releaseRef);
     final releaseState = LibraryReleaseState(
       isOwned: _targetMatches(
-        source.ownedSummary?.targetRef,
+        source.ownedSummary?.catalogRef,
         root: catalogData.ref,
         release: release,
       ),
