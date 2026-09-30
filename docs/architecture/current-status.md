@@ -42,7 +42,7 @@ some of the older Work/Release routes and remain part of the cutover.
 
 The supported Drift schema version is `1`, with no upgrade chain. The current
 registered table set still includes earlier per-kind Work/Release tables for
-Anime, Board Game, Comic, and TV, alongside
+Anime, Comic, and TV, alongside
 Music-owned image, copy, tracking, and listening tables. Music has no Release
 Group model, serializer, or Release browse scope.
 Its root domain model is `MusicAlbum` with
@@ -74,14 +74,16 @@ Catalog Item or Owned Copy identities.
 
 Catalog transport now writes every Core item into a shared Drift cache keyed
 by `(kind, item_id)`. Snapshot reads and batched reference hydration use this
-flat cache. Book, Game, Manga, Movie, and Music use it as their only active
-catalog store. Anime, Board Game, Comic, and TV still have per-kind catalog
+flat cache. Board Game, Book, Game, Manga, Movie, and Music use it as their
+only active catalog store. Anime, Comic, and TV still have per-kind catalog
 stores because unconverted screens depend on them. Book, Game, and Manga
 catalog facts no longer have per-kind media or release tables; their owned-copy
 and tracking data stays in App-owned tables while the broader personal-data
 cutover proceeds. Manga's title/number lookup, calendar, series hierarchy, and
 Shelf grouping now read the shared cache; chapters remain contained beneath
-each volume Catalog Item.
+each volume Catalog Item. Board Game's catalog tables are also removed; Add
+lookup, calendar dates, pick-list counts, and offline reads use the cache, while
+owned copies and play sessions remain in App-owned tables.
 Book calendar events now read each concrete item's release date from this cache
 instead of loading a `BookMedia` row from the old per-kind table. The Book
 barcode/ISBN lookup also reads root identifiers and contained printing ISBNs
@@ -97,11 +99,11 @@ Music-owned copies created through Add target the concrete Music Catalog Item
 directly and persist only that `catalog_ref`; they do not carry a redundant
 `target_ref` alias. The Music workspace's scope selector is hidden because this
 kind has no child Release scope. Movie's root workspace also hides the selector.
-Book, Game, Manga, Music, and Movie catalog lookups, summaries, and offline root
-reads use the flat Catalog Item cache. The remaining App cutover covers Music
-image ownership, Anime/Board Game/Comic/TV per-kind stores, and remaining
-Work/Release domain and Edit paths, including legacy Book, Game, and Manga Edit
-adapters.
+Board Game, Book, Game, Manga, Music, and Movie catalog lookups, summaries, and
+offline root reads use the flat Catalog Item cache. The remaining App cutover
+covers Music image ownership, Anime/Comic/TV per-kind stores, and remaining
+Work/Release domain and Edit paths, including legacy Book, Board Game, Game, and
+Manga Edit adapters.
 Music lifecycle tracking records also target the Catalog Item and use the
 existing personal Sync contract. Listening history targets the same Catalog
 Item, may optionally identify the owned copy used, and now round-trips through

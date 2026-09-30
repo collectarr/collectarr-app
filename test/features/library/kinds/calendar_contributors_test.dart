@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_rep
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/calendar/boardgame_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
 import 'package:collectarr_app/features/library/kinds/book/calendar/book_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
@@ -45,6 +44,8 @@ void main() {
     final date = DateTime.utc(2020, 1, 2);
     final movieDatabase = LocalDatabase(NativeDatabase.memory());
     addTearDown(movieDatabase.close);
+    final boardGameDatabase = LocalDatabase(NativeDatabase.memory());
+    addTearDown(boardGameDatabase.close);
     final bookDatabase = LocalDatabase(NativeDatabase.memory());
     addTearDown(bookDatabase.close);
     final mangaDatabase = LocalDatabase(NativeDatabase.memory());
@@ -74,6 +75,13 @@ void main() {
         },
       ),
     );
+    await CatalogItemCacheRepository(boardGameDatabase).upsert(
+      testCatalogItem(
+        id: 'boardgame-item',
+        kind: 'boardgame',
+        releaseDate: date,
+      ),
+    );
     final item = testCatalogItem(
       id: 'comic-item',
       kind: 'comic',
@@ -81,15 +89,12 @@ void main() {
       releaseDate: date,
     );
     final cases = <Future<Iterable<CalendarEvent>> Function()>[
-      () => BoardGameCalendarContributor(
-            loadMedia: (_) async => BoardGameMedia.fromJson(
-              testCatalogItem(
-                id: 'boardgame-item',
-                kind: 'boardgame',
-                releaseDate: date,
-              ).toSyncPayload(),
+      () => const BoardGameCalendarContributor().contribute(
+            _context(
+              ids: const ['boardgame-item'],
+              database: boardGameDatabase,
             ),
-          ).contribute(_context(ids: const ['boardgame-item'])),
+          ),
       () => GameCalendarContributor(
             loadItem: (_) async => testCatalogItem(
               id: 'game-item',

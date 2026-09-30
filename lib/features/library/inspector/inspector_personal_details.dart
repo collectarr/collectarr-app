@@ -511,16 +511,18 @@ class _InspectorTrackingDetailsEditorState
                     setState(() => _selectedVariantId = variantId);
                   },
                 ),
-                const SizedBox(height: 6),
-                TextButton.icon(
-                  onPressed: _createEdition,
-                  icon: const Icon(Icons.add, size: 16),
-                  label: const Text('Add edition'),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    visualDensity: VisualDensity.compact,
+                if (widget.mediaType.trim().toLowerCase() == 'book') ...[
+                  const SizedBox(height: 6),
+                  TextButton.icon(
+                    onPressed: _createEdition,
+                    icon: const Icon(Icons.add, size: 16),
+                    label: const Text('Add edition'),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      visualDensity: VisualDensity.compact,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -758,11 +760,6 @@ class _InspectorTrackingDetailsEditorState
       if (normalizedKind == 'book') {
         final edition =
             await api.createBookEdition(widget.itemId, title: title);
-        if (!mounted) return;
-        setState(() => _selectedEditionId = edition.id);
-      } else if (normalizedKind == 'boardgame') {
-        final edition =
-            await api.createBoardGameEdition(widget.itemId, title: title);
         if (!mounted) return;
         setState(() => _selectedEditionId = edition.id);
       } else {

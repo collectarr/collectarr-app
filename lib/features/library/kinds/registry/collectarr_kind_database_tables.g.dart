@@ -29,8 +29,6 @@ const List<Type> collectarrKindTableTypes = <Type>[
   AnimeTrackingUnitRows,
   AnimeWatchSessionRows,
   AnimeCustomEpisodeRows,
-  BoardGameMediaRows,
-  BoardGameEditionRows,
   BoardGameOwnedItemsRows,
   BoardGamePlaySessionsRows,
   BoardGameTrackingRows,

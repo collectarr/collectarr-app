@@ -66,8 +66,8 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'manga.catalog_item': 15,
   'book.catalog_item': 15,
   'game.catalog_item': 15,
-  'boardgame.media': 15,
-  'boardgame.edition': 15,
+  'boardgame.catalog_item': 15,
+  'boardgame.edition_data': 15,
   'movie.catalog_item': 15,
   'tv.series': 15,
   'tv.season': 15,
@@ -145,6 +145,9 @@ const devSeedAuxiliaryMinimumCounts = <String, int>{
 /// catalog code must use the owning repository/codec instead of inspecting
 /// storage tables.
 Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
+  final boardGameCatalogItems = await CatalogItemCacheRepository(db).findAll(
+    kind: CatalogMediaKind.boardgame,
+  );
   final musicCatalogItems = await CatalogItemCacheRepository(db).findAll(
     kind: CatalogMediaKind.music,
   );
@@ -165,9 +168,14 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'game.catalog_item': (await CatalogItemCacheRepository(db)
             .findAll(kind: CatalogMediaKind.game))
         .length,
-    'boardgame.media': (await db.select(db.boardGameMediaRows).get()).length,
-    'boardgame.edition':
-        (await db.select(db.boardGameEditionRows).get()).length,
+    'boardgame.catalog_item': boardGameCatalogItems.length,
+    'boardgame.edition_data': boardGameCatalogItems.fold<int>(
+      0,
+      (count, item) {
+        final editions = item.payload['editions'];
+        return count + (editions is Iterable ? editions.length : 0);
+      },
+    ),
     'movie.catalog_item': (await CatalogItemCacheRepository(db)
             .findAll(kind: CatalogMediaKind.movie))
         .length,
@@ -234,20 +242,28 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     }
   }
 
-  final boardGameMedia = await db.select(db.boardGameMediaRows).get();
-  final boardGameMediaIds = boardGameMedia.map((row) => row.id).toSet();
-  final boardGameEditions = await db.select(db.boardGameEditionRows).get();
-  for (final row in boardGameEditions.where((row) => isSeed(row.mediaId))) {
-    if (!boardGameMediaIds.contains(row.mediaId)) {
-      issues.add(
-        'boardgame edition ${row.id} has missing media ${row.mediaId}',
-      );
+  final boardGameItems = await CatalogItemCacheRepository(db).findAll(
+    kind: CatalogMediaKind.boardgame,
+  );
+  for (final item in boardGameItems.where((item) => isSeed(item.id))) {
+    final editions = item.payload['editions'];
+    if (item.title.trim().isEmpty) {
+      issues.add('BoardGame Catalog Item ${item.id} has an empty title');
     }
-    if (row.workId != row.mediaId) {
-      issues.add(
-        'boardgame edition ${row.id} points to work ${row.workId}, '
-        'expected ${row.mediaId}',
-      );
+    if (editions is! Iterable || editions.isEmpty) {
+      issues.add('BoardGame Catalog Item ${item.id} has no edition details');
+      continue;
+    }
+    for (final edition in editions) {
+      if (edition is! Map) continue;
+      final minPlayers = edition['min_players'];
+      final maxPlayers = edition['max_players'];
+      final playingTime = edition['playing_time_minutes'];
+      if (minPlayers is! num || maxPlayers is! num || playingTime is! num) {
+        issues.add(
+          'BoardGame Catalog Item ${item.id} has incomplete player/time data',
+        );
+      }
     }
   }
 
@@ -828,18 +844,24 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
         (item) => item.id.trim().isNotEmpty && item.title.trim().isNotEmpty),
     'Book seed Catalog Items are missing canonical identity fields',
   );
-  final boardGameEditions = (await db.select(db.boardGameEditionRows).get())
-      .where((row) => row.id.startsWith('seed-'));
+  final boardGameItems = (await CatalogItemCacheRepository(db)
+          .findAll(kind: CatalogMediaKind.boardgame))
+      .where((item) => item.id.startsWith('seed-'));
   require(
-    boardGameEditions.every(
-      (row) =>
-          row.workId?.startsWith('seed-boardgame-') == true &&
-          row.editionTitle?.trim().isNotEmpty == true &&
-          row.minPlayers != null &&
-          row.maxPlayers != null &&
-          row.playingTimeMinutes != null,
-    ),
-    'boardgame seed editions are missing typed edition metadata',
+    boardGameItems.every((item) {
+      final editions = item.payload['editions'];
+      if (editions is! Iterable || editions.isEmpty) return false;
+      return editions.whereType<Map<Object?, Object?>>().every(
+            (edition) =>
+                edition['work_id'] == item.id &&
+                edition['edition_title']?.toString().trim().isNotEmpty ==
+                    true &&
+                edition['min_players'] is num &&
+                edition['max_players'] is num &&
+                edition['playing_time_minutes'] is num,
+          );
+    }),
+    'BoardGame seed Catalog Items are missing typed edition metadata',
   );
   final tvReleases = (await db.select(db.tvReleaseRows).get())
       .where((row) => row.id.startsWith('seed-'));

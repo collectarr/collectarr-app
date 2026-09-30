@@ -249,18 +249,29 @@ void main() {
       isTrue,
       reason: 'Book seed Catalog Items must retain title and ISBN data',
     );
-    final boardGameEditions = await db.select(db.boardGameEditionRows).get();
+    final boardGameItems = await CatalogItemCacheRepository(db).findAll(
+      kind: CatalogMediaKind.boardgame,
+    );
     expect(
-      boardGameEditions.every(
-        (row) =>
-            row.workId?.startsWith('seed-boardgame-') == true &&
-            row.editionTitle?.trim().isNotEmpty == true &&
-            row.minPlayers != null &&
-            row.maxPlayers != null &&
-            row.playingTimeMinutes != null,
+      boardGameItems
+          .where((item) => item.id.startsWith('seed-boardgame-'))
+          .every(
+        (item) {
+          final editions = item.payload['editions'];
+          if (editions is! Iterable || editions.isEmpty) return false;
+          return editions.whereType<Map<Object?, Object?>>().every(
+                (edition) =>
+                    edition['work_id'] == item.id &&
+                    edition['edition_title']?.toString().trim().isNotEmpty ==
+                        true &&
+                    edition['min_players'] is num &&
+                    edition['max_players'] is num &&
+                    edition['playing_time_minutes'] is num,
+              );
+        },
       ),
       isTrue,
-      reason: 'BoardGame seed editions must retain typed edition metadata',
+      reason: 'BoardGame seed Catalog Items must retain edition metadata',
     );
     final tvReleases = await db.select(db.tvReleaseRows).get();
     expect(

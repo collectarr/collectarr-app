@@ -220,20 +220,6 @@ class CollectarrApiClient {
     );
   }
 
-  Future<BoardGameWorkDto> getBoardGameWorkDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/boardgames/works/${Uri.encodeComponent(id)}',
-      BoardGameWorkDto.fromJson,
-    );
-  }
-
-  Future<BoardGameEditionDto> getBoardGameEditionDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/boardgames/editions/${Uri.encodeComponent(id)}',
-      BoardGameEditionDto.fromJson,
-    );
-  }
-
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/api/v1/metadata/bundle-releases/$bundleReleaseId',
@@ -365,23 +351,6 @@ class CollectarrApiClient {
       );
     }
     return BookEditionDto.fromJson(_resolveImageUrls(data));
-  }
-
-  Future<BoardGameEditionDto> createBoardGameEdition(
-    String workId, {
-    required String title,
-  }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/api/v1/metadata/boardgames/works/${Uri.encodeComponent(workId)}/editions',
-      data: {'title': title},
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-        '/api/v1/metadata/boardgames/works/$workId/editions returned empty body',
-      );
-    }
-    return BoardGameEditionDto.fromJson(_resolveImageUrls(data));
   }
 
   Future<Map<String, dynamic>> lookupBarcode(

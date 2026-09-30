@@ -266,14 +266,6 @@ class ApiClient {
     return _catalogApi.getGameReleaseDto(id);
   }
 
-  Future<BoardGameWorkDto> getBoardGameWorkDto(String id) {
-    return _catalogApi.getBoardGameWorkDto(id);
-  }
-
-  Future<BoardGameEditionDto> getBoardGameEditionDto(String id) {
-    return _catalogApi.getBoardGameEditionDto(id);
-  }
-
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     return _catalogApi.getBundleRelease(bundleReleaseId);
   }
@@ -497,13 +489,6 @@ class ApiClient {
     required String title,
   }) {
     return _catalogApi.createBookEdition(workId, title: title);
-  }
-
-  Future<BoardGameEditionDto> createBoardGameEdition(
-    String workId, {
-    required String title,
-  }) {
-    return _catalogApi.createBoardGameEdition(workId, title: title);
   }
 
   /// Sends a GET request for a JSON list without assigning domain meaning to

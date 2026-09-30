@@ -93,6 +93,7 @@ void main() {
         releaseId: 'edition-1',
         ownedRef: OwnedCopyRef(
           kind: CatalogMediaKind.boardgame,
+          itemId: 'boardgame-1',
           id: OwnedCopyId('owned-1'),
         ),
       ),

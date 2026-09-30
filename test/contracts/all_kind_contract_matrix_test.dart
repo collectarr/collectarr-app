@@ -75,9 +75,9 @@ void main() {
       kind: CatalogMediaKind.boardgame,
       workspace: boardGameKindWorkspace,
       contractFiles: const [
-        'test/domain/boardgame/boardgame_core_mapper_test.dart',
-        'test/domain/boardgame/boardgame_repository_test.dart',
+        'test/domain/boardgame/boardgame_catalog_transport_test.dart',
         'test/domain/boardgame/boardgame_local_mapper_test.dart',
+        'test/features/catalog/catalog_cache_repository_test.dart',
         'test/domain/boardgame/boardgame_edit_schema_test.dart',
         'test/domain/boardgame/boardgame_workspace_projection_test.dart',
       ],

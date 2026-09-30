@@ -67,20 +67,6 @@ List<CoreFieldAdoptionPolicy> _policies() => [
             'coverImageUrlValue',
       ),
       _policy(
-        'BoardGameWorkDto',
-        'id title platforms identifiers contributors mechanics categories '
-            'families expansions rankings searchAliases originalLanguage '
-            'publisher releaseDateValue sortTitle subtitle description',
-        ignored: _kindReason('BoardGame'),
-      ),
-      _policy(
-        'BoardGameEditionDto',
-        'id workId titleValue ageRating audienceRating barcodeValue '
-            'catalogNumber country coverImageUrlValue description editionTitle '
-            'format language maxPlayers minAge minPlayers playingTimeMinutes '
-            'publisher releaseDateValue releaseStatus',
-      ),
-      _policy(
         'TvEpisodeDto',
         'id seasonId episodeNumber episodeTitle airDateValue description '
             'coverImageUrlValue coverImageKey runtimeMinutes',
