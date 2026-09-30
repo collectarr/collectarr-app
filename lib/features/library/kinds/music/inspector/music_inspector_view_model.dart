@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_track_l
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 
 /// Fully typed read model used by the Music inspector.
@@ -23,7 +22,6 @@ final class MusicInspectorViewModel {
   const MusicInspectorViewModel({
     required this.group,
     required this.release,
-    required this.releases,
     required this.mediums,
     required this.tracks,
     this.owned,
@@ -34,15 +32,14 @@ final class MusicInspectorViewModel {
         ? item.source.catalogData! as MusicWorkspaceCatalogData
         : _fallbackMusicCatalog(item.source);
 
-    final release = item.dto is MusicWorkspaceProjection
+    final scopedRelease = item.dto is MusicWorkspaceProjection
         ? (item.dto as MusicWorkspaceProjection).release
         : catalog.release;
-    final isReleaseLike =
-        item.node is LibraryReleaseRef || item.node is LibraryCopyRef;
-    final releases = isReleaseLike
-        ? [if (release != null) release]
-        : List<MusicRelease>.unmodifiable(catalog.music.releases);
-    final detailReleases = isReleaseLike ? releases : const <MusicRelease>[];
+    // One Music Catalog Item is one concrete album edition. Resolve only the
+    // edition represented by this item; never expose sibling releases as
+    // separate catalog choices.
+    final release = scopedRelease ?? catalog.music.primaryRelease;
+    final detailReleases = [if (release != null) release];
     final mediums = <MusicMedium>[
       for (final entry in detailReleases) ...entry.mediums,
     ];
@@ -62,7 +59,6 @@ final class MusicInspectorViewModel {
     return MusicInspectorViewModel(
       group: catalog.music,
       release: release,
-      releases: releases,
       mediums: List<MusicMedium>.unmodifiable(mediums),
       tracks: List<MusicTrackListEntry>.unmodifiable(tracks),
       owned:
@@ -72,7 +68,6 @@ final class MusicInspectorViewModel {
 
   final MusicReleaseGroup group;
   final MusicRelease? release;
-  final List<MusicRelease> releases;
   final List<MusicMedium> mediums;
   final List<MusicTrackListEntry> tracks;
   final MusicOwnedItem? owned;

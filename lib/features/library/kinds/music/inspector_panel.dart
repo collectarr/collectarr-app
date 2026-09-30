@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
@@ -30,7 +29,6 @@ import 'package:collectarr_app/core/models/owned_copy_projection.dart'
     show OwnedCopyRef;
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
@@ -46,9 +44,6 @@ MusicInspectorViewModel _musicModel(LibraryProjectionView item) =>
 
 MusicReleaseGroup? _musicGroup(LibraryProjectionView item) =>
     _musicModel(item).group;
-
-bool _musicNodeIsReleaseLike(LibraryEntityRef node) =>
-    node is LibraryReleaseRef || node is LibraryCopyRef;
 
 Widget buildMusicInspectorPanel(
   BuildContext context,
@@ -88,23 +83,19 @@ class MusicInspectorPanel extends StatelessWidget {
             _MusicInspectorMain(inspector: inspector),
           ],
         ),
-        if (_musicNodeIsReleaseLike(inspector.item.node)) ...[
-          LibraryDetailSectionSpec(
-            slot: LibraryDetailSectionSlot.media,
-            title: 'Track List',
-            children: [_MusicInspectorTracks(inspector: inspector)],
-          ),
-          LibraryDetailSectionSpec(
-            slot: LibraryDetailSectionSlot.metadata,
-            title: 'Disc Details',
-            children: [_MusicDiscDetails(inspector: inspector)],
-          ),
-        ],
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.media,
+          title: 'Track List',
+          children: [_MusicInspectorTracks(inspector: inspector)],
+        ),
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.metadata,
+          title: 'Disc Details',
+          children: [_MusicDiscDetails(inspector: inspector)],
+        ),
         LibraryDetailSectionSpec(
           slot: LibraryDetailSectionSlot.notes,
-          title: _musicNodeIsReleaseLike(inspector.item.node)
-              ? 'Release'
-              : 'Release group',
+          title: 'Album details',
           children: [
             _MusicProductDetails(inspector: inspector),
           ],
@@ -471,7 +462,6 @@ class _MusicInspectorMain extends ConsumerWidget {
     final model = _musicModel(inspector.item);
     final group = model.group;
     final release = model.release;
-    final isRelease = _musicNodeIsReleaseLike(inspector.item.node);
     final tracks = model.tracks;
     final palette = appPalette(context);
     final discGroups = _groupTracksByDisc(tracks);
@@ -479,9 +469,7 @@ class _MusicInspectorMain extends ConsumerWidget {
     final totalTracks = tracks.where((entry) => !entry.isHeader).length;
     final totalDuration = _formatTotalDuration(tracks);
     final dto = inspector.item.dto;
-    final coverUrl = isRelease
-        ? release?.coverImageUrl ?? group.coverImageUrl
-        : group.coverImageUrl ?? release?.coverImageUrl;
+    final coverUrl = release?.coverImageUrl ?? group.coverImageUrl;
     final releaseImages = release == null
         ? const <MusicReleaseImage>[]
         : ref.watch(musicReleaseImagesProvider(release.id.value)).maybeWhen(
@@ -498,9 +486,8 @@ class _MusicInspectorMain extends ConsumerWidget {
             image.purpose == MusicReleaseImagePurpose.cover &&
             image.imageType == 'back_cover')
         .firstOrNull;
-    final formatLabel = isRelease
-        ? release?.mediums.firstOrNull?.mediumType ?? release?.packaging ?? '-'
-        : '${group.releaseCount} ${group.releaseCount == 1 ? 'release' : 'releases'}';
+    final formatLabel =
+        release?.mediums.firstOrNull?.mediumType ?? release?.packaging ?? '-';
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -539,7 +526,7 @@ class _MusicInspectorMain extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isRelease ? release?.title ?? group.title : group.title,
+                        release?.title ?? group.title,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: palette.textPrimary,
                               fontWeight: FontWeight.w700,
@@ -557,13 +544,12 @@ class _MusicInspectorMain extends ConsumerWidget {
                           if (totalDuration != null) totalDuration,
                         ].join(' | '),
                       ),
-                      if (isRelease &&
-                          release?.catalogNumber?.trim().isNotEmpty == true)
+                      if (release?.catalogNumber?.trim().isNotEmpty == true)
                         LibraryInspectorInfoLine(
                           icon: Icons.confirmation_number_outlined,
                           text: 'Cat No ${release?.catalogNumber}',
                         ),
-                      if (isRelease && discGroups.isNotEmpty) ...[
+                      if (discGroups.isNotEmpty) ...[
                         const SizedBox(height: 10),
                         Wrap(
                           spacing: 8,
@@ -1009,14 +995,8 @@ class _MusicProductDetails extends StatelessWidget {
     final model = _musicModel(inspector.item);
     final group = model.group;
     final release = model.release;
-    if (!_musicNodeIsReleaseLike(inspector.item.node)) {
-      return _MusicReleaseGroupDetails(
-        group: group,
-        inspector: inspector,
-      );
-    }
     if (release == null) {
-      return const Text('Release metadata is unavailable.');
+      return const Text('Album metadata is unavailable.');
     }
     final medium = release.mediums.firstOrNull;
     final rows = <(String, String)>[
@@ -1068,60 +1048,6 @@ class _MusicProductDetails extends StatelessWidget {
       ],
     );
   }
-}
-
-class _MusicReleaseGroupDetails extends StatelessWidget {
-  const _MusicReleaseGroupDetails({
-    required this.group,
-    required this.inspector,
-  });
-
-  final MusicReleaseGroup group;
-  final LibraryInspectorRequest inspector;
-
-  @override
-  Widget build(BuildContext context) {
-    final releaseRows = [
-      for (var index = 0; index < group.releases.length; index++)
-        (
-          'Release ${index + 1}',
-          _releaseSummary(group.releases[index]),
-        ),
-    ];
-    final rows = <(String, String)>[
-      ('Releases', group.releaseCount.toString()),
-      if (inspector.item.source.ownedSummary case final owned?) ...[
-        ('Owned copies', owned.quantity.toString()),
-      ],
-      if (group.genres.isNotEmpty) ('Genres', group.genres.join(', ')),
-      if (group.originalReleaseDate != null)
-        ('Original release', formatDate(group.originalReleaseDate!)),
-      if (group.recordingDate != null)
-        ('Recording date', formatDate(group.recordingDate!)),
-      if (group.studios.isNotEmpty) ('Studio', group.studios.join(', ')),
-      ...releaseRows,
-    ];
-    return LibraryDetailFieldTable(
-      fields: [
-        for (final row in rows)
-          LibraryDetailField(label: row.$1, value: row.$2),
-      ],
-    );
-  }
-}
-
-String _releaseSummary(MusicRelease release) {
-  final values = <String>[
-    release.title,
-    if (release.publisher?.trim().isNotEmpty == true) release.publisher!,
-    if (release.catalogNumber?.trim().isNotEmpty == true)
-      'Cat ${release.catalogNumber}',
-    if (release.mediums.firstOrNull?.mediumType?.trim().isNotEmpty == true)
-      release.mediums.first.mediumType!,
-    if (release.boxSetMembership != null)
-      'Box set: ${release.boxSetTitle ?? release.boxSetMembership!.boxSetRef.id}',
-  ];
-  return values.join(' / ');
 }
 
 class _MusicInspectorDetailsPersonal extends StatelessWidget {
@@ -1382,9 +1308,9 @@ Future<void> _copyTracks(
 }) async {
   final rows = <List<String>>[
     [
-      'Release Group Artist',
-      'Release Group Title',
-      'Release',
+      'Album Artist',
+      'Album',
+      'Edition',
       'Disc',
       'Header/Section',
       'Track Number',
@@ -1428,9 +1354,9 @@ Future<void> _printTracks(
 }) async {
   final rows = <List<String>>[
     [
-      'Release Group Artist',
-      'Release Group Title',
-      'Release',
+      'Album Artist',
+      'Album',
+      'Edition',
       'Disc',
       'Header/Section',
       'Track Number',

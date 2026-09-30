@@ -27,12 +27,12 @@ const musicLibraryMediaBuilder = MusicLibraryMediaPresentationBuilder(
 const musicPreviewLabels = LibraryMediaPreviewLabels(
   values: {
     'series': 'Artist',
-    'item_count': 'Releases',
+    'item_count': 'Albums',
     'item_number': 'Disc / Volume',
     'publisher': 'Label',
     'variant': 'Format / Edition',
     'barcode': 'Barcode',
-    'export_title': 'Release',
+    'export_title': 'Album',
   },
 );
 
@@ -42,14 +42,14 @@ const musicStatsLabels = LibraryMediaStatsLabels(
 
 const musicLibraryGroupLabels = LibraryPresentationLabels(
   values: {
-    'media_scope': 'Release Groups',
+    'media_scope': 'Albums',
     'series': 'Artist',
     'series_plural': 'Artists',
     'unknown_series': 'Unknown artist',
     'publisher': 'Label',
     'publisher_plural': 'Labels',
     'unknown_publisher': 'Unknown label',
-    'export_title': 'Release',
+    'export_title': 'Album',
   },
 );
 
@@ -228,8 +228,8 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
 List<MusicRelease> _musicReleasesFor(LibraryProjectionView item) {
   final dto = item.dto;
   if (dto is! MusicWorkspaceProjection) return const <MusicRelease>[];
-  final release = dto.release;
-  return release == null ? dto.music.releases : [release];
+  final release = dto.release ?? dto.music.primaryRelease;
+  return release == null ? const <MusicRelease>[] : [release];
 }
 
 List<MusicMedium> _musicMediaFor(LibraryProjectionView item) => [
@@ -246,8 +246,8 @@ String musicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 
 final musicLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
-    queryHint: 'Enter album, artist, release, or label...',
-    emptySearchMessage: 'Enter an album, artist, release, or label.',
+    queryHint: 'Enter album, artist, format, or label...',
+    emptySearchMessage: 'Enter an album, artist, format, or label.',
   ),
   filterLabels: const LibraryPresentationLabels(
     values: {

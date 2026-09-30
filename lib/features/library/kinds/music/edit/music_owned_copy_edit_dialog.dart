@@ -60,21 +60,15 @@ final class _MusicOwnedCopyEditDialogState
     final group = raw is MusicReleaseGroup
         ? raw
         : MusicReleaseGroup.fromJson(transport.payload);
-    MusicRelease? selectedRelease;
-    for (final release in group.releases) {
-      if (release.id.value == node.releaseId) {
-        selectedRelease = release;
-        break;
-      }
-    }
-    if (selectedRelease == null ||
+    final album = group.primaryRelease;
+    if (album == null ||
         copy.catalogRef.rootScope.id != node.workId ||
         copy.catalogRef != widget.request.kindItem.reference.rootScope) {
       throw StateError(
           'The Music copy does not belong to the selected Catalog Item');
     }
     _copy = copy;
-    _release = selectedRelease;
+    _release = album;
     _draft = MusicOwnedEditDraft.fromItem(copy);
   }
 

@@ -68,23 +68,9 @@ class MusicLibraryMediaPresentationBuilder
   List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
     LibraryWorkspaceSource entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! MusicWorkspaceCatalogData) return const [];
-    return [
-      for (final release in catalog.music.releases)
-        LibraryWorkspaceReleaseSummary(
-          id: release.id.value,
-          title: release.title,
-          formatBadge: release.mediums.isEmpty
-              ? null
-              : musicFormatBadge(release.mediums.first.mediumType),
-          releaseDate: release.releaseDate,
-          mediaLabels: [
-            for (final medium in release.mediums)
-              medium.title ?? 'Medium ${medium.mediumNumber}',
-          ],
-        ),
-    ];
+    // Discs and tracks are contained by one album Catalog Item; they are not
+    // sibling releases to browse from the card.
+    return const [];
   }
 
   @override

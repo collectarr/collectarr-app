@@ -85,7 +85,7 @@ final musicKindHierarchy = const LibraryHierarchyCapability(
 
 final musicKindEntityVocabulary = const LibraryEntityVocabulary(
   work: LibraryEntityLabel(singular: 'Album', plural: 'Albums'),
-  release: LibraryEntityLabel(singular: 'Release', plural: 'Releases'),
+  release: LibraryEntityLabel(singular: 'Album', plural: 'Albums'),
   copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
 );
 
@@ -125,7 +125,7 @@ final musicKindInspector = LibraryInspectorCapability(
         heroBuilder: buildMusicWorkInspectorHero,
         sectionsBuilder: buildMusicWorkInspectorSections,
       ),
-    LibraryEntityInspectorContributor(
+      LibraryEntityInspectorContributor(
         scope: LibraryEntityScope.copy,
         heroBuilder: buildMusicCopyInspectorHero,
         sectionsBuilder: buildMusicCopyInspectorSections,

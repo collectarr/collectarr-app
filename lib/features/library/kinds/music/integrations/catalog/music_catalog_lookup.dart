@@ -27,9 +27,9 @@ final class MusicCatalogLookup implements CatalogKindLookup {
     final normalized = normalizeCatalogLookupValue(barcode);
     if (normalized.isEmpty) return null;
     for (final group in await MusicRepository(_db).searchReleaseGroups()) {
-      if (group.releases.any((release) =>
-          _same(release.barcode, normalized) ||
-          _same(release.upc, normalized))) {
+      final album = group.primaryRelease;
+      if (album != null &&
+          (_same(album.barcode, normalized) || _same(album.upc, normalized))) {
         return _hit(group);
       }
     }
@@ -49,9 +49,7 @@ final class MusicCatalogLookup implements CatalogKindLookup {
       }
       if (normalizedItemNumber != null &&
           normalizedItemNumber.isNotEmpty &&
-          !group.releases.any(
-            (release) => release.catalogNumber?.trim() == normalizedItemNumber,
-          )) {
+          group.primaryRelease?.catalogNumber?.trim() != normalizedItemNumber) {
         continue;
       }
       return _hit(group);
