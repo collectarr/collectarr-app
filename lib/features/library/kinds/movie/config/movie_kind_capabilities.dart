@@ -52,7 +52,7 @@ final movieKindTrackingProfile = movieTrackingProfile;
 
 final movieKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final movieKindCatalogTarget = const MovieCatalogTargetCapability();
+final movieKindCatalogTarget = const RootCatalogTargetCapability();
 
 final LibraryRelationCapability? movieKindRelations = null;
 
