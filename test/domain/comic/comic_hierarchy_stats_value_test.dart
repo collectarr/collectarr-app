@@ -99,6 +99,7 @@ void main() {
         releaseId: 'missing-release',
         ownedRef: const OwnedCopyRef(
           kind: CatalogMediaKind.comic,
+          itemId: 'missing-variant',
           id: OwnedCopyId('owned-missing-variant'),
         ),
       ),

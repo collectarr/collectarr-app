@@ -13,7 +13,6 @@ export 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_i
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 export 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_remote_source.dart';
 export 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
 export 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';

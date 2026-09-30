@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
@@ -14,7 +15,9 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 
 final class ComicCatalogTransportCodec
-    implements CatalogKindTransportCodec<ComicMedia> {
+    implements
+        CatalogKindTransportCodec<ComicMedia>,
+        CatalogSharedCachePrimaryStore {
   const ComicCatalogTransportCodec();
 
   @override
@@ -107,22 +110,17 @@ final class ComicCatalogTransportCodec
 
   @override
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return upsert(db, decode(item));
+    return CatalogItemCacheRepository(db).upsert(item);
   }
 
   @override
-  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final media = await ComicRepository(db).search();
-    return [
-      for (final item in media) _projection(item),
-    ];
-  }
+  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) =>
+      CatalogItemCacheRepository(db).findAll(kind: kind);
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final media = await ComicRepository(db).search();
     return [
-      for (final item in media) summarize(item),
+      for (final item in await listTransport(db)) summarize(decode(item)),
     ];
   }
 }
@@ -144,13 +142,4 @@ CatalogDisplaySummary _comicSummary(ComicMedia item) {
         issue == null || issue.isEmpty ? item.title : '${item.title} #$issue',
     imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
   );
-}
-
-CatalogItemDto _projection(ComicMedia item) {
-  final payload = Map<String, dynamic>.from(item.rawPayload);
-  payload['id'] ??= item.id?.value ?? '';
-  payload['kind'] ??= 'comic';
-  payload['title'] ??= item.title;
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(ComicMedia.fromJson(projection.payload));
 }

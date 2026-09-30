@@ -49,22 +49,6 @@ void main() {
         media.releases.single.typedId, const ComicReleaseId('comic-1-issue-1'));
   });
 
-  test('Comic remote source maps a fetched Core DTO', () async {
-    final source = ApiComicRemoteSource((id) async {
-      expect(id, 'comic-2');
-      return ComicWorkDto.fromJson({
-        'id': id,
-        'kind': 'comic',
-        'title': 'Monstress',
-      });
-    });
-
-    final media = await source.fetchMedia(const ComicMediaId('comic-2'));
-
-    expect(media.id, const ComicMediaId('comic-2'));
-    expect(media.title, 'Monstress');
-  });
-
   defineCoreMappingContract<ComicMedia, ComicWorkDto>(
     name: 'comic',
     createDomain: () => ComicMedia(

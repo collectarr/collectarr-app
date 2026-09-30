@@ -22,14 +22,14 @@ void main() {
     final storyArcs = fields['storyArcs'] as Map<String, dynamic>;
     final comicTables =
         (comic['tables'] as List<dynamic>).cast<Map<String, dynamic>>();
-    final comicMediaTable =
-        comicTables.firstWhere((table) => table['name'] == 'ComicMediaRows');
+    final comicTableNames = comicTables.map((table) => table['name']).toSet();
     final series = fields['series'] as Map<String, dynamic>;
 
     expect(storyArcs['databaseColumns'], contains('storyArcsJson'));
     expect(storyArcs['symbols'], contains('story_arcs'));
-    expect(comicMediaTable['source'],
-        'lib/features/library/kinds/comic/data/local/comic_local_tables.dart');
+    expect(comicTableNames, contains('ComicOwnedItemsRows'));
+    expect(comicTableNames, isNot(contains('ComicMediaRows')));
+    expect(comicTableNames, isNot(contains('ComicReleaseRows')));
     expect(series['workspaceFieldIds'], contains('comic.series'));
     expect(
         kinds.keys, containsAll(['anime', 'book', 'comic', 'game', 'music']));

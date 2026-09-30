@@ -60,8 +60,7 @@ const devSeedCatalogCounts = <CatalogMediaKind, int>{
 /// Some fixtures intentionally contain multiple editions/tracks, so these
 /// are lower bounds rather than exact totals.
 const devSeedTypedGraphMinimumCounts = <String, int>{
-  'comic.media': 15,
-  'comic.release': 15,
+  'comic.catalog_item': 15,
   'comic.reading': 15,
   'manga.catalog_item': 15,
   'book.catalog_item': 15,
@@ -151,6 +150,9 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
   final animeCatalogItems = await CatalogItemCacheRepository(db).findAll(
     kind: CatalogMediaKind.anime,
   );
+  final comicCatalogItems = await CatalogItemCacheRepository(db).findAll(
+    kind: CatalogMediaKind.comic,
+  );
   final musicCatalogItems = await CatalogItemCacheRepository(db).findAll(
     kind: CatalogMediaKind.music,
   );
@@ -159,8 +161,7 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
       MusicCatalogMapper.mapMetadataItemToMusic(item),
   ];
   return {
-    'comic.media': (await db.select(db.comicMediaRows).get()).length,
-    'comic.release': (await db.select(db.comicReleaseRows).get()).length,
+    'comic.catalog_item': comicCatalogItems.length,
     'comic.reading': (await db.select(db.comicReadingRows).get()).length,
     'manga.catalog_item': (await CatalogItemCacheRepository(db)
             .findAll(kind: CatalogMediaKind.manga))
@@ -223,12 +224,12 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
   final issues = <String>[];
   bool isSeed(String id) => id.startsWith('seed-');
 
-  final comicMedia = await db.select(db.comicMediaRows).get();
-  final comicMediaIds = comicMedia.map((row) => row.id).toSet();
-  final comicReleases = await db.select(db.comicReleaseRows).get();
-  for (final row in comicReleases.where((row) => isSeed(row.mediaId))) {
-    if (!comicMediaIds.contains(row.mediaId)) {
-      issues.add('comic release ${row.id} has missing media ${row.mediaId}');
+  final comicItems = await CatalogItemCacheRepository(db).findAll(
+    kind: CatalogMediaKind.comic,
+  );
+  for (final item in comicItems.where((item) => isSeed(item.id))) {
+    if (item.title.trim().isEmpty) {
+      issues.add('Comic Catalog Item ${item.id} has an empty title');
     }
   }
 

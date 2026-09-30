@@ -32,8 +32,6 @@ const List<Type> collectarrKindTableTypes = <Type>[
   BookOwnedItemsRows,
   BookTrackingUnitRows,
   BookTrackingRows,
-  ComicMediaRows,
-  ComicReleaseRows,
   ComicOwnedItemsRows,
   ComicReadingRows,
   ComicTrackingUnitRows,

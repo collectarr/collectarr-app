@@ -1,10 +1,11 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -19,124 +20,80 @@ void main() {
 
   tearDown(() => db.close());
 
-  test('persists and assembles media with embedded releases', () async {
-    const mediaId = ComicMediaId('comic-1');
-    const release = ComicRelease(
-      id: 'release-1',
-      title: 'Saga #1',
-      variants: [
-        CatalogVariantDto(id: 'variant-1', name: 'Regular'),
-      ],
-    );
+  test('stores Comic Catalog Items in the shared cache for offline reads',
+      () async {
     const media = ComicMedia(
-      id: mediaId,
-      title: 'Saga',
+      id: ComicMediaId('comic-1'),
+      title: 'Saga #1',
+      sortTitle: 'Saga #001',
       seriesTitle: 'Saga',
-      releases: [release],
+      issueNumber: '1',
+      barcode: '123456789',
     );
 
     await repository.updateMedia(media);
-    final loaded = await repository.getMedia(mediaId);
 
-    expect(loaded?.id, mediaId);
-    expect(loaded?.title, 'Saga');
-    expect(loaded?.releases.single.id, release.id);
-    expect(loaded?.releases.single.variants.single.id, 'variant-1');
+    final cached = await CatalogItemCacheRepository(db).find(
+      const CatalogItemRef(kind: CatalogMediaKind.comic, id: 'comic-1'),
+    );
+    final loaded = await repository.getMedia(media.id!);
+
+    expect(cached, isNotNull);
+    expect(cached!.title, 'Saga #1');
+    expect(loaded?.id, media.id);
+    expect(loaded?.issueNumber, '1');
+    expect(loaded?.barcode, '123456789');
   });
 
-  test('searches typed Comic media and orders results deterministically',
-      () async {
+  test('searches cached items and orders results deterministically', () async {
     await repository.updateMedia(
       const ComicMedia(
         id: ComicMediaId('comic-2'),
-        title: 'Batman',
-        sortTitle: 'Batman',
+        title: 'Batman #2',
+        sortTitle: 'Batman #002',
+        seriesTitle: 'Batman',
       ),
     );
     await repository.updateMedia(
       const ComicMedia(
         id: ComicMediaId('comic-1'),
-        title: 'Saga',
-        sortTitle: 'Saga',
+        title: 'Saga #1',
+        sortTitle: 'Saga #001',
+        seriesTitle: 'Saga',
       ),
     );
 
     expect(
-      (await repository.search()).map((media) => media.id?.value),
+      (await repository.search()).map((item) => item.id?.value),
       ['comic-2', 'comic-1'],
     );
     expect(
-      (await repository.search('aga')).map((media) => media.title),
-      ['Saga'],
+      (await repository.search('saga')).map((item) => item.title),
+      ['Saga #1'],
     );
   });
 
-  test('uses both parts of the composite key for release lookup', () async {
-    await repository.updateRelease(
-      const ComicMediaId('comic-1'),
-      const ComicRelease(id: 'release-1', title: 'Saga #1'),
+  test('updates contained issue details on the catalog item', () async {
+    await repository.updateMedia(
+      const ComicMedia(id: ComicMediaId('comic-3'), title: 'Saga #3'),
     );
+
     await repository.updateRelease(
-      const ComicMediaId('comic-2'),
-      const ComicRelease(id: 'release-1', title: 'Batman #1'),
+      const ComicMediaId('comic-3'),
+      const ComicRelease(id: 'printing-1', title: 'First printing'),
     );
 
     expect(
       (await repository.getRelease(
-        const ComicMediaId('comic-1'),
-        const ComicReleaseId('release-1'),
+        const ComicMediaId('comic-3'),
+        const ComicReleaseId('printing-1'),
       ))
           ?.title,
-      'Saga #1',
-    );
-    expect(
-      (await repository.releasesFor(const ComicMediaId('comic-2')))
-          .single
-          .title,
-      'Batman #1',
+      'First printing',
     );
   });
 
-  test('upserts media and release values without erasing omitted releases',
-      () async {
-    const mediaId = ComicMediaId('comic-1');
-    await repository.updateMedia(
-      const ComicMedia(
-        id: mediaId,
-        title: 'Old title',
-        releases: [ComicRelease(id: 'release-1', title: 'Saga #1')],
-      ),
-    );
-    await repository.updateMedia(
-      const ComicMedia(id: mediaId, title: 'New title'),
-    );
-
-    final loaded = await repository.getMedia(mediaId);
-    expect(loaded?.title, 'New title');
-    expect(loaded?.releases.single.title, 'Saga #1');
-  });
-
-  test('falls back to the typed remote source on a local miss', () async {
-    final remote = _FakeComicRemoteSource(
-      (id) async => ComicMedia(
-        id: id,
-        title: 'Fetched Comic',
-        releases: const [ComicRelease(id: 'release-1', title: 'Fetched #1')],
-      ),
-    );
-    final remoteRepository = ComicRepository(db, remote: remote);
-    const mediaId = ComicMediaId('comic-remote');
-
-    final loaded = await remoteRepository.getMedia(mediaId);
-    final cached = await repository.getMedia(mediaId);
-
-    expect(loaded?.title, 'Fetched Comic');
-    expect(loaded?.releases.single.id, 'release-1');
-    expect(cached?.title, 'Fetched Comic');
-    expect(remote.requestedIds, [mediaId]);
-  });
-
-  test('returns null for a missing media without a remote source', () async {
+  test('returns null when a Catalog Item is not cached', () async {
     expect(
       await repository.getMedia(const ComicMediaId('missing')),
       isNull,
@@ -146,17 +103,19 @@ void main() {
       throwsStateError,
     );
   });
-}
 
-final class _FakeComicRemoteSource implements ComicRemoteSource {
-  _FakeComicRemoteSource(this._fetch);
+  test('cache transport retains Comic kind identity', () async {
+    final dto = CatalogItemDto.fromJson({
+      'kind': 'comic',
+      'id': 'comic-4',
+      'title': 'Daredevil #1',
+      'issue_number': '1',
+    });
+    await CatalogItemCacheRepository(db).upsert(dto);
 
-  final Future<ComicMedia> Function(ComicMediaId id) _fetch;
-  final requestedIds = <ComicMediaId>[];
-
-  @override
-  Future<ComicMedia> fetchMedia(ComicMediaId id) {
-    requestedIds.add(id);
-    return _fetch(id);
-  }
+    expect(
+      (await repository.getMedia(const ComicMediaId('comic-4')))?.title,
+      'Daredevil #1',
+    );
+  });
 }
