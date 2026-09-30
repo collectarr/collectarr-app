@@ -54,6 +54,8 @@ Copy actions now use the shared Edit dialog and separate presentation tabs;
 Movie no longer routes Owned Copy editing through the old Media edit dialog.
 The older MovieMedia/MovieRelease domain, local tables, and remote source still
 exist, so Movie persistence has not completed the cutover.
+Movie calendar dates and local barcode/title lookup now read the shared flat
+Catalog Item cache instead of querying the old MovieMedia/MovieRelease tables.
 
 App-owned state remains separate from Core catalog facts. Owned items,
 wishlist, tracking, listening sessions, loans, locations, custom fields,
