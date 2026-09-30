@@ -13417,10 +13417,6 @@
               "sqlName": "original_title"
             },
             {
-              "property": "synopsis",
-              "sqlName": "synopsis"
-            },
-            {
               "property": "originalReleaseDate",
               "sqlName": "original_release_date"
             },
@@ -13437,8 +13433,8 @@
               "sqlName": "recording_date_parts_json"
             },
             {
-              "property": "studio",
-              "sqlName": "studio"
+              "property": "studiosJson",
+              "sqlName": "studios_json"
             },
             {
               "property": "isLive",
@@ -13551,16 +13547,8 @@
               "sqlName": "packaging"
             },
             {
-              "property": "physicalFormat",
-              "sqlName": "physical_format"
-            },
-            {
-              "property": "physicalFormatLabel",
-              "sqlName": "physical_format_label"
-            },
-            {
-              "property": "boxSetName",
-              "sqlName": "box_set_name"
+              "property": "mediumTypesJson",
+              "sqlName": "medium_types_json"
             },
             {
               "property": "coverImageUrl",
@@ -13577,6 +13565,58 @@
             {
               "property": "updatedAt",
               "sqlName": "updated_at"
+            }
+          ]
+        },
+        {
+          "name": "MusicReleaseLocalDetailsRows",
+          "source": "lib/features/library/kinds/music/data/local/music_local_tables.dart",
+          "columns": [
+            {
+              "property": "releaseId",
+              "sqlName": "release_id"
+            },
+            {
+              "property": "boxSetName",
+              "sqlName": "box_set_name"
+            }
+          ]
+        },
+        {
+          "name": "MusicReleaseImagesRows",
+          "source": "lib/features/library/kinds/music/data/local/music_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "releaseId",
+              "sqlName": "release_id"
+            },
+            {
+              "property": "purpose",
+              "sqlName": "purpose"
+            },
+            {
+              "property": "imageType",
+              "sqlName": "image_type"
+            },
+            {
+              "property": "imageData",
+              "sqlName": "image_data"
+            },
+            {
+              "property": "description",
+              "sqlName": "description"
+            },
+            {
+              "property": "sortOrder",
+              "sqlName": "sort_order"
+            },
+            {
+              "property": "createdAt",
+              "sqlName": "created_at"
             }
           ]
         },
@@ -13603,14 +13643,6 @@
             {
               "property": "description",
               "sqlName": "description"
-            },
-            {
-              "property": "source",
-              "sqlName": "source"
-            },
-            {
-              "property": "isAutomatic",
-              "sqlName": "is_automatic"
             }
           ]
         },
@@ -13679,10 +13711,6 @@
             {
               "property": "sequence",
               "sqlName": "sequence"
-            },
-            {
-              "property": "source",
-              "sqlName": "source"
             }
           ]
         },
@@ -13713,10 +13741,6 @@
             {
               "property": "sequence",
               "sqlName": "sequence"
-            },
-            {
-              "property": "source",
-              "sqlName": "source"
             }
           ]
         },
@@ -13775,10 +13799,6 @@
             {
               "property": "bpDiscId",
               "sqlName": "bp_disc_id"
-            },
-            {
-              "property": "mediaCondition",
-              "sqlName": "media_condition"
             },
             {
               "property": "soundType",
@@ -13963,10 +13983,6 @@
               "sqlName": "is_primary"
             },
             {
-              "property": "sourceProvider",
-              "sqlName": "source_provider"
-            },
-            {
               "property": "createdAt",
               "sqlName": "created_at"
             },
@@ -13995,10 +14011,6 @@
             {
               "property": "isDigital",
               "sqlName": "is_digital"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
             },
             {
               "property": "condition",
@@ -14165,20 +14177,12 @@
               "sqlName": "id"
             },
             {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
+              "property": "catalogItemId",
+              "sqlName": "catalog_item_id"
             },
             {
-              "property": "releaseGroupId",
-              "sqlName": "release_group_id"
-            },
-            {
-              "property": "releaseId",
-              "sqlName": "release_id"
-            },
-            {
-              "property": "ownedRefJson",
-              "sqlName": "owned_ref_json"
+              "property": "ownedCopyId",
+              "sqlName": "owned_copy_id"
             },
             {
               "property": "listenedAt",
@@ -14232,30 +14236,6 @@
           "sqlNames": [],
           "workspaceFieldIds": [
             "music.added_at"
-          ]
-        },
-        "aggregateLastListened": {
-          "symbols": [
-            "aggregateLastListened",
-            "aggregate_last_listened"
-          ],
-          "databaseColumns": [],
-          "databaseTables": [],
-          "sqlNames": [],
-          "workspaceFieldIds": [
-            "music.aggregate_last_listened"
-          ]
-        },
-        "aggregateListenCount": {
-          "symbols": [
-            "aggregateListenCount",
-            "aggregate_listen_count"
-          ],
-          "databaseColumns": [],
-          "databaseTables": [],
-          "sqlNames": [],
-          "workspaceFieldIds": [
-            "music.aggregate_listen_count"
           ]
         },
         "artist": {
@@ -14394,7 +14374,7 @@
             "boxSetName"
           ],
           "databaseTables": [
-            "MusicReleaseRows"
+            "MusicReleaseLocalDetailsRows"
           ],
           "sqlNames": [
             "box_set_name"
@@ -14446,6 +14426,22 @@
           ],
           "sqlNames": [
             "bp_disc_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "catalogItemId": {
+          "symbols": [
+            "catalogItemId",
+            "catalog_item_id"
+          ],
+          "databaseColumns": [
+            "catalogItemId"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows"
+          ],
+          "sqlNames": [
+            "catalog_item_id"
           ],
           "workspaceFieldIds": []
         },
@@ -14635,6 +14631,7 @@
             "MusicReleaseContributionsRows",
             "MusicReleaseGroupRows",
             "MusicReleaseIdentifiersRows",
+            "MusicReleaseImagesRows",
             "MusicReleaseRows",
             "MusicTrackRows"
           ],
@@ -14700,7 +14697,8 @@
             "description"
           ],
           "databaseTables": [
-            "MusicReleaseExternalLinksRows"
+            "MusicReleaseExternalLinksRows",
+            "MusicReleaseImagesRows"
           ],
           "sqlNames": [
             "description"
@@ -14889,6 +14887,7 @@
             "MusicReleaseContributionsRows",
             "MusicReleaseGroupRows",
             "MusicReleaseIdentifiersRows",
+            "MusicReleaseImagesRows",
             "MusicReleaseLabelsRows",
             "MusicReleaseRows",
             "MusicTrackRows",
@@ -14912,6 +14911,38 @@
           ],
           "sqlNames": [
             "identifier_type"
+          ],
+          "workspaceFieldIds": []
+        },
+        "imageData": {
+          "symbols": [
+            "imageData",
+            "image_data"
+          ],
+          "databaseColumns": [
+            "imageData"
+          ],
+          "databaseTables": [
+            "MusicReleaseImagesRows"
+          ],
+          "sqlNames": [
+            "image_data"
+          ],
+          "workspaceFieldIds": []
+        },
+        "imageType": {
+          "symbols": [
+            "imageType",
+            "image_type"
+          ],
+          "databaseColumns": [
+            "imageType"
+          ],
+          "databaseTables": [
+            "MusicReleaseImagesRows"
+          ],
+          "sqlNames": [
+            "image_type"
           ],
           "workspaceFieldIds": []
         },
@@ -14977,22 +15008,6 @@
           ],
           "sqlNames": [
             "instrument"
-          ],
-          "workspaceFieldIds": []
-        },
-        "isAutomatic": {
-          "symbols": [
-            "isAutomatic",
-            "is_automatic"
-          ],
-          "databaseColumns": [
-            "isAutomatic"
-          ],
-          "databaseTables": [
-            "MusicReleaseExternalLinksRows"
-          ],
-          "sqlNames": [
-            "is_automatic"
           ],
           "workspaceFieldIds": []
         },
@@ -15225,18 +15240,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "listenedReleaseCount": {
-          "symbols": [
-            "listenedReleaseCount",
-            "listened_release_count"
-          ],
-          "databaseColumns": [],
-          "databaseTables": [],
-          "sqlNames": [],
-          "workspaceFieldIds": [
-            "music.listened_release_count"
-          ]
-        },
         "localBackImagePath": {
           "symbols": [
             "localBackImagePath",
@@ -15346,22 +15349,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "mediaCondition": {
-          "symbols": [
-            "mediaCondition",
-            "media_condition"
-          ],
-          "databaseColumns": [
-            "mediaCondition"
-          ],
-          "databaseTables": [
-            "MusicMediumRows"
-          ],
-          "sqlNames": [
-            "media_condition"
-          ],
-          "workspaceFieldIds": []
-        },
         "mediumDetails": {
           "symbols": [
             "mediumDetails",
@@ -15425,6 +15412,24 @@
           ],
           "sqlNames": [
             "medium_type"
+          ],
+          "workspaceFieldIds": []
+        },
+        "mediumTypes": {
+          "symbols": [
+            "mediumTypes",
+            "mediumTypesJson",
+            "medium_types",
+            "medium_types_json"
+          ],
+          "databaseColumns": [
+            "mediumTypesJson"
+          ],
+          "databaseTables": [
+            "MusicReleaseRows"
+          ],
+          "sqlNames": [
+            "medium_types_json"
           ],
           "workspaceFieldIds": []
         },
@@ -15560,21 +15565,19 @@
           ],
           "workspaceFieldIds": []
         },
-        "ownedRef": {
+        "ownedCopyId": {
           "symbols": [
-            "ownedRef",
-            "ownedRefJson",
-            "owned_ref",
-            "owned_ref_json"
+            "ownedCopyId",
+            "owned_copy_id"
           ],
           "databaseColumns": [
-            "ownedRefJson"
+            "ownedCopyId"
           ],
           "databaseTables": [
             "MusicListenEventsRows"
           ],
           "sqlNames": [
-            "owned_ref_json"
+            "owned_copy_id"
           ],
           "workspaceFieldIds": []
         },
@@ -15688,38 +15691,6 @@
           ],
           "sqlNames": [
             "personal_notes"
-          ],
-          "workspaceFieldIds": []
-        },
-        "physicalFormat": {
-          "symbols": [
-            "physicalFormat",
-            "physical_format"
-          ],
-          "databaseColumns": [
-            "physicalFormat"
-          ],
-          "databaseTables": [
-            "MusicReleaseRows"
-          ],
-          "sqlNames": [
-            "physical_format"
-          ],
-          "workspaceFieldIds": []
-        },
-        "physicalFormatLabel": {
-          "symbols": [
-            "physicalFormatLabel",
-            "physical_format_label"
-          ],
-          "databaseColumns": [
-            "physicalFormatLabel"
-          ],
-          "databaseTables": [
-            "MusicReleaseRows"
-          ],
-          "sqlNames": [
-            "physical_format_label"
           ],
           "workspaceFieldIds": []
         },
@@ -15849,6 +15820,21 @@
           ],
           "workspaceFieldIds": []
         },
+        "purpose": {
+          "symbols": [
+            "purpose"
+          ],
+          "databaseColumns": [
+            "purpose"
+          ],
+          "databaseTables": [
+            "MusicReleaseImagesRows"
+          ],
+          "sqlNames": [
+            "purpose"
+          ],
+          "workspaceFieldIds": []
+        },
         "quantity": {
           "symbols": [
             "quantity"
@@ -15931,6 +15917,30 @@
           ],
           "workspaceFieldIds": []
         },
+        "release.releaseDate": {
+          "symbols": [
+            "release.releaseDate",
+            "release.release_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.release.release_date"
+          ]
+        },
+        "release.trackCount": {
+          "symbols": [
+            "release.trackCount",
+            "release.track_count"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.release.track_count"
+          ]
+        },
         "releaseCount": {
           "symbols": [
             "releaseCount",
@@ -15957,9 +15967,7 @@
           "sqlNames": [
             "release_date"
           ],
-          "workspaceFieldIds": [
-            "music.release_date"
-          ]
+          "workspaceFieldIds": []
         },
         "releaseDateParts": {
           "symbols": [
@@ -15979,6 +15987,30 @@
           ],
           "workspaceFieldIds": []
         },
+        "releaseGroup.releaseDate": {
+          "symbols": [
+            "releaseGroup.releaseDate",
+            "release_group.release_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.release_group.release_date"
+          ]
+        },
+        "releaseGroup.trackCount": {
+          "symbols": [
+            "releaseGroup.trackCount",
+            "release_group.track_count"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.release_group.track_count"
+          ]
+        },
         "releaseGroupId": {
           "symbols": [
             "releaseGroupId",
@@ -15988,7 +16020,6 @@
             "releaseGroupId"
           ],
           "databaseTables": [
-            "MusicListenEventsRows",
             "MusicReleaseRows"
           ],
           "sqlNames": [
@@ -16005,13 +16036,14 @@
             "releaseId"
           ],
           "databaseTables": [
-            "MusicListenEventsRows",
             "MusicMediumRows",
             "MusicReleaseBoxSetMembershipRows",
             "MusicReleaseContributionsRows",
             "MusicReleaseExternalLinksRows",
             "MusicReleaseIdentifiersRows",
-            "MusicReleaseLabelsRows"
+            "MusicReleaseImagesRows",
+            "MusicReleaseLabelsRows",
+            "MusicReleaseLocalDetailsRows"
           ],
           "sqlNames": [
             "release_id"
@@ -16200,6 +16232,22 @@
           ],
           "workspaceFieldIds": []
         },
+        "sortOrder": {
+          "symbols": [
+            "sortOrder",
+            "sort_order"
+          ],
+          "databaseColumns": [
+            "sortOrder"
+          ],
+          "databaseTables": [
+            "MusicReleaseImagesRows"
+          ],
+          "sqlNames": [
+            "sort_order"
+          ],
+          "workspaceFieldIds": []
+        },
         "sortTitle": {
           "symbols": [
             "sortTitle",
@@ -16230,39 +16278,6 @@
           ],
           "sqlNames": [
             "sound_type"
-          ],
-          "workspaceFieldIds": []
-        },
-        "source": {
-          "symbols": [
-            "source"
-          ],
-          "databaseColumns": [
-            "source"
-          ],
-          "databaseTables": [
-            "MusicArtistCreditsRows",
-            "MusicReleaseExternalLinksRows",
-            "MusicReleaseLabelsRows"
-          ],
-          "sqlNames": [
-            "source"
-          ],
-          "workspaceFieldIds": []
-        },
-        "sourceProvider": {
-          "symbols": [
-            "sourceProvider",
-            "source_provider"
-          ],
-          "databaseColumns": [
-            "sourceProvider"
-          ],
-          "databaseTables": [
-            "MusicReleaseIdentifiersRows"
-          ],
-          "sqlNames": [
-            "source_provider"
           ],
           "workspaceFieldIds": []
         },
@@ -16342,18 +16357,20 @@
             "music.storage"
           ]
         },
-        "studio": {
+        "studios": {
           "symbols": [
-            "studio"
+            "studios",
+            "studiosJson",
+            "studios_json"
           ],
           "databaseColumns": [
-            "studio"
+            "studiosJson"
           ],
           "databaseTables": [
             "MusicReleaseGroupRows"
           ],
           "sqlNames": [
-            "studio"
+            "studios_json"
           ],
           "workspaceFieldIds": []
         },
@@ -16369,21 +16386,6 @@
           ],
           "sqlNames": [
             "subtitle"
-          ],
-          "workspaceFieldIds": []
-        },
-        "synopsis": {
-          "symbols": [
-            "synopsis"
-          ],
-          "databaseColumns": [
-            "synopsis"
-          ],
-          "databaseTables": [
-            "MusicReleaseGroupRows"
-          ],
-          "sqlNames": [
-            "synopsis"
           ],
           "workspaceFieldIds": []
         },
@@ -16415,23 +16417,6 @@
           ],
           "sqlNames": [
             "target_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "targetRefJson": {
-          "symbols": [
-            "targetRefJson",
-            "target_ref_json"
-          ],
-          "databaseColumns": [
-            "targetRefJson"
-          ],
-          "databaseTables": [
-            "MusicListenEventsRows",
-            "MusicOwnedItemsRows"
-          ],
-          "sqlNames": [
-            "target_ref_json"
           ],
           "workspaceFieldIds": []
         },
@@ -16517,9 +16502,7 @@
           "sqlNames": [
             "track_count"
           ],
-          "workspaceFieldIds": [
-            "music.track_count"
-          ]
+          "workspaceFieldIds": []
         },
         "trackHash": {
           "symbols": [
