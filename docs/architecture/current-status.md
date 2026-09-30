@@ -102,8 +102,10 @@ owned copies, reading progress, and tracking stay in App-owned tables.
 Book calendar events now read each concrete item's release date from this cache
 instead of loading a `BookMedia` row from the old per-kind table. The Book
 barcode/ISBN lookup also reads root identifiers and contained printing ISBNs
-from the cache. The Book workspace now exposes one combined Catalog Item field
-and column schema; it no longer registers a separate Release workspace or
+from the cache. The active flat Book projection retains printings as contained
+Catalog Item data and no longer fabricates a Release when the root response has
+no nested editions. The Book workspace now exposes one combined Catalog Item
+field and column schema; it no longer registers a separate Release workspace or
 fetches nested volumes for browsing. The generic workspace registry still maps
 that root through its transitional `work` scope. Book's Edit adapters still
 contain legacy `BookMedia` and `BookRelease` models. Book Owned Copy editing
