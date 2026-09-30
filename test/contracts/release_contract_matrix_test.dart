@@ -5,9 +5,6 @@ import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
@@ -37,14 +34,6 @@ void main() {
     name: 'BoardGame',
     create: () => BoardGameEdition.fromJson(
       const {'id': 'boardgame-edition-1', 'title': 'Deluxe Edition'},
-    ),
-    id: (release) => release.id,
-    title: (release) => release.title,
-  );
-  defineReleaseContract<BookRelease>(
-    name: 'Book',
-    create: () => BookRelease.fromJson(
-      const {'id': 'book-release-1', 'title': 'Hardcover Edition'},
     ),
     id: (release) => release.id,
     title: (release) => release.title,
@@ -96,12 +85,6 @@ void main() {
       EditSchema<BoardGameEdition, BoardGameCatalogFormValues>>(
     name: 'BoardGame',
     create: () => boardGameEditionEditSchema,
-    tabIds: _tabIds,
-    fieldIds: _fieldIds,
-  );
-  defineReleaseEditContract<EditSchema<BookRelease, BookCatalogFormValues>>(
-    name: 'Book',
-    create: () => bookEditionEditSchema,
     tabIds: _tabIds,
     fieldIds: _fieldIds,
   );

@@ -3,68 +3,41 @@ import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('book work dto maps rich metadata into book domain', () {
+  test('flat Book Catalog Item maps root fields without release nodes', () {
     final dto = CatalogItemDto.fromJson({
       'id': 'book-1',
       'kind': 'book',
       'title': 'Guards! Guards!',
       'search_aliases': ['Guards Guards'],
       'genres': ['fantasy'],
-      'contributors': [
+      'creators': [
         {'name': 'Terry Pratchett', 'role': 'author'},
       ],
-      'series': {'series_id': 's1', 'series_title': 'Discworld'},
-      'first_publication_date': '1989-03-16T00:00:00Z',
+      'series_title': 'Discworld',
       'original_publication_date': '1989-03-16T00:00:00Z',
       'original_language': 'en',
       'sort_title': 'Guards Guards',
       'subtitle': 'A Discworld Novel',
-      'description': 'The city needs a dragon.',
+      'synopsis': 'The city needs a dragon.',
       'cover_image_url': 'https://example.com/book.jpg',
       'thumbnail_image_url': 'https://example.com/book-thumb.jpg',
       'publisher': 'Victor Gollancz Ltd',
-      'cover_date': '1989-03-16T00:00:00Z',
       'release_date': '1989-03-16T00:00:00Z',
-      'release_year': 1989,
       'barcode': '9780062225729',
       'dewey': '823.914',
       'page_count': 288,
-      'edition_title': 'Paperback',
-      'crossover': 'City Watch',
-      'plot_summary': 'The city needs a dragon.',
-      'plot_description': 'A dragon threatens Ankh-Morpork.',
-      'creators': [
-        {'name': 'Terry Pratchett', 'role': 'author'},
-      ],
-      'characters': ['Vimes'],
-      'story_arcs': ['Ankh-Morpork'],
       'country': 'GB',
       'language': 'en',
-      'age_rating': 'PG',
-      'audience_rating': 'Teen',
       'physical_format': 'paperback',
       'physical_format_label': 'Paperback',
-      'editions': [
+      'printings': [
         {
-          'id': 'book-edition-1',
-          'work_id': 'book-1',
-          'display_title': 'Paperback',
-          'format': 'paperback',
-          'physical_format_label': 'Paperback',
+          'id': 'printing-1',
+          'printing_number': 1,
+          'title': 'Paperback, first printing',
           'publisher': 'Victor Gollancz Ltd',
           'isbn': '9780062225729',
-          'page_count': 288,
-          'publication_date': '1989-03-16T00:00:00Z',
           'language': 'en',
-          'release_status': 'published',
-          'variants': [
-            {
-              'id': 'v1',
-              'name': 'Standard',
-              'cover_image_url': 'https://example.com/book.jpg',
-              'thumbnail_image_url': 'https://example.com/book-thumb.jpg',
-            }
-          ]
         },
       ],
     });
@@ -72,18 +45,16 @@ void main() {
     final book = BookCatalogItem.fromDto(dto);
 
     expect(book.title, 'Guards! Guards!');
-    expect(book.series?.seriesTitle, 'Discworld');
+    expect(book.seriesTitle, 'Discworld');
     expect(book.publisher, 'Victor Gollancz Ltd');
     expect(book.coverImageUrl, 'https://example.com/book.jpg');
     expect(book.thumbnailImageUrl, 'https://example.com/book-thumb.jpg');
     expect(book.barcode, '9780062225729');
-    expect(book.plotSummary, 'The city needs a dragon.');
+    expect(book.synopsis, 'The city needs a dragon.');
     expect(book.creators, hasLength(1));
-    expect(book.characters, ['Vimes']);
-    expect(book.storyArcs, ['Ankh-Morpork']);
-    expect(book.editions, hasLength(1));
-    expect(book.editions.first.title, 'Paperback');
-    expect(book.publishing.pageCount, 288);
+    expect(book.printings, hasLength(1));
+    expect(book.printings.single.title, 'Paperback, first printing');
+    expect(book.pageCount, 288);
     expect(book.physicalFormatLabel, 'Paperback');
   });
 }

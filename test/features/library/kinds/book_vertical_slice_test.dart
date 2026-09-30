@@ -27,27 +27,16 @@ void main() {
         translators: const ['Ion Luca'],
         illustrators: const ['Alan Lee'],
         coverArtists: const ['Ted Nasmith'],
-        editions: [
-          BookEditionMetadata(
-            id: 'ed_1',
-            title: 'The Fellowship of the Ring (50th Anniversary Edition)',
-            isbn: '9780007203581',
-            format: 'Hardcover',
-            publisher: 'HarperCollins',
-            imprint: 'Voyager',
-            pageCount: 432,
-            printing: '1st Print',
-            firstEdition: true,
-            numberLine: '1 3 5 7 9 10 8 6 4 2',
-            dewey: '823.912',
-            locClassification: 'PR6039.O32',
-            audiobook: const AudiobookDetails(
-              narrator: 'Andy Serkis',
-              durationMinutes: 1380,
-              isAbridged: false,
-            ),
-          ),
-        ],
+        rawPayload: const {
+          'isbn': '9780007203581',
+          'format': 'Hardcover',
+          'page_count': 432,
+          'printing': '1st Print',
+          'first_edition': true,
+          'number_line': '1 3 5 7 9 10 8 6 4 2',
+          'dewey': '823.912',
+          'loc_classification': 'PR6039.O32',
+        },
       );
 
       final json = metadata.toJson();
@@ -59,12 +48,11 @@ void main() {
       expect(restored.editors, contains('Christopher Tolkien'));
       expect(restored.translators, contains('Ion Luca'));
       expect(restored.illustrators, contains('Alan Lee'));
-      expect(restored.editions.first.isbn, '9780007203581');
-      expect(restored.editions.first.format, 'Hardcover');
-      expect(restored.editions.first.pageCount, 432);
-      expect(restored.editions.first.firstEdition, isTrue);
-      expect(restored.editions.first.numberLine, '1 3 5 7 9 10 8 6 4 2');
-      expect(restored.editions.first.audiobook?.narrator, 'Andy Serkis');
+      expect(restored.rawPayload['isbn'], '9780007203581');
+      expect(restored.rawPayload['format'], 'Hardcover');
+      expect(restored.rawPayload['page_count'], 432);
+      expect(restored.rawPayload['first_edition'], isTrue);
+      expect(restored.rawPayload['number_line'], '1 3 5 7 9 10 8 6 4 2');
     });
 
     test('BookWorkspaceProjector projects metadata and schema fields', () {
@@ -73,19 +61,14 @@ void main() {
         subtitle: 'Part One',
         authors: ['Frank Herbert'],
         translators: ['Ion Hobana'],
-        editions: [
-          BookEditionMetadata(
-            id: 'ed_dune',
-            title: 'Dune Deluxe Edition',
-            isbn: '9780441013593',
-            format: 'Hardcover',
-            publisher: 'Ace',
-            pageCount: 896,
-            printing: 'Special Collector Edition',
-            firstEdition: true,
-            dewey: '813.54',
-          ),
-        ],
+        rawPayload: {
+          'isbn': '9780441013593',
+          'format': 'Hardcover',
+          'page_count': 896,
+          'printing': 'Special Collector Edition',
+          'first_edition': true,
+          'dewey': '813.54',
+        },
       );
 
       final shelfEntry = LibraryWorkspaceSource(

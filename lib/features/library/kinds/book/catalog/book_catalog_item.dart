@@ -1,24 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-
-export 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart'
-    show BookPhysicalDetails, BookOriginalDetails;
-
-class BookSeriesRef {
-  const BookSeriesRef({
-    required this.seriesId,
-    required this.seriesTitle,
-    this.volumeNumber,
-    this.seriesGroup,
-  });
-
-  final String seriesId;
-  final String seriesTitle;
-  final double? volumeNumber;
-  final String? seriesGroup;
-}
 
 class BookCreatorCredit {
   const BookCreatorCredit({
@@ -34,7 +16,7 @@ class BookCreatorCredit {
 
 /// A printing contained by one concrete Book Catalog Item.
 ///
-/// Printings do not create additional Catalog Items or workspace rows.
+/// A printing is child catalog data, never another workspace item.
 class BookCatalogPrinting {
   const BookCatalogPrinting({
     required this.id,
@@ -55,172 +37,89 @@ class BookCatalogPrinting {
   final String? isbn;
 }
 
-class BookWorkMetadata {
-  const BookWorkMetadata({
-    required this.title,
-    this.subtitle,
-    this.originalTitle,
-    this.synopsis,
-    this.originalCountry,
-    this.originalLanguage,
-    this.originalPublicationDate,
-    this.originalPublicationPlace,
-    this.originalPublisher,
-    this.series,
-    this.creators = const [],
-    this.subjects = const [],
-    this.genres = const [],
-    this.characters = const [],
-    this.storyArcs = const [],
-  });
-
-  final String title;
-  final String? subtitle;
-  final String? originalTitle;
-  final String? synopsis;
-  final String? originalCountry;
-  final String? originalLanguage;
-  final DateTime? originalPublicationDate;
-  final String? originalPublicationPlace;
-  final String? originalPublisher;
-  final BookSeriesRef? series;
-  final List<BookCreatorCredit> creators;
-  final List<String> subjects;
-  final List<String> genres;
-  final List<String> characters;
-  final List<String> storyArcs;
-}
-
-class BookPublishingMetadata {
-  const BookPublishingMetadata({
-    this.pageCount,
-    this.imprint,
-    this.publicationPlace,
-    this.paperType,
-    this.printedBy,
-    this.dustJacket,
-    this.dustJacketCondition,
-    this.firstEdition,
-    this.audiobookAbridged,
-    this.coverPriceCents,
-    this.currency,
-    this.dewey,
-  });
-
-  final int? pageCount;
-  final String? imprint;
-  final String? publicationPlace;
-  final String? paperType;
-  final String? printedBy;
-  final bool? dustJacket;
-  final String? dustJacketCondition;
-  final bool? firstEdition;
-  final bool? audiobookAbridged;
-  final int? coverPriceCents;
-  final String? currency;
-  final String? dewey;
-}
-
+/// One concrete book edition in the shared Catalog Item workspace.
+///
+/// Catalog-level edition facts live on this root. Only printings are contained
+/// children; the model has no Work or Release nodes.
 class BookCatalogItem {
   const BookCatalogItem({
     required this.id,
-    required this.work,
-    required this.publishing,
-    required this.releases,
-    this.catalogMetadata,
-    this.catalogTitle,
-    this.catalogReleaseDate,
-    this.catalogCoverImageUrl,
-    this.catalogThumbnailImageUrl,
+    required this.title,
+    required this.catalogMetadata,
+    this.releaseDate,
+    this.coverImageUrl,
+    this.thumbnailImageUrl,
     this.printings = const [],
   });
 
   static BookCatalogItem fromDto(CatalogItemDto dto) =>
-      BookCatalogMapper.mapDtoToBook(dto);
+      BookCatalogMapper.mapMetadataItemToBook(dto);
 
   final String id;
-  final BookWorkMetadata work;
-  final BookPublishingMetadata publishing;
-  final List<BookRelease> releases;
-  final BookCatalogMetadata? catalogMetadata;
-  final String? catalogTitle;
-  final DateTime? catalogReleaseDate;
-  final String? catalogCoverImageUrl;
-  final String? catalogThumbnailImageUrl;
+  final String title;
+  final BookCatalogMetadata catalogMetadata;
+  final DateTime? releaseDate;
+  final String? coverImageUrl;
+  final String? thumbnailImageUrl;
   final List<BookCatalogPrinting> printings;
 
-  BookRelease? get primaryRelease => releases.isEmpty ? null : releases.first;
-  BookSeriesRef? get series => work.series;
-  String get title => catalogTitle ?? work.title;
-  String? get originalTitle => work.originalTitle;
-  String? get synopsis => work.synopsis;
-  String? get country => work.originalCountry;
-  String? get language => work.originalLanguage;
-  String? get ageRating => null;
-  String? get audienceRating => null;
-  List<Map<String, dynamic>>? get creators =>
-      work.creators.map((c) => {'name': c.name, 'role': c.role}).toList();
-  List<String>? get genres => work.genres;
-  String? get plotSummary => work.synopsis;
-  String? get plotDescription => null;
-  List<BookRelease> get chapters => releases;
-  List<BookRelease> get editions => releases;
-  String? get displayEditionLabel => primaryRelease?.title;
-  List<String>? get characters => work.characters;
-  List<String>? get storyArcs => work.storyArcs;
-  List<TrailerLinkDto>? get trailerUrls => const [];
-  String? get crossover => null;
-  String? get displayCoverUrl =>
-      catalogCoverImageUrl ??
-      _catalogText('cover_image_url') ??
-      primaryRelease?.coverImageUrl;
-  String? get physicalFormatLabel =>
-      _catalogText('physical_format_label') ??
-      _catalogText('physical_format') ??
-      primaryRelease?.physicalFormatLabel;
-  DateTime? get coverDate => releaseDate;
-  DateTime? get releaseDate =>
-      catalogReleaseDate ??
-      _catalogDate('release_date') ??
-      primaryRelease?.releaseDate;
-  int? get releaseYear => releaseDate?.year;
-  String? get barcode =>
-      _catalogText('barcode') ??
-      _catalogText('isbn') ??
-      _catalogText('isbn13') ??
-      _catalogText('isbn10') ??
-      primaryRelease?.upc ??
-      primaryRelease?.isbn;
-  String? get itemNumber => null;
+  String? get originalTitle => catalogMetadata.originalTitle;
+  String? get synopsis => catalogMetadata.synopsis;
+  String? get country => catalogMetadata.country;
+  String? get language => catalogMetadata.language;
   String? get publisher =>
-      _catalogText('publisher') ?? primaryRelease?.publisher;
-  String? get coverImageUrl => displayCoverUrl;
-  String? get thumbnailImageUrl =>
-      catalogThumbnailImageUrl ??
-      _catalogText('thumbnail_image_url') ??
-      primaryRelease?.thumbnailImageUrl ??
-      coverImageUrl;
-  BookOriginalDetails? get originalDetails => BookOriginalDetails(
-        originalTitle: work.originalTitle,
-        originalPublisher: work.originalPublisher,
-        originalLanguage: work.originalLanguage,
-        originalCountry: work.originalCountry,
-        originalPublicationDate: work.originalPublicationDate,
-        originalPublicationPlace: work.originalPublicationPlace,
-        dewey: publishing.dewey,
-      );
-  String get displayTitle => work.title;
-  String? get localizedTitle => null;
-  List<String>? get searchAliases => null;
+      catalogMetadata.publisher ?? catalogMetadata.originalPublisher;
+  String? get seriesTitle =>
+      catalogMetadata.seriesTitle ?? catalogMetadata.series?.seriesTitle;
+  List<String> get authors => catalogMetadata.authors;
+  List<String> get genres => catalogMetadata.genres;
+  List<Map<String, dynamic>> get creatorData => catalogMetadata.creators;
+  List<BookCreatorCredit> get creators => [
+        for (final creator in catalogMetadata.creators)
+          if (_text(creator['name'] ?? creator['display_name'])
+              case final name?)
+            BookCreatorCredit(
+              name: name,
+              role: _text(creator['role'] ?? creator['type']) ?? '',
+              imageUrl: _text(creator['image_url']),
+            ),
+        if (catalogMetadata.creators.isEmpty)
+          for (final author in catalogMetadata.authors)
+            BookCreatorCredit(name: author, role: 'Author'),
+      ];
+  String? get physicalFormatLabel =>
+      catalogMetadata.physicalFormatLabel ?? catalogMetadata.physicalFormat;
+  int? get pageCount =>
+      catalogMetadata.publishing?.pageCount ?? _integer('page_count');
+  String? get imprint =>
+      catalogMetadata.publishing?.imprint ?? _rawText('imprint');
+  String? get barcode =>
+      catalogMetadata.barcode ??
+      _rawText('isbn') ??
+      _rawText('isbn13') ??
+      _rawText('isbn10');
+  String? get itemNumber =>
+      catalogMetadata.itemNumber ?? _rawText('item_number');
+  int? get releaseYear => releaseDate?.year;
+  String? get displayCoverUrl => coverImageUrl ?? _rawText('cover_image_url');
+  String? get displayTitle => title;
+  String? get localizedTitle =>
+      catalogMetadata.rawPayload['localized_title'] as String?;
+  List<String> get searchAliases =>
+      (catalogMetadata.rawPayload['search_aliases'] as List?)
+          ?.whereType<String>()
+          .toList(growable: false) ??
+      const [];
 
-  String? _catalogText(String key) {
-    final value = catalogMetadata?.rawPayload[key]?.toString().trim();
-    return value == null || value.isEmpty ? null : value;
-  }
+  String? _rawText(String key) => _text(catalogMetadata.rawPayload[key]);
 
-  DateTime? _catalogDate(String key) {
-    final value = catalogMetadata?.rawPayload[key];
-    if (value is DateTime) return value;
-    return value == null ? null : DateTime.tryParse(value.toString());
+  int? _integer(String key) {
+    final value = catalogMetadata.rawPayload[key];
+    return value is num ? value.toInt() : int.tryParse(value?.toString() ?? '');
   }
+}
+
+String? _text(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
 }

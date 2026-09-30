@@ -29,8 +29,8 @@ Widget? buildBookAuthorSpotlight({
       .toList(growable: false);
   final resolvedCreators = creators.isNotEmpty
       ? creators
-      : dto.book.work.creators.isNotEmpty
-          ? dto.book.work.creators
+      : dto.book.creators.isNotEmpty
+          ? dto.book.creators
           : (dto.metadata?.authors ?? const <String>[])
               .map((name) => BookCreatorCredit(name: name, role: 'Author'))
               .toList(growable: false);

@@ -1,14 +1,7 @@
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
-import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_adapters.dart';
-import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/owned/book_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
@@ -18,22 +11,9 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../contracts/media_edit_contract.dart';
 import '../../contracts/owned_edit_contract.dart';
 
 void main() {
-  defineMediaEditContract<EditSchema<BookMedia, BookCatalogFormValues>>(
-    name: 'Book',
-    create: () => bookMediaEditSchema,
-    tabIds: (schema) => schema.tabs.map((tab) => tab.id),
-    fieldIds: (schema, tabId) => [
-      for (final tab in schema.tabs)
-        if (tab.id == tabId)
-          for (final section in tab.sections)
-            for (final field in section.fields) field.id,
-    ],
-  );
-
   defineOwnedEditContract<EditSchema<BookOwnedDetails, BookEditDraft>>(
     name: 'Book',
     create: () => bookOwnedEditSchema,
@@ -46,47 +26,8 @@ void main() {
     ],
   );
 
-  test('Book media schema binds canonical fields', () {
-    const original = BookMedia(
-      id: BookMediaId('book-1'),
-      title: 'The Left Hand of Darkness',
-      originalLanguage: 'English',
-      genres: ['Science fiction'],
-    );
-    final values = bookCatalogFormValuesFromMedia(original);
-
-    (_mediaField('genres') as LibraryTextFieldSpec<BookCatalogFormValues>)
-        .setValue(values, 'Science fiction, Fantasy');
-    (_mediaField('original_language')
-            as LibraryTextFieldSpec<BookCatalogFormValues>)
-        .setValue(values, 'German');
-    (_mediaField('title') as LibraryTextFieldSpec<BookCatalogFormValues>)
-        .setValue(values, 'The Left Hand of Darkness Revised');
-    (_mediaField('search_aliases')
-            as LibraryTextFieldSpec<BookCatalogFormValues>)
-        .setValue(values, 'Gender, Society');
-
-    final updated = bookMediaFromCatalogFormValues(
-      original: original,
-      values: values,
-    );
-    expect(updated.title, 'The Left Hand of Darkness Revised');
-    expect(updated.genres, ['Science fiction', 'Fantasy']);
-    expect(updated.originalLanguage, 'German');
-    expect(updated.searchAliases, ['Gender', 'Society']);
-  });
-
-  test('Book media schema rejects invalid values', () {
-    const original = BookMedia(id: BookMediaId('book-1'), title: 'Book');
-    final values = bookCatalogFormValuesFromMedia(original)..title = ' ';
-    expect(
-      bookMediaEditSchema.validate!(original, values),
-      'Book title is required',
-    );
-  });
-
   test('Book ownership schema round trips signed copies and dust jackets', () {
-    final draft = _createMediaDraft(const BookCatalogMetadata(title: 'Book'));
+    final draft = _createBookDraft(const BookCatalogMetadata(title: 'Book'));
     addTearDown(draft.dispose);
 
     draft.signedBy = 'Ursula K. Le Guin';
@@ -111,64 +52,9 @@ void main() {
     );
     expect(condition.isVisible(draft), isTrue);
   });
-
-  test('Book edition schema edits a typed release without video fields', () {
-    final original = BookRelease(
-      id: 'edition-1',
-      title: 'Collector edition',
-      workId: 'work-1',
-      publisher: 'Old Publisher',
-      isbn: '9780000000001',
-      pageCount: 320,
-      releaseDate: DateTime(2020, 1, 1),
-      physicalFormatLabel: 'Hardcover',
-    );
-    final values = bookCatalogFormValuesFromRelease(original);
-
-    final format = _editionField('format')
-        as LibraryVocabularyFieldSpec<BookCatalogFormValues, String>;
-    expect(
-      format.options.map((option) => option.value),
-      BookVocabularies.format.builtIns,
-    );
-    (_editionField('publisher')
-            as LibraryVocabularyFieldSpec<BookCatalogFormValues, String>)
-        .setValue(values, 'New Publisher');
-    (_editionField('page_count')
-            as LibraryNumberFieldSpec<BookCatalogFormValues>)
-        .setValue(values, 352);
-    format.setValue(values, 'Trade Paperback');
-    (_editionField('release_date')
-            as LibraryDateFieldSpec<BookCatalogFormValues>)
-        .setValue(values, DateTime(2026, 4, 12));
-
-    final updated = bookReleaseFromCatalogFormValues(
-      original: original,
-      values: values,
-    );
-    expect(updated.id, 'edition-1');
-    expect(updated.workId, 'work-1');
-    expect(updated.publisher, 'New Publisher');
-    expect(updated.pageCount, 352);
-    expect(updated.physicalFormatLabel, 'Trade Paperback');
-    expect(updated.releaseDate, DateTime(2026, 4, 12));
-    expect(
-      bookEditionEditSchema.validate!(original, values),
-      isNull,
-    );
-    expect(
-      bookEditionEditSchema.tabs
-          .expand((tab) => tab.sections)
-          .expand(
-            (section) => section.fields,
-          )
-          .any((field) => field.id == 'season'),
-      isFalse,
-    );
-  });
 }
 
-BookEditDraft _createMediaDraft(BookCatalogMetadata metadata) {
+BookEditDraft _createBookDraft(BookCatalogMetadata metadata) {
   return createBookEditDraft(
     item: _bookItem(metadata),
     textControllers: TextControllerGroup(),
@@ -189,27 +75,9 @@ CatalogSearchCandidate _bookItem([
   );
 }
 
-LibraryFieldSpec<BookCatalogFormValues> _mediaField(String id) {
-  return [
-    for (final tab in bookMediaEditSchema.tabs)
-      for (final section in tab.sections)
-        for (final field in section.fields)
-          if (field.id == id) field,
-  ].single;
-}
-
 LibraryFieldSpec<BookEditDraft> _ownedField(String id) {
   return [
     for (final tab in bookOwnedEditSchema.tabs)
-      for (final section in tab.sections)
-        for (final field in section.fields)
-          if (field.id == id) field,
-  ].single;
-}
-
-LibraryFieldSpec<BookCatalogFormValues> _editionField(String id) {
-  return [
-    for (final tab in bookEditionEditSchema.tabs)
       for (final section in tab.sections)
         for (final field in section.fields)
           if (field.id == id) field,

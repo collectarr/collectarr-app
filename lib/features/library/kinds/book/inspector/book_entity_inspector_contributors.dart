@@ -25,23 +25,6 @@ Widget buildBookWorkInspectorHero(
   );
 }
 
-Widget buildBookReleaseInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return LibraryDetailHero(
-    type: request.type,
-    item: request.item,
-    ownedItem: request.ownedItem,
-    ownedCopies: request.ownedCopies,
-    accent: request.accent,
-    kindOwnedContent: buildBookAuthorSpotlight(
-      item: request.item,
-      accent: request.accent,
-    ),
-  );
-}
-
 Widget buildBookCopyInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
@@ -68,20 +51,6 @@ List<Widget> buildBookWorkInspectorSections(
   return const BookLibraryMediaPresentationBuilder(
     showSummary: true,
     showVolumeHierarchy: true,
-    showPersonalDetails: false,
-  ).buildInspectorSections(
-    context: context,
-    item: request.item,
-    accent: request.accent,
-    onFilterByValue: request.onFilterByValue,
-  );
-}
-
-List<Widget> buildBookReleaseInspectorSections(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return const BookLibraryMediaPresentationBuilder(
     showPersonalDetails: false,
   ).buildInspectorSections(
     context: context,

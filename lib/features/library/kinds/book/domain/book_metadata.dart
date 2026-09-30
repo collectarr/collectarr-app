@@ -1,295 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-
-@immutable
-class AudiobookDetails {
-  const AudiobookDetails({
-    this.narrator,
-    this.durationMinutes,
-    this.isAbridged = false,
-  });
-
-  final String? narrator;
-  final int? durationMinutes;
-  final bool isAbridged;
-
-  Map<String, dynamic> toJson() => {
-        if (narrator != null) 'narrator': narrator,
-        if (durationMinutes != null) 'duration_minutes': durationMinutes,
-        if (isAbridged) 'is_abridged': true,
-      };
-
-  factory AudiobookDetails.fromJson(Map<String, dynamic> json) {
-    return AudiobookDetails(
-      narrator: json['narrator'] as String?,
-      durationMinutes: json['duration_minutes'] as int?,
-      isAbridged: json['is_abridged'] as bool? ?? false,
-    );
-  }
-}
-
-@immutable
-class BookEditionMetadata {
-  const BookEditionMetadata({
-    required this.id,
-    required this.title,
-    this.isbn,
-    this.format,
-    this.physicalFormatLabel,
-    this.binding,
-    this.publisher,
-    this.distributor,
-    this.description,
-    this.editionStatement,
-    this.ageRating,
-    this.contributors = const [],
-    this.identifiers = const [],
-    this.upc,
-    this.imprint,
-    this.publicationDate,
-    this.editionCountry,
-    this.editionLanguage,
-    this.pageCount,
-    this.heightMm,
-    this.widthMm,
-    this.printing,
-    this.firstEdition = false,
-    this.dimensions,
-    this.coverImageKey,
-    this.coverImageUrl,
-    this.thumbnailImageUrl,
-    this.audioLengthMinutes,
-    this.releaseStatus,
-    this.variants = const [],
-    this.numberLine,
-    this.printedBy,
-    this.paperType,
-    this.locClassification,
-    this.locControlNumber,
-    this.dewey,
-    this.boxSetName,
-    this.audiobook,
-  });
-
-  factory BookEditionMetadata.fromRelease(BookRelease release) {
-    return BookEditionMetadata(
-      id: release.id,
-      title: release.title,
-      isbn: release.isbn,
-      format: release.physicalFormat,
-      physicalFormatLabel: release.physicalFormatLabel,
-      binding: release.binding,
-      publisher: release.publisher,
-      distributor: release.distributor,
-      description: release.description,
-      editionStatement: release.editionStatement,
-      ageRating: release.ageRating,
-      contributors: release.contributors,
-      identifiers: release.identifiers,
-      upc: release.upc,
-      imprint: release.imprint,
-      publicationDate: release.releaseDate,
-      editionCountry: release.region,
-      editionLanguage: release.language,
-      pageCount: release.pageCount,
-      dimensions: release.dimensions,
-      firstEdition: release.firstEdition ?? false,
-      coverImageKey: release.coverImageKey,
-      coverImageUrl: release.coverImageUrl,
-      thumbnailImageUrl: release.thumbnailImageUrl,
-      audioLengthMinutes: release.audioLengthMinutes,
-      releaseStatus: release.releaseStatus,
-      variants: release.variants,
-    );
-  }
-
-  final String id;
-  final String title;
-  final String? isbn;
-  final String? format;
-  final String? physicalFormatLabel;
-  final String? binding;
-  final String? publisher;
-  final String? distributor;
-  final String? description;
-  final String? editionStatement;
-  final String? ageRating;
-  final List<dynamic> contributors;
-  final List<dynamic> identifiers;
-  final String? upc;
-  final String? imprint;
-  final DateTime? publicationDate;
-  final String? editionCountry;
-  final String? editionLanguage;
-  final int? pageCount;
-  final int? heightMm;
-  final int? widthMm;
-  final String? printing;
-  final bool firstEdition;
-  final String? numberLine;
-  final String? printedBy;
-  final String? paperType;
-  final String? locClassification;
-  final String? locControlNumber;
-  final String? dewey;
-  final String? boxSetName;
-  final AudiobookDetails? audiobook;
-  final String? dimensions;
-  final String? coverImageKey;
-  final String? coverImageUrl;
-  final String? thumbnailImageUrl;
-  final int? audioLengthMinutes;
-  final String? releaseStatus;
-  final List<BookVariantRef> variants;
-
-  bool get isAudiobook =>
-      format?.toLowerCase().contains('audio') == true || audiobook != null;
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        if (isbn != null) 'isbn': isbn,
-        if (format != null) 'format': format,
-        if (physicalFormatLabel != null)
-          'physical_format_label': physicalFormatLabel,
-        if (binding != null) 'binding': binding,
-        if (publisher != null) 'publisher': publisher,
-        if (distributor != null) 'distributor': distributor,
-        if (description != null) 'description': description,
-        if (editionStatement != null) 'edition_statement': editionStatement,
-        if (ageRating != null) 'age_rating': ageRating,
-        if (contributors.isNotEmpty) 'contributors': contributors,
-        if (identifiers.isNotEmpty) 'identifiers': identifiers,
-        if (upc != null) 'upc': upc,
-        if (imprint != null) 'imprint': imprint,
-        if (publicationDate != null)
-          'publication_date': publicationDate!.toIso8601String(),
-        if (editionCountry != null) 'edition_country': editionCountry,
-        if (editionLanguage != null) 'edition_language': editionLanguage,
-        if (pageCount != null) 'page_count': pageCount,
-        if (heightMm != null) 'height_mm': heightMm,
-        if (widthMm != null) 'width_mm': widthMm,
-        if (printing != null) 'printing': printing,
-        if (firstEdition) 'first_edition': true,
-        if (numberLine != null) 'number_line': numberLine,
-        if (printedBy != null) 'printed_by': printedBy,
-        if (paperType != null) 'paper_type': paperType,
-        if (locClassification != null) 'loc_classification': locClassification,
-        if (locControlNumber != null) 'loc_control_number': locControlNumber,
-        if (dewey != null) 'dewey': dewey,
-        if (boxSetName != null) 'box_set_name': boxSetName,
-        if (audiobook != null) 'audiobook': audiobook!.toJson(),
-        if (dimensions != null) 'dimensions': dimensions,
-        if (coverImageKey != null) 'cover_image_key': coverImageKey,
-        if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
-        if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
-        if (audioLengthMinutes != null)
-          'audio_length_minutes': audioLengthMinutes,
-        if (releaseStatus != null) 'release_status': releaseStatus,
-        if (variants.isNotEmpty)
-          'variants': variants
-              .map((variant) => {
-                    'id': variant.id,
-                    'name': variant.name,
-                    if (variant.variantType != null)
-                      'variant_type': variant.variantType,
-                    if (variant.sku != null) 'sku': variant.sku,
-                    if (variant.barcode != null) 'barcode': variant.barcode,
-                    if (variant.isbn != null) 'isbn': variant.isbn,
-                    if (variant.region != null) 'region': variant.region,
-                    if (variant.coverImageUrl != null)
-                      'cover_image_url': variant.coverImageUrl,
-                    if (variant.thumbnailImageUrl != null)
-                      'thumbnail_image_url': variant.thumbnailImageUrl,
-                    if (variant.physicalFormat != null)
-                      'physical_format': variant.physicalFormat,
-                    if (variant.physicalFormatLabel != null)
-                      'physical_format_label': variant.physicalFormatLabel,
-                    if (variant.isPrimary) 'is_primary': true,
-                  })
-              .toList(),
-      };
-
-  factory BookEditionMetadata.fromJson(Map<String, dynamic> json) {
-    return BookEditionMetadata(
-      id: json['id'] as String? ?? '',
-      title: json['title'] as String? ?? '',
-      isbn: json['isbn'] as String?,
-      format: json['format'] as String?,
-      physicalFormatLabel: json['physical_format_label'] as String?,
-      binding: json['binding'] as String?,
-      publisher: json['publisher'] as String?,
-      distributor: json['distributor'] as String?,
-      description: json['description'] as String?,
-      editionStatement: json['edition_statement'] as String?,
-      ageRating: json['age_rating'] as String?,
-      contributors: _list(json['contributors']),
-      identifiers: _list(json['identifiers']),
-      upc: json['upc'] as String?,
-      imprint: json['imprint'] as String?,
-      publicationDate: json['publication_date'] != null
-          ? DateTime.tryParse(json['publication_date'] as String)
-          : null,
-      editionCountry: json['edition_country'] as String?,
-      editionLanguage: json['edition_language'] as String?,
-      pageCount: json['page_count'] as int?,
-      heightMm: json['height_mm'] as int?,
-      widthMm: json['width_mm'] as int?,
-      printing: json['printing'] as String?,
-      firstEdition: json['first_edition'] as bool? ?? false,
-      numberLine: json['number_line'] as String?,
-      printedBy: json['printed_by'] as String?,
-      paperType: json['paper_type'] as String?,
-      locClassification: json['loc_classification'] as String?,
-      locControlNumber: json['loc_control_number'] as String?,
-      dewey: json['dewey'] as String?,
-      boxSetName: json['box_set_name'] as String?,
-      audiobook: json['audiobook'] != null
-          ? AudiobookDetails.fromJson(json['audiobook'] as Map<String, dynamic>)
-          : null,
-      dimensions: json['dimensions'] as String?,
-      coverImageKey: json['cover_image_key'] as String?,
-      coverImageUrl: json['cover_image_url'] as String?,
-      thumbnailImageUrl: json['thumbnail_image_url'] as String?,
-      audioLengthMinutes: _intValue(json['audio_length_minutes']),
-      releaseStatus: json['release_status'] as String?,
-      variants: _variants(json['variants']),
-    );
-  }
-
-  static int? _intValue(Object? value) {
-    if (value is num) return value.toInt();
-    return int.tryParse(value?.toString() ?? '');
-  }
-
-  static List<dynamic> _list(Object? value) {
-    return value is List ? List<dynamic>.from(value) : const <dynamic>[];
-  }
-
-  static List<BookVariantRef> _variants(Object? value) {
-    if (value is! List) return const <BookVariantRef>[];
-    return [
-      for (final entry in value)
-        if (entry is Map<Object?, Object?>)
-          BookVariantRef(
-            id: entry['id']?.toString() ?? '',
-            name: entry['name']?.toString() ?? 'Variant',
-            variantType: entry['variant_type']?.toString(),
-            sku: entry['sku']?.toString(),
-            barcode: entry['barcode']?.toString(),
-            isbn: entry['isbn']?.toString(),
-            region: entry['region']?.toString(),
-            coverImageUrl: entry['cover_image_url']?.toString(),
-            thumbnailImageUrl: entry['thumbnail_image_url']?.toString(),
-            physicalFormat: entry['physical_format']?.toString(),
-            physicalFormatLabel: entry['physical_format_label']?.toString(),
-            isPrimary: entry['is_primary'] == true,
-          ),
-    ];
-  }
-}
 
 @immutable
 class BookCatalogMetadata implements JsonEncodable {
@@ -319,7 +30,6 @@ class BookCatalogMetadata implements JsonEncodable {
     this.creators = const [],
     this.publishing,
     this.links = const [],
-    this.editions = const [],
     this.publisher,
     this.barcode,
     this.variant,
@@ -361,7 +71,6 @@ class BookCatalogMetadata implements JsonEncodable {
   final List<Map<String, dynamic>> creators;
   final CatalogPublishingDetailsDto? publishing;
   final List<TrailerLinkDto> links;
-  final List<BookEditionMetadata> editions;
   final String? publisher;
   final String? barcode;
   final String? variant;
@@ -435,8 +144,6 @@ class BookCatalogMetadata implements JsonEncodable {
               .map((e) => e.toJson())
               .toList(),
       },
-      if (editions.isNotEmpty)
-        'editions': editions.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -466,7 +173,6 @@ class BookCatalogMetadata implements JsonEncodable {
     List<Map<String, dynamic>>? creators,
     CatalogPublishingDetailsDto? publishing,
     List<TrailerLinkDto>? links,
-    List<BookEditionMetadata>? editions,
     String? publisher,
     String? barcode,
     String? variant,
@@ -505,7 +211,6 @@ class BookCatalogMetadata implements JsonEncodable {
       creators: creators ?? this.creators,
       publishing: publishing ?? this.publishing,
       links: links ?? this.links,
-      editions: editions ?? this.editions,
       publisher: publisher ?? this.publisher,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
@@ -608,11 +313,6 @@ class BookCatalogMetadata implements JsonEncodable {
       creators: rawCreators,
       publishing: publishing,
       links: rawLinks,
-      editions: (json['editions'] as List<dynamic>?)
-              ?.map((e) =>
-                  BookEditionMetadata.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
       publisher: (json['publisher'] ??
           publishing.originalPublisher ??
           json['original_publisher']) as String?,

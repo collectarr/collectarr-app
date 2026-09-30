@@ -29,35 +29,31 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
   String? get currency => common.currency;
 
   // Domain convenience getters:
-  int? get pageCount =>
-      metadata?.publishing?.pageCount ?? book.publishing.pageCount;
-  String? get imprint =>
-      metadata?.publishing?.imprint ?? book.publishing.imprint;
+  int? get pageCount => _catalog.publishing?.pageCount ?? book.pageCount;
+  String? get imprint => _catalog.publishing?.imprint ?? book.imprint;
   String? get author =>
-      metadata?.authors.firstOrNull ?? book.work.creators.firstOrNull?.name;
-  String? get publisher => metadata?.publisher ?? metadata?.originalPublisher;
-  String? get itemNumber =>
-      metadata?.itemNumber ?? metadata?.rawPayload['item_number']?.toString();
-  String? get seriesTitle => metadata?.seriesTitle ?? book.series?.seriesTitle;
+      _catalog.authors.firstOrNull ?? book.creators.firstOrNull?.name;
+  String? get publisher => book.publisher;
+  String? get itemNumber => _catalog.itemNumber ?? book.itemNumber;
+  String? get seriesTitle => book.seriesTitle;
   DateTime? get releaseDate => common.releaseDate;
-  String? get country => metadata?.country;
-  String? get language => metadata?.language;
-  String? get variant => metadata?.variant;
+  String? get country => book.country;
+  String? get language => book.language;
+  String? get variant => _rawText('variant');
   String? get isbn =>
       _rawText('isbn') ??
       _rawText('isbn13') ??
       _rawText('isbn10') ??
-      metadata?.barcode;
+      book.barcode;
   String? get identifierCode => isbn;
   String? get barcode => identifierCode;
-  String? get subtitle => metadata?.subtitle;
-  String? get format =>
-      metadata?.physicalFormatLabel ?? metadata?.physicalFormat;
+  String? get subtitle => _catalog.subtitle;
+  String? get format => book.physicalFormatLabel;
   String? get referenceFormatLabel => format;
-  String? get translator => metadata?.translators.firstOrNull;
-  String? get editor => metadata?.editors.firstOrNull;
-  String? get illustrator => metadata?.illustrators.firstOrNull;
-  String? get coverArtist => metadata?.coverArtists.firstOrNull;
+  String? get translator => _catalog.translators.firstOrNull;
+  String? get editor => _catalog.editors.firstOrNull;
+  String? get illustrator => _catalog.illustrators.firstOrNull;
+  String? get coverArtist => _catalog.coverArtists.firstOrNull;
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,
@@ -70,8 +66,10 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
       ];
 
   String? _rawText(String key) {
-    final value = metadata?.rawPayload[key];
+    final value = _catalog.rawPayload[key];
     final text = value?.toString().trim();
     return text == null || text.isEmpty ? null : text;
   }
+
+  BookCatalogMetadata get _catalog => metadata ?? book.catalogMetadata;
 }

@@ -64,9 +64,16 @@ void main() {
       personal: PersonalCopyProjection(),
       book: BookCatalogItem(
         id: 'book-1',
-        work: BookWorkMetadata(title: 'Dune'),
-        publishing: const BookPublishingMetadata(),
-        releases: [],
+        title: 'Dune',
+        catalogMetadata: BookCatalogMetadata(
+          title: 'Dune',
+          authors: ['Frank Herbert'],
+          genres: ['Science Fiction'],
+          subjects: ['Politics'],
+          translators: ['Ion Hobana'],
+          publisher: 'Ace',
+          physicalFormatLabel: 'Hardcover',
+        ),
       ),
       metadata: BookCatalogMetadata(
         title: 'Dune',
@@ -74,14 +81,8 @@ void main() {
         genres: ['Science Fiction'],
         subjects: ['Politics'],
         translators: ['Ion Hobana'],
-        editions: [
-          BookEditionMetadata(
-            id: 'edition-1',
-            title: 'Dune',
-            format: 'Hardcover',
-            publisher: 'Ace',
-          ),
-        ],
+        publisher: 'Ace',
+        physicalFormatLabel: 'Hardcover',
       ),
     );
 

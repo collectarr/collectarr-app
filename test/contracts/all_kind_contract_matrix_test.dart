@@ -49,7 +49,6 @@ void main() {
       kind: CatalogMediaKind.book,
       workspace: bookKindWorkspace,
       contractFiles: const [
-        'test/domain/book/book_core_mapper_test.dart',
         'test/domain/book/book_owned_item_local_mapper_test.dart',
         'test/features/catalog/catalog_cache_repository_test.dart',
         'test/domain/book/book_add_schema_test.dart',
