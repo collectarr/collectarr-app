@@ -167,7 +167,6 @@ class MusicTrackRows extends Table {
   TextColumn get position => text()();
   TextColumn get title => text()();
   TextColumn get artist => text().nullable()();
-  TextColumn get recordingId => text().nullable()();
   IntColumn get durationMs => integer().nullable()();
   IntColumn get offsetMs => integer().nullable()();
   IntColumn get bitrateKbps => integer().nullable()();

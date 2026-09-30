@@ -50,8 +50,6 @@ void main() {
     expect(restoredRelease?.mediums.single.id, medium.id);
     expect(
         restoredRelease?.mediums.single.tracks.single.title, 'In the Flesh?');
-    expect(restoredRelease?.mediums.single.tracks.single.recordingId,
-        'recording-1');
     expect(restoredRelease?.tracks.single.durationMs, 187000);
     expect((await repository.search('floyd')).single.id, release.id);
     expect((await repository.searchReleaseGroups('floyd')).single.id, group.id);
@@ -282,7 +280,6 @@ MusicReleaseGroup _group() {
                 mediumId: MusicMediumId('medium-1'),
                 position: 'A1',
                 title: 'In the Flesh?',
-                recordingId: 'recording-1',
                 durationMs: 187000,
               ),
             ],

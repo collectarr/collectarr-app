@@ -43286,12 +43286,6 @@ class $MusicTrackRowsTable extends MusicTrackRows
   late final GeneratedColumn<String> artist = GeneratedColumn<String>(
       'artist', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _recordingIdMeta =
-      const VerificationMeta('recordingId');
-  @override
-  late final GeneratedColumn<String> recordingId = GeneratedColumn<String>(
-      'recording_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _durationMsMeta =
       const VerificationMeta('durationMs');
   @override
@@ -43377,7 +43371,6 @@ class $MusicTrackRowsTable extends MusicTrackRows
         position,
         title,
         artist,
-        recordingId,
         durationMs,
         offsetMs,
         bitrateKbps,
@@ -43427,12 +43420,6 @@ class $MusicTrackRowsTable extends MusicTrackRows
     if (data.containsKey('artist')) {
       context.handle(_artistMeta,
           artist.isAcceptableOrUnknown(data['artist']!, _artistMeta));
-    }
-    if (data.containsKey('recording_id')) {
-      context.handle(
-          _recordingIdMeta,
-          recordingId.isAcceptableOrUnknown(
-              data['recording_id']!, _recordingIdMeta));
     }
     if (data.containsKey('duration_ms')) {
       context.handle(
@@ -43519,8 +43506,6 @@ class $MusicTrackRowsTable extends MusicTrackRows
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       artist: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}artist']),
-      recordingId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}recording_id']),
       durationMs: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}duration_ms']),
       offsetMs: attachedDatabase.typeMapping
@@ -43560,7 +43545,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
   final String position;
   final String title;
   final String? artist;
-  final String? recordingId;
   final int? durationMs;
   final int? offsetMs;
   final int? bitrateKbps;
@@ -43579,7 +43563,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       required this.position,
       required this.title,
       this.artist,
-      this.recordingId,
       this.durationMs,
       this.offsetMs,
       this.bitrateKbps,
@@ -43601,9 +43584,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
     map['title'] = Variable<String>(title);
     if (!nullToAbsent || artist != null) {
       map['artist'] = Variable<String>(artist);
-    }
-    if (!nullToAbsent || recordingId != null) {
-      map['recording_id'] = Variable<String>(recordingId);
     }
     if (!nullToAbsent || durationMs != null) {
       map['duration_ms'] = Variable<int>(durationMs);
@@ -43644,9 +43624,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       title: Value(title),
       artist:
           artist == null && nullToAbsent ? const Value.absent() : Value(artist),
-      recordingId: recordingId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(recordingId),
       durationMs: durationMs == null && nullToAbsent
           ? const Value.absent()
           : Value(durationMs),
@@ -43687,7 +43664,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       position: serializer.fromJson<String>(json['position']),
       title: serializer.fromJson<String>(json['title']),
       artist: serializer.fromJson<String?>(json['artist']),
-      recordingId: serializer.fromJson<String?>(json['recordingId']),
       durationMs: serializer.fromJson<int?>(json['durationMs']),
       offsetMs: serializer.fromJson<int?>(json['offsetMs']),
       bitrateKbps: serializer.fromJson<int?>(json['bitrateKbps']),
@@ -43711,7 +43687,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       'position': serializer.toJson<String>(position),
       'title': serializer.toJson<String>(title),
       'artist': serializer.toJson<String?>(artist),
-      'recordingId': serializer.toJson<String?>(recordingId),
       'durationMs': serializer.toJson<int?>(durationMs),
       'offsetMs': serializer.toJson<int?>(offsetMs),
       'bitrateKbps': serializer.toJson<int?>(bitrateKbps),
@@ -43733,7 +43708,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           String? position,
           String? title,
           Value<String?> artist = const Value.absent(),
-          Value<String?> recordingId = const Value.absent(),
           Value<int?> durationMs = const Value.absent(),
           Value<int?> offsetMs = const Value.absent(),
           Value<int?> bitrateKbps = const Value.absent(),
@@ -43752,7 +43726,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
         position: position ?? this.position,
         title: title ?? this.title,
         artist: artist.present ? artist.value : this.artist,
-        recordingId: recordingId.present ? recordingId.value : this.recordingId,
         durationMs: durationMs.present ? durationMs.value : this.durationMs,
         offsetMs: offsetMs.present ? offsetMs.value : this.offsetMs,
         bitrateKbps: bitrateKbps.present ? bitrateKbps.value : this.bitrateKbps,
@@ -43775,8 +43748,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       position: data.position.present ? data.position.value : this.position,
       title: data.title.present ? data.title.value : this.title,
       artist: data.artist.present ? data.artist.value : this.artist,
-      recordingId:
-          data.recordingId.present ? data.recordingId.value : this.recordingId,
       durationMs:
           data.durationMs.present ? data.durationMs.value : this.durationMs,
       offsetMs: data.offsetMs.present ? data.offsetMs.value : this.offsetMs,
@@ -43809,7 +43780,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           ..write('position: $position, ')
           ..write('title: $title, ')
           ..write('artist: $artist, ')
-          ..write('recordingId: $recordingId, ')
           ..write('durationMs: $durationMs, ')
           ..write('offsetMs: $offsetMs, ')
           ..write('bitrateKbps: $bitrateKbps, ')
@@ -43833,7 +43803,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       position,
       title,
       artist,
-      recordingId,
       durationMs,
       offsetMs,
       bitrateKbps,
@@ -43855,7 +43824,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           other.position == this.position &&
           other.title == this.title &&
           other.artist == this.artist &&
-          other.recordingId == this.recordingId &&
           other.durationMs == this.durationMs &&
           other.offsetMs == this.offsetMs &&
           other.bitrateKbps == this.bitrateKbps &&
@@ -43876,7 +43844,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
   final Value<String> position;
   final Value<String> title;
   final Value<String?> artist;
-  final Value<String?> recordingId;
   final Value<int?> durationMs;
   final Value<int?> offsetMs;
   final Value<int?> bitrateKbps;
@@ -43896,7 +43863,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     this.position = const Value.absent(),
     this.title = const Value.absent(),
     this.artist = const Value.absent(),
-    this.recordingId = const Value.absent(),
     this.durationMs = const Value.absent(),
     this.offsetMs = const Value.absent(),
     this.bitrateKbps = const Value.absent(),
@@ -43917,7 +43883,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     required String position,
     required String title,
     this.artist = const Value.absent(),
-    this.recordingId = const Value.absent(),
     this.durationMs = const Value.absent(),
     this.offsetMs = const Value.absent(),
     this.bitrateKbps = const Value.absent(),
@@ -43943,7 +43908,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     Expression<String>? position,
     Expression<String>? title,
     Expression<String>? artist,
-    Expression<String>? recordingId,
     Expression<int>? durationMs,
     Expression<int>? offsetMs,
     Expression<int>? bitrateKbps,
@@ -43964,7 +43928,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
       if (position != null) 'position': position,
       if (title != null) 'title': title,
       if (artist != null) 'artist': artist,
-      if (recordingId != null) 'recording_id': recordingId,
       if (durationMs != null) 'duration_ms': durationMs,
       if (offsetMs != null) 'offset_ms': offsetMs,
       if (bitrateKbps != null) 'bitrate_kbps': bitrateKbps,
@@ -43987,7 +43950,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
       Value<String>? position,
       Value<String>? title,
       Value<String?>? artist,
-      Value<String?>? recordingId,
       Value<int?>? durationMs,
       Value<int?>? offsetMs,
       Value<int?>? bitrateKbps,
@@ -44007,7 +43969,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
       position: position ?? this.position,
       title: title ?? this.title,
       artist: artist ?? this.artist,
-      recordingId: recordingId ?? this.recordingId,
       durationMs: durationMs ?? this.durationMs,
       offsetMs: offsetMs ?? this.offsetMs,
       bitrateKbps: bitrateKbps ?? this.bitrateKbps,
@@ -44041,9 +44002,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     }
     if (artist.present) {
       map['artist'] = Variable<String>(artist.value);
-    }
-    if (recordingId.present) {
-      map['recording_id'] = Variable<String>(recordingId.value);
     }
     if (durationMs.present) {
       map['duration_ms'] = Variable<int>(durationMs.value);
@@ -44095,7 +44053,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
           ..write('position: $position, ')
           ..write('title: $title, ')
           ..write('artist: $artist, ')
-          ..write('recordingId: $recordingId, ')
           ..write('durationMs: $durationMs, ')
           ..write('offsetMs: $offsetMs, ')
           ..write('bitrateKbps: $bitrateKbps, ')
@@ -76462,7 +76419,6 @@ typedef $$MusicTrackRowsTableCreateCompanionBuilder = MusicTrackRowsCompanion
   required String position,
   required String title,
   Value<String?> artist,
-  Value<String?> recordingId,
   Value<int?> durationMs,
   Value<int?> offsetMs,
   Value<int?> bitrateKbps,
@@ -76484,7 +76440,6 @@ typedef $$MusicTrackRowsTableUpdateCompanionBuilder = MusicTrackRowsCompanion
   Value<String> position,
   Value<String> title,
   Value<String?> artist,
-  Value<String?> recordingId,
   Value<int?> durationMs,
   Value<int?> offsetMs,
   Value<int?> bitrateKbps,
@@ -76523,9 +76478,6 @@ class $$MusicTrackRowsTableFilterComposer
 
   ColumnFilters<String> get artist => $composableBuilder(
       column: $table.artist, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get recordingId => $composableBuilder(
-      column: $table.recordingId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get durationMs => $composableBuilder(
       column: $table.durationMs, builder: (column) => ColumnFilters(column));
@@ -76589,9 +76541,6 @@ class $$MusicTrackRowsTableOrderingComposer
   ColumnOrderings<String> get artist => $composableBuilder(
       column: $table.artist, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get recordingId => $composableBuilder(
-      column: $table.recordingId, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<int> get durationMs => $composableBuilder(
       column: $table.durationMs, builder: (column) => ColumnOrderings(column));
 
@@ -76654,9 +76603,6 @@ class $$MusicTrackRowsTableAnnotationComposer
 
   GeneratedColumn<String> get artist =>
       $composableBuilder(column: $table.artist, builder: (column) => column);
-
-  GeneratedColumn<String> get recordingId => $composableBuilder(
-      column: $table.recordingId, builder: (column) => column);
 
   GeneratedColumn<int> get durationMs => $composableBuilder(
       column: $table.durationMs, builder: (column) => column);
@@ -76727,7 +76673,6 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             Value<String> position = const Value.absent(),
             Value<String> title = const Value.absent(),
             Value<String?> artist = const Value.absent(),
-            Value<String?> recordingId = const Value.absent(),
             Value<int?> durationMs = const Value.absent(),
             Value<int?> offsetMs = const Value.absent(),
             Value<int?> bitrateKbps = const Value.absent(),
@@ -76748,7 +76693,6 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             position: position,
             title: title,
             artist: artist,
-            recordingId: recordingId,
             durationMs: durationMs,
             offsetMs: offsetMs,
             bitrateKbps: bitrateKbps,
@@ -76769,7 +76713,6 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             required String position,
             required String title,
             Value<String?> artist = const Value.absent(),
-            Value<String?> recordingId = const Value.absent(),
             Value<int?> durationMs = const Value.absent(),
             Value<int?> offsetMs = const Value.absent(),
             Value<int?> bitrateKbps = const Value.absent(),
@@ -76790,7 +76733,6 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             position: position,
             title: title,
             artist: artist,
-            recordingId: recordingId,
             durationMs: durationMs,
             offsetMs: offsetMs,
             bitrateKbps: bitrateKbps,

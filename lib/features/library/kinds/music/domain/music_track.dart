@@ -10,7 +10,6 @@ final class MusicTrack {
     required this.position,
     required this.title,
     this.artist,
-    this.recordingId,
     this.composition,
     this.durationMs,
     this.offsetMs,
@@ -36,7 +35,6 @@ final class MusicTrack {
   /// Track-level artist credit. The Music mapper reads it at the Core
   /// transport boundary and preserves it in Music-owned persistence.
   final String? artist;
-  final String? recordingId;
   final String? composition;
   final int? durationMs;
   final int? offsetMs;
@@ -64,9 +62,6 @@ final class MusicTrack {
         position: _text(json['position']) ?? '',
         title: _text(json['title']) ?? 'Track',
         artist: _text(json['artist']),
-        recordingId: _text(
-          (json['recording'] as Map?)?['id'] ?? json['recording_id'],
-        ),
         composition: _text(json['composition']),
         durationMs: _int(json['duration_ms']),
         offsetMs: _int(json['offset_ms']),
@@ -90,7 +85,6 @@ final class MusicTrack {
         'position': position,
         'title': title,
         if (artist != null) 'artist': artist,
-        if (recordingId != null) 'recording_id': recordingId,
         if (composition != null) 'composition': composition,
         if (durationMs != null) 'duration_ms': durationMs,
         if (offsetMs != null) 'offset_ms': offsetMs,

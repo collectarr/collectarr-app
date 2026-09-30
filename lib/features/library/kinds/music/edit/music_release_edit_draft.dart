@@ -519,7 +519,6 @@ MusicTrack musicTrackWithEdits(
     position: position.trim(),
     title: title.trim().isEmpty ? 'Untitled track' : title.trim(),
     artist: _text(artist),
-    recordingId: source.recordingId,
     composition: source.composition,
     durationMs: durationMs,
     offsetMs: source.offsetMs,
