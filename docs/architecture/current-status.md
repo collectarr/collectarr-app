@@ -74,29 +74,32 @@ Catalog Item or Owned Copy identities.
 
 Catalog transport now writes every Core item into a shared Drift cache keyed
 by `(kind, item_id)`. Snapshot reads and batched reference hydration use this
-flat cache. Movie and Music use it as their only local catalog store. The
-remaining seven per-kind repositories are still dual-written because
-unconverted screens depend on them. The old non-Music tables remain registered
-until their active callers move to the flat cache.
+flat cache. Book, Movie, and Music use it as their only active catalog store.
+The other six per-kind repositories are still dual-written because
+unconverted screens depend on them. The old Book media and release tables
+remain registered for schema cleanup, but Book catalog reads and writes no
+longer use them.
 Book calendar events now read each concrete item's release date from this cache
 instead of loading a `BookMedia` row from the old per-kind table. The Book
 barcode/ISBN lookup also reads root identifiers and contained printing ISBNs
 from the cache. The Book workspace now exposes one combined Catalog Item field
 and column schema; it no longer registers a separate Release workspace or
 fetches nested volumes for browsing. The generic workspace registry still maps
-that root through its transitional `work` scope, and Book edit/storage readers
-still use the old `BookMedia` tables. The Book field ledger remains provisional
-until its Edit-form capture is available.
+that root through its transitional `work` scope. Book's Edit adapters still
+contain legacy `BookMedia` and `BookRelease` models, while owned-copy state
+continues to use its separate App-owned tables. The Book field ledger remains
+provisional until its Edit-form capture is available.
 
 Music-owned copies created through Add target the concrete Music Catalog Item
 directly and persist only that `catalog_ref`; they do not carry a redundant
 `target_ref` alias. The Music workspace's scope selector is hidden because this
 kind has no child Release scope. Movie's root workspace also hides the selector.
-Music and Movie catalog lookups, summaries, and offline root reads use the flat
-Catalog Item cache. The old per-kind root rows remain registered but are no
-longer read by these active catalog paths. The remaining App cutover covers
-Music image ownership, the seven other non-Music kinds' workspace hierarchies,
-and all remaining non-Music Work/Release storage paths.
+Book, Music, and Movie catalog lookups, summaries, and offline root reads use
+the flat Catalog Item cache. The old per-kind root rows remain registered but
+are no longer read by these active catalog paths. The remaining App cutover
+covers Music image ownership, the other six kinds' per-kind stores, and
+remaining Work/Release domain and Edit paths, including Book's legacy Edit
+adapters.
 Music lifecycle tracking records also target the Catalog Item and use the
 existing personal Sync contract. Listening history targets the same Catalog
 Item, may optionally identify the owned copy used, and now round-trips through

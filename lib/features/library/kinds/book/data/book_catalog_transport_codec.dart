@@ -4,17 +4,20 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 
 final class BookCatalogTransportCodec
-    implements CatalogKindTransportCodec<BookMedia> {
+    implements
+        CatalogKindTransportCodec<BookMedia>,
+        CatalogSharedCachePrimaryStore {
   const BookCatalogTransportCodec();
 
   @override
@@ -29,7 +32,7 @@ final class BookCatalogTransportCodec
 
   @override
   Future<void> upsert(LocalDatabase db, BookMedia item) {
-    return BookRepository(db).updateMedia(item);
+    return CatalogItemCacheRepository(db).upsert(_projection(item));
   }
 
   @override
@@ -57,7 +60,7 @@ final class BookCatalogTransportCodec
       contributor: contributor,
       listName: listName,
       metadata: [
-        for (final item in await listTransport(db)) decode(item),
+        for (final item in await listTransport(db)) _catalogMetadata(item),
       ],
       normalizedValues: normalizedValues,
     );
@@ -85,7 +88,12 @@ final class BookCatalogTransportCodec
     SerialAuthorityRepository serialAuthority,
     CatalogItemDto item,
   ) async {
-    await captureDerivedDataTyped(pickLists, serialAuthority, decode(item));
+    await captureCatalogKindDerivedData(
+      kind: kind,
+      derived: _derivedDataForMetadata(_catalogMetadata(item)),
+      pickLists: pickLists,
+      serialAuthority: serialAuthority,
+    );
   }
 
   @override
@@ -96,13 +104,15 @@ final class BookCatalogTransportCodec
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
-      derived: _derivedDataFromTyped(item),
+      derived: _derivedDataForMetadata(
+        BookCatalogMetadata.fromJson(item.toJson()),
+      ),
       pickLists: pickLists,
       serialAuthority: serialAuthority,
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(BookMedia item) =>
+  CatalogKindDerivedData? _derivedDataForMetadata(BookCatalogMetadata item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -112,23 +122,31 @@ final class BookCatalogTransportCodec
 
   @override
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return upsert(db, decode(item));
+    return CatalogItemCacheRepository(db).upsert(item);
   }
 
   @override
-  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final media = await BookRepository(db).search();
-    return [
-      for (final item in media) _projection(item),
-    ];
-  }
+  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) =>
+      CatalogItemCacheRepository(db).findAll(kind: kind);
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final media = await BookRepository(db).search();
+    final items = await listTransport(db);
     return [
-      for (final item in media) summarize(item),
+      for (final item in items)
+        CatalogDisplaySummary.root(
+          kind: kind,
+          id: item.id,
+          primaryLabel: item.resolvedDisplayTitle,
+          imageUrl: item.displayCoverUrl,
+        ),
     ];
+  }
+
+  BookCatalogMetadata _catalogMetadata(CatalogItemDto item) {
+    final metadata = item.kindMetadata;
+    if (metadata is BookCatalogMetadata) return metadata;
+    return BookCatalogMetadata.fromJson(catalogTransportPayloadFor(item));
   }
 }
 
