@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/kinds/music/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -206,8 +206,8 @@ void main() {
   required String artist,
   required List<MusicMedium> media,
 }) {
-  final release = MusicRelease(
-    id: MusicReleaseId(workId),
+  final release = MusicAlbum(
+    id: MusicAlbumId(workId),
     title: title,
     artist: artist,
     mediums: media,
@@ -220,13 +220,13 @@ void main() {
 
 MusicMedium _medium(
   String id,
-  String releaseId,
+  String albumId,
   int number,
   List<MusicTrack> tracks,
 ) =>
     MusicMedium(
       id: MusicMediumId(id),
-      releaseId: MusicReleaseId(releaseId),
+      albumId: MusicAlbumId(albumId),
       mediumNumber: number,
       mediumType: 'CD',
       tracks: tracks,

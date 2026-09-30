@@ -78,14 +78,14 @@ void main() {
             'catalog_number': 'CK  CS 8163',
             'box_set': 'Anniversary Edition',
             'discs': [
-            {
-              'id': 'disc-1',
-              'disc_number': 1,
-              'tracks': [
-                {'id': 'track-1', 'position': '1', 'title': 'So What'},
-              ],
-            },
-          ],
+              {
+                'id': 'disc-1',
+                'disc_number': 1,
+                'tracks': [
+                  {'id': 'track-1', 'position': '1', 'title': 'So What'},
+                ],
+              },
+            ],
           },
         },
       )).asShelfCatalogItem,

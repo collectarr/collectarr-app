@@ -17,9 +17,9 @@ import 'package:collectarr_app/features/library/kinds/game/edit/release/game_rel
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_release.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_values.dart';
@@ -76,9 +76,9 @@ void main() {
     id: (release) => release.id.value,
     title: (release) => release.title,
   );
-  defineReleaseContract<MusicRelease>(
+  defineReleaseContract<MusicAlbum>(
     name: 'Music',
-    create: () => MusicRelease.fromJson(
+    create: () => MusicAlbum.fromJson(
       const {'id': 'music-release-1', 'title': 'Remastered Edition'},
     ),
     id: (release) => release.id.value,
@@ -134,9 +134,9 @@ void main() {
     tabIds: _tabIds,
     fieldIds: _fieldIds,
   );
-  defineReleaseEditContract<EditSchema<MusicRelease, MusicReleaseEditDraft>>(
+  defineReleaseEditContract<EditSchema<MusicAlbum, MusicAlbumEditDraft>>(
     name: 'Music',
-    create: () => musicReleaseEditSchema,
+    create: () => musicAlbumEditSchema,
     tabIds: _tabIds,
     fieldIds: _fieldIds,
   );

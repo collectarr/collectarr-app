@@ -2,16 +2,16 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 
-typedef MusicReleaseValuesReader<TDraft> = MusicReleaseFormValues Function(
+typedef MusicAlbumValuesReader<TDraft> = MusicAlbumFormValues Function(
     TDraft draft);
 
-List<LibraryFieldSpec<TDraft>> musicReleaseFields<TDraft>({
-  required MusicReleaseValuesReader<TDraft> values,
+List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
+  required MusicAlbumValuesReader<TDraft> values,
   Set<String>? include,
   Iterable<String>? formatOptions,
   Iterable<String>? countryOptions,

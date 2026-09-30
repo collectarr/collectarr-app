@@ -3,12 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'music_ids.dart';
 import 'music_track.dart';
 
-/// Physical or digital medium inside a concrete [MusicRelease].
+/// Physical or digital medium inside a concrete [MusicAlbum].
 @immutable
 final class MusicMedium {
   MusicMedium({
     required this.id,
-    required this.releaseId,
+    required this.albumId,
     required this.mediumNumber,
     this.mediumType,
     this.title,
@@ -36,7 +36,7 @@ final class MusicMedium {
             updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
   final MusicMediumId id;
-  final MusicReleaseId releaseId;
+  final MusicAlbumId albumId;
   final int mediumNumber;
   final String? mediumType;
   final String? title;
@@ -68,7 +68,7 @@ final class MusicMedium {
         _maps(json['tracks']).map(MusicTrack.fromJson).toList(growable: false);
     return MusicMedium(
       id: MusicMediumId(_text(json['id']) ?? ''),
-      releaseId: MusicReleaseId(_text(json['release_id']) ?? ''),
+      albumId: MusicAlbumId(_text(json['album_id']) ?? ''),
       mediumNumber: _int(json['medium_number']) ?? 0,
       mediumType: _text(json['medium_type']),
       title: _text(json['title']),
@@ -99,7 +99,7 @@ final class MusicMedium {
   Map<String, dynamic> toJson() => {
         'id': id.value,
         'kind': 'music',
-        'release_id': releaseId.value,
+        'album_id': albumId.value,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
         'medium_number': mediumNumber,

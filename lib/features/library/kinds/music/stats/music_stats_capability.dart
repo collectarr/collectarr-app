@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
@@ -256,7 +256,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     );
   }
 
-  static MusicRelease? _music(LibraryWorkspaceSource entry) {
+  static MusicAlbum? _music(LibraryWorkspaceSource entry) {
     return _catalog(entry)?.music;
   }
 
@@ -269,7 +269,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
 
   static Map<String, int> _countMany(
     Iterable<LibraryWorkspaceSource> entries,
-    Iterable<String> Function(MusicRelease music) valuesFor,
+    Iterable<String> Function(MusicAlbum music) valuesFor,
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {

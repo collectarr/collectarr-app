@@ -307,7 +307,7 @@ class MangaLibraryMediaPresentationBuilder
     final series = metadata?.series;
     const CatalogPublishingDetailsDto? publishing = null;
     const String? musicCatalogNumber = null;
-    const String? musicReleaseStatus = null;
+    const String? musicAlbumStatus = null;
     const String? ageRating = null;
     const String? audienceRating = null;
     final referenceRelease = _mangaReferenceRelease(item);
@@ -394,9 +394,8 @@ class MangaLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
         if (country != null)
           LibraryDetailField(label: 'Country', value: country),
-        if (musicReleaseStatus != null)
-          LibraryDetailField(
-              label: 'Release Status', value: musicReleaseStatus),
+        if (musicAlbumStatus != null)
+          LibraryDetailField(label: 'Release Status', value: musicAlbumStatus),
         if (language != null)
           LibraryDetailField(label: 'Language', value: language),
         if (ageRating != null)

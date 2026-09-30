@@ -6,7 +6,7 @@ import 'music_medium.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'music_box_set_membership.dart';
 import 'music_external_link.dart';
-import 'music_release_relations.dart';
+import 'music_album_relations.dart';
 import 'music_track.dart';
 
 /// One concrete Music Catalog Item representing an album edition.
@@ -14,8 +14,8 @@ import 'music_track.dart';
 /// Discs and tracks are contained children. The historical class name does
 /// not represent a separate Release scope or parent album grouping.
 @immutable
-final class MusicRelease implements JsonEncodable {
-  MusicRelease({
+final class MusicAlbum implements JsonEncodable {
+  MusicAlbum({
     required this.id,
     required this.title,
     this.sortTitle,
@@ -72,7 +72,7 @@ final class MusicRelease implements JsonEncodable {
         updatedAt =
             updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
-  final MusicReleaseId id;
+  final MusicAlbumId id;
   final String title;
   final String? sortTitle;
   final String? subtitle;
@@ -113,10 +113,10 @@ final class MusicRelease implements JsonEncodable {
   final String? spars;
   final List<MusicExternalLink> externalLinks;
   final MusicBoxSetMembership? boxSetMembership;
-  final List<MusicReleaseContribution> contributions;
+  final List<MusicAlbumContribution> contributions;
   final List<MusicArtistCredit> artistCredits;
-  final List<MusicReleaseLabel> labels;
-  final List<MusicReleaseIdentifier> identifiers;
+  final List<MusicAlbumLabel> labels;
+  final List<MusicAlbumIdentifier> identifiers;
   final List<MusicMedium> mediums;
 
   /// Medium types carried by release summaries when full medium rows are not
@@ -171,13 +171,13 @@ final class MusicRelease implements JsonEncodable {
             if (!track.isHeader) track,
       ];
 
-  factory MusicRelease.fromJson(Map<String, dynamic> json) {
+  factory MusicAlbum.fromJson(Map<String, dynamic> json) {
     final mediums = _maps(json['mediums'])
         .map(MusicMedium.fromJson)
         .toList(growable: false);
-    return MusicRelease(
-      id: MusicReleaseId(_text(json['id']) ?? ''),
-      title: _text(json['title']) ?? 'Untitled release',
+    return MusicAlbum(
+      id: MusicAlbumId(_text(json['id']) ?? ''),
+      title: _text(json['title']) ?? 'Untitled album',
       sortTitle: _text(json['sort_title']),
       subtitle: _text(json['subtitle']),
       artist: _text(json['artist']),
@@ -223,7 +223,7 @@ final class MusicRelease implements JsonEncodable {
       boxSetMembership: musicBoxSetMembershipFromJson(json),
       contributions: [
         for (final value in _maps(json['contributions']))
-          MusicReleaseContribution.fromJson(value),
+          MusicAlbumContribution.fromJson(value),
       ],
       artistCredits: [
         for (final value in _maps(json['artist_credits']))
@@ -231,11 +231,11 @@ final class MusicRelease implements JsonEncodable {
       ],
       labels: [
         for (final value in _maps(json['labels'] ?? json['label_info']))
-          MusicReleaseLabel.fromJson(value),
+          MusicAlbumLabel.fromJson(value),
       ],
       identifiers: [
         for (final value in _maps(json['identifiers']))
-          MusicReleaseIdentifier.fromJson(value),
+          MusicAlbumIdentifier.fromJson(value),
       ],
       mediums: mediums,
       mediumTypesSummary: _strings(json['medium_types']),

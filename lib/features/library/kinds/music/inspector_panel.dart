@@ -12,14 +12,14 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_providers.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_album_image_providers.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/core/models/money.dart' show OwnedCopyId;
@@ -41,7 +41,7 @@ import 'package:url_launcher/url_launcher.dart';
 MusicInspectorViewModel _musicModel(LibraryProjectionView item) =>
     MusicInspectorViewModel.from(item);
 
-MusicRelease? _musicItem(LibraryProjectionView item) => _musicModel(item).music;
+MusicAlbum? _musicItem(LibraryProjectionView item) => _musicModel(item).music;
 
 Widget buildMusicInspectorPanel(
   BuildContext context,
@@ -470,18 +470,18 @@ class _MusicInspectorMain extends ConsumerWidget {
     final dto = inspector.item.dto;
     final coverUrl = release.coverImageUrl ?? music.coverImageUrl;
     final releaseImages =
-        ref.watch(musicReleaseImagesProvider(release.id.value)).maybeWhen(
+        ref.watch(musicAlbumImagesProvider(release.id.value)).maybeWhen(
               data: (images) => images,
-              orElse: () => const <MusicReleaseImage>[],
+              orElse: () => const <MusicAlbumImage>[],
             );
     final releaseFrontCover = releaseImages
         .where((image) =>
-            image.purpose == MusicReleaseImagePurpose.cover &&
+            image.purpose == MusicAlbumImagePurpose.cover &&
             image.imageType == 'front_cover')
         .firstOrNull;
     final releaseBackCover = releaseImages
         .where((image) =>
-            image.purpose == MusicReleaseImagePurpose.cover &&
+            image.purpose == MusicAlbumImagePurpose.cover &&
             image.imageType == 'back_cover')
         .firstOrNull;
     final formatLabel =
@@ -841,7 +841,7 @@ final class _MusicInspectorCover extends StatefulWidget {
   });
 
   final String title;
-  final MusicRelease item;
+  final MusicAlbum item;
   final String? imageUrl;
   final Uint8List? frontCoverBytes;
   final Uint8List? backCoverBytes;
@@ -1296,7 +1296,7 @@ Color inspectorActionColor(BuildContext context) {
 Future<void> _copyTracks(
   BuildContext context,
   List<MusicTrackListEntry> tracks, {
-  required MusicRelease item,
+  required MusicAlbum item,
 }) async {
   final rows = <List<String>>[
     [
@@ -1342,7 +1342,7 @@ Future<void> _copyTracks(
 Future<void> _printTracks(
   BuildContext context,
   List<MusicTrackListEntry> tracks, {
-  required MusicRelease item,
+  required MusicAlbum item,
 }) async {
   final rows = <List<String>>[
     [

@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
 /// Flutter independent values for one concrete pressing or edition.
-final class MusicReleaseFormValues {
-  MusicReleaseFormValues({
+final class MusicAlbumFormValues {
+  MusicAlbumFormValues({
     this.title = '',
     this.sortTitle = '',
     this.subtitle = '',
@@ -39,8 +39,8 @@ final class MusicReleaseFormValues {
         genres = List.of(genres),
         soundTypes = List.of(soundTypes);
 
-  factory MusicReleaseFormValues.fromRelease(MusicRelease release) =>
-      MusicReleaseFormValues(
+  factory MusicAlbumFormValues.fromRelease(MusicAlbum release) =>
+      MusicAlbumFormValues(
         title: release.title,
         sortTitle: release.sortTitle ?? '',
         subtitle: release.subtitle ?? '',

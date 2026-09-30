@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_copy_media_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edit_draft.dart';
@@ -35,7 +35,7 @@ final class _MusicOwnedCopyEditDialog extends StatefulWidget {
 final class _MusicOwnedCopyEditDialogState
     extends State<_MusicOwnedCopyEditDialog> {
   late final MusicOwnedItem _copy;
-  late final MusicRelease _release;
+  late final MusicAlbum _release;
   late final MusicOwnedEditDraft _draft;
   List<ItemImageEdit> _imageEdits = const [];
 

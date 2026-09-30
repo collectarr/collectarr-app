@@ -1,34 +1,34 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
 /// Owns editable release credit rows across the separate People and Classical
 /// tabs, including incomplete rows that are not yet valid contributions.
-final class MusicReleaseCreditsEditor {
-  MusicReleaseCreditsEditor({required MusicReleaseEditDraft draft})
+final class MusicAlbumCreditsEditor {
+  MusicAlbumCreditsEditor({required MusicAlbumEditDraft draft})
       : _draft = draft,
         _rows = [
           for (final contribution in draft.contributions)
-            _MusicReleaseCreditDraftRow.fromContribution(contribution),
+            _MusicAlbumCreditDraftRow.fromContribution(contribution),
         ];
 
-  final MusicReleaseEditDraft _draft;
-  final List<_MusicReleaseCreditDraftRow> _rows;
+  final MusicAlbumEditDraft _draft;
+  final List<_MusicAlbumCreditDraftRow> _rows;
 
-  List<_MusicReleaseCreditDraftRow> _rowsFor({required bool classical}) => [
+  List<_MusicAlbumCreditDraftRow> _rowsFor({required bool classical}) => [
         for (final row in _rows)
           if (_isClassical(row.role.text) == classical) row,
       ];
 
-  List<_MusicReleaseCreditDraftRow> _rowsForRole(String role) => [
+  List<_MusicAlbumCreditDraftRow> _rowsForRole(String role) => [
         for (final row in _rows)
           if (_sameRole(row.role.text, role)) row,
       ];
 
-  List<_MusicReleaseCreditDraftRow> _unassignedRowsFor({
+  List<_MusicAlbumCreditDraftRow> _unassignedRowsFor({
     required bool classical,
     required Set<String> displayedRoles,
   }) =>
@@ -46,11 +46,11 @@ final class MusicReleaseCreditsEditor {
       );
 
   void _add({required String role}) {
-    _rows.add(_MusicReleaseCreditDraftRow.empty(role: role));
+    _rows.add(_MusicAlbumCreditDraftRow.empty(role: role));
     _syncDraft();
   }
 
-  void _remove(_MusicReleaseCreditDraftRow row) {
+  void _remove(_MusicAlbumCreditDraftRow row) {
     if (!_rows.remove(row)) return;
     row.dispose();
     _syncDraft();
@@ -82,43 +82,43 @@ final class MusicReleaseCreditsEditor {
 
 /// Edits one category of release-scoped credits. New relations require an
 /// explicit canonical person ID before they are included in the draft.
-final class MusicReleaseCreditsTab extends StatefulWidget {
-  const MusicReleaseCreditsTab({
+final class MusicAlbumCreditsTab extends StatefulWidget {
+  const MusicAlbumCreditsTab({
     super.key,
     required this.editor,
     required this.classical,
     required this.accent,
   });
 
-  final MusicReleaseCreditsEditor editor;
+  final MusicAlbumCreditsEditor editor;
   final bool classical;
   final Color accent;
 
   @override
-  State<MusicReleaseCreditsTab> createState() => _MusicReleaseCreditsTabState();
+  State<MusicAlbumCreditsTab> createState() => _MusicAlbumCreditsTabState();
 }
 
-final class _MusicReleaseCreditsTabState extends State<MusicReleaseCreditsTab> {
+final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
   static const _peopleGroups = [
-    _MusicReleaseCreditGroup(
+    _MusicAlbumCreditGroup(
       title: 'Credits',
       roles: ['Songwriter', 'Producer', 'Engineer'],
     ),
-    _MusicReleaseCreditGroup(title: 'Musicians', roles: ['Musician']),
+    _MusicAlbumCreditGroup(title: 'Musicians', roles: ['Musician']),
   ];
 
   static const _classicalGroups = [
-    _MusicReleaseCreditGroup(
+    _MusicAlbumCreditGroup(
       title: null,
       roles: ['Composer', 'Conductor', 'Chorus'],
     ),
-    _MusicReleaseCreditGroup(
+    _MusicAlbumCreditGroup(
       title: null,
       roles: ['Composition', 'Orchestra'],
     ),
   ];
 
-  List<_MusicReleaseCreditGroup> get _groups =>
+  List<_MusicAlbumCreditGroup> get _groups =>
       widget.classical ? _classicalGroups : _peopleGroups;
 
   Set<String> get _displayedRoles => {
@@ -130,7 +130,7 @@ final class _MusicReleaseCreditsTabState extends State<MusicReleaseCreditsTab> {
     setState(() {});
   }
 
-  void _remove(_MusicReleaseCreditDraftRow row) {
+  void _remove(_MusicAlbumCreditDraftRow row) {
     setState(() => widget.editor._remove(row));
   }
 
@@ -186,13 +186,13 @@ final class _MusicReleaseCreditsTabState extends State<MusicReleaseCreditsTab> {
     );
   }
 
-  List<_MusicReleaseCreditDraftRow> get _unassignedRows =>
+  List<_MusicAlbumCreditDraftRow> get _unassignedRows =>
       widget.editor._unassignedRowsFor(
         classical: widget.classical,
         displayedRoles: _displayedRoles,
       );
 
-  Widget _creditGroup(_MusicReleaseCreditGroup group) {
+  Widget _creditGroup(_MusicAlbumCreditGroup group) {
     final fields = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -269,7 +269,7 @@ final class _MusicReleaseCreditsTabState extends State<MusicReleaseCreditsTab> {
       );
 
   Widget _creditRow(
-    _MusicReleaseCreditDraftRow row, {
+    _MusicAlbumCreditDraftRow row, {
     required String? fixedRole,
   }) =>
       Container(
@@ -328,8 +328,8 @@ final class _MusicReleaseCreditsTabState extends State<MusicReleaseCreditsTab> {
       );
 }
 
-final class _MusicReleaseCreditGroup {
-  const _MusicReleaseCreditGroup({required this.title, required this.roles});
+final class _MusicAlbumCreditGroup {
+  const _MusicAlbumCreditGroup({required this.title, required this.roles});
 
   final String? title;
   final List<String> roles;
@@ -381,25 +381,25 @@ final class _CreditFieldset extends StatelessWidget {
   }
 }
 
-final class _MusicReleaseCreditDraftRow {
-  _MusicReleaseCreditDraftRow({
+final class _MusicAlbumCreditDraftRow {
+  _MusicAlbumCreditDraftRow({
     required this.personId,
     required this.displayName,
     required this.role,
     this.original,
   });
 
-  factory _MusicReleaseCreditDraftRow.empty({required String role}) =>
-      _MusicReleaseCreditDraftRow(
+  factory _MusicAlbumCreditDraftRow.empty({required String role}) =>
+      _MusicAlbumCreditDraftRow(
         personId: TextEditingController(),
         displayName: TextEditingController(),
         role: TextEditingController(text: role),
       );
 
-  factory _MusicReleaseCreditDraftRow.fromContribution(
-    MusicReleaseContribution contribution,
+  factory _MusicAlbumCreditDraftRow.fromContribution(
+    MusicAlbumContribution contribution,
   ) =>
-      _MusicReleaseCreditDraftRow(
+      _MusicAlbumCreditDraftRow(
         personId: TextEditingController(text: contribution.personId),
         displayName: TextEditingController(
           text: contribution.displayName ?? '',
@@ -411,20 +411,20 @@ final class _MusicReleaseCreditDraftRow {
   final TextEditingController personId;
   final TextEditingController displayName;
   final TextEditingController role;
-  final MusicReleaseContribution? original;
+  final MusicAlbumContribution? original;
 
-  MusicReleaseContribution toContribution(
-    MusicReleaseId releaseId, {
+  MusicAlbumContribution toContribution(
+    MusicAlbumId albumId, {
     required int sequence,
     required DateTime now,
   }) {
     final previous = original;
-    return MusicReleaseContribution(
+    return MusicAlbumContribution(
       id: previous?.id ??
-          MusicReleaseContributionId(
-            'music-credit:${releaseId.value}:${now.microsecondsSinceEpoch}:$sequence',
+          MusicAlbumContributionId(
+            'music-credit:${albumId.value}:${now.microsecondsSinceEpoch}:$sequence',
           ),
-      releaseId: releaseId,
+      albumId: albumId,
       personId: personId.text.trim(),
       role: role.text.trim(),
       roleId: previous?.role == role.text.trim() ? previous?.roleId : null,

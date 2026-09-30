@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calen
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
@@ -101,7 +101,7 @@ void main() {
             ),
           ),
       () => MusicCalendarContributor(
-            loadAlbum: (_) async => MusicRelease.fromJson(
+            loadAlbum: (_) async => MusicAlbum.fromJson(
               testCatalogItem(
                 id: 'music-item',
                 kind: 'music',

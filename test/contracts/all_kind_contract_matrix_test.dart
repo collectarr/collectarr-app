@@ -125,7 +125,7 @@ void main() {
       requiresKindSessionFactory: false,
       contractFiles: const [
         'test/domain/music/music_core_mapper_test.dart',
-        'test/domain/music/music_local_mapper_repository_test.dart',
+        'test/domain/music/music_owned_copy_mapper_test.dart',
         'test/domain/music/music_add_edit_schema_test.dart',
         'test/domain/music/music_workspace_test.dart',
       ],

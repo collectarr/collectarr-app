@@ -1,53 +1,53 @@
 import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_form_adapters.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('the Music edit schema edits one concrete Catalog Item', () {
-    final item = MusicRelease(
-      id: const MusicReleaseId('album-1'),
+    final item = MusicAlbum(
+      id: const MusicAlbumId('album-1'),
       title: 'Album',
       artist: 'Artist',
     );
-    final draft = MusicReleaseEditDraft.fromRelease(item);
+    final draft = MusicAlbumEditDraft.fromRelease(item);
 
-    expect(musicReleaseEditSchema.title!(item), 'Album / Artist');
-    expect(musicReleaseEditSchema.tabs.map((tab) => tab.id), [
+    expect(musicAlbumEditSchema.title!(item), 'Album / Artist');
+    expect(musicAlbumEditSchema.tabs.map((tab) => tab.id), [
       'main',
       'details',
       'personal',
     ]);
-    expect(musicReleaseEditSchema.validate!(item, draft), isNull);
+    expect(musicAlbumEditSchema.validate!(item, draft), isNull);
     draft.values.title = '';
-    expect(musicReleaseEditSchema.validate!(item, draft), 'Title is required');
+    expect(musicAlbumEditSchema.validate!(item, draft), 'Title is required');
   });
 
   test('form updates preserve the disc and track child graph', () {
     final disc = MusicMedium(
       id: const MusicMediumId('disc-1'),
-      releaseId: const MusicReleaseId('album-1'),
+      albumId: const MusicAlbumId('album-1'),
       mediumNumber: 1,
       matrixNumberSideA: 'A1',
       matrixNumberSideB: 'B1',
     );
-    final original = MusicRelease(
-      id: const MusicReleaseId('album-1'),
+    final original = MusicAlbum(
+      id: const MusicAlbumId('album-1'),
       title: 'Original title',
       artist: 'Original artist',
       mediums: [disc],
     );
-    final values = MusicReleaseFormValues.fromRelease(original)
+    final values = MusicAlbumFormValues.fromRelease(original)
       ..title = 'Updated title'
       ..artist = 'Updated artist'
       ..genres = ['Rock'];
 
-    final updated = MusicReleaseFormAdapter.update(original, values);
+    final updated = MusicAlbumFormAdapter.update(original, values);
 
     expect(updated.id, original.id);
     expect(updated.title, 'Updated title');

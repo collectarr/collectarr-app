@@ -3,19 +3,19 @@ import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_form_adapters.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
 
-final class MusicReleaseEditDraft {
-  MusicReleaseEditDraft.fromRelease(
-    MusicRelease release, {
+final class MusicAlbumEditDraft {
+  MusicAlbumEditDraft.fromRelease(
+    MusicAlbum release, {
     TrackingSummary? trackingSummary,
   })  : original = release,
-        values = MusicReleaseFormValues.fromRelease(release),
+        values = MusicAlbumFormValues.fromRelease(release),
         contributions = List.of(release.contributions),
         mediums = [
           for (final medium in release.mediums) _copyMedium(medium),
@@ -31,9 +31,9 @@ final class MusicReleaseEditDraft {
     };
   }
 
-  final MusicRelease original;
-  final MusicReleaseFormValues values;
-  List<MusicReleaseContribution> contributions;
+  final MusicAlbum original;
+  final MusicAlbumFormValues values;
+  List<MusicAlbumContribution> contributions;
   final List<MusicMedium> mediums;
   List<MusicExternalLink> externalLinks;
   bool hasIncompleteContributions = false;
@@ -109,7 +109,7 @@ final class MusicReleaseEditDraft {
         id: MusicMediumId(
           '${original.id.value}:medium:${DateTime.now().microsecondsSinceEpoch}',
         ),
-        releaseId: original.id,
+        albumId: original.id,
         mediumNumber: nextNumber,
         mediumType: original.mediumTypes.firstOrNull,
         tracks: const [],
@@ -498,7 +498,7 @@ final class MusicReleaseEditDraft {
     );
   }
 
-  MusicRelease toRelease() => MusicReleaseFormAdapter.update(
+  MusicAlbum toRelease() => MusicAlbumFormAdapter.update(
         original,
         values,
         mediums: mediums,
@@ -571,7 +571,7 @@ MusicMedium _copyMedium(
 }) {
   return MusicMedium(
     id: medium.id,
-    releaseId: medium.releaseId,
+    albumId: medium.albumId,
     mediumNumber: mediumNumber ?? medium.mediumNumber,
     mediumType:
         replaceMediumType ? mediumType : mediumType ?? medium.mediumType,

@@ -1,11 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
@@ -17,16 +15,16 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/test_data_factories.dart';
 
 void main() {
-  test('Music hierarchy renders medium containers and track leaves', () {
-    final releaseId = MusicReleaseId('album-release');
+  test('Music albums contain discs and ordered tracks', () {
+    final albumId = MusicAlbumId('album-release');
     final mediumId = MusicMediumId('album-medium');
-    final release = MusicRelease(
-      id: releaseId,
+    final release = MusicAlbum(
+      id: albumId,
       title: 'Album',
       mediums: [
         MusicMedium(
           id: mediumId,
-          releaseId: releaseId,
+          albumId: albumId,
           mediumNumber: 1,
           mediumType: 'Vinyl',
           tracks: [
@@ -49,14 +47,12 @@ void main() {
       ],
     );
 
-    final nodes = MusicHierarchyMapper.toLibraryNodes(release);
-    expect(nodes, hasLength(1));
-    expect(nodes.single.level, LibraryHierarchyLevel.container);
-    expect(nodes.single.secondaryLabel, 'Vinyl / 2 tracks');
-    expect(nodes.single.children, hasLength(2));
-    expect(nodes.single.children.first.level, LibraryHierarchyLevel.leaf);
-    expect(nodes.single.children.first.secondaryLabel, '1:01');
-    expect(nodes.single.children.first.extras['kind'], 'music_track');
+    expect(release.mediums, hasLength(1));
+    expect(release.mediums.single.albumId, albumId);
+    expect(release.mediums.single.mediumType, 'Vinyl');
+    expect(release.mediums.single.tracks, hasLength(2));
+    expect(release.mediums.single.tracks.first.title, 'Opening');
+    expect(release.mediums.single.tracks.first.durationMs, 61000);
   });
 
   test('Music owns listening vocabulary and collection statistics', () {
@@ -126,8 +122,8 @@ LibraryWorkspaceSource _musicSource(
   String mediumType,
   int trackCount,
 ) {
-  final musicItem = MusicRelease(
-    id: MusicReleaseId(id),
+  final musicItem = MusicAlbum(
+    id: MusicAlbumId(id),
     title: title,
     artist: artist,
     publisher: 'Harvest',
@@ -135,14 +131,14 @@ LibraryWorkspaceSource _musicSource(
     mediums: [
       MusicMedium(
         id: MusicMediumId('$id-medium'),
-        releaseId: MusicReleaseId(id),
+        albumId: MusicAlbumId(id),
         mediumNumber: 1,
         mediumType: mediumType,
         trackCount: trackCount,
       ),
     ],
   );
-  final musicWithGenres = MusicRelease.fromJson({
+  final musicWithGenres = MusicAlbum.fromJson({
     ...musicItem.toJson(),
     'genres': id == 'album-1' ? ['Progressive Rock', 'Rock'] : ['Rock'],
   });

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -46,7 +46,7 @@ String? musicCardArtist(LibraryProjectionView item) {
   final album = _musicCatalogItem(item);
   final albumArtist = album?.artist?.trim();
   if (albumArtist != null && albumArtist.isNotEmpty) return albumArtist;
-  final creators = album?.contributions ?? const <MusicReleaseContribution>[];
+  final creators = album?.contributions ?? const <MusicAlbumContribution>[];
   for (final creator in creators) {
     final rawName = (creator.displayName ?? '').trim();
     if (rawName.isEmpty) continue;
@@ -101,7 +101,7 @@ int? musicCardTrackCount(LibraryProjectionView item) {
       );
 }
 
-MusicRelease? _musicCatalogItem(LibraryProjectionView item) {
+MusicAlbum? _musicCatalogItem(LibraryProjectionView item) {
   final catalog = item.source.catalogData;
   return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }

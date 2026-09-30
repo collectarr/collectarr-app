@@ -28,7 +28,7 @@ void main() {
   test('Music track counts exclude structural headers', () {
     final medium = MusicMedium(
       id: const MusicMediumId('medium-header-count'),
-      releaseId: const MusicReleaseId('release-header-count'),
+      albumId: const MusicAlbumId('release-header-count'),
       mediumNumber: 1,
       trackCount: 3,
       tracks: [

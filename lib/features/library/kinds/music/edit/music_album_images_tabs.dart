@@ -5,9 +5,9 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_cover_crop_editor.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:dio/dio.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
@@ -23,25 +23,25 @@ final Dio _coverImageClient = Dio(
   ),
 );
 
-final class MusicReleaseCoversTab extends StatefulWidget {
-  const MusicReleaseCoversTab({
+final class MusicAlbumCoversTab extends StatefulWidget {
+  const MusicAlbumCoversTab({
     super.key,
-    required this.releaseId,
+    required this.albumId,
     required this.draft,
     required this.images,
     required this.onImagesChanged,
   });
 
-  final String releaseId;
-  final MusicReleaseEditDraft draft;
-  final List<MusicReleaseImage> images;
-  final ValueChanged<List<MusicReleaseImage>> onImagesChanged;
+  final String albumId;
+  final MusicAlbumEditDraft draft;
+  final List<MusicAlbumImage> images;
+  final ValueChanged<List<MusicAlbumImage>> onImagesChanged;
 
   @override
-  State<MusicReleaseCoversTab> createState() => _MusicReleaseCoversTabState();
+  State<MusicAlbumCoversTab> createState() => _MusicAlbumCoversTabState();
 }
 
-final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
+final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
   @override
   Widget build(BuildContext context) {
     return EditTabShell(
@@ -54,7 +54,7 @@ final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
               Expanded(
                   child: _CoverEditor(
                 title: 'Front Cover',
-                releaseId: widget.releaseId,
+                albumId: widget.albumId,
                 image: front,
                 coreCoverUrl: widget.draft.values.coverImageUrl,
                 restoreCoreCoverUrl: widget.draft.original.coverImageUrl,
@@ -65,7 +65,7 @@ final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
               Expanded(
                   child: _CoverEditor(
                 title: 'Back Cover',
-                releaseId: widget.releaseId,
+                albumId: widget.albumId,
                 image: back,
                 coreCoverUrl: null,
                 restoreCoreCoverUrl: null,
@@ -89,9 +89,9 @@ final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
     );
   }
 
-  MusicReleaseImage? _cover(String imageType) {
+  MusicAlbumImage? _cover(String imageType) {
     for (final image in widget.images) {
-      if (image.purpose == MusicReleaseImagePurpose.cover &&
+      if (image.purpose == MusicAlbumImagePurpose.cover &&
           image.imageType == imageType) {
         return image;
       }
@@ -99,10 +99,10 @@ final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
     return null;
   }
 
-  void _replaceCover(String imageType, MusicReleaseImage? replacement) {
+  void _replaceCover(String imageType, MusicAlbumImage? replacement) {
     final next = [
       for (final image in widget.images)
-        if (image.purpose != MusicReleaseImagePurpose.cover ||
+        if (image.purpose != MusicAlbumImagePurpose.cover ||
             image.imageType != imageType)
           image,
       if (replacement != null) replacement,
@@ -127,7 +127,7 @@ final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
 final class _CoverEditor extends StatefulWidget {
   const _CoverEditor({
     required this.title,
-    required this.releaseId,
+    required this.albumId,
     required this.image,
     required this.coreCoverUrl,
     required this.restoreCoreCoverUrl,
@@ -137,13 +137,13 @@ final class _CoverEditor extends StatefulWidget {
   });
 
   final String title;
-  final String releaseId;
-  final MusicReleaseImage? image;
+  final String albumId;
+  final MusicAlbumImage? image;
   final String? coreCoverUrl;
   final String? restoreCoreCoverUrl;
   final VoidCallback onRestoreCoreCover;
   final VoidCallback onRemoveCoreCover;
-  final ValueChanged<MusicReleaseImage?> onChanged;
+  final ValueChanged<MusicAlbumImage?> onChanged;
 
   @override
   State<_CoverEditor> createState() => _CoverEditorState();
@@ -156,7 +156,7 @@ final class _CoverEditorState extends State<_CoverEditor> {
   String? get _sourceKey => _sourceKeyFor(widget.image, widget.coreCoverUrl);
 
   static String? _sourceKeyFor(
-    MusicReleaseImage? image,
+    MusicAlbumImage? image,
     String? coreCoverUrl,
   ) {
     if (image != null) return 'local:${image.id}';
@@ -231,7 +231,7 @@ final class _CoverEditorState extends State<_CoverEditor> {
                           launchUrl(
                             Uri.https(
                               'musicbrainz.org',
-                              '/release/${widget.releaseId}',
+                              '/release/${widget.albumId}',
                             ),
                             mode: LaunchMode.externalApplication,
                           ),
@@ -332,10 +332,10 @@ final class _CoverEditorState extends State<_CoverEditor> {
     final bytes = await file.readAsBytes();
     final current = widget.image;
     widget.onChanged(
-      MusicReleaseImage(
+      MusicAlbumImage(
         id: current?.id ?? const Uuid().v4(),
-        releaseId: widget.releaseId,
-        purpose: MusicReleaseImagePurpose.cover,
+        albumId: widget.albumId,
+        purpose: MusicAlbumImagePurpose.cover,
         imageType: widget.title == 'Front Cover' ? 'front_cover' : 'back_cover',
         imageData: bytes,
         description: null,
@@ -394,10 +394,10 @@ final class _CoverEditorState extends State<_CoverEditor> {
     final now = DateTime.now().toUtc();
     widget.onChanged(
       image?.copyWith(imageData: bytes) ??
-          MusicReleaseImage(
+          MusicAlbumImage(
             id: const Uuid().v4(),
-            releaseId: widget.releaseId,
-            purpose: MusicReleaseImagePurpose.cover,
+            albumId: widget.albumId,
+            purpose: MusicAlbumImagePurpose.cover,
             imageType:
                 widget.title == 'Front Cover' ? 'front_cover' : 'back_cover',
             imageData: bytes,
@@ -433,58 +433,57 @@ final class _NoCoverPreview extends StatelessWidget {
       );
 }
 
-final class MusicReleaseMyImagesTab extends StatelessWidget {
-  const MusicReleaseMyImagesTab({
+final class MusicAlbumMyImagesTab extends StatelessWidget {
+  const MusicAlbumMyImagesTab({
     super.key,
-    required this.releaseId,
+    required this.albumId,
     required this.images,
     required this.accent,
     required this.onImagesChanged,
   });
 
-  final String releaseId;
-  final List<MusicReleaseImage> images;
+  final String albumId;
+  final List<MusicAlbumImage> images;
   final Color accent;
-  final ValueChanged<List<MusicReleaseImage>> onImagesChanged;
+  final ValueChanged<List<MusicAlbumImage>> onImagesChanged;
 
   @override
-  Widget build(BuildContext context) => _MusicReleaseMyImagesEditor(
-        releaseId: releaseId,
+  Widget build(BuildContext context) => _MusicAlbumMyImagesEditor(
+        albumId: albumId,
         images: images
-            .where(
-                (image) => image.purpose == MusicReleaseImagePurpose.personal)
+            .where((image) => image.purpose == MusicAlbumImagePurpose.personal)
             .toList(growable: false),
         accent: accent,
         onChanged: (personal) => onImagesChanged([
           ...images.where(
-            (image) => image.purpose != MusicReleaseImagePurpose.personal,
+            (image) => image.purpose != MusicAlbumImagePurpose.personal,
           ),
           ...personal,
         ]),
       );
 }
 
-final class _MusicReleaseMyImagesEditor extends StatefulWidget {
-  const _MusicReleaseMyImagesEditor({
-    required this.releaseId,
+final class _MusicAlbumMyImagesEditor extends StatefulWidget {
+  const _MusicAlbumMyImagesEditor({
+    required this.albumId,
     required this.images,
     required this.accent,
     required this.onChanged,
   });
 
-  final String releaseId;
-  final List<MusicReleaseImage> images;
+  final String albumId;
+  final List<MusicAlbumImage> images;
   final Color accent;
-  final ValueChanged<List<MusicReleaseImage>> onChanged;
+  final ValueChanged<List<MusicAlbumImage>> onChanged;
 
   @override
-  State<_MusicReleaseMyImagesEditor> createState() =>
-      _MusicReleaseMyImagesEditorState();
+  State<_MusicAlbumMyImagesEditor> createState() =>
+      _MusicAlbumMyImagesEditorState();
 }
 
-final class _MusicReleaseMyImagesEditorState
-    extends State<_MusicReleaseMyImagesEditor> {
-  late List<MusicReleaseImage> _images;
+final class _MusicAlbumMyImagesEditorState
+    extends State<_MusicAlbumMyImagesEditor> {
+  late List<MusicAlbumImage> _images;
 
   @override
   void initState() {
@@ -493,7 +492,7 @@ final class _MusicReleaseMyImagesEditorState
   }
 
   @override
-  void didUpdateWidget(covariant _MusicReleaseMyImagesEditor oldWidget) {
+  void didUpdateWidget(covariant _MusicAlbumMyImagesEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.images, widget.images)) {
       _images = List.of(widget.images);
@@ -555,10 +554,10 @@ final class _MusicReleaseMyImagesEditorState
       ],
     );
     if (file == null || !mounted) return;
-    final image = MusicReleaseImage(
+    final image = MusicAlbumImage(
       id: const Uuid().v4(),
-      releaseId: widget.releaseId,
-      purpose: MusicReleaseImagePurpose.personal,
+      albumId: widget.albumId,
+      purpose: MusicAlbumImagePurpose.personal,
       imageType: 'other',
       imageData: await file.readAsBytes(),
       sortOrder: _images.length,
@@ -567,24 +566,24 @@ final class _MusicReleaseMyImagesEditorState
     _commit([..._images, image]);
   }
 
-  void _replace(int index, MusicReleaseImage image) {
-    final next = List<MusicReleaseImage>.of(_images)..[index] = image;
+  void _replace(int index, MusicAlbumImage image) {
+    final next = List<MusicAlbumImage>.of(_images)..[index] = image;
     _commit(next);
   }
 
   void _remove(int index) {
-    final next = List<MusicReleaseImage>.of(_images)..removeAt(index);
+    final next = List<MusicAlbumImage>.of(_images)..removeAt(index);
     _commit(next);
   }
 
   void _reorder(int oldIndex, int newIndex) {
-    final next = List<MusicReleaseImage>.of(_images);
+    final next = List<MusicAlbumImage>.of(_images);
     final image = next.removeAt(oldIndex);
     next.insert(newIndex, image);
     _commit(next);
   }
 
-  void _commit(List<MusicReleaseImage> next) {
+  void _commit(List<MusicAlbumImage> next) {
     setState(() => _images = [
           for (var index = 0; index < next.length; index++)
             next[index].copyWith(sortOrder: index),
@@ -602,9 +601,9 @@ final class _PersonalImageRow extends StatefulWidget {
     required this.onDelete,
   });
 
-  final MusicReleaseImage image;
+  final MusicAlbumImage image;
   final int index;
-  final ValueChanged<MusicReleaseImage> onChanged;
+  final ValueChanged<MusicAlbumImage> onChanged;
   final VoidCallback onDelete;
 
   @override

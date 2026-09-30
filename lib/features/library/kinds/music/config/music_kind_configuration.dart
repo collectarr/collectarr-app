@@ -1,5 +1,5 @@
 import '../music_module_dependencies.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
 const musicArtistFilterId = musicAddArtistFilterId;
 const musicLabelFilterId = musicAddLabelFilterId;
@@ -87,7 +87,7 @@ const musicAddChrome = LibraryAddChromeConfig(
   editionReferenceHelperLabel: 'Add a personal copy of this album.',
 );
 
-Iterable<String?> musicLinkedMetadataValues(MusicRelease music) => [
+Iterable<String?> musicLinkedMetadataValues(MusicAlbum music) => [
       music.artist,
       music.publisher,
       music.countryCode,
@@ -96,7 +96,7 @@ Iterable<String?> musicLinkedMetadataValues(MusicRelease music) => [
       ...music.genres,
     ];
 
-MusicRelease? musicLinkedMetadata(LibraryWorkspaceSource source) {
+MusicAlbum? musicLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }

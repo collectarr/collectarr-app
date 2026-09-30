@@ -20,7 +20,7 @@ import 'package:collectarr_app/features/library/generic/view_preference_store.da
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
@@ -153,8 +153,8 @@ void main() {
       kind: 'music',
       title: 'Test album',
     );
-    final release = MusicRelease(
-      id: MusicReleaseId(catalog.id),
+    final release = MusicAlbum(
+      id: MusicAlbumId(catalog.id),
       title: catalog.title,
     );
     await CatalogTransportRepository(db).upsertTransportItems([catalog]);

@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state_provider.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_providers.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_providers.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_album_image_providers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state_provider.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
@@ -77,7 +77,7 @@ void invalidateLocalDatabaseProjections(WidgetRef ref) {
   ref.invalidate(boardGameAllPlaySessionsProvider);
   ref.invalidate(boardGamePlayStatsProvider);
   ref.invalidate(musicListeningEventsProvider);
-  ref.invalidate(musicReleaseImagesProvider);
+  ref.invalidate(musicAlbumImagesProvider);
   ref.invalidate(overdueLoanOwnedCopyIdsProvider);
   ref.invalidate(activeOwnedCopiesByCatalogItemProvider);
   ref.invalidate(libraryCustomFieldCacheProvider);

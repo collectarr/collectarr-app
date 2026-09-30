@@ -2,12 +2,12 @@ import 'package:collectarr_app/features/library/domain/library_entity_id.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-final class MusicReleaseId extends LibraryEntityId {
-  const MusicReleaseId(super.value);
+final class MusicAlbumId extends LibraryEntityId {
+  const MusicAlbumId(super.value);
 }
 
 /// A physical disc, tape, vinyl record, or digital medium belonging to a
-/// concrete [MusicRelease].
+/// concrete [MusicAlbum].
 @immutable
 final class MusicMediumId extends LibraryEntityId {
   const MusicMediumId(super.value);
@@ -19,13 +19,13 @@ final class MusicTrackId extends LibraryEntityId {
 }
 
 @immutable
-final class MusicReleaseContributionId extends LibraryEntityId {
-  const MusicReleaseContributionId(super.value);
+final class MusicAlbumContributionId extends LibraryEntityId {
+  const MusicAlbumContributionId(super.value);
 }
 
 @immutable
-final class MusicReleaseIdentifierId extends LibraryEntityId {
-  const MusicReleaseIdentifierId(super.value);
+final class MusicAlbumIdentifierId extends LibraryEntityId {
+  const MusicAlbumIdentifierId(super.value);
 }
 
 @immutable

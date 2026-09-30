@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
@@ -39,7 +39,7 @@ final class MusicInspectorViewModel {
             MusicTrackListEntry(
               mediumNumber: medium.mediumNumber,
               track: track,
-              releaseId: releaseEntry.id.value,
+              albumId: releaseEntry.id.value,
               releaseTitle: releaseEntry.title,
               catalogNumber: releaseEntry.catalogNumber,
             ),
@@ -54,7 +54,7 @@ final class MusicInspectorViewModel {
     );
   }
 
-  final MusicRelease music;
+  final MusicAlbum music;
   final List<MusicMedium> mediums;
   final List<MusicTrackListEntry> tracks;
   final MusicOwnedItem? owned;
@@ -100,8 +100,8 @@ MusicWorkspaceCatalogData _fallbackMusicCatalog(
     id: rootId.isEmpty ? 'unknown-music-item' : rootId,
   );
   return MusicWorkspaceCatalogData.fromMusic(
-    MusicRelease(
-      id: MusicReleaseId(ref.id),
+    MusicAlbum(
+      id: MusicAlbumId(ref.id),
       title: source.title,
       coverImageUrl: source.catalogSummary?.imageUrl,
     ),

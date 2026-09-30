@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_p
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -12,43 +12,43 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum MusicReleaseStructureSection { media, tracks }
+enum MusicAlbumStructureSection { media, tracks }
 
 /// Music-owned release structure editor.
 ///
 /// The draft owns the mutable medium/track graph. This tab deliberately does
 /// not route track edits through a generic catalog DTO, so headers, nesting,
 /// artist credits and medium boundaries survive the save round-trip.
-final class MusicReleaseStructureTab extends ConsumerStatefulWidget {
-  const MusicReleaseStructureTab({
+final class MusicAlbumStructureTab extends ConsumerStatefulWidget {
+  const MusicAlbumStructureTab({
     super.key,
     required this.draft,
     required this.section,
     required this.accent,
   });
 
-  final MusicReleaseEditDraft draft;
-  final MusicReleaseStructureSection section;
+  final MusicAlbumEditDraft draft;
+  final MusicAlbumStructureSection section;
   final Color accent;
 
   @override
-  ConsumerState<MusicReleaseStructureTab> createState() =>
-      _MusicReleaseStructureTabState();
+  ConsumerState<MusicAlbumStructureTab> createState() =>
+      _MusicAlbumStructureTabState();
 }
 
-final class _MusicReleaseStructureTabState
-    extends ConsumerState<MusicReleaseStructureTab> {
+final class _MusicAlbumStructureTabState
+    extends ConsumerState<MusicAlbumStructureTab> {
   MusicMediumId? _activeMediumId;
   final Set<String> _selectedTrackIds = <String>{};
 
-  MusicReleaseEditDraft get draft => widget.draft;
+  MusicAlbumEditDraft get draft => widget.draft;
 
   @override
   Widget build(BuildContext context) {
     return EditTabShell(
       children: switch (widget.section) {
-        MusicReleaseStructureSection.media => _mediaSections(),
-        MusicReleaseStructureSection.tracks => _trackSections(),
+        MusicAlbumStructureSection.media => _mediaSections(),
+        MusicAlbumStructureSection.tracks => _trackSections(),
       },
     );
   }

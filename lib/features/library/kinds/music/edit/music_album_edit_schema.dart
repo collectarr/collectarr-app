@@ -1,12 +1,12 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_header_title.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
 import 'package:flutter/material.dart';
 
-final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
+final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
     EditSchema(
   title: (item) {
     return musicEditHeaderTitle(title: item.title, artist: item.artist);
@@ -19,12 +19,12 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
     return null;
   },
   tabs: [
-    EditTabSpec<MusicReleaseEditDraft>(
+    EditTabSpec<MusicAlbumEditDraft>(
       id: 'main',
       label: 'Main',
       icon: Icons.music_note_outlined,
       sections: [
-        EditSectionSpec<MusicReleaseEditDraft>(
+        EditSectionSpec<MusicAlbumEditDraft>(
           id: 'catalog_item',
           label: 'Catalog Item',
           maxColumns: 3,
@@ -46,12 +46,12 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
         ),
       ],
     ),
-    EditTabSpec<MusicReleaseEditDraft>(
+    EditTabSpec<MusicAlbumEditDraft>(
       id: 'details',
       label: 'Details',
       icon: Icons.info_outline,
       sections: [
-        EditSectionSpec<MusicReleaseEditDraft>(
+        EditSectionSpec<MusicAlbumEditDraft>(
           id: 'additional_details',
           label: 'Additional details',
           fields: _fields([
@@ -78,16 +78,16 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
         ),
       ],
     ),
-    EditTabSpec<MusicReleaseEditDraft>(
+    EditTabSpec<MusicAlbumEditDraft>(
       id: 'personal',
       label: 'Personal',
       icon: Icons.headphones_outlined,
       sections: [
-        EditSectionSpec<MusicReleaseEditDraft>(
+        EditSectionSpec<MusicAlbumEditDraft>(
           id: 'listening',
           label: 'Listening',
           fields: [
-            LibraryVocabularyFieldSpec<MusicReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<MusicAlbumEditDraft, String>(
               id: 'tracking_status',
               label: 'Status',
               value: (draft) => draft.trackingStatus,
@@ -100,7 +100,7 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
                   ),
               ],
             ),
-            LibraryNumberFieldSpec<MusicReleaseEditDraft>(
+            LibraryNumberFieldSpec<MusicAlbumEditDraft>(
               id: 'tracking_rating',
               label: 'Rating',
               value: (draft) => draft.trackingRating?.toDouble(),
@@ -108,7 +108,7 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
               minimum: 0,
               maximum: 5,
             ),
-            LibraryTextFieldSpec<MusicReleaseEditDraft>(
+            LibraryTextFieldSpec<MusicAlbumEditDraft>(
               id: 'tracking_notes',
               label: 'Notes',
               value: (draft) => draft.trackingNotes ?? '',
@@ -122,8 +122,8 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
   ],
 );
 
-List<LibraryFieldSpec<MusicReleaseEditDraft>> _fields(List<String> ids) {
-  final all = musicReleaseFields<MusicReleaseEditDraft>(
+List<LibraryFieldSpec<MusicAlbumEditDraft>> _fields(List<String> ids) {
+  final all = musicAlbumFields<MusicAlbumEditDraft>(
     values: (draft) => draft.values,
   );
   final fieldsById = {for (final field in all) field.id: field};

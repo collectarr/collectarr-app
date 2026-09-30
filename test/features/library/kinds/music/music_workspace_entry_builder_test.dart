@@ -1,10 +1,11 @@
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Music catalog mapper builds one concrete album with contained discs', () {
+  test('Music catalog mapper builds one concrete album with contained discs',
+      () {
     final item = MusicCatalogMapper.mapDtoToMusic(
       testCatalogItem(
         id: 'music-album-1',
@@ -38,7 +39,7 @@ void main() {
       ),
     );
 
-    expect(item, isA<MusicRelease>());
+    expect(item, isA<MusicAlbum>());
     expect(item.id.value, 'music-album-1');
     expect(item.title, 'Kinesis');
     expect(item.artist, 'Porcupine Tree');

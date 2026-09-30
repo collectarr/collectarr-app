@@ -32,6 +32,7 @@ void main() {
       catalogRef: album,
       ownedRef: const OwnedCopyRef(
         kind: CatalogMediaKind.music,
+        itemId: 'album-1',
         id: OwnedCopyId('owned-1'),
       ),
       listenedAt: DateTime.utc(2026, 8, 2),

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
@@ -7,7 +7,7 @@ abstract interface class MusicWorkspaceProjection
     implements LibraryWorkspaceDto {
   WorkspaceCommonProjection get common;
   PersonalCopyProjection get personal;
-  MusicRelease get music;
+  MusicAlbum get music;
   MusicCatalogItemListeningSummary? get listeningSummary;
 
   String? get currency;
@@ -49,7 +49,7 @@ abstract class MusicWorkspaceProjectionValues
   @override
   final PersonalCopyProjection personal;
   @override
-  final MusicRelease music;
+  final MusicAlbum music;
   @override
   final MusicCatalogItemListeningSummary? listeningSummary;
 

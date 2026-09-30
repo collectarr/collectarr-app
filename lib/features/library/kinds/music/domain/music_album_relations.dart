@@ -44,8 +44,8 @@ final class MusicArtistCredit implements JsonEncodable {
 
 /// A release label/catalog-number pair.
 @immutable
-final class MusicReleaseLabel implements JsonEncodable {
-  const MusicReleaseLabel({
+final class MusicAlbumLabel implements JsonEncodable {
+  const MusicAlbumLabel({
     required this.id,
     this.labelId,
     required this.labelName,
@@ -59,8 +59,8 @@ final class MusicReleaseLabel implements JsonEncodable {
   final String? catalogNumber;
   final int? sequence;
 
-  factory MusicReleaseLabel.fromJson(Map<String, dynamic> json) =>
-      MusicReleaseLabel(
+  factory MusicAlbumLabel.fromJson(Map<String, dynamic> json) =>
+      MusicAlbumLabel(
         id: _text(json['id']) ?? '',
         labelId: _text(json['label_id']),
         labelName:
@@ -79,15 +79,15 @@ final class MusicReleaseLabel implements JsonEncodable {
       };
 }
 
-/// A release credit row matching Core's music_release_contributions table.
+/// A release credit row matching Core's music_album_contributions table.
 ///
 /// The canonical relation is identified by [personId]; display data is kept
 /// in explicit fields so it can be persisted without an untyped payload.
 @immutable
-final class MusicReleaseContribution implements JsonEncodable {
-  MusicReleaseContribution({
+final class MusicAlbumContribution implements JsonEncodable {
+  MusicAlbumContribution({
     required this.id,
-    required this.releaseId,
+    required this.albumId,
     required this.personId,
     required this.role,
     this.roleId,
@@ -101,8 +101,8 @@ final class MusicReleaseContribution implements JsonEncodable {
         updatedAt =
             updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
-  final MusicReleaseContributionId id;
-  final MusicReleaseId releaseId;
+  final MusicAlbumContributionId id;
+  final MusicAlbumId albumId;
   final String personId;
   final String role;
   final String? roleId;
@@ -112,10 +112,10 @@ final class MusicReleaseContribution implements JsonEncodable {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  factory MusicReleaseContribution.fromJson(Map<String, dynamic> json) {
-    return MusicReleaseContribution(
-      id: MusicReleaseContributionId(_text(json['id']) ?? ''),
-      releaseId: MusicReleaseId(_text(json['release_id']) ?? ''),
+  factory MusicAlbumContribution.fromJson(Map<String, dynamic> json) {
+    return MusicAlbumContribution(
+      id: MusicAlbumContributionId(_text(json['id']) ?? ''),
+      albumId: MusicAlbumId(_text(json['album_id']) ?? ''),
       personId: _text(json['person_id']) ?? '',
       role: _text(json['role']) ?? 'Artist',
       roleId: _text(json['role_id']),
@@ -130,7 +130,7 @@ final class MusicReleaseContribution implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => {
         'id': id.value,
-        'release_id': releaseId.value,
+        'album_id': albumId.value,
         'person_id': personId,
         'role': role,
         'created_at': createdAt.toIso8601String(),
@@ -142,12 +142,12 @@ final class MusicReleaseContribution implements JsonEncodable {
       };
 }
 
-/// A release identifier row matching Core's music_release_identifiers table.
+/// A release identifier row matching Core's music_album_identifiers table.
 @immutable
-final class MusicReleaseIdentifier implements JsonEncodable {
-  MusicReleaseIdentifier({
+final class MusicAlbumIdentifier implements JsonEncodable {
+  MusicAlbumIdentifier({
     required this.id,
-    required this.releaseId,
+    required this.albumId,
     required this.identifierType,
     required this.value,
     this.normalizedValue,
@@ -159,8 +159,8 @@ final class MusicReleaseIdentifier implements JsonEncodable {
         updatedAt =
             updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
-  final MusicReleaseIdentifierId id;
-  final MusicReleaseId releaseId;
+  final MusicAlbumIdentifierId id;
+  final MusicAlbumId albumId;
   final String identifierType;
   final String value;
   final String? normalizedValue;
@@ -168,10 +168,10 @@ final class MusicReleaseIdentifier implements JsonEncodable {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  factory MusicReleaseIdentifier.fromJson(Map<String, dynamic> json) {
-    return MusicReleaseIdentifier(
-      id: MusicReleaseIdentifierId(_text(json['id']) ?? ''),
-      releaseId: MusicReleaseId(_text(json['release_id']) ?? ''),
+  factory MusicAlbumIdentifier.fromJson(Map<String, dynamic> json) {
+    return MusicAlbumIdentifier(
+      id: MusicAlbumIdentifierId(_text(json['id']) ?? ''),
+      albumId: MusicAlbumId(_text(json['album_id']) ?? ''),
       identifierType: _text(json['identifier_type']) ?? 'unknown',
       value: _text(json['value']) ?? '',
       normalizedValue: _text(json['normalized_value']),
@@ -184,7 +184,7 @@ final class MusicReleaseIdentifier implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => {
         'id': id.value,
-        'release_id': releaseId.value,
+        'album_id': albumId.value,
         'identifier_type': identifierType,
         'value': value,
         'created_at': createdAt.toIso8601String(),

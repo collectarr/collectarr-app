@@ -1,23 +1,23 @@
 import 'dart:typed_data';
 
-enum MusicReleaseImagePurpose {
+enum MusicAlbumImagePurpose {
   cover('cover'),
   personal('personal');
 
-  const MusicReleaseImagePurpose(this.storageValue);
+  const MusicAlbumImagePurpose(this.storageValue);
 
   final String storageValue;
 }
 
-/// Locally managed image attached to one exact Music release.
+/// Locally managed image attached to one exact Music album.
 ///
 /// Front/back artwork is distinct from personal booklet, signature, and other
 /// reference images, even though both are stored in the same release-owned
 /// table.
-final class MusicReleaseImage {
-  const MusicReleaseImage({
+final class MusicAlbumImage {
+  const MusicAlbumImage({
     required this.id,
-    required this.releaseId,
+    required this.albumId,
     required this.purpose,
     required this.imageType,
     required this.imageData,
@@ -27,23 +27,23 @@ final class MusicReleaseImage {
   });
 
   final String id;
-  final String releaseId;
-  final MusicReleaseImagePurpose purpose;
+  final String albumId;
+  final MusicAlbumImagePurpose purpose;
   final String imageType;
   final Uint8List imageData;
   final String? description;
   final int sortOrder;
   final DateTime createdAt;
 
-  MusicReleaseImage copyWith({
+  MusicAlbumImage copyWith({
     String? imageType,
     Uint8List? imageData,
     String? description,
     int? sortOrder,
   }) =>
-      MusicReleaseImage(
+      MusicAlbumImage(
         id: id,
-        releaseId: releaseId,
+        albumId: albumId,
         purpose: purpose,
         imageType: imageType ?? this.imageType,
         imageData: imageData ?? this.imageData,

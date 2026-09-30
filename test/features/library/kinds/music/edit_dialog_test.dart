@@ -3,10 +3,10 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_schema.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -17,9 +17,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('music edit header uses album and artist without an Edit prefix', () {
-    final title = musicReleaseEditSchema.title!(
-      MusicRelease(
-        id: const MusicReleaseId('album-edit'),
+    final title = musicAlbumEditSchema.title!(
+      MusicAlbum(
+        id: const MusicAlbumId('album-edit'),
         title: 'Test Album',
         artist: 'Test Artist',
       ),
@@ -65,7 +65,7 @@ void main() {
                   await showDialog<void>(
                     context: context,
                     builder: (context) =>
-                        buildMusicReleaseLibraryEditDialog(context, request),
+                        buildMusicAlbumLibraryEditDialog(context, request),
                   );
                 },
                 child: const Text('Open'),
@@ -84,7 +84,7 @@ void main() {
     await tester.tap(coversTab);
     await tester.pumpAndSettle();
     expect(
-      find.byKey(const ValueKey('musicReleaseCoverImageUrlField')),
+      find.byKey(const ValueKey('musicAlbumCoverImageUrlField')),
       findsNothing,
     );
 
@@ -102,7 +102,7 @@ void main() {
             widget.key is ValueKey<String> &&
             (widget.key as ValueKey<String>)
                 .value
-                .startsWith('musicReleaseLinkUrl_'),
+                .startsWith('musicAlbumLinkUrl_'),
       ),
       findsOneWidget,
     );
@@ -155,7 +155,7 @@ void main() {
                   await showDialog<void>(
                     context: context,
                     builder: (context) =>
-                        buildMusicReleaseLibraryEditDialog(context, request),
+                        buildMusicAlbumLibraryEditDialog(context, request),
                   );
                 },
                 child: const Text('Open'),

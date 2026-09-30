@@ -7,8 +7,8 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_owned_copy_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_item_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
@@ -59,6 +59,7 @@ void main() {
         releaseId: 'release-1',
         ownedRef: OwnedCopyRef(
           kind: CatalogMediaKind.music,
+          itemId: 'release-1',
           id: OwnedCopyId('owned-1'),
         ),
       ),
@@ -113,8 +114,8 @@ void main() {
   });
 
   test('Music workspace derives its artist from item credits', () {
-    final item = MusicRelease(
-      id: const MusicReleaseId('album-1'),
+    final item = MusicAlbum(
+      id: const MusicAlbumId('album-1'),
       title: 'Compilation',
       barcode: '123',
       catalogNumber: 'CAT-1',
@@ -128,9 +129,9 @@ void main() {
       ),
       boxSetName: 'The Box',
       contributions: [
-        MusicReleaseContribution(
-          id: const MusicReleaseContributionId('credit-1'),
-          releaseId: const MusicReleaseId('album-1'),
+        MusicAlbumContribution(
+          id: const MusicAlbumContributionId('credit-1'),
+          albumId: const MusicAlbumId('album-1'),
           personId: 'artist-1',
           role: 'Performer',
           displayName: 'Typed Artist',

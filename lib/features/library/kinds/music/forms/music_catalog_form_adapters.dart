@@ -1,16 +1,17 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
-abstract final class MusicReleaseFormAdapter {
-  static MusicRelease create(
-    MusicReleaseFormValues values, {
-    required MusicReleaseId id,
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
+
+abstract final class MusicAlbumFormAdapter {
+  static MusicAlbum create(
+    MusicAlbumFormValues values, {
+    required MusicAlbumId id,
     List<MusicMedium> mediums = const [],
   }) =>
-      MusicRelease(
+      MusicAlbum(
         id: id,
         title: values.title.trim(),
         sortTitle: _text(values.sortTitle),
@@ -44,14 +45,14 @@ abstract final class MusicReleaseFormAdapter {
         mediums: List.unmodifiable(mediums),
       );
 
-  static MusicRelease update(
-    MusicRelease original,
-    MusicReleaseFormValues values, {
+  static MusicAlbum update(
+    MusicAlbum original,
+    MusicAlbumFormValues values, {
     List<MusicMedium>? mediums,
     List<MusicExternalLink>? externalLinks,
-    List<MusicReleaseContribution>? contributions,
+    List<MusicAlbumContribution>? contributions,
   }) =>
-      MusicRelease(
+      MusicAlbum(
         id: original.id,
         title: values.title.trim(),
         sortTitle: _text(values.sortTitle),

@@ -353,10 +353,10 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
   for (final item in musicCatalogItems.where((item) => isSeed(item.id))) {
     final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
     for (final medium in album.mediums) {
-      if (medium.releaseId.value != item.id) {
+      if (medium.albumId.value != item.id) {
         issues.add(
           'music disc ${medium.id.value} has mismatched album '
-          '${medium.releaseId.value}, expected ${item.id}',
+          '${medium.albumId.value}, expected ${item.id}',
         );
       }
       for (final track in medium.tracks) {

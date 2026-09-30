@@ -41,7 +41,7 @@ final musicCatalogItemWorkspaceSchema =
       MusicCatalogItemWorkspaceFields.genre,
       defaultWidth: 150,
     ),
-    musicReleaseDateColumn(
+    musicAlbumDateColumn(
       field: MusicCatalogItemWorkspaceFields.releaseDate,
     ),
     columnFromField<MusicKind, MusicWorkspaceProjection, num?>(

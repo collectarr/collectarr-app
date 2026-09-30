@@ -9,9 +9,9 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_track_list.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_candidate_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
@@ -268,7 +268,7 @@ class MusicLibraryMediaPresentationBuilder
         'creators': LibraryMetadataSection(
           values: [
             for (final contribution
-                in album?.contributions ?? const <MusicReleaseContribution>[])
+                in album?.contributions ?? const <MusicAlbumContribution>[])
               contribution.toJson(),
           ],
           placement: LibraryMetadataSectionPlacement.credits,
@@ -310,12 +310,12 @@ class MusicLibraryMediaPresentationBuilder
   }
 }
 
-MusicRelease? _musicCatalogItem(LibraryProjectionView item) {
+MusicAlbum? _musicCatalogItem(LibraryProjectionView item) {
   final catalog = item.source.catalogData;
   return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }
 
-String _musicDuration(MusicRelease item) {
+String _musicDuration(MusicAlbum item) {
   final totalSeconds = item.tracks.fold<int>(
     0,
     (total, track) => total + (track.durationMs ?? 0) ~/ 1000,

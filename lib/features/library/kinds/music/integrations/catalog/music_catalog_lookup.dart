@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
 final class MusicCatalogLookup implements CatalogKindLookup {
   MusicCatalogLookup(this._db);
@@ -62,7 +62,7 @@ final class MusicCatalogLookup implements CatalogKindLookup {
     return null;
   }
 
-  CatalogSearchHit _hit(MusicRelease item) {
+  CatalogSearchHit _hit(MusicAlbum item) {
     return catalogLookupHit(
       kind: kind,
       id: item.id.value,

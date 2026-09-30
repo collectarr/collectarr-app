@@ -1,16 +1,16 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:drift/drift.dart';
 
-final class MusicReleaseImageRepository {
-  const MusicReleaseImageRepository(this._db);
+final class MusicAlbumImageRepository {
+  const MusicAlbumImageRepository(this._db);
 
   final LocalDatabase _db;
 
-  Future<List<MusicReleaseImage>> listForRelease(String releaseId) async {
-    _requireReleaseId(releaseId);
-    final rows = await (_db.select(_db.musicReleaseImagesRows)
-          ..where((row) => row.releaseId.equals(releaseId))
+  Future<List<MusicAlbumImage>> listForAlbum(String albumId) async {
+    _requireAlbumId(albumId);
+    final rows = await (_db.select(_db.musicAlbumImagesRows)
+          ..where((row) => row.albumId.equals(albumId))
           ..orderBy([
             (row) => OrderingTerm.asc(row.purpose),
             (row) => OrderingTerm.asc(row.sortOrder),
@@ -19,10 +19,10 @@ final class MusicReleaseImageRepository {
         .get();
     return [
       for (final row in rows)
-        MusicReleaseImage(
+        MusicAlbumImage(
           id: row.id,
-          releaseId: row.releaseId,
-          purpose: MusicReleaseImagePurpose.values.firstWhere(
+          albumId: row.albumId,
+          purpose: MusicAlbumImagePurpose.values.firstWhere(
             (purpose) => purpose.storageValue == row.purpose,
           ),
           imageType: row.imageType,
@@ -34,12 +34,12 @@ final class MusicReleaseImageRepository {
     ];
   }
 
-  Future<void> upsert(MusicReleaseImage image) {
-    _requireReleaseId(image.releaseId);
-    return _db.into(_db.musicReleaseImagesRows).insertOnConflictUpdate(
-          MusicReleaseImagesRowsCompanion.insert(
+  Future<void> upsert(MusicAlbumImage image) {
+    _requireAlbumId(image.albumId);
+    return _db.into(_db.musicAlbumImagesRows).insertOnConflictUpdate(
+          MusicAlbumImagesRowsCompanion.insert(
             id: image.id,
-            releaseId: image.releaseId,
+            albumId: image.albumId,
             purpose: image.purpose.storageValue,
             imageType: image.imageType,
             imageData: image.imageData,
@@ -50,34 +50,33 @@ final class MusicReleaseImageRepository {
         );
   }
 
-  Future<void> replaceForRelease(
-    String releaseId,
-    List<MusicReleaseImage> images,
+  Future<void> replaceForAlbum(
+    String albumId,
+    List<MusicAlbumImage> images,
   ) async {
-    _requireReleaseId(releaseId);
-    if (images.any((image) => image.releaseId != releaseId)) {
-      throw StateError('Release image batch contains a different release id.');
+    _requireAlbumId(albumId);
+    if (images.any((image) => image.albumId != albumId)) {
+      throw StateError('Album image batch contains a different album id.');
     }
     if (images
-            .where(
-                (image) => image.purpose == MusicReleaseImagePurpose.personal)
+            .where((image) => image.purpose == MusicAlbumImagePurpose.personal)
             .length >
         5) {
       throw StateError(
-          'A Music release can have at most five personal images.');
+          'A Music album can have at most five personal images.');
     }
     await _db.transaction(() async {
-      await (_db.delete(_db.musicReleaseImagesRows)
-            ..where((row) => row.releaseId.equals(releaseId)))
+      await (_db.delete(_db.musicAlbumImagesRows)
+            ..where((row) => row.albumId.equals(albumId)))
           .go();
       if (images.isEmpty) return;
       await _db.batch((batch) {
         batch.insertAll(
-          _db.musicReleaseImagesRows,
+          _db.musicAlbumImagesRows,
           images.map(
-            (image) => MusicReleaseImagesRowsCompanion.insert(
+            (image) => MusicAlbumImagesRowsCompanion.insert(
               id: image.id,
-              releaseId: image.releaseId,
+              albumId: image.albumId,
               purpose: image.purpose.storageValue,
               imageType: image.imageType,
               imageData: image.imageData,
@@ -94,14 +93,14 @@ final class MusicReleaseImageRepository {
 
   Future<void> delete(String id) async {
     if (id.trim().isEmpty) throw ArgumentError.value(id, 'id');
-    await (_db.delete(_db.musicReleaseImagesRows)
+    await (_db.delete(_db.musicAlbumImagesRows)
           ..where((row) => row.id.equals(id)))
         .go();
   }
 
-  static void _requireReleaseId(String releaseId) {
-    if (releaseId.trim().isEmpty) {
-      throw ArgumentError.value(releaseId, 'releaseId');
+  static void _requireAlbumId(String albumId) {
+    if (albumId.trim().isEmpty) {
+      throw ArgumentError.value(albumId, 'albumId');
     }
   }
 }

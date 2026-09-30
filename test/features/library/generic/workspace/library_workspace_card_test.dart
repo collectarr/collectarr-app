@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
@@ -84,8 +84,8 @@ void main() {
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
       catalogData: MusicWorkspaceCatalogData.fromMusic(
-        MusicRelease(
-          id: const MusicReleaseId('music-1'),
+        MusicAlbum(
+          id: const MusicAlbumId('music-1'),
           title: 'Discovery',
           artist: 'Daft Punk',
           publisher: 'Virgin',

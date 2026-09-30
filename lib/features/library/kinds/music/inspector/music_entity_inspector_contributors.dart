@@ -22,7 +22,7 @@ Widget buildMusicWorkInspectorHero(
   );
 }
 
-Widget buildMusicReleaseInspectorHero(
+Widget buildMusicAlbumInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -57,7 +57,7 @@ List<Widget> buildMusicWorkInspectorSections(
   return _buildMusicInspectorSections(context, request);
 }
 
-List<Widget> buildMusicReleaseInspectorSections(
+List<Widget> buildMusicAlbumInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {

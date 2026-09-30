@@ -12,13 +12,13 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_l
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
 final class MusicCatalogTransportCodec
     implements
-        CatalogKindTransportCodec<MusicRelease>,
+        CatalogKindTransportCodec<MusicAlbum>,
         CatalogWorkspaceDataEnricher,
         CatalogSharedCachePrimaryStore {
   const MusicCatalogTransportCodec();
@@ -27,19 +27,19 @@ final class MusicCatalogTransportCodec
   CatalogMediaKind get kind => CatalogMediaKind.music;
 
   @override
-  MusicRelease decode(CatalogItemDto item) {
+  MusicAlbum decode(CatalogItemDto item) {
     final metadata = item.kindMetadata;
-    if (metadata is MusicRelease) return metadata;
+    if (metadata is MusicAlbum) return metadata;
     return MusicCatalogMapper.mapMetadataItemToMusic(item);
   }
 
   @override
-  Future<void> upsert(LocalDatabase db, MusicRelease item) {
+  Future<void> upsert(LocalDatabase db, MusicAlbum item) {
     return CatalogItemCacheRepository(db).upsert(_projection(item));
   }
 
   @override
-  CatalogDisplaySummary summarize(MusicRelease item) =>
+  CatalogDisplaySummary summarize(MusicAlbum item) =>
       CatalogDisplaySummary.root(
         kind: kind,
         id: item.id.value,
@@ -116,7 +116,7 @@ final class MusicCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    MusicRelease item,
+    MusicAlbum item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -126,7 +126,7 @@ final class MusicCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(MusicRelease item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(MusicAlbum item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -165,7 +165,7 @@ int? _replacementValueFromPayload(CatalogItemDto item) {
   return nested is num ? nested.toInt() : null;
 }
 
-CatalogItemDto _projection(MusicRelease item) {
+CatalogItemDto _projection(MusicAlbum item) {
   // The local repository stores discs and tracks in child tables. Rebuild the
   // complete concrete item payload when catalog features need a typed view.
   final payload = Map<String, dynamic>.from(item.toJson())

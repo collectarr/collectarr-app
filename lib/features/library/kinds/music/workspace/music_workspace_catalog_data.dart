@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
 /// Music workspace data for one concrete album item.
@@ -14,7 +14,7 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   });
 
   factory MusicWorkspaceCatalogData.fromMusic(
-    MusicRelease music, {
+    MusicAlbum music, {
     CatalogEntityRef? ref,
     MusicCatalogItemListeningSummary? listeningSummary,
   }) {
@@ -32,7 +32,7 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
 
   @override
   final CatalogEntityRef ref;
-  final MusicRelease music;
+  final MusicAlbum music;
   final MusicCatalogItemListeningSummary? listeningSummary;
 
   MusicWorkspaceCatalogData copyWith({

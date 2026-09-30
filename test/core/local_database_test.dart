@@ -23,9 +23,13 @@ void main() {
     expect(names, contains('book_release_rows'));
     expect(names, contains('tv_episode_rows'));
     expect(names, contains('anime_watch_session_rows'));
-    expect(names, contains('music_track_rows'));
-    expect(names, contains('music_release_external_links_rows'));
-    expect(names, contains('music_release_box_set_membership_rows'));
+    expect(names, contains('music_album_images_rows'));
+    expect(names, contains('music_owned_items_rows'));
+    expect(names, contains('music_tracking_rows'));
+    expect(names, contains('music_listen_events_rows'));
+    expect(names, isNot(contains('music_album_rows')));
+    expect(names, isNot(contains('music_medium_rows')));
+    expect(names, isNot(contains('music_track_rows')));
   });
 
   test('creates all kind-owned tables', () async {
@@ -41,7 +45,8 @@ void main() {
       'movie_media_rows',
       'tv_series_rows',
       'anime_media_rows',
-      'music_medium_rows',
+      'music_album_images_rows',
+      'music_owned_items_rows',
     ];
     final tables = await db
         .customSelect(

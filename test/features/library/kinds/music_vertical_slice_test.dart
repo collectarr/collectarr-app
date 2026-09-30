@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,8 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('one Music Catalog Item round-trips its edition and contained discs',
       () {
-    final album = MusicRelease(
-      id: const MusicReleaseId('album-1'),
+    final album = MusicAlbum(
+      id: const MusicAlbumId('album-1'),
       title: 'The Dark Side of the Moon (Vinyl)',
       artist: 'Pink Floyd',
       originalReleaseDate: DateTime(1973, 3, 1),
@@ -25,7 +25,7 @@ void main() {
       mediums: [
         MusicMedium(
           id: const MusicMediumId('disc-1'),
-          releaseId: const MusicReleaseId('album-1'),
+          releaseId: const MusicAlbumId('album-1'),
           mediumNumber: 1,
           mediumType: 'Vinyl',
           tracks: [
@@ -47,9 +47,9 @@ void main() {
         ),
       ],
       contributions: [
-        MusicReleaseContribution(
-          id: const MusicReleaseContributionId('contribution-1'),
-          releaseId: const MusicReleaseId('album-1'),
+        MusicAlbumContribution(
+          id: const MusicAlbumContributionId('contribution-1'),
+          releaseId: const MusicAlbumId('album-1'),
           personId: 'person-pink-floyd',
           role: 'Artist',
           displayName: 'Pink Floyd',
@@ -57,7 +57,7 @@ void main() {
       ],
     );
 
-    final restored = MusicRelease.fromJson(album.toJson());
+    final restored = MusicAlbum.fromJson(album.toJson());
     expect(restored.id, album.id);
     expect(restored.title, album.title);
     expect(restored.artist, 'Pink Floyd');

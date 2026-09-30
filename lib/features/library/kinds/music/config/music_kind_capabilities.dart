@@ -3,7 +3,7 @@ import 'music_kind_configuration.dart';
 import '../actions/music_log_listen_action.dart';
 import '../add/music_add_contribution.dart';
 import '../data/remote/catalog_music_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
 final musicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.music,
@@ -134,7 +134,7 @@ final musicKindInspector = LibraryInspectorCapability(
 );
 
 final musicKindLinkedMetadata =
-    TypedLibraryLinkedMetadataCapability<MusicRelease>(
+    TypedLibraryLinkedMetadataCapability<MusicAlbum>(
   musicLinkedMetadata,
   musicLinkedMetadataValues,
 );

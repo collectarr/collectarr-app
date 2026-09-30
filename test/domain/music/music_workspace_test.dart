@@ -3,8 +3,8 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
@@ -24,7 +24,7 @@ void main() {
     );
 
     expect(dto.title, 'The Wall');
-    expect(dto.music.id, const MusicReleaseId('album-1'));
+    expect(dto.music.id, const MusicAlbumId('album-1'));
     expect(dto.music.artist, 'Pink Floyd');
     expect(dto.music.mediums, hasLength(1));
     expect(dto.music.tracks, hasLength(2));
@@ -32,14 +32,14 @@ void main() {
   });
 
   test('contained disc and track ownership follows its album', () {
-    final album = MusicRelease.fromJson({
+    final album = MusicAlbum.fromJson({
       'id': 'album-2',
       'title': 'Discovery CD',
       'artist': 'Daft Punk',
       'mediums': [
         {
           'id': 'disc-1',
-          'release_id': 'album-2',
+          'album_id': 'album-2',
           'medium_number': 1,
           'medium_type': 'CD',
           'tracks': [
@@ -55,9 +55,9 @@ void main() {
     });
 
     expect(album.id.value, 'album-2');
-    expect(album.mediums.single.releaseId, album.id);
-    expect(album.mediums.single.tracks.single.mediumId,
-        album.mediums.single.id);
+    expect(album.mediums.single.albumId, album.id);
+    expect(
+        album.mediums.single.tracks.single.mediumId, album.mediums.single.id);
     expect(album.mediums.single.tracks.single.title, 'One More Time');
   });
 
@@ -109,7 +109,7 @@ void main() {
 }
 
 LibraryWorkspaceSource _source(
-  MusicRelease album, {
+  MusicAlbum album, {
   MusicCatalogItemListeningSummary? listeningSummary,
 }) =>
     LibraryWorkspaceSource(
@@ -125,8 +125,8 @@ LibraryWorkspaceSource _source(
       ),
     );
 
-MusicRelease _album() => MusicRelease(
-      id: const MusicReleaseId('album-1'),
+MusicAlbum _album() => MusicAlbum(
+      id: const MusicAlbumId('album-1'),
       title: 'The Wall',
       artist: 'Pink Floyd',
       genres: const ['Rock'],
@@ -135,7 +135,7 @@ MusicRelease _album() => MusicRelease(
       mediums: [
         MusicMedium(
           id: const MusicMediumId('disc-1'),
-          releaseId: const MusicReleaseId('album-1'),
+          albumId: const MusicAlbumId('album-1'),
           mediumNumber: 1,
           mediumType: 'Vinyl',
           tracks: [
@@ -156,9 +156,9 @@ MusicRelease _album() => MusicRelease(
         ),
       ],
       contributions: [
-        MusicReleaseContribution(
-          id: const MusicReleaseContributionId('contribution-1'),
-          releaseId: const MusicReleaseId('album-1'),
+        MusicAlbumContribution(
+          id: const MusicAlbumContributionId('contribution-1'),
+          albumId: const MusicAlbumId('album-1'),
           personId: 'person-pink-floyd',
           role: 'Performer',
           displayName: 'Pink Floyd',

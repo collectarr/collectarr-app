@@ -53,6 +53,7 @@ void main() {
         catalogRef: item,
         ownedRef: const OwnedCopyRef(
           kind: CatalogMediaKind.music,
+          itemId: 'music-item-1',
           id: OwnedCopyId('copy-1'),
         ),
         updatedAt: DateTime.utc(2026, 9, 15),

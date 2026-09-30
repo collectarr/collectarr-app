@@ -4,13 +4,13 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
 /// Music owns the mapping from a selected release's date to calendar time.
 final class MusicCalendarContributor implements LibraryCalendarContributor {
   const MusicCalendarContributor({this.loadAlbum});
 
-  final Future<MusicRelease?> Function(String id)? loadAlbum;
+  final Future<MusicAlbum?> Function(String id)? loadAlbum;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;
@@ -39,7 +39,7 @@ final class MusicCalendarContributor implements LibraryCalendarContributor {
     return events;
   }
 
-  Future<MusicRelease?> _loadAlbum(
+  Future<MusicAlbum?> _loadAlbum(
     LibraryCalendarContext context,
     String id,
   ) {

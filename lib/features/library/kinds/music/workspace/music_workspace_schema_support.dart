@@ -55,7 +55,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
 }
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
-    musicReleaseDateColumn({
+    musicAlbumDateColumn({
   required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection,
           DateTime?>
       field,

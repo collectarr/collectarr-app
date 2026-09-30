@@ -1,19 +1,19 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_header_title.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_images_links_tab.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_images_tabs.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_providers.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_structure_tabs.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_credits_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_images_links_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_images_tabs.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_album_image_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_album_image_providers.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_structure_tabs.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_credits_tab.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -23,32 +23,32 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-Widget buildMusicReleaseLibraryEditDialog(
+Widget buildMusicAlbumLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) =>
-    _MusicReleaseEditDialog(request: request);
+    _MusicAlbumEditDialog(request: request);
 
-final class _MusicReleaseEditDialog extends ConsumerStatefulWidget {
-  const _MusicReleaseEditDialog({required this.request});
+final class _MusicAlbumEditDialog extends ConsumerStatefulWidget {
+  const _MusicAlbumEditDialog({required this.request});
 
   final LibraryEditDialogRequest request;
 
   @override
-  ConsumerState<_MusicReleaseEditDialog> createState() =>
-      _MusicReleaseEditDialogState();
+  ConsumerState<_MusicAlbumEditDialog> createState() =>
+      _MusicAlbumEditDialogState();
 }
 
-final class _MusicReleaseEditDialogState
-    extends ConsumerState<_MusicReleaseEditDialog> {
-  late final MusicRelease _release;
-  late final MusicReleaseEditDraft _draft;
-  late final MusicReleaseCreditsEditor _creditsEditor;
+final class _MusicAlbumEditDialogState
+    extends ConsumerState<_MusicAlbumEditDialog> {
+  late final MusicAlbum _release;
+  late final MusicAlbumEditDraft _draft;
+  late final MusicAlbumCreditsEditor _creditsEditor;
   late final Future<void> _imagesLoaded;
   late Map<String, String?> _customFieldEdits;
   final Map<String, ({String listName, String value, String? mediaKind})>
       _pendingCustomFieldVocabularyValues = {};
-  List<MusicReleaseImage> _releaseImages = const [];
+  List<MusicAlbumImage> _releaseImages = const [];
   var _releaseImagesReady = false;
   var _releaseImagesDirty = false;
 
@@ -58,11 +58,11 @@ final class _MusicReleaseEditDialogState
     final transport = widget.request.kindItem.kindCapability
         .mapTransport((transport) => transport);
     _release = MusicCatalogMapper.mapMetadataItemToMusic(transport);
-    _draft = MusicReleaseEditDraft.fromRelease(
+    _draft = MusicAlbumEditDraft.fromRelease(
       _release,
       trackingSummary: widget.request.trackingSummary,
     );
-    _creditsEditor = MusicReleaseCreditsEditor(draft: _draft);
+    _creditsEditor = MusicAlbumCreditsEditor(draft: _draft);
     _customFieldEdits = {
       for (final value in widget.request.customFieldValues)
         value.fieldDefinitionId: value.value,
@@ -77,9 +77,9 @@ final class _MusicReleaseEditDialogState
   }
 
   Future<void> _loadReleaseImages() async {
-    final images = await MusicReleaseImageRepository(
+    final images = await MusicAlbumImageRepository(
       ref.read(localDatabaseProvider),
-    ).listForRelease(_release.id.value);
+    ).listForAlbum(_release.id.value);
     if (!mounted) return;
     setState(() {
       _releaseImages = images;
@@ -89,8 +89,8 @@ final class _MusicReleaseEditDialogState
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<MusicRelease, MusicReleaseEditDraft>(
-        schema: musicReleaseEditSchema,
+      LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>(
+        schema: musicAlbumEditSchema,
         model: _release,
         draft: _draft,
         title: musicEditHeaderTitle(
@@ -100,7 +100,7 @@ final class _MusicReleaseEditDialogState
         icon: widget.request.type.identity.icon,
         mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
-        tabOrderKey: 'library_edit_tabs_music_release',
+        tabOrderKey: 'library_edit_tabs_music_album',
         coreCorrectionSourceBuilder: () =>
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
@@ -114,16 +114,16 @@ final class _MusicReleaseEditDialogState
           EditSchemaExtraTab(
             label: 'Media',
             icon: Icons.album_outlined,
-            content: MusicReleaseStructureTab(
+            content: MusicAlbumStructureTab(
               draft: _draft,
-              section: MusicReleaseStructureSection.media,
+              section: MusicAlbumStructureSection.media,
               accent: widget.request.accent,
             ),
           ),
           EditSchemaExtraTab(
             label: 'Classical',
             icon: Icons.queue_music_outlined,
-            content: MusicReleaseCreditsTab(
+            content: MusicAlbumCreditsTab(
               editor: _creditsEditor,
               classical: true,
               accent: widget.request.accent,
@@ -132,16 +132,16 @@ final class _MusicReleaseEditDialogState
           EditSchemaExtraTab(
             label: 'Tracks',
             icon: Icons.format_list_numbered,
-            content: MusicReleaseStructureTab(
+            content: MusicAlbumStructureTab(
               draft: _draft,
-              section: MusicReleaseStructureSection.tracks,
+              section: MusicAlbumStructureSection.tracks,
               accent: widget.request.accent,
             ),
           ),
           EditSchemaExtraTab(
             label: 'People',
             icon: Icons.people_outline,
-            content: MusicReleaseCreditsTab(
+            content: MusicAlbumCreditsTab(
               editor: _creditsEditor,
               classical: false,
               accent: widget.request.accent,
@@ -180,8 +180,8 @@ final class _MusicReleaseEditDialogState
             label: 'Covers',
             icon: Icons.photo_camera_outlined,
             content: _releaseImagesReady
-                ? MusicReleaseCoversTab(
-                    releaseId: _release.id.value,
+                ? MusicAlbumCoversTab(
+                    albumId: _release.id.value,
                     draft: _draft,
                     images: _releaseImages,
                     onImagesChanged: (images) => setState(() {
@@ -195,8 +195,8 @@ final class _MusicReleaseEditDialogState
             label: 'My Images',
             icon: Icons.collections_outlined,
             content: _releaseImagesReady
-                ? MusicReleaseMyImagesTab(
-                    releaseId: _release.id.value,
+                ? MusicAlbumMyImagesTab(
+                    albumId: _release.id.value,
                     images: _releaseImages,
                     accent: widget.request.accent,
                     onImagesChanged: (images) => setState(() {
@@ -209,7 +209,7 @@ final class _MusicReleaseEditDialogState
           EditSchemaExtraTab(
             label: 'Links',
             icon: Icons.public,
-            content: MusicReleaseLinksTab(
+            content: MusicAlbumLinksTab(
               draft: _draft,
               accent: widget.request.accent,
             ),
@@ -227,9 +227,9 @@ final class _MusicReleaseEditDialogState
             );
           }
           if (_releaseImagesDirty) {
-            await MusicReleaseImageRepository(ref.read(localDatabaseProvider))
-                .replaceForRelease(_release.id.value, _releaseImages);
-            ref.invalidate(musicReleaseImagesProvider(_release.id.value));
+            await MusicAlbumImageRepository(ref.read(localDatabaseProvider))
+                .replaceForAlbum(_release.id.value, _releaseImages);
+            ref.invalidate(musicAlbumImagesProvider(_release.id.value));
           }
           if (!mounted || !context.mounted) return;
           await _persistPendingCustomFieldVocabularyValues();

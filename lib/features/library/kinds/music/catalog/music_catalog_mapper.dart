@@ -1,19 +1,19 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
 /// Maps one flat Core Music Catalog Item into the local Music domain model.
 /// Discs and tracks remain contained children of this concrete album edition.
 final class MusicCatalogMapper {
   const MusicCatalogMapper._();
 
-  static MusicRelease mapDtoToMusic(CatalogItemDto dto) =>
+  static MusicAlbum mapDtoToMusic(CatalogItemDto dto) =>
       mapMetadataItemToMusic(dto);
 
-  static MusicRelease mapMetadataItemToMusic(CatalogItemDto item) {
+  static MusicAlbum mapMetadataItemToMusic(CatalogItemDto item) {
     final metadata = item.kindMetadata;
-    if (metadata is MusicRelease) return metadata;
+    if (metadata is MusicAlbum) return metadata;
     if (metadata is CatalogMusicItemDto) return _fromTypedDto(metadata);
 
     final payload = catalogTransportPayloadFor(item);
@@ -28,13 +28,13 @@ final class MusicCatalogMapper {
     return _fromTypedDto(CatalogMusicItemDto.fromJson(musicPayload));
   }
 
-  static MusicRelease _fromTypedDto(CatalogMusicItemDto item) {
+  static MusicAlbum _fromTypedDto(CatalogMusicItemDto item) {
     final discPayloads = <Map<String, dynamic>>[];
     for (final disc in item.discs) {
       final mediumId = '${item.id}:disc:${disc.discNumber}';
       discPayloads.add({
         'id': mediumId,
-        'release_id': item.id,
+        'album_id': item.id,
         'medium_number': disc.discNumber,
         if (disc.title != null) 'title': disc.title,
         if (disc.matrixNumberSideA != null)
@@ -56,7 +56,7 @@ final class MusicCatalogMapper {
       });
     }
 
-    return MusicRelease.fromJson({
+    return MusicAlbum.fromJson({
       'id': item.id,
       'kind': 'music',
       'title': item.title,
@@ -113,7 +113,7 @@ final class MusicCatalogMapper {
         result.add({
           'id': _text(person['contribution_id']) ??
               '${item.id}:$role:${result.length + 1}',
-          'release_id': item.id,
+          'album_id': item.id,
           'person_id': personId,
           'role': _text(person['role']) ?? role,
           'sequence': result.length + 1,

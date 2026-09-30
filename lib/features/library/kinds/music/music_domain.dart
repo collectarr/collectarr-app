@@ -2,14 +2,11 @@ export 'package:collectarr_app/features/library/kinds/music/domain/music_listeni
 export 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-export 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+export 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
-export 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+export 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
-export 'package:collectarr_app/features/library/kinds/music/domain/music_hierarchy_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/music/data/local/music_local_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 export 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
@@ -18,7 +15,7 @@ export 'package:collectarr_app/features/library/kinds/music/catalog/music_catalo
 export 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edit_schema.dart';
-export 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
-export 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
+export 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
+export 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';

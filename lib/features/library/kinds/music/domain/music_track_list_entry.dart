@@ -12,14 +12,14 @@ final class MusicTrackListEntry {
   const MusicTrackListEntry({
     required this.mediumNumber,
     required this.track,
-    this.releaseId,
+    this.albumId,
     this.releaseTitle,
     this.catalogNumber,
   });
 
   final int mediumNumber;
   final MusicTrack track;
-  final String? releaseId;
+  final String? albumId;
   final String? releaseTitle;
   final String? catalogNumber;
 

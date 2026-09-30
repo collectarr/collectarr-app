@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
@@ -26,7 +26,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Widget buildMusicOwnedCopiesTab({
   required CatalogSearchCandidate item,
-  required MusicRelease release,
+  required MusicAlbum release,
   required Color accent,
   required LibraryKindRegistration type,
 }) {
@@ -47,7 +47,7 @@ final class _MusicOwnedCopiesTab extends ConsumerStatefulWidget {
   });
 
   final CatalogSearchCandidate item;
-  final MusicRelease release;
+  final MusicAlbum release;
   final Color accent;
   final LibraryKindRegistration type;
 
@@ -317,7 +317,7 @@ final class _CopyFormValues {
 final class _CopyFormDialog extends StatefulWidget {
   const _CopyFormDialog({required this.release});
 
-  final MusicRelease release;
+  final MusicAlbum release;
 
   @override
   State<_CopyFormDialog> createState() => _CopyFormDialogState();

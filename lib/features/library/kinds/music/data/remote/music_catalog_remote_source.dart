@@ -27,8 +27,7 @@ final class MusicCatalogRemoteSource {
         if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
         if (barcode != null && barcode.trim().isNotEmpty)
           'barcode': barcode.trim(),
-        if (artist != null && artist.trim().isNotEmpty)
-          'artist': artist.trim(),
+        if (artist != null && artist.trim().isNotEmpty) 'artist': artist.trim(),
         if (label != null && label.trim().isNotEmpty) 'label': label.trim(),
         if (year != null) 'year': year,
         'limit': limit,

@@ -1,24 +1,24 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:flutter/material.dart';
 
-final class MusicReleaseLinksTab extends StatefulWidget {
-  const MusicReleaseLinksTab({
+final class MusicAlbumLinksTab extends StatefulWidget {
+  const MusicAlbumLinksTab({
     super.key,
     required this.draft,
     required this.accent,
   });
 
-  final MusicReleaseEditDraft draft;
+  final MusicAlbumEditDraft draft;
   final Color accent;
 
   @override
-  State<MusicReleaseLinksTab> createState() => _MusicReleaseLinksTabState();
+  State<MusicAlbumLinksTab> createState() => _MusicAlbumLinksTabState();
 }
 
-final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
+final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
   late final List<_ReleaseLinkRow> _rows;
 
   @override
@@ -88,9 +88,9 @@ final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
                     identity: row,
                     urlController: row.url,
                     descriptionController: row.description,
-                    urlFieldKey: ValueKey('musicReleaseLinkUrl_${row.key}'),
+                    urlFieldKey: ValueKey('musicAlbumLinkUrl_${row.key}'),
                     descriptionFieldKey:
-                        ValueKey('musicReleaseLinkDescription_${row.key}'),
+                        ValueKey('musicAlbumLinkDescription_${row.key}'),
                   ),
               ],
               accent: widget.accent,

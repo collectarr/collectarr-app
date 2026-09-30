@@ -5,7 +5,7 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [
     LibraryEntityEditContributor(
       scope: LibraryEntityScope.work,
-      builder: buildMusicReleaseLibraryEditDialog,
+      builder: buildMusicAlbumLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
       scope: LibraryEntityScope.copy,

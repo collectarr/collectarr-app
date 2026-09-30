@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -130,7 +130,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'packaging',
     label: 'Packaging',
     anyLabel: 'Any packaging',
-    value: (item) => _musicReleasesFor(item)
+    value: (item) => _musicAlbumsFor(item)
         .map((release) => release.packaging)
         .whereType<String>(),
   ),
@@ -138,7 +138,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'release_type',
     label: 'Release type',
     anyLabel: 'Any release type',
-    value: (item) => _musicReleasesFor(item)
+    value: (item) => _musicAlbumsFor(item)
         .map((release) => release.releaseType)
         .whereType<String>(),
   ),
@@ -225,14 +225,14 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   ),
 ];
 
-List<MusicRelease> _musicReleasesFor(LibraryProjectionView item) {
+List<MusicAlbum> _musicAlbumsFor(LibraryProjectionView item) {
   final dto = item.dto;
-  if (dto is! MusicWorkspaceProjection) return const <MusicRelease>[];
+  if (dto is! MusicWorkspaceProjection) return const <MusicAlbum>[];
   return [dto.music];
 }
 
 List<MusicMedium> _musicMediaFor(LibraryProjectionView item) => [
-      for (final release in _musicReleasesFor(item)) ...release.mediums,
+      for (final release in _musicAlbumsFor(item)) ...release.mediums,
     ];
 
 String musicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
