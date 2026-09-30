@@ -101,14 +101,6 @@ List<CoreFieldAdoptionPolicy> _policies() => [
         ignored: _kindReason('Comic'),
       ),
       _policy(
-        'MovieWorkDto',
-        'id title ageRating audienceRating characterAppearances contributions '
-            'description externalLinks identifiers originalLanguage '
-            'releaseDateValue releases runtimeMinutes sortTitle subtitle '
-            'trailerUrls',
-        ignored: _kindReason('Movie'),
-      ),
-      _policy(
         'TvSeriesDto',
         'id title characterAppearances contributions description endDate '
             'episodeCount identifiers media network originalAirDate '
