@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_schema.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 
@@ -36,6 +37,9 @@ Map<String, Object?>? buildMangaManualProposalData(
 }) {
   final candidate = buildMangaManualCandidate(draft, title: title);
   if (candidate == null) return null;
-  return Map<String, Object?>.from(
-      candidate.kindCapability.toCatalogItemPayload());
+  return candidate.kindCapability.mapTransport(
+    (item) => Map<String, Object?>.from(
+      (item.kindMetadata as MangaMetadata).toJson(),
+    ),
+  );
 }

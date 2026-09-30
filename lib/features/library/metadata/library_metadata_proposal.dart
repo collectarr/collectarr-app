@@ -1,21 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/generated/catalog_item_v1_fields.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
-
-List<String> unknownCatalogItemProposalFields({
-  required String kind,
-  required JsonMap catalogItem,
-}) {
-  final allowedFields = catalogItemV1FieldsByKind[kind.trim().toLowerCase()];
-  if (allowedFields == null) {
-    return catalogItem.keys.toList()..sort();
-  }
-  return catalogItem.keys
-      .where((field) => !allowedFields.contains(field))
-      .toList()
-    ..sort();
-}
 
 Future<JsonMap> createLibraryMetadataProposal({
   required ApiClient api,

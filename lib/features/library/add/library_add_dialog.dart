@@ -504,18 +504,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       );
       return;
     }
-    final unrecognizedFields = unknownCatalogItemProposalFields(
-      kind: widget.type.kind.apiValue,
-      catalogItem: catalogItem,
-    );
-    if (unrecognizedFields.isNotEmpty) {
-      _controller.reportSubmissionError(
-        'The proposal contains fields not recognized by the pinned Core '
-        'contract: ${unrecognizedFields.join(', ')}.',
-      );
-      return;
-    }
-
     _controller.state = _controller.state.copyWith(isAdding: true);
     try {
       await createAndRecordLibraryMetadataProposal(

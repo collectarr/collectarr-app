@@ -91,6 +91,9 @@ Map<String, Object?>? buildTvManualProposalData(
 }) {
   final candidate = buildTvManualCandidate(draft, title: title);
   if (candidate == null) return null;
-  return Map<String, Object?>.from(
-      candidate.kindCapability.toCatalogItemPayload());
+  return candidate.kindCapability.mapTransport(
+    (item) => Map<String, Object?>.from(
+      (item.kindMetadata as TvSeriesMetadata).toJson(),
+    ),
+  );
 }

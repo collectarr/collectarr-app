@@ -38,6 +38,9 @@ Map<String, Object?>? buildBoardgameManualProposalData(
 }) {
   final candidate = buildBoardgameManualCandidate(draft, title: title);
   if (candidate == null) return null;
-  return Map<String, Object?>.from(
-      candidate.kindCapability.toCatalogItemPayload());
+  return candidate.kindCapability.mapTransport(
+    (item) => Map<String, Object?>.from(
+      (item.kindMetadata as BoardGameMetadata).toJson(),
+    ),
+  );
 }
