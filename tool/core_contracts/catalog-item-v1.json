@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "9edcdc496f1b741dbacd8bdf44893095590dfe0c",
+  "coreCommit": "e46f5dc44f0246320acb83182810e52cd138290a",
   "description": "Proposal shape retained after Core projects submissions onto fields recognized for the declared kind. Unknown incoming fields are omitted.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-09-29T22:07:59.935654Z",
+  "generatedAt": "2026-09-30T00:59:02.569626Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,

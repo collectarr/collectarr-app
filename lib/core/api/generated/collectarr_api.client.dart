@@ -21,6 +21,7 @@ class CollectarrApiClient {
     int? year,
     String? barcode,
     int? limit,
+    int? offset,
   }) async {
     return searchMetadata(
       MetadataSearchQuery(
@@ -32,6 +33,7 @@ class CollectarrApiClient {
         year: year,
         barcode: barcode,
         limit: limit,
+        offset: offset,
       ),
     );
   }

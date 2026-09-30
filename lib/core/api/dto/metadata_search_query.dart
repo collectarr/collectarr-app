@@ -8,6 +8,7 @@ final class MetadataSearchQuery {
     this.year,
     this.barcode,
     this.limit,
+    this.offset,
   });
 
   final String? query;
@@ -18,6 +19,7 @@ final class MetadataSearchQuery {
   final int? year;
   final String? barcode;
   final int? limit;
+  final int? offset;
 
   bool get isEmpty {
     return !_hasText(query) &&
@@ -38,6 +40,7 @@ final class MetadataSearchQuery {
       if (year != null) 'year': year,
       if (_hasText(barcode)) 'barcode': normalizeBarcode(barcode!),
       if (limit != null) 'limit': limit,
+      if (offset != null) 'offset': offset,
     };
   }
 

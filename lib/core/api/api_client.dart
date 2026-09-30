@@ -108,6 +108,7 @@ class ApiClient {
     int? year,
     String? barcode,
     int? limit,
+    int? offset,
   }) async {
     return _catalogApi.search(
       query,
@@ -118,6 +119,7 @@ class ApiClient {
       year: year,
       barcode: barcode,
       limit: limit,
+      offset: offset,
     );
   }
 
@@ -131,6 +133,7 @@ class ApiClient {
     int? year,
     String? barcode,
     int? limit,
+    int? offset,
   }) async {
     final rows = await search(
       query,
@@ -141,6 +144,7 @@ class ApiClient {
       year: year,
       barcode: barcode,
       limit: limit,
+      offset: offset,
     );
     return [
       for (final row in rows) CatalogSearchHit.fromJson(row),
