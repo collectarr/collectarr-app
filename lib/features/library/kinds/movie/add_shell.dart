@@ -296,6 +296,13 @@ Widget buildMovieAddSearchPane(
                       },
                     ),
         ),
+        LibraryAddSearchResultsFooter(
+          accent: request.accent,
+          isLoading: request.isLoadingMoreResults,
+          hasMore: request.hasMoreResults,
+          error: request.loadMoreError,
+          onLoadMore: request.onLoadMoreResults,
+        ),
       ],
     ),
   );

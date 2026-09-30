@@ -21,6 +21,18 @@ final class MetadataSearchQuery {
   final int? limit;
   final int? offset;
 
+  MetadataSearchQuery withOffset(int value) => MetadataSearchQuery(
+        query: query,
+        kind: kind,
+        series: series,
+        issueNumber: issueNumber,
+        publisher: publisher,
+        year: year,
+        barcode: barcode,
+        limit: limit,
+        offset: value,
+      );
+
   bool get isEmpty {
     return !_hasText(query) &&
         !_hasText(series) &&

@@ -253,6 +253,10 @@ class LibraryAddSearchPaneRequest {
   const LibraryAddSearchPaneRequest({
     required this.type,
     required this.isBusy,
+    this.isLoadingMoreResults = false,
+    this.hasMoreResults = false,
+    this.loadMoreError,
+    this.onLoadMoreResults,
     required this.error,
     required this.accent,
     required this.results,
@@ -270,6 +274,10 @@ class LibraryAddSearchPaneRequest {
 
   final LibraryKindRegistration type;
   final bool isBusy;
+  final bool isLoadingMoreResults;
+  final bool hasMoreResults;
+  final String? loadMoreError;
+  final VoidCallback? onLoadMoreResults;
   final String? error;
   final Color accent;
   final List<CatalogSearchCandidate> results;

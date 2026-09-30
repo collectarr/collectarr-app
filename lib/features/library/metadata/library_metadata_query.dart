@@ -14,6 +14,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
   int? year,
   String? barcode,
   int? limit,
+  int? offset,
 }) {
   return MetadataSearchQuery(
     query: query,
@@ -24,6 +25,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
     year: year,
     barcode: barcode,
     limit: limit,
+    offset: offset,
   );
 }
 
@@ -37,6 +39,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
   int? year,
   String? barcode,
   int? limit,
+  int? offset,
   CancelToken? cancelToken,
 }) async {
   final capability = libraryMetadataForKind(kind);
@@ -49,6 +52,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
     year: year,
     barcode: barcode,
     limit: limit,
+    offset: offset,
   );
   final rows = capability.catalogSearchBuilder == null
       ? await api.searchMetadata(input, cancelToken: cancelToken)
@@ -80,6 +84,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
   int? year,
   String? barcode,
   int? limit,
+  int? offset,
 }) async {
   return searchLibraryMetadata(
     api,
@@ -91,6 +96,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
     year: year,
     barcode: barcode,
     limit: limit,
+    offset: offset,
   );
 }
 
@@ -122,7 +128,8 @@ Future<CatalogSearchCandidate> lookupLibraryBarcode(
         ))
           .firstOrNull;
   if (row == null) {
-    throw StateError('Core found no catalog item for barcode $resolvedBarcode.');
+    throw StateError(
+        'Core found no catalog item for barcode $resolvedBarcode.');
   }
   return CatalogSearchCandidate.fromApiJson(
     json: row,

@@ -45,6 +45,7 @@ Future<List<CatalogSearchCandidate>> searchAndCacheLibraryMetadata({
     year: input.year,
     barcode: input.barcode,
     limit: input.limit,
+    offset: input.offset,
     cancelToken: cancelToken,
   );
   await catalog.upsertTransports(

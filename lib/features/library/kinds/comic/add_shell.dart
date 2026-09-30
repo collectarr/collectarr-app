@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
@@ -127,6 +128,13 @@ class _ComicAddSearchPaneState extends State<_ComicAddSearchPane> {
                             odd: index.isOdd,
                           ),
                         ),
+            ),
+            LibraryAddSearchResultsFooter(
+              accent: widget.request.accent,
+              isLoading: widget.request.isLoadingMoreResults,
+              hasMore: widget.request.hasMoreResults,
+              error: widget.request.loadMoreError,
+              onLoadMore: widget.request.onLoadMoreResults,
             ),
           ],
         ),

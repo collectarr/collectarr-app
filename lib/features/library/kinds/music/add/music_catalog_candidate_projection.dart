@@ -17,6 +17,7 @@ Future<List<Map<String, dynamic>>> searchMusicCatalogItems({
     label: query.publisher,
     year: query.year,
     limit: query.limit ?? 25,
+    offset: query.offset ?? 0,
     cancelToken: cancelToken,
   );
   return [for (final item in results) item.toSearchJson()];
@@ -24,7 +25,8 @@ Future<List<Map<String, dynamic>>> searchMusicCatalogItems({
 
 CatalogSearchCandidate musicCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
-) => item;
+) =>
+    item;
 
 CatalogMusicItemDto musicCatalogItemFromCandidate(
   CatalogSearchCandidate item,
@@ -35,4 +37,3 @@ CatalogMusicItemDto musicCatalogItemFromCandidate(
     return CatalogMusicItemDto.fromCatalogSearchPayload(transport.payload);
   });
 }
-

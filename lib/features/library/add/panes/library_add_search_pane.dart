@@ -8,6 +8,10 @@ class LibraryAddSearchPane extends StatelessWidget {
     super.key,
     required this.type,
     required this.isBusy,
+    this.isLoadingMoreResults = false,
+    this.hasMoreResults = false,
+    this.loadMoreError,
+    this.onLoadMoreResults,
     required this.error,
     required this.accent,
     required this.results,
@@ -25,6 +29,10 @@ class LibraryAddSearchPane extends StatelessWidget {
 
   final LibraryKindRegistration type;
   final bool isBusy;
+  final bool isLoadingMoreResults;
+  final bool hasMoreResults;
+  final String? loadMoreError;
+  final VoidCallback? onLoadMoreResults;
   final String? error;
   final Color accent;
   final List<CatalogSearchCandidate> results;
@@ -72,7 +80,93 @@ class LibraryAddSearchPane extends StatelessWidget {
               onToggleResultCheck: onToggleResultCheck,
             ),
           ),
+          LibraryAddSearchResultsFooter(
+            accent: accent,
+            isLoading: isLoadingMoreResults,
+            hasMore: hasMoreResults,
+            error: loadMoreError,
+            onLoadMore: onLoadMoreResults,
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class LibraryAddSearchResultsFooter extends StatelessWidget {
+  const LibraryAddSearchResultsFooter({
+    super.key,
+    required this.accent,
+    required this.isLoading,
+    required this.hasMore,
+    this.error,
+    this.onLoadMore,
+  });
+
+  final Color accent;
+  final bool isLoading;
+  final bool hasMore;
+  final String? error;
+  final VoidCallback? onLoadMore;
+
+  @override
+  Widget build(BuildContext context) {
+    if ((!hasMore && error == null) || onLoadMore == null) {
+      return const SizedBox.shrink();
+    }
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border(top: BorderSide(color: palette.divider)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        child: Row(
+          children: [
+            if (error != null) ...[
+              Expanded(
+                child: Text(
+                  error!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ] else
+              const Spacer(),
+            OutlinedButton.icon(
+              onPressed: isLoading ? null : onLoadMore,
+              icon: isLoading
+                  ? const SizedBox.square(
+                      dimension: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(
+                      error == null ? Icons.expand_more : Icons.refresh,
+                      size: 16,
+                    ),
+              label: Text(
+                isLoading
+                    ? 'Loading…'
+                    : error == null
+                        ? 'Load more'
+                        : 'Retry',
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: accent,
+                side: BorderSide(color: accent.withValues(alpha: 0.7)),
+                minimumSize: const Size(0, 32),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                visualDensity: VisualDensity.compact,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

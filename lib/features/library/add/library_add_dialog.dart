@@ -877,6 +877,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               final searchPaneRequest = LibraryAddSearchPaneRequest(
                 type: widget.type,
                 isBusy: state.search.isBusy,
+                isLoadingMoreResults: state.search.isLoadingMoreResults,
+                hasMoreResults: state.search.hasMoreResults,
+                loadMoreError: state.search.loadMoreError,
+                onLoadMoreResults: _controller.loadMoreResults,
                 error: state.search.error,
                 accent: accent,
                 results: visibleCore,
@@ -898,6 +902,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   LibraryAddSearchPane(
                     type: searchPaneRequest.type,
                     isBusy: searchPaneRequest.isBusy,
+                    isLoadingMoreResults:
+                        searchPaneRequest.isLoadingMoreResults,
+                    hasMoreResults: searchPaneRequest.hasMoreResults,
+                    loadMoreError: searchPaneRequest.loadMoreError,
+                    onLoadMoreResults: searchPaneRequest.onLoadMoreResults,
                     error: searchPaneRequest.error,
                     accent: searchPaneRequest.accent,
                     results: searchPaneRequest.results,

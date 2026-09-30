@@ -16,10 +16,12 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
   Timer? _searchDebounceTimer;
   Timer? _autocompleteTimer;
   CancelToken? _coreSearchCancelToken;
+  CancelToken? _coreLoadMoreCancelToken;
   CancelToken? _suggestionsCancelToken;
   int _suggestionsGeneration = 0;
 
   static const _coreSearchTimeout = Duration(seconds: 35);
+  static const _coreSearchPageSize = 20;
   static const _autocompleteDebounce = Duration(milliseconds: 350);
   static const _autocompleteLimit = 8;
   void updateQuery(String query) {
@@ -130,6 +132,10 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         showSuggestions: false,
         suggestions: const [],
         results: [item],
+        isLoadingMoreResults: false,
+        hasMoreResults: false,
+        nextOffset: 0,
+        clearLoadMoreError: true,
       ),
       selection: state.selection.copyWith(
         selectedResultId: item.reference.id,
@@ -153,10 +159,16 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     _suggestionsCancelToken = null;
     _coreSearchCancelToken?.cancel('Superseded by a newer search');
     _coreSearchCancelToken = null;
+    _coreLoadMoreCancelToken?.cancel('Superseded by a newer search');
+    _coreLoadMoreCancelToken = null;
     state = state.copyWith(
       search: state.search.copyWith(
         coreSearchGeneration: state.search.coreSearchGeneration + 1,
         isSearching: false,
+        isLoadingMoreResults: false,
+        hasMoreResults: false,
+        nextOffset: 0,
+        clearLoadMoreError: true,
       ),
     );
     final searchContext = _searchContext();
@@ -177,7 +189,11 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     state = state.copyWith(
       search: state.search.copyWith(
         isSearching: true,
+        isLoadingMoreResults: false,
+        hasMoreResults: false,
+        nextOffset: 0,
         clearError: true,
+        clearLoadMoreError: true,
         coreSearchGeneration: searchGeneration,
         results: const [],
       ),
@@ -204,7 +220,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         catalog: catalog!,
         input: _searchCapability.core.inputBuilder(
           searchContext,
-          limit: 20,
+          limit: _coreSearchPageSize,
         ),
         timeout: _coreSearchTimeout,
         ranking: _searchCapability.core.ranking,
@@ -217,6 +233,8 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
           search: state.search.copyWith(
             results: searchResult.items,
             isSearching: false,
+            nextOffset: searchResult.rawItemCount,
+            hasMoreResults: searchResult.rawItemCount >= _coreSearchPageSize,
           ),
         );
       }
@@ -246,11 +264,91 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     }
   }
 
+  Future<void> loadMoreResults() async {
+    if (api == null ||
+        catalog == null ||
+        state.search.isSearching ||
+        state.search.isLoadingMoreResults ||
+        !state.search.hasMoreResults) {
+      return;
+    }
+
+    _coreLoadMoreCancelToken?.cancel('Superseded by a newer page request');
+    final cancelToken = CancelToken();
+    _coreLoadMoreCancelToken = cancelToken;
+    final searchGeneration = state.search.coreSearchGeneration;
+    final offset = state.search.nextOffset;
+    final searchContext = _searchContext();
+    state = state.copyWith(
+      search: state.search.copyWith(
+        isLoadingMoreResults: true,
+        clearLoadMoreError: true,
+      ),
+    );
+
+    try {
+      final baseInput = _searchCapability.core.inputBuilder(
+        searchContext,
+        limit: _coreSearchPageSize,
+      );
+      final page = await runLibraryAddCoreSearch(
+        api: api!,
+        type: type,
+        catalog: catalog!,
+        input: baseInput.withOffset(offset),
+        timeout: _coreSearchTimeout,
+        ranking: _searchCapability.core.ranking,
+        searchContext: searchContext,
+        cancelToken: cancelToken,
+      );
+      if (searchGeneration != state.search.coreSearchGeneration) return;
+
+      final knownRefs =
+          state.search.results.map((item) => item.reference).toSet();
+      final nextItems = [
+        ...state.search.results,
+        for (final item in page.items)
+          if (knownRefs.add(item.reference)) item,
+      ];
+      state = state.copyWith(
+        search: state.search.copyWith(
+          results: nextItems,
+          isLoadingMoreResults: false,
+          nextOffset: offset + page.rawItemCount,
+          hasMoreResults: page.rawItemCount >= _coreSearchPageSize,
+        ),
+      );
+    } catch (error) {
+      if (searchGeneration == state.search.coreSearchGeneration) {
+        if (await _handleAuthExpiration(error, 'Core search')) return;
+        state = state.copyWith(
+          search: state.search.copyWith(
+            isLoadingMoreResults: false,
+            loadMoreError:
+                'Could not load more results: ${ConnectionDiagnostics.metadataError(error, api?.baseUrl ?? '')}',
+          ),
+        );
+      }
+    } finally {
+      if (identical(_coreLoadMoreCancelToken, cancelToken)) {
+        _coreLoadMoreCancelToken = null;
+      }
+      if (searchGeneration == state.search.coreSearchGeneration &&
+          state.search.isLoadingMoreResults) {
+        state = state.copyWith(
+          search: state.search.copyWith(isLoadingMoreResults: false),
+        );
+      }
+    }
+  }
+
   void cancelSearch() {
     _searchDebounceTimer?.cancel();
     _autocompleteTimer?.cancel();
     _coreSearchCancelToken?.cancel('Add search cancelled');
     _coreSearchCancelToken = null;
+    _coreLoadMoreCancelToken?.cancel('Add search cancelled');
+    _coreLoadMoreCancelToken = null;
     _suggestionsGeneration++;
     _suggestionsCancelToken?.cancel('Add search cancelled');
     _suggestionsCancelToken = null;
@@ -258,6 +356,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
       search: state.search.copyWith(
         coreSearchGeneration: state.search.coreSearchGeneration + 1,
         isSearching: false,
+        isLoadingMoreResults: false,
         isScanningCover: false,
       ),
     );
@@ -293,6 +392,8 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     final searchGeneration = state.search.coreSearchGeneration + 1;
     _coreSearchCancelToken?.cancel('Superseded by identifier lookup');
     _coreSearchCancelToken = null;
+    _coreLoadMoreCancelToken?.cancel('Superseded by identifier lookup');
+    _coreLoadMoreCancelToken = null;
     state = state.copyWith(
       search: state.search.copyWith(),
     );
@@ -303,7 +404,11 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
       search: state.search.copyWith(
         identifierCode: code,
         isSearching: true,
+        isLoadingMoreResults: false,
+        hasMoreResults: false,
+        nextOffset: 0,
         clearError: true,
+        clearLoadMoreError: true,
         coreSearchGeneration: searchGeneration,
       ),
       selection: state.selection.copyWith(

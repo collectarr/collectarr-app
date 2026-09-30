@@ -12,9 +12,11 @@ import 'package:dio/dio.dart';
 class LibraryAddCoreSearchResult {
   const LibraryAddCoreSearchResult({
     required this.items,
+    required this.rawItemCount,
   });
 
   final List<CatalogSearchCandidate> items;
+  final int rawItemCount;
 }
 
 Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
@@ -44,6 +46,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
       .filterResults(rankedItems, searchContext);
   return LibraryAddCoreSearchResult(
     items: filteredItems,
+    rawItemCount: items.length,
   );
 }
 
@@ -96,5 +99,6 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
   ];
   return LibraryAddCoreSearchResult(
     items: foundItems,
+    rawItemCount: foundItems.length,
   );
 }
