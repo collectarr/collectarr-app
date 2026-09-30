@@ -51,7 +51,7 @@ final class _MusicReleaseGroupEditDialogState
         schema: musicReleaseGroupEditSchema,
         model: _group,
         draft: _draft,
-        title: musicReleaseGroupEditSchema.title?.call(_group) ?? 'Edit music',
+        title: musicReleaseGroupEditSchema.title?.call(_group) ?? 'Music album',
         icon: widget.request.type.identity.icon,
         mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,

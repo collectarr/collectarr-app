@@ -6,7 +6,12 @@ import 'package:flutter/material.dart';
 
 final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
     musicReleaseGroupEditSchema = EditSchema(
-  title: (group) => 'Edit ${group.title}',
+  title: (group) {
+    final artist = group.artist?.trim();
+    return artist == null || artist.isEmpty
+        ? group.title
+        : '${group.title} / $artist';
+  },
   validate: (_, draft) {
     if (draft.values.title.trim().isEmpty) {
       return 'Album title is required';
