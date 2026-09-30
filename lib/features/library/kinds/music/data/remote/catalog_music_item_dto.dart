@@ -101,7 +101,9 @@ final class CatalogMusicItemDto implements JsonEncodable {
       'discs',
     };
     for (final key in json.keys) {
-      if (!allowedKeys.contains(key)) {
+      // Catalog responses may include the transport envelope's schema marker
+      // beside the flat Music payload. It is not a Music catalog field.
+      if (key != 'snapshot_version' && !allowedKeys.contains(key)) {
         throw FormatException('Unrecognized Music Catalog Item field "$key".');
       }
     }
