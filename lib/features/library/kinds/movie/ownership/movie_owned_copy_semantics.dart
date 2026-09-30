@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
@@ -28,23 +27,11 @@ bool? resolveMovieOwnedDigitalFlag(
   String? fallbackLabel,
   Iterable<PhysicalMediaFormat> formats = const [],
 }) {
-  return resolveDigitalMediaFormatFlag(
-    explicitDigital: ownedItem?.isDigital,
-    editionId: _movieEditionId(ownedItem?.targetRef),
-    variantId: _movieReleaseId(ownedItem?.targetRef),
-    releases: editions,
-    fallbackFormat: fallbackFormat,
-    fallbackLabel: fallbackLabel,
+  if (ownedItem?.isDigital case final value?) return value;
+  final catalogItem = editions.firstOrNull;
+  return digitalPhysicalMediaFormatFlag(
+    fallbackFormat ?? catalogItem?.formatId,
+    label: fallbackLabel ?? catalogItem?.formatLabel ?? catalogItem?.title,
     formats: formats.isEmpty ? moviePhysicalMediaFormats : formats,
   );
 }
-
-String? _movieEditionId(CatalogEntityRef? ref) =>
-    switch (ref?.entityType.apiValue) {
-      'edition' => ref?.id,
-      'release' => ref?.parentId,
-      _ => null,
-    };
-
-String? _movieReleaseId(CatalogEntityRef? ref) =>
-    ref?.entityType.apiValue == 'release' ? ref?.id : null;

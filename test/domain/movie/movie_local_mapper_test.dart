@@ -20,12 +20,6 @@ void main() {
       ),
       createdAt: DateTime.utc(2026, 1, 2),
       isDigital: false,
-      targetRef: const CatalogEntityRef(
-        kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityTypeId('release'),
-        id: 'variant-1',
-        parentId: 'release-1',
-      ),
       condition: 'Near Mint',
       grade: '9.8',
       purchaseDate: DateTime.utc(2026, 1, 3),
@@ -62,15 +56,11 @@ void main() {
     final row = await db.select(db.movieOwnedItemsRows).getSingle();
     final restored = MovieOwnedLocalMapper.fromRow(row);
 
-    expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.catalogRef.kind, CatalogMediaKind.movie);
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
     expect(restored.isDigital, false);
-    expect(restored.targetRef?.entityType.apiValue, 'release');
-    expect(restored.targetRef?.parentId, 'release-1');
-    expect(restored.targetRef?.id, 'variant-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);

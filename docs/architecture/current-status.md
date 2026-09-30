@@ -19,7 +19,8 @@ Provider search, preview, and ingest are not part of this Add flow.
 Movie manual Add now renders one Catalog Item field section and creates a flat
 Movie candidate from the pinned kind contract. It no longer fabricates a
 MovieMedia parent with a nested MovieRelease solely to submit a manual item.
-The separate legacy Movie Edit and local persistence paths still remain.
+Movie's catalog target capability resolves directly to its Catalog Item, and
+Movie Owned Copies no longer store a nested Edition/Release target.
 
 ## Core catalog state
 
@@ -41,8 +42,9 @@ some of the older Work/Release routes and remain part of the cutover.
 
 The supported Drift schema version is `1`, with no upgrade chain. The current
 registered table set still includes earlier per-kind Work/Release tables for
-the eight non-Music kinds and Music-owned image, copy, tracking, and listening
-tables. Music has no Release Group model, serializer, or Release browse scope.
+the seven non-Music kinds not yet moved to the shared catalog cache, alongside
+Music-owned image, copy, tracking, and listening tables. Music has no Release
+Group model, serializer, or Release browse scope.
 Its root domain model is `MusicAlbum` with
 `MusicAlbumId`; discs and tracks are contained children, while `releaseDate`
 remains an edition field. Music catalog reads use the shared Catalog Item
@@ -73,7 +75,7 @@ Catalog Item or Owned Copy identities.
 Catalog transport now writes every Core item into a shared Drift cache keyed
 by `(kind, item_id)`. Snapshot reads and batched reference hydration use this
 flat cache. Movie and Music use it as their only local catalog store. The
-remaining eight per-kind repositories are still dual-written because
+remaining seven per-kind repositories are still dual-written because
 unconverted screens depend on them. The old non-Music tables remain registered
 until their active callers move to the flat cache.
 
@@ -84,9 +86,8 @@ kind has no child Release scope. Movie's root workspace also hides the selector.
 Music and Movie catalog lookups, summaries, and offline root reads use the flat
 Catalog Item cache. The old per-kind root rows remain registered but are no
 longer read by these active catalog paths. The remaining App cutover covers
-Music image ownership, Movie's older copy paths,
-plus the seven other non-Music kinds' workspace hierarchies and all
-non-Music Work/Release storage paths.
+Music image ownership, the seven other non-Music kinds' workspace hierarchies,
+and all remaining non-Music Work/Release storage paths.
 Music lifecycle tracking records also target the Catalog Item and use the
 existing personal Sync contract. Listening history targets the same Catalog
 Item, may optionally identify the owned copy used, and now round-trips through
