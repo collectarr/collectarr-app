@@ -5,29 +5,16 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
-List<String> _bookReleasePersonalSections(
-  LibraryEditPresentationContext context,
-) {
-  return [
-    'book_personal_tracking',
-    if (context.hasWishlistContext) 'book_wishlist_reference',
-    if (context.isOwned)
-      'book_collection_notes'
-    else if (!context.hasWishlistContext)
-      'book_collection_fields_info',
-  ];
-}
-
-class BookLibraryMediaEditPresentationBuilder
+class BookCatalogItemEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
-  const BookLibraryMediaEditPresentationBuilder()
+  const BookCatalogItemEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
+          showOwnershipReferenceSection: false,
           useOwnedMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
-          trackingSectionTitle: 'Tracking edition',
+          trackingSectionTitle: 'Tracking book',
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
@@ -226,187 +213,5 @@ class BookLibraryMediaEditPresentationBuilder
           label: 'Owned',
         ),
     ];
-  }
-}
-
-class BookLibraryReleaseEditPresentationBuilder
-    extends LibraryEditPresentationBuilderBase {
-  const BookLibraryReleaseEditPresentationBuilder()
-      : super(
-          showOwnershipReferenceSection: true,
-          useOwnedMainArtworkLayout: false,
-          useDetailsTab: false,
-          useArtworkCoverTab: false,
-          useArtworkPhotosTab: false,
-          trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
-          ownedTabs: const [
-            LibraryEditTabSpec(
-              id: 'details',
-              icon: Icons.info_outline,
-              label: 'Release',
-              sectionIds: ['book_contents'],
-            ),
-            LibraryEditTabSpec(
-              id: 'personal',
-              icon: Icons.person_outline,
-              label: 'Personal',
-              sectionIdsForContext: _bookReleasePersonalSections,
-            ),
-            LibraryEditTabSpec(
-              id: 'custom',
-              icon: Icons.edit_note,
-              label: 'Custom Fields',
-              sectionIds: ['book_custom_fields'],
-            ),
-            LibraryEditTabSpec(
-              id: 'read_history',
-              icon: Icons.auto_stories_outlined,
-              label: 'Tracking',
-              sectionIds: ['book_read_history'],
-            ),
-            LibraryEditTabSpec(
-              id: 'value',
-              icon: Icons.attach_money,
-              label: 'Value',
-              sectionIds: ['book_value'],
-            ),
-            LibraryEditTabSpec(
-              id: 'photos',
-              icon: Icons.image_outlined,
-              label: 'My Images',
-              sectionIds: ['book_photos'],
-            ),
-          ],
-          trackedTabs: const [
-            LibraryEditTabSpec(
-              id: 'details',
-              icon: Icons.info_outline,
-              label: 'Release',
-              sectionIds: ['book_contents'],
-            ),
-            LibraryEditTabSpec(
-              id: 'personal',
-              icon: Icons.person_outline,
-              label: 'Personal',
-              sectionIdsForContext: _bookReleasePersonalSections,
-            ),
-            LibraryEditTabSpec(
-              id: 'custom',
-              icon: Icons.edit_note,
-              label: 'Custom Fields',
-              sectionIds: ['book_custom_fields'],
-            ),
-            LibraryEditTabSpec(
-              id: 'read_history',
-              icon: Icons.auto_stories_outlined,
-              label: 'Tracking',
-              sectionIds: ['book_read_history'],
-            ),
-            LibraryEditTabSpec(
-              id: 'value',
-              icon: Icons.attach_money,
-              label: 'Value',
-              sectionIds: ['book_value'],
-            ),
-            LibraryEditTabSpec(
-              id: 'photos',
-              icon: Icons.image_outlined,
-              label: 'My Images',
-              sectionIds: ['book_photos'],
-            ),
-          ],
-          catalogTabs: const [
-            LibraryEditTabSpec(
-              id: 'details',
-              icon: Icons.info_outline,
-              label: 'Release',
-              sectionIds: ['book_contents'],
-            ),
-            LibraryEditTabSpec(
-              id: 'custom',
-              icon: Icons.edit_note,
-              label: 'Custom Fields',
-              sectionIds: ['book_custom_fields'],
-            ),
-            LibraryEditTabSpec(
-              id: 'read_history',
-              icon: Icons.auto_stories_outlined,
-              label: 'Tracking',
-              sectionIds: ['book_read_history'],
-            ),
-          ],
-        );
-
-  @override
-  List<LibraryEditTabSpec> buildTabs({
-    required LibraryEditPresentationContext context,
-  }) {
-    return switch (context.isOwned ||
-        context.isTrackingOnly ||
-        context.hasWishlistContext) {
-      true => const [
-          LibraryEditTabSpec(
-            id: 'details',
-            icon: Icons.info_outline,
-            label: 'Release',
-            sectionIds: ['book_contents'],
-          ),
-          LibraryEditTabSpec(
-            id: 'personal',
-            icon: Icons.person_outline,
-            label: 'Personal',
-            sectionIdsForContext: _bookReleasePersonalSections,
-          ),
-          LibraryEditTabSpec(
-            id: 'custom',
-            icon: Icons.edit_note,
-            label: 'Custom Fields',
-            sectionIds: ['book_custom_fields'],
-          ),
-          LibraryEditTabSpec(
-            id: 'read_history',
-            icon: Icons.auto_stories_outlined,
-            label: 'Tracking',
-            sectionIds: ['book_read_history'],
-          ),
-          LibraryEditTabSpec(
-            id: 'value',
-            icon: Icons.attach_money,
-            label: 'Value',
-            sectionIds: ['book_value'],
-          ),
-          LibraryEditTabSpec(
-            id: 'photos',
-            icon: Icons.image_outlined,
-            label: 'My Images',
-            sectionIds: ['book_photos'],
-          ),
-        ],
-      false => const [
-          LibraryEditTabSpec(
-            id: 'details',
-            icon: Icons.info_outline,
-            label: 'Release',
-            sectionIds: ['book_contents'],
-          ),
-          LibraryEditTabSpec(
-            id: 'custom',
-            icon: Icons.edit_note,
-            label: 'Custom Fields',
-            sectionIds: ['book_custom_fields'],
-          ),
-          LibraryEditTabSpec(
-            id: 'read_history',
-            icon: Icons.auto_stories_outlined,
-            label: 'Tracking',
-            sectionIds: ['book_read_history'],
-          ),
-        ],
-    };
   }
 }

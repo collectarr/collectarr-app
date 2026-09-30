@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_fields.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
@@ -23,28 +22,18 @@ LibraryOwnedFormatHint resolveBookOwnedFormatHint(
 
 bool? resolveBookOwnedDigitalFlag(
   OwnedCopySummary? ownedItem,
-  List<LibraryAddReleaseOption> editions, {
+  List<LibraryAddReleaseOption> _, {
   String? fallbackFormat,
   String? fallbackLabel,
   Iterable<PhysicalMediaFormat> formats = const [],
 }) {
   return resolveDigitalMediaFormatFlag(
     explicitDigital: ownedItem?.isDigital,
-    editionId: _bookEditionId(ownedItem?.targetRef),
-    variantId: _bookReleaseId(ownedItem?.targetRef),
-    releases: editions,
+    editionId: null,
+    variantId: null,
+    releases: const [],
     fallbackFormat: fallbackFormat,
     fallbackLabel: fallbackLabel,
     formats: formats.isEmpty ? bookPhysicalMediaFormats : formats,
   );
 }
-
-String? _bookEditionId(CatalogEntityRef? ref) =>
-    switch (ref?.entityType.apiValue) {
-      'edition' => ref?.id,
-      'release' => ref?.parentId,
-      _ => null,
-    };
-
-String? _bookReleaseId(CatalogEntityRef? ref) =>
-    ref?.entityType.apiValue == 'release' ? ref?.id : null;

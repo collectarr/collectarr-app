@@ -20,7 +20,7 @@ final class BookOwnedItemProjection {
         id: OwnedCopyId(item.id.value),
       ),
       catalogRef: item.catalogRef,
-      targetRef: item.targetRef,
+      targetRef: item.catalogRef,
       isDigital: item.isDigital,
       title: item.itemId,
       createdAt: item.createdAt,

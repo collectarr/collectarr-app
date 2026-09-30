@@ -14,8 +14,8 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
   ]),
   vocabularies: StandardKindVocabularyCapability(BookVocabularies.all),
   presentation: const LibraryEditPresentation(
-    builder: BookLibraryMediaEditPresentationBuilder(),
-    workBuilder: BookLibraryMediaEditPresentationBuilder(),
+    builder: BookCatalogItemEditPresentationBuilder(),
+    workBuilder: BookCatalogItemEditPresentationBuilder(),
   ),
   coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: BookVocabularies.condition.builtIns,
