@@ -54,6 +54,21 @@ final class CatalogMusicItemDto implements JsonEncodable {
   }) : studios = List<String>.unmodifiable(studios);
 
   factory CatalogMusicItemDto.fromJson(Map<String, dynamic> json) {
+    const hierarchicalMusicKeys = {
+      'release_group',
+      'release_group_id',
+      'release_id',
+      'releases',
+      'mediums',
+    };
+    for (final key in hierarchicalMusicKeys) {
+      if (json.containsKey(key)) {
+        throw FormatException(
+          'Music Catalog Item payload is flat; "$key" is not supported.',
+        );
+      }
+    }
+
     final id = _string(json['id']);
     final title = _string(json['title']);
     final kind = _string(json['kind']);
