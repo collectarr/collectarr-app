@@ -231,16 +231,26 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
             children: [
               for (var index = 0; index < tabs.length; index++)
                 allowReorder && onReorderItem != null
-                    ? DragTarget<int>(
+                    ? DragTarget<_LibraryEditTabDrag>(
+                        onMove: (details) {
+                          final drag = details.data;
+                          if (drag.currentIndex == index) return;
+                          final oldIndex = drag.currentIndex;
+                          drag.currentIndex = index;
+                          onReorderItem!(oldIndex, index);
+                        },
                         onAcceptWithDetails: (details) {
-                          final from = details.data;
+                          final drag = details.data;
+                          final from = drag.currentIndex;
                           if (from != index) {
+                            drag.currentIndex = index;
                             onReorderItem!(from, index);
                           }
                         },
                         builder: (context, candidateData, _) {
-                          return _MovementThresholdDraggable<int>(
-                            data: index,
+                          return _MovementThresholdDraggable<
+                              _LibraryEditTabDrag>(
+                            data: _LibraryEditTabDrag(index),
                             startDistance:
                                 kLibraryDialogTabReorderStartDistance,
                             feedback: Material(
@@ -299,6 +309,12 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
       },
     );
   }
+}
+
+class _LibraryEditTabDrag {
+  _LibraryEditTabDrag(this.currentIndex);
+
+  int currentIndex;
 }
 
 /// Starts a drag only after intentional horizontal movement.
