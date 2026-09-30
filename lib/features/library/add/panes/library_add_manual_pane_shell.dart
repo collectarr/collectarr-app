@@ -2,6 +2,8 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:flutter/material.dart';
 
@@ -42,7 +44,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
   void initState() {
     super.initState();
     _formKey = GlobalKey<FormState>();
-    _tabController = TabController(length: _resolvedTabs.length, vsync: this);
+    _tabController = TabController(length: _tabCount(widget), vsync: this);
   }
 
   List<LibraryAddManualPaneTab> get _resolvedTabs {
@@ -60,15 +62,20 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
   @override
   void didUpdateWidget(covariant LibraryAddManualPaneShell oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if ((oldWidget.tabs?.length ?? 1) == _resolvedTabs.length) return;
+    if (_tabCount(oldWidget) == _tabCount(widget)) return;
     final previousIndex = _tabController.index;
     _tabController.dispose();
     _tabController = TabController(
-      length: _resolvedTabs.length,
-      initialIndex: previousIndex.clamp(0, _resolvedTabs.length - 1).toInt(),
+      length: _tabCount(widget),
+      initialIndex: previousIndex.clamp(0, _tabCount(widget) - 1).toInt(),
       vsync: this,
     );
   }
+
+  int _tabCount(LibraryAddManualPaneShell shell) =>
+      (shell.tabs?.isNotEmpty ?? false ? shell.tabs!.length : 1) +
+      (shell.request.customFieldDefinitions.isNotEmpty ? 1 : 0) +
+      1;
 
   @override
   void dispose() {
@@ -80,7 +87,46 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
   Widget build(BuildContext context) {
     final request = widget.request;
     final subtitle = widget.subtitle.trim();
-    final tabs = _resolvedTabs;
+    final tabs = [
+      ..._resolvedTabs,
+      if (request.customFieldDefinitions.isNotEmpty)
+        LibraryAddManualPaneTab(
+          label: 'Custom Fields',
+          icon: Icons.edit_note_outlined,
+          content: EditTabShell(
+            children: [
+              CustomFieldsEditSection(
+                definitions: request.customFieldDefinitions,
+                values: request.customFieldValues,
+                accent: request.accent,
+                mediaKind: request.kind.apiValue,
+                onChanged: (values) =>
+                    request.onCustomFieldValuesChanged?.call(values),
+                onCustomValueChanged: (fieldId, value) {
+                  request.onVocabularyValueChanged?.call(
+                    fieldId: 'customField:$fieldId',
+                    listName: 'customField:$fieldId',
+                    value: value,
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      LibraryAddManualPaneTab(
+        label: 'My Images',
+        icon: Icons.photo_library_outlined,
+        content: EditTabShell(
+          children: [
+            ItemImagesEditSection(
+              images: request.itemImages,
+              accent: request.accent,
+              onChanged: request.onItemImagesChanged ?? (_) {},
+            ),
+          ],
+        ),
+      ),
+    ];
     final badges = <Widget>[
       const LibraryAddResultBadge('main'),
       LibraryAddResultBadge('owned defaults', accent: request.accent),

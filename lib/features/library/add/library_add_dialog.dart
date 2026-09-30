@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_cont
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
@@ -10,6 +11,8 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_contracts.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -31,6 +34,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_preview_pa
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
@@ -47,6 +51,7 @@ import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 export 'controllers/library_add_dialog_requests.dart';
 export 'controllers/library_add_manual_draft.dart';
@@ -92,6 +97,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   List<StorageLocation> _availableLocations = const [];
   List<String> _conditionOptions = const [];
   List<String> _tagOptions = const [];
+  List<CustomFieldDefinition> _manualCustomFieldDefinitions = const [];
 
   double? _dialogWidth;
   double? _dialogHeight;
@@ -163,6 +169,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   @override
   void initState() {
     super.initState();
+    _manualCustomFieldDefinitions =
+        List<CustomFieldDefinition>.of(widget.customFieldDefinitions);
     if (libraryUiPolicyForKind(widget.type.kind).wideDialog) {
       _resultsPaneWidth = 720;
     }
@@ -198,6 +206,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _loadAvailableLocations();
     _loadPickListOptions();
     _loadPrefillDefaults();
+    unawaited(_loadManualCustomFieldDefinitions());
 
     if (widget.initialIdentifier != null &&
         widget.initialIdentifier!.isNotEmpty &&
@@ -247,6 +256,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         itemImages: widget.itemImages,
         kindDraft: libraryAddForKind(widget.type.kind).createManualDraft(),
       );
+      _manualCustomFieldDefinitions =
+          List<CustomFieldDefinition>.of(widget.customFieldDefinitions);
+      unawaited(_loadManualCustomFieldDefinitions());
     }
   }
 
@@ -399,7 +411,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         manualDialogContext,
       ),
       onPropose: _proposeManualDraft,
-      customFieldDefinitions: widget.customFieldDefinitions,
+      customFieldDefinitions: _manualCustomFieldDefinitions,
       customFieldValues: _manualDraft.customFieldValues,
       onCustomFieldValuesChanged: (vals) {
         _manualDraft.customFieldValues = vals;
@@ -407,20 +419,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       },
       itemImages: _manualDraft.itemImages,
       onItemImagesChanged: (imgs) {
-        _manualDraft.itemImages = imgs
-            .where((e) => !e.deleted && e.imageData != null)
-            .map((e) => ItemImage(
-                  id: e.id,
-                  ownedRef: OwnedCopyRef.fromKey(
-                    '${widget.type.kind.apiValue}:draft',
-                  ),
-                  imageData: e.imageData!,
-                  imageType: e.imageType,
-                  caption: e.caption,
-                  sortOrder: e.sortOrder,
-                  createdAt: e.createdAt ?? DateTime.now().toUtc(),
-                ))
-            .toList();
+        _applyManualImageEdits(imgs);
         _notifyManualDraftChanged();
       },
       onVocabularyValueChanged: _recordManualVocabularyValue,
@@ -489,6 +488,18 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _controller.state = _controller.state.copyWith();
   }
 
+  Future<void> _loadManualCustomFieldDefinitions() async {
+    if (widget.customFieldDefinitions.isNotEmpty) return;
+    final definitions = await CustomFieldRepository(
+      ref.read(localDatabaseProvider),
+    ).listDefinitions(
+      mediaKind: widget.type.kind.apiValue,
+      targetScope: CustomFieldTargetScope.ownedCopy,
+    );
+    if (!mounted) return;
+    setState(() => _manualCustomFieldDefinitions = definitions);
+  }
+
   Future<void> _proposeManualDraft() async {
     if (_controller.state.isAdding) return;
     final capability = libraryAddForKind(widget.type.kind);
@@ -554,6 +565,18 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   Future<String?> _submitManual(LibraryAddTarget target) async {
     if (_controller.state.isAdding) return null;
+    final hasOwnedOnlyDetails = _manualDraft.customFieldValues.values
+            .any((value) => value?.trim().isNotEmpty ?? false) ||
+        _manualDraft.itemImages.isNotEmpty;
+    if (target != LibraryAddTarget.owned && hasOwnedOnlyDetails) {
+      showAppToast(
+        context,
+        'Custom fields and personal images are saved with an owned copy. '
+        'Choose Add to Collection or clear those fields first.',
+        tone: AppToastTone.error,
+      );
+      return null;
+    }
     _controller.setTarget(target);
     _controller.clearSubmissionError();
     final capability = libraryAddForKind(widget.type.kind);
@@ -590,7 +613,28 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       ),
     );
     if (!mounted) return null;
-    final success = await _controller.submitSelectedItem(candidate);
+    final success = await _controller.submitSelectedItem(
+      candidate,
+      onOwnedCopyCreated: target == LibraryAddTarget.owned
+          ? (ownedRef) async {
+              try {
+                await _persistManualOwnedDetails(
+                  ownedRef: ownedRef,
+                  catalogRef: candidate.reference,
+                );
+              } catch (error) {
+                if (mounted) {
+                  showAppToast(
+                    context,
+                    'The item was added, but some personal details could not '
+                    'be saved. $error',
+                    tone: AppToastTone.error,
+                  );
+                }
+              }
+            }
+          : null,
+    );
     if (success && mounted) {
       await _persistManualVocabularyValues();
       return candidate.reference.id;
@@ -602,6 +646,67 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       );
     }
     return null;
+  }
+
+  void _applyManualImageEdits(List<ItemImageEdit> edits) {
+    final existingById = {
+      for (final image in _manualDraft.itemImages) image.id: image,
+    };
+    final now = DateTime.now().toUtc();
+    _manualDraft.itemImages = [
+      for (final edit in edits)
+        if (!edit.deleted)
+          if (edit.imageData ?? existingById[edit.id]?.imageData
+              case final imageData?)
+            ItemImage(
+              id: edit.id,
+              ownedRef: existingById[edit.id]?.ownedRef ??
+                  OwnedCopyRef.fromKey('${widget.type.kind.apiValue}:draft'),
+              imageData: imageData,
+              imageType: edit.imageType,
+              caption: edit.caption,
+              sortOrder: edit.sortOrder,
+              createdAt:
+                  edit.createdAt ?? existingById[edit.id]?.createdAt ?? now,
+            ),
+    ];
+  }
+
+  Future<void> _persistManualOwnedDetails({
+    required OwnedCopyRef ownedRef,
+    required CatalogEntityRef catalogRef,
+  }) async {
+    final now = DateTime.now().toUtc();
+    final definitionsById = {
+      for (final definition in _manualCustomFieldDefinitions)
+        definition.id: definition,
+    };
+    final values = <CustomFieldValue>[];
+    for (final entry in _manualDraft.customFieldValues.entries) {
+      final definition = definitionsById[entry.key];
+      if (definition == null) continue;
+      final value = normalizeCustomFieldInputValue(definition, entry.value);
+      if (value == null) continue;
+      values.add(
+        CustomFieldValue(
+          id: const Uuid().v4(),
+          targetId: ownedRef.key,
+          targetScope: CustomFieldTargetScope.ownedCopy,
+          catalogRef: catalogRef,
+          fieldDefinitionId: definition.id,
+          value: value,
+          updatedAt: now,
+        ),
+      );
+    }
+    final db = ref.read(localDatabaseProvider);
+    if (values.isNotEmpty) {
+      await CustomFieldRepository(db).upsertValues(values);
+    }
+    final imageRepository = ItemImageRepository(db);
+    for (final image in _manualDraft.itemImages) {
+      await imageRepository.add(image.copyWith(ownedRef: ownedRef));
+    }
   }
 
   Future<void> _openManualDialog(

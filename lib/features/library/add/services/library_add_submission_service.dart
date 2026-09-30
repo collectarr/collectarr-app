@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -34,6 +37,7 @@ final class LibraryAddSubmissionRequest {
     required this.trackingMutations,
     this.catalog,
     this.upsertCatalogItems = true,
+    this.onOwnedCopyCreated,
   });
 
   final List<LibraryAddSubmissionItem> items;
@@ -47,6 +51,7 @@ final class LibraryAddSubmissionRequest {
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
   final bool upsertCatalogItems;
+  final FutureOr<void> Function(OwnedCopyRef ownedRef)? onOwnedCopyCreated;
 }
 
 final class LibraryAddSubmissionResult {
@@ -88,6 +93,7 @@ final class LibraryAddSubmissionService {
             tracking: request.trackingDraft,
           );
           final owned = await request.ownedMutations.addOwnedItem(command);
+          await request.onOwnedCopyCreated?.call(owned);
           final tracking = command.tracking;
           if (tracking != null) {
             await request.trackingMutations.syncOwnedTrackingState(

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -108,6 +109,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   LibraryAddSubmissionRequest _submissionRequest(
     List<CatalogSearchCandidate> candidates, {
     bool upsertCatalogItems = true,
+    FutureOr<void> Function(OwnedCopyRef ownedRef)? onOwnedCopyCreated,
   }) {
     return LibraryAddSubmissionRequest(
       items: [
@@ -128,6 +130,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       wishlistMutations: wishlistMutations,
       trackingMutations: trackingMutations,
       upsertCatalogItems: upsertCatalogItems,
+      onOwnedCopyCreated: onOwnedCopyCreated,
     );
   }
 
@@ -390,7 +393,10 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     );
   }
 
-  Future<bool> submitSelectedItem(CatalogSearchCandidate item) async {
+  Future<bool> submitSelectedItem(
+    CatalogSearchCandidate item, {
+    FutureOr<void> Function(OwnedCopyRef ownedRef)? onOwnedCopyCreated,
+  }) async {
     if (state.isAdding || state.submitState.isLoading) return false;
     clearSubmissionError();
     state = state.copyWith(
@@ -398,7 +404,12 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       submitState: const AsyncValue.loading(),
     );
     try {
-      final result = await submissionService.submit(_submissionRequest([item]));
+      final result = await submissionService.submit(
+        _submissionRequest(
+          [item],
+          onOwnedCopyCreated: onOwnedCopyCreated,
+        ),
+      );
       if (result.submittedCount == 0) {
         state = state.copyWith(
           isAdding: false,
