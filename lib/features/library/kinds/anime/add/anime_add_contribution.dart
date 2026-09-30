@@ -118,11 +118,10 @@ Future<List<LibraryHierarchyNode>> fetchAnimeEpisodes({
   required ApiClient api,
   required String itemId,
 }) async {
-  final dto =
-      await api.getAnimeSeriesDto(itemId).timeout(const Duration(seconds: 60));
-  return AnimeHierarchyMapper.toLibraryNodes(
-    AnimeCoreMapper.fromSeriesDto(dto),
-  );
+  final item = await api
+      .getCatalogItemJson(kind: CatalogMediaKind.anime, id: itemId)
+      .timeout(const Duration(seconds: 60));
+  return AnimeHierarchyMapper.fromCatalogItemJson(item);
 }
 
 List<LibraryAddAdvancedFilterField<String>> buildAnimeAddAdvancedFilterFields(

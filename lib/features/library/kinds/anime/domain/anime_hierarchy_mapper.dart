@@ -8,24 +8,60 @@ final class AnimeHierarchyMapper {
   const AnimeHierarchyMapper._();
 
   static List<LibraryHierarchyNode> toLibraryNodes(AnimeMedia media) {
-    if (media.episodes.isEmpty) return const <LibraryHierarchyNode>[];
+    return _toLibraryNodes(
+      id: media.id.value,
+      coverImageUrl: media.coverImageUrl,
+      episodes: media.episodes,
+    );
+  }
+
+  static List<LibraryHierarchyNode> fromCatalogItemJson(
+    Map<String, dynamic> item,
+  ) {
+    final id = item['id']?.toString().trim();
+    if (id == null || id.isEmpty) {
+      throw const FormatException('Anime Catalog Item is missing its id');
+    }
+    final rawEpisodes = item['episodes'];
+    final episodes = <AnimeEpisode>[
+      if (rawEpisodes is Iterable)
+        for (final value in rawEpisodes)
+          if (value is Map)
+            AnimeEpisode.fromJson({
+              ...Map<String, dynamic>.from(value),
+              'series_id': id,
+            }),
+    ];
+    return _toLibraryNodes(
+      id: id,
+      coverImageUrl: item['cover_image_url']?.toString(),
+      episodes: episodes,
+    );
+  }
+
+  static List<LibraryHierarchyNode> _toLibraryNodes({
+    required String id,
+    required String? coverImageUrl,
+    required List<AnimeEpisode> episodes,
+  }) {
+    if (episodes.isEmpty) return const <LibraryHierarchyNode>[];
 
     final children = [
-      for (var index = 0; index < media.episodes.length; index++)
-        _episodeNode(media.episodes[index], index + 1),
+      for (var index = 0; index < episodes.length; index++)
+        _episodeNode(episodes[index], index + 1),
     ];
     return [
       LibraryHierarchyNode(
-        id: '${media.id.value}:episodes',
+        id: '$id:episodes',
         label: 'Episodes',
         secondaryLabel: '${children.length} episodes',
         level: LibraryHierarchyLevel.container,
-        imageUrl: media.coverImageUrl,
+        imageUrl: coverImageUrl,
         totalCount: children.length,
         children: children,
         extras: {
           'kind': 'anime_episodes',
-          'seriesId': media.id.value,
+          'seriesId': id,
         },
       ),
     ];
