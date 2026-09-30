@@ -13,7 +13,6 @@ final class MusicOwnedEditDraft {
         pricePaidCents = item.pricePaidCents,
         currency = item.currency,
         personalNotes = item.personalNotes,
-        quantity = item.quantity,
         indexNumber = item.indexNumber,
         tags = item.tags,
         soldAt = item.soldAt,
@@ -36,7 +35,6 @@ final class MusicOwnedEditDraft {
   int? pricePaidCents;
   String? currency;
   String? personalNotes;
-  int quantity;
   int? indexNumber;
   String? tags;
   DateTime? soldAt;

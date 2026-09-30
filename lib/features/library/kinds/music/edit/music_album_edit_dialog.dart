@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_album_ima
 import 'package:collectarr_app/features/library/kinds/music/data/music_album_image_providers.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_structure_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_credits_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_personal_tab.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -100,7 +101,7 @@ final class _MusicAlbumEditDialogState
         icon: widget.request.type.identity.icon,
         mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
-        tabOrderKey: 'library_edit_tabs_music_album',
+        tabOrderKey: 'library_edit_tabs_music_album_v2',
         coreCorrectionSourceBuilder: () =>
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
@@ -112,15 +113,6 @@ final class _MusicAlbumEditDialogState
         onNext: widget.request.onNext,
         extraTabs: [
           EditSchemaExtraTab(
-            label: 'Media',
-            icon: Icons.album_outlined,
-            content: MusicAlbumStructureTab(
-              draft: _draft,
-              section: MusicAlbumStructureSection.media,
-              accent: widget.request.accent,
-            ),
-          ),
-          EditSchemaExtraTab(
             label: 'Classical',
             icon: Icons.queue_music_outlined,
             content: MusicAlbumCreditsTab(
@@ -130,20 +122,27 @@ final class _MusicAlbumEditDialogState
             ),
           ),
           EditSchemaExtraTab(
-            label: 'Tracks',
-            icon: Icons.format_list_numbered,
-            content: MusicAlbumStructureTab(
-              draft: _draft,
-              section: MusicAlbumStructureSection.tracks,
-              accent: widget.request.accent,
-            ),
-          ),
-          EditSchemaExtraTab(
             label: 'People',
             icon: Icons.people_outline,
             content: MusicAlbumCreditsTab(
               editor: _creditsEditor,
               classical: false,
+              accent: widget.request.accent,
+            ),
+          ),
+          EditSchemaExtraTab(
+            label: 'Tracks',
+            icon: Icons.format_list_numbered,
+            content: MusicAlbumStructureTab(
+              draft: _draft,
+              accent: widget.request.accent,
+            ),
+          ),
+          EditSchemaExtraTab(
+            label: 'Personal',
+            icon: Icons.headphones_outlined,
+            content: MusicAlbumPersonalTab(
+              draft: _draft,
               accent: widget.request.accent,
             ),
           ),

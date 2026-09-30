@@ -66,7 +66,7 @@ An exact CLZ form field is identified by the displayed label and tab below. “C
 | Details | Package/Sleeve Condition | vocabulary value | `condition` | App-owned condition for this copy. |
 | Details | Media Condition | vocabulary value | `media_condition` | App-owned condition for this copy's media, not a Catalog Disc property. |
 | Personal | Collection Status | status | `collection_status` | Status of this copy. Wishlist is represented by its own personal record. |
-| Personal | Index | integer | `index_number` | App's copy index. |
+| Personal | Index | integer | `index_number` | Optional sequence number for sorting and organizing the user's copies; it is not a disc number. |
 | Personal | Location | location reference | `location_id` | App-owned location. |
 | Personal | Owner | string/reference | `owner_id` | App-owned owner value. |
 | Personal | Purchase Date | partial date | `purchase_date` | Copy-specific purchase date. |

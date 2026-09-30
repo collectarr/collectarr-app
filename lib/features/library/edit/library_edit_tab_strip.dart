@@ -106,18 +106,18 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
             ? palette.panelRaised
             : highlighted
                 ? accent.withValues(alpha: 0.16)
-                : palette.surfaceSubtle.withValues(alpha: 0.42),
+                : palette.surface,
         borderRadius: BorderRadius.vertical(
           top: const Radius.circular(3),
           bottom: Radius.circular(selected ? 0 : 3),
         ),
         border: Border.all(
           color: selected
-              ? accent.withValues(alpha: 0.92)
+              ? palette.divider
               : highlighted
                   ? accent.withValues(alpha: 0.72)
                   : palette.divider,
-          width: selected || highlighted ? 1.1 : 1,
+          width: highlighted ? 1.1 : 1,
         ),
       ),
       alignment: Alignment.center,
@@ -232,6 +232,8 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
               for (var index = 0; index < tabs.length; index++)
                 allowReorder && onReorderItem != null
                     ? DragTarget<_LibraryEditTabDrag>(
+                        key: tabs[index].key ??
+                            ValueKey<String>('library-edit-tab-$index'),
                         onMove: (details) {
                           final drag = details.data;
                           if (drag.currentIndex == index) return;

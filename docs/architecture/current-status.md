@@ -47,6 +47,10 @@ Its root domain model is `MusicAlbum` with
 `MusicAlbumId`; discs and tracks are contained children, while `releaseDate`
 remains an edition field. Music catalog reads use the shared Catalog Item
 cache; user-owned image and copy state stays in the Music tables.
+The Music Main form follows the saved CLZ field grouping and relative widths;
+the edit tabs follow the saved CLZ order. Each new owned row represents one
+physical copy, so Quantity is derived from the number of copies rather than
+entered as a field. Index remains an optional collection-order number.
 
 Movie's active workspace now projects one concrete Movie Catalog Item and its
 Owned Copies, with no Release workspace or drilldown. Catalog Item and Owned

@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 /// Shared personal-copy fields supported by the manual Add submission path.
 final class LibraryAddManualPersonalTab extends StatelessWidget {
@@ -45,25 +44,6 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
         ),
       _locationField(locationId),
       _purchaseDateField(context, date),
-      TextFormField(
-        key: const ValueKey('manual-quantity'),
-        initialValue: current.quantity.toString(),
-        decoration: const InputDecoration(labelText: 'Quantity'),
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        validator: (value) {
-          final quantity = int.tryParse(value?.trim() ?? '');
-          return quantity == null || quantity < 1
-              ? 'Enter a quantity greater than zero'
-              : null;
-        },
-        onChanged: (value) {
-          final quantity = int.tryParse(value.trim());
-          if (quantity != null && quantity > 0) {
-            _updateCommon(quantity: quantity);
-          }
-        },
-      ),
       TextFormField(
         key: const ValueKey('manual-price'),
         initialValue: current.pricePaidCents == null
@@ -202,7 +182,6 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     Object? pricePaidCents = _unchanged,
     Object? currency = _unchanged,
     Object? purchaseStore = _unchanged,
-    int? quantity,
     String? locationId,
   }) {
     final current = request.commonDraft ?? const LibraryAddCommonDraft();
@@ -219,7 +198,6 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
             ? current.currency
             : currency as String?,
         personalNotes: current.personalNotes,
-        quantity: quantity ?? current.quantity,
         tags: current.tags,
         locationId: locationId ?? current.locationId,
         purchaseStore: identical(purchaseStore, _unchanged)

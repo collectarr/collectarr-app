@@ -7,8 +7,6 @@ import 'package:flutter/material.dart';
 final EditSchema<MusicOwnedItem, MusicOwnedEditDraft> musicOwnedEditSchema =
     EditSchema(
   title: (_) => 'Edit music copy',
-  validate: (_, draft) =>
-      draft.quantity < 1 ? 'Quantity must be at least 1' : null,
   tabs: [
     EditTabSpec<MusicOwnedEditDraft>(
       id: 'personal',
@@ -49,15 +47,8 @@ final EditSchema<MusicOwnedItem, MusicOwnedEditDraft> musicOwnedEditSchema =
               ],
             ),
             LibraryNumberFieldSpec<MusicOwnedEditDraft>(
-              id: 'quantity',
-              label: 'Quantity',
-              value: (draft) => draft.quantity,
-              setValue: (draft, value) => draft.quantity = value?.toInt() ?? 1,
-              minimum: 1,
-            ),
-            LibraryNumberFieldSpec<MusicOwnedEditDraft>(
               id: 'index_number',
-              label: 'Collection number',
+              label: 'Index',
               value: (draft) => draft.indexNumber,
               setValue: (draft, value) => draft.indexNumber = value?.toInt(),
               minimum: 1,

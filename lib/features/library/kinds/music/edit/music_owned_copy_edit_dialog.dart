@@ -108,7 +108,6 @@ final class _MusicOwnedCopyEditDialogState
         onSave: (_) {
           final details = _draft.toDetailsDraft();
           final payload = MusicOwnedItemUpdatePayload.partial(
-            quantity: Patch.set(_draft.quantity),
             condition: Patch.set(_nullable(_draft.condition)),
             grade: Patch.set(_nullable(_draft.grade)),
             purchaseDate: Patch.set(_draft.purchaseDate),

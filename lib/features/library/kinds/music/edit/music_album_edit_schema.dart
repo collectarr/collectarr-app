@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album.d
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_header_title.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
-import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
 import 'package:flutter/material.dart';
 
 final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
@@ -26,9 +25,17 @@ final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
       sections: [
         EditSectionSpec<MusicAlbumEditDraft>(
           id: 'catalog_item',
-          label: 'Catalog Item',
-          maxColumns: 3,
-          fullWidthFieldIds: const {'genres'},
+          label: '',
+          maxColumns: 4,
+          fieldColumnSpans: const {
+            'title': 2,
+            'sort_title': 2,
+            'subtitle': 2,
+            'artist': 2,
+            'catalog_number': 2,
+            'genres': 2,
+          },
+          rightAlignedFieldIds: const {'genres'},
           fields: _fields([
             'title',
             'release_date',
@@ -75,47 +82,6 @@ final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
             'extra',
             'spars',
           ]),
-        ),
-      ],
-    ),
-    EditTabSpec<MusicAlbumEditDraft>(
-      id: 'personal',
-      label: 'Personal',
-      icon: Icons.headphones_outlined,
-      sections: [
-        EditSectionSpec<MusicAlbumEditDraft>(
-          id: 'listening',
-          label: 'Listening',
-          fields: [
-            LibraryVocabularyFieldSpec<MusicAlbumEditDraft, String>(
-              id: 'tracking_status',
-              label: 'Status',
-              value: (draft) => draft.trackingStatus,
-              setValue: (draft, value) => draft.trackingStatus = value,
-              options: [
-                for (final option in musicTrackingProfile.options)
-                  LibraryFieldOption(
-                    value: option.storageValue,
-                    label: option.label,
-                  ),
-              ],
-            ),
-            LibraryNumberFieldSpec<MusicAlbumEditDraft>(
-              id: 'tracking_rating',
-              label: 'Rating',
-              value: (draft) => draft.trackingRating?.toDouble(),
-              setValue: (draft, value) => draft.trackingRating = value?.toInt(),
-              minimum: 0,
-              maximum: 5,
-            ),
-            LibraryTextFieldSpec<MusicAlbumEditDraft>(
-              id: 'tracking_notes',
-              label: 'Notes',
-              value: (draft) => draft.trackingNotes ?? '',
-              setValue: (draft, value) => draft.trackingNotes = value,
-              maxLines: 3,
-            ),
-          ],
         ),
       ],
     ),

@@ -177,7 +177,13 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     final tabOrder = widget.allowTabReorder
         ? _tabOrder
         : List<int>.generate(widget.tabs.length, (i) => i);
-    final orderedTabs = [for (final i in tabOrder) widget.tabs[i]];
+    final orderedTabs = [
+      for (final i in tabOrder)
+        KeyedSubtree(
+          key: ValueKey<String>('library-edit-tab-$i'),
+          child: widget.tabs[i],
+        ),
+    ];
     final orderedViews = [for (final i in tabOrder) widget.views[i]];
     final viewport = MediaQuery.sizeOf(context);
     final windowClass = AppWindowClass.of(context);

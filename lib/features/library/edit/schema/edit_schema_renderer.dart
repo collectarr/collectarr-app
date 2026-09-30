@@ -303,12 +303,18 @@ class EditSchemaRendererState<TModel, TDraft>
     if (index < widget.schema.tabs.length) {
       final tab = widget.schema.tabs[index];
       return EditTab(
+        key: ValueKey<String>('schema-tab-${tab.id}'),
         icon: tab.icon ?? Icons.edit_outlined,
         label: tab.label,
       );
     }
-    final tab = widget.extraTabs[index - widget.schema.tabs.length];
-    return EditTab(icon: tab.icon, label: tab.label);
+    final extraIndex = index - widget.schema.tabs.length;
+    final tab = widget.extraTabs[extraIndex];
+    return EditTab(
+      key: ValueKey<String>('extra-tab-$extraIndex'),
+      icon: tab.icon,
+      label: tab.label,
+    );
   }
 
   Widget _buildTabContent(BuildContext context, EditTabSpec<TDraft> tab) {
@@ -319,13 +325,17 @@ class EditSchemaRendererState<TModel, TDraft>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final section in sections) ...[
-          Text(section.label, style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: 8),
+          if (section.label.trim().isNotEmpty) ...[
+            Text(section.label, style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 8),
+          ],
           _buildFieldWrap(
             context,
             section.fields,
             maxColumns: section.maxColumns,
             fullWidthFieldIds: section.fullWidthFieldIds,
+            fieldColumnSpans: section.fieldColumnSpans,
+            rightAlignedFieldIds: section.rightAlignedFieldIds,
           ),
           const SizedBox(height: 18),
         ],
@@ -334,8 +344,13 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   Widget _buildFieldWrap(
-      BuildContext context, List<LibraryFieldSpec<TDraft>> fields,
-      {required int maxColumns, required Set<String> fullWidthFieldIds}) {
+    BuildContext context,
+    List<LibraryFieldSpec<TDraft>> fields, {
+    required int maxColumns,
+    required Set<String> fullWidthFieldIds,
+    required Map<String, int> fieldColumnSpans,
+    required Set<String> rightAlignedFieldIds,
+  }) {
     final visibleFields = fields
         .where((field) => field.isVisible(widget.draft))
         .toList(growable: false);
@@ -346,7 +361,7 @@ class EditSchemaRendererState<TModel, TDraft>
             : constraints.maxWidth >= 680
                 ? math.min(maxColumns, 2)
                 : 1;
-        final width = columns == 1
+        final columnWidth = columns == 1
             ? constraints.maxWidth
             : (constraints.maxWidth - 12 * (columns - 1)) / columns;
         return Wrap(
@@ -354,15 +369,45 @@ class EditSchemaRendererState<TModel, TDraft>
           runSpacing: 12,
           children: [
             for (final field in visibleFields)
-              SizedBox(
-                width: fullWidthFieldIds.contains(field.id)
-                    ? constraints.maxWidth
-                    : width,
-                child: _buildField(field),
+              _buildFieldSlot(
+                field,
+                constraints: constraints,
+                columns: columns,
+                columnWidth: columnWidth,
+                fullWidth: fullWidthFieldIds.contains(field.id),
+                span: fieldColumnSpans[field.id] ?? 1,
+                rightAligned: rightAlignedFieldIds.contains(field.id),
               ),
           ],
         );
       },
+    );
+  }
+
+  Widget _buildFieldSlot(
+    LibraryFieldSpec<TDraft> field, {
+    required BoxConstraints constraints,
+    required int columns,
+    required double columnWidth,
+    required bool fullWidth,
+    required int span,
+    required bool rightAligned,
+  }) {
+    final resolvedSpan = fullWidth ? columns : span.clamp(1, columns).toInt();
+    final fieldWidth = resolvedSpan * columnWidth + 12 * (resolvedSpan - 1);
+    final fieldWidget = _buildField(field);
+    if (rightAligned && columns > 1 && !fullWidth) {
+      return SizedBox(
+        width: constraints.maxWidth,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox(width: fieldWidth, child: fieldWidget),
+        ),
+      );
+    }
+    return SizedBox(
+      width: fullWidth ? constraints.maxWidth : fieldWidth,
+      child: fieldWidget,
     );
   }
 
