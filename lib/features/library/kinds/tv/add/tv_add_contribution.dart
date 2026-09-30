@@ -114,12 +114,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
       controlsBuilder: buildLibraryAddKindFilterRow,
     ),
   ),
-  resultPolicy: buildTvAddResultPolicy(
-    mediaLabel: 'Series',
-    supportsSeasonScope: true,
-    coreScopeForItem: tvAddResultScope,
-    coreGroupTitleBuilder: tvAddGroupTitle,
-  ),
+  resultPolicy: const LibraryAddResultPolicy(useGridResults: true),
   manualPaneBuilder: buildTvAddManualPane,
   chrome: tvAddChrome,
 );
@@ -184,36 +179,4 @@ MetadataSearchQuery buildTvCoreSearchInput(
 String? optionalTvText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
-}
-
-TvAddResultScope tvAddResultScope(CatalogSearchCandidate item) {
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (metadata is TvSeriesMetadata) {
-    if (metadata.seasonNumber != null ||
-        metadata.series?.seasonNumber != null) {
-      return TvAddResultScope.season;
-    }
-    if ([
-      metadata.itemNumber,
-      metadata.physicalFormat,
-      metadata.physicalFormatLabel,
-      metadata.barcode,
-      metadata.variant,
-    ].any((value) => value?.trim().isNotEmpty == true)) {
-      return TvAddResultScope.release;
-    }
-  }
-  return TvAddResultScope.media;
-}
-
-String tvAddGroupTitle(CatalogSearchCandidate item) {
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (metadata is TvSeriesMetadata) {
-    return metadata.seriesTitle?.trim() ??
-        metadata.series?.seriesTitle?.trim() ??
-        item.summary.primaryLabel;
-  }
-  return item.summary.primaryLabel;
 }

@@ -6,26 +6,16 @@ typedef LibraryAddCoreResultVisibilityPredicate = bool Function(
   LibraryAddResultPolicyContext context,
 );
 
-typedef LibraryAddCoreGroupTitleBuilder = String Function(
-  CatalogSearchCandidate item,
-);
-
-typedef LibraryAddCoreGroupArtistBuilder = String? Function(
-  CatalogSearchCandidate item,
-);
-
 class LibraryAddResultOption {
   const LibraryAddResultOption({
     required this.id,
     required this.label,
     this.initialValue = true,
-    this.showInSourceToggles = true,
   });
 
   final String id;
   final String label;
   final bool initialValue;
-  final bool showInSourceToggles;
 }
 
 class LibraryAddResultPolicyState {
@@ -62,8 +52,6 @@ class LibraryAddResultPolicy {
     this.initialState = const LibraryAddResultPolicyState(),
     this.useGridResults = false,
     this.coreResultVisibility,
-    this.coreGroupTitleBuilder,
-    this.coreGroupArtistBuilder,
   });
 
   const LibraryAddResultPolicy.identity() : this();
@@ -72,8 +60,6 @@ class LibraryAddResultPolicy {
   final LibraryAddResultPolicyState initialState;
   final bool useGridResults;
   final LibraryAddCoreResultVisibilityPredicate? coreResultVisibility;
-  final LibraryAddCoreGroupTitleBuilder? coreGroupTitleBuilder;
-  final LibraryAddCoreGroupArtistBuilder? coreGroupArtistBuilder;
 
   LibraryAddResultPolicyContext context({
     required LibraryAddResultPolicyState state,
@@ -101,15 +87,5 @@ class LibraryAddResultPolicy {
     return items
         .where((item) => predicate(item, resultContext))
         .toList(growable: false);
-  }
-
-  String coreGroupTitle(CatalogSearchCandidate item) {
-    final title = coreGroupTitleBuilder?.call(item).trim();
-    return title == null || title.isEmpty ? item.summary.primaryLabel : title;
-  }
-
-  String? coreGroupArtist(CatalogSearchCandidate item) {
-    final artist = coreGroupArtistBuilder?.call(item)?.trim();
-    return artist == null || artist.isEmpty ? null : artist;
   }
 }

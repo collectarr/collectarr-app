@@ -107,12 +107,7 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
       controlsBuilder: buildLibraryAddKindFilterRow,
     ),
   ),
-  resultPolicy: buildAnimeAddResultPolicy(
-    mediaLabel: 'Series',
-    supportsSeasonScope: true,
-    coreScopeForItem: animeAddResultScope,
-    coreGroupTitleBuilder: animeAddGroupTitle,
-  ),
+  resultPolicy: const LibraryAddResultPolicy(useGridResults: true),
   manualPaneBuilder: buildAnimeAddManualPane,
   chrome: animeAddChrome,
 );
@@ -175,36 +170,4 @@ MetadataSearchQuery buildAnimeCoreSearchInput(
 String? optionalAnimeText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
-}
-
-AnimeAddResultScope animeAddResultScope(CatalogSearchCandidate item) {
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (metadata is AnimeMetadata) {
-    if (metadata.series?.seasonNumber != null) {
-      return AnimeAddResultScope.season;
-    }
-    if ([
-      metadata.itemNumber,
-      metadata.editionTitle,
-      metadata.physicalFormat,
-      metadata.physicalFormatLabel,
-      metadata.barcode,
-      metadata.variant,
-    ].any((value) => value?.trim().isNotEmpty == true)) {
-      return AnimeAddResultScope.release;
-    }
-  }
-  return AnimeAddResultScope.media;
-}
-
-String animeAddGroupTitle(CatalogSearchCandidate item) {
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (metadata is AnimeMetadata) {
-    return metadata.seriesTitle?.trim() ??
-        metadata.series?.seriesTitle?.trim() ??
-        item.summary.primaryLabel;
-  }
-  return item.summary.primaryLabel;
 }

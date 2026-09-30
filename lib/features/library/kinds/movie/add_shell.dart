@@ -96,13 +96,6 @@ Widget buildMovieAddSearchPane(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (request.error != null) AppErrorBanner(request.error!),
-        LibraryAddSearchFilters(
-          resultOptions: request.resultPolicy.options
-              .where((option) => option.showInSourceToggles)
-              .toList(growable: false),
-          resultPolicyState: request.resultPolicyState,
-          onResultPolicyOptionChanged: request.onResultPolicyOptionChanged,
-        ),
         Expanded(
           child: request.isBusy && entries.isEmpty
               ? const Center(child: CircularProgressIndicator())

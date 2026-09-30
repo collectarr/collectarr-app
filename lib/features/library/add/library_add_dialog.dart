@@ -914,11 +914,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     checkedResultIds: searchPaneRequest.checkedResultIds,
                     ownedCatalogRefs: searchPaneRequest.ownedCatalogRefs,
                     coreMatchSummary: searchPaneRequest.coreMatchSummary,
-                    isWideLayout: searchPaneRequest.isWideLayout,
                     resultPolicy: searchPaneRequest.resultPolicy,
-                    resultPolicyState: searchPaneRequest.resultPolicyState,
-                    onResultPolicyOptionChanged:
-                        searchPaneRequest.onResultPolicyOptionChanged,
                     onSelectResult: searchPaneRequest.onSelectResult,
                     onToggleResultCheck: searchPaneRequest.onToggleResultCheck,
                   );

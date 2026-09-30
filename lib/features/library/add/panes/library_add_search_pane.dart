@@ -19,10 +19,7 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.checkedResultIds,
     required this.ownedCatalogRefs,
     this.coreMatchSummary,
-    required this.isWideLayout,
     required this.resultPolicy,
-    required this.resultPolicyState,
-    required this.onResultPolicyOptionChanged,
     required this.onSelectResult,
     required this.onToggleResultCheck,
   });
@@ -40,10 +37,7 @@ class LibraryAddSearchPane extends StatelessWidget {
   final Set<String> checkedResultIds;
   final Set<CatalogEntityRef> ownedCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
-  final bool isWideLayout;
   final LibraryAddResultPolicy resultPolicy;
-  final LibraryAddResultPolicyState resultPolicyState;
-  final void Function(String id, bool value) onResultPolicyOptionChanged;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onToggleResultCheck;
 
@@ -57,13 +51,6 @@ class LibraryAddSearchPane extends StatelessWidget {
       ),
       child: Column(
         children: [
-          LibraryAddSearchFilters(
-            resultOptions: resultPolicy.options
-                .where((option) => option.showInSourceToggles)
-                .toList(growable: false),
-            resultPolicyState: resultPolicyState,
-            onResultPolicyOptionChanged: onResultPolicyOptionChanged,
-          ),
           Expanded(
             child: _SearchResultsList(
               type: type,
@@ -166,102 +153,6 @@ class LibraryAddSearchResultsFooter extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class LibraryAddSearchFilters extends StatelessWidget {
-  const LibraryAddSearchFilters({
-    super.key,
-    required this.resultOptions,
-    required this.resultPolicyState,
-    required this.onResultPolicyOptionChanged,
-  });
-
-  final List<LibraryAddResultOption> resultOptions;
-  final LibraryAddResultPolicyState resultPolicyState;
-  final void Function(String id, bool value) onResultPolicyOptionChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    if (resultOptions.isEmpty) return const SizedBox.shrink();
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        border: Border(bottom: BorderSide(color: palette.divider)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        child: Wrap(
-          spacing: 12,
-          runSpacing: 4,
-          children: [
-            for (final option in resultOptions)
-              _SearchSourceToggle(
-                label: option.label,
-                value: resultPolicyState.valueFor(
-                  option.id,
-                  fallback: option.initialValue,
-                ),
-                onChanged: (value) =>
-                    onResultPolicyOptionChanged(option.id, value),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SearchSourceToggle extends StatelessWidget {
-  const _SearchSourceToggle({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String label;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => onChanged(!value),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox.square(
-                dimension: 18,
-                child: IgnorePointer(
-                  child: Checkbox(
-                    value: value,
-                    onChanged: null,
-                    visualDensity: VisualDensity.compact,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  color: palette.textPrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

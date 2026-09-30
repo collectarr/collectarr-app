@@ -12,19 +12,16 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
       id: comicAddHideOwnedOptionId,
       label: 'Hide owned',
       initialValue: false,
-      showInSourceToggles: false,
     ),
     LibraryAddResultOption(
       id: comicAddHideVariantsOptionId,
       label: 'Hide variants',
       initialValue: false,
-      showInSourceToggles: false,
     ),
     LibraryAddResultOption(
       id: comicAddCompactIssuesOptionId,
       label: 'Compact issues',
       initialValue: false,
-      showInSourceToggles: false,
     ),
   ],
   coreResultVisibility: (item, context) {
@@ -38,24 +35,10 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
     }
     return true;
   },
-  coreGroupTitleBuilder: _comicGroupTitle,
 );
 
 bool _comicItemIsVariant(CatalogSearchCandidate item) {
   final metadata =
       item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   return metadata is ComicMedia && metadata.variant?.trim().isNotEmpty == true;
-}
-
-String _comicGroupTitle(CatalogSearchCandidate item) {
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (metadata is ComicMedia) {
-    final seriesTitle =
-        metadata.seriesTitle?.trim() ?? metadata.series?.seriesTitle?.trim();
-    if (seriesTitle != null && seriesTitle.isNotEmpty) {
-      return seriesTitle;
-    }
-  }
-  return item.summary.primaryLabel;
 }

@@ -103,12 +103,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
       controlsBuilder: buildLibraryAddKindFilterRow,
     ),
   ),
-  resultPolicy: buildMovieAddResultPolicy(
-    mediaLabel: 'Media',
-    supportsSeasonScope: false,
-    coreScopeForItem: movieAddResultScope,
-    coreGroupTitleBuilder: movieAddGroupTitle,
-  ),
+  resultPolicy: const LibraryAddResultPolicy(useGridResults: true),
 );
 
 List<LibraryAddAdvancedFilterField<String>> buildMovieAddAdvancedFilterFields(
@@ -152,32 +147,4 @@ MetadataSearchQuery buildMovieCoreSearchInput(
 String? optionalMovieText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
-}
-
-MovieAddResultScope movieAddResultScope(CatalogSearchCandidate item) {
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (metadata is MovieCatalogMetadata &&
-      [
-        metadata.editionTitle,
-        metadata.itemNumber,
-        metadata.physicalFormat,
-        metadata.physicalFormatLabel,
-        metadata.barcode,
-        metadata.variant,
-      ].any((value) => value?.trim().isNotEmpty == true)) {
-    return MovieAddResultScope.release;
-  }
-  return MovieAddResultScope.media;
-}
-
-String movieAddGroupTitle(CatalogSearchCandidate item) {
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (metadata is MovieCatalogMetadata) {
-    return metadata.seriesTitle?.trim() ??
-        metadata.series?.seriesTitle?.trim() ??
-        item.summary.primaryLabel;
-  }
-  return item.summary.primaryLabel;
 }
