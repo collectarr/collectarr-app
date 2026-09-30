@@ -1,24 +1,26 @@
-import 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_core_mapper.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy_mapper.dart';
-import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final shelfMangaHierarchyProvider = FutureProvider.autoDispose
-    .family<MangaSeriesHierarchy, ({String itemId, bool canHydrateFromCore})>(
+final shelfMangaHierarchyProvider =
+    FutureProvider.autoDispose.family<MangaSeriesHierarchy, String>(
   (ref, params) async {
-    if (!params.canHydrateFromCore) {
+    final cache = CatalogItemCacheRepository(ref.watch(localDatabaseProvider));
+    final selected = await cache.find(
+      CatalogItemRef(kind: CatalogMediaKind.manga, id: params),
+    );
+    if (selected == null) {
       return const MangaSeriesHierarchy(seriesId: '', seriesTitle: '');
     }
-    final api = ref.watch(apiClientProvider);
-    final work = await api.getMangaWorkDto(params.itemId);
-    final manga = MangaCoreMapper.fromWorkDto(work);
-    return MangaHierarchyMapper.fromChapterRows(
-      seriesId: manga.id,
-      rows: manga.chapters.whereType<Map<Object?, Object?>>().map(
-            (chapter) => Map<String, dynamic>.from(chapter),
-          ),
+    final items = await cache.findAll(kind: CatalogMediaKind.manga);
+    return MangaHierarchyMapper.fromCatalogItems(
+      selected: selected,
+      items: items,
     );
   },
 );
@@ -81,9 +83,7 @@ class _MangaShelfVolumesPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final volumesAsync = ref.watch(
-      shelfMangaHierarchyProvider(
-        (itemId: itemId, canHydrateFromCore: true),
-      ),
+      shelfMangaHierarchyProvider(itemId),
     );
     return volumesAsync.when(
       loading: () => const Padding(

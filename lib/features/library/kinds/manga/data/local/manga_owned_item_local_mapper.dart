@@ -2,62 +2,17 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:drift/drift.dart';
 
-final class MangaLocalMapper {
-  const MangaLocalMapper._();
+final class MangaOwnedItemLocalMapper {
+  const MangaOwnedItemLocalMapper._();
 
-  static MangaMediaRowsCompanion toMediaRow(MangaMedia media) {
-    if (media.id.isEmpty) {
-      throw StateError('Cannot persist MangaMedia without an id');
-    }
-
-    return MangaMediaRowsCompanion.insert(
-      id: media.id,
-      title: media.title,
-      sortTitle: Value(media.sortTitle),
-      description: Value(media.description),
-      firstPublicationDate: Value(media.firstPublicationDate),
-      originalLanguage: Value(media.originalLanguage),
-      originalPublicationDate: Value(media.originalPublicationDate),
-      status: Value(media.status),
-      subtitle: Value(media.subtitle),
-      chaptersJson: Value(_encodeList(media.chapters)),
-      characterAppearancesJson: Value(_encodeList(media.characterAppearances)),
-      contributionsJson: Value(_encodeList(media.contributions)),
-      identifiersJson: Value(_encodeList(media.identifiers)),
-      seriesJson: Value(_encodeList(media.series)),
-      rawPayloadJson: Value(jsonEncode(media.rawPayload)),
-    );
-  }
-
-  static MangaMedia fromMediaRow(MangaMediaRow row) {
-    return MangaMedia(
-      id: row.id,
-      title: row.title,
-      sortTitle: row.sortTitle,
-      description: row.description,
-      firstPublicationDate: row.firstPublicationDate,
-      originalLanguage: row.originalLanguage,
-      originalPublicationDate: row.originalPublicationDate,
-      status: row.status,
-      subtitle: row.subtitle,
-      chapters: _decodeList(row.chaptersJson),
-      characterAppearances: _decodeList(row.characterAppearancesJson),
-      contributions: _decodeList(row.contributionsJson),
-      identifiers: _decodeList(row.identifiersJson),
-      series: _decodeList(row.seriesJson),
-      rawPayload: _decodeMap(row.rawPayloadJson),
-    );
-  }
-
-  static MangaOwnedItemsRowsCompanion toOwnedItemRow(MangaOwnedItem item) {
+  static MangaOwnedItemsRowsCompanion toRow(MangaOwnedItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.manga) {
       throw StateError('Cannot persist an invalid MangaOwnedItem');
@@ -109,15 +64,14 @@ final class MangaLocalMapper {
     );
   }
 
-  static MangaOwnedItem fromOwnedItemRow(MangaOwnedItemsRow row) {
-    final catalogRef = CatalogEntityRef(
-      kind: CatalogMediaKind.manga,
-      entityType: const CatalogEntityTypeId('work'),
-      id: row.itemId,
-    );
+  static MangaOwnedItem fromRow(MangaOwnedItemsRow row) {
     return MangaOwnedItem(
       id: MangaOwnedCopyId(row.id),
-      catalogRef: catalogRef,
+      catalogRef: CatalogEntityRef(
+        kind: CatalogMediaKind.manga,
+        entityType: const CatalogEntityTypeId('work'),
+        id: row.itemId,
+      ),
       createdAt: row.createdAt,
       isDigital: row.isDigital,
       targetRef: _decodeTargetRef(row.targetRefJson),
@@ -164,34 +118,17 @@ final class MangaLocalMapper {
     );
   }
 
-  static String _encodeList(List<dynamic> values) => jsonEncode(values);
-
   static String? _encodeTargetRef(CatalogEntityRef? targetRef) =>
       targetRef == null ? null : jsonEncode(targetRef.toJson());
 
   static CatalogEntityRef? _decodeTargetRef(String? raw) {
     if (raw == null || raw.isEmpty) return null;
-    final decoded = _decodeJson(raw);
-    if (decoded is! Map) return null;
-    return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
-  }
-
-  static dynamic _decodeJson(String raw) {
     try {
-      return jsonDecode(raw);
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return null;
+      return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
     } on FormatException {
       return null;
     }
-  }
-
-  static List<dynamic> _decodeList(String raw) {
-    final decoded = _decodeJson(raw);
-    return decoded is List ? List<dynamic>.from(decoded) : const <dynamic>[];
-  }
-
-  static Map<String, dynamic> _decodeMap(String raw) {
-    final decoded = _decodeJson(raw);
-    if (decoded is! Map<Object?, Object?>) return const <String, dynamic>{};
-    return Map<String, dynamic>.from(decoded);
   }
 }

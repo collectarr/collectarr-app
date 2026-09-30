@@ -20,7 +20,6 @@ export 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.
 export 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 export 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_pane.dart';
 export 'package:collectarr_app/features/library/kinds/manga/add/manga_catalog_candidate_projection.dart';
-export 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_catalog_target_capability.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';

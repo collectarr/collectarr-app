@@ -11,8 +11,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:drift/native.dart';
@@ -140,10 +138,14 @@ Future<void> _seedTypedItem(
         ),
       );
     case CatalogMediaKind.manga:
-      await MangaRepository(db).updateMedia(
-        MangaMedia(
-            id: id, title: '${kind.apiValue} title', rawPayload: rawPayload),
-      );
+      await CatalogTransportRepository(db).upsertTransportItems([
+        CatalogItemDto.fromJson({
+          'id': id,
+          'kind': kind.apiValue,
+          'title': '${kind.apiValue} title',
+          ...rawPayload,
+        }),
+      ]);
     case CatalogMediaKind.book:
       await CatalogTransportRepository(db).upsertTransportItems([
         CatalogItemDto.fromJson({

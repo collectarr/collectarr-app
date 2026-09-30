@@ -112,13 +112,6 @@ class CollectarrApiClient {
     );
   }
 
-  Future<MangaWorkDto> getMangaWorkDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/manga/works/${Uri.encodeComponent(id)}',
-      MangaWorkDto.fromJson,
-    );
-  }
-
   Future<AnimeSeriesDto> getAnimeSeriesDto(String id) {
     return _fetchTypedMetadataItem(
       '/api/v1/metadata/anime/series/${Uri.encodeComponent(id)}',

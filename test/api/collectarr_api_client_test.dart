@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:dio/dio.dart';
@@ -201,10 +200,10 @@ void main() {
     });
 
     group('catalog transport dtos', () {
-      test('returns typed metadata response and preserves raw payload',
+      test('returns flattened Catalog Item JSON and preserves kind payload',
           () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/api/v1/metadata/books/works/item-1', {
+        interceptor.onGet('/api/v1/metadata/books/items/item-1', {
           'id': 'item-1',
           'kind': 'book',
           'title': 'The Sample Book',
@@ -218,30 +217,27 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        final dto = await client.getTypedMetadataItem(
+        final dto = await client.getCatalogItemJson(
           kind: CatalogMediaKind.book,
           id: 'item-1',
         );
 
-        expect(dto.id, 'item-1');
-        expect(dto.title, 'The Sample Book');
-        expect(dto, isA<BookWorkDto>());
-        expect(dto.raw['tracks'], hasLength(1));
-        expect(dto.raw['barcode'], '1234567890');
-
-        expect(dto.kind, 'book');
-        expect(dto.title, 'The Sample Book');
+        expect(dto['id'], 'item-1');
+        expect(dto['title'], 'The Sample Book');
+        expect(dto['tracks'], hasLength(1));
+        expect(dto['barcode'], '1234567890');
+        expect(dto['kind'], 'book');
       });
 
       test('returns kind-specific typed metadata dto helpers', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/api/v1/metadata/games/works/game-1', {
+        interceptor.onGet('/api/v1/metadata/games/items/game-1', {
           'id': 'game-1',
           'kind': 'game',
           'title': 'Zelda',
           'platforms': ['Switch', 'switch'],
         });
-        interceptor.onGet('/api/v1/metadata/boardgames/editions/bg-1', {
+        interceptor.onGet('/api/v1/metadata/boardgames/items/bg-1', {
           'id': 'bg-1',
           'kind': 'boardgame',
           'title': 'Catan',
@@ -249,11 +245,17 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        final game = await client.getGameWorkDto('game-1');
-        final boardgame = await client.getBoardGameEditionDto('bg-1');
+        final game = await client.getCatalogItemJson(
+          kind: CatalogMediaKind.game,
+          id: 'game-1',
+        );
+        final boardgame = await client.getCatalogItemJson(
+          kind: CatalogMediaKind.boardgame,
+          id: 'bg-1',
+        );
 
-        expect(game.platforms, ['Switch']);
-        expect(boardgame.title, 'Catan');
+        expect(game['platforms'], ['Switch']);
+        expect(boardgame['title'], 'Catan');
       });
 
       test('returns typed search dtos', () async {
@@ -273,67 +275,44 @@ void main() {
         expect(results.first['title'], 'Batman #1');
       });
 
-      test('uses typed routes for comic manga anime movie and tv', () async {
+      test('uses flattened Catalog Item routes for each kind', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/api/v1/metadata/comics/works/comic-1', {
+        interceptor.onGet('/api/v1/metadata/comics/items/comic-1', {
           'id': 'comic-1',
+          'kind': 'comic',
           'title': 'Saga',
-          'issues': <dynamic>[],
         });
-        interceptor.onGet('/api/v1/metadata/manga/works/manga-1', {
-          'id': 'manga-1',
-          'title': 'Berserk',
-          'chapters': <dynamic>[],
-        });
-        interceptor.onGet('/api/v1/metadata/anime/series/anime-1', {
+        interceptor.onGet('/api/v1/metadata/anime/items/anime-1', {
           'id': 'anime-1',
+          'kind': 'anime',
           'title': 'Naruto',
-          'episodes': <dynamic>[],
         });
-        interceptor.onGet('/api/v1/metadata/movies/works/movie-1', {
+        interceptor.onGet('/api/v1/metadata/movies/items/movie-1', {
           'id': 'movie-1',
+          'kind': 'movie',
           'title': 'Alien',
-          'releases': <dynamic>[],
         });
-        interceptor.onGet('/api/v1/metadata/tv/series/tv-1', {
+        interceptor.onGet('/api/v1/metadata/tv/items/tv-1', {
           'id': 'tv-1',
+          'kind': 'tv',
           'title': 'Breaking Bad',
-          'seasons': <dynamic>[],
         });
         final client = _createTestClient(interceptor);
 
-        expect(
-            await client.getTypedMetadataItem(
-                kind: CatalogMediaKind.comic, id: 'comic-1'),
-            isA<ComicWorkDto>());
-        expect(
-            await client.getTypedMetadataItem(
-                kind: CatalogMediaKind.manga, id: 'manga-1'),
-            isA<MangaWorkDto>());
-        expect(
-            await client.getTypedMetadataItem(
-                kind: CatalogMediaKind.anime, id: 'anime-1'),
-            isA<AnimeSeriesDto>());
-        expect(
-            await client.getTypedMetadataItem(
-                kind: CatalogMediaKind.movie, id: 'movie-1'),
-            isA<MovieWorkDto>());
-        expect(
-            await client.getTypedMetadataItem(
-                kind: CatalogMediaKind.tv, id: 'tv-1'),
-            isA<TvSeriesDto>());
+        for (final (kind, id, title) in [
+          (CatalogMediaKind.comic, 'comic-1', 'Saga'),
+          (CatalogMediaKind.anime, 'anime-1', 'Naruto'),
+          (CatalogMediaKind.movie, 'movie-1', 'Alien'),
+          (CatalogMediaKind.tv, 'tv-1', 'Breaking Bad'),
+        ]) {
+          final item = await client.getCatalogItemJson(kind: kind, id: id);
+          expect(item['id'], id);
+          expect(item['title'], title);
+        }
       });
 
-      test('uses typed manga work and TV season routes when kind is known',
-          () async {
+      test('uses typed TV season routes when kind is known', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/api/v1/metadata/manga/works/manga-1', {
-          'id': 'manga-1',
-          'title': 'Berserk',
-          'chapters': [
-            {'chapter_number': 1, 'chapter_title': 'Black Swordsman'},
-          ],
-        });
         interceptor.onGet('/api/v1/metadata/tv/series/tv-1/seasons', [
           {
             'id': 'season-1',
@@ -371,8 +350,6 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        final manga = await client.getMangaWorkDto('manga-1');
-        expect(manga.chapters, hasLength(1));
         expect(
           await client.getTvSeriesSeasonsDto('tv-1'),
           hasLength(1),

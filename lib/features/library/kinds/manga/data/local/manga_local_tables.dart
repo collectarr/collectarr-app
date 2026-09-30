@@ -1,28 +1,5 @@
 import 'package:drift/drift.dart';
 
-class MangaMediaRows extends Table {
-  TextColumn get id => text()();
-  TextColumn get title => text()();
-  TextColumn get sortTitle => text().nullable()();
-  TextColumn get description => text().nullable()();
-  DateTimeColumn get firstPublicationDate => dateTime().nullable()();
-  TextColumn get originalLanguage => text().nullable()();
-  DateTimeColumn get originalPublicationDate => dateTime().nullable()();
-  TextColumn get status => text().nullable()();
-  TextColumn get subtitle => text().nullable()();
-  TextColumn get chaptersJson => text().withDefault(const Constant('[]'))();
-  TextColumn get characterAppearancesJson =>
-      text().withDefault(const Constant('[]'))();
-  TextColumn get contributionsJson =>
-      text().withDefault(const Constant('[]'))();
-  TextColumn get identifiersJson => text().withDefault(const Constant('[]'))();
-  TextColumn get seriesJson => text().withDefault(const Constant('[]'))();
-  TextColumn get rawPayloadJson => text().withDefault(const Constant('{}'))();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
 /// Complete Manga-owned copy state.
 class MangaOwnedItemsRows extends Table {
   TextColumn get id => text()();

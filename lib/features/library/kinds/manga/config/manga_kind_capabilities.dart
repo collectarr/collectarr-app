@@ -1,9 +1,7 @@
 import '../manga_module_dependencies.dart';
 import 'manga_kind_configuration.dart';
-import '../workspace/manga_hierarchy_contract_diagnostics.dart';
 import 'package:collectarr_app/features/library/kinds/manga/release/manga_release_projection_capability.dart'
     as manga_release;
-import '../add/manga_add_contribution.dart';
 
 final mangaKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.manga,
@@ -104,11 +102,7 @@ final mangaKindMetadata = LibraryMetadataCapability(
   searchQueryBuilder: mangaMetadataSearchQuery,
 );
 
-final mangaKindHierarchy = const LibraryHierarchyCapability(
-  fetchChildrenCallback: fetchMangaVolumes,
-  childrenTitleBuilder: mangaChildrenTitle,
-  contractDiagnosticLabelBuilder: mangaHierarchyContractDiagnosticLabel,
-);
+final mangaKindHierarchy = const LibraryHierarchyCapability();
 
 final mangaKindEntityVocabulary = const LibraryEntityVocabulary(
   work: LibraryEntityLabel(singular: 'Volume', plural: 'Volumes'),

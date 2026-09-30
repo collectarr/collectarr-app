@@ -122,24 +122,6 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
   manualPaneBuilder: buildMangaAddManualPane,
 );
 
-String mangaChildrenTitle(int count) => 'Volumes ($count)';
-
-Future<List<LibraryHierarchyNode>> fetchMangaVolumes({
-  required ApiClient api,
-  required String itemId,
-}) async {
-  final work =
-      await api.getMangaWorkDto(itemId).timeout(const Duration(seconds: 60));
-  final manga = MangaCoreMapper.fromWorkDto(work);
-  final hierarchy = MangaHierarchyMapper.fromChapterRows(
-    seriesId: itemId,
-    rows: manga.chapters.whereType<Map<Object?, Object?>>().map(
-          (chapter) => Map<String, dynamic>.from(chapter),
-        ),
-  );
-  return MangaHierarchyMapper.toLibraryNodes(hierarchy);
-}
-
 List<LibraryAddAdvancedFilterField<String>> buildMangaAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
 ) =>

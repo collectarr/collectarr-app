@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_owned_item_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:drift/drift.dart';
@@ -17,7 +17,7 @@ final class MangaOwnedRepository
     final row = await (_db.select(_db.mangaOwnedItemsRows)
           ..where((table) => table.id.equals(id.value)))
         .getSingleOrNull();
-    return row == null ? null : MangaLocalMapper.fromOwnedItemRow(row);
+    return row == null ? null : MangaOwnedItemLocalMapper.fromRow(row);
   }
 
   Future<List<MangaOwnedItem>> listActive() async {
@@ -25,13 +25,13 @@ final class MangaOwnedRepository
           ..where((table) => table.deletedAt.isNull())
           ..orderBy([(table) => OrderingTerm.desc(table.updatedAt)]))
         .get();
-    return [for (final row in rows) MangaLocalMapper.fromOwnedItemRow(row)];
+    return [for (final row in rows) MangaOwnedItemLocalMapper.fromRow(row)];
   }
 
   Future<void> upsert(MangaOwnedItem item) {
     return _db
         .into(_db.mangaOwnedItemsRows)
-        .insertOnConflictUpdate(MangaLocalMapper.toOwnedItemRow(item));
+        .insertOnConflictUpdate(MangaOwnedItemLocalMapper.toRow(item));
   }
 
   Future<void> upsertAll(Iterable<MangaOwnedItem> items) async {
@@ -40,7 +40,7 @@ final class MangaOwnedRepository
     await _db.batch((batch) {
       batch.insertAll(
         _db.mangaOwnedItemsRows,
-        values.map(MangaLocalMapper.toOwnedItemRow).toList(growable: false),
+        values.map(MangaOwnedItemLocalMapper.toRow).toList(growable: false),
         mode: InsertMode.insertOrReplace,
       );
     });

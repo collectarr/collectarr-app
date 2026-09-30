@@ -12,37 +12,46 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
-  test('Manga hierarchy groups typed chapters into ordered volumes', () {
-    final hierarchy = MangaHierarchyMapper.fromChapterRows(
-      seriesId: 'series-1',
-      rows: [
-        {
-          'id': 'chapter-2',
-          'series_title': 'Nausicaa',
-          'volume_number': 2,
-          'chapter_number': 2,
-          'chapter_title': 'The Valley',
-          'page_count': 40,
-        },
-        {
-          'id': 'chapter-1',
-          'series_title': 'Nausicaa',
-          'volume_number': 1,
-          'chapter_number': 1,
-          'chapter_title': 'The Wind',
-        },
-        {
-          'id': 'chapter-3',
-          'series_title': 'Nausicaa',
-          'volume_number': 2,
-          'chapter_title': 'The Forest',
-        },
-      ],
+  test('Manga hierarchy groups Catalog Items into ordered volumes', () {
+    final volumeOne = CatalogItemDto.raw(
+      id: 'volume-1',
+      mediaKind: CatalogMediaKind.manga,
+      common: const CatalogCommonDto(title: 'Nausicaa 1'),
+      payload: const {
+        'series': {'series_id': 'series-1', 'series_title': 'Nausicaa'},
+        'volume_number': 1,
+        'chapters': [
+          {'id': 'chapter-1', 'chapter_number': 1, 'title': 'The Wind'},
+        ],
+      },
+    );
+    final volumeTwo = CatalogItemDto.raw(
+      id: 'volume-2',
+      mediaKind: CatalogMediaKind.manga,
+      common: const CatalogCommonDto(title: 'Nausicaa 2'),
+      payload: const {
+        'series': {'series_id': 'series-1', 'series_title': 'Nausicaa'},
+        'volume_number': 2,
+        'chapters': [
+          {
+            'id': 'chapter-2',
+            'chapter_number': 2,
+            'title': 'The Valley',
+            'page_count': 40,
+          },
+          {'id': 'chapter-3', 'chapter_number': 3, 'title': 'The Forest'},
+        ],
+      },
+    );
+    final hierarchy = MangaHierarchyMapper.fromCatalogItems(
+      selected: volumeOne,
+      items: [volumeTwo, volumeOne],
     );
 
     expect(hierarchy.seriesTitle, 'Nausicaa');
     expect(hierarchy.volumes.map((volume) => volume.volumeNumber), [1, 2]);
     expect(hierarchy.volumes[1].chapters, hasLength(2));
+    expect(hierarchy.volumes.first.chapters.single.chapterId, 'chapter-1');
     expect(hierarchy.volumes[1].chapters.first.chapterId, 'chapter-2');
     expect(hierarchy.volumes[1].chapters.last.chapterNumber, 3);
 

@@ -63,7 +63,7 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'comic.media': 15,
   'comic.release': 15,
   'comic.reading': 15,
-  'manga.media': 15,
+  'manga.catalog_item': 15,
   'book.catalog_item': 15,
   'game.catalog_item': 15,
   'boardgame.media': 15,
@@ -156,7 +156,9 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'comic.media': (await db.select(db.comicMediaRows).get()).length,
     'comic.release': (await db.select(db.comicReleaseRows).get()).length,
     'comic.reading': (await db.select(db.comicReadingRows).get()).length,
-    'manga.media': (await db.select(db.mangaMediaRows).get()).length,
+    'manga.catalog_item': (await CatalogItemCacheRepository(db)
+            .findAll(kind: CatalogMediaKind.manga))
+        .length,
     'book.catalog_item': (await CatalogItemCacheRepository(db)
             .findAll(kind: CatalogMediaKind.book))
         .length,
@@ -207,10 +209,12 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     }
   }
 
-  final mangaMedia = await db.select(db.mangaMediaRows).get();
-  for (final row in mangaMedia.where((row) => isSeed(row.id))) {
-    if (row.chaptersJson == '[]') {
-      issues.add('manga media ${row.id} has no persisted chapters');
+  final mangaItems = await CatalogItemCacheRepository(db)
+      .findAll(kind: CatalogMediaKind.manga);
+  for (final item in mangaItems.where((item) => isSeed(item.id))) {
+    final chapters = item.payload['chapters'];
+    if (chapters is! Iterable || chapters.isEmpty) {
+      issues.add('Manga Catalog Item ${item.id} has no persisted chapters');
     }
   }
 

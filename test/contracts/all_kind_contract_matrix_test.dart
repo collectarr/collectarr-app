@@ -36,11 +36,12 @@ void main() {
       kind: CatalogMediaKind.manga,
       workspace: mangaKindWorkspace,
       contractFiles: const [
-        'test/domain/manga/manga_core_mapper_test.dart',
-        'test/domain/manga/manga_repository_test.dart',
-        'test/domain/manga/manga_local_mapper_test.dart',
+        'test/domain/manga/manga_catalog_transport_test.dart',
+        'test/domain/manga/manga_owned_item_local_mapper_test.dart',
+        'test/features/catalog/catalog_cache_repository_test.dart',
         'test/domain/manga/manga_add_schema_test.dart',
         'test/domain/manga/manga_media_edit_schema_test.dart',
+        'test/domain/manga/manga_hierarchy_provider_stats_test.dart',
       ],
     );
     _checkTypedKind<BookWorkspaceDto>(

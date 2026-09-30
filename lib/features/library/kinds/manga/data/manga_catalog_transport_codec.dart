@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
@@ -9,12 +10,13 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 
 final class MangaCatalogTransportCodec
-    implements CatalogKindTransportCodec<MangaMedia> {
+    implements
+        CatalogKindTransportCodec<MangaMedia>,
+        CatalogSharedCachePrimaryStore {
   const MangaCatalogTransportCodec();
 
   @override
@@ -29,7 +31,7 @@ final class MangaCatalogTransportCodec
 
   @override
   Future<void> upsert(LocalDatabase db, MangaMedia item) {
-    return MangaRepository(db).updateMedia(item);
+    return CatalogItemCacheRepository(db).upsert(_projection(item));
   }
 
   @override
@@ -113,22 +115,18 @@ final class MangaCatalogTransportCodec
 
   @override
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return upsert(db, decode(item));
+    return CatalogItemCacheRepository(db).upsert(item);
   }
 
   @override
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final media = await MangaRepository(db).search();
-    return [
-      for (final item in media) _projection(item),
-    ];
+    return CatalogItemCacheRepository(db).findAll(kind: kind);
   }
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final media = await MangaRepository(db).search();
     return [
-      for (final item in media) summarize(item),
+      for (final item in await listTransport(db)) summarize(decode(item)),
     ];
   }
 }

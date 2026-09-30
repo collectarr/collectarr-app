@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calen
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/calendar/game_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -48,6 +47,8 @@ void main() {
     addTearDown(movieDatabase.close);
     final bookDatabase = LocalDatabase(NativeDatabase.memory());
     addTearDown(bookDatabase.close);
+    final mangaDatabase = LocalDatabase(NativeDatabase.memory());
+    addTearDown(mangaDatabase.close);
     await CatalogItemCacheRepository(movieDatabase).upsert(
       testCatalogItem(
         id: 'movie-item',
@@ -61,6 +62,16 @@ void main() {
         kind: 'book',
         title: 'The Hobbit',
         releaseDate: date,
+      ),
+    );
+    await CatalogItemCacheRepository(mangaDatabase).upsert(
+      testCatalogItem(
+        id: 'manga-item',
+        kind: 'manga',
+        releaseDate: date,
+        payload: {
+          'first_publication_date': date.toIso8601String(),
+        },
       ),
     );
     final item = testCatalogItem(
@@ -86,18 +97,12 @@ void main() {
               releaseDate: date,
             ),
           ).contribute(_context(ids: const ['game-item'])),
-      () => MangaCalendarContributor(
-            loadMedia: (_) async => MangaMedia.fromJson(
-              testCatalogItem(
-                id: 'manga-item',
-                kind: 'manga',
-                releaseDate: date,
-                payload: {
-                  'first_publication_date': date.toIso8601String(),
-                },
-              ).toSyncPayload(),
+      () => const MangaCalendarContributor().contribute(
+            _context(
+              ids: const ['manga-item'],
+              database: mangaDatabase,
             ),
-          ).contribute(_context(ids: const ['manga-item'])),
+          ),
       () => MovieCalendarContributor().contribute(
             _context(
               ids: const ['movie-item'],

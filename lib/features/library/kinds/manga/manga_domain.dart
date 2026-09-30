@@ -4,11 +4,8 @@ export 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dar
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_core_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_remote_source.dart';
 export 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_tables.dart';
-export 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
+export 'package:collectarr_app/features/library/kinds/manga/data/local/manga_owned_item_local_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
 export 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
