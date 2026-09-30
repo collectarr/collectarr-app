@@ -59,6 +59,10 @@ final class CatalogMusicItemDto implements JsonEncodable {
     // contract. Strip it before validating this kind-owned payload.
     final catalogJson = catalogPayloadWithoutSnapshotVersion(json);
     const allowedKeys = {
+      // This marker belongs to the shared transport envelope. It is ignored
+      // here as a defensive boundary in case a caller passes the envelope
+      // payload directly instead of stripping it first.
+      'snapshot_version',
       'id',
       'kind',
       'title',
