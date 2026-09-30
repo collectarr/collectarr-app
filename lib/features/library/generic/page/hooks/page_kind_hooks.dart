@@ -13,6 +13,11 @@ extension _PageKindHooks on GenericLibraryPageState {
       LibraryViewPreferenceStore(widget.type.kind);
 
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
+    // Music catalog entries are concrete album editions. They do not expose
+    // a separate Release browser scope.
+    if (libraryReleaseCapabilityForKind(widget.type.kind) == null) {
+      return LibraryWorkspaceBrowserMode.work;
+    }
     return libraryBrowserNavigationPolicy.browserModeForViewState(
       _session.preferences.viewState ?? _viewProfile.defaults(),
       releaseFolderWorkId: activeReleaseFolderTitleItemId,

@@ -9,12 +9,6 @@ final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceProjection>(
       fields: musicReleaseGroupWorkspaceSchema.toRegistry(),
       projector: const MusicReleaseGroupWorkspaceProjector(),
     ),
-    LibraryEntityScope.release:
-        TypedLibraryEntityWorkspace<MusicWorkspaceProjection>(
-      scope: LibraryEntityScope.release,
-      fields: musicReleaseWorkspaceSchema.toRegistry(),
-      projector: const MusicReleaseWorkspaceProjector(),
-    ),
     LibraryEntityScope.copy:
         TypedLibraryEntityWorkspace<MusicWorkspaceProjection>(
       scope: LibraryEntityScope.copy,

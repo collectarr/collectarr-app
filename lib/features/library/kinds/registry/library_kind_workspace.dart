@@ -171,7 +171,10 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     required this.trackingTopology,
     this.trackingTargetResolver,
   }) {
-    final missing = LibraryEntityScope.values
+    // A kind may omit a structural scope it does not expose. Catalog Items
+    // that are already concrete editions, such as Music albums, have no
+    // separate Release workspace.
+    final missing = const [LibraryEntityScope.work, LibraryEntityScope.copy]
         .where((scope) => !entityWorkspaces.containsKey(scope))
         .toList(growable: false);
     if (missing.isNotEmpty) {
@@ -180,7 +183,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
         '${missing.map((scope) => scope.apiValue).join(', ')}.',
       );
     }
-    for (final scope in LibraryEntityScope.values) {
+    for (final scope in entityWorkspaces.keys) {
       final workspace = entityWorkspaces[scope]!;
       if (workspace.scope != scope) {
         throw StateError(
@@ -256,7 +259,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   LibraryFieldRegistry<LibraryWorkspaceDto>? fieldsForGroupModeAcrossScopes(
     String raw,
   ) {
-    for (final scope in LibraryEntityScope.values) {
+    for (final scope in entityWorkspaces.keys) {
       final registry = fieldsForScope(scope);
       final groupId = registry.decodeGroupId(raw);
       if (registry.findGroupDefinition(groupId) != null) return registry;
@@ -269,7 +272,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     LibraryProjectionItem item,
     String raw,
   ) {
-    for (final scope in LibraryEntityScope.values) {
+    for (final scope in entityWorkspaces.keys) {
       final registry = _typedFieldsForScope(scope);
       final groupId = registry.decodeGroupId(raw);
       final definition = registry.findGroupDefinition(groupId);
@@ -311,7 +314,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   List<LibraryGroupIdRuntime> get availableGroupIdsForAllScopes {
     final seenIds = <String>{};
     return [
-      for (final scope in LibraryEntityScope.values)
+      for (final scope in entityWorkspaces.keys)
         for (final groupId in availableGroupIdsForScope(scope))
           if (seenIds.add(groupId.value)) groupId,
     ];
@@ -330,13 +333,13 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   Set<String> get availableSortColumnIdsForAllScopes => {
-        for (final scope in LibraryEntityScope.values)
+        for (final scope in entityWorkspaces.keys)
           for (final sort in availableSortIdsForScope(scope)) sort.value,
       };
 
   @override
   LibraryGroupIdRuntime? resolveGroupIdAcrossScopes(String raw) {
-    for (final scope in LibraryEntityScope.values) {
+    for (final scope in entityWorkspaces.keys) {
       final registry = fieldsForScope(scope);
       final definition = registry.findGroupDefinition(
         registry.decodeGroupId(raw),

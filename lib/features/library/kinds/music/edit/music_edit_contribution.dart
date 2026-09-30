@@ -8,10 +8,6 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
       builder: buildMusicReleaseGroupLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.release,
-      builder: buildMusicReleaseLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
       scope: LibraryEntityScope.copy,
       builder: buildMusicOwnedCopyLibraryEditDialog,
     ),

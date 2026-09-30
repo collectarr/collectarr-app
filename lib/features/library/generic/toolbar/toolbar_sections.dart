@@ -245,7 +245,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 onChanged: onGroupPresentationChanged!,
                               ),
                             ],
-                            ...[
+                            if (libraryReleaseCapabilityForKind(type.kind) !=
+                                null) ...[
                               const _LibraryDesktopToolbarSeparator(),
                               _LibraryDesktopToolbarSection(
                                 label: 'Scope',

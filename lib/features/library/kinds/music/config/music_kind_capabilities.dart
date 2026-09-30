@@ -34,8 +34,8 @@ final musicKindTrackingProfile = musicTrackingProfile;
 
 final musicKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final musicKindReleaseCapability =
-    const MusicReleaseProjectionCapability<MusicWorkspaceProjection>();
+final ReleaseProjectionCapability<MusicWorkspaceProjection>?
+    musicKindReleaseCapability = null;
 
 final musicKindReleaseDetailSource = null;
 
@@ -125,12 +125,7 @@ final musicKindInspector = LibraryInspectorCapability(
         heroBuilder: buildMusicWorkInspectorHero,
         sectionsBuilder: buildMusicWorkInspectorSections,
       ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildMusicReleaseInspectorHero,
-        sectionsBuilder: buildMusicReleaseInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
+    LibraryEntityInspectorContributor(
         scope: LibraryEntityScope.copy,
         heroBuilder: buildMusicCopyInspectorHero,
         sectionsBuilder: buildMusicCopyInspectorSections,
