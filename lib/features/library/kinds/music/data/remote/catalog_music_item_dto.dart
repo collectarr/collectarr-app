@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 
 /// Transport model for Core's flattened Music Catalog Item API.
 ///
@@ -54,6 +55,9 @@ final class CatalogMusicItemDto implements JsonEncodable {
   }) : studios = List<String>.unmodifiable(studios);
 
   factory CatalogMusicItemDto.fromJson(Map<String, dynamic> json) {
+    // Transport snapshot metadata is not part of the strict Music catalog
+    // contract. Strip it before validating this kind-owned payload.
+    final catalogJson = catalogPayloadWithoutSnapshotVersion(json);
     const allowedKeys = {
       'id',
       'kind',
@@ -100,17 +104,15 @@ final class CatalogMusicItemDto implements JsonEncodable {
       'revision',
       'discs',
     };
-    for (final key in json.keys) {
-      // Catalog responses may include the transport envelope's schema marker
-      // beside the flat Music payload. It is not a Music catalog field.
-      if (key != 'snapshot_version' && !allowedKeys.contains(key)) {
+    for (final key in catalogJson.keys) {
+      if (!allowedKeys.contains(key)) {
         throw FormatException('Unrecognized Music Catalog Item field "$key".');
       }
     }
 
-    final id = _string(json['id']);
-    final title = _string(json['title']);
-    final kind = _string(json['kind']);
+    final id = _string(catalogJson['id']);
+    final title = _string(catalogJson['title']);
+    final kind = _string(catalogJson['kind']);
     if (kind != null && kind != CatalogMediaKind.music.apiValue) {
       throw FormatException('Expected a Music Catalog Item, received $kind.');
     }
@@ -122,48 +124,48 @@ final class CatalogMusicItemDto implements JsonEncodable {
     return CatalogMusicItemDto(
       id: id,
       title: title,
-      sortTitle: _string(json['sort_title']),
-      subtitle: _string(json['subtitle']),
-      artist: _string(json['artist']),
-      artistCredits: _objectList(json['artist_credits']),
-      originalReleaseDate: _string(json['original_release_date']),
-      originalReleaseDateParts: json['original_release_date_parts'],
-      recordingDate: _string(json['recording_date']),
-      recordingDateParts: json['recording_date_parts'],
-      releaseDate: _string(json['release_date']),
-      releaseDateParts: json['release_date_parts'],
-      label: _string(json['label']),
-      format: _string(json['format']),
-      barcode: _string(json['barcode']),
-      catalogNumber: _string(json['catalog_number']),
-      genres: _stringList(json['genres']),
-      packaging: _string(json['packaging']),
-      studios: _stringList(json['studios']),
-      country: _string(json['country']),
-      isLive: json['is_live'] as bool?,
-      soundTypes: _stringList(json['sound_types']),
-      vinylColor: _string(json['vinyl_color']),
-      vinylWeight: _string(json['vinyl_weight']),
-      rpm: _integer(json['rpm']),
-      extra: _string(json['extra']),
-      spars: _string(json['spars']),
-      boxSet: _string(json['box_set']),
-      composers: _objectList(json['composers']),
-      conductors: _objectList(json['conductors']),
-      choruses: _stringList(json['choruses']),
-      compositions: _stringList(json['compositions']),
-      orchestras: _stringList(json['orchestras']),
-      songwriters: _objectList(json['songwriters']),
-      producers: _objectList(json['producers']),
-      engineers: _objectList(json['engineers']),
-      musicians: _objectList(json['musicians']),
-      externalLinks: _objectList(json['external_links']),
-      coverImageUrl: _string(json['cover_image_url']),
-      backCoverImageUrl: _string(json['back_cover_image_url']),
-      thumbnailImageUrl: _string(json['thumbnail_image_url']),
-      revision: _integer(json['revision']) ?? 1,
+      sortTitle: _string(catalogJson['sort_title']),
+      subtitle: _string(catalogJson['subtitle']),
+      artist: _string(catalogJson['artist']),
+      artistCredits: _objectList(catalogJson['artist_credits']),
+      originalReleaseDate: _string(catalogJson['original_release_date']),
+      originalReleaseDateParts: catalogJson['original_release_date_parts'],
+      recordingDate: _string(catalogJson['recording_date']),
+      recordingDateParts: catalogJson['recording_date_parts'],
+      releaseDate: _string(catalogJson['release_date']),
+      releaseDateParts: catalogJson['release_date_parts'],
+      label: _string(catalogJson['label']),
+      format: _string(catalogJson['format']),
+      barcode: _string(catalogJson['barcode']),
+      catalogNumber: _string(catalogJson['catalog_number']),
+      genres: _stringList(catalogJson['genres']),
+      packaging: _string(catalogJson['packaging']),
+      studios: _stringList(catalogJson['studios']),
+      country: _string(catalogJson['country']),
+      isLive: catalogJson['is_live'] as bool?,
+      soundTypes: _stringList(catalogJson['sound_types']),
+      vinylColor: _string(catalogJson['vinyl_color']),
+      vinylWeight: _string(catalogJson['vinyl_weight']),
+      rpm: _integer(catalogJson['rpm']),
+      extra: _string(catalogJson['extra']),
+      spars: _string(catalogJson['spars']),
+      boxSet: _string(catalogJson['box_set']),
+      composers: _objectList(catalogJson['composers']),
+      conductors: _objectList(catalogJson['conductors']),
+      choruses: _stringList(catalogJson['choruses']),
+      compositions: _stringList(catalogJson['compositions']),
+      orchestras: _stringList(catalogJson['orchestras']),
+      songwriters: _objectList(catalogJson['songwriters']),
+      producers: _objectList(catalogJson['producers']),
+      engineers: _objectList(catalogJson['engineers']),
+      musicians: _objectList(catalogJson['musicians']),
+      externalLinks: _objectList(catalogJson['external_links']),
+      coverImageUrl: _string(catalogJson['cover_image_url']),
+      backCoverImageUrl: _string(catalogJson['back_cover_image_url']),
+      thumbnailImageUrl: _string(catalogJson['thumbnail_image_url']),
+      revision: _integer(catalogJson['revision']) ?? 1,
       discs: [
-        for (final disc in _objectList(json['discs']))
+        for (final disc in _objectList(catalogJson['discs']))
           CatalogMusicDiscDto.fromJson(disc),
       ],
     );
