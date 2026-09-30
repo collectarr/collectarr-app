@@ -45,8 +45,6 @@ final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
           url: row.url.text.trim(),
           title: row.original?.title,
           description: _nullable(row.description.text),
-          source: row.original?.source ?? 'manual',
-          isAutomatic: row.original?.isAutomatic ?? false,
         ),
     ];
   }

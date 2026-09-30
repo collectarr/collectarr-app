@@ -40830,24 +40830,9 @@ class $MusicReleaseExternalLinksRowsTable extends MusicReleaseExternalLinksRows
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
       'description', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
-  @override
-  late final GeneratedColumn<String> source = GeneratedColumn<String>(
-      'source', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _isAutomaticMeta =
-      const VerificationMeta('isAutomatic');
-  @override
-  late final GeneratedColumn<bool> isAutomatic = GeneratedColumn<bool>(
-      'is_automatic', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("is_automatic" IN (0, 1))'),
-      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns =>
-      [releaseId, sequence, url, title, description, source, isAutomatic];
+      [releaseId, sequence, url, title, description];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -40887,16 +40872,6 @@ class $MusicReleaseExternalLinksRowsTable extends MusicReleaseExternalLinksRows
           description.isAcceptableOrUnknown(
               data['description']!, _descriptionMeta));
     }
-    if (data.containsKey('source')) {
-      context.handle(_sourceMeta,
-          source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
-    }
-    if (data.containsKey('is_automatic')) {
-      context.handle(
-          _isAutomaticMeta,
-          isAutomatic.isAcceptableOrUnknown(
-              data['is_automatic']!, _isAutomaticMeta));
-    }
     return context;
   }
 
@@ -40917,10 +40892,6 @@ class $MusicReleaseExternalLinksRowsTable extends MusicReleaseExternalLinksRows
           .read(DriftSqlType.string, data['${effectivePrefix}title']),
       description: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}description']),
-      source: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}source']),
-      isAutomatic: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_automatic'])!,
     );
   }
 
@@ -40937,16 +40908,12 @@ class MusicReleaseExternalLinksRow extends DataClass
   final String url;
   final String? title;
   final String? description;
-  final String? source;
-  final bool isAutomatic;
   const MusicReleaseExternalLinksRow(
       {required this.releaseId,
       required this.sequence,
       required this.url,
       this.title,
-      this.description,
-      this.source,
-      required this.isAutomatic});
+      this.description});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -40959,10 +40926,6 @@ class MusicReleaseExternalLinksRow extends DataClass
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
     }
-    if (!nullToAbsent || source != null) {
-      map['source'] = Variable<String>(source);
-    }
-    map['is_automatic'] = Variable<bool>(isAutomatic);
     return map;
   }
 
@@ -40976,9 +40939,6 @@ class MusicReleaseExternalLinksRow extends DataClass
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
-      source:
-          source == null && nullToAbsent ? const Value.absent() : Value(source),
-      isAutomatic: Value(isAutomatic),
     );
   }
 
@@ -40991,8 +40951,6 @@ class MusicReleaseExternalLinksRow extends DataClass
       url: serializer.fromJson<String>(json['url']),
       title: serializer.fromJson<String?>(json['title']),
       description: serializer.fromJson<String?>(json['description']),
-      source: serializer.fromJson<String?>(json['source']),
-      isAutomatic: serializer.fromJson<bool>(json['isAutomatic']),
     );
   }
   @override
@@ -41004,8 +40962,6 @@ class MusicReleaseExternalLinksRow extends DataClass
       'url': serializer.toJson<String>(url),
       'title': serializer.toJson<String?>(title),
       'description': serializer.toJson<String?>(description),
-      'source': serializer.toJson<String?>(source),
-      'isAutomatic': serializer.toJson<bool>(isAutomatic),
     };
   }
 
@@ -41014,17 +40970,13 @@ class MusicReleaseExternalLinksRow extends DataClass
           int? sequence,
           String? url,
           Value<String?> title = const Value.absent(),
-          Value<String?> description = const Value.absent(),
-          Value<String?> source = const Value.absent(),
-          bool? isAutomatic}) =>
+          Value<String?> description = const Value.absent()}) =>
       MusicReleaseExternalLinksRow(
         releaseId: releaseId ?? this.releaseId,
         sequence: sequence ?? this.sequence,
         url: url ?? this.url,
         title: title.present ? title.value : this.title,
         description: description.present ? description.value : this.description,
-        source: source.present ? source.value : this.source,
-        isAutomatic: isAutomatic ?? this.isAutomatic,
       );
   MusicReleaseExternalLinksRow copyWithCompanion(
       MusicReleaseExternalLinksRowsCompanion data) {
@@ -41035,9 +40987,6 @@ class MusicReleaseExternalLinksRow extends DataClass
       title: data.title.present ? data.title.value : this.title,
       description:
           data.description.present ? data.description.value : this.description,
-      source: data.source.present ? data.source.value : this.source,
-      isAutomatic:
-          data.isAutomatic.present ? data.isAutomatic.value : this.isAutomatic,
     );
   }
 
@@ -41048,16 +40997,13 @@ class MusicReleaseExternalLinksRow extends DataClass
           ..write('sequence: $sequence, ')
           ..write('url: $url, ')
           ..write('title: $title, ')
-          ..write('description: $description, ')
-          ..write('source: $source, ')
-          ..write('isAutomatic: $isAutomatic')
+          ..write('description: $description')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      releaseId, sequence, url, title, description, source, isAutomatic);
+  int get hashCode => Object.hash(releaseId, sequence, url, title, description);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -41066,9 +41012,7 @@ class MusicReleaseExternalLinksRow extends DataClass
           other.sequence == this.sequence &&
           other.url == this.url &&
           other.title == this.title &&
-          other.description == this.description &&
-          other.source == this.source &&
-          other.isAutomatic == this.isAutomatic);
+          other.description == this.description);
 }
 
 class MusicReleaseExternalLinksRowsCompanion
@@ -41078,8 +41022,6 @@ class MusicReleaseExternalLinksRowsCompanion
   final Value<String> url;
   final Value<String?> title;
   final Value<String?> description;
-  final Value<String?> source;
-  final Value<bool> isAutomatic;
   final Value<int> rowid;
   const MusicReleaseExternalLinksRowsCompanion({
     this.releaseId = const Value.absent(),
@@ -41087,8 +41029,6 @@ class MusicReleaseExternalLinksRowsCompanion
     this.url = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
-    this.source = const Value.absent(),
-    this.isAutomatic = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MusicReleaseExternalLinksRowsCompanion.insert({
@@ -41097,8 +41037,6 @@ class MusicReleaseExternalLinksRowsCompanion
     required String url,
     this.title = const Value.absent(),
     this.description = const Value.absent(),
-    this.source = const Value.absent(),
-    this.isAutomatic = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : releaseId = Value(releaseId),
         sequence = Value(sequence),
@@ -41109,8 +41047,6 @@ class MusicReleaseExternalLinksRowsCompanion
     Expression<String>? url,
     Expression<String>? title,
     Expression<String>? description,
-    Expression<String>? source,
-    Expression<bool>? isAutomatic,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -41119,8 +41055,6 @@ class MusicReleaseExternalLinksRowsCompanion
       if (url != null) 'url': url,
       if (title != null) 'title': title,
       if (description != null) 'description': description,
-      if (source != null) 'source': source,
-      if (isAutomatic != null) 'is_automatic': isAutomatic,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -41131,8 +41065,6 @@ class MusicReleaseExternalLinksRowsCompanion
       Value<String>? url,
       Value<String?>? title,
       Value<String?>? description,
-      Value<String?>? source,
-      Value<bool>? isAutomatic,
       Value<int>? rowid}) {
     return MusicReleaseExternalLinksRowsCompanion(
       releaseId: releaseId ?? this.releaseId,
@@ -41140,8 +41072,6 @@ class MusicReleaseExternalLinksRowsCompanion
       url: url ?? this.url,
       title: title ?? this.title,
       description: description ?? this.description,
-      source: source ?? this.source,
-      isAutomatic: isAutomatic ?? this.isAutomatic,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -41164,12 +41094,6 @@ class MusicReleaseExternalLinksRowsCompanion
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
-    if (source.present) {
-      map['source'] = Variable<String>(source.value);
-    }
-    if (isAutomatic.present) {
-      map['is_automatic'] = Variable<bool>(isAutomatic.value);
-    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -41184,8 +41108,6 @@ class MusicReleaseExternalLinksRowsCompanion
           ..write('url: $url, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
-          ..write('source: $source, ')
-          ..write('isAutomatic: $isAutomatic, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -75324,8 +75246,6 @@ typedef $$MusicReleaseExternalLinksRowsTableCreateCompanionBuilder
   required String url,
   Value<String?> title,
   Value<String?> description,
-  Value<String?> source,
-  Value<bool> isAutomatic,
   Value<int> rowid,
 });
 typedef $$MusicReleaseExternalLinksRowsTableUpdateCompanionBuilder
@@ -75335,8 +75255,6 @@ typedef $$MusicReleaseExternalLinksRowsTableUpdateCompanionBuilder
   Value<String> url,
   Value<String?> title,
   Value<String?> description,
-  Value<String?> source,
-  Value<bool> isAutomatic,
   Value<int> rowid,
 });
 
@@ -75363,12 +75281,6 @@ class $$MusicReleaseExternalLinksRowsTableFilterComposer
 
   ColumnFilters<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get source => $composableBuilder(
-      column: $table.source, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get isAutomatic => $composableBuilder(
-      column: $table.isAutomatic, builder: (column) => ColumnFilters(column));
 }
 
 class $$MusicReleaseExternalLinksRowsTableOrderingComposer
@@ -75394,12 +75306,6 @@ class $$MusicReleaseExternalLinksRowsTableOrderingComposer
 
   ColumnOrderings<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get source => $composableBuilder(
-      column: $table.source, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get isAutomatic => $composableBuilder(
-      column: $table.isAutomatic, builder: (column) => ColumnOrderings(column));
 }
 
 class $$MusicReleaseExternalLinksRowsTableAnnotationComposer
@@ -75425,12 +75331,6 @@ class $$MusicReleaseExternalLinksRowsTableAnnotationComposer
 
   GeneratedColumn<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => column);
-
-  GeneratedColumn<String> get source =>
-      $composableBuilder(column: $table.source, builder: (column) => column);
-
-  GeneratedColumn<bool> get isAutomatic => $composableBuilder(
-      column: $table.isAutomatic, builder: (column) => column);
 }
 
 class $$MusicReleaseExternalLinksRowsTableTableManager extends RootTableManager<
@@ -75469,8 +75369,6 @@ class $$MusicReleaseExternalLinksRowsTableTableManager extends RootTableManager<
             Value<String> url = const Value.absent(),
             Value<String?> title = const Value.absent(),
             Value<String?> description = const Value.absent(),
-            Value<String?> source = const Value.absent(),
-            Value<bool> isAutomatic = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MusicReleaseExternalLinksRowsCompanion(
@@ -75479,8 +75377,6 @@ class $$MusicReleaseExternalLinksRowsTableTableManager extends RootTableManager<
             url: url,
             title: title,
             description: description,
-            source: source,
-            isAutomatic: isAutomatic,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -75489,8 +75385,6 @@ class $$MusicReleaseExternalLinksRowsTableTableManager extends RootTableManager<
             required String url,
             Value<String?> title = const Value.absent(),
             Value<String?> description = const Value.absent(),
-            Value<String?> source = const Value.absent(),
-            Value<bool> isAutomatic = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MusicReleaseExternalLinksRowsCompanion.insert(
@@ -75499,8 +75393,6 @@ class $$MusicReleaseExternalLinksRowsTableTableManager extends RootTableManager<
             url: url,
             title: title,
             description: description,
-            source: source,
-            isAutomatic: isAutomatic,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

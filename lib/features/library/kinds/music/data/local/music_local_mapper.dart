@@ -185,8 +185,6 @@ final class MusicLocalMapper {
       url: link.url,
       title: Value(link.title),
       description: Value(link.description),
-      source: Value(link.source),
-      isAutomatic: Value(link.isAutomatic),
     );
   }
 
@@ -197,8 +195,6 @@ final class MusicLocalMapper {
       url: row.url,
       title: row.title,
       description: row.description,
-      source: row.source,
-      isAutomatic: row.isAutomatic,
     );
   }
 

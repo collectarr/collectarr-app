@@ -56,8 +56,7 @@ final class MusicRelease implements JsonEncodable {
   final String? releaseStatus;
   final DateTime? releaseDate;
 
-  /// Preserves year/month precision when a provider only supplies a partial
-  /// release date.
+  /// Preserves year/month precision from partial catalog dates.
   final PartialDate? releaseDateParts;
   final String? publisher;
   final String? countryCode;

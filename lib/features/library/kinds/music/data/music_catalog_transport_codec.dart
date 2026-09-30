@@ -161,9 +161,8 @@ int? _replacementValueFromPayload(CatalogItemDto item) {
 
 CatalogItemDto _projection(MusicReleaseGroup item) {
   // The local repository stores the graph in normalized release/medium/track
-  // tables. Rebuild the complete typed graph for catalog snapshots instead
-  // of projecting only the group's provider metadata, otherwise a local add
-  // loses its tracklist when the catalog is read back.
+  // tables. Rebuild the complete typed graph for catalog snapshots so local
+  // additions retain their tracklist when read back.
   final payload = Map<String, dynamic>.from(item.toJson())
     ..['id'] = item.id.value
     ..['kind'] = 'music'

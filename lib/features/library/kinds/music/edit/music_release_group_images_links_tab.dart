@@ -54,8 +54,6 @@ final class _MusicReleaseGroupImagesLinksTabState
             url: url,
             title: row.original?.title,
             description: _nullable(row.description.text),
-            source: row.original?.source ?? 'manual',
-            isAutomatic: row.original?.isAutomatic ?? false,
           ),
     ];
   }

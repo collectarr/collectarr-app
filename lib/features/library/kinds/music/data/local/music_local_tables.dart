@@ -87,8 +87,6 @@ class MusicReleaseExternalLinksRows extends Table {
   TextColumn get url => text()();
   TextColumn get title => text().nullable()();
   TextColumn get description => text().nullable()();
-  TextColumn get source => text().nullable()();
-  BoolColumn get isAutomatic => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {releaseId, sequence};
