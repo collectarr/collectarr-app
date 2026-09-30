@@ -47,8 +47,13 @@ final class CatalogItemEnvelopeDto {
       id: id,
     );
     final common = CatalogCommonDto.fromJson(commonJson);
-    final rawPayload = payloadJson ?? Map<String, dynamic>.from(json)
-      ..removeWhere((key, _) => _commonKeys.contains(key));
+    final rawPayload = payloadJson ?? Map<String, dynamic>.from(json);
+    if (payloadJson == null) {
+      rawPayload.removeWhere((key, _) => _commonKeys.contains(key));
+    }
+    // Snapshot versions describe the transport envelope, even when an API
+    // response nests the kind payload inside `payload`.
+    rawPayload.remove('snapshot_version');
     return CatalogItemEnvelopeDto._raw(
       ref: ref,
       kind: resolvedKind,
