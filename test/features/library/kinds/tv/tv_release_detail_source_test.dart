@@ -47,7 +47,7 @@ void main() {
 
   test('keeps local release synthesis when tv item has no editions', () {
     final catalogItem = testCatalogItemFromJson({
-      'id': 'tmdb-local:tv:2',
+      'id': 'tv-item:2',
       'kind': 'tv',
       'title': 'Dune',
       'physical_format_label': '4K UHD',
@@ -71,7 +71,7 @@ void main() {
 
   test('treats tv items as tv library kinds for local release synthesis', () {
     final catalogItem = testCatalogItemFromJson({
-      'id': 'tmdb-local:tv:2',
+      'id': 'tv-item:2',
       'kind': 'tv',
       'title': 'Severance',
       'physical_format_label': 'Blu-ray',
@@ -105,22 +105,6 @@ void main() {
     final editions = resolveTvCatalogEditionsForCatalogItem(catalogItem);
 
     expect(editions, isEmpty);
-  });
-
-  test('keeps title snapshot fallback for local synthetic tv items', () {
-    final catalogItem = testCatalogItemFromJson({
-      'id': 'tmdb-local:tv:4',
-      'kind': 'tv',
-      'title': 'Heat',
-      'physical_format_label': 'Blu-ray',
-      'release_date': DateTime.utc(1995, 12, 15).toIso8601String(),
-    });
-
-    final editions = resolveTvCatalogEditionsForCatalogItem(catalogItem);
-
-    expect(editions, hasLength(1));
-    expect(tvReleaseSourceLabel(editions.single), 'Title snapshot fallback');
-    expect(editions.single.title, 'Blu-ray');
   });
 
   test('matchesTvReleaseAnchor matches edition and synthetic variant anchors',

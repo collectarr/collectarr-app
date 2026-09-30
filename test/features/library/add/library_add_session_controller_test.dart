@@ -6,8 +6,6 @@ import '../../../helpers/test_data_factories.dart';
 import '../../../helpers/tracking_state_test_helpers.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
@@ -24,7 +22,6 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
@@ -38,12 +35,7 @@ import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owne
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
-import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -60,8 +52,6 @@ void main() {
       database: db,
       events: CollectionEventBus(),
     );
-    final catalogCache = CatalogTransportRepository(db);
-
     ownedMutations = OwnedItemMutations(
       ownedItems: OwnedItemsRepository(db),
       wishlist: WishlistItemsCacheRepository(db),
@@ -72,7 +62,6 @@ void main() {
 
     wishlistMutations = WishlistMutations(
       wishlist: WishlistItemsCacheRepository(db),
-      catalogTransport: catalogCache,
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,
     );
@@ -227,16 +216,6 @@ void main() {
 
       controller.toggleCheckedResult('res-1');
       expect(controller.state.selection.checkedResultIds, isEmpty);
-    });
-
-    test('reference type selection and configuration', () {
-      controller.setReferenceType(LibraryAddReferenceType.edition);
-      expect(controller.state.selection.referenceType,
-          LibraryAddReferenceType.edition);
-
-      controller.selectReferenceVariant('Variant A');
-      expect(
-          controller.state.selection.selectedReferenceVariantId, 'Variant A');
     });
 
     test('empty search sets validation error', () async {
@@ -424,7 +403,6 @@ void main() {
       expect(details.media.single.storageDevice, 'Shelf A');
       expect(details.media.single.storageSlot, '12');
     });
-
   });
 }
 

@@ -568,12 +568,8 @@ class _LibraryReleaseSourceNotice extends StatelessWidget {
       palette.surfaceSubtle.withValues(alpha: 0.96),
     );
     final noticeTextColor = appContrastingTextColor(noticeColor);
-    final hasSnapshotFallback = releases.any(
-      (release) => release.option.isTitleSnapshotRelease,
-    );
-    final message = hasSnapshotFallback
-        ? 'Core has not returned release records for this title yet. You are browsing a local title snapshot so copies and wishlist entries can still stay anchored to one release.'
-        : 'Core has not returned release records for this title yet. These releases were reconstructed from your local owned and wishlist anchors.';
+    const message =
+        'Core has not returned release records for this title yet. These releases were reconstructed from your local owned and wishlist anchors.';
     return DecoratedBox(
       decoration: BoxDecoration(
         color: noticeColor,

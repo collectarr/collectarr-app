@@ -12,14 +12,12 @@ final class LibraryReleaseDetailOption {
     required this.summary,
     required this.sourceLabel,
     this.isCatalogRelease = false,
-    this.isTitleSnapshotRelease = false,
   });
 
   final CatalogEntityRef targetRef;
   final LibraryWorkspaceReleaseSummary summary;
   final String sourceLabel;
   final bool isCatalogRelease;
-  final bool isTitleSnapshotRelease;
 
   String get id => summary.id;
 }

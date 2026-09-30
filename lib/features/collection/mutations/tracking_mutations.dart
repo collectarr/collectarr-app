@@ -262,51 +262,6 @@ final class TrackingMutations {
     );
   }
 
-  Future<void> addLocalOnlyTrackingState(
-    CatalogEntityRef catalogRef, {
-    CatalogEntityRef? targetRef,
-    TrackingSourceType? sourceType,
-    MediaTrackingStatus? status = MediaTrackingStatus.planned,
-    int? rating,
-    DateTime? startedAt,
-    DateTime? finishedAt,
-    int? progressCurrent,
-    int? progressTotal,
-    int? timesCompleted,
-    TrackingKindPatch? kindPatch,
-    bool allowEmpty = false,
-  }) async {
-    final now = DateTime.now().toUtc();
-    final itemId = catalogRef.id;
-    final isLocalItem = itemId.startsWith('tmdb-local:');
-    final entryId = idGenerator();
-    final resolvedCatalogRef = targetRef ?? catalogRef;
-    await mutationRunner.run(
-      action: () async {
-        final serialized = await trackingRecords.upsertMutation(
-          id: entryId,
-          catalogRef: resolvedCatalogRef,
-          sourceType: sourceType,
-          status: status,
-          rating: rating,
-          startedAt: startedAt,
-          finishedAt: finishedAt,
-          progressCurrent: progressCurrent,
-          progressTotal: progressTotal,
-          timesCompleted: timesCompleted,
-          kindPatch: kindPatch,
-          updatedAt: now,
-        );
-        if (!isLocalItem) {
-          await syncQueue.enqueue(
-            _syncChangeForTrackingState(serialized, 'upsert', now),
-          );
-        }
-      },
-      eventsToEmit: const [TrackingChanged()],
-    );
-  }
-
   Future<void> syncTrackingUnit(TrackingUnitSummary unit) async {
     final now = DateTime.now().toUtc();
     final updated = unit.copyWith(updatedAt: now);

@@ -3,8 +3,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -16,14 +14,12 @@ String _defaultIdGenerator() => const Uuid().v4();
 final class WishlistMutations {
   const WishlistMutations({
     required this.wishlist,
-    required this.catalogTransport,
     required this.syncQueue,
     required this.mutationRunner,
     this.idGenerator = _defaultIdGenerator,
   });
 
   final WishlistItemsCacheRepository wishlist;
-  final CatalogTransportRepository catalogTransport;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;
@@ -40,7 +36,6 @@ final class WishlistMutations {
       );
     }
     final now = DateTime.now().toUtc();
-    final catalogRootRef = catalogRef.rootScope;
     final existing = await wishlist.findActiveByCatalogRef(catalogRef);
     final localRef = existing?.catalogRef ?? catalogRef;
     await mutationRunner.run(
@@ -54,41 +49,9 @@ final class WishlistMutations {
             updatedAt: now,
           );
           await wishlist.upsert(item);
-          if (!catalogRootRef.id.startsWith('tmdb-local:')) {
-            await syncQueue
-                .enqueue(_syncChangeForWishlistItem(item, 'upsert', now));
-          }
-        }
-      },
-      eventsToEmit: [WishlistChanged(localRef)],
-    );
-  }
-
-  Future<void> addLocalOnlyCatalog(
-    CatalogImportTransport item, {
-    CatalogEntityRef? catalogRef,
-    bool notify = true,
-  }) async {
-    final now = DateTime.now().toUtc();
-    final itemId = item.ref.id;
-    final isLocalItem = itemId.startsWith('tmdb-local:');
-    final localRef = catalogRef ?? item.ref;
-    await mutationRunner.run(
-      action: () async {
-        await catalogTransport.upsertTransports([item]);
-        final existing = await wishlist.findActiveByCatalogRef(localRef);
-        if (existing == null) {
-          final wishlistItem = WishlistItem(
-            id: idGenerator(),
-            catalogRef: localRef,
-            createdAt: now,
-            updatedAt: now,
+          await syncQueue.enqueue(
+            _syncChangeForWishlistItem(item, 'upsert', now),
           );
-          await wishlist.upsert(wishlistItem);
-          if (!isLocalItem) {
-            await syncQueue.enqueue(
-                _syncChangeForWishlistItem(wishlistItem, 'upsert', now));
-          }
         }
       },
       eventsToEmit: [WishlistChanged(localRef)],

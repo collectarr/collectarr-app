@@ -81,8 +81,6 @@ bool isCatalogAnimeRelease(CatalogEditionDto edition) => true;
 
 bool isLocalAnchorAnimeRelease(CatalogEditionDto edition) => false;
 
-bool isTitleSnapshotAnimeRelease(CatalogEditionDto edition) => false;
-
 String? preferredAnimeEditionVariantId(CatalogEditionDto edition) => null;
 
 final class AnimeReleaseDetailSource implements LibraryReleaseDetailSource {
@@ -140,9 +138,6 @@ final class AnimeReleaseDetailSource implements LibraryReleaseDetailSource {
   bool isCatalogRelease(CatalogEditionDto edition) =>
       isCatalogAnimeRelease(edition);
 
-  bool isTitleSnapshotRelease(CatalogEditionDto edition) =>
-      isTitleSnapshotAnimeRelease(edition);
-
   String? preferredVariantId(CatalogEditionDto edition) =>
       preferredAnimeEditionVariantId(edition);
 
@@ -189,7 +184,6 @@ final class AnimeReleaseDetailSource implements LibraryReleaseDetailSource {
           summary: workspaceSummaryForEdition(edition),
           sourceLabel: sourceLabel(edition),
           isCatalogRelease: isCatalogRelease(edition),
-          isTitleSnapshotRelease: isTitleSnapshotRelease(edition),
         ),
     ];
   }

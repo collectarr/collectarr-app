@@ -18,8 +18,6 @@ const _tvReleaseAnchorBundleIdKey = 'release_anchor_bundle_id';
 
 const _tvReleaseSourceCatalog = 'catalog';
 const _tvReleaseSourceLocalAnchor = 'local_anchor';
-const _tvReleaseSourceTitleSnapshot = 'title_snapshot';
-const _tmdbLocalSyntheticItemPrefix = 'tmdb-local:';
 
 class TvReleaseAnchor {
   const TvReleaseAnchor({
@@ -114,7 +112,6 @@ String tvReleaseSourceLabel(CatalogEditionDto edition) {
   final source = edition.metadata?[_tvReleaseSourceKey] as String?;
   return switch (source) {
     _tvReleaseSourceLocalAnchor => 'Collection anchors',
-    _tvReleaseSourceTitleSnapshot => 'Title snapshot fallback',
     _ => 'Catalog edition',
   };
 }
@@ -128,11 +125,6 @@ bool isCatalogTvRelease(CatalogEditionDto edition) {
 bool isLocalAnchorTvRelease(CatalogEditionDto edition) {
   return (edition.metadata?[_tvReleaseSourceKey] as String?) ==
       _tvReleaseSourceLocalAnchor;
-}
-
-bool isTitleSnapshotTvRelease(CatalogEditionDto edition) {
-  return (edition.metadata?[_tvReleaseSourceKey] as String?) ==
-      _tvReleaseSourceTitleSnapshot;
 }
 
 String? preferredTvEditionVariantId(CatalogEditionDto edition) {
@@ -184,11 +176,7 @@ List<CatalogEditionDto> _resolveTvCatalogEditions(
   }
 
   if (seeds.isEmpty) {
-    if (!_isLocalSyntheticTvItemId(input.itemId)) {
-      return const <CatalogEditionDto>[];
-    }
-    final editionId = _titleSnapshotEditionId(input.itemId);
-    seeds[editionId] = _EditionSeed.titleSnapshot(input, editionId);
+    return const <CatalogEditionDto>[];
   }
 
   final editions = [
@@ -290,7 +278,6 @@ int _sourcePriority(String? value) {
   return switch (value) {
     _tvReleaseSourceCatalog => 0,
     _tvReleaseSourceLocalAnchor => 1,
-    _tvReleaseSourceTitleSnapshot => 2,
     _ => 3,
   };
 }
@@ -300,17 +287,11 @@ String? _normalized(String? value) {
   return normalized == null || normalized.isEmpty ? null : normalized;
 }
 
-String _titleSnapshotEditionId(String itemId) => 'tv:$itemId:title-snapshot';
-
 String _variantSyntheticEditionId(String itemId, String variantId) =>
     'tv:$itemId:variant:$variantId';
 
 String _bundleSyntheticEditionId(String itemId, String bundleReleaseId) =>
     'tv:$itemId:bundle:$bundleReleaseId';
-
-bool _isLocalSyntheticTvItemId(String itemId) {
-  return itemId.trim().toLowerCase().startsWith(_tmdbLocalSyntheticItemPrefix);
-}
 
 String _fallbackEditionTitle(_TvReleaseSeedInput input) {
   return _normalized(input.editionTitle) ??
@@ -416,26 +397,6 @@ class _EditionSeed {
       );
     }
     return seed;
-  }
-
-  factory _EditionSeed.titleSnapshot(
-    _TvReleaseSeedInput input,
-    String id,
-  ) {
-    return _EditionSeed(
-      id: id,
-      title: _fallbackEditionTitle(input),
-      source: _tvReleaseSourceTitleSnapshot,
-      distributor: _normalized(input.distributor),
-      language: _normalized(input.language),
-      regionTerritory: _normalized(input.country),
-      releaseDate: input.releaseDate,
-      physicalFormat: _normalized(input.physicalFormat),
-      formatLabel: _normalized(input.formatLabel),
-      metadata: JsonMap.from({
-        _tvReleaseAnchorKindKey: 'item',
-      }),
-    );
   }
 
   final String id;
@@ -654,9 +615,6 @@ final class TvReleaseDetailSource implements LibraryReleaseDetailSource {
   bool isCatalogRelease(CatalogEditionDto edition) =>
       isCatalogTvRelease(edition);
 
-  bool isTitleSnapshotRelease(CatalogEditionDto edition) =>
-      isTitleSnapshotTvRelease(edition);
-
   String? preferredVariantId(CatalogEditionDto edition) =>
       preferredTvEditionVariantId(edition);
 
@@ -707,7 +665,6 @@ final class TvReleaseDetailSource implements LibraryReleaseDetailSource {
           summary: workspaceSummaryForEdition(edition),
           sourceLabel: sourceLabel(edition),
           isCatalogRelease: isCatalogRelease(edition),
-          isTitleSnapshotRelease: isTitleSnapshotRelease(edition),
         ),
     ];
   }

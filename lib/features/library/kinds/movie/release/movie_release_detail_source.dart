@@ -18,8 +18,6 @@ const _movieReleaseAnchorBundleIdKey = 'release_anchor_bundle_id';
 
 const _movieReleaseSourceCatalog = 'catalog';
 const _movieReleaseSourceLocalAnchor = 'local_anchor';
-const _movieReleaseSourceTitleSnapshot = 'title_snapshot';
-const _tmdbLocalSyntheticItemPrefix = 'tmdb-local:';
 
 class MovieReleaseAnchor {
   const MovieReleaseAnchor({
@@ -114,7 +112,6 @@ String movieReleaseSourceLabel(CatalogEditionDto edition) {
   final source = edition.metadata?[_movieReleaseSourceKey] as String?;
   return switch (source) {
     _movieReleaseSourceLocalAnchor => 'Collection anchors',
-    _movieReleaseSourceTitleSnapshot => 'Title snapshot fallback',
     _ => 'Catalog edition',
   };
 }
@@ -128,11 +125,6 @@ bool isCatalogMovieRelease(CatalogEditionDto edition) {
 bool isLocalAnchorMovieRelease(CatalogEditionDto edition) {
   return (edition.metadata?[_movieReleaseSourceKey] as String?) ==
       _movieReleaseSourceLocalAnchor;
-}
-
-bool isTitleSnapshotMovieRelease(CatalogEditionDto edition) {
-  return (edition.metadata?[_movieReleaseSourceKey] as String?) ==
-      _movieReleaseSourceTitleSnapshot;
 }
 
 String? preferredMovieEditionVariantId(CatalogEditionDto edition) {
@@ -184,11 +176,7 @@ List<CatalogEditionDto> _resolveMovieCatalogEditions(
   }
 
   if (seeds.isEmpty) {
-    if (!_isLocalSyntheticMovieItemId(input.itemId)) {
-      return const <CatalogEditionDto>[];
-    }
-    final editionId = _titleSnapshotEditionId(input.itemId);
-    seeds[editionId] = _EditionSeed.titleSnapshot(input, editionId);
+    return const <CatalogEditionDto>[];
   }
 
   final editions = [
@@ -290,7 +278,6 @@ int _sourcePriority(String? value) {
   return switch (value) {
     _movieReleaseSourceCatalog => 0,
     _movieReleaseSourceLocalAnchor => 1,
-    _movieReleaseSourceTitleSnapshot => 2,
     _ => 3,
   };
 }
@@ -300,17 +287,11 @@ String? _normalized(String? value) {
   return normalized == null || normalized.isEmpty ? null : normalized;
 }
 
-String _titleSnapshotEditionId(String itemId) => 'movie:$itemId:title-snapshot';
-
 String _variantSyntheticEditionId(String itemId, String variantId) =>
     'movie:$itemId:variant:$variantId';
 
 String _bundleSyntheticEditionId(String itemId, String bundleReleaseId) =>
     'movie:$itemId:bundle:$bundleReleaseId';
-
-bool _isLocalSyntheticMovieItemId(String itemId) {
-  return itemId.trim().toLowerCase().startsWith(_tmdbLocalSyntheticItemPrefix);
-}
 
 String _fallbackEditionTitle(_MovieReleaseSeedInput input) {
   return _normalized(input.editionTitle) ??
@@ -417,26 +398,6 @@ class _EditionSeed {
       );
     }
     return seed;
-  }
-
-  factory _EditionSeed.titleSnapshot(
-    _MovieReleaseSeedInput input,
-    String id,
-  ) {
-    return _EditionSeed(
-      id: id,
-      title: _fallbackEditionTitle(input),
-      source: _movieReleaseSourceTitleSnapshot,
-      distributor: _normalized(input.distributor),
-      language: _normalized(input.language),
-      regionTerritory: _normalized(input.country),
-      releaseDate: input.releaseDate,
-      physicalFormat: _normalized(input.physicalFormat),
-      formatLabel: _normalized(input.formatLabel),
-      metadata: JsonMap.from({
-        _movieReleaseAnchorKindKey: 'item',
-      }),
-    );
   }
 
   final String id;
@@ -655,9 +616,6 @@ final class MovieReleaseDetailSource implements LibraryReleaseDetailSource {
   bool isCatalogRelease(CatalogEditionDto edition) =>
       isCatalogMovieRelease(edition);
 
-  bool isTitleSnapshotRelease(CatalogEditionDto edition) =>
-      isTitleSnapshotMovieRelease(edition);
-
   String? preferredVariantId(CatalogEditionDto edition) =>
       preferredMovieEditionVariantId(edition);
 
@@ -708,7 +666,6 @@ final class MovieReleaseDetailSource implements LibraryReleaseDetailSource {
           summary: workspaceSummaryForEdition(edition),
           sourceLabel: sourceLabel(edition),
           isCatalogRelease: isCatalogRelease(edition),
-          isTitleSnapshotRelease: isTitleSnapshotRelease(edition),
         ),
     ];
   }

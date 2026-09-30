@@ -103,8 +103,8 @@ final class LibraryAddSubmissionService {
         case LibraryAddTarget.wishlist:
           await request.wishlistMutations.addToWishlist(item.wishlistRef);
         case LibraryAddTarget.track:
-          await request.trackingMutations.addLocalOnlyTrackingState(
-            item.candidate.reference,
+          await request.trackingMutations.upsertTrackingState(
+            TrackingTarget.catalog(item.candidate.reference),
             targetRef: item.targetRef,
           );
       }

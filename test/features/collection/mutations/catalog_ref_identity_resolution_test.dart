@@ -35,7 +35,6 @@ void main() {
 
     wishlistMutations = WishlistMutations(
       wishlist: wishlistRepo,
-      catalogTransport: catalogCache,
       syncQueue: syncQueue,
       mutationRunner: runner,
     );

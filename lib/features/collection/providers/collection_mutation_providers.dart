@@ -123,9 +123,6 @@ final catalogTransportMutationsProvider =
     Provider<CatalogTransportMutations>((ref) {
   return CatalogTransportMutations(
     catalogTransport: ref.watch(catalogTransportRepositoryProvider),
-    wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
-    trackingRecords: ref.watch(trackingRecordRepositoryProvider),
-    syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
 });
@@ -133,7 +130,6 @@ final catalogTransportMutationsProvider =
 final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
   return WishlistMutations(
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
-    catalogTransport: ref.watch(catalogTransportRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );

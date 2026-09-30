@@ -151,8 +151,8 @@ final class LibraryAddCoordinator {
           );
           break;
         case LibraryAddTarget.track:
-          await trackingMutations.addLocalOnlyTrackingState(
-            item.reference,
+          await trackingMutations.upsertTrackingState(
+            TrackingTarget.catalog(item.reference),
             targetRef: reference,
             status: baseTracking.readStatus == null
                 ? null

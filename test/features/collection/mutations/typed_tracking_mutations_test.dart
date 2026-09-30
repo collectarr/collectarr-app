@@ -300,7 +300,7 @@ void main() {
 
     test('keeps TV season coordinates in the TV tracking patch', () async {
       final seasonItem = testCatalogItem(
-        id: 'tmdb-local:tv:123:season:2',
+        id: 'tv-item:123:season:2',
         kind: 'tv',
         title: 'Season 2',
       );

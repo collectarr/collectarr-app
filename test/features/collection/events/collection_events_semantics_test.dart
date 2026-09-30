@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
@@ -48,7 +47,6 @@ void main() {
 
     final ownedRepo = OwnedItemsRepository(db);
     final wishlistRepo = WishlistItemsCacheRepository(db);
-    final catalogRepo = CatalogTransportRepository(db);
     final trackingRepo = TrackingStorageRepository(
       db,
       codecs: libraryTrackingStorageCodecs,
@@ -73,7 +71,6 @@ void main() {
 
     wishlistMutations = WishlistMutations(
       wishlist: wishlistRepo,
-      catalogTransport: catalogRepo,
       syncQueue: syncQueueRepo,
       mutationRunner: runner,
     );
