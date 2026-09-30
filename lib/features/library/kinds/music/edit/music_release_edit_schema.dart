@@ -7,7 +7,12 @@ import 'package:flutter/material.dart';
 
 final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
     EditSchema(
-  title: (release) => 'Edit ${release.title}',
+  title: (release) {
+    final artist = release.artist?.trim();
+    return artist == null || artist.isEmpty
+        ? release.title
+        : '${release.title} / $artist';
+  },
   validate: (_, draft) {
     if (draft.values.title.trim().isEmpty) return 'Title is required';
     if (draft.hasIncompleteContributions) {

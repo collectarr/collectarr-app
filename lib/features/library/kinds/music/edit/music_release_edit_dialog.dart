@@ -106,7 +106,7 @@ final class _MusicReleaseEditDialogState
         schema: musicReleaseEditSchema,
         model: _release,
         draft: _draft,
-        title: musicReleaseEditSchema.title?.call(_release) ?? 'Edit release',
+        title: musicReleaseEditSchema.title?.call(_release) ?? _release.title,
         icon: widget.request.type.identity.icon,
         mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
