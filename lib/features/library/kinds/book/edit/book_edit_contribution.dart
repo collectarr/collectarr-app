@@ -8,10 +8,6 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
       builder: buildBookLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.release,
-      builder: buildBookReleaseLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
       scope: LibraryEntityScope.copy,
       builder: buildBookLibraryEditDialog,
     ),
@@ -20,7 +16,6 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
   presentation: const LibraryEditPresentation(
     builder: BookLibraryMediaEditPresentationBuilder(),
     workBuilder: BookLibraryMediaEditPresentationBuilder(),
-    releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
   ),
   coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: BookVocabularies.condition.builtIns,

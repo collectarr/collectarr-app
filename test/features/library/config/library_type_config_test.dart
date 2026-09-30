@@ -16,7 +16,6 @@ import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit/release/book_release_edit_dialog.dart';
 
 import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
@@ -284,7 +283,7 @@ void main() {
     expect(
       bookKindEditCapabilities.presentationCapability.editRegistry
           .builderForScope(LibraryEntityScope.release),
-      same(buildBookReleaseLibraryEditDialog),
+      isNull,
     );
     expect(bookKindHierarchy.childrenTitle(2), 'Editions (2)');
 

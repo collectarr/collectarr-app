@@ -111,11 +111,12 @@ that root through its transitional `work` scope. Book's Edit adapters still
 contain legacy `BookMedia` and `BookRelease` models. Book Owned Copy editing
 now routes through the shared Book edit dialog so it can edit App-owned copy
 state rather than opening the old `BookMedia` catalog form. The separate Book
-Release edit adapter and the `BookMedia` catalog model still remain in the
-active codebase and need to be removed as the flat Book form and printing
-editor replace them. Owned-copy and tracking state continue to use separate
-App-owned tables. The Book field ledger remains provisional until its Edit-form
-capture is available.
+Release edit adapter has been removed from the active edit registry and its
+dialog implementation deleted. The `BookMedia` catalog model and older
+BookRelease schema helpers still remain in the codebase and need to be removed
+as the flat Book form and printing editor replace them. Owned-copy and tracking
+state continue to use separate App-owned tables. The Book field ledger remains
+provisional until its Edit-form capture is available.
 
 Music-owned copies created through Add target the concrete Music Catalog Item
 directly and persist only that `catalog_ref`; they do not carry a redundant
