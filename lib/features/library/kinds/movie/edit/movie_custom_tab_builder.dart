@@ -58,7 +58,7 @@ Widget? buildMovieCustomTabView({
         accent: accent,
         movieEdit: movieEdit,
       ),
-    'media' => MovieEditMediaTab(
+    'catalog_item' => MovieEditMediaTab(
         draft: draft,
         movieEdit: movieEdit,
         accent: accent,

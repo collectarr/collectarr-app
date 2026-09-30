@@ -9,7 +9,7 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
     ),
     LibraryEntityEditContributor(
       scope: LibraryEntityScope.copy,
-      builder: buildMovieMediaLibraryEditDialog,
+      builder: buildMovieLibraryEditDialog,
     ),
   ]),
   vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),

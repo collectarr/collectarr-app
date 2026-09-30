@@ -49,10 +49,11 @@ names, but those rows now represent the root Catalog Item and do not form a
 second catalog level.
 
 Movie's active workspace now projects one concrete Movie Catalog Item and its
-Owned Copies, with no Release workspace, drilldown, or separate Release editor.
-The older MovieMedia/MovieRelease domain, local tables, remote source, and
-Media-level Edit flow still exist, so Movie persistence and editing have not
-completed the cutover.
+Owned Copies, with no Release workspace or drilldown. Catalog Item and Owned
+Copy actions now use the shared Edit dialog and separate presentation tabs;
+Movie no longer routes Owned Copy editing through the old Media edit dialog.
+The older MovieMedia/MovieRelease domain, local tables, and remote source still
+exist, so Movie persistence has not completed the cutover.
 
 App-owned state remains separate from Core catalog facts. Owned items,
 wishlist, tracking, listening sessions, loans, locations, custom fields,
