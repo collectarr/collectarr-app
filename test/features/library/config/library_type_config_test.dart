@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/config/library_toolbar_config.da
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/release/book_release_edit_dialog.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -279,7 +279,7 @@ void main() {
     expect(
       bookKindEditCapabilities.presentationCapability.editRegistry
           .builderForScope(LibraryEntityScope.copy),
-      same(buildBookMediaLibraryEditDialog),
+      same(buildBookLibraryEditDialog),
     );
     expect(
       bookKindEditCapabilities.presentationCapability.editRegistry

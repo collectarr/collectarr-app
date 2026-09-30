@@ -13,7 +13,7 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
     ),
     LibraryEntityEditContributor(
       scope: LibraryEntityScope.copy,
-      builder: buildBookMediaLibraryEditDialog,
+      builder: buildBookLibraryEditDialog,
     ),
   ]),
   vocabularies: StandardKindVocabularyCapability(BookVocabularies.all),
