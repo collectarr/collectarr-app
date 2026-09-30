@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
-  test('movie work dto maps rich metadata into movie domain', () {
+  test('Movie Catalog Item maps flat catalog fields and contained media', () {
     final dto = CatalogItemDto.fromJson({
       'id': 'movie-1',
       'title': 'The Matrix',
@@ -44,17 +44,8 @@ void main() {
       'age_rating': 'R',
       'audience_rating': 'R',
       'physical_format_label': '4K UHD',
-      'video': {
-        'runtime_minutes': 136,
-        'color': 'Color',
-        'screen_ratio': '2.39:1',
-        'audio_tracks': 'Dolby Atmos, DTS-HD MA 5.1',
-        'subtitles': 'English, Spanish',
-        'hdr': 'HDR10, Dolby Vision',
-        'age_rating': 'R',
-        'audience_rating': 'R',
-        'directors': ['Wachowskis'],
-      },
+      'runtime_minutes': 136,
+      'audio_tracks': 'Dolby Atmos, DTS-HD MA 5.1',
       'trailer_urls': [
         {
           'id': 'tr-1',
@@ -62,40 +53,32 @@ void main() {
           'title': 'Official Trailer',
         },
       ],
-      'editions': [
+      'media': [
         {
-          'id': 'movie-edition-1',
-          'work_id': 'movie-1',
-          'display_title': '4K UHD Collector',
-          'format': '4k',
-          'publisher': 'Warner Bros.',
-          'upc': '0883929317585',
-          'publication_date': '1999-03-31T00:00:00Z',
-          'language': 'en',
-          'discs': [
-            {
-              'id': 'disc-1',
-              'disc_number': 1,
-              'sequence_number': 1,
-              'format_label': '4K UHD',
-              'features': ['HDR10'],
-              'hdr': ['HDR10'],
-            },
-          ],
+          'id': 'disc-1',
+          'media_number': 1,
+          'media_type': '4K UHD',
+          'num_discs': 1,
+          'audio_tracks': 'Dolby Atmos',
+          'subtitles': 'English, Spanish',
         },
       ],
       'kind': 'movie',
     });
 
-    final work = MovieCatalogItem.fromDto(dto);
+    final item = MovieCatalogItem.fromDto(dto);
 
-    expect(work.title, 'The Matrix');
-    expect(work.releases, hasLength(1));
-    expect(work.releases.single.media, hasLength(1));
-    expect(work.videoDetails.audioTracks, 'Dolby Atmos, DTS-HD MA 5.1');
-    expect(work.releases.single.videoDetails?.nrDiscs, 1);
-    expect(work.videoDetails.runtimeMinutes, 136);
-    expect(work.trailerUrls, hasLength(1));
+    expect(item.id, 'movie-1');
+    expect(item.title, 'The Matrix');
+    expect(item.barcode, '0883929317585');
+    expect(item.physicalFormat, '4K UHD');
+    expect(item.runtimeMinutes, 136);
+    expect(item.audioTracks, 'Dolby Atmos, DTS-HD MA 5.1');
+    expect(item.media, hasLength(1));
+    expect(item.media.single.mediaNumber, 1);
+    expect(item.media.single.formatLabel, '4K UHD');
+    expect(item.media.single.numDiscs, 1);
+    expect(item.trailerUrls, hasLength(1));
   });
 
   test('MovieKindSchema fields return non-null values from MovieWorkspaceDto',

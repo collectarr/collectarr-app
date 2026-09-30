@@ -14,9 +14,6 @@ import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_release.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/movie_release_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_schema.dart';
@@ -68,14 +65,6 @@ void main() {
     id: (release) => release.id,
     title: (release) => release.title,
   );
-  defineReleaseContract<MovieRelease>(
-    name: 'Movie',
-    create: () => MovieRelease.fromJson(
-      const {'id': 'movie-release-1', 'title': '4K Edition'},
-    ),
-    id: (release) => release.id.value,
-    title: (release) => release.title,
-  );
   defineReleaseContract<MusicAlbum>(
     name: 'Music',
     create: () => MusicAlbum.fromJson(
@@ -125,12 +114,6 @@ void main() {
   defineReleaseEditContract<EditSchema<GameRelease, GameCatalogFormValues>>(
     name: 'Game',
     create: () => gameReleaseEditSchema,
-    tabIds: _tabIds,
-    fieldIds: _fieldIds,
-  );
-  defineReleaseEditContract<EditSchema<MovieRelease, MovieCatalogFormValues>>(
-    name: 'Movie',
-    create: () => movieReleaseEditSchema,
     tabIds: _tabIds,
     fieldIds: _fieldIds,
   );

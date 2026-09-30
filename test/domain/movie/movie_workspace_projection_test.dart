@@ -5,7 +5,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('movie work and release project into workspace dtos', () {
+  test('a Movie Catalog Item projects into its workspace DTO', () {
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogData: testWorkspaceCatalogData(testCatalogItem(
@@ -23,7 +23,6 @@ void main() {
     );
 
     expect(titleDto.title, 'The Matrix');
-    expect(titleDto.movie.technical.runtimeMinutes, 136);
-    expect(titleDto.media.runtimeMinutes, 136);
+    expect(titleDto.runtimeMinutes, 136);
   });
 }
