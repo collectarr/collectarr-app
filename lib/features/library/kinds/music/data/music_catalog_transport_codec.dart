@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
@@ -59,7 +60,12 @@ final class MusicCatalogTransportCodec
     LibraryWorkspaceCatalogData data,
   ) async {
     if (data is! MusicWorkspaceCatalogData) return data;
-    final summary = await MusicListeningRepository(db).getSummary(data.ref);
+    final summary = await MusicListeningRepository(db).getSummary(
+      CatalogItemRef(
+        kind: kind,
+        id: data.ref.rootScope.id,
+      ),
+    );
     return data.copyWith(listeningSummary: summary);
   }
 

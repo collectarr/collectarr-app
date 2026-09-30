@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
@@ -12,8 +13,12 @@ Future<void> runMusicLogListenAction(
 ) async {
   final projection = action.item.dto;
   if (projection is! MusicWorkspaceProjection) return;
-  final catalogRef = action.item.source.catalogRef?.rootScope;
-  if (catalogRef == null) return;
+  final sourceRef = action.item.source.catalogRef?.rootScope;
+  if (sourceRef == null) return;
+  final catalogRef = CatalogItemRef(
+    kind: CatalogMediaKind.music,
+    id: sourceRef.id,
+  );
 
   final notesController = TextEditingController();
   try {

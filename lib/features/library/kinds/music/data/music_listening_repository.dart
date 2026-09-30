@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart' show OwnedCopyId;
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
@@ -19,7 +20,7 @@ final class MusicListeningRepository {
   }
 
   Future<List<MusicListenEvent>> listForCatalogItem(
-    CatalogEntityRef catalogRef,
+    CatalogItemRef catalogRef,
   ) async {
     _validateCatalogItem(catalogRef);
     final rows = await (_db.select(_db.musicListenEventsRows)
@@ -37,7 +38,7 @@ final class MusicListeningRepository {
   }
 
   Future<MusicCatalogItemListeningSummary> getSummary(
-    CatalogEntityRef catalogRef,
+    CatalogItemRef catalogRef,
   ) async {
     final events = await listForCatalogItem(catalogRef);
     return MusicCatalogItemListeningSummary.fromEvents(
@@ -105,9 +106,8 @@ MusicListenEventsRowsCompanion _toRow(MusicListenEvent event) {
 
 MusicListenEvent _fromRow(MusicListenEventsRow row) => MusicListenEvent(
       id: row.id,
-      catalogRef: CatalogEntityRef(
+      catalogRef: CatalogItemRef(
         kind: CatalogMediaKind.music,
-        entityType: CatalogEntityTypeId.root,
         id: row.catalogItemId,
       ),
       ownedRef: row.ownedCopyId == null
@@ -139,10 +139,9 @@ void _validateEvent(MusicListenEvent event) {
   }
 }
 
-void _validateCatalogItem(CatalogEntityRef catalogRef) {
-  if (catalogRef.mediaKind != CatalogMediaKind.music ||
-      !catalogRef.isKnown ||
-      catalogRef.entityType != CatalogEntityTypeId.root) {
+void _validateCatalogItem(CatalogItemRef catalogRef) {
+  if (catalogRef.kind != CatalogMediaKind.music ||
+      catalogRef.id.trim().isEmpty) {
     throw ArgumentError.value(
       catalogRef,
       'catalogRef',

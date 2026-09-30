@@ -1,4 +1,5 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -20,7 +21,10 @@ final class MusicCatalogListeningTab extends ConsumerWidget {
   final CatalogSearchCandidate item;
   final Color accent;
 
-  CatalogEntityRef get catalogRef => item.reference.rootScope;
+  CatalogItemRef get catalogRef => CatalogItemRef(
+        kind: CatalogMediaKind.music,
+        id: item.reference.rootScope.id,
+      );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

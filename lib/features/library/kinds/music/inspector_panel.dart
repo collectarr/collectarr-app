@@ -25,6 +25,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/core/models/money.dart' show OwnedCopyId;
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart'
     show OwnedCopyRef;
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
@@ -177,12 +178,16 @@ class _MusicListeningSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final model = _musicModel(inspector.item);
-    final catalogRef = (inspector.item.source.catalogRef ??
+    final sourceRef = (inspector.item.source.catalogRef ??
             libraryTrackingTargetForItem(inspector.type, inspector.item))
         ?.rootScope;
-    if (catalogRef == null || !catalogRef.isKnown) {
+    if (sourceRef == null || !sourceRef.isKnown) {
       return const SizedBox.shrink();
     }
+    final catalogRef = CatalogItemRef(
+      kind: CatalogMediaKind.music,
+      id: sourceRef.id,
+    );
     final summary = ref.watch(
       musicCatalogItemListeningSummaryProvider(catalogRef),
     );
@@ -231,7 +236,7 @@ class _MusicListeningSection extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     MusicInspectorViewModel model,
-    CatalogEntityRef catalogRef,
+    CatalogItemRef catalogRef,
   ) async {
     final notesController = TextEditingController();
     try {

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:flutter/foundation.dart';
 
@@ -23,7 +23,7 @@ final class MusicListenEvent {
   });
 
   final String id;
-  final CatalogEntityRef catalogRef;
+  final CatalogItemRef catalogRef;
   final DateTime listenedAt;
   final OwnedCopyRef? ownedRef;
   final DateTime? startedAt;
@@ -58,8 +58,9 @@ final class MusicListenEvent {
     final rawOwned = json['owned_ref'];
     return MusicListenEvent(
       id: (json['id'] as String?) ?? '',
-      catalogRef:
-          CatalogEntityRef.fromJson(Map<String, Object?>.from(rawCatalog)),
+      catalogRef: CatalogItemRef.fromJson(
+        Map<String, Object?>.from(rawCatalog),
+      ),
       listenedAt: json['listened_at'] != null
           ? DateTime.parse(json['listened_at'] as String)
           : DateTime.now(),
