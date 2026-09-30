@@ -28,7 +28,7 @@ class SyncRetryMapper {
     required Uuid uuid,
   }) async {
     switch (change.entityType) {
-      case 'owned_item':
+      case 'owned_copy':
         final rawCatalogRef = change.localPayload?['catalog_ref'];
         if (rawCatalogRef is! Map) return null;
         final catalogRef = CatalogEntityRef.fromJson(

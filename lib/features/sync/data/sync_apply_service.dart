@@ -98,7 +98,7 @@ class SyncApplyService {
           locationUpserts.add(_locationFromEntity(entity));
         }
       }
-      if (type == 'owned_item') {
+      if (type == 'owned_copy') {
         ownedPayloads.add(_ownedPayloadFromEntity(entity));
       }
       if (type == 'tracking_entry') {
@@ -213,13 +213,13 @@ class SyncApplyService {
     final action = entity['action'] as String;
     final payload = _payload(entity);
     final deletedAt = action == 'delete' ? entity['client_changed_at'] : null;
-    if (type != 'owned_item') {
-      throw FormatException('Expected owned_item entity, got $type');
+    if (type != 'owned_copy') {
+      throw FormatException('Expected owned_copy entity, got $type');
     }
     final rawCatalogRef = payload['catalog_ref'];
     if (rawCatalogRef is! Map) {
       throw const FormatException(
-        'Owned item sync payload is missing catalog_ref',
+        'Owned copy sync payload is missing catalog_ref',
       );
     }
     final catalogRef = CatalogEntityRef.fromJson(

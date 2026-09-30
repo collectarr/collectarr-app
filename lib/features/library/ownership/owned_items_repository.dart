@@ -83,9 +83,9 @@ final class OwnedItemsRepository {
     required DateTime changedAt,
   }) {
     return SyncChange(
-      id: 'owned_item:${result.ref.id.value}:$action:'
+      id: 'owned_copy:${result.ref.id.value}:$action:'
           '${changedAt.millisecondsSinceEpoch}',
-      entityType: 'owned_item',
+      entityType: 'owned_copy',
       entityId: result.ref.id.value,
       action: action,
       payload: result.syncPayload,
