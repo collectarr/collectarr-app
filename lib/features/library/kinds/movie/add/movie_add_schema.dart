@@ -28,32 +28,19 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
     },
     sections: [
       AddSectionSpec<MovieAddManualDraft>(
-        id: 'release',
-        label: 'Release',
-        fields: [
-          ...movieReleaseIdentityFields(
-            values: getValues,
-            formatOptions:
-                formatOptions ?? MovieVocabularies.physicalFormat.builtIns,
-            regionOptions: regionOptions ?? MovieVocabularies.region.builtIns,
-            onManageFormat: onManageFormat,
-            onManageRegion: onManageRegion,
-          ),
-          ...movieReleasePublishingFields(
-            values: getValues,
-            distributorOptions:
-                distributorOptions ?? MovieVocabularies.distributor.builtIns,
-            onManageDistributor: onManageDistributor,
-          ),
-        ],
-      ),
-      AddSectionSpec<MovieAddManualDraft>(
-        id: 'work',
-        label: 'Movie metadata',
-        fields: [
-          ...movieWorkIdentityFields(values: getValues, includeTitle: false),
-          ...movieWorkClassificationFields(values: getValues),
-        ],
+        id: 'catalog_item',
+        label: 'Catalog Item',
+        fields: movieCatalogItemFields(
+          values: getValues,
+          formatOptions:
+              formatOptions ?? MovieVocabularies.physicalFormat.builtIns,
+          regionOptions: regionOptions ?? MovieVocabularies.region.builtIns,
+          distributorOptions:
+              distributorOptions ?? MovieVocabularies.distributor.builtIns,
+          onManageFormat: onManageFormat,
+          onManageRegion: onManageRegion,
+          onManageDistributor: onManageDistributor,
+        ),
       ),
     ],
   );

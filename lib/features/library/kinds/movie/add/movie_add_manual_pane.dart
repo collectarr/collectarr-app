@@ -17,8 +17,7 @@ class MovieAddManualPane extends StatelessWidget {
     return LibraryAddManualPaneShell(
       request: request,
       title: 'Manual movie setup',
-      subtitle:
-          'Set the movie and release details before saving to your library.',
+      subtitle: 'Set the Catalog Item details before saving to your library.',
       identity: LibraryFormSection(
         title: 'Identity',
         accent: request.accent,

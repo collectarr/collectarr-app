@@ -10,7 +10,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   manualCandidateBuilder: buildMovieManualCandidate,
   manualProposalBuilder: buildMovieManualProposalData,
   manualCandidateValidationMessage:
-      'Enter a title and correct any invalid release details.',
+      'Enter a title and correct any invalid Catalog Item details.',
   manualPaneBuilder: buildMovieAddManualPane,
   chrome: movieAddChrome,
   headerBuilder: buildMovieAddHeader,

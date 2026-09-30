@@ -16,6 +16,11 @@ Add search reads Core catalog results. Its result checkmarks select multiple
 Core records for batch addition; they are unrelated to search-source selection.
 Provider search, preview, and ingest are not part of this Add flow.
 
+Movie manual Add now renders one Catalog Item field section and creates a flat
+Movie candidate from the pinned kind contract. It no longer fabricates a
+MovieMedia parent with a nested MovieRelease solely to submit a manual item.
+The separate legacy Movie Edit and local persistence paths still remain.
+
 ## Core catalog state
 
 Core has typed flat Catalog Item routes for all nine kinds. Music's current API,
