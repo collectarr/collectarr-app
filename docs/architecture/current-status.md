@@ -33,6 +33,10 @@ The other eight kinds still have active Work/Release models and services in
 Core alongside their flat Catalog Item APIs. Their flat catalog routes do not
 yet replace every existing read, admin, or indexing path.
 
+Core's Admin catalog list, detail, corrections, overview counts, and search
+reindex now use the flat Movie Catalog Item root. The corresponding Admin paths
+for the other eight kinds still use legacy models.
+
 The App's generic library-detail cache hydration, Admin item refresh, and
 metadata comparison now read the flat per-kind Catalog Item detail routes.
 Kind-owned Add, workspace hierarchy, and remote-source consumers still call
