@@ -6,7 +6,6 @@ export 'package:collectarr_app/core/models/item_image.dart';
 export 'package:collectarr_app/features/library/add/compact_controls.dart';
 export 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 export 'package:collectarr_app/features/library/add/library_add_copy.dart';
-export 'package:collectarr_app/features/library/add/library_add_mode.dart';
 export 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 export 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 export 'package:collectarr_app/features/library/add/library_add_shared.dart';
