@@ -28,10 +28,9 @@ Core has typed flat Catalog Item routes for all nine kinds. Music's current API,
 search query, proposal creation, Admin corrections, worker index, and Admin
 reindex path use the concrete `MusicItem` model with contained discs and tracks.
 The old Music Release Group and Release ORM graph has been removed from Core.
-
-The other eight kinds still have active Work/Release models and services in
-Core alongside their flat Catalog Item APIs. Their flat catalog routes do not
-yet replace every existing read, admin, or indexing path.
+Core has also removed the old Work/Release graphs for Movie, Book, Game, and
+Board Game. Anime, Comic, Manga, and TV still have active Work/Release models
+and services alongside their flat Catalog Item APIs.
 
 Core's Admin catalog search, item detail, root-level correction, per-kind item
 counts, and search reindex now include flat Catalog Item roots for all nine
@@ -42,8 +41,10 @@ use Work/Release models.
 
 The App's generic library-detail cache hydration, Admin item refresh, and
 metadata comparison now read the flat per-kind Catalog Item detail routes.
-Kind-owned Add, workspace hierarchy, and remote-source consumers still call
-some of the older Work/Release routes and remain part of the cutover.
+Comic and TV still have active callers for older Core routes. Game's obsolete
+direct Work/Release API client and mapper have been removed, but its local
+domain, Add/Edit dialogs, and workspace still use the previous root/release
+shape. Those App-owned references remain part of the cutover.
 
 ## App persistence and workspace
 

@@ -185,20 +185,6 @@ class CollectarrApiClient {
     );
   }
 
-  Future<GameWorkDto> getGameWorkDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/games/works/${Uri.encodeComponent(id)}',
-      GameWorkDto.fromJson,
-    );
-  }
-
-  Future<GameReleaseDto> getGameReleaseDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/games/releases/${Uri.encodeComponent(id)}',
-      GameReleaseDto.fromJson,
-    );
-  }
-
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/api/v1/metadata/bundle-releases/$bundleReleaseId',

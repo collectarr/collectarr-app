@@ -246,14 +246,6 @@ class ApiClient {
     return _catalogApi.getTvReleaseMediaItemDto(id);
   }
 
-  Future<GameWorkDto> getGameWorkDto(String id) {
-    return _catalogApi.getGameWorkDto(id);
-  }
-
-  Future<GameReleaseDto> getGameReleaseDto(String id) {
-    return _catalogApi.getGameReleaseDto(id);
-  }
-
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     return _catalogApi.getBundleRelease(bundleReleaseId);
   }

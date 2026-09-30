@@ -40,19 +40,6 @@ void main() {
 
 List<CoreFieldAdoptionPolicy> _policies() => [
       _policy(
-        'GameWorkDto',
-        'id title platforms identifiers companyRoles ageRatings genres '
-            'searchAliases releases originalLanguage publisher releaseDateValue '
-            'sortTitle subtitle description',
-        ignored: _kindReason('Game'),
-      ),
-      _policy(
-        'GameReleaseDto',
-        'id workId releaseTitle platform releaseDateValue regionCode format '
-            'publisher catalogNumber releaseStatus language barcodeValue '
-            'coverImageUrlValue',
-      ),
-      _policy(
         'TvEpisodeDto',
         'id seasonId episodeNumber episodeTitle airDateValue description '
             'coverImageUrlValue coverImageKey runtimeMinutes',

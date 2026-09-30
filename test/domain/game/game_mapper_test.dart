@@ -1,5 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
@@ -12,22 +10,6 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('game work dto preserves typed collections', () {
-    final dto = GameWorkDto.fromJson({
-      'id': 'game-1',
-      'title': 'Zelda',
-      'platforms': ['Switch', 'switch'],
-      'identifiers': ['IGDB:1'],
-      'company_roles': ['developer', 'publisher'],
-      'age_ratings': ['E10+'],
-    });
-
-    expect(dto.platforms, ['Switch']);
-    expect(dto.identifiers, ['IGDB:1']);
-    expect(dto.companyRoles, ['developer', 'publisher']);
-    expect(dto.ageRatings, ['E10+']);
-  });
-
   test('GameKindSchema exposes complete GameOwnedDetails surface', () {
     final catalogItem = testCatalogItem(
       id: 'game-10',

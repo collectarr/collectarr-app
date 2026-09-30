@@ -72,7 +72,7 @@ class GameCatalogMetadata implements JsonEncodable {
         if (toySubtype != null) 'toy_subtype': toySubtype,
         if (toyType != null) 'toy_type': toyType,
         if (releaseRegion != null) 'release_region': releaseRegion,
-        if (edition != null) 'edition': edition,
+        if (edition != null) 'edition_title': edition,
         if (physicalFormat != null) 'physical_format': physicalFormat,
         if (physicalFormatLabel != null)
           'physical_format_label': physicalFormatLabel,
@@ -204,7 +204,7 @@ class GameCatalogMetadata implements JsonEncodable {
       toySubtype: (gameMap['toy_subtype'] ?? json['toy_subtype']) as String?,
       toyType: (gameMap['toy_type'] ?? json['toy_type']) as String?,
       releaseRegion: json['release_region'] as String?,
-      edition: json['edition'] as String?,
+      edition: json['edition_title'] as String?,
       physicalFormat:
           (json['physical_format'] ?? gameMap['physical_format']) as String?,
       physicalFormatLabel: (json['physical_format_label'] ??
