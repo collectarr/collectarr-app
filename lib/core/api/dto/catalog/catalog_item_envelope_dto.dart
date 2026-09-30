@@ -76,6 +76,9 @@ final class CatalogItemEnvelopeDto {
 }
 
 const _commonKeys = <String>{
+  // The snapshot version belongs to the transport envelope, not to the
+  // catalog item's kind-owned payload.
+  'snapshot_version',
   'id',
   'ref_id',
   'ref',
