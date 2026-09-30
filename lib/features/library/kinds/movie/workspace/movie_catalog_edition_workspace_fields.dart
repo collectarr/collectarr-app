@@ -1,13 +1,11 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
-abstract final class MovieReleaseWorkspaceFields {
+abstract final class MovieCatalogEditionWorkspaceFields {
   static final publisher = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.publisher,
     label: 'Studio / Publisher',
@@ -65,19 +63,19 @@ abstract final class MovieReleaseWorkspaceFields {
   );
 }
 
-final movieReleaseWorkspaceFieldDefinitions = [
-  MovieReleaseWorkspaceFields.publisher,
-  MovieReleaseWorkspaceFields.releaseDate,
-  MovieReleaseWorkspaceFields.format,
-  MovieReleaseWorkspaceFields.barcode,
-  MovieReleaseWorkspaceFields.releaseYear,
-  MovieReleaseWorkspaceFields.audioTracks,
-  MovieReleaseWorkspaceFields.editionReleaseDate,
+final movieCatalogEditionFieldDefinitions = [
+  MovieCatalogEditionWorkspaceFields.publisher,
+  MovieCatalogEditionWorkspaceFields.releaseDate,
+  MovieCatalogEditionWorkspaceFields.format,
+  MovieCatalogEditionWorkspaceFields.barcode,
+  MovieCatalogEditionWorkspaceFields.releaseYear,
+  MovieCatalogEditionWorkspaceFields.audioTracks,
+  MovieCatalogEditionWorkspaceFields.editionReleaseDate,
 ];
 
-final movieReleaseWorkspaceGroupDefinitions = [
+final movieCatalogEditionGroupDefinitions = [
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieReleaseWorkspaceFields.publisher,
+    MovieCatalogEditionWorkspaceFields.publisher,
     sidebarTitle: 'Studios',
     category: 'Main',
     icon: Icons.business_outlined,
@@ -87,28 +85,28 @@ final movieReleaseWorkspaceGroupDefinitions = [
     ),
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, num?>(
-    MovieReleaseWorkspaceFields.releaseYear,
+    MovieCatalogEditionWorkspaceFields.releaseYear,
     category: 'Main',
     icon: Icons.calendar_today_outlined,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieReleaseWorkspaceFields.format,
+    MovieCatalogEditionWorkspaceFields.format,
     category: 'Edition',
     icon: Icons.album_outlined,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieReleaseWorkspaceFields.audioTracks,
+    MovieCatalogEditionWorkspaceFields.audioTracks,
     category: 'Edition',
     icon: Icons.audiotrack_outlined,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, DateTime?>(
-    MovieReleaseWorkspaceFields.editionReleaseDate,
+    MovieCatalogEditionWorkspaceFields.editionReleaseDate,
     category: 'Edition',
     icon: Icons.calendar_today_outlined,
   ),
 ];
 
-final movieReleaseWorkspaceSortDefinitions = [
+final movieCatalogEditionSortDefinitions = [
   LibrarySortDefinition<MovieKind, MovieWorkspaceDto>(
     id: MovieSortIds.releaseTitle,
     label: 'Release title',
@@ -116,53 +114,38 @@ final movieReleaseWorkspaceSortDefinitions = [
     compare: (left, right) => left.dto.title.compareTo(right.dto.title),
   ),
   sortFromField<MovieKind, MovieWorkspaceDto, String>(
-      MovieReleaseWorkspaceFields.publisher),
+      MovieCatalogEditionWorkspaceFields.publisher),
   sortFromField<MovieKind, MovieWorkspaceDto, DateTime>(
-      MovieReleaseWorkspaceFields.releaseDate,
+      MovieCatalogEditionWorkspaceFields.releaseDate,
       defaultAscending: false),
 ];
 
-final movieReleaseWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+final movieCatalogEditionDefaultVisibleColumns = <LibraryFieldIdRuntime>{
   MovieFieldIds.publisher,
   MovieFieldIds.releaseDate,
   MovieFieldIds.format,
   MovieFieldIds.barcode,
 };
 
-final movieReleaseWorkspaceColumnDefinitions = [
+final movieCatalogEditionColumnDefinitions = [
   columnFromField<MovieKind, MovieWorkspaceDto, String?>(
-      MovieReleaseWorkspaceFields.publisher,
+      MovieCatalogEditionWorkspaceFields.publisher,
       defaultWidth: 140),
   columnFromField<MovieKind, MovieWorkspaceDto, DateTime?>(
-    MovieReleaseWorkspaceFields.releaseDate,
+    MovieCatalogEditionWorkspaceFields.releaseDate,
     cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
     defaultWidth: 118,
   ),
   columnFromField<MovieKind, MovieWorkspaceDto, String?>(
-      MovieReleaseWorkspaceFields.format,
+      MovieCatalogEditionWorkspaceFields.format,
       defaultWidth: 90),
   columnFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieReleaseWorkspaceFields.barcode,
+    MovieCatalogEditionWorkspaceFields.barcode,
     group: 'Edition',
     defaultWidth: 160,
     maxWidth: 260,
   ),
 ];
-
-final movieReleaseWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<MovieKind, MovieWorkspaceDto>(
-  kindNamespace: 'movie',
-  entityScope: LibraryEntityScope.work,
-  fields: movieReleaseWorkspaceFieldDefinitions,
-  columns: movieReleaseWorkspaceColumnDefinitions,
-  sorts: movieReleaseWorkspaceSortDefinitions,
-  groups: movieReleaseWorkspaceGroupDefinitions,
-  primaryColumn: MovieFieldIds.publisher,
-  defaultVisibleColumns: movieReleaseWorkspaceDefaultVisibleColumns,
-  defaultSort: MovieSortIds.releaseDate,
-  defaultGroup: MovieGroupIds.releaseYear,
-  preferenceCodec: const MoviePreferenceCodec(),
-);
 
 String _formatDate(DateTime? value) {
   if (value == null) return '';

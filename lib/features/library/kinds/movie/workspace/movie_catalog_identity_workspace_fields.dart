@@ -1,13 +1,11 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
-abstract final class MovieWorkWorkspaceFields {
+abstract final class MovieCatalogIdentityWorkspaceFields {
   static final title = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.title,
     label: 'Title',
@@ -87,27 +85,27 @@ abstract final class MovieWorkWorkspaceFields {
   );
 }
 
-final movieWorkWorkspaceFieldDefinitions = [
-  MovieWorkWorkspaceFields.title,
-  MovieWorkWorkspaceFields.director,
-  MovieWorkWorkspaceFields.runtimeMinutes,
-  MovieWorkWorkspaceFields.genre,
-  MovieWorkWorkspaceFields.audienceRating,
-  MovieWorkWorkspaceFields.movieOrTvSeries,
-  MovieWorkWorkspaceFields.originalTitle,
-  MovieWorkWorkspaceFields.writer,
-  MovieWorkWorkspaceFields.producer,
-  MovieWorkWorkspaceFields.ageRating,
+final movieCatalogIdentityFieldDefinitions = [
+  MovieCatalogIdentityWorkspaceFields.title,
+  MovieCatalogIdentityWorkspaceFields.director,
+  MovieCatalogIdentityWorkspaceFields.runtimeMinutes,
+  MovieCatalogIdentityWorkspaceFields.genre,
+  MovieCatalogIdentityWorkspaceFields.audienceRating,
+  MovieCatalogIdentityWorkspaceFields.movieOrTvSeries,
+  MovieCatalogIdentityWorkspaceFields.originalTitle,
+  MovieCatalogIdentityWorkspaceFields.writer,
+  MovieCatalogIdentityWorkspaceFields.producer,
+  MovieCatalogIdentityWorkspaceFields.ageRating,
 ];
 
-final movieWorkWorkspaceGroupDefinitions = [
+final movieCatalogIdentityGroupDefinitions = [
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieWorkWorkspaceFields.director,
+    MovieCatalogIdentityWorkspaceFields.director,
     category: 'Cast & Crew',
     icon: Icons.movie_creation_outlined,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieWorkWorkspaceFields.genre,
+    MovieCatalogIdentityWorkspaceFields.genre,
     sidebarTitle: 'Genres',
     category: 'Main',
     icon: Icons.category_outlined,
@@ -115,38 +113,38 @@ final movieWorkWorkspaceGroupDefinitions = [
     bucketValueMutator: catalogTransportStringListBucketValueMutator('genres'),
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieWorkWorkspaceFields.audienceRating,
+    MovieCatalogIdentityWorkspaceFields.audienceRating,
     category: 'Main',
     icon: Icons.star_outline,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieWorkWorkspaceFields.movieOrTvSeries,
+    MovieCatalogIdentityWorkspaceFields.movieOrTvSeries,
     category: 'Main',
     icon: Icons.tv_outlined,
   ),
 ];
 
-final movieWorkWorkspaceSortDefinitions = [
+final movieCatalogIdentitySortDefinitions = [
   sortFromField<MovieKind, MovieWorkspaceDto, String>(
-      MovieWorkWorkspaceFields.director),
+      MovieCatalogIdentityWorkspaceFields.director),
   sortFromField<MovieKind, MovieWorkspaceDto, String>(
-      MovieWorkWorkspaceFields.title),
+      MovieCatalogIdentityWorkspaceFields.title),
   sortFromField<MovieKind, MovieWorkspaceDto, num>(
-      MovieWorkWorkspaceFields.runtimeMinutes,
+      MovieCatalogIdentityWorkspaceFields.runtimeMinutes,
       defaultAscending: false),
 ];
 
-final movieWorkWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+final movieCatalogIdentityDefaultVisibleColumns = <LibraryFieldIdRuntime>{
   MovieFieldIds.cover,
   MovieFieldIds.director,
   MovieFieldIds.title,
 };
 
-final movieWorkWorkspaceColumnDefinitions = [
+final movieCatalogIdentityColumnDefinitions = [
   LibraryColumnDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.cover,
     label: '',
-    getValue: MovieWorkWorkspaceFields.cover.getValue,
+    getValue: MovieCatalogIdentityWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
         : Image.network(
@@ -161,41 +159,26 @@ final movieWorkWorkspaceColumnDefinitions = [
     minWidth: 44,
   ),
   columnFromField<MovieKind, MovieWorkspaceDto, String?>(
-      MovieWorkWorkspaceFields.director,
+      MovieCatalogIdentityWorkspaceFields.director,
       defaultWidth: 150),
   columnFromField<MovieKind, MovieWorkspaceDto, String?>(
-      MovieWorkWorkspaceFields.title,
+      MovieCatalogIdentityWorkspaceFields.title,
       defaultWidth: 260,
       maxWidth: 520),
   columnFromField<MovieKind, MovieWorkspaceDto, num?>(
-    MovieWorkWorkspaceFields.runtimeMinutes,
+    MovieCatalogIdentityWorkspaceFields.runtimeMinutes,
     group: 'Technical',
     isNumeric: true,
     defaultWidth: 100,
   ),
   columnFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieWorkWorkspaceFields.writer,
+    MovieCatalogIdentityWorkspaceFields.writer,
     group: 'Cast & Crew',
     defaultWidth: 130,
   ),
   columnFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieWorkWorkspaceFields.producer,
+    MovieCatalogIdentityWorkspaceFields.producer,
     group: 'Cast & Crew',
     defaultWidth: 130,
   ),
 ];
-
-final movieWorkWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<MovieKind, MovieWorkspaceDto>(
-  kindNamespace: 'movie',
-  entityScope: LibraryEntityScope.work,
-  fields: movieWorkWorkspaceFieldDefinitions,
-  columns: movieWorkWorkspaceColumnDefinitions,
-  sorts: movieWorkWorkspaceSortDefinitions,
-  groups: movieWorkWorkspaceGroupDefinitions,
-  primaryColumn: MovieFieldIds.title,
-  defaultVisibleColumns: movieWorkWorkspaceDefaultVisibleColumns,
-  defaultSort: MovieSortIds.director,
-  defaultGroup: MovieGroupIds.director,
-  preferenceCodec: const MoviePreferenceCodec(),
-);

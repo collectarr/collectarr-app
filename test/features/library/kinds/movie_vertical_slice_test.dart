@@ -118,18 +118,21 @@ void main() {
         dto: dto,
       );
 
-      expect(MovieWorkWorkspaceFields.title.getValue(ctx), 'Oppenheimer');
-      expect(
-          MovieWorkWorkspaceFields.director.getValue(ctx), 'Christopher Nolan');
-      expect(
-          MovieWorkWorkspaceFields.writer.getValue(ctx), 'Christopher Nolan');
-      expect(MovieWorkWorkspaceFields.producer.getValue(ctx), 'Emma Thomas');
-      expect(MovieReleaseWorkspaceFields.publisher.getValue(ctx),
+      expect(MovieCatalogIdentityWorkspaceFields.title.getValue(ctx),
+          'Oppenheimer');
+      expect(MovieCatalogIdentityWorkspaceFields.director.getValue(ctx),
+          'Christopher Nolan');
+      expect(MovieCatalogIdentityWorkspaceFields.writer.getValue(ctx),
+          'Christopher Nolan');
+      expect(MovieCatalogIdentityWorkspaceFields.producer.getValue(ctx),
+          'Emma Thomas');
+      expect(MovieCatalogEditionWorkspaceFields.publisher.getValue(ctx),
           'Universal Pictures');
-      expect(MovieWorkWorkspaceFields.runtimeMinutes.getValue(ctx), 180);
-      expect(
-          MovieWorkWorkspaceFields.originalTitle.getValue(ctx), 'Oppenheimer');
-      expect(MovieWorkWorkspaceFields.ageRating.getValue(ctx), 'R');
+      expect(MovieCatalogIdentityWorkspaceFields.runtimeMinutes.getValue(ctx),
+          180);
+      expect(MovieCatalogIdentityWorkspaceFields.originalTitle.getValue(ctx),
+          'Oppenheimer');
+      expect(MovieCatalogIdentityWorkspaceFields.ageRating.getValue(ctx), 'R');
     });
   });
 }
