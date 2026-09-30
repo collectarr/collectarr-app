@@ -104,7 +104,9 @@ final musicKindActions = const LibraryEntityActionCapability(
   release: LibraryEntityActionSet.release,
   copy: LibraryEntityActionSet.copy,
   semanticActions: {
-    LibraryEntityScope.release: [
+    // Listening history belongs to the concrete catalog item, matching the
+    // Music tracking topology and listening-event storage.
+    LibraryEntityScope.work: [
       LibraryEntitySemanticActionDefinition(
         id: 'music.log_listen',
         label: 'Log listen',
