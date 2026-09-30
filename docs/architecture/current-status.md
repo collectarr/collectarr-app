@@ -35,10 +35,10 @@ yet replace every existing read, admin, or indexing path.
 
 Core's Admin catalog search, item detail, root-level correction, per-kind item
 counts, and search reindex now include flat Catalog Item roots for all nine
-kinds. Its generic correction endpoint rejects contained child fields such as
-identifiers, Book credits, discs, and episodes until child-aware Admin
-operations are connected. Other old Core read, diagnostic, and administration
-paths still use Work/Release models.
+kinds. Admin corrections update root fields, normalized identifiers, and Book
+credits; structured contents such as discs and episodes remain kind-owned
+child data. Other old Core read, diagnostic, and administration paths still
+use Work/Release models.
 
 The App's generic library-detail cache hydration, Admin item refresh, and
 metadata comparison now read the flat per-kind Catalog Item detail routes.
