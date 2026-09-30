@@ -17,17 +17,13 @@ through `collectarr-sync`.
   exports use Title / Edition no. / Format / Studio / UPC labels instead of
   comic Series / Issue labels. Physical format headers are included for media
   that need edition-level release data.
-- TMDB CSV / JSON: import movies and TV shows from TMDB-exported CSV or JSON
-  watchlist/ratings files. Entries are parsed with media type separation
-  (movies vs TV), enriched via Core's batch hydration endpoint, matched against
-  existing catalog snapshots, and imported into the local library.
 
 ## Flutter Workflow
 
 The Flutter app exposes a CSV / CLZ wizard from Settings for quick local
 backup, CLZ-friendly export, paste-based import preview, and matched-row import.
-The Shelf screen keeps the deeper import flow for manual Core search,
-unresolved row handling, metadata proposals, and conflict choices.
+The Shelf screen keeps the deeper import flow for manual Core catalog search,
+unresolved row handling, user proposals, and conflict choices.
 
 Import matching prefers explicit item IDs. When no item ID is present, it
 matches by barcode and then by title plus item/volume/edition number. If a CSV

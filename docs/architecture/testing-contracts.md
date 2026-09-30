@@ -9,12 +9,12 @@ The current contract families cover:
 
 ```text
 identity, Core mapping, field adoption, repository, persistence,
-workspace, fields, sorts, groups, facets, vocabulary, Add, Media Edit,
-Release, Release Edit, tracking, and provider-kind mapping
+workspace, fields, sorts, groups, facets, vocabulary, Add, catalog Edit,
+Owned Copy Edit, tracking, and kind registration
 ```
 
-The final parity report records PASS/N/A per kind, while the semantic-vacuum
-and deleted-code reports record the remaining bounded migration debt.
+The current architecture status and per-kind field ledgers describe the active
+implementation and the remaining cutover work.
 
 Useful focused commands are:
 

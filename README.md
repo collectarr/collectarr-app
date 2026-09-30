@@ -112,10 +112,6 @@ After kind dispatch, app code keeps the concrete type (`ComicMedia`,
 `BookRelease`, `TvSeries`, etc.). Cross-kind screens use structural references
 and summaries instead of a universal semantic catalog model.
 
-## 🧭 Library parity contract
-
-See [docs/library-parity-contract.md](docs/library-parity-contract.md).
-
 ## 🗺️ Roadmap
 
 See the [current architecture status](docs/architecture/current-status.md),
@@ -124,16 +120,16 @@ See the [current architecture status](docs/architecture/current-status.md),
 
 Active implementation plans:
 
-- [Kind boundary completion](docs/architecture/kind-boundary-completion-plan.md)
+- [Flattened Catalog Item baseline](docs/architecture/flattened-catalog-baseline.md)
 - [Add/Edit form unification](docs/architecture/add-edit-form-unification-plan.md)
 - [All-kind form and workspace schema reorganization](docs/architecture/kind-schema-reorganization-plan.md)
 - [UI readability and contrast](docs/architecture/ui-readability-plan.md)
 
 Current active tracks:
 
-- preserve the manual Add submission guard with contract checks
 - keep Add search on the Core catalog and preserve manual Add/Edit proposals
-- remove obsolete draft and widget paths after each cutover step
+- move each kind's local catalog and workspace from Work/Release to Catalog Item
+- keep personal collection state and sync in App and collectarr-sync
 - improve small text, accent contrast, and text scaling across Library screens
 - keep seed scripts, local Drift schemas, and contract tests synchronized
 - extend calendar support with a live subscribable ICS feed and reminders

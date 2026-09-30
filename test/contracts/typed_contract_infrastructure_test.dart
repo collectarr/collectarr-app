@@ -22,7 +22,6 @@ import 'media_edit_contract.dart';
 import 'owned_edit_contract.dart';
 import 'overrides/override_contract.dart';
 import 'persistence_contract.dart';
-import 'provider_integration_contract.dart';
 import 'release_edit_contract.dart';
 import 'repository_contract.dart';
 import 'sort_contract.dart';
@@ -210,13 +209,6 @@ class FixtureDto {
     create: () => 1,
     tabIds: (_) => const ['owned'],
     fieldIds: (_, __) => const ['condition'],
-  );
-
-  defineProviderIntegrationContract<int>(
-    name: 'fixture',
-    create: () => 1,
-    providerIds: (_) => const ['fixture-provider'],
-    load: (_, __) async => const Object(),
   );
 
   defineTrackingContract<int>(

@@ -333,7 +333,7 @@ void main() {
     expect(find.text('Catalog search'), findsOneWidget);
     expect(find.text('Find catalog items'), findsOneWidget);
 
-    // Tap Providers tab
+    // Tap Proposals tab
     await tester.tap(find.widgetWithText(Tab, 'Proposals'));
     await pumpUntilSettled(tester);
 
