@@ -10715,6 +10715,7 @@
       "GroupingModel": {
         "enum": [
           "book_series",
+          "catalog_item",
           "comic_volume",
           "manga_series",
           "release_based",
