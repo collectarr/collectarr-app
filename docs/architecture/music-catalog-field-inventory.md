@@ -84,13 +84,13 @@ An exact CLZ form field is identified by the displayed label and tab below. “C
 | Personal | Played History | ordered activity list | `MusicListeningEvent[]` | Activity targets the Catalog Item and optionally this copy; do not collapse history into one mutable copy field. |
 | Any | Custom Fields | user-defined values | `custom_field_values[]` | App-owned values target either a Catalog Item or one Owned Copy according to the field definition. |
 
-## Migration and legacy-only fields
+## Reset and legacy-only fields
 
-- A former release becomes one Music Catalog Item and keeps its release ID. The former release-group metadata is copied onto each concrete release item. A release group with no release becomes one item using the group ID. If one old release title conflicts with the group title, preserve the Catalog Item title from the group and report the differing release title for review; do not silently overwrite the user's album title or place the value into CLZ Subtitle.
-- A parent-only personal reference to a release group with multiple releases is ambiguous. Emit it for explicit resolution; do not duplicate it across releases or choose a “primary” release.
+- The flattened v1 baseline starts from a fresh App database. Old Work/Release Music databases and backups are unsupported; the App must not decode them or include a compatibility conversion path.
+- Every Music Owned Copy targets exactly one concrete Music Catalog Item. It does not target a separate release child or require a second pressing identity.
 - Medium condition moves to the matching Owned Copy's disc details. Storage Device and Slot are also copy-specific. Matrix numbers remain shared catalog pressing identifiers.
 - `physical_format` is derived from the Catalog Item format and its ordered discs; do not persist a duplicate label.
-- Remove Music `synopsis`, provider/source IDs (including MusicBrainz recording IDs), and the old Release Group → Release identity from the v1 catalog contract. They are not CLZ Music edit fields. Track hashes, local file offsets, bitrates, file sizes, and device paths are local media/cache data only and must not be included in Core Catalog Item payloads.
+- Music `synopsis`, provider/source IDs (including MusicBrainz recording IDs), and Release Group/Release identities are not part of the v1 catalog contract. Track hashes, local file offsets, bitrates, file sizes, and device paths are local media/cache data only and must not be included in Core Catalog Item payloads.
 - The saved CLZ track list has Title, Artist, and Length. Collectarr's former `is_header`, `indent_level`, and `parent_header_id` fields are not part of that form and are excluded from the v1 canonical Music track contract. If a local playback/import feature still requires them, keep them outside the shared catalog contract.
 
 ## Capture limits

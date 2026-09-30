@@ -107,15 +107,3 @@ LibraryCoreCorrectionTarget resolveMusicCatalogItemCoreCorrectionTarget({
   }
   return LibraryCoreCorrectionTarget(scope: 'catalog_item', entityId: id);
 }
-
-CatalogEntityRef musicPrimaryReleaseRef(CatalogSearchCandidate item) {
-  final group = item.kindCapability
-      .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-  final release = group.primaryRelease;
-  if (release == null) {
-    throw StateError(
-      'Music ownership requires a concrete release in the catalog result',
-    );
-  }
-  return musicReleaseRefForRoot(item.reference, release.id.value);
-}

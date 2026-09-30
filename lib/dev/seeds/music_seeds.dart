@@ -1450,10 +1450,6 @@ List<MusicOwnedItem> musicSeedOwnedItems(DateTime now) => [
         MusicOwnedItem(
           id: MusicOwnedCopyId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.music, itemId),
-          targetRef: musicReleaseRefForRoot(
-            seedCatalogRef(CatalogMediaKind.music, itemId),
-            '$itemId:release',
-          ),
           createdAt: now.subtract(const Duration(days: 220)),
           updatedAt: now,
           isDigital: false,

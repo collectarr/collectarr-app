@@ -1,6 +1,5 @@
 import '../music_module_dependencies.dart';
 import '../config/music_kind_configuration.dart';
-import '../edit/music_edit_contribution.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_catalog_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_item_hierarchy_mapper.dart';
 
@@ -15,7 +14,6 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MusicOwnedItemCreatePayload(
     catalogRef: item.reference,
-    releaseRef: musicPrimaryReleaseRef(item),
     details: details as MusicOwnedDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
@@ -30,7 +28,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),
-  mediaTargetRefBuilder: musicPrimaryReleaseRef,
+  mediaTargetRefBuilder: (item) => item.reference,
   digitalCopyFlagBuilder: (item) {
     final format = musicCatalogItemFromCandidate(item).format?.toLowerCase();
     return format == null

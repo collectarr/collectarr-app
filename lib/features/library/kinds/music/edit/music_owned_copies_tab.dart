@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_copy_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
@@ -61,10 +60,7 @@ final class _MusicOwnedCopiesTabState
     extends ConsumerState<_MusicOwnedCopiesTab> {
   late Future<List<MusicOwnedItem>> _copies;
 
-  CatalogEntityRef get _releaseRef => musicReleaseRefForRoot(
-        widget.item.reference,
-        widget.release.id.value,
-      );
+  CatalogEntityRef get _catalogRef => widget.item.reference;
 
   @override
   void initState() {
@@ -74,7 +70,7 @@ final class _MusicOwnedCopiesTabState
 
   void _reload() {
     _copies = MusicOwnedRepository(ref.read(localDatabaseProvider))
-        .listByReleaseRef(_releaseRef);
+        .listByCatalogRef(_catalogRef);
   }
 
   @override
@@ -100,7 +96,7 @@ final class _MusicOwnedCopiesTabState
                 Expanded(
                   child: Text(
                     copies.isEmpty
-                        ? 'No owned copies for this release.'
+                        ? 'No owned copies for this album.'
                         : '${copies.length} owned ${copies.length == 1 ? 'copy' : 'copies'}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
@@ -133,7 +129,6 @@ final class _MusicOwnedCopiesTabState
     if (values == null || !mounted || !context.mounted) return;
     final payload = MusicOwnedItemCreatePayload(
       catalogRef: widget.item.reference,
-      releaseRef: _releaseRef,
       details: values.details,
       condition: values.condition,
       grade: values.grade,
@@ -145,7 +140,7 @@ final class _MusicOwnedCopiesTabState
           AddOwnedItemCommand(
             catalogRef: widget.item.reference,
             typedPayload: payload,
-            targetRef: _releaseRef,
+            targetRef: _catalogRef,
           ),
         );
     if (!mounted || !context.mounted) return;

@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_images_links_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_copies_tab.dart';
 import 'package:flutter/material.dart';
 
 Widget buildMusicReleaseGroupLibraryEditDialog(
@@ -64,6 +65,17 @@ final class _MusicReleaseGroupEditDialogState
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         extraTabs: [
+          if (_group.primaryRelease case final release?)
+            EditSchemaExtraTab(
+              label: 'Owned Copies',
+              icon: Icons.library_music_outlined,
+              content: buildMusicOwnedCopiesTab(
+                item: widget.request.kindItem,
+                release: release,
+                accent: widget.request.accent,
+                type: widget.request.type,
+              ),
+            ),
           EditSchemaExtraTab(
             label: 'Covers',
             icon: Icons.photo_camera_outlined,

@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_release_i
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_providers.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_copies_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_listening_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_structure_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_credits_tab.dart';
@@ -237,28 +236,14 @@ final class _MusicReleaseEditDialogState
               accent: widget.request.accent,
             ),
           ),
-          EditSchemaExtraTab(
-            label: 'Owned Copies',
-            icon: Icons.library_music_outlined,
-            content: buildMusicOwnedCopiesTab(
-              item: widget.request.kindItem,
-              release: _release,
-              accent: widget.request.accent,
-              type: widget.request.type,
-            ),
-          ),
         ],
         onSave: (_) async {
           await _imagesLoaded;
           final updatedRelease = _draft.toRelease();
           if (_draft.hasOwnedMediumIndexChanges) {
-            final releaseRef = musicReleaseRefForRoot(
-              widget.request.kindItem.reference,
-              _release.id.value,
-            );
             await MusicOwnedRepository(ref.read(localDatabaseProvider))
                 .remapMediumDetails(
-              releaseRef: releaseRef,
+              catalogRef: widget.request.kindItem.reference,
               oldToNewIndex: _draft.ownedMediumIndexRemap,
               removedIndexes: _draft.removedOwnedMediumIndexes,
             );

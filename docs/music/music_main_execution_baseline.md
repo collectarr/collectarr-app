@@ -1,69 +1,47 @@
-# Music main execution baseline
+# Music Catalog Flattening Status
 
-Updated after the Music implementation checkpoint and the final parity pass.
-
-- Branch: `main`
-- HEAD: see the commits in this branch; implementation work is split into a
-  checkpoint and focused follow-up commits.
-- Working tree: Music changes are committed in the checkpoint and follow-up
-  commits; unrelated repository test failures are documented below.
-- Dependencies: `flutter pub get --enforce-lockfile` passed.
-- Analyzer: `flutter analyze --fatal-warnings --fatal-infos` passed with no issues.
-- Targeted Music tests: latest combined Music/domain/config/UI run passed
-  (`115` tests, `3` skips).
-- Full test suite: not green; the latest full run reported `30` failures and
-  `5` skips, mainly broad UI/fixture failures outside the Music slice. The
-  Music-targeted run remains green.
+This document records the current Music cutover state. The active plan is the
+repository's flattened catalog plan; the notes below describe code that still
+needs migration and must not be read as a compatibility contract.
 
 ## Current boundaries
 
-- Catalog model: `MusicReleaseGroup -> MusicRelease -> MusicMedium -> MusicTrack`.
-- Owned model: typed Music copies require a concrete Release target rooted in
-  the Release Group; root-only and cross-group targets are rejected.
-- Tracking model: `MusicTrackingState` is Release-scoped and unowned; storage
-  and sync reject Group/copy targets and preserve separate releases.
-- Listening model: typed Music listen events require `releaseId`, retain
-  optional owned-copy provenance, support multiple events, and are persisted
-  separately from lifecycle tracking.
-- Edit flows: Release Group and concrete Release dialogs are separate. Release
-  Edit includes tracking and an Owned Copies tab with independent copy CRUD.
-- Workspace: Group, Release and Owned Copy schemas are selected structurally by
-  node/browser scope; Music Group also exposes genre and release count.
-- DTO/projection: Music workspace projection remains concrete and artist,
-  barcode/catalog-number and metadata-readiness presentation bugs are fixed.
-- Copy integrity: per-disc storage and matrix edits preserve unrelated or
-  unknown entries instead of dropping them during save.
-- Export: Music inspector track copy/print output includes group, release,
-  disc/header, track artist, duration and catalog-number context.
-- Box sets: Release membership is typed as an opaque Music relationship with
-  position, provider/Core/local round-trip, Release edit, inspector and
-  Release workspace grouping.
-- Artwork: generic owned-item image storage exposes front/back, booklet, disc,
-  label and other roles while preserving captions and order.
-- Stats: Music cards include artists, labels, genres, formats, signed-copy
-  aggregates and derived listening summaries without moving Music semantics
-  into generic infrastructure.
+- Core serves one concrete Music Catalog Item per album edition, with discs
+  and tracks contained by that item.
+- App manual Add builds the same flat Music item payload and uses the shared
+  Add/Edit dialog shell. User proposals contain kind-owned Music catalog data.
+- New Music Owned Copies target the Catalog Item directly. Per-disc condition
+  and storage placement remain personal copy details; matrix numbers remain
+  catalog pressing identifiers shared by copies of the same item.
+- App persistence, workspace projections, and catalog editing still contain
+  Release Group and Release types. Those structures are not the target model
+  and must be removed as each consumer moves to the flat item.
+- Music tracking and listening history still use release-shaped references.
+  They are App-owned personal activity and must be retargeted to the Catalog
+  Item while keeping their existing history and Sync behavior.
+- Music's edit surface still has separate Release Group and Release dialogs.
+  Consolidate their catalog fields into one item editor without changing the
+  visible controls or the separate Owned Copy form.
 
-## Remaining work
+## Cutover rules
 
-- Group listening aggregates are derived read-only from Release-scoped events
-  and are injected into Music workspace rows and Music stats.
-- The shared `music_fields.dart` definitions now back the three typed Music
-  workspace schemas; they do not contain edit or copy semantics.
-- The previous monolithic Music edit runtime has been removed. The unscoped
-  catalog editor is an explicit typed composition of Group, Release and Links;
-  structural Group/Release nodes still dispatch to their dedicated dialogs.
+- Treat a concrete album edition as one Catalog Item. It has no parent album
+  group or synthetic release child.
+- Keep discs, ordered tracks, credits, and external links as Music-owned
+  catalog data.
+- Keep condition, location, purchase details, notes, per-disc storage, matrix
+  runouts, images, and listening history in App-owned personal data.
+- Personal Sync continues to carry Owned Copies and personal activity. Core
+  Catalog Item data never enters Sync.
+- The final App baseline is a fresh schema v1. Old Work/Release databases and
+  backups are unsupported; do not add compatibility decoding or upgrade paths.
+- Music's field ledger is based on the saved CLZ Music Edit form. Exact CLZ
+  parity for the other kinds remains unverified until their Edit captures are
+  available.
 
-## Implementation progress
+## Verification policy
 
-Current implementation status: the Tier 1 Music graph, ownership, tracking,
-listening, per-disc copy integrity, inspector/export and scope-specific
-workspace work is represented in the checkout. Tier 2 box-set and artwork
-roles are also implemented. The capability matrix and parity review record
-the remaining structural limitations explicitly.
-
-M1 enforces the Music Copy-to-Release invariant at typed creation, update and
-persistence boundaries, then adds regression coverage. The old generic Music
-editor and compatibility runtime are removed. The Owned model now stores
-per-medium storage and matrix data together; the local schema intentionally
-uses the new shape without a legacy migration path.
+Do not claim the Music cutover is complete until active Add/Edit, persistence,
+workspace, owned-copy, tracking/listening, backup, export, and personal Sync
+paths use the flat Catalog Item identity and no Music Release Group or Release
+identity is reachable from the app.

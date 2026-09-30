@@ -30,24 +30,24 @@ final class MusicOwnedRepository
     return [for (final row in rows) MusicLocalMapper.fromOwnedItemRow(row)];
   }
 
-  /// Loads active copies for one concrete release without scanning every
-  /// Music copy into the UI layer.
-  Future<List<MusicOwnedItem>> listByReleaseRef(
-    CatalogEntityRef releaseRef, {
+  /// Loads active copies for one concrete Catalog Item.
+  Future<List<MusicOwnedItem>> listByCatalogRef(
+    CatalogEntityRef catalogRef, {
     bool includeDeleted = false,
   }) async {
-    if (releaseRef.mediaKind != CatalogMediaKind.music ||
-        releaseRef.entityType.apiValue != 'release') {
+    if (catalogRef.mediaKind != CatalogMediaKind.music ||
+        !catalogRef.isKnown ||
+        catalogRef.entityType != CatalogEntityTypeId.root) {
       throw ArgumentError.value(
-        releaseRef,
-        'releaseRef',
-        'Music owned copies require a concrete release reference',
+        catalogRef,
+        'catalogRef',
+        'Music owned copies require a concrete Catalog Item reference',
       );
     }
     final rows = await (_db.select(_db.musicOwnedItemsRows)
           ..where(
             (table) =>
-                table.targetRefJson.like('%${releaseRef.id}%') &
+                table.itemId.equals(catalogRef.id) &
                 (includeDeleted
                     ? const Constant(true)
                     : table.deletedAt.isNull()),
@@ -59,12 +59,12 @@ final class MusicOwnedRepository
     ];
     return [
       for (final item in items)
-        if (item.releaseRef == releaseRef) item
+        if (item.catalogRef == catalogRef) item
     ];
   }
 
   Future<void> upsert(MusicOwnedItem item) {
-    item.validateReleaseOwnership();
+    item.validateCatalogItemOwnership();
     return _db
         .into(_db.musicOwnedItemsRows)
         .insertOnConflictUpdate(MusicLocalMapper.toOwnedItemRow(item));
@@ -74,7 +74,7 @@ final class MusicOwnedRepository
     final values = items.toList(growable: false);
     if (values.isEmpty) return;
     for (final item in values) {
-      item.validateReleaseOwnership();
+      item.validateCatalogItemOwnership();
     }
     await _db.batch((batch) {
       batch.insertAll(
@@ -85,17 +85,17 @@ final class MusicOwnedRepository
     });
   }
 
-  /// Remaps per-copy disc details after a release's discs are reordered or
+  /// Remaps per-copy disc details after an item's discs are reordered or
   /// removed. Unknown indexes are retained, while details for removed discs
   /// are discarded explicitly.
   Future<void> remapMediumDetails({
-    required CatalogEntityRef releaseRef,
+    required CatalogEntityRef catalogRef,
     required Map<int, int> oldToNewIndex,
     required Set<int> removedIndexes,
   }) async {
     await _db.transaction(() async {
-      final copies = await listByReleaseRef(
-        releaseRef,
+      final copies = await listByCatalogRef(
+        catalogRef,
         includeDeleted: true,
       );
       if (copies.isEmpty) return;

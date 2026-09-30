@@ -124,12 +124,6 @@ void main() {
       ),
       createdAt: DateTime.utc(2026, 4, 1),
       isDigital: false,
-      targetRef: const CatalogEntityRef(
-        kind: CatalogMediaKind.music,
-        entityType: CatalogEntityTypeId('release'),
-        id: 'release-1',
-        rootId: 'group-1',
-      ),
       condition: 'Near Mint',
       grade: '9.5',
       purchaseDate: DateTime.utc(2026, 4, 2),

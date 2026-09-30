@@ -7,8 +7,7 @@ import 'package:flutter/foundation.dart';
 /// Complete Music-owned copy state.
 ///
 /// Music owns both the repeated collection fields and its physical-copy
-/// semantics. Track/release metadata is intentionally not part of an owned
-/// copy row and remains in the Music release graph.
+/// semantics. The copy targets the concrete Catalog Item directly.
 @immutable
 final class MusicOwnedItem {
   const MusicOwnedItem({
@@ -16,7 +15,7 @@ final class MusicOwnedItem {
     required this.catalogRef,
     this.createdAt,
     this.isDigital,
-    this.targetRef,
+    CatalogEntityRef? targetRef,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -38,7 +37,7 @@ final class MusicOwnedItem {
     this.collectionStatus,
     this.marketValueCents,
     this.details = const MusicOwnedDetails(),
-  });
+  }) : targetRef = targetRef ?? catalogRef;
 
   final MusicOwnedCopyId id;
   final CatalogEntityRef catalogRef;
@@ -67,24 +66,15 @@ final class MusicOwnedItem {
   final int? marketValueCents;
   final MusicOwnedDetails details;
 
-  String get itemId => catalogRef.rootId ?? catalogRef.id;
+  String get itemId => catalogRef.id;
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 
-  /// The concrete release that owns this copy.
-  ///
-  /// All Music write boundaries call this invariant before persisting the
-  /// item; an owned copy always points to a concrete release.
-  CatalogEntityRef get releaseRef {
-    requireMusicOwnedReleaseLink(
+  void validateCatalogItemOwnership() {
+    requireMusicOwnedCatalogItem(
       catalogRef: catalogRef,
-      releaseRef: targetRef,
+      targetRef: targetRef,
     );
-    return targetRef!;
-  }
-
-  void validateReleaseOwnership() {
-    releaseRef;
   }
 
   Map<String, dynamic> toJson() => {
@@ -121,6 +111,10 @@ final class MusicOwnedItem {
     if (rawRef is! Map) {
       throw const FormatException('MusicOwnedItem requires catalog_ref');
     }
+    final rawTarget = json['target_ref'];
+    if (rawTarget is! Map) {
+      throw const FormatException('MusicOwnedItem requires target_ref');
+    }
     final catalogRef =
         CatalogEntityRef.fromJson(Map<String, dynamic>.from(rawRef));
     if (catalogRef.mediaKind != CatalogMediaKind.music) {
@@ -132,7 +126,9 @@ final class MusicOwnedItem {
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
-      targetRef: _targetRef(json['target_ref']),
+      targetRef: CatalogEntityRef.fromJson(
+        Map<String, Object?>.from(rawTarget),
+      ),
       condition: json['condition'] as String?,
       grade: json['grade'] as String?,
       purchaseDate: _date(json['purchase_date']),
@@ -155,7 +151,7 @@ final class MusicOwnedItem {
       marketValueCents: (json['market_value_cents'] as num?)?.toInt(),
       details: MusicOwnedDetails.fromJson(json),
     );
-    item.validateReleaseOwnership();
+    item.validateCatalogItemOwnership();
     return item;
   }
 
@@ -250,11 +246,6 @@ final class MusicOwnedItem {
 }
 
 const Object _unset = Object();
-
-CatalogEntityRef? _targetRef(Object? raw) {
-  if (raw is! Map) return null;
-  return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
-}
 
 DateTime? _date(Object? value) {
   if (value is! String || value.trim().isEmpty) return null;

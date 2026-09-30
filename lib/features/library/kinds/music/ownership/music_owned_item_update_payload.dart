@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 
@@ -97,12 +96,11 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
 
   bool canApplyTo(MusicOwnedItem existing) {
     final nextTarget = targetRef.when(
-      unchanged: () => existing.targetRef,
+      unchanged: () => existing.catalogRef,
       set: (value) => value,
       clear: () => null,
     );
-    return isMusicReleaseRef(nextTarget) &&
-        nextTarget!.rootScope.id == existing.catalogRef.rootScope.id;
+    return nextTarget == existing.catalogRef;
   }
 
   MusicOwnedItem applyTo(
@@ -129,13 +127,9 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
         clear: () => null,
       ),
       targetRef: targetRef.when(
-        unchanged: () => existing.targetRef,
-        set: (value) => value?.copyWith(
-          rootId: value.rootId ??
-              existing.catalogRef.rootId ??
-              existing.catalogRef.id,
-        ),
-        clear: () => null,
+        unchanged: () => existing.catalogRef,
+        set: (value) => value,
+        clear: () => existing.catalogRef,
       ),
       details: resolvedDetails,
       condition: condition.when(
@@ -226,7 +220,7 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
       ),
       updatedAt: updatedAt,
     );
-    updated.validateReleaseOwnership();
+    updated.validateCatalogItemOwnership();
     return updated;
   }
 }

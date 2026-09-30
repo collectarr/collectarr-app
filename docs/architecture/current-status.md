@@ -45,6 +45,11 @@ images, pick lists, and personal sync remain App/Sync responsibilities. The
 flattened cutover must preserve those features while moving their references to
 Catalog Item or Owned Copy identities.
 
+Music-owned copies created through Add now target the concrete Music Catalog
+Item directly. The existing Release Group/Release editor path still has a
+release-shaped presentation and must be consolidated before the old Music
+graph can be removed.
+
 ## Contracts and field confidence
 
 The pinned Catalog Item contract is version `1` and is checked against the

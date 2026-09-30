@@ -97,7 +97,7 @@ final musicKindTrackingTopology = const LibraryTrackingTopology(
   ownedTrackingTarget: LibraryOwnedTrackingTarget.catalog,
 );
 
-final musicKindOwnership = const LibraryOwnershipCapability.releaseOnly();
+final musicKindOwnership = const LibraryOwnershipCapability.allowEverywhere();
 
 final musicKindActions = const LibraryEntityActionCapability(
   work: LibraryEntityActionSet.work,

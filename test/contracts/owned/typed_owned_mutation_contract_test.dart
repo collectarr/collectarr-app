@@ -40,16 +40,10 @@ void main() {
         entityType: const CatalogEntityTypeId('work'),
         id: 'contract-owned-${kind.apiValue}',
       );
-      final releaseRef = CatalogEntityRef(
-        kind: kind,
-        entityType: const CatalogEntityTypeId('release'),
-        id: '${rootRef.id}:release',
-        rootId: rootRef.id,
-      );
       await coordinator.addOwnedItem(
         typedAddOwnedItemCommand(
           catalogRef: rootRef,
-          targetRef: kind == CatalogMediaKind.music ? releaseRef : rootRef,
+          targetRef: rootRef,
           common: const LibraryAddCommonDraft(
             condition: 'Good',
           ),
@@ -59,7 +53,6 @@ void main() {
           typedPayload: kind == CatalogMediaKind.music
               ? MusicOwnedItemCreatePayload(
                   catalogRef: rootRef,
-                  releaseRef: releaseRef,
                   details: const MusicOwnedDetailsDraft(),
                 )
               : null,

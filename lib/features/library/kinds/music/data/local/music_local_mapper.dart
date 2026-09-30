@@ -471,7 +471,7 @@ final class MusicLocalMapper {
         item.catalogRef.mediaKind != CatalogMediaKind.music) {
       throw StateError('Cannot persist an invalid MusicOwnedItem');
     }
-    item.validateReleaseOwnership();
+    item.validateCatalogItemOwnership();
 
     final details = item.details;
     return MusicOwnedItemsRowsCompanion.insert(
@@ -511,10 +511,8 @@ final class MusicLocalMapper {
   static MusicOwnedItem fromOwnedItemRow(MusicOwnedItemsRow row) {
     final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.music,
-      // Owned copies are anchored to the Music release-group root. The
-      // catalog transport uses the structural root entity type (`work`),
-      // while `release_group` is a kind-owned domain concept and must not be
-      // used as a cross-feature lookup key.
+      // Music Catalog Items are concrete album editions. The structural root
+      // type remains opaque to this kind's local persistence.
       entityType: CatalogEntityTypeId.root,
       id: row.itemId,
     );
@@ -553,7 +551,7 @@ final class MusicLocalMapper {
         lastCleanedDate: row.lastCleanedDate,
       ),
     );
-    item.validateReleaseOwnership();
+    item.validateCatalogItemOwnership();
     return item;
   }
 

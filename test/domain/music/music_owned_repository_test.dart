@@ -20,12 +20,6 @@ void main() {
         entityType: CatalogEntityTypeId('work'),
         id: 'music-1',
       ),
-      targetRef: const CatalogEntityRef(
-        kind: CatalogMediaKind.music,
-        entityType: CatalogEntityTypeId('release'),
-        id: 'release-1',
-        rootId: 'music-1',
-      ),
       condition: 'Mint',
       quantity: 1,
       updatedAt: DateTime.utc(2026, 9, 1),
@@ -81,13 +75,13 @@ void main() {
     expect(() => repository.upsert(item), throwsStateError);
   });
 
-  test('MusicOwnedRepository rejects a copy without a concrete release',
+  test('MusicOwnedRepository accepts a copy directly on its catalog item',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = MusicOwnedRepository(db);
     final item = MusicOwnedItem(
-      id: const MusicOwnedCopyId('owned-music-missing-release'),
+      id: const MusicOwnedCopyId('owned-music-catalog-item'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
         entityType: CatalogEntityTypeId.root,
@@ -96,6 +90,7 @@ void main() {
       updatedAt: DateTime.utc(2026, 9, 1),
     );
 
-    expect(() => repository.upsert(item), throwsStateError);
+    await repository.upsert(item);
+    expect(await repository.findById(item.id), isNotNull);
   });
 }
