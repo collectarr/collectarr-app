@@ -10701,382 +10701,6 @@
     "tv": {
       "tables": [
         {
-          "name": "TvSeriesRows",
-          "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
-          "columns": [
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "title",
-              "sqlName": "title"
-            },
-            {
-              "property": "sortTitle",
-              "sqlName": "sort_title"
-            },
-            {
-              "property": "description",
-              "sqlName": "description"
-            },
-            {
-              "property": "endDate",
-              "sqlName": "end_date"
-            },
-            {
-              "property": "episodeCount",
-              "sqlName": "episode_count"
-            },
-            {
-              "property": "network",
-              "sqlName": "network"
-            },
-            {
-              "property": "originalAirDate",
-              "sqlName": "original_air_date"
-            },
-            {
-              "property": "originalLanguage",
-              "sqlName": "original_language"
-            },
-            {
-              "property": "seasonCount",
-              "sqlName": "season_count"
-            },
-            {
-              "property": "status",
-              "sqlName": "status"
-            },
-            {
-              "property": "contributionsJson",
-              "sqlName": "contributions_json"
-            },
-            {
-              "property": "identifiersJson",
-              "sqlName": "identifiers_json"
-            },
-            {
-              "property": "characterAppearancesJson",
-              "sqlName": "character_appearances_json"
-            },
-            {
-              "property": "rawPayloadJson",
-              "sqlName": "raw_payload_json"
-            }
-          ]
-        },
-        {
-          "name": "TvSeasonRows",
-          "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
-          "columns": [
-            {
-              "property": "seriesId",
-              "sqlName": "series_id"
-            },
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "seasonNumber",
-              "sqlName": "season_number"
-            },
-            {
-              "property": "title",
-              "sqlName": "title"
-            },
-            {
-              "property": "description",
-              "sqlName": "description"
-            },
-            {
-              "property": "airDate",
-              "sqlName": "air_date"
-            },
-            {
-              "property": "episodeCount",
-              "sqlName": "episode_count"
-            },
-            {
-              "property": "coverImageUrl",
-              "sqlName": "cover_image_url"
-            },
-            {
-              "property": "coverImageKey",
-              "sqlName": "cover_image_key"
-            },
-            {
-              "property": "rawPayloadJson",
-              "sqlName": "raw_payload_json"
-            }
-          ]
-        },
-        {
-          "name": "TvEpisodeRows",
-          "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
-          "columns": [
-            {
-              "property": "seriesId",
-              "sqlName": "series_id"
-            },
-            {
-              "property": "seasonId",
-              "sqlName": "season_id"
-            },
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "seasonNumber",
-              "sqlName": "season_number"
-            },
-            {
-              "property": "episodeNumber",
-              "sqlName": "episode_number"
-            },
-            {
-              "property": "title",
-              "sqlName": "title"
-            },
-            {
-              "property": "originalTitle",
-              "sqlName": "original_title"
-            },
-            {
-              "property": "description",
-              "sqlName": "description"
-            },
-            {
-              "property": "airDate",
-              "sqlName": "air_date"
-            },
-            {
-              "property": "runtimeMinutes",
-              "sqlName": "runtime_minutes"
-            },
-            {
-              "property": "coverImageUrl",
-              "sqlName": "cover_image_url"
-            },
-            {
-              "property": "coverImageKey",
-              "sqlName": "cover_image_key"
-            },
-            {
-              "property": "rawPayloadJson",
-              "sqlName": "raw_payload_json"
-            }
-          ]
-        },
-        {
-          "name": "TvReleaseRows",
-          "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
-          "columns": [
-            {
-              "property": "seriesId",
-              "sqlName": "series_id"
-            },
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "title",
-              "sqlName": "title"
-            },
-            {
-              "property": "sortTitle",
-              "sqlName": "sort_title"
-            },
-            {
-              "property": "description",
-              "sqlName": "description"
-            },
-            {
-              "property": "mediaCount",
-              "sqlName": "media_count"
-            },
-            {
-              "property": "format",
-              "sqlName": "format"
-            },
-            {
-              "property": "regionCode",
-              "sqlName": "region_code"
-            },
-            {
-              "property": "releaseDate",
-              "sqlName": "release_date"
-            },
-            {
-              "property": "publisher",
-              "sqlName": "publisher"
-            },
-            {
-              "property": "sku",
-              "sqlName": "sku"
-            },
-            {
-              "property": "caseType",
-              "sqlName": "case_type"
-            },
-            {
-              "property": "episodeCount",
-              "sqlName": "episode_count"
-            },
-            {
-              "property": "seasonCount",
-              "sqlName": "season_count"
-            },
-            {
-              "property": "runtimeMinutes",
-              "sqlName": "runtime_minutes"
-            },
-            {
-              "property": "languageAudioJson",
-              "sqlName": "language_audio_json"
-            },
-            {
-              "property": "languageSubtitlesJson",
-              "sqlName": "language_subtitles_json"
-            },
-            {
-              "property": "contentRating",
-              "sqlName": "content_rating"
-            },
-            {
-              "property": "coverImageUrl",
-              "sqlName": "cover_image_url"
-            },
-            {
-              "property": "coverImageKey",
-              "sqlName": "cover_image_key"
-            },
-            {
-              "property": "rawPayloadJson",
-              "sqlName": "raw_payload_json"
-            }
-          ]
-        },
-        {
-          "name": "TvReleaseMediaRows",
-          "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
-          "columns": [
-            {
-              "property": "releaseId",
-              "sqlName": "release_id"
-            },
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "mediaNumber",
-              "sqlName": "media_number"
-            },
-            {
-              "property": "mediaType",
-              "sqlName": "media_type"
-            },
-            {
-              "property": "title",
-              "sqlName": "title"
-            },
-            {
-              "property": "episodeCount",
-              "sqlName": "episode_count"
-            },
-            {
-              "property": "runtimeMinutes",
-              "sqlName": "runtime_minutes"
-            },
-            {
-              "property": "regionCode",
-              "sqlName": "region_code"
-            },
-            {
-              "property": "encoding",
-              "sqlName": "encoding"
-            },
-            {
-              "property": "aspectRatio",
-              "sqlName": "aspect_ratio"
-            },
-            {
-              "property": "color",
-              "sqlName": "color"
-            },
-            {
-              "property": "audioTracks",
-              "sqlName": "audio_tracks"
-            },
-            {
-              "property": "subtitles",
-              "sqlName": "subtitles"
-            },
-            {
-              "property": "layers",
-              "sqlName": "layers"
-            },
-            {
-              "property": "frameRate",
-              "sqlName": "frame_rate"
-            },
-            {
-              "property": "bitDepth",
-              "sqlName": "bit_depth"
-            },
-            {
-              "property": "resolution",
-              "sqlName": "resolution"
-            },
-            {
-              "property": "hdrFormat",
-              "sqlName": "hdr_format"
-            },
-            {
-              "property": "episodesJson",
-              "sqlName": "episodes_json"
-            },
-            {
-              "property": "rawPayloadJson",
-              "sqlName": "raw_payload_json"
-            }
-          ]
-        },
-        {
-          "name": "TvReleaseEpisodeMapRows",
-          "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
-          "columns": [
-            {
-              "property": "releaseId",
-              "sqlName": "release_id"
-            },
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "mediaId",
-              "sqlName": "media_id"
-            },
-            {
-              "property": "episodeId",
-              "sqlName": "episode_id"
-            },
-            {
-              "property": "discNumber",
-              "sqlName": "disc_number"
-            },
-            {
-              "property": "sequenceNumber",
-              "sqlName": "sequence_number"
-            }
-          ]
-        },
-        {
           "name": "TvOwnedItemsRows",
           "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
           "columns": [
@@ -11533,44 +11157,10 @@
             "airDate"
           ],
           "databaseTables": [
-            "TvCustomEpisodeRows",
-            "TvEpisodeRows",
-            "TvSeasonRows"
+            "TvCustomEpisodeRows"
           ],
           "sqlNames": [
             "air_date"
-          ],
-          "workspaceFieldIds": []
-        },
-        "aspectRatio": {
-          "symbols": [
-            "aspectRatio",
-            "aspect_ratio"
-          ],
-          "databaseColumns": [
-            "aspectRatio"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "aspect_ratio"
-          ],
-          "workspaceFieldIds": []
-        },
-        "audioTracks": {
-          "symbols": [
-            "audioTracks",
-            "audio_tracks"
-          ],
-          "databaseColumns": [
-            "audioTracks"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "audio_tracks"
           ],
           "workspaceFieldIds": []
         },
@@ -11584,22 +11174,6 @@
           "workspaceFieldIds": [
             "tv.barcode"
           ]
-        },
-        "bitDepth": {
-          "symbols": [
-            "bitDepth",
-            "bit_depth"
-          ],
-          "databaseColumns": [
-            "bitDepth"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "bit_depth"
-          ],
-          "workspaceFieldIds": []
         },
         "boxSetId": {
           "symbols": [
@@ -11633,22 +11207,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "caseType": {
-          "symbols": [
-            "caseType",
-            "case_type"
-          ],
-          "databaseColumns": [
-            "caseType"
-          ],
-          "databaseTables": [
-            "TvReleaseRows"
-          ],
-          "sqlNames": [
-            "case_type"
-          ],
-          "workspaceFieldIds": []
-        },
         "catalogRefJson": {
           "symbols": [
             "catalogRefJson",
@@ -11665,24 +11223,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "characterAppearances": {
-          "symbols": [
-            "characterAppearances",
-            "characterAppearancesJson",
-            "character_appearances",
-            "character_appearances_json"
-          ],
-          "databaseColumns": [
-            "characterAppearancesJson"
-          ],
-          "databaseTables": [
-            "TvSeriesRows"
-          ],
-          "sqlNames": [
-            "character_appearances_json"
-          ],
-          "workspaceFieldIds": []
-        },
         "collectionStatus": {
           "symbols": [
             "collectionStatus",
@@ -11696,21 +11236,6 @@
           ],
           "sqlNames": [
             "collection_status"
-          ],
-          "workspaceFieldIds": []
-        },
-        "color": {
-          "symbols": [
-            "color"
-          ],
-          "databaseColumns": [
-            "color"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "color"
           ],
           "workspaceFieldIds": []
         },
@@ -11767,35 +11292,12 @@
             "contentRating",
             "content_rating"
           ],
-          "databaseColumns": [
-            "contentRating"
-          ],
-          "databaseTables": [
-            "TvReleaseRows"
-          ],
-          "sqlNames": [
-            "content_rating"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "tv.content_rating"
           ]
-        },
-        "contributions": {
-          "symbols": [
-            "contributions",
-            "contributionsJson",
-            "contributions_json"
-          ],
-          "databaseColumns": [
-            "contributionsJson"
-          ],
-          "databaseTables": [
-            "TvSeriesRows"
-          ],
-          "sqlNames": [
-            "contributions_json"
-          ],
-          "workspaceFieldIds": []
         },
         "cover": {
           "symbols": [
@@ -11807,42 +11309,6 @@
           "workspaceFieldIds": [
             "tv.cover"
           ]
-        },
-        "coverImageKey": {
-          "symbols": [
-            "coverImageKey",
-            "cover_image_key"
-          ],
-          "databaseColumns": [
-            "coverImageKey"
-          ],
-          "databaseTables": [
-            "TvEpisodeRows",
-            "TvReleaseRows",
-            "TvSeasonRows"
-          ],
-          "sqlNames": [
-            "cover_image_key"
-          ],
-          "workspaceFieldIds": []
-        },
-        "coverImageUrl": {
-          "symbols": [
-            "coverImageUrl",
-            "cover_image_url"
-          ],
-          "databaseColumns": [
-            "coverImageUrl"
-          ],
-          "databaseTables": [
-            "TvEpisodeRows",
-            "TvReleaseRows",
-            "TvSeasonRows"
-          ],
-          "sqlNames": [
-            "cover_image_url"
-          ],
-          "workspaceFieldIds": []
         },
         "createdAt": {
           "symbols": [
@@ -11915,30 +11381,10 @@
             "description"
           ],
           "databaseTables": [
-            "TvCustomEpisodeRows",
-            "TvEpisodeRows",
-            "TvReleaseRows",
-            "TvSeasonRows",
-            "TvSeriesRows"
+            "TvCustomEpisodeRows"
           ],
           "sqlNames": [
             "description"
-          ],
-          "workspaceFieldIds": []
-        },
-        "discNumber": {
-          "symbols": [
-            "discNumber",
-            "disc_number"
-          ],
-          "databaseColumns": [
-            "discNumber"
-          ],
-          "databaseTables": [
-            "TvReleaseEpisodeMapRows"
-          ],
-          "sqlNames": [
-            "disc_number"
           ],
           "workspaceFieldIds": []
         },
@@ -11957,54 +11403,14 @@
           ],
           "workspaceFieldIds": []
         },
-        "encoding": {
-          "symbols": [
-            "encoding"
-          ],
-          "databaseColumns": [
-            "encoding"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "encoding"
-          ],
-          "workspaceFieldIds": []
-        },
-        "endDate": {
-          "symbols": [
-            "endDate",
-            "end_date"
-          ],
-          "databaseColumns": [
-            "endDate"
-          ],
-          "databaseTables": [
-            "TvSeriesRows"
-          ],
-          "sqlNames": [
-            "end_date"
-          ],
-          "workspaceFieldIds": []
-        },
         "episodeCount": {
           "symbols": [
             "episodeCount",
             "episode_count"
           ],
-          "databaseColumns": [
-            "episodeCount"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows",
-            "TvReleaseRows",
-            "TvSeasonRows",
-            "TvSeriesRows"
-          ],
-          "sqlNames": [
-            "episode_count"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "tv.episode_count"
           ]
@@ -12019,7 +11425,6 @@
           ],
           "databaseTables": [
             "TvEpisodeProgressRows",
-            "TvReleaseEpisodeMapRows",
             "TvWatchSessionRows"
           ],
           "sqlNames": [
@@ -12038,7 +11443,6 @@
           "databaseTables": [
             "TvCustomEpisodeRows",
             "TvEpisodeProgressRows",
-            "TvEpisodeRows",
             "TvTrackingRows",
             "TvTrackingUnitRows",
             "TvWatchSessionRows"
@@ -12077,23 +11481,6 @@
           "workspaceFieldIds": [
             "tv.episode_runtime_minutes"
           ]
-        },
-        "episodes": {
-          "symbols": [
-            "episodes",
-            "episodesJson",
-            "episodes_json"
-          ],
-          "databaseColumns": [
-            "episodesJson"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "episodes_json"
-          ],
-          "workspaceFieldIds": []
         },
         "features": {
           "symbols": [
@@ -12138,37 +11525,6 @@
             "tv.first_air_date"
           ]
         },
-        "format": {
-          "symbols": [
-            "format"
-          ],
-          "databaseColumns": [
-            "format"
-          ],
-          "databaseTables": [
-            "TvReleaseRows"
-          ],
-          "sqlNames": [
-            "format"
-          ],
-          "workspaceFieldIds": []
-        },
-        "frameRate": {
-          "symbols": [
-            "frameRate",
-            "frame_rate"
-          ],
-          "databaseColumns": [
-            "frameRate"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "frame_rate"
-          ],
-          "workspaceFieldIds": []
-        },
         "grade": {
           "symbols": [
             "grade"
@@ -12181,22 +11537,6 @@
           ],
           "sqlNames": [
             "grade"
-          ],
-          "workspaceFieldIds": []
-        },
-        "hdrFormat": {
-          "symbols": [
-            "hdrFormat",
-            "hdr_format"
-          ],
-          "databaseColumns": [
-            "hdrFormat"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "hdr_format"
           ],
           "workspaceFieldIds": []
         },
@@ -12227,36 +11567,13 @@
           ],
           "databaseTables": [
             "TvCustomEpisodeRows",
-            "TvEpisodeRows",
             "TvOwnedItemsRows",
-            "TvReleaseEpisodeMapRows",
-            "TvReleaseMediaRows",
-            "TvReleaseRows",
-            "TvSeasonRows",
-            "TvSeriesRows",
             "TvTrackingRows",
             "TvTrackingUnitRows",
             "TvWatchSessionRows"
           ],
           "sqlNames": [
             "id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "identifiers": {
-          "symbols": [
-            "identifiers",
-            "identifiersJson",
-            "identifiers_json"
-          ],
-          "databaseColumns": [
-            "identifiersJson"
-          ],
-          "databaseTables": [
-            "TvSeriesRows"
-          ],
-          "sqlNames": [
-            "identifiers_json"
           ],
           "workspaceFieldIds": []
         },
@@ -12308,42 +11625,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "languageAudio": {
-          "symbols": [
-            "languageAudio",
-            "languageAudioJson",
-            "language_audio",
-            "language_audio_json"
-          ],
-          "databaseColumns": [
-            "languageAudioJson"
-          ],
-          "databaseTables": [
-            "TvReleaseRows"
-          ],
-          "sqlNames": [
-            "language_audio_json"
-          ],
-          "workspaceFieldIds": []
-        },
-        "languageSubtitles": {
-          "symbols": [
-            "languageSubtitles",
-            "languageSubtitlesJson",
-            "language_subtitles",
-            "language_subtitles_json"
-          ],
-          "databaseColumns": [
-            "languageSubtitlesJson"
-          ],
-          "databaseTables": [
-            "TvReleaseRows"
-          ],
-          "sqlNames": [
-            "language_subtitles_json"
-          ],
-          "workspaceFieldIds": []
-        },
         "lastAirDate": {
           "symbols": [
             "lastAirDate",
@@ -12369,21 +11650,6 @@
           ],
           "sqlNames": [
             "last_watched_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "layers": {
-          "symbols": [
-            "layers"
-          ],
-          "databaseColumns": [
-            "layers"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "layers"
           ],
           "workspaceFieldIds": []
         },
@@ -12446,83 +11712,13 @@
           ],
           "workspaceFieldIds": []
         },
-        "mediaCount": {
-          "symbols": [
-            "mediaCount",
-            "media_count"
-          ],
-          "databaseColumns": [
-            "mediaCount"
-          ],
-          "databaseTables": [
-            "TvReleaseRows"
-          ],
-          "sqlNames": [
-            "media_count"
-          ],
-          "workspaceFieldIds": []
-        },
-        "mediaId": {
-          "symbols": [
-            "mediaId",
-            "media_id"
-          ],
-          "databaseColumns": [
-            "mediaId"
-          ],
-          "databaseTables": [
-            "TvReleaseEpisodeMapRows"
-          ],
-          "sqlNames": [
-            "media_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "mediaNumber": {
-          "symbols": [
-            "mediaNumber",
-            "media_number"
-          ],
-          "databaseColumns": [
-            "mediaNumber"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "media_number"
-          ],
-          "workspaceFieldIds": []
-        },
-        "mediaType": {
-          "symbols": [
-            "mediaType",
-            "media_type"
-          ],
-          "databaseColumns": [
-            "mediaType"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "media_type"
-          ],
-          "workspaceFieldIds": []
-        },
         "network": {
           "symbols": [
             "network"
           ],
-          "databaseColumns": [
-            "network"
-          ],
-          "databaseTables": [
-            "TvSeriesRows"
-          ],
-          "sqlNames": [
-            "network"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "tv.network"
           ]
@@ -12541,54 +11737,6 @@
           ],
           "sqlNames": [
             "notes"
-          ],
-          "workspaceFieldIds": []
-        },
-        "originalAirDate": {
-          "symbols": [
-            "originalAirDate",
-            "original_air_date"
-          ],
-          "databaseColumns": [
-            "originalAirDate"
-          ],
-          "databaseTables": [
-            "TvSeriesRows"
-          ],
-          "sqlNames": [
-            "original_air_date"
-          ],
-          "workspaceFieldIds": []
-        },
-        "originalLanguage": {
-          "symbols": [
-            "originalLanguage",
-            "original_language"
-          ],
-          "databaseColumns": [
-            "originalLanguage"
-          ],
-          "databaseTables": [
-            "TvSeriesRows"
-          ],
-          "sqlNames": [
-            "original_language"
-          ],
-          "workspaceFieldIds": []
-        },
-        "originalTitle": {
-          "symbols": [
-            "originalTitle",
-            "original_title"
-          ],
-          "databaseColumns": [
-            "originalTitle"
-          ],
-          "databaseTables": [
-            "TvEpisodeRows"
-          ],
-          "sqlNames": [
-            "original_title"
           ],
           "workspaceFieldIds": []
         },
@@ -12732,21 +11880,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "publisher": {
-          "symbols": [
-            "publisher"
-          ],
-          "databaseColumns": [
-            "publisher"
-          ],
-          "databaseTables": [
-            "TvReleaseRows"
-          ],
-          "sqlNames": [
-            "publisher"
-          ],
-          "workspaceFieldIds": []
-        },
         "purchaseDate": {
           "symbols": [
             "purchaseDate",
@@ -12822,12 +11955,7 @@
             "rawPayloadJson"
           ],
           "databaseTables": [
-            "TvEpisodeProgressRows",
-            "TvEpisodeRows",
-            "TvReleaseMediaRows",
-            "TvReleaseRows",
-            "TvSeasonRows",
-            "TvSeriesRows"
+            "TvEpisodeProgressRows"
           ],
           "sqlNames": [
             "raw_payload_json"
@@ -12849,57 +11977,17 @@
           ],
           "workspaceFieldIds": []
         },
-        "regionCode": {
-          "symbols": [
-            "regionCode",
-            "region_code"
-          ],
-          "databaseColumns": [
-            "regionCode"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows",
-            "TvReleaseRows"
-          ],
-          "sqlNames": [
-            "region_code"
-          ],
-          "workspaceFieldIds": []
-        },
         "releaseDate": {
           "symbols": [
             "releaseDate",
             "release_date"
           ],
-          "databaseColumns": [
-            "releaseDate"
-          ],
-          "databaseTables": [
-            "TvReleaseRows"
-          ],
-          "sqlNames": [
-            "release_date"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "tv.release_date"
           ]
-        },
-        "releaseId": {
-          "symbols": [
-            "releaseId",
-            "release_id"
-          ],
-          "databaseColumns": [
-            "releaseId"
-          ],
-          "databaseTables": [
-            "TvReleaseEpisodeMapRows",
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "release_id"
-          ],
-          "workspaceFieldIds": []
         },
         "releaseYear": {
           "symbols": [
@@ -12913,21 +12001,6 @@
             "tv.release_year"
           ]
         },
-        "resolution": {
-          "symbols": [
-            "resolution"
-          ],
-          "databaseColumns": [
-            "resolution"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "resolution"
-          ],
-          "workspaceFieldIds": []
-        },
         "runtimeMinutes": {
           "symbols": [
             "runtimeMinutes",
@@ -12937,10 +12010,7 @@
             "runtimeMinutes"
           ],
           "databaseTables": [
-            "TvCustomEpisodeRows",
-            "TvEpisodeRows",
-            "TvReleaseMediaRows",
-            "TvReleaseRows"
+            "TvCustomEpisodeRows"
           ],
           "sqlNames": [
             "runtime_minutes"
@@ -12952,16 +12022,9 @@
             "seasonCount",
             "season_count"
           ],
-          "databaseColumns": [
-            "seasonCount"
-          ],
-          "databaseTables": [
-            "TvReleaseRows",
-            "TvSeriesRows"
-          ],
-          "sqlNames": [
-            "season_count"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "tv.season_count"
           ]
@@ -12975,8 +12038,7 @@
             "seasonId"
           ],
           "databaseTables": [
-            "TvEpisodeProgressRows",
-            "TvEpisodeRows"
+            "TvEpisodeProgressRows"
           ],
           "sqlNames": [
             "season_id"
@@ -12994,8 +12056,6 @@
           "databaseTables": [
             "TvCustomEpisodeRows",
             "TvEpisodeProgressRows",
-            "TvEpisodeRows",
-            "TvSeasonRows",
             "TvTrackingRows",
             "TvTrackingUnitRows",
             "TvWatchSessionRows"
@@ -13037,22 +12097,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "sequenceNumber": {
-          "symbols": [
-            "sequenceNumber",
-            "sequence_number"
-          ],
-          "databaseColumns": [
-            "sequenceNumber"
-          ],
-          "databaseTables": [
-            "TvReleaseEpisodeMapRows"
-          ],
-          "sqlNames": [
-            "sequence_number"
-          ],
-          "workspaceFieldIds": []
-        },
         "series": {
           "symbols": [
             "series"
@@ -13075,28 +12119,10 @@
           "databaseTables": [
             "TvCustomEpisodeRows",
             "TvEpisodeProgressRows",
-            "TvEpisodeRows",
-            "TvReleaseRows",
-            "TvSeasonRows",
             "TvWatchSessionRows"
           ],
           "sqlNames": [
             "series_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "sku": {
-          "symbols": [
-            "sku"
-          ],
-          "databaseColumns": [
-            "sku"
-          ],
-          "databaseTables": [
-            "TvReleaseRows"
-          ],
-          "sqlNames": [
-            "sku"
           ],
           "workspaceFieldIds": []
         },
@@ -13129,23 +12155,6 @@
           ],
           "sqlNames": [
             "sold_to"
-          ],
-          "workspaceFieldIds": []
-        },
-        "sortTitle": {
-          "symbols": [
-            "sortTitle",
-            "sort_title"
-          ],
-          "databaseColumns": [
-            "sortTitle"
-          ],
-          "databaseTables": [
-            "TvReleaseRows",
-            "TvSeriesRows"
-          ],
-          "sqlNames": [
-            "sort_title"
           ],
           "workspaceFieldIds": []
         },
@@ -13190,7 +12199,6 @@
             "status"
           ],
           "databaseTables": [
-            "TvSeriesRows",
             "TvTrackingRows"
           ],
           "sqlNames": [
@@ -13227,21 +12235,6 @@
           "workspaceFieldIds": [
             "tv.streaming_service"
           ]
-        },
-        "subtitles": {
-          "symbols": [
-            "subtitles"
-          ],
-          "databaseColumns": [
-            "subtitles"
-          ],
-          "databaseTables": [
-            "TvReleaseMediaRows"
-          ],
-          "sqlNames": [
-            "subtitles"
-          ],
-          "workspaceFieldIds": []
         },
         "tags": {
           "symbols": [
@@ -13316,12 +12309,7 @@
             "title"
           ],
           "databaseTables": [
-            "TvCustomEpisodeRows",
-            "TvEpisodeRows",
-            "TvReleaseMediaRows",
-            "TvReleaseRows",
-            "TvSeasonRows",
-            "TvSeriesRows"
+            "TvCustomEpisodeRows"
           ],
           "sqlNames": [
             "title"

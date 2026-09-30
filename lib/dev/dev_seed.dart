@@ -1,6 +1,6 @@
 /// Development seed data for the local database.
 ///
-/// Populates the typed local catalog projections and all kind-owned copies,
+/// Populates the shared Catalog Item cache and all kind-owned copies,
 /// kind-owned tracking entries, PickListValues, SerialAuthority, and
 /// CustomFieldDefinitions/Values with rich entries for every library kind.
 ///
@@ -68,7 +68,7 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'boardgame.catalog_item': 15,
   'boardgame.edition_data': 15,
   'movie.catalog_item': 15,
-  'tv.series': 15,
+  'tv.catalog_item': 15,
   'tv.season': 15,
   'tv.episode': 30,
   'tv.release': 15,
@@ -156,6 +156,9 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
   final musicCatalogItems = await CatalogItemCacheRepository(db).findAll(
     kind: CatalogMediaKind.music,
   );
+  final tvCatalogItems = await CatalogItemCacheRepository(db).findAll(
+    kind: CatalogMediaKind.tv,
+  );
   final musicAlbums = [
     for (final item in musicCatalogItems)
       MusicCatalogMapper.mapMetadataItemToMusic(item),
@@ -183,13 +186,31 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'movie.catalog_item': (await CatalogItemCacheRepository(db)
             .findAll(kind: CatalogMediaKind.movie))
         .length,
-    'tv.series': (await db.select(db.tvSeriesRows).get()).length,
-    'tv.season': (await db.select(db.tvSeasonRows).get()).length,
-    'tv.episode': (await db.select(db.tvEpisodeRows).get()).length,
-    'tv.release': (await db.select(db.tvReleaseRows).get()).length,
-    'tv.release_media': (await db.select(db.tvReleaseMediaRows).get()).length,
-    'tv.release_episode_map':
-        (await db.select(db.tvReleaseEpisodeMapRows).get()).length,
+    'tv.catalog_item': tvCatalogItems.length,
+    'tv.season': tvCatalogItems.fold<int>(
+      0,
+      (count, item) => count + _countObjects(item.payload['seasons']),
+    ),
+    'tv.episode': tvCatalogItems.fold<int>(
+      0,
+      (count, item) =>
+          count + _countNestedObjects(item.payload['seasons'], 'episodes'),
+    ),
+    'tv.release': tvCatalogItems.fold<int>(
+      0,
+      (count, item) => count + _countObjects(item.payload['releases']),
+    ),
+    'tv.release_media': tvCatalogItems.fold<int>(
+      0,
+      (count, item) =>
+          count + _countNestedObjects(item.payload['releases'], 'media'),
+    ),
+    'tv.release_episode_map': tvCatalogItems.fold<int>(
+      0,
+      (count, item) =>
+          count +
+          _countNestedObjects(item.payload['releases'], 'episode_mappings'),
+    ),
     'anime.catalog_item': animeCatalogItems.length,
     'anime.episode_data': animeCatalogItems.fold<int>(
       0,
@@ -294,59 +315,47 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     }
   }
 
-  final tvSeries = await db.select(db.tvSeriesRows).get();
-  final tvSeriesIds = tvSeries.map((row) => row.id).toSet();
-  final tvSeasons = await db.select(db.tvSeasonRows).get();
-  final tvSeasonIds = tvSeasons.map((row) => row.id).toSet();
-  for (final row in tvSeasons.where((row) => isSeed(row.seriesId))) {
-    if (!tvSeriesIds.contains(row.seriesId)) {
-      issues.add('tv season ${row.id} has missing series ${row.seriesId}');
+  final tvItems = await CatalogItemCacheRepository(db).findAll(
+    kind: CatalogMediaKind.tv,
+  );
+  for (final item in tvItems.where((item) => isSeed(item.id))) {
+    final episodeIds = <String>{};
+    for (final season in _objectMaps(item.payload['seasons'])) {
+      final seasonId = season['id']?.toString() ?? '';
+      if (seasonId.isEmpty || season['series_id']?.toString() != item.id) {
+        issues
+            .add('TV Catalog Item ${item.id} has an invalid season reference');
+      }
+      for (final episode in _objectMaps(season['episodes'])) {
+        final episodeId = episode['id']?.toString() ?? '';
+        if (episodeId.isEmpty ||
+            episode['series_id']?.toString() != item.id ||
+            episode['season_id']?.toString() != seasonId) {
+          issues.add(
+              'TV Catalog Item ${item.id} has an invalid episode reference');
+        }
+        episodeIds.add(episodeId);
+      }
     }
-  }
-  final tvEpisodes = await db.select(db.tvEpisodeRows).get();
-  final tvEpisodeIds = tvEpisodes.map((row) => row.id).toSet();
-  for (final row in tvEpisodes.where((row) => isSeed(row.seriesId))) {
-    if (!tvSeriesIds.contains(row.seriesId)) {
-      issues.add('tv episode ${row.id} has missing series ${row.seriesId}');
-    }
-    if (!tvSeasonIds.contains(row.seasonId)) {
-      issues.add('tv episode ${row.id} has missing season ${row.seasonId}');
-    }
-  }
-  final tvReleases = await db.select(db.tvReleaseRows).get();
-  final tvReleaseIds = tvReleases.map((row) => row.id).toSet();
-  for (final row in tvReleases.where((row) => isSeed(row.seriesId))) {
-    if (!tvSeriesIds.contains(row.seriesId)) {
-      issues.add('tv release ${row.id} has missing series ${row.seriesId}');
-    }
-  }
-  final tvReleaseMedia = await db.select(db.tvReleaseMediaRows).get();
-  final tvReleaseMediaIds = tvReleaseMedia.map((row) => row.id).toSet();
-  for (final row in tvReleaseMedia.where((row) => isSeed(row.releaseId))) {
-    if (!tvReleaseIds.contains(row.releaseId)) {
-      issues.add(
-        'tv release media ${row.id} has missing release ${row.releaseId}',
-      );
-    }
-  }
-  final tvReleaseEpisodeMaps =
-      await db.select(db.tvReleaseEpisodeMapRows).get();
-  for (final row
-      in tvReleaseEpisodeMaps.where((row) => isSeed(row.releaseId))) {
-    if (!tvReleaseIds.contains(row.releaseId)) {
-      issues.add(
-        'tv release episode map ${row.id} has missing release ${row.releaseId}',
-      );
-    }
-    if (!tvReleaseMediaIds.contains(row.mediaId)) {
-      issues.add(
-        'tv release episode map ${row.id} has missing media ${row.mediaId}',
-      );
-    }
-    if (!tvEpisodeIds.contains(row.episodeId)) {
-      issues.add(
-        'tv release episode map ${row.id} has missing episode ${row.episodeId}',
-      );
+    for (final release in _objectMaps(item.payload['releases'])) {
+      final releaseId = release['id']?.toString() ?? '';
+      if (releaseId.isEmpty || release['series_id']?.toString() != item.id) {
+        issues
+            .add('TV Catalog Item ${item.id} has an invalid release reference');
+      }
+      final mediaIds = {
+        for (final media in _objectMaps(release['media']))
+          media['id']?.toString() ?? '',
+      };
+      for (final mapping in _objectMaps(release['episode_mappings'])) {
+        if (mapping['release_id']?.toString() != releaseId ||
+            !mediaIds.contains(mapping['media_id']?.toString()) ||
+            !episodeIds.contains(mapping['episode_id']?.toString())) {
+          issues.add(
+            'TV Catalog Item ${item.id} has an invalid release episode mapping',
+          );
+        }
+      }
     }
   }
 
@@ -882,16 +891,20 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     }),
     'BoardGame seed Catalog Items are missing typed edition metadata',
   );
-  final tvReleases = (await db.select(db.tvReleaseRows).get())
-      .where((row) => row.id.startsWith('seed-'));
+  final tvReleases = [
+    for (final item in (await CatalogItemCacheRepository(db)
+            .findAll(kind: CatalogMediaKind.tv))
+        .where((item) => item.id.startsWith('seed-')))
+      ..._objectMaps(item.payload['releases']),
+  ];
   require(
     tvReleases.every(
-      (row) =>
-          row.seriesId.startsWith('seed-tv-') &&
-          row.title.trim().isNotEmpty &&
-          row.episodeCount == 2,
+      (release) =>
+          release['series_id']?.toString().startsWith('seed-tv-') == true &&
+          release['title']?.toString().trim().isNotEmpty == true &&
+          release['episode_count'] == 2,
     ),
-    'tv seed releases are missing series/episode metadata',
+    'TV seed Catalog Items are missing release/episode metadata',
   );
   final musicItems = await CatalogItemCacheRepository(db).findAll(
     kind: CatalogMediaKind.music,
@@ -1458,4 +1471,20 @@ Future<void> _seedItemImages(
       );
     }
   }
+}
+
+int _countObjects(Object? value) => _objectMaps(value).length;
+
+int _countNestedObjects(Object? parents, String childKey) =>
+    _objectMaps(parents).fold<int>(
+      0,
+      (count, parent) => count + _countObjects(parent[childKey]),
+    );
+
+List<Map<String, dynamic>> _objectMaps(Object? value) {
+  if (value is! Iterable) return const [];
+  return [
+    for (final entry in value)
+      if (entry is Map) Map<String, dynamic>.from(entry),
+  ];
 }

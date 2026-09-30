@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
@@ -11,21 +10,27 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('TvRepository populates and then reads a remote series through cache',
+  test('TvRepository reads contained TV catalog data from shared cache',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final expected = _series();
-    final repository = TvRepository(
-      db,
-      remote: _FakeTvRemote(expected),
-    );
+    final repository = TvRepository(db);
 
+    await repository.updateSeries(expected);
     final first = await repository.getSeries(const TvSeriesId('series-1'));
     final second = await repository.getSeries(const TvSeriesId('series-1'));
 
     expect(first?.id, expected.id);
     expect(second?.releases.single.id, expected.releases.single.id);
+    expect(
+      (await repository.seasonsFor(const TvSeriesId('series-1')))
+          .single
+          .episodes
+          .single
+          .title,
+      'Dulcinea',
+    );
   });
 
   test('TvLocalMapper round-trips the complete owned copy', () async {
@@ -104,7 +109,7 @@ void main() {
     expect(restored.details, item.details);
   });
 
-  test('TV schema exposes dedicated graph tables at schema version 3', () {
+  test('TV schema remains on the clean v1 baseline', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     expect(db.schemaVersion, 1);
@@ -161,13 +166,4 @@ TvSeries _series() {
     contributions: [TvContributor(name: 'Mark Fergus', role: 'Creator')],
     rawPayload: {'provider': 'core'},
   );
-}
-
-final class _FakeTvRemote implements TvRemoteSource {
-  const _FakeTvRemote(this.series);
-
-  final TvSeries series;
-
-  @override
-  Future<TvSeries> fetchSeries(TvSeriesId id) async => series;
 }

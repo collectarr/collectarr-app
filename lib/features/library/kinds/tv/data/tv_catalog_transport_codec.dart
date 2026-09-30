@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
@@ -9,12 +10,13 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 
 final class TvCatalogTransportCodec
-    implements CatalogKindTransportCodec<TvSeries> {
+    implements
+        CatalogKindTransportCodec<TvSeries>,
+        CatalogSharedCachePrimaryStore {
   const TvCatalogTransportCodec();
 
   @override
@@ -28,9 +30,8 @@ final class TvCatalogTransportCodec
   }
 
   @override
-  Future<void> upsert(LocalDatabase db, TvSeries item) {
-    return TvRepository(db).updateSeries(item);
-  }
+  Future<void> upsert(LocalDatabase db, TvSeries item) =>
+      CatalogItemCacheRepository(db).upsert(_projection(item));
 
   @override
   CatalogDisplaySummary summarize(TvSeries item) => CatalogDisplaySummary.root(
@@ -112,20 +113,17 @@ final class TvCatalogTransportCodec
 
   @override
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return upsert(db, decode(item));
+    return CatalogItemCacheRepository(db).upsert(item);
   }
 
   @override
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final media = await TvRepository(db).search();
-    return [
-      for (final item in media) _projection(item),
-    ];
+    return CatalogItemCacheRepository(db).findAll(kind: kind);
   }
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final series = await TvRepository(db).search();
+    final series = [for (final item in await listTransport(db)) decode(item)];
     return [
       for (final item in series) summarize(item),
     ];
@@ -141,10 +139,17 @@ int? _replacementValueFromPayload(CatalogItemDto item) {
 }
 
 CatalogItemDto _projection(TvSeries item) {
-  final payload = Map<String, dynamic>.from(item.rawPayload);
-  payload['id'] ??= item.id;
-  payload['kind'] ??= 'tv';
-  payload['title'] ??= item.title;
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(TvSeries.fromJson(projection.payload));
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.tv,
+    common: CatalogCommonDto(
+      title: item.title,
+      originalTitle: item.rawPayload['original_title']?.toString(),
+      synopsis: item.description,
+      coverImageUrl: item.coverImageUrl,
+      thumbnailImageUrl: item.thumbnailImageUrl,
+      releaseDate: item.originalAirDate,
+    ),
+    kindMetadata: item,
+  );
 }

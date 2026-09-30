@@ -273,16 +273,21 @@ void main() {
       isTrue,
       reason: 'BoardGame seed Catalog Items must retain edition metadata',
     );
-    final tvReleases = await db.select(db.tvReleaseRows).get();
+    final tvItems = await CatalogItemCacheRepository(db).findAll(
+      kind: CatalogMediaKind.tv,
+    );
+    final tvReleases = [
+      for (final item in tvItems) ..._maps(item.payload['releases']),
+    ];
     expect(
       tvReleases.every(
-        (row) =>
-            row.seriesId.startsWith('seed-tv-') &&
-            row.title.trim().isNotEmpty &&
-            row.episodeCount == 2,
+        (release) =>
+            release['series_id']?.toString().startsWith('seed-tv-') == true &&
+            release['title']?.toString().trim().isNotEmpty == true &&
+            release['episode_count'] == 2,
       ),
       isTrue,
-      reason: 'TV seed releases must retain series and episode metadata',
+      reason: 'TV seed Catalog Items must retain release and episode metadata',
     );
     final musicItems = await CatalogItemCacheRepository(db).findAll(
       kind: CatalogMediaKind.music,
@@ -726,6 +731,14 @@ bool _hasMusicTracksWithDurations(CatalogItemDto item) {
     }
   }
   return true;
+}
+
+List<Map<String, dynamic>> _maps(Object? value) {
+  if (value is! Iterable) return const [];
+  return [
+    for (final entry in value)
+      if (entry is Map) Map<String, dynamic>.from(entry),
+  ];
 }
 
 int _countKind(List<CatalogItemDto> rows, CatalogMediaKind kind) {

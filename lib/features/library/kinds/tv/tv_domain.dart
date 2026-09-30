@@ -9,7 +9,6 @@ export 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_remote_source.dart';
 export 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
 export 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
