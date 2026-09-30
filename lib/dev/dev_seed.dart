@@ -170,9 +170,7 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'anime.media': (await db.select(db.animeMediaRows).get()).length,
     'anime.episode': (await db.select(db.animeEpisodeRows).get()).length,
     'anime.release': (await db.select(db.animeReleaseRows).get()).length,
-    'music.release_group':
-        (await db.select(db.musicReleaseGroupRows).get()).length,
-    'music.release': (await db.select(db.musicReleaseRows).get()).length,
+    'music.item': (await db.select(db.musicReleaseRows).get()).length,
     'music.medium': (await db.select(db.musicMediumRows).get()).length,
     'music.track': (await db.select(db.musicTrackRows).get()).length,
   };
@@ -341,17 +339,8 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     }
   }
 
-  final musicGroups = await db.select(db.musicReleaseGroupRows).get();
-  final musicGroupIds = musicGroups.map((row) => row.id).toSet();
   final musicReleases = await db.select(db.musicReleaseRows).get();
   final musicReleaseIds = musicReleases.map((row) => row.id).toSet();
-  for (final row in musicReleases.where((row) => isSeed(row.releaseGroupId))) {
-    if (!musicGroupIds.contains(row.releaseGroupId)) {
-      issues.add(
-        'music release ${row.id} has missing release group ${row.releaseGroupId}',
-      );
-    }
-  }
   final musicMediums = await db.select(db.musicMediumRows).get();
   final musicMediumIds = musicMediums.map((row) => row.id).toSet();
   for (final row in musicMediums.where((row) => isSeed(row.releaseId))) {

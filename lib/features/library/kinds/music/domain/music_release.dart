@@ -14,10 +14,18 @@ import 'music_track.dart';
 final class MusicRelease implements JsonEncodable {
   MusicRelease({
     required this.id,
-    required this.releaseGroupId,
     required this.title,
     this.sortTitle,
     this.subtitle,
+    this.artist,
+    this.originalTitle,
+    this.originalReleaseDate,
+    this.originalReleaseDateParts,
+    this.recordingDate,
+    this.recordingDateParts,
+    List<String> studios = const [],
+    this.isLive,
+    List<String> genres = const [],
     this.releaseType,
     this.releaseStatus,
     this.releaseDate,
@@ -31,6 +39,17 @@ final class MusicRelease implements JsonEncodable {
     this.packaging,
     this.coverImageUrl,
     this.coverImageKey,
+    this.backCoverImageUrl,
+    this.thumbnailImageUrl,
+    this.localCoverImagePath,
+    this.localBackImagePath,
+    this.localThumbnailImagePath,
+    this.extra,
+    List<String> soundTypes = const [],
+    this.vinylColor,
+    this.vinylWeight,
+    this.rpm,
+    this.spars,
     this.externalLinks = const [],
     this.boxSetMembership,
     this.contributions = const [],
@@ -42,16 +61,27 @@ final class MusicRelease implements JsonEncodable {
     this.boxSetName,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : createdAt =
+  })  : studios = List<String>.unmodifiable(studios),
+        genres = List<String>.unmodifiable(genres),
+        soundTypes = List<String>.unmodifiable(soundTypes),
+        createdAt =
             createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
         updatedAt =
             updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
   final MusicReleaseId id;
-  final MusicReleaseGroupId releaseGroupId;
   final String title;
   final String? sortTitle;
   final String? subtitle;
+  final String? artist;
+  final String? originalTitle;
+  final DateTime? originalReleaseDate;
+  final PartialDate? originalReleaseDateParts;
+  final DateTime? recordingDate;
+  final PartialDate? recordingDateParts;
+  final List<String> studios;
+  final bool? isLive;
+  final List<String> genres;
   final String? releaseType;
   final String? releaseStatus;
   final DateTime? releaseDate;
@@ -67,6 +97,17 @@ final class MusicRelease implements JsonEncodable {
   final String? packaging;
   final String? coverImageUrl;
   final String? coverImageKey;
+  final String? backCoverImageUrl;
+  final String? thumbnailImageUrl;
+  final String? localCoverImagePath;
+  final String? localBackImagePath;
+  final String? localThumbnailImagePath;
+  final String? extra;
+  final List<String> soundTypes;
+  final String? vinylColor;
+  final String? vinylWeight;
+  final int? rpm;
+  final String? spars;
   final List<MusicExternalLink> externalLinks;
   final MusicBoxSetMembership? boxSetMembership;
   final List<MusicReleaseContribution> contributions;
@@ -133,11 +174,22 @@ final class MusicRelease implements JsonEncodable {
         .toList(growable: false);
     return MusicRelease(
       id: MusicReleaseId(_text(json['id']) ?? ''),
-      releaseGroupId:
-          MusicReleaseGroupId(_text(json['release_group_id']) ?? ''),
       title: _text(json['title']) ?? 'Untitled release',
       sortTitle: _text(json['sort_title']),
       subtitle: _text(json['subtitle']),
+      artist: _text(json['artist']),
+      originalTitle: _text(json['original_title']),
+      originalReleaseDate: _date(json['original_release_date']),
+      originalReleaseDateParts: _partialDate(
+        json['original_release_date_parts'] ?? json['original_release_date'],
+      ),
+      recordingDate: _date(json['recording_date']),
+      recordingDateParts: _partialDate(
+        json['recording_date_parts'] ?? json['recording_date'],
+      ),
+      studios: _strings(json['studios']),
+      isLive: json['is_live'] as bool?,
+      genres: _strings(json['genres']),
       releaseType: _text(json['release_type']),
       releaseStatus: _text(json['release_status']),
       releaseDate: _date(json['release_date']),
@@ -153,6 +205,17 @@ final class MusicRelease implements JsonEncodable {
       packaging: _text(json['packaging']),
       coverImageUrl: _text(json['cover_image_url']),
       coverImageKey: _text(json['cover_image_key']),
+      backCoverImageUrl: _text(json['back_cover_image_url']),
+      thumbnailImageUrl: _text(json['thumbnail_image_url']),
+      localCoverImagePath: _text(json['local_cover_image_path']),
+      localBackImagePath: _text(json['local_back_image_path']),
+      localThumbnailImagePath: _text(json['local_thumbnail_image_path']),
+      extra: _text(json['extra']),
+      soundTypes: _strings(json['sound_types']),
+      vinylColor: _text(json['vinyl_color']),
+      vinylWeight: _text(json['vinyl_weight']),
+      rpm: _int(json['rpm']),
+      spars: _text(json['spars']),
       externalLinks: _externalLinks(json),
       boxSetMembership: musicBoxSetMembershipFromJson(json),
       contributions: [
@@ -188,12 +251,28 @@ final class MusicRelease implements JsonEncodable {
   Map<String, dynamic> toJson() => {
         'id': id.value,
         'kind': 'music',
-        'release_group_id': releaseGroupId.value,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
         'title': title,
         if (sortTitle != null) 'sort_title': sortTitle,
         if (subtitle != null) 'subtitle': subtitle,
+        if (artist != null) 'artist': artist,
+        if (originalTitle != null) 'original_title': originalTitle,
+        if (originalReleaseDateParts != null)
+          'original_release_date': originalReleaseDateParts!.isoString
+        else if (originalReleaseDate != null)
+          'original_release_date': originalReleaseDate!.toIso8601String(),
+        if (originalReleaseDateParts != null)
+          'original_release_date_parts': originalReleaseDateParts!.toJson(),
+        if (recordingDateParts != null)
+          'recording_date': recordingDateParts!.isoString
+        else if (recordingDate != null)
+          'recording_date': recordingDate!.toIso8601String(),
+        if (recordingDateParts != null)
+          'recording_date_parts': recordingDateParts!.toJson(),
+        if (studios.isNotEmpty) 'studios': studios,
+        if (isLive != null) 'is_live': isLive,
+        if (genres.isNotEmpty) 'genres': genres,
         if (releaseType != null) 'release_type': releaseType,
         if (releaseStatus != null) 'release_status': releaseStatus,
         if (releaseDateParts != null)
@@ -212,6 +291,21 @@ final class MusicRelease implements JsonEncodable {
         if (mediumTypes.isNotEmpty) 'medium_types': mediumTypes,
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (coverImageKey != null) 'cover_image_key': coverImageKey,
+        if (backCoverImageUrl != null)
+          'back_cover_image_url': backCoverImageUrl,
+        if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+        if (localCoverImagePath != null)
+          'local_cover_image_path': localCoverImagePath,
+        if (localBackImagePath != null)
+          'local_back_image_path': localBackImagePath,
+        if (localThumbnailImagePath != null)
+          'local_thumbnail_image_path': localThumbnailImagePath,
+        if (extra != null) 'extra': extra,
+        if (soundTypes.isNotEmpty) 'sound_types': soundTypes,
+        if (vinylColor != null) 'vinyl_color': vinylColor,
+        if (vinylWeight != null) 'vinyl_weight': vinylWeight,
+        if (rpm != null) 'rpm': rpm,
+        if (spars != null) 'spars': spars,
         if (externalLinks.isNotEmpty)
           'external_links': externalLinks.map((link) => link.toJson()).toList(),
         if (boxSetMembership != null) 'box_set': boxSetMembership!.toJson(),
@@ -260,6 +354,12 @@ String? _text(Object? value) {
   final text = value?.toString().trim();
   return text == null || text.isEmpty ? null : text;
 }
+
+int? _int(Object? value) => value is int
+    ? value
+    : value is num
+        ? value.toInt()
+        : int.tryParse(value?.toString().trim() ?? '');
 
 DateTime? _date(Object? value) => _partialDate(value)?.asDateTime;
 

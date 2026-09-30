@@ -32,21 +32,14 @@ final class MusicRepository
   }
 
   Future<MusicReleaseGroup?> getReleaseGroup(MusicReleaseGroupId id) async {
-    final row = await (_db.select(_db.musicReleaseGroupRows)
-          ..where((table) => table.id.equals(id.value)))
-        .getSingleOrNull();
-    if (row == null) return null;
-    return MusicLocalMapper.fromReleaseGroupRow(
-      row,
-      releases: await releasesForGroup(id),
-      artistCredits: await artistCreditsForGroup(id),
-    );
+    final item = await getRelease(MusicReleaseId(id.value));
+    return item == null ? null : _groupWorkspaceView(item);
   }
 
   Future<List<MusicReleaseGroup>> searchReleaseGroups(
       [String query = '']) async {
     final normalizedQuery = query.trim();
-    final select = _db.select(_db.musicReleaseGroupRows);
+    final select = _db.select(_db.musicReleaseRows);
     if (normalizedQuery.isNotEmpty) {
       final pattern = '%$normalizedQuery%';
       select.where(
@@ -63,31 +56,21 @@ final class MusicRepository
     final rows = await select.get();
     return [
       for (final row in rows)
-        MusicLocalMapper.fromReleaseGroupRow(
-          row,
-          releases: await releasesForGroup(MusicReleaseGroupId(row.id)),
-        ),
+        _groupWorkspaceView(await _hydrateRelease(row)),
     ];
   }
 
   Future<List<MusicRelease>> search([String query = '']) async {
     final normalizedQuery = query.trim();
     final rows = await _db.select(_db.musicReleaseRows).get();
-    final groupRows = normalizedQuery.isEmpty
-        ? const <MusicReleaseGroupRow>[]
-        : await _db.select(_db.musicReleaseGroupRows).get();
-    final groupsById = {
-      for (final row in groupRows) row.id: row,
-    };
     final filteredRows = rows.where((row) {
       if (normalizedQuery.isEmpty) return true;
       final queryLower = normalizedQuery.toLowerCase();
-      final group = groupsById[row.releaseGroupId];
       return row.title.toLowerCase().contains(queryLower) ||
           (row.sortTitle?.toLowerCase().contains(queryLower) ?? false) ||
           (row.publisher?.toLowerCase().contains(queryLower) ?? false) ||
-          (group?.title.toLowerCase().contains(queryLower) ?? false) ||
-          (group?.artist?.toLowerCase().contains(queryLower) ?? false);
+          (row.artist?.toLowerCase().contains(queryLower) ?? false) ||
+          (row.originalTitle?.toLowerCase().contains(queryLower) ?? false);
     }).toList()
       ..sort((left, right) {
         final sortTitle =
@@ -100,19 +83,6 @@ final class MusicRepository
     return [
       for (final row in filteredRows) await _hydrateRelease(row),
     ];
-  }
-
-  Future<List<MusicRelease>> releasesForGroup(
-      MusicReleaseGroupId groupId) async {
-    final rows = await (_db.select(_db.musicReleaseRows)
-          ..where((table) => table.releaseGroupId.equals(groupId.value))
-          ..orderBy([
-            (table) => OrderingTerm.asc(table.releaseDate),
-            (table) => OrderingTerm.asc(table.title),
-            (table) => OrderingTerm.asc(table.id),
-          ]))
-        .get();
-    return [for (final row in rows) await _hydrateRelease(row)];
   }
 
   Future<List<MusicMedium>> mediumsFor(MusicReleaseId releaseId) async {
@@ -197,83 +167,61 @@ final class MusicRepository
   }
 
   Future<String?> boxSetNameFor(MusicReleaseId releaseId) async {
-    final row = await (_db.select(_db.musicReleaseLocalDetailsRows)
-          ..where((table) => table.releaseId.equals(releaseId.value)))
-        .getSingleOrNull();
-    return row?.boxSetName;
+    return (await localDetailsFor(releaseId))?.boxSetName;
   }
+
+  Future<MusicReleaseLocalDetailsRow?> localDetailsFor(
+    MusicReleaseId releaseId,
+  ) =>
+      (_db.select(_db.musicReleaseLocalDetailsRows)
+            ..where((table) => table.releaseId.equals(releaseId.value)))
+          .getSingleOrNull();
 
   Future<void> updateReleaseGroup(MusicReleaseGroup group) async {
     _require(group.id.value, 'MusicReleaseGroup');
-    final existing = await getReleaseGroup(group.id);
-    final releasesById = <String, MusicRelease>{
-      for (final release in existing?.releases ?? const <MusicRelease>[])
-        release.id.value: release,
-    };
-    for (final release in group.releases) {
-      releasesById[release.id.value] = release;
+    final item = group.primaryRelease;
+    if (item == null || item.id.value != group.id.value) {
+      throw StateError(
+        'A Music Catalog Item must be one concrete album with a matching id',
+      );
     }
-    final persistedGroup = MusicReleaseGroup(
-      id: group.id,
-      title: group.title,
-      sortTitle: group.sortTitle,
-      artist: group.artist,
-      originalTitle: group.originalTitle,
-      originalReleaseDate: group.originalReleaseDate,
-      originalReleaseDateParts: group.originalReleaseDateParts,
-      recordingDate: group.recordingDate,
-      recordingDateParts: group.recordingDateParts,
-      studios: group.studios,
-      isLive: group.isLive,
-      genres: group.genres,
-      artistCredits: group.artistCredits,
-      coverImageUrl: group.coverImageUrl,
-      coverImageKey: group.coverImageKey,
-      releases: releasesById.values.toList(growable: false),
-      externalLinks: group.externalLinks,
-      localCoverImagePath: group.localCoverImagePath,
-      localBackImagePath: group.localBackImagePath,
-      localThumbnailImagePath: group.localThumbnailImagePath,
-      createdAt: existing?.createdAt ?? group.createdAt,
-      updatedAt: group.updatedAt,
+    await updateRelease(
+      MusicRelease.fromJson({
+        ...item.toJson(),
+        'id': group.id.value,
+        'title': group.title,
+        'sort_title': group.sortTitle,
+        'artist': group.artist,
+        'original_title': group.originalTitle,
+        'original_release_date_parts': group.originalReleaseDateParts?.toJson(),
+        'original_release_date': group.originalReleaseDateParts?.isoString ??
+            group.originalReleaseDate?.toIso8601String(),
+        'recording_date_parts': group.recordingDateParts?.toJson(),
+        'recording_date': group.recordingDateParts?.isoString ??
+            group.recordingDate?.toIso8601String(),
+        'studios': group.studios,
+        'is_live': group.isLive,
+        'genres': group.genres,
+        'artist_credits': group.artistCredits
+            .map((credit) => credit.toJson())
+            .toList(growable: false),
+        'cover_image_url': group.coverImageUrl ?? item.coverImageUrl,
+        'cover_image_key': group.coverImageKey ?? item.coverImageKey,
+        'external_links': group.externalLinks
+            .map((link) => link.toJson())
+            .toList(growable: false),
+        'local_cover_image_path': group.localCoverImagePath,
+        'local_back_image_path': group.localBackImagePath,
+        'local_thumbnail_image_path': group.localThumbnailImagePath,
+      }),
     );
-    for (final release in persistedGroup.releases) {
-      _validateReleaseBelongs(persistedGroup.id, release);
-      _validateMediumGraph(release);
-    }
-
-    await _db.transaction(() async {
-      await _db.into(_db.musicReleaseGroupRows).insertOnConflictUpdate(
-            MusicLocalMapper.toReleaseGroupRow(persistedGroup),
-          );
-      await (_db.delete(_db.musicArtistCreditsRows)
-            ..where((table) =>
-                table.targetType.equals('release_group') &
-                table.targetId.equals(group.id.value)))
-          .go();
-      for (final credit in persistedGroup.artistCredits) {
-        await _db.into(_db.musicArtistCreditsRows).insertOnConflictUpdate(
-              MusicLocalMapper.toArtistCreditRow(
-                targetType: 'release_group',
-                targetId: group.id.value,
-                credit: credit,
-              ),
-            );
-      }
-      for (final release in group.releases) {
-        await _deleteReleaseGraph(release.id);
-        await _writeReleaseGraph(release, preserveLocalDetails: true);
-      }
-    });
   }
 
   Future<void> updateRelease(MusicRelease release) async {
     _require(release.id.value, 'MusicRelease');
-    _require(release.releaseGroupId.value, 'MusicRelease.releaseGroupId');
     _validateMediumGraph(release);
 
     await _db.transaction(() async {
-      await _ensureReleaseGroupRow(release);
       await _deleteReleaseGraph(release.id);
       await _writeReleaseGraph(release);
     });
@@ -311,34 +259,22 @@ final class MusicRepository
   }
 
   Future<MusicRelease> _hydrateRelease(MusicReleaseRow row) async {
+    final releaseId = MusicReleaseId(row.id);
+    final localDetails = await localDetailsFor(releaseId);
     return MusicLocalMapper.fromReleaseRow(
       row,
-      boxSetName: await boxSetNameFor(MusicReleaseId(row.id)),
-      externalLinks: await externalLinksFor(MusicReleaseId(row.id)),
-      boxSetMembership: await boxSetMembershipFor(MusicReleaseId(row.id)),
-      mediums: await mediumsFor(MusicReleaseId(row.id)),
-      contributions: await contributionsFor(MusicReleaseId(row.id)),
-      identifiers: await identifiersFor(MusicReleaseId(row.id)),
-      artistCredits: await artistCreditsForRelease(MusicReleaseId(row.id)),
-      labels: await labelsFor(MusicReleaseId(row.id)),
+      boxSetName: localDetails?.boxSetName,
+      localCoverImagePath: localDetails?.localCoverImagePath,
+      localBackImagePath: localDetails?.localBackImagePath,
+      localThumbnailImagePath: localDetails?.localThumbnailImagePath,
+      externalLinks: await externalLinksFor(releaseId),
+      boxSetMembership: await boxSetMembershipFor(releaseId),
+      mediums: await mediumsFor(releaseId),
+      contributions: await contributionsFor(releaseId),
+      identifiers: await identifiersFor(releaseId),
+      artistCredits: await artistCreditsForRelease(releaseId),
+      labels: await labelsFor(releaseId),
     );
-  }
-
-  Future<List<MusicArtistCredit>> artistCreditsForGroup(
-    MusicReleaseGroupId groupId,
-  ) async {
-    final rows = await (_db.select(_db.musicArtistCreditsRows)
-          ..where((table) =>
-              table.targetType.equals('release_group') &
-              table.targetId.equals(groupId.value))
-          ..orderBy([
-            (table) => OrderingTerm.asc(table.sequence),
-            (table) => OrderingTerm.asc(table.id),
-          ]))
-        .get();
-    return rows
-        .map(MusicLocalMapper.fromArtistCreditRow)
-        .toList(growable: false);
   }
 
   Future<List<MusicArtistCredit>> artistCreditsForRelease(
@@ -468,23 +404,6 @@ final class MusicRepository
     }
   }
 
-  Future<void> _ensureReleaseGroupRow(MusicRelease release) async {
-    final existing = await (_db.select(_db.musicReleaseGroupRows)
-          ..where((table) => table.id.equals(release.releaseGroupId.value)))
-        .getSingleOrNull();
-    if (existing != null) return;
-    await _db.into(_db.musicReleaseGroupRows).insert(
-          MusicLocalMapper.toReleaseGroupRow(
-            MusicReleaseGroup(
-              id: release.releaseGroupId,
-              title: release.title,
-              coverImageUrl: release.coverImageUrl,
-              releases: [release],
-            ),
-          ),
-        );
-  }
-
   Future<void> _deleteReleaseGraph(MusicReleaseId releaseId) async {
     await (_db.delete(_db.musicReleaseExternalLinksRows)
           ..where((table) => table.releaseId.equals(releaseId.value)))
@@ -520,15 +439,6 @@ final class MusicRepository
     await (_db.delete(_db.musicReleaseRows)
           ..where((table) => table.id.equals(releaseId.value)))
         .go();
-  }
-
-  static void _validateReleaseBelongs(
-    MusicReleaseGroupId groupId,
-    MusicRelease release,
-  ) {
-    if (release.releaseGroupId != groupId) {
-      throw StateError('Music release does not belong to the supplied group');
-    }
   }
 
   static int _compareMusicTrackOrder(MusicTrack left, MusicTrack right) {
@@ -617,3 +527,28 @@ final class MusicRepository
     }
   }
 }
+
+MusicReleaseGroup _groupWorkspaceView(MusicRelease item) => MusicReleaseGroup(
+      id: MusicReleaseGroupId(item.id.value),
+      title: item.title,
+      sortTitle: item.sortTitle,
+      artist: item.artist,
+      originalTitle: item.originalTitle,
+      originalReleaseDate: item.originalReleaseDate,
+      originalReleaseDateParts: item.originalReleaseDateParts,
+      recordingDate: item.recordingDate,
+      recordingDateParts: item.recordingDateParts,
+      studios: item.studios,
+      isLive: item.isLive,
+      genres: item.genres,
+      artistCredits: item.artistCredits,
+      coverImageUrl: item.coverImageUrl,
+      coverImageKey: item.coverImageKey,
+      releases: [item],
+      externalLinks: item.externalLinks,
+      localCoverImagePath: item.localCoverImagePath,
+      localBackImagePath: item.localBackImagePath,
+      localThumbnailImagePath: item.localThumbnailImagePath,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+    );

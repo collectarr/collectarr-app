@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
@@ -18,79 +17,22 @@ import 'package:drift/drift.dart';
 final class MusicLocalMapper {
   const MusicLocalMapper._();
 
-  static MusicReleaseGroupRowsCompanion toReleaseGroupRow(
-      MusicReleaseGroup group) {
-    _require(group.id.value, 'MusicReleaseGroup');
-    return MusicReleaseGroupRowsCompanion.insert(
-      id: group.id.value,
-      title: group.title,
-      sortTitle: Value(group.sortTitle),
-      artist: Value(group.artist),
-      originalTitle: Value(group.originalTitle),
-      originalReleaseDate: Value(group.originalReleaseDate),
-      originalReleaseDatePartsJson:
-          Value(_encodePartialDate(group.originalReleaseDateParts)),
-      recordingDate: Value(group.recordingDate),
-      recordingDatePartsJson:
-          Value(_encodePartialDate(group.recordingDateParts)),
-      studiosJson: Value(jsonEncode(group.studios)),
-      isLive: Value(group.isLive),
-      genresJson: Value(jsonEncode(group.genres)),
-      coverImageUrl: Value(group.coverImageUrl),
-      coverImageKey: Value(group.coverImageKey),
-      externalLinksJson: Value(
-        jsonEncode(group.externalLinks.map((link) => link.toJson()).toList()),
-      ),
-      localCoverImagePath: Value(group.localCoverImagePath),
-      localBackImagePath: Value(group.localBackImagePath),
-      localThumbnailImagePath: Value(group.localThumbnailImagePath),
-      createdAt: group.createdAt,
-      updatedAt: group.updatedAt,
-    );
-  }
-
-  static MusicReleaseGroup fromReleaseGroupRow(
-    MusicReleaseGroupRow row, {
-    List<MusicRelease> releases = const <MusicRelease>[],
-    List<MusicArtistCredit> artistCredits = const <MusicArtistCredit>[],
-  }) {
-    return MusicReleaseGroup(
-      id: MusicReleaseGroupId(row.id),
-      title: row.title,
-      sortTitle: row.sortTitle,
-      artist: row.artist,
-      originalTitle: row.originalTitle,
-      originalReleaseDate: row.originalReleaseDate,
-      originalReleaseDateParts:
-          _decodePartialDate(row.originalReleaseDatePartsJson),
-      recordingDate: row.recordingDate,
-      recordingDateParts: _decodePartialDate(row.recordingDatePartsJson),
-      studios: _decodeStrings(row.studiosJson),
-      isLive: row.isLive,
-      genres: _decodeStrings(row.genresJson),
-      artistCredits: artistCredits,
-      coverImageUrl: row.coverImageUrl,
-      coverImageKey: row.coverImageKey,
-      externalLinks: [
-        for (final value in _decodeMaps(row.externalLinksJson))
-          MusicExternalLink.fromJson(value),
-      ],
-      localCoverImagePath: row.localCoverImagePath,
-      localBackImagePath: row.localBackImagePath,
-      localThumbnailImagePath: row.localThumbnailImagePath,
-      releases: releases,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-    );
-  }
-
   static MusicReleaseRowsCompanion toReleaseRow(MusicRelease release) {
     _require(release.id.value, 'MusicRelease');
-    _require(release.releaseGroupId.value, 'MusicRelease.releaseGroupId');
     return MusicReleaseRowsCompanion.insert(
       id: release.id.value,
-      releaseGroupId: release.releaseGroupId.value,
       title: release.title,
+      artist: Value(release.artist),
+      originalTitle: Value(release.originalTitle),
+      originalReleaseDate: Value(release.originalReleaseDate),
+      originalReleaseDatePartsJson:
+          Value(_encodePartialDate(release.originalReleaseDateParts)),
+      recordingDate: Value(release.recordingDate),
+      recordingDatePartsJson:
+          Value(_encodePartialDate(release.recordingDateParts)),
+      studiosJson: Value(jsonEncode(release.studios)),
+      isLive: Value(release.isLive),
+      genresJson: Value(jsonEncode(release.genres)),
       publisher: Value(release.publisher),
       catalogNumber: Value(release.catalogNumber),
       barcode: Value(release.barcode),
@@ -104,6 +46,14 @@ final class MusicLocalMapper {
       language: Value(release.language),
       coverImageUrl: Value(release.coverImageUrl),
       coverImageKey: Value(release.coverImageKey),
+      backCoverImageUrl: Value(release.backCoverImageUrl),
+      thumbnailImageUrl: Value(release.thumbnailImageUrl),
+      extra: Value(release.extra),
+      soundTypesJson: Value(jsonEncode(release.soundTypes)),
+      vinylColor: Value(release.vinylColor),
+      vinylWeight: Value(release.vinylWeight),
+      rpm: Value(release.rpm),
+      spars: Value(release.spars),
       upc: Value(release.upc),
       packaging: Value(release.packaging),
       mediumTypesJson: Value(jsonEncode(release.mediumTypes)),
@@ -118,11 +68,17 @@ final class MusicLocalMapper {
       MusicReleaseLocalDetailsRowsCompanion.insert(
         releaseId: release.id.value,
         boxSetName: Value(release.boxSetName),
+        localCoverImagePath: Value(release.localCoverImagePath),
+        localBackImagePath: Value(release.localBackImagePath),
+        localThumbnailImagePath: Value(release.localThumbnailImagePath),
       );
 
   static MusicRelease fromReleaseRow(
     MusicReleaseRow row, {
     String? boxSetName,
+    String? localCoverImagePath,
+    String? localBackImagePath,
+    String? localThumbnailImagePath,
     List<MusicExternalLink> externalLinks = const <MusicExternalLink>[],
     MusicBoxSetMembership? boxSetMembership,
     List<MusicMedium> mediums = const <MusicMedium>[],
@@ -134,8 +90,17 @@ final class MusicLocalMapper {
   }) {
     return MusicRelease(
       id: MusicReleaseId(row.id),
-      releaseGroupId: MusicReleaseGroupId(row.releaseGroupId),
       title: row.title,
+      artist: row.artist,
+      originalTitle: row.originalTitle,
+      originalReleaseDate: row.originalReleaseDate,
+      originalReleaseDateParts:
+          _decodePartialDate(row.originalReleaseDatePartsJson),
+      recordingDate: row.recordingDate,
+      recordingDateParts: _decodePartialDate(row.recordingDatePartsJson),
+      studios: _decodeStrings(row.studiosJson),
+      isLive: row.isLive,
+      genres: _decodeStrings(row.genresJson),
       publisher: row.publisher,
       catalogNumber: row.catalogNumber,
       barcode: row.barcode,
@@ -149,6 +114,17 @@ final class MusicLocalMapper {
       language: row.language,
       coverImageUrl: row.coverImageUrl,
       coverImageKey: row.coverImageKey,
+      backCoverImageUrl: row.backCoverImageUrl,
+      thumbnailImageUrl: row.thumbnailImageUrl,
+      localCoverImagePath: localCoverImagePath,
+      localBackImagePath: localBackImagePath,
+      localThumbnailImagePath: localThumbnailImagePath,
+      extra: row.extra,
+      soundTypes: _decodeStrings(row.soundTypesJson),
+      vinylColor: row.vinylColor,
+      vinylWeight: row.vinylWeight,
+      rpm: row.rpm,
+      spars: row.spars,
       externalLinks: externalLinks,
       boxSetMembership: boxSetMembership,
       upc: row.upc,

@@ -1,10 +1,11 @@
 import 'package:drift/drift.dart';
 
-/// MusicBrainz release-group storage.
-class MusicReleaseGroupRows extends Table {
+/// Concrete Music catalog item with its contained mediums and tracks.
+class MusicReleaseRows extends Table {
   TextColumn get id => text()();
   TextColumn get title => text()();
   TextColumn get sortTitle => text().nullable()();
+  TextColumn get subtitle => text().nullable()();
   TextColumn get artist => text().nullable()();
   TextColumn get originalTitle => text().nullable()();
   DateTimeColumn get originalReleaseDate => dateTime().nullable()();
@@ -14,27 +15,6 @@ class MusicReleaseGroupRows extends Table {
   TextColumn get studiosJson => text().withDefault(const Constant('[]'))();
   BoolColumn get isLive => boolean().nullable()();
   TextColumn get genresJson => text().withDefault(const Constant('[]'))();
-  TextColumn get coverImageUrl => text().nullable()();
-  TextColumn get coverImageKey => text().nullable()();
-  TextColumn get externalLinksJson =>
-      text().withDefault(const Constant('[]'))();
-  TextColumn get localCoverImagePath => text().nullable()();
-  TextColumn get localBackImagePath => text().nullable()();
-  TextColumn get localThumbnailImagePath => text().nullable()();
-  DateTimeColumn get createdAt => dateTime()();
-  DateTimeColumn get updatedAt => dateTime()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-/// Concrete release/pressing belonging to a release group.
-class MusicReleaseRows extends Table {
-  TextColumn get id => text()();
-  TextColumn get releaseGroupId => text()();
-  TextColumn get title => text()();
-  TextColumn get sortTitle => text().nullable()();
-  TextColumn get subtitle => text().nullable()();
   TextColumn get releaseType => text().nullable()();
   TextColumn get releaseStatus => text().nullable()();
   DateTimeColumn get releaseDate => dateTime().nullable()();
@@ -49,6 +29,14 @@ class MusicReleaseRows extends Table {
   TextColumn get mediumTypesJson => text().withDefault(const Constant('[]'))();
   TextColumn get coverImageUrl => text().nullable()();
   TextColumn get coverImageKey => text().nullable()();
+  TextColumn get backCoverImageUrl => text().nullable()();
+  TextColumn get thumbnailImageUrl => text().nullable()();
+  TextColumn get extra => text().nullable()();
+  TextColumn get soundTypesJson => text().withDefault(const Constant('[]'))();
+  TextColumn get vinylColor => text().nullable()();
+  TextColumn get vinylWeight => text().nullable()();
+  IntColumn get rpm => integer().nullable()();
+  TextColumn get spars => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -60,6 +48,9 @@ class MusicReleaseRows extends Table {
 class MusicReleaseLocalDetailsRows extends Table {
   TextColumn get releaseId => text()();
   TextColumn get boxSetName => text().nullable()();
+  TextColumn get localCoverImagePath => text().nullable()();
+  TextColumn get localBackImagePath => text().nullable()();
+  TextColumn get localThumbnailImagePath => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {releaseId};

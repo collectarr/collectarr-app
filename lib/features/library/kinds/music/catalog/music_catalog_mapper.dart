@@ -280,6 +280,47 @@ final class MusicCatalogMapper {
       'kind': 'music',
       'title': title,
       if (subtitle != null) 'subtitle': subtitle,
+      if (_text(source['artist'] ?? fallbackGroup['artist']) case final artist?)
+        'artist': artist,
+      if (_text(source['original_title'] ?? fallbackGroup['original_title'])
+          case final originalTitle?)
+        'original_title': originalTitle,
+      if (source['original_release_date'] ??
+              fallbackGroup['original_release_date']
+          case final originalReleaseDate?)
+        'original_release_date': originalReleaseDate,
+      if (source['original_release_date_parts'] ??
+              fallbackGroup['original_release_date_parts']
+          case final originalReleaseDateParts?)
+        'original_release_date_parts': originalReleaseDateParts,
+      if (source['recording_date'] ?? fallbackGroup['recording_date']
+          case final recordingDate?)
+        'recording_date': recordingDate,
+      if (source['recording_date_parts'] ??
+              fallbackGroup['recording_date_parts']
+          case final recordingDateParts?)
+        'recording_date_parts': recordingDateParts,
+      if (source['studios'] ?? fallbackGroup['studios'] case final studios?)
+        'studios': studios,
+      if (source['is_live'] ?? fallbackGroup['is_live'] case final isLive?)
+        'is_live': isLive,
+      if (source['genres'] ?? fallbackGroup['genres'] case final genres?)
+        'genres': genres,
+      if (source['sound_types'] ?? fallbackGroup['sound_types']
+          case final soundTypes?)
+        'sound_types': soundTypes,
+      if (_text(source['vinyl_color'] ?? fallbackGroup['vinyl_color'])
+          case final vinylColor?)
+        'vinyl_color': vinylColor,
+      if (_text(source['vinyl_weight'] ?? fallbackGroup['vinyl_weight'])
+          case final vinylWeight?)
+        'vinyl_weight': vinylWeight,
+      if (_int(source['rpm'] ?? fallbackGroup['rpm']) case final rpm?)
+        'rpm': rpm,
+      if (_text(source['extra'] ?? fallbackGroup['extra']) case final extra?)
+        'extra': extra,
+      if (_text(source['spars'] ?? fallbackGroup['spars']) case final spars?)
+        'spars': spars,
       if (releaseType != null) 'release_type': releaseType,
       if (releaseStatus != null) 'release_status': releaseStatus,
       if (releaseDate != null) 'release_date': releaseDate.toIso8601String(),
@@ -318,6 +359,37 @@ final class MusicCatalogMapper {
       if (_text(source['cover_image_key'] ?? fallbackGroup['cover_image_key'])
           case final coverImageKey?)
         'cover_image_key': coverImageKey,
+      if (_text(
+        source['back_cover_image_url'] ?? fallbackGroup['back_cover_image_url'],
+      )
+          case final backCoverImageUrl?)
+        'back_cover_image_url': backCoverImageUrl,
+      if (_text(
+        source['thumbnail_image_url'] ?? fallbackGroup['thumbnail_image_url'],
+      )
+          case final thumbnailImageUrl?)
+        'thumbnail_image_url': thumbnailImageUrl,
+      if (_text(
+        source['local_cover_image_path'] ??
+            fallbackGroup['local_cover_image_path'],
+      )
+          case final localCoverImagePath?)
+        'local_cover_image_path': localCoverImagePath,
+      if (_text(
+        source['local_back_image_path'] ??
+            fallbackGroup['local_back_image_path'],
+      )
+          case final localBackImagePath?)
+        'local_back_image_path': localBackImagePath,
+      if (_text(
+        source['local_thumbnail_image_path'] ??
+            fallbackGroup['local_thumbnail_image_path'],
+      )
+          case final localThumbnailImagePath?)
+        'local_thumbnail_image_path': localThumbnailImagePath,
+      if (source['artist_credits'] ?? fallbackGroup['artist_credits']
+          case final artistCredits?)
+        'artist_credits': artistCredits,
       if (source['external_links'] != null)
         'external_links': source['external_links'],
       if (source['trailer_urls'] != null)
@@ -460,7 +532,7 @@ final class MusicCatalogMapper {
     Map<String, dynamic>? payload,
   }) {
     return MusicReleaseGroup(
-      id: groupId ?? release.releaseGroupId,
+      id: groupId ?? MusicReleaseGroupId(release.id.value),
       title: _text(payload?['title']) ?? release.title,
       artist: _text(payload?['artist']),
       originalReleaseDate:

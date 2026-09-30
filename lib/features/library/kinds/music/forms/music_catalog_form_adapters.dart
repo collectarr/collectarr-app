@@ -72,12 +72,10 @@ abstract final class MusicReleaseFormAdapter {
   static MusicRelease create(
     MusicReleaseFormValues values, {
     required MusicReleaseId id,
-    required MusicReleaseGroupId releaseGroupId,
     List<MusicMedium> mediums = const [],
   }) =>
       MusicRelease(
         id: id,
-        releaseGroupId: releaseGroupId,
         title: values.title.trim(),
         sortTitle: _text(values.sortTitle),
         subtitle: _text(values.subtitle),
@@ -106,10 +104,18 @@ abstract final class MusicReleaseFormAdapter {
   }) =>
       MusicRelease(
         id: original.id,
-        releaseGroupId: original.releaseGroupId,
         title: values.title.trim(),
         sortTitle: _text(values.sortTitle),
         subtitle: _text(values.subtitle),
+        artist: original.artist,
+        originalTitle: original.originalTitle,
+        originalReleaseDate: original.originalReleaseDate,
+        originalReleaseDateParts: original.originalReleaseDateParts,
+        recordingDate: original.recordingDate,
+        recordingDateParts: original.recordingDateParts,
+        studios: original.studios,
+        isLive: original.isLive,
+        genres: original.genres,
         releaseType: _text(values.releaseType),
         releaseStatus: _text(values.releaseStatus),
         releaseDate: values.releaseDate,
@@ -126,6 +132,17 @@ abstract final class MusicReleaseFormAdapter {
         boxSetName: _text(values.boxSetName),
         coverImageUrl: _text(values.coverImageUrl),
         coverImageKey: original.coverImageKey,
+        backCoverImageUrl: original.backCoverImageUrl,
+        thumbnailImageUrl: original.thumbnailImageUrl,
+        localCoverImagePath: original.localCoverImagePath,
+        localBackImagePath: original.localBackImagePath,
+        localThumbnailImagePath: original.localThumbnailImagePath,
+        extra: original.extra,
+        soundTypes: original.soundTypes,
+        vinylColor: original.vinylColor,
+        vinylWeight: original.vinylWeight,
+        rpm: original.rpm,
+        spars: original.spars,
         externalLinks:
             List.unmodifiable(externalLinks ?? original.externalLinks),
         boxSetMembership: values.boxSetMembership,
