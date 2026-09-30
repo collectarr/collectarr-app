@@ -32,6 +32,10 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   void _setBrowserMode(LibraryWorkspaceBrowserMode mode) {
+    if (libraryReleaseCapabilityForKind(widget.type.kind) == null &&
+        mode == LibraryWorkspaceBrowserMode.release) {
+      return;
+    }
     _updateViewState((state) => state.copyWith(browserMode: mode));
     _mutateState(() {
       _session.facets.selectedBucket = null;

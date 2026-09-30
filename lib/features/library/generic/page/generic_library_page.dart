@@ -148,8 +148,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   LibraryEntityScope get activeEntityScope =>
       libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
-        _session.preferences.viewState?.browserMode ??
-            LibraryWorkspaceBrowserMode.work,
+        _activeBrowserMode,
       );
 
   final _detailHydrationInFlight = <String>{};
