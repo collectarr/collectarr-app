@@ -70,7 +70,7 @@ final musicKindIdentity = const LibraryKindIdentity(
 );
 
 final musicKindMetadata = const LibraryMetadataCapability(
-  catalogMetadataDecoder: CatalogMusicItemDto.fromCatalogPayload,
+  catalogMetadataDecoder: CatalogMusicItemDto.fromCatalogSearchPayload,
   searchQueryBuilder: musicMetadataSearchQuery,
   catalogSearchBuilder: searchMusicCatalogItems,
   catalogSearchResultsAreDetailed: true,

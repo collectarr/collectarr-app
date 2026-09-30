@@ -115,17 +115,18 @@ final class CatalogMusicItemDto implements JsonEncodable {
     );
   }
 
-  factory CatalogMusicItemDto.fromCatalogPayload(
+  factory CatalogMusicItemDto.fromCatalogSearchPayload(
     Map<String, dynamic> payload,
   ) {
     final nestedMusic = payload['music'];
-    final json = nestedMusic is Map
-        ? <String, dynamic>{
-            ...payload,
-            ...Map<String, dynamic>.from(nestedMusic),
-          }
-        : Map<String, dynamic>.from(payload);
-    json['id'] = payload['id'] ?? json['id'];
+    if (nestedMusic is! Map) {
+      throw const FormatException(
+        'Music catalog search result requires a music payload.',
+      );
+    }
+    final json = Map<String, dynamic>.from(nestedMusic);
+    json['id'] = payload['id'];
+    json['kind'] = payload['kind'];
     return CatalogMusicItemDto.fromJson(json);
   }
 
