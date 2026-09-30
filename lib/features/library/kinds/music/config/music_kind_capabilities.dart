@@ -91,7 +91,7 @@ final musicKindEntityVocabulary = const LibraryEntityVocabulary(
 
 final musicKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.listen,
-  writableTargets: {LibraryTrackingTargetScope.release},
+  writableTargets: {LibraryTrackingTargetScope.work},
   aggregateTargets: {LibraryTrackingTargetScope.work},
   lookupScope: LibraryTrackingLookupScope.exactCatalog,
   ownedTrackingTarget: LibraryOwnedTrackingTarget.catalog,

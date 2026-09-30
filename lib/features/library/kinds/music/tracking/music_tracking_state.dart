@@ -4,14 +4,13 @@ import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 
 /// Music-owned tracking lifecycle entry.
 final class MusicTrackingState extends PersonalTrackingBase
     with TrackingStorageRecordBehavior {
   MusicTrackingState({
     required this.id,
-    required this.releaseRef,
+    required this.catalogRef,
     Object? sourceType,
     super.status,
     super.rating,
@@ -25,21 +24,14 @@ final class MusicTrackingState extends PersonalTrackingBase
     this.deletedAt,
   })  : sourceType = trackingSourceTypeFromValue(sourceType),
         updatedAt = updatedAt ?? DateTime.now().toUtc(),
-        super(completedAt: finishedAt) {
-    requireMusicReleaseRef(
-      releaseRef,
-      label: 'Music tracking catalogRef',
-    );
-  }
+        super(completedAt: finishedAt);
 
   @override
   final String id;
-  final CatalogEntityRef releaseRef;
   @override
-  CatalogEntityRef get catalogRef => releaseRef;
+  final CatalogEntityRef catalogRef;
   @override
   OwnedCopyRef? get ownedRef => null;
-  String get releaseId => releaseRef.id;
   @override
   final TrackingSourceType? sourceType;
   @override
@@ -70,7 +62,6 @@ final class MusicTrackingState extends PersonalTrackingBase
   MusicTrackingState copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    CatalogEntityRef? releaseRef,
     Object? ownedRef = trackingStorageUnset,
     Object? sourceType = trackingStorageUnset,
     Object? status = trackingStorageUnset,
@@ -84,7 +75,7 @@ final class MusicTrackingState extends PersonalTrackingBase
     DateTime? updatedAt,
     Object? deletedAt = trackingStorageUnset,
   }) {
-    final nextReleaseRef = releaseRef ?? catalogRef ?? this.releaseRef;
+    final nextCatalogRef = catalogRef ?? this.catalogRef;
     final nextOwnedRef = identical(ownedRef, trackingStorageUnset)
         ? this.ownedRef
         : ownedRef as OwnedCopyRef?;
@@ -93,7 +84,7 @@ final class MusicTrackingState extends PersonalTrackingBase
     }
     return MusicTrackingState(
       id: id ?? this.id,
-      releaseRef: nextReleaseRef,
+      catalogRef: nextCatalogRef,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,

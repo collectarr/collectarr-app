@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
@@ -261,16 +260,14 @@ final class _MusicReleaseEditDialogState
               widget.request.kindItem.kindCapability.withKindMetadata(
             updatedGroup,
           );
-          final releaseRef = musicReleaseRefForRoot(
-            widget.request.kindItem.reference,
-            _release.id.value,
-          );
           Navigator.of(context).pop(
             LibraryEditSelection(
               kindItem: candidate,
               scope: LibraryEntityScope.release,
               customFieldEdits: Map.unmodifiable(_customFieldEdits),
-              tracking: _draft.trackingSelection(releaseRef),
+              tracking: _draft.trackingSelection(
+                widget.request.kindItem.reference.rootScope,
+              ),
             ),
           );
         },

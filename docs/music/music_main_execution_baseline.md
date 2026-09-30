@@ -16,9 +16,10 @@ needs migration and must not be read as a compatibility contract.
 - App persistence, workspace projections, and catalog editing still contain
   Release Group and Release types. Those structures are not the target model
   and must be removed as each consumer moves to the flat item.
-- Music tracking and listening history still use release-shaped references.
-  They are App-owned personal activity and must be retargeted to the Catalog
-  Item while keeping their existing history and Sync behavior.
+- Music lifecycle tracking now targets the Catalog Item and keeps its existing
+  personal Sync path. Listening history still uses release-shaped references
+  and must be retargeted to the Catalog Item while preserving its full event
+  history.
 - Music's edit surface still has separate Release Group and Release dialogs.
   Consolidate their catalog fields into one item editor without changing the
   visible controls or the separate Owned Copy form.

@@ -10,29 +10,27 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const release = CatalogEntityRef(
+  const item = CatalogEntityRef(
     kind: CatalogMediaKind.music,
-    entityType: CatalogEntityTypeId('release'),
-    id: 'release-1',
-    rootId: 'group-1',
+    entityType: CatalogEntityTypeId.root,
+    id: 'music-item-1',
   );
 
-  test('Music tracking is explicitly release-scoped and unowned', () {
+  test('Music tracking targets a catalog item and remains unowned', () {
     final state = MusicTrackingState(
       id: 'tracking-1',
-      releaseRef: release,
+      catalogRef: item,
       status: MediaTrackingStatus.completed,
       updatedAt: DateTime.utc(2026, 9, 15),
     );
 
-    expect(state.releaseId, 'release-1');
-    expect(state.catalogRef, release);
+    expect(state.catalogRef, item);
     expect(state.ownedRef, isNull);
     expect(const MusicTrackingStateCodec().toSyncPayload(state)['catalog_ref'],
-        release.toJson());
+        item.toJson());
   });
 
-  test('Music codec rejects group and owned-copy tracking targets', () {
+  test('Music codec rejects child and owned-copy tracking targets', () {
     const codec = MusicTrackingStateCodec();
 
     expect(
@@ -40,8 +38,9 @@ void main() {
         id: 'group-tracking',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.music,
-          entityType: CatalogEntityTypeId.root,
-          id: 'group-1',
+          entityType: CatalogEntityTypeId('track'),
+          id: 'track-1',
+          rootId: 'music-item-1',
         ),
         status: MediaTrackingStatus.planned,
         updatedAt: DateTime.utc(2026, 9, 15),
@@ -51,7 +50,7 @@ void main() {
     expect(
       () => codec.create(
         id: 'copy-tracking',
-        catalogRef: release,
+        catalogRef: item,
         ownedRef: const OwnedCopyRef(
           kind: CatalogMediaKind.music,
           id: OwnedCopyId('copy-1'),
@@ -62,30 +61,28 @@ void main() {
     );
   });
 
-  test('repository keeps separate canonical rows for separate releases',
-      () async {
+  test('repository keeps one canonical row per catalog item', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = TrackingStorageRepository(
       db,
       codecs: const [MusicTrackingStateCodec()],
     );
-    const release2 = CatalogEntityRef(
+    const item2 = CatalogEntityRef(
       kind: CatalogMediaKind.music,
-      entityType: CatalogEntityTypeId('release'),
-      id: 'release-2',
-      rootId: 'group-1',
+      entityType: CatalogEntityTypeId.root,
+      id: 'music-item-2',
     );
 
     await repository.upsertMutation(
       id: 'tracking-1',
-      catalogRef: release,
+      catalogRef: item,
       status: MediaTrackingStatus.completed,
       updatedAt: DateTime.utc(2026, 9, 15),
     );
     await repository.upsertMutation(
       id: 'tracking-2',
-      catalogRef: release2,
+      catalogRef: item2,
       status: MediaTrackingStatus.inProgress,
       updatedAt: DateTime.utc(2026, 9, 15, 1),
     );
@@ -95,7 +92,7 @@ void main() {
       (entry) => entry.catalogRef.mediaKind == CatalogMediaKind.music,
     );
     expect(musicEntries.map((entry) => entry.catalogRef.id),
-        containsAll(<String>['release-1', 'release-2']));
+        containsAll(<String>['music-item-1', 'music-item-2']));
     expect(musicEntries.every((entry) => entry.ownedRef == null), isTrue);
   });
 }

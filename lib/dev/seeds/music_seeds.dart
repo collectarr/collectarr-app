@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_i
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 
 final musicDevSeedContributor = TypedDevSeedKindContributor<MusicOwnedItem>(
   kind: CatalogMediaKind.music,
@@ -1484,12 +1483,9 @@ List<TrackingStorageRecord> musicSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         MusicTrackingState(
           id: 'seed-track-music-${seedOrdinal2(i)}',
-          releaseRef: musicReleaseRefForRoot(
-            seedCatalogRef(
-              CatalogMediaKind.music,
-              'seed-music-${seedOrdinal2(i)}',
-            ),
-            'seed-music-${seedOrdinal2(i)}:release',
+          catalogRef: seedCatalogRef(
+            CatalogMediaKind.music,
+            'seed-music-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: MediaTrackingStatus.completed,

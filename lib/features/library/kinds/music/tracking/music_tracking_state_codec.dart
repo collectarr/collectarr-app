@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:drift/drift.dart';
 
@@ -111,13 +110,13 @@ final class MusicTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    _validateMusicRelease(catalogRef);
+    _validateMusicCatalogItem(catalogRef);
     if (ownedRef != null) {
       throw StateError('Music tracking cannot be attached to an owned copy.');
     }
     return MusicTrackingState(
       id: id,
-      releaseRef: catalogRef,
+      catalogRef: catalogRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -158,14 +157,14 @@ final class MusicTrackingStateCodec
     DateTime? deletedAt,
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
-    _validateMusicRelease(catalogRef);
+    _validateMusicCatalogItem(catalogRef);
     final ownedRef = ownedCopyRefFromSerialized(payload['owned_ref']);
     if (ownedRef != null) {
       throw StateError('Music tracking cannot be attached to an owned copy.');
     }
     return MusicTrackingState(
       id: id,
-      releaseRef: catalogRef,
+      catalogRef: catalogRef,
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -188,7 +187,7 @@ final class MusicTrackingStateCodec
     final validated = _validatedStorageRow(row);
     return MusicTrackingState(
       id: validated.id,
-      releaseRef: validated.catalogRef,
+      catalogRef: validated.catalogRef,
       sourceType: validated.sourceType,
       status: validated.status,
       rating: validated.rating,
@@ -226,7 +225,7 @@ final class MusicTrackingStateCodec
         'Expected MusicTrackingState',
       );
     }
-    _validateMusicRelease(entry.catalogRef);
+    _validateMusicCatalogItem(entry.catalogRef);
     if (entry.ownedRef != null) {
       throw StateError('Music tracking cannot be attached to an owned copy.');
     }
@@ -234,22 +233,26 @@ final class MusicTrackingStateCodec
   }
 
   TrackingStorageRow _validatedStorageRow(TrackingStorageRow row) {
-    _validateMusicRelease(row.catalogRef);
+    _validateMusicCatalogItem(row.catalogRef);
     if (row.ownedRef != null) {
       throw StateError('Music tracking cannot be attached to an owned copy.');
     }
     return row;
   }
 
-  void _validateMusicRelease(CatalogEntityRef ref) {
-    if (ref.mediaKind != kind) {
+  void _validateMusicCatalogItem(CatalogEntityRef ref) {
+    if (ref.mediaKind != kind || !ref.isKnown) {
       throw ArgumentError.value(
-        ref.mediaKind,
+        ref,
         'catalogRef.kind',
-        'Expected Music tracking entry',
+        'Music tracking requires a concrete Music Catalog Item',
       );
     }
-    requireMusicReleaseRef(ref, label: 'Music tracking catalogRef');
+    if (ref.entityType != CatalogEntityTypeId.root) {
+      throw StateError(
+        'Music tracking requires a concrete Music Catalog Item reference',
+      );
+    }
   }
 }
 

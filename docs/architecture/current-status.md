@@ -49,6 +49,9 @@ Music-owned copies created through Add now target the concrete Music Catalog
 Item directly. The existing Release Group/Release editor path still has a
 release-shaped presentation and must be consolidated before the old Music
 graph can be removed.
+Music lifecycle tracking records also target the Catalog Item and use the
+existing personal Sync contract. Listening history still uses release-shaped
+references and remains to be retargeted.
 
 ## Contracts and field confidence
 
