@@ -1,8 +1,6 @@
-export 'package:collectarr_app/features/library/kinds/movie/data/remote/movie_core_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/movie/data/remote/movie_remote_source.dart';
 export 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_tables.dart';
-export 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
+export 'package:collectarr_app/features/library/kinds/movie/data/local/movie_owned_local_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 export 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 export 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 export 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';

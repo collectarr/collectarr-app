@@ -56,8 +56,10 @@ Movie's active workspace now projects one concrete Movie Catalog Item and its
 Owned Copies, with no Release workspace or drilldown. Catalog Item and Owned
 Copy actions now use the shared Edit dialog and separate presentation tabs;
 Movie no longer routes Owned Copy editing through the old Media edit dialog.
-The older MovieMedia/MovieRelease domain, local tables, and remote source still
-exist, so Movie persistence has not completed the cutover.
+The unused Movie catalog repository, remote mapper, and per-kind catalog Drift
+tables have been removed. Some old MovieMedia/MovieRelease domain and form
+types still remain and need removal after their remaining Add/Edit contracts
+are replaced.
 Movie calendar dates and local barcode/title lookup now read the shared flat
 Catalog Item cache instead of querying the old MovieMedia/MovieRelease tables.
 
