@@ -242,7 +242,7 @@ MusicBoxSetMembership? musicBoxSetMembershipFromJson(
     }
   }
 
-  // Accept the flattened form emitted by provider payloads.
+  // Core may expose a box-set relation using its scalar fields.
   final rawRef = json['box_set_ref'] ?? json['box_set_id'];
   if (rawRef != null) {
     try {

@@ -283,7 +283,6 @@ final class MusicLocalMapper {
       value: identifier.value,
       normalizedValue: Value(identifier.normalizedValue),
       isPrimary: Value(identifier.isPrimary),
-      sourceProvider: Value(identifier.sourceProvider),
       createdAt: identifier.createdAt,
       updatedAt: identifier.updatedAt,
     );
@@ -299,7 +298,6 @@ final class MusicLocalMapper {
       value: row.value,
       normalizedValue: row.normalizedValue,
       isPrimary: row.isPrimary,
-      sourceProvider: row.sourceProvider,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -320,7 +318,6 @@ final class MusicLocalMapper {
       creditedName: credit.creditedName,
       joinPhrase: Value(credit.joinPhrase),
       sequence: Value(credit.sequence),
-      source: Value(credit.source),
     );
   }
 
@@ -331,7 +328,6 @@ final class MusicLocalMapper {
         creditedName: row.creditedName,
         joinPhrase: row.joinPhrase,
         sequence: row.sequence,
-        source: row.source,
       );
 
   static MusicReleaseLabelsRowsCompanion toReleaseLabelRow(
@@ -347,7 +343,6 @@ final class MusicLocalMapper {
       labelName: label.labelName,
       catalogNumber: Value(label.catalogNumber),
       sequence: Value(label.sequence),
-      source: Value(label.source),
     );
   }
 
@@ -358,7 +353,6 @@ final class MusicLocalMapper {
         labelName: row.labelName,
         catalogNumber: row.catalogNumber,
         sequence: row.sequence,
-        source: row.source,
       );
 
   static MusicMediumRowsCompanion toMediumRow(MusicMedium medium) {

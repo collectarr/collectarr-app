@@ -117,7 +117,6 @@ class MusicArtistCreditsRows extends Table {
   TextColumn get creditedName => text()();
   TextColumn get joinPhrase => text().nullable()();
   IntColumn get sequence => integer().nullable()();
-  TextColumn get source => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -131,7 +130,6 @@ class MusicReleaseLabelsRows extends Table {
   TextColumn get labelName => text()();
   TextColumn get catalogNumber => text().nullable()();
   IntColumn get sequence => integer().nullable()();
-  TextColumn get source => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -216,7 +214,6 @@ class MusicReleaseIdentifiersRows extends Table {
   TextColumn get value => text()();
   TextColumn get normalizedValue => text().nullable()();
   BoolColumn get isPrimary => boolean().withDefault(const Constant(false))();
-  TextColumn get sourceProvider => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 

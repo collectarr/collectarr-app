@@ -41665,22 +41665,9 @@ class $MusicArtistCreditsRowsTable extends MusicArtistCreditsRows
   late final GeneratedColumn<int> sequence = GeneratedColumn<int>(
       'sequence', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
   @override
-  late final GeneratedColumn<String> source = GeneratedColumn<String>(
-      'source', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        targetType,
-        targetId,
-        artistId,
-        creditedName,
-        joinPhrase,
-        sequence,
-        source
-      ];
+  List<GeneratedColumn> get $columns =>
+      [id, targetType, targetId, artistId, creditedName, joinPhrase, sequence];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -41733,10 +41720,6 @@ class $MusicArtistCreditsRowsTable extends MusicArtistCreditsRows
       context.handle(_sequenceMeta,
           sequence.isAcceptableOrUnknown(data['sequence']!, _sequenceMeta));
     }
-    if (data.containsKey('source')) {
-      context.handle(_sourceMeta,
-          source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
-    }
     return context;
   }
 
@@ -41760,8 +41743,6 @@ class $MusicArtistCreditsRowsTable extends MusicArtistCreditsRows
           .read(DriftSqlType.string, data['${effectivePrefix}join_phrase']),
       sequence: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sequence']),
-      source: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}source']),
     );
   }
 
@@ -41780,7 +41761,6 @@ class MusicArtistCreditsRow extends DataClass
   final String creditedName;
   final String? joinPhrase;
   final int? sequence;
-  final String? source;
   const MusicArtistCreditsRow(
       {required this.id,
       required this.targetType,
@@ -41788,8 +41768,7 @@ class MusicArtistCreditsRow extends DataClass
       this.artistId,
       required this.creditedName,
       this.joinPhrase,
-      this.sequence,
-      this.source});
+      this.sequence});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -41805,9 +41784,6 @@ class MusicArtistCreditsRow extends DataClass
     }
     if (!nullToAbsent || sequence != null) {
       map['sequence'] = Variable<int>(sequence);
-    }
-    if (!nullToAbsent || source != null) {
-      map['source'] = Variable<String>(source);
     }
     return map;
   }
@@ -41827,8 +41803,6 @@ class MusicArtistCreditsRow extends DataClass
       sequence: sequence == null && nullToAbsent
           ? const Value.absent()
           : Value(sequence),
-      source:
-          source == null && nullToAbsent ? const Value.absent() : Value(source),
     );
   }
 
@@ -41843,7 +41817,6 @@ class MusicArtistCreditsRow extends DataClass
       creditedName: serializer.fromJson<String>(json['creditedName']),
       joinPhrase: serializer.fromJson<String?>(json['joinPhrase']),
       sequence: serializer.fromJson<int?>(json['sequence']),
-      source: serializer.fromJson<String?>(json['source']),
     );
   }
   @override
@@ -41857,7 +41830,6 @@ class MusicArtistCreditsRow extends DataClass
       'creditedName': serializer.toJson<String>(creditedName),
       'joinPhrase': serializer.toJson<String?>(joinPhrase),
       'sequence': serializer.toJson<int?>(sequence),
-      'source': serializer.toJson<String?>(source),
     };
   }
 
@@ -41868,8 +41840,7 @@ class MusicArtistCreditsRow extends DataClass
           Value<String?> artistId = const Value.absent(),
           String? creditedName,
           Value<String?> joinPhrase = const Value.absent(),
-          Value<int?> sequence = const Value.absent(),
-          Value<String?> source = const Value.absent()}) =>
+          Value<int?> sequence = const Value.absent()}) =>
       MusicArtistCreditsRow(
         id: id ?? this.id,
         targetType: targetType ?? this.targetType,
@@ -41878,7 +41849,6 @@ class MusicArtistCreditsRow extends DataClass
         creditedName: creditedName ?? this.creditedName,
         joinPhrase: joinPhrase.present ? joinPhrase.value : this.joinPhrase,
         sequence: sequence.present ? sequence.value : this.sequence,
-        source: source.present ? source.value : this.source,
       );
   MusicArtistCreditsRow copyWithCompanion(
       MusicArtistCreditsRowsCompanion data) {
@@ -41894,7 +41864,6 @@ class MusicArtistCreditsRow extends DataClass
       joinPhrase:
           data.joinPhrase.present ? data.joinPhrase.value : this.joinPhrase,
       sequence: data.sequence.present ? data.sequence.value : this.sequence,
-      source: data.source.present ? data.source.value : this.source,
     );
   }
 
@@ -41907,15 +41876,14 @@ class MusicArtistCreditsRow extends DataClass
           ..write('artistId: $artistId, ')
           ..write('creditedName: $creditedName, ')
           ..write('joinPhrase: $joinPhrase, ')
-          ..write('sequence: $sequence, ')
-          ..write('source: $source')
+          ..write('sequence: $sequence')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, targetType, targetId, artistId,
-      creditedName, joinPhrase, sequence, source);
+  int get hashCode => Object.hash(
+      id, targetType, targetId, artistId, creditedName, joinPhrase, sequence);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -41926,8 +41894,7 @@ class MusicArtistCreditsRow extends DataClass
           other.artistId == this.artistId &&
           other.creditedName == this.creditedName &&
           other.joinPhrase == this.joinPhrase &&
-          other.sequence == this.sequence &&
-          other.source == this.source);
+          other.sequence == this.sequence);
 }
 
 class MusicArtistCreditsRowsCompanion
@@ -41939,7 +41906,6 @@ class MusicArtistCreditsRowsCompanion
   final Value<String> creditedName;
   final Value<String?> joinPhrase;
   final Value<int?> sequence;
-  final Value<String?> source;
   final Value<int> rowid;
   const MusicArtistCreditsRowsCompanion({
     this.id = const Value.absent(),
@@ -41949,7 +41915,6 @@ class MusicArtistCreditsRowsCompanion
     this.creditedName = const Value.absent(),
     this.joinPhrase = const Value.absent(),
     this.sequence = const Value.absent(),
-    this.source = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MusicArtistCreditsRowsCompanion.insert({
@@ -41960,7 +41925,6 @@ class MusicArtistCreditsRowsCompanion
     required String creditedName,
     this.joinPhrase = const Value.absent(),
     this.sequence = const Value.absent(),
-    this.source = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         targetType = Value(targetType),
@@ -41974,7 +41938,6 @@ class MusicArtistCreditsRowsCompanion
     Expression<String>? creditedName,
     Expression<String>? joinPhrase,
     Expression<int>? sequence,
-    Expression<String>? source,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -41985,7 +41948,6 @@ class MusicArtistCreditsRowsCompanion
       if (creditedName != null) 'credited_name': creditedName,
       if (joinPhrase != null) 'join_phrase': joinPhrase,
       if (sequence != null) 'sequence': sequence,
-      if (source != null) 'source': source,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -41998,7 +41960,6 @@ class MusicArtistCreditsRowsCompanion
       Value<String>? creditedName,
       Value<String?>? joinPhrase,
       Value<int?>? sequence,
-      Value<String?>? source,
       Value<int>? rowid}) {
     return MusicArtistCreditsRowsCompanion(
       id: id ?? this.id,
@@ -42008,7 +41969,6 @@ class MusicArtistCreditsRowsCompanion
       creditedName: creditedName ?? this.creditedName,
       joinPhrase: joinPhrase ?? this.joinPhrase,
       sequence: sequence ?? this.sequence,
-      source: source ?? this.source,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -42037,9 +41997,6 @@ class MusicArtistCreditsRowsCompanion
     if (sequence.present) {
       map['sequence'] = Variable<int>(sequence.value);
     }
-    if (source.present) {
-      map['source'] = Variable<String>(source.value);
-    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -42056,7 +42013,6 @@ class MusicArtistCreditsRowsCompanion
           ..write('creditedName: $creditedName, ')
           ..write('joinPhrase: $joinPhrase, ')
           ..write('sequence: $sequence, ')
-          ..write('source: $source, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -42104,14 +42060,9 @@ class $MusicReleaseLabelsRowsTable extends MusicReleaseLabelsRows
   late final GeneratedColumn<int> sequence = GeneratedColumn<int>(
       'sequence', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
-  @override
-  late final GeneratedColumn<String> source = GeneratedColumn<String>(
-      'source', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, releaseId, labelId, labelName, catalogNumber, sequence, source];
+      [id, releaseId, labelId, labelName, catalogNumber, sequence];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -42154,10 +42105,6 @@ class $MusicReleaseLabelsRowsTable extends MusicReleaseLabelsRows
       context.handle(_sequenceMeta,
           sequence.isAcceptableOrUnknown(data['sequence']!, _sequenceMeta));
     }
-    if (data.containsKey('source')) {
-      context.handle(_sourceMeta,
-          source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
-    }
     return context;
   }
 
@@ -42179,8 +42126,6 @@ class $MusicReleaseLabelsRowsTable extends MusicReleaseLabelsRows
           .read(DriftSqlType.string, data['${effectivePrefix}catalog_number']),
       sequence: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sequence']),
-      source: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}source']),
     );
   }
 
@@ -42198,15 +42143,13 @@ class MusicReleaseLabelsRow extends DataClass
   final String labelName;
   final String? catalogNumber;
   final int? sequence;
-  final String? source;
   const MusicReleaseLabelsRow(
       {required this.id,
       required this.releaseId,
       this.labelId,
       required this.labelName,
       this.catalogNumber,
-      this.sequence,
-      this.source});
+      this.sequence});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -42221,9 +42164,6 @@ class MusicReleaseLabelsRow extends DataClass
     }
     if (!nullToAbsent || sequence != null) {
       map['sequence'] = Variable<int>(sequence);
-    }
-    if (!nullToAbsent || source != null) {
-      map['source'] = Variable<String>(source);
     }
     return map;
   }
@@ -42242,8 +42182,6 @@ class MusicReleaseLabelsRow extends DataClass
       sequence: sequence == null && nullToAbsent
           ? const Value.absent()
           : Value(sequence),
-      source:
-          source == null && nullToAbsent ? const Value.absent() : Value(source),
     );
   }
 
@@ -42257,7 +42195,6 @@ class MusicReleaseLabelsRow extends DataClass
       labelName: serializer.fromJson<String>(json['labelName']),
       catalogNumber: serializer.fromJson<String?>(json['catalogNumber']),
       sequence: serializer.fromJson<int?>(json['sequence']),
-      source: serializer.fromJson<String?>(json['source']),
     );
   }
   @override
@@ -42270,7 +42207,6 @@ class MusicReleaseLabelsRow extends DataClass
       'labelName': serializer.toJson<String>(labelName),
       'catalogNumber': serializer.toJson<String?>(catalogNumber),
       'sequence': serializer.toJson<int?>(sequence),
-      'source': serializer.toJson<String?>(source),
     };
   }
 
@@ -42280,8 +42216,7 @@ class MusicReleaseLabelsRow extends DataClass
           Value<String?> labelId = const Value.absent(),
           String? labelName,
           Value<String?> catalogNumber = const Value.absent(),
-          Value<int?> sequence = const Value.absent(),
-          Value<String?> source = const Value.absent()}) =>
+          Value<int?> sequence = const Value.absent()}) =>
       MusicReleaseLabelsRow(
         id: id ?? this.id,
         releaseId: releaseId ?? this.releaseId,
@@ -42290,7 +42225,6 @@ class MusicReleaseLabelsRow extends DataClass
         catalogNumber:
             catalogNumber.present ? catalogNumber.value : this.catalogNumber,
         sequence: sequence.present ? sequence.value : this.sequence,
-        source: source.present ? source.value : this.source,
       );
   MusicReleaseLabelsRow copyWithCompanion(
       MusicReleaseLabelsRowsCompanion data) {
@@ -42303,7 +42237,6 @@ class MusicReleaseLabelsRow extends DataClass
           ? data.catalogNumber.value
           : this.catalogNumber,
       sequence: data.sequence.present ? data.sequence.value : this.sequence,
-      source: data.source.present ? data.source.value : this.source,
     );
   }
 
@@ -42315,15 +42248,14 @@ class MusicReleaseLabelsRow extends DataClass
           ..write('labelId: $labelId, ')
           ..write('labelName: $labelName, ')
           ..write('catalogNumber: $catalogNumber, ')
-          ..write('sequence: $sequence, ')
-          ..write('source: $source')
+          ..write('sequence: $sequence')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, releaseId, labelId, labelName, catalogNumber, sequence, source);
+  int get hashCode =>
+      Object.hash(id, releaseId, labelId, labelName, catalogNumber, sequence);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -42333,8 +42265,7 @@ class MusicReleaseLabelsRow extends DataClass
           other.labelId == this.labelId &&
           other.labelName == this.labelName &&
           other.catalogNumber == this.catalogNumber &&
-          other.sequence == this.sequence &&
-          other.source == this.source);
+          other.sequence == this.sequence);
 }
 
 class MusicReleaseLabelsRowsCompanion
@@ -42345,7 +42276,6 @@ class MusicReleaseLabelsRowsCompanion
   final Value<String> labelName;
   final Value<String?> catalogNumber;
   final Value<int?> sequence;
-  final Value<String?> source;
   final Value<int> rowid;
   const MusicReleaseLabelsRowsCompanion({
     this.id = const Value.absent(),
@@ -42354,7 +42284,6 @@ class MusicReleaseLabelsRowsCompanion
     this.labelName = const Value.absent(),
     this.catalogNumber = const Value.absent(),
     this.sequence = const Value.absent(),
-    this.source = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MusicReleaseLabelsRowsCompanion.insert({
@@ -42364,7 +42293,6 @@ class MusicReleaseLabelsRowsCompanion
     required String labelName,
     this.catalogNumber = const Value.absent(),
     this.sequence = const Value.absent(),
-    this.source = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         releaseId = Value(releaseId),
@@ -42376,7 +42304,6 @@ class MusicReleaseLabelsRowsCompanion
     Expression<String>? labelName,
     Expression<String>? catalogNumber,
     Expression<int>? sequence,
-    Expression<String>? source,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -42386,7 +42313,6 @@ class MusicReleaseLabelsRowsCompanion
       if (labelName != null) 'label_name': labelName,
       if (catalogNumber != null) 'catalog_number': catalogNumber,
       if (sequence != null) 'sequence': sequence,
-      if (source != null) 'source': source,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -42398,7 +42324,6 @@ class MusicReleaseLabelsRowsCompanion
       Value<String>? labelName,
       Value<String?>? catalogNumber,
       Value<int?>? sequence,
-      Value<String?>? source,
       Value<int>? rowid}) {
     return MusicReleaseLabelsRowsCompanion(
       id: id ?? this.id,
@@ -42407,7 +42332,6 @@ class MusicReleaseLabelsRowsCompanion
       labelName: labelName ?? this.labelName,
       catalogNumber: catalogNumber ?? this.catalogNumber,
       sequence: sequence ?? this.sequence,
-      source: source ?? this.source,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -42433,9 +42357,6 @@ class MusicReleaseLabelsRowsCompanion
     if (sequence.present) {
       map['sequence'] = Variable<int>(sequence.value);
     }
-    if (source.present) {
-      map['source'] = Variable<String>(source.value);
-    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -42451,7 +42372,6 @@ class MusicReleaseLabelsRowsCompanion
           ..write('labelName: $labelName, ')
           ..write('catalogNumber: $catalogNumber, ')
           ..write('sequence: $sequence, ')
-          ..write('source: $source, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -44834,12 +44754,6 @@ class $MusicReleaseIdentifiersRowsTable extends MusicReleaseIdentifiersRows
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_primary" IN (0, 1))'),
       defaultValue: const Constant(false));
-  static const VerificationMeta _sourceProviderMeta =
-      const VerificationMeta('sourceProvider');
-  @override
-  late final GeneratedColumn<String> sourceProvider = GeneratedColumn<String>(
-      'source_provider', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -44860,7 +44774,6 @@ class $MusicReleaseIdentifiersRowsTable extends MusicReleaseIdentifiersRows
         value,
         normalizedValue,
         isPrimary,
-        sourceProvider,
         createdAt,
         updatedAt
       ];
@@ -44910,12 +44823,6 @@ class $MusicReleaseIdentifiersRowsTable extends MusicReleaseIdentifiersRows
       context.handle(_isPrimaryMeta,
           isPrimary.isAcceptableOrUnknown(data['is_primary']!, _isPrimaryMeta));
     }
-    if (data.containsKey('source_provider')) {
-      context.handle(
-          _sourceProviderMeta,
-          sourceProvider.isAcceptableOrUnknown(
-              data['source_provider']!, _sourceProviderMeta));
-    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -44950,8 +44857,6 @@ class $MusicReleaseIdentifiersRowsTable extends MusicReleaseIdentifiersRows
           DriftSqlType.string, data['${effectivePrefix}normalized_value']),
       isPrimary: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_primary'])!,
-      sourceProvider: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}source_provider']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -44973,7 +44878,6 @@ class MusicReleaseIdentifiersRow extends DataClass
   final String value;
   final String? normalizedValue;
   final bool isPrimary;
-  final String? sourceProvider;
   final DateTime createdAt;
   final DateTime updatedAt;
   const MusicReleaseIdentifiersRow(
@@ -44983,7 +44887,6 @@ class MusicReleaseIdentifiersRow extends DataClass
       required this.value,
       this.normalizedValue,
       required this.isPrimary,
-      this.sourceProvider,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -44997,9 +44900,6 @@ class MusicReleaseIdentifiersRow extends DataClass
       map['normalized_value'] = Variable<String>(normalizedValue);
     }
     map['is_primary'] = Variable<bool>(isPrimary);
-    if (!nullToAbsent || sourceProvider != null) {
-      map['source_provider'] = Variable<String>(sourceProvider);
-    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -45015,9 +44915,6 @@ class MusicReleaseIdentifiersRow extends DataClass
           ? const Value.absent()
           : Value(normalizedValue),
       isPrimary: Value(isPrimary),
-      sourceProvider: sourceProvider == null && nullToAbsent
-          ? const Value.absent()
-          : Value(sourceProvider),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -45033,7 +44930,6 @@ class MusicReleaseIdentifiersRow extends DataClass
       value: serializer.fromJson<String>(json['value']),
       normalizedValue: serializer.fromJson<String?>(json['normalizedValue']),
       isPrimary: serializer.fromJson<bool>(json['isPrimary']),
-      sourceProvider: serializer.fromJson<String?>(json['sourceProvider']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -45048,7 +44944,6 @@ class MusicReleaseIdentifiersRow extends DataClass
       'value': serializer.toJson<String>(value),
       'normalizedValue': serializer.toJson<String?>(normalizedValue),
       'isPrimary': serializer.toJson<bool>(isPrimary),
-      'sourceProvider': serializer.toJson<String?>(sourceProvider),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -45061,7 +44956,6 @@ class MusicReleaseIdentifiersRow extends DataClass
           String? value,
           Value<String?> normalizedValue = const Value.absent(),
           bool? isPrimary,
-          Value<String?> sourceProvider = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       MusicReleaseIdentifiersRow(
@@ -45073,8 +44967,6 @@ class MusicReleaseIdentifiersRow extends DataClass
             ? normalizedValue.value
             : this.normalizedValue,
         isPrimary: isPrimary ?? this.isPrimary,
-        sourceProvider:
-            sourceProvider.present ? sourceProvider.value : this.sourceProvider,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -45091,9 +44983,6 @@ class MusicReleaseIdentifiersRow extends DataClass
           ? data.normalizedValue.value
           : this.normalizedValue,
       isPrimary: data.isPrimary.present ? data.isPrimary.value : this.isPrimary,
-      sourceProvider: data.sourceProvider.present
-          ? data.sourceProvider.value
-          : this.sourceProvider,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -45108,7 +44997,6 @@ class MusicReleaseIdentifiersRow extends DataClass
           ..write('value: $value, ')
           ..write('normalizedValue: $normalizedValue, ')
           ..write('isPrimary: $isPrimary, ')
-          ..write('sourceProvider: $sourceProvider, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -45117,7 +45005,7 @@ class MusicReleaseIdentifiersRow extends DataClass
 
   @override
   int get hashCode => Object.hash(id, releaseId, identifierType, value,
-      normalizedValue, isPrimary, sourceProvider, createdAt, updatedAt);
+      normalizedValue, isPrimary, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -45128,7 +45016,6 @@ class MusicReleaseIdentifiersRow extends DataClass
           other.value == this.value &&
           other.normalizedValue == this.normalizedValue &&
           other.isPrimary == this.isPrimary &&
-          other.sourceProvider == this.sourceProvider &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -45141,7 +45028,6 @@ class MusicReleaseIdentifiersRowsCompanion
   final Value<String> value;
   final Value<String?> normalizedValue;
   final Value<bool> isPrimary;
-  final Value<String?> sourceProvider;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -45152,7 +45038,6 @@ class MusicReleaseIdentifiersRowsCompanion
     this.value = const Value.absent(),
     this.normalizedValue = const Value.absent(),
     this.isPrimary = const Value.absent(),
-    this.sourceProvider = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -45164,7 +45049,6 @@ class MusicReleaseIdentifiersRowsCompanion
     required String value,
     this.normalizedValue = const Value.absent(),
     this.isPrimary = const Value.absent(),
-    this.sourceProvider = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -45181,7 +45065,6 @@ class MusicReleaseIdentifiersRowsCompanion
     Expression<String>? value,
     Expression<String>? normalizedValue,
     Expression<bool>? isPrimary,
-    Expression<String>? sourceProvider,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -45193,7 +45076,6 @@ class MusicReleaseIdentifiersRowsCompanion
       if (value != null) 'value': value,
       if (normalizedValue != null) 'normalized_value': normalizedValue,
       if (isPrimary != null) 'is_primary': isPrimary,
-      if (sourceProvider != null) 'source_provider': sourceProvider,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -45207,7 +45089,6 @@ class MusicReleaseIdentifiersRowsCompanion
       Value<String>? value,
       Value<String?>? normalizedValue,
       Value<bool>? isPrimary,
-      Value<String?>? sourceProvider,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -45218,7 +45099,6 @@ class MusicReleaseIdentifiersRowsCompanion
       value: value ?? this.value,
       normalizedValue: normalizedValue ?? this.normalizedValue,
       isPrimary: isPrimary ?? this.isPrimary,
-      sourceProvider: sourceProvider ?? this.sourceProvider,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -45246,9 +45126,6 @@ class MusicReleaseIdentifiersRowsCompanion
     if (isPrimary.present) {
       map['is_primary'] = Variable<bool>(isPrimary.value);
     }
-    if (sourceProvider.present) {
-      map['source_provider'] = Variable<String>(sourceProvider.value);
-    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -45270,7 +45147,6 @@ class MusicReleaseIdentifiersRowsCompanion
           ..write('value: $value, ')
           ..write('normalizedValue: $normalizedValue, ')
           ..write('isPrimary: $isPrimary, ')
-          ..write('sourceProvider: $sourceProvider, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -75882,7 +75758,6 @@ typedef $$MusicArtistCreditsRowsTableCreateCompanionBuilder
   required String creditedName,
   Value<String?> joinPhrase,
   Value<int?> sequence,
-  Value<String?> source,
   Value<int> rowid,
 });
 typedef $$MusicArtistCreditsRowsTableUpdateCompanionBuilder
@@ -75894,7 +75769,6 @@ typedef $$MusicArtistCreditsRowsTableUpdateCompanionBuilder
   Value<String> creditedName,
   Value<String?> joinPhrase,
   Value<int?> sequence,
-  Value<String?> source,
   Value<int> rowid,
 });
 
@@ -75927,9 +75801,6 @@ class $$MusicArtistCreditsRowsTableFilterComposer
 
   ColumnFilters<int> get sequence => $composableBuilder(
       column: $table.sequence, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get source => $composableBuilder(
-      column: $table.source, builder: (column) => ColumnFilters(column));
 }
 
 class $$MusicArtistCreditsRowsTableOrderingComposer
@@ -75962,9 +75833,6 @@ class $$MusicArtistCreditsRowsTableOrderingComposer
 
   ColumnOrderings<int> get sequence => $composableBuilder(
       column: $table.sequence, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get source => $composableBuilder(
-      column: $table.source, builder: (column) => ColumnOrderings(column));
 }
 
 class $$MusicArtistCreditsRowsTableAnnotationComposer
@@ -75996,9 +75864,6 @@ class $$MusicArtistCreditsRowsTableAnnotationComposer
 
   GeneratedColumn<int> get sequence =>
       $composableBuilder(column: $table.sequence, builder: (column) => column);
-
-  GeneratedColumn<String> get source =>
-      $composableBuilder(column: $table.source, builder: (column) => column);
 }
 
 class $$MusicArtistCreditsRowsTableTableManager extends RootTableManager<
@@ -76039,7 +75904,6 @@ class $$MusicArtistCreditsRowsTableTableManager extends RootTableManager<
             Value<String> creditedName = const Value.absent(),
             Value<String?> joinPhrase = const Value.absent(),
             Value<int?> sequence = const Value.absent(),
-            Value<String?> source = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MusicArtistCreditsRowsCompanion(
@@ -76050,7 +75914,6 @@ class $$MusicArtistCreditsRowsTableTableManager extends RootTableManager<
             creditedName: creditedName,
             joinPhrase: joinPhrase,
             sequence: sequence,
-            source: source,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -76061,7 +75924,6 @@ class $$MusicArtistCreditsRowsTableTableManager extends RootTableManager<
             required String creditedName,
             Value<String?> joinPhrase = const Value.absent(),
             Value<int?> sequence = const Value.absent(),
-            Value<String?> source = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MusicArtistCreditsRowsCompanion.insert(
@@ -76072,7 +75934,6 @@ class $$MusicArtistCreditsRowsTableTableManager extends RootTableManager<
             creditedName: creditedName,
             joinPhrase: joinPhrase,
             sequence: sequence,
-            source: source,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -76107,7 +75968,6 @@ typedef $$MusicReleaseLabelsRowsTableCreateCompanionBuilder
   required String labelName,
   Value<String?> catalogNumber,
   Value<int?> sequence,
-  Value<String?> source,
   Value<int> rowid,
 });
 typedef $$MusicReleaseLabelsRowsTableUpdateCompanionBuilder
@@ -76118,7 +75978,6 @@ typedef $$MusicReleaseLabelsRowsTableUpdateCompanionBuilder
   Value<String> labelName,
   Value<String?> catalogNumber,
   Value<int?> sequence,
-  Value<String?> source,
   Value<int> rowid,
 });
 
@@ -76148,9 +76007,6 @@ class $$MusicReleaseLabelsRowsTableFilterComposer
 
   ColumnFilters<int> get sequence => $composableBuilder(
       column: $table.sequence, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get source => $composableBuilder(
-      column: $table.source, builder: (column) => ColumnFilters(column));
 }
 
 class $$MusicReleaseLabelsRowsTableOrderingComposer
@@ -76180,9 +76036,6 @@ class $$MusicReleaseLabelsRowsTableOrderingComposer
 
   ColumnOrderings<int> get sequence => $composableBuilder(
       column: $table.sequence, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get source => $composableBuilder(
-      column: $table.source, builder: (column) => ColumnOrderings(column));
 }
 
 class $$MusicReleaseLabelsRowsTableAnnotationComposer
@@ -76211,9 +76064,6 @@ class $$MusicReleaseLabelsRowsTableAnnotationComposer
 
   GeneratedColumn<int> get sequence =>
       $composableBuilder(column: $table.sequence, builder: (column) => column);
-
-  GeneratedColumn<String> get source =>
-      $composableBuilder(column: $table.source, builder: (column) => column);
 }
 
 class $$MusicReleaseLabelsRowsTableTableManager extends RootTableManager<
@@ -76253,7 +76103,6 @@ class $$MusicReleaseLabelsRowsTableTableManager extends RootTableManager<
             Value<String> labelName = const Value.absent(),
             Value<String?> catalogNumber = const Value.absent(),
             Value<int?> sequence = const Value.absent(),
-            Value<String?> source = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MusicReleaseLabelsRowsCompanion(
@@ -76263,7 +76112,6 @@ class $$MusicReleaseLabelsRowsTableTableManager extends RootTableManager<
             labelName: labelName,
             catalogNumber: catalogNumber,
             sequence: sequence,
-            source: source,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -76273,7 +76121,6 @@ class $$MusicReleaseLabelsRowsTableTableManager extends RootTableManager<
             required String labelName,
             Value<String?> catalogNumber = const Value.absent(),
             Value<int?> sequence = const Value.absent(),
-            Value<String?> source = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MusicReleaseLabelsRowsCompanion.insert(
@@ -76283,7 +76130,6 @@ class $$MusicReleaseLabelsRowsTableTableManager extends RootTableManager<
             labelName: labelName,
             catalogNumber: catalogNumber,
             sequence: sequence,
-            source: source,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -77352,7 +77198,6 @@ typedef $$MusicReleaseIdentifiersRowsTableCreateCompanionBuilder
   required String value,
   Value<String?> normalizedValue,
   Value<bool> isPrimary,
-  Value<String?> sourceProvider,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -77365,7 +77210,6 @@ typedef $$MusicReleaseIdentifiersRowsTableUpdateCompanionBuilder
   Value<String> value,
   Value<String?> normalizedValue,
   Value<bool> isPrimary,
-  Value<String?> sourceProvider,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -77399,10 +77243,6 @@ class $$MusicReleaseIdentifiersRowsTableFilterComposer
 
   ColumnFilters<bool> get isPrimary => $composableBuilder(
       column: $table.isPrimary, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get sourceProvider => $composableBuilder(
-      column: $table.sourceProvider,
-      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -77440,10 +77280,6 @@ class $$MusicReleaseIdentifiersRowsTableOrderingComposer
   ColumnOrderings<bool> get isPrimary => $composableBuilder(
       column: $table.isPrimary, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get sourceProvider => $composableBuilder(
-      column: $table.sourceProvider,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -77477,9 +77313,6 @@ class $$MusicReleaseIdentifiersRowsTableAnnotationComposer
 
   GeneratedColumn<bool> get isPrimary =>
       $composableBuilder(column: $table.isPrimary, builder: (column) => column);
-
-  GeneratedColumn<String> get sourceProvider => $composableBuilder(
-      column: $table.sourceProvider, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -77525,7 +77358,6 @@ class $$MusicReleaseIdentifiersRowsTableTableManager extends RootTableManager<
             Value<String> value = const Value.absent(),
             Value<String?> normalizedValue = const Value.absent(),
             Value<bool> isPrimary = const Value.absent(),
-            Value<String?> sourceProvider = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -77537,7 +77369,6 @@ class $$MusicReleaseIdentifiersRowsTableTableManager extends RootTableManager<
             value: value,
             normalizedValue: normalizedValue,
             isPrimary: isPrimary,
-            sourceProvider: sourceProvider,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -77549,7 +77380,6 @@ class $$MusicReleaseIdentifiersRowsTableTableManager extends RootTableManager<
             required String value,
             Value<String?> normalizedValue = const Value.absent(),
             Value<bool> isPrimary = const Value.absent(),
-            Value<String?> sourceProvider = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -77561,7 +77391,6 @@ class $$MusicReleaseIdentifiersRowsTableTableManager extends RootTableManager<
             value: value,
             normalizedValue: normalizedValue,
             isPrimary: isPrimary,
-            sourceProvider: sourceProvider,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,

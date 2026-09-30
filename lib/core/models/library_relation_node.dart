@@ -8,8 +8,6 @@ class LibraryRelationNode {
     this.ordinal,
     this.imageUrl,
     this.startYear,
-    this.provider,
-    this.providerId,
   });
 
   factory LibraryRelationNode.fromJson(Map<String, dynamic> json) {
@@ -23,8 +21,6 @@ class LibraryRelationNode {
       ordinal: json['ordinal'] as int?,
       imageUrl: json['image_url'] as String?,
       startYear: json['start_year'] as int?,
-      provider: json['provider'] as String?,
-      providerId: json['provider_id'] as String?,
     );
   }
 
@@ -36,8 +32,6 @@ class LibraryRelationNode {
   final int? ordinal;
   final String? imageUrl;
   final int? startYear;
-  final String? provider;
-  final String? providerId;
 
   String get relationLabel {
     return switch (relationType) {

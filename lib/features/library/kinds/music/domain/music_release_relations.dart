@@ -4,9 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'music_ids.dart';
 
 /// A preserved artist credit, including the display form and join phrase.
-///
-/// The plain artist display text remains a compact summary; this value is the
-/// lossless credit used by the Music UI and provider round-trip.
 @immutable
 final class MusicArtistCredit implements JsonEncodable {
   const MusicArtistCredit({
@@ -15,7 +12,6 @@ final class MusicArtistCredit implements JsonEncodable {
     this.artistId,
     this.joinPhrase,
     this.sequence,
-    this.source,
   });
 
   final String id;
@@ -23,7 +19,6 @@ final class MusicArtistCredit implements JsonEncodable {
   final String? artistId;
   final String? joinPhrase;
   final int? sequence;
-  final String? source;
 
   factory MusicArtistCredit.fromJson(Map<String, dynamic> json) =>
       MusicArtistCredit(
@@ -35,7 +30,6 @@ final class MusicArtistCredit implements JsonEncodable {
         artistId: _text(json['artist_id'] ?? json['person_id']),
         joinPhrase: _text(json['join_phrase']),
         sequence: _int(json['sequence']),
-        source: _text(json['source'] ?? json['source_provider']),
       );
 
   @override
@@ -45,12 +39,10 @@ final class MusicArtistCredit implements JsonEncodable {
         if (artistId != null) 'artist_id': artistId,
         if (joinPhrase != null) 'join_phrase': joinPhrase,
         if (sequence != null) 'sequence': sequence,
-        if (source != null) 'source': source,
       };
 }
 
-/// A release label/catalog-number pair. Keeping the pair together avoids
-/// mismatching the first label with the first catalog number in provider data.
+/// A release label/catalog-number pair.
 @immutable
 final class MusicReleaseLabel implements JsonEncodable {
   const MusicReleaseLabel({
@@ -59,7 +51,6 @@ final class MusicReleaseLabel implements JsonEncodable {
     required this.labelName,
     this.catalogNumber,
     this.sequence,
-    this.source,
   });
 
   final String id;
@@ -67,7 +58,6 @@ final class MusicReleaseLabel implements JsonEncodable {
   final String labelName;
   final String? catalogNumber;
   final int? sequence;
-  final String? source;
 
   factory MusicReleaseLabel.fromJson(Map<String, dynamic> json) =>
       MusicReleaseLabel(
@@ -77,7 +67,6 @@ final class MusicReleaseLabel implements JsonEncodable {
             _text(json['label_name'] ?? json['name'] ?? json['label']) ?? '',
         catalogNumber: _text(json['catalog_number'] ?? json['catalog-number']),
         sequence: _int(json['sequence']),
-        source: _text(json['source'] ?? json['source_provider']),
       );
 
   @override
@@ -87,7 +76,6 @@ final class MusicReleaseLabel implements JsonEncodable {
         'label_name': labelName,
         if (catalogNumber != null) 'catalog_number': catalogNumber,
         if (sequence != null) 'sequence': sequence,
-        if (source != null) 'source': source,
       };
 }
 
@@ -164,7 +152,6 @@ final class MusicReleaseIdentifier implements JsonEncodable {
     required this.value,
     this.normalizedValue,
     this.isPrimary = false,
-    this.sourceProvider,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt =
@@ -178,7 +165,6 @@ final class MusicReleaseIdentifier implements JsonEncodable {
   final String value;
   final String? normalizedValue;
   final bool isPrimary;
-  final String? sourceProvider;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -190,7 +176,6 @@ final class MusicReleaseIdentifier implements JsonEncodable {
       value: _text(json['value']) ?? '',
       normalizedValue: _text(json['normalized_value']),
       isPrimary: json['is_primary'] as bool? ?? false,
-      sourceProvider: _text(json['source_provider']),
       createdAt: _dateTime(json['created_at']),
       updatedAt: _dateTime(json['updated_at']),
     );
@@ -206,7 +191,6 @@ final class MusicReleaseIdentifier implements JsonEncodable {
         'updated_at': updatedAt.toIso8601String(),
         if (normalizedValue != null) 'normalized_value': normalizedValue,
         'is_primary': isPrimary,
-        if (sourceProvider != null) 'source_provider': sourceProvider,
       };
 }
 
