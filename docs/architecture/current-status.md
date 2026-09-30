@@ -74,8 +74,8 @@ Catalog Item or Owned Copy identities.
 
 Catalog transport now writes every Core item into a shared Drift cache keyed
 by `(kind, item_id)`. Snapshot reads and batched reference hydration use this
-flat cache. Book, Movie, and Music use it as their only active catalog store.
-The other six per-kind repositories are still dual-written because
+flat cache. Book, Game, Movie, and Music use it as their only active catalog
+store. The other five per-kind repositories are still dual-written because
 unconverted screens depend on them. Book's catalog facts no longer have
 per-kind media or release tables; its remaining owned-copy and tracking data
 stays in App-owned tables while the broader personal-data cutover proceeds.
@@ -94,9 +94,10 @@ Music-owned copies created through Add target the concrete Music Catalog Item
 directly and persist only that `catalog_ref`; they do not carry a redundant
 `target_ref` alias. The Music workspace's scope selector is hidden because this
 kind has no child Release scope. Movie's root workspace also hides the selector.
-Book, Music, and Movie catalog lookups, summaries, and offline root reads use
-the flat Catalog Item cache. The old per-kind root rows remain registered but
-are no longer read by these active catalog paths. The remaining App cutover
+Book, Game, Music, and Movie catalog lookups, summaries, and offline root reads
+use the flat Catalog Item cache. Game is now the only other migrated kind with
+its root data in that cache; its obsolete per-kind media/release tables are
+still registered for cleanup. The remaining App cutover
 covers Music image ownership, the other six kinds' per-kind stores, and
 remaining Work/Release domain and Edit paths, including Book's legacy Edit
 adapters.

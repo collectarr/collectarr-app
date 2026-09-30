@@ -65,8 +65,7 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'comic.reading': 15,
   'manga.media': 15,
   'book.catalog_item': 15,
-  'game.media': 15,
-  'game.release': 15,
+  'game.catalog_item': 15,
   'boardgame.media': 15,
   'boardgame.edition': 15,
   'movie.catalog_item': 15,
@@ -161,8 +160,9 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'book.catalog_item': (await CatalogItemCacheRepository(db)
             .findAll(kind: CatalogMediaKind.book))
         .length,
-    'game.media': (await db.select(db.gameMediaRows).get()).length,
-    'game.release': (await db.select(db.gameReleaseRows).get()).length,
+    'game.catalog_item': (await CatalogItemCacheRepository(db)
+            .findAll(kind: CatalogMediaKind.game))
+        .length,
     'boardgame.media': (await db.select(db.boardGameMediaRows).get()).length,
     'boardgame.edition':
         (await db.select(db.boardGameEditionRows).get()).length,
@@ -222,18 +222,11 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     }
   }
 
-  final gameMedia = await db.select(db.gameMediaRows).get();
-  final gameMediaIds = gameMedia.map((row) => row.id).toSet();
-  final gameReleases = await db.select(db.gameReleaseRows).get();
-  for (final row in gameReleases.where((row) => isSeed(row.mediaId))) {
-    if (!gameMediaIds.contains(row.mediaId)) {
-      issues.add('game release ${row.id} has missing media ${row.mediaId}');
-    }
-    if (row.workId != row.mediaId) {
-      issues.add(
-        'game release ${row.id} points to work ${row.workId}, '
-        'expected ${row.mediaId}',
-      );
+  final gameItems =
+      await CatalogItemCacheRepository(db).findAll(kind: CatalogMediaKind.game);
+  for (final item in gameItems.where((item) => isSeed(item.id))) {
+    if (item.title.trim().isEmpty) {
+      issues.add('Game Catalog Item ${item.id} has an empty title');
     }
   }
 
