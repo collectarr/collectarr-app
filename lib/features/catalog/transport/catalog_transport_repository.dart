@@ -29,12 +29,7 @@ final class CatalogTransportRepository {
     Iterable<CatalogImportTransport> transports,
   ) {
     return upsertTransportItems([
-      for (final transport in transports)
-        CatalogItemDto.fromJson({
-          ...transport.payload,
-          'id': transport.ref.id,
-          'kind': transport.ref.kind.apiValue,
-        }),
+      for (final transport in transports) transport.decodeItem(),
     ]);
   }
 

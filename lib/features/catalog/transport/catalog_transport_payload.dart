@@ -8,13 +8,20 @@ Map<String, dynamic> catalogTransportPayloadFor(CatalogItemDto item) {
   // Snapshot versions describe the transport envelope, not catalog fields.
   // Strip them recursively because some API responses wrap the kind payload
   // (for example, Music) in a nested object.
-  final payload = _withoutSnapshotVersion(item.payload);
+  final payload = catalogPayloadWithoutSnapshotVersion(item.payload);
   return {
     ...payload,
     'id': item.id,
     'kind': item.kind,
   };
 }
+
+/// Removes the transport-only schema marker before a map is treated as
+/// Catalog Item data or persisted as a catalog import payload.
+Map<String, dynamic> catalogPayloadWithoutSnapshotVersion(
+  Map<String, dynamic> value,
+) =>
+    _withoutSnapshotVersion(value);
 
 Map<String, dynamic> _withoutSnapshotVersion(Map<String, dynamic> value) => {
       for (final entry in value.entries)
