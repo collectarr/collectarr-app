@@ -9,14 +9,14 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
   title: (group) => 'Edit ${group.title}',
   validate: (_, draft) {
     if (draft.values.title.trim().isEmpty) {
-      return 'Release group title is required';
+      return 'Album title is required';
     }
     return null;
   },
   tabs: [
     EditTabSpec<MusicReleaseGroupEditDraft>(
-      id: 'release_group',
-      label: 'Release group',
+      id: 'album',
+      label: 'Album',
       icon: Icons.music_note_outlined,
       sections: [
         EditSectionSpec<MusicReleaseGroupEditDraft>(
