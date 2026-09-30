@@ -21,9 +21,7 @@ Provider search, preview, and ingest are not part of this Add flow.
 Core has typed flat Catalog Item routes for all nine kinds. Music's current API,
 search query, proposal creation, Admin corrections, worker index, and Admin
 reindex path use the concrete `MusicItem` model with contained discs and tracks.
-The older Music Release Group and Release ORM graph still exists in Core for
-remaining entity-resolution and correction references, so it has not yet been
-removed from the fresh database model set.
+The old Music Release Group and Release ORM graph has been removed from Core.
 
 The other eight kinds still have active Work/Release models and services in
 Core alongside their flat Catalog Item APIs. Their flat catalog routes do not
@@ -46,9 +44,11 @@ flattened cutover must preserve those features while moving their references to
 Catalog Item or Owned Copy identities.
 
 Music-owned copies created through Add now target the concrete Music Catalog
-Item directly. The existing Release Group/Release editor path still has a
-release-shaped presentation and must be consolidated before the old Music
-graph can be removed.
+Item directly. However, the generic App catalog transport codec still decodes
+flat Music responses into `MusicReleaseGroup` and persists them through the old
+normalized Release Group/Release tables. The Music workspace and Edit dialogs
+also still expose those two scopes. The App-side Music graph therefore remains
+active and is the next part of the Music cutover.
 Music lifecycle tracking records also target the Catalog Item and use the
 existing personal Sync contract. Listening history now targets the same
 Catalog Item and may optionally identify the owned copy used. Local event
