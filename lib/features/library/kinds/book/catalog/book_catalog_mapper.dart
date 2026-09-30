@@ -149,9 +149,9 @@ class BookCatalogMapper {
     final rawMetadata = item.kindMetadata;
     final BookCatalogMetadata metadata;
     if (rawMetadata is BookCatalogMetadata) {
-      metadata = rawMetadata;
+      metadata = rawMetadata.copyWith(title: item.title);
     } else {
-      metadata = BookCatalogMetadata.fromJson(item.payload);
+      metadata = BookCatalogMetadata.fromJson(item.toSyncPayload());
     }
 
     final seriesDetails = metadata.series;
@@ -240,22 +240,17 @@ class BookCatalogMapper {
           ),
         )
         .toList();
-    if (releases.isEmpty) {
-      releases.add(BookRelease(
-        id: '${item.id}-release',
-        title: metadata.editionTitle ?? metadata.variant ?? metadata.title,
-        publisher: metadata.publisher,
-        releaseDate: metadata.publishing?.originalPublicationDate,
-        physicalFormat: metadata.physicalFormat,
-        physicalFormatLabel: metadata.physicalFormatLabel,
-        upc: metadata.barcode,
-      ));
-    }
     return BookCatalogItem(
       id: item.id,
       work: work,
       publishing: publishingMetadata,
       releases: releases,
+      catalogMetadata: metadata,
+      catalogTitle: item.title,
+      catalogReleaseDate: item.releaseDate,
+      catalogCoverImageUrl: item.coverImageUrl,
+      catalogThumbnailImageUrl: item.thumbnailImageUrl,
+      printings: _catalogPrintings(metadata.rawPayload['printings']),
     );
   }
 
@@ -326,4 +321,35 @@ class BookCatalogMapper {
       variants: variantRefs,
     );
   }
+}
+
+List<BookCatalogPrinting> _catalogPrintings(Object? value) {
+  if (value is! Iterable) return const [];
+  final result = <BookCatalogPrinting>[];
+  for (final entry in value) {
+    if (entry is! Map) continue;
+    final json = Map<String, dynamic>.from(entry);
+    final id = json['id']?.toString().trim();
+    if (id == null || id.isEmpty) continue;
+    final rawDate = json['release_date'];
+    result.add(
+      BookCatalogPrinting(
+        id: id,
+        printingNumber: _integer(json['printing_number']),
+        title: _optionalText(json['title']),
+        releaseDate: rawDate == null ? null : DateTime.tryParse('$rawDate'),
+        publisher: _optionalText(json['publisher']),
+        language: _optionalText(json['language']),
+        isbn: _optionalText(json['isbn']),
+      ),
+    );
+  }
+  return result;
+}
+
+int? _integer(Object? value) => value is num ? value.toInt() : null;
+
+String? _optionalText(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
 }
