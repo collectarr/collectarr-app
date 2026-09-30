@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_track_list.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
@@ -31,25 +31,15 @@ class MusicLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required CatalogSearchCandidate item,
   }) =>
-      item.kindCapability.mapTransport((transport) => transport).itemNumber;
+      null;
 
   @override
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
-    final seen = <String>{};
-    final result = <LibraryFormatBadgeDescriptor>[];
-    for (final edition in item.kindCapability
-        .mapTransport((transport) => transport)
-        .editions) {
-      final badge = musicFormatBadge(
-        edition.physicalFormat,
-        label: edition.physicalFormatLabel,
-      );
-      if (badge == null || !seen.add(badge.key)) continue;
-      result.add(badge);
-    }
-    return result;
+    final format = musicCatalogItemFromCandidate(item).format;
+    final badge = musicFormatBadge(format?.toLowerCase(), label: format);
+    return badge == null ? const [] : [badge];
   }
 
   @override
@@ -100,42 +90,8 @@ class MusicLibraryMediaPresentationBuilder
   @override
   List<LibraryAddReleaseOption> buildReleaseOptions({
     required CatalogSearchCandidate item,
-  }) {
-    return [
-      for (final edition in item.kindCapability
-          .mapTransport((transport) => transport)
-          .editions)
-        LibraryAddReleaseOption(
-          id: edition.id,
-          title: edition.title,
-          formatId: edition.physicalFormat,
-          formatLabel: edition.physicalFormatLabel,
-          formatBadge: musicFormatBadge(
-            edition.physicalFormat,
-            label: edition.physicalFormatLabel,
-          ),
-          releaseDate: edition.releaseDate,
-          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
-          identifierCode: edition.identifierCode,
-          variants: [
-            for (final variant in edition.variants)
-              LibraryAddVariantOption(
-                id: variant.id,
-                name: variant.name,
-                coverImageUrl: variant.coverImageUrl,
-                identifierCode: variant.identifierCode,
-                formatId: variant.physicalFormat,
-                formatLabel: variant.physicalFormatLabel,
-                formatBadge: musicFormatBadge(
-                  variant.physicalFormat,
-                  label: variant.physicalFormatLabel,
-                ),
-                isPrimary: variant.isPrimary,
-              ),
-          ],
-        ),
-    ];
-  }
+  }) =>
+      const [];
 
   @override
   CatalogSearchCandidate mergeHydratedAddItem({
@@ -144,23 +100,19 @@ class MusicLibraryMediaPresentationBuilder
   }) {
     final hydratedMetadata = hydrated.musicCatalogFields;
     final fallbackMetadata = fallback.musicCatalogFields;
-    final hydratedEditions =
-        hydrated.kindCapability.mapTransport((transport) => transport.editions);
-    final fallbackEditions =
-        fallback.kindCapability.mapTransport((transport) => transport.editions);
-    final editions =
-        hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
     final coverImageUrl =
         hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
     final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
         ? hydratedMetadata.thumbnailImageUrl
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
-        hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
-              coverImageUrl: coverImageUrl,
-              thumbnailImageUrl: thumbnailImageUrl,
-              editions: editions,
-            )));
+      hydrated.kindCapability.mapTransport(
+        (transport) => transport.copyWith(
+          coverImageUrl: coverImageUrl,
+          thumbnailImageUrl: thumbnailImageUrl,
+        ),
+      ),
+    );
   }
 
   @override
@@ -176,33 +128,31 @@ class MusicLibraryMediaPresentationBuilder
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
     required CatalogSearchCandidate item,
   }) {
-    final group = _musicGroupItem(item);
-    final release = group?.primaryRelease;
-    final medium = release?.mediums.firstOrNull;
-    final subtitle = _firstMeaningfulMusicValue([
-      release?.subtitle,
-      if ((medium?.mediumNumber ?? 0) > 1) 'Medium ${medium!.mediumNumber}',
-    ], disallow: {
-      item.summary.primaryLabel.trim().toLowerCase(),
-    });
-    final cleanedTitle =
-        _stripTrailingMusicDescriptor(item.summary.primaryLabel, subtitle);
-    final artist = group?.artist?.trim();
-    final format = medium?.mediumType?.trim();
-    final trackCount = group?.trackCount;
-    final catalogNumber = release?.catalogNumber?.trim();
-    final barcode = (release?.barcode ?? release?.upc)?.trim();
+    final album = musicCatalogItemFromCandidate(item);
+    final artist = album.artist?.trim();
+    final format = album.format?.trim();
+    final trackCount = album.discs.isEmpty
+        ? null
+        : album.discs.fold<int>(
+            0,
+            (total, disc) => total + disc.tracks.length,
+          );
+    final country = album.country?.trim();
+    final label = album.label?.trim();
+    final catalogNumber = album.catalogNumber?.trim();
+    final barcode = album.barcode?.trim();
     final detailParts = <String>[
-      if (subtitle != null && subtitle.isNotEmpty) subtitle,
       if (format != null && format.isNotEmpty) format,
+      if (country != null && country.isNotEmpty) country,
+      if (label != null && label.isNotEmpty) label,
       if (trackCount != null)
         '$trackCount ${trackCount == 1 ? 'track' : 'tracks'}',
       if (barcode != null && barcode.isNotEmpty) barcode,
       if (catalogNumber != null && catalogNumber.isNotEmpty) catalogNumber,
     ];
     return LibraryAddSearchResultDisplay(
-      title: cleanedTitle.isEmpty ? item.summary.primaryLabel : cleanedTitle,
-      secondaryLine: artist?.isNotEmpty == true ? artist : subtitle,
+      title: album.title,
+      secondaryLine: artist?.isNotEmpty == true ? artist : null,
       year: item.musicCatalogFields.releaseYear ??
           item.musicCatalogFields.releaseDate?.year,
       detailLine: detailParts.isEmpty ? null : detailParts.join(' - '),
@@ -214,38 +164,30 @@ class MusicLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.musicCatalogFields.releaseDate;
+    final album = musicCatalogItemFromCandidate(item);
     return [
       (
-        previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.kindCapability.mapTransport((transport) => transport).publisher
+        previewLabels.labelFor('label', fallback: 'Label'),
+        album.label,
       ),
       (
         'Released',
-        releaseDate == null
-            ? item.musicCatalogFields.releaseYear?.toString()
-            : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
+        album.releaseDate ?? item.musicCatalogFields.releaseYear?.toString(),
       ),
-      if (item.kindCapability
-              .mapTransport((transport) => transport)
-              .itemNumber !=
-          null)
-        (
-          previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.kindCapability.mapTransport((transport) => transport).itemNumber
-        ),
-      if (item.kindCapability.mapTransport((transport) => transport).variant !=
-          null)
-        (
-          previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.kindCapability.mapTransport((transport) => transport).variant
-        ),
+      ('Format', album.format),
+      ('Country', album.country),
+      ('Cat No', album.catalogNumber),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
+        album.barcode,
       ),
+      if (album.discs.isNotEmpty)
+        (
+          'Tracks',
+          album.discs
+              .fold<int>(0, (total, disc) => total + disc.tracks.length)
+              .toString(),
+        ),
     ];
   }
 
@@ -392,12 +334,6 @@ MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {
   return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }
 
-MusicReleaseGroup? _musicGroupItem(CatalogSearchCandidate? item) {
-  if (item == null) return null;
-  return item.kindCapability
-      .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-}
-
 String _musicDuration(MusicReleaseGroup group) {
   final totalSeconds = group.tracks.fold<int>(
     0,
@@ -406,43 +342,4 @@ String _musicDuration(MusicReleaseGroup group) {
   final minutes = totalSeconds ~/ 60;
   final seconds = totalSeconds % 60;
   return '$minutes:${seconds.toString().padLeft(2, '0')}';
-}
-
-String _stripTrailingMusicDescriptor(String title, String? descriptor) {
-  final trimmedTitle = title.trim();
-  final trimmedDescriptor = descriptor?.trim();
-  if (trimmedDescriptor == null || trimmedDescriptor.isEmpty) {
-    return trimmedTitle;
-  }
-  final lowerTitle = trimmedTitle.toLowerCase();
-  final lowerDescriptor = trimmedDescriptor.toLowerCase();
-  for (final separator in [' - ', ' – ', ' — ', ': ', ' ']) {
-    final suffix = '$separator$trimmedDescriptor';
-    if (lowerTitle.endsWith(suffix.toLowerCase())) {
-      return trimmedTitle
-          .substring(0, trimmedTitle.length - suffix.length)
-          .trimRight();
-    }
-  }
-  if (lowerTitle == lowerDescriptor) {
-    return title;
-  }
-  return trimmedTitle;
-}
-
-String? _firstMeaningfulMusicValue(
-  Iterable<String?> values, {
-  Set<String> disallow = const <String>{},
-}) {
-  for (final value in values) {
-    final trimmed = value?.trim();
-    if (trimmed == null || trimmed.isEmpty) {
-      continue;
-    }
-    if (disallow.contains(trimmed.toLowerCase())) {
-      continue;
-    }
-    return trimmed;
-  }
-  return null;
 }
