@@ -246,10 +246,6 @@ class ApiClient {
     return _catalogApi.getTvReleaseMediaItemDto(id);
   }
 
-  Future<BookWorkDto> getBookWorkDto(String id) {
-    return _catalogApi.getBookWorkDto(id);
-  }
-
   Future<GameWorkDto> getGameWorkDto(String id) {
     return _catalogApi.getGameWorkDto(id);
   }
@@ -474,13 +470,6 @@ class ApiClient {
 
   Future<List<Map<String, dynamic>>> getSeriesItems(String seriesId) {
     return _catalogApi.getSeriesItems(seriesId);
-  }
-
-  Future<BookEditionDto> createBookEdition(
-    String workId, {
-    required String title,
-  }) {
-    return _catalogApi.createBookEdition(workId, title: title);
   }
 
   /// Sends a GET request for a JSON list without assigning domain meaning to

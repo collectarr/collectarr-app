@@ -98,13 +98,6 @@ class CollectarrApiClient {
     return factory(_resolveImageUrls(data));
   }
 
-  Future<BookWorkDto> getBookWorkDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/books/works/${Uri.encodeComponent(id)}',
-      BookWorkDto.fromJson,
-    );
-  }
-
   Future<ComicWorkDto> getComicWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/api/v1/metadata/comics/works/${Uri.encodeComponent(id)}',
@@ -320,23 +313,6 @@ class CollectarrApiClient {
         .cast<Map<String, dynamic>>()
         .map(_resolveImageUrls)
         .toList(growable: false);
-  }
-
-  Future<BookEditionDto> createBookEdition(
-    String workId, {
-    required String title,
-  }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/api/v1/metadata/books/works/${Uri.encodeComponent(workId)}/editions',
-      data: {'title': title},
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-        '/api/v1/metadata/books/works/$workId/editions returned empty body',
-      );
-    }
-    return BookEditionDto.fromJson(_resolveImageUrls(data));
   }
 
   Future<Map<String, dynamic>> lookupBarcode(

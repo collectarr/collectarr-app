@@ -40,20 +40,6 @@ void main() {
 
 List<CoreFieldAdoptionPolicy> _policies() => [
       _policy(
-        'BookWorkDto',
-        'id title searchAliases genres contributors editions series '
-            'firstPublicationDate originalPublicationDate originalLanguage '
-            'sortTitle subtitle description',
-        ignored: _kindReason('Book'),
-      ),
-      _policy(
-        'BookEditionDto',
-        'id workId titleValue ageRating audioLengthMinutes binding contributors '
-            'coverImageKey coverImageUrlValue description displayTitle '
-            'editionStatement format isbn identifiers imprint language pageCount '
-            'publicationDate publisher region releaseStatus upc',
-      ),
-      _policy(
         'GameWorkDto',
         'id title platforms identifiers companyRoles ageRatings genres '
             'searchAliases releases originalLanguage publisher releaseDateValue '

@@ -350,23 +350,6 @@ void main() {
         );
       });
 
-      test('uses typed edition creation route for books', () async {
-        final interceptor = _FakeApiInterceptor();
-        interceptor.onPost('/api/v1/metadata/books/works/book-1/editions', {
-          'id': 'edition-1',
-          'title': 'Paperback',
-          'format': 'paperback',
-        });
-        final client = _createTestClient(interceptor);
-
-        final edition = await client.createBookEdition(
-          'book-1',
-          title: 'Paperback',
-        );
-
-        expect(edition.id, 'edition-1');
-        expect(edition.title, 'Paperback');
-      });
     });
 
     group('baseUrl', () {
