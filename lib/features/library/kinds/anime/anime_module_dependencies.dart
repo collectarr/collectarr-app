@@ -25,7 +25,6 @@ export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual
 export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_pane.dart';
 export 'package:collectarr_app/features/library/kinds/anime/add/anime_catalog_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/anime/anime_physical_media_formats.dart';
-export 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_catalog_target_capability.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';

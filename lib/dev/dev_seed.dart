@@ -75,9 +75,9 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'tv.release': 15,
   'tv.release_media': 15,
   'tv.release_episode_map': 15,
-  'anime.media': 15,
-  'anime.episode': 30,
-  'anime.release': 15,
+  'anime.catalog_item': 15,
+  'anime.episode_data': 30,
+  'anime.release_data': 15,
   'music.item': 15,
   'music.medium': 15,
   'music.track': 15,
@@ -148,6 +148,9 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
   final boardGameCatalogItems = await CatalogItemCacheRepository(db).findAll(
     kind: CatalogMediaKind.boardgame,
   );
+  final animeCatalogItems = await CatalogItemCacheRepository(db).findAll(
+    kind: CatalogMediaKind.anime,
+  );
   final musicCatalogItems = await CatalogItemCacheRepository(db).findAll(
     kind: CatalogMediaKind.music,
   );
@@ -186,9 +189,21 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'tv.release_media': (await db.select(db.tvReleaseMediaRows).get()).length,
     'tv.release_episode_map':
         (await db.select(db.tvReleaseEpisodeMapRows).get()).length,
-    'anime.media': (await db.select(db.animeMediaRows).get()).length,
-    'anime.episode': (await db.select(db.animeEpisodeRows).get()).length,
-    'anime.release': (await db.select(db.animeReleaseRows).get()).length,
+    'anime.catalog_item': animeCatalogItems.length,
+    'anime.episode_data': animeCatalogItems.fold<int>(
+      0,
+      (count, item) {
+        final episodes = item.payload['episodes'];
+        return count + (episodes is Iterable ? episodes.length : 0);
+      },
+    ),
+    'anime.release_data': animeCatalogItems.fold<int>(
+      0,
+      (count, item) {
+        final releases = item.payload['releases'] ?? item.payload['editions'];
+        return count + (releases is Iterable ? releases.length : 0);
+      },
+    ),
     'music.item': musicCatalogItems.length,
     'music.medium': musicAlbums.fold<int>(
       0,
@@ -334,22 +349,25 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     }
   }
 
-  final animeMedia = await db.select(db.animeMediaRows).get();
-  final animeMediaIds = animeMedia.map((row) => row.id).toSet();
-  final animeEpisodes = await db.select(db.animeEpisodeRows).get();
-  for (final row in animeEpisodes.where((row) => isSeed(row.seriesId))) {
-    if (!animeMediaIds.contains(row.seriesId)) {
-      issues.add(
-        'anime episode ${row.id} has missing media ${row.seriesId}',
-      );
+  final animeItems = await CatalogItemCacheRepository(db).findAll(
+    kind: CatalogMediaKind.anime,
+  );
+  for (final item in animeItems.where((item) => isSeed(item.id))) {
+    if (item.title.trim().isEmpty) {
+      issues.add('Anime Catalog Item ${item.id} has an empty title');
     }
-  }
-  final animeReleases = await db.select(db.animeReleaseRows).get();
-  for (final row in animeReleases.where((row) => isSeed(row.seriesId))) {
-    if (!animeMediaIds.contains(row.seriesId)) {
-      issues.add(
-        'anime release ${row.id} has missing media ${row.seriesId}',
-      );
+    for (final entry in item.payload['episodes'] is Iterable
+        ? item.payload['episodes'] as Iterable
+        : const <Object?>[]) {
+      if (entry is! Map || entry['id']?.toString().trim().isEmpty == true) {
+        issues.add('Anime Catalog Item ${item.id} has an invalid episode');
+      }
+    }
+    final releases = item.payload['releases'] ?? item.payload['editions'];
+    for (final entry in releases is Iterable ? releases : const <Object?>[]) {
+      if (entry is! Map || entry['id']?.toString().trim().isEmpty == true) {
+        issues.add('Anime Catalog Item ${item.id} has an invalid release');
+      }
     }
   }
 

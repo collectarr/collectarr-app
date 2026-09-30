@@ -2,12 +2,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_remote_source.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_episode.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:drift/native.dart';
@@ -123,39 +119,7 @@ void main() {
     expect(restored.details, item.details);
   });
 
-  test('AnimeRepository populates and then reads a remote media through cache',
-      () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    final expected = _media();
-    final repository = AnimeRepository(
-      db,
-      remote: _FakeAnimeRemote(expected),
-    );
-
-    final first = await repository.getMedia(expected.id);
-    final second = await repository.getMedia(expected.id);
-
-    expect(first?.id, expected.id);
-    expect(second?.episodes.single.id, expected.episodes.single.id);
-  });
-
   test('Anime local mapper requires persisted identities', () {
-    expect(
-      () => AnimeLocalMapper.toMediaRow(
-        const AnimeMedia(id: AnimeMediaId(''), title: 'Draft'),
-      ),
-      throwsStateError,
-    );
-    expect(
-      () => AnimeLocalMapper.toEpisodeRow(
-        const AnimeEpisode(
-          id: AnimeEpisodeId('episode-1'),
-          seriesId: AnimeMediaId(''),
-        ),
-      ),
-      throwsStateError,
-    );
     expect(
       () => AnimeLocalMapper.toOwnedItemRow(
         AnimeOwnedItem(
@@ -172,49 +136,9 @@ void main() {
     );
   });
 
-  test('Anime schema exposes dedicated tables at schema version 3', () {
+  test('Anime personal tables use the v1 database baseline', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     expect(db.schemaVersion, 1);
   });
-}
-
-AnimeMedia _media() {
-  return const AnimeMedia(
-    id: AnimeMediaId('anime-1'),
-    title: 'Cowboy Bebop',
-    animeType: 'TV',
-    episodeCount: 26,
-    episodes: [
-      AnimeEpisode(
-        id: AnimeEpisodeId('episode-1'),
-        seriesId: AnimeMediaId('anime-1'),
-        episodeNumber: 1,
-        title: 'Asteroid Blues',
-        runtimeMinutes: 24,
-      ),
-    ],
-    releases: [
-      AnimeRelease(
-        id: AnimeReleaseId('release-1'),
-        title: 'Complete Collection',
-        seriesId: AnimeMediaId('anime-1'),
-        format: 'Blu-ray',
-        barcode: '123456789',
-      ),
-    ],
-    contributions: [
-      AnimeContributor(name: 'Shinichiro Watanabe', role: 'director'),
-    ],
-    rawPayload: {'provider': 'core'},
-  );
-}
-
-final class _FakeAnimeRemote implements AnimeRemoteSource {
-  const _FakeAnimeRemote(this.media);
-
-  final AnimeMedia media;
-
-  @override
-  Future<AnimeMedia> fetchMedia(AnimeMediaId id) async => media;
 }

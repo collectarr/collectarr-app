@@ -112,13 +112,6 @@ class CollectarrApiClient {
     );
   }
 
-  Future<AnimeSeriesDto> getAnimeSeriesDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/anime/series/${Uri.encodeComponent(id)}',
-      AnimeSeriesDto.fromJson,
-    );
-  }
-
   Future<MovieWorkDto> getMovieWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/api/v1/metadata/movies/works/${Uri.encodeComponent(id)}',

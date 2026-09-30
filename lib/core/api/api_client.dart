@@ -210,10 +210,6 @@ class ApiClient {
     return _catalogApi.getComicWorkDto(id);
   }
 
-  Future<AnimeSeriesDto> getAnimeSeriesDto(String id) {
-    return _catalogApi.getAnimeSeriesDto(id);
-  }
-
   Future<MovieWorkDto> getMovieWorkDto(String id) {
     return _catalogApi.getMovieWorkDto(id);
   }

@@ -338,16 +338,6 @@ void main() {
             'episode_title': 'Pilot',
           }
         ]);
-        interceptor.onGet('/api/v1/metadata/anime/series/anime-1', {
-          'id': 'anime-1',
-          'title': 'Naruto',
-          'episodes': [
-            {
-              'episode_number': 1,
-              'episode_title': 'Enter Naruto Uzumaki!',
-            }
-          ],
-        });
         final client = _createTestClient(interceptor);
 
         expect(

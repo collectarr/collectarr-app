@@ -1,7 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_episode.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
@@ -11,94 +14,92 @@ import 'package:drift/drift.dart';
 
 final class AnimeRepository
     implements ReadRepository<AnimeMediaId, AnimeMedia> {
-  AnimeRepository(this._db, {AnimeRemoteSource? remote}) : _remote = remote;
+  AnimeRepository(this._db);
 
   final LocalDatabase _db;
-  final AnimeRemoteSource? _remote;
 
   @override
   Future<AnimeMedia?> findById(AnimeMediaId id) => getMedia(id);
 
   Future<AnimeMedia?> getMedia(AnimeMediaId id) async {
-    final row = await (_db.select(_db.animeMediaRows)
-          ..where((table) => table.id.equals(id.value)))
-        .getSingleOrNull();
-    if (row != null) return _hydrateMedia(row);
-
-    final remote = _remote;
-    if (remote == null) return null;
-    final media = await remote.fetchMedia(id);
-    await updateMedia(media);
-    return media;
+    final item = await CatalogItemCacheRepository(_db).find(
+      CatalogItemRef(kind: CatalogMediaKind.anime, id: id.value),
+    );
+    return item == null
+        ? null
+        : AnimeMedia.fromJson(catalogTransportPayloadFor(item));
   }
 
   Future<List<AnimeMedia>> search([String query = '']) async {
     final normalizedQuery = query.trim();
-    final select = _db.select(_db.animeMediaRows);
-    if (normalizedQuery.isNotEmpty) {
-      final pattern = '%$normalizedQuery%';
-      select.where(
-        (table) => table.title.like(pattern) | table.sortTitle.like(pattern),
-      );
-    }
-    select.orderBy([
-      (table) => OrderingTerm.asc(table.sortTitle),
-      (table) => OrderingTerm.asc(table.title),
-      (table) => OrderingTerm.asc(table.id),
-    ]);
-    final rows = await select.get();
-    return [for (final row in rows) await _hydrateMedia(row)];
+    final items = await CatalogItemCacheRepository(_db)
+        .findAll(kind: CatalogMediaKind.anime);
+    final media = [
+      for (final item in items)
+        AnimeMedia.fromJson(catalogTransportPayloadFor(item)),
+    ];
+    final matches = normalizedQuery.isEmpty
+        ? media
+        : media.where((item) {
+            final query = normalizedQuery.toLowerCase();
+            return item.title.toLowerCase().contains(query) ||
+                (item.sortTitle?.toLowerCase().contains(query) ?? false);
+          }).toList(growable: false);
+    matches.sort((left, right) {
+      final sortTitle = (left.sortTitle ?? '').compareTo(right.sortTitle ?? '');
+      if (sortTitle != 0) return sortTitle;
+      final title = left.title.compareTo(right.title);
+      return title != 0 ? title : left.id.value.compareTo(right.id.value);
+    });
+    return matches;
   }
 
   Future<List<AnimeEpisode>> episodesFor(AnimeMediaId mediaId) async {
-    final rows = await (_db.select(_db.animeEpisodeRows)
-          ..where((table) => table.seriesId.equals(mediaId.value))
-          ..orderBy([
-            (table) => OrderingTerm.asc(table.episodeNumber),
-            (table) => OrderingTerm.asc(table.id),
-          ]))
-        .get();
-    return rows.map(AnimeLocalMapper.fromEpisodeRow).toList(growable: false);
+    final media = await getMedia(mediaId);
+    if (media == null) return const <AnimeEpisode>[];
+    final episodes = media.episodes.toList();
+    episodes.sort((left, right) {
+      final number =
+          (left.episodeNumber ?? 0).compareTo(right.episodeNumber ?? 0);
+      return number != 0 ? number : left.id.value.compareTo(right.id.value);
+    });
+    return episodes;
   }
 
   Future<AnimeEpisode?> getEpisode(
     AnimeMediaId mediaId,
     AnimeEpisodeId episodeId,
   ) async {
-    final row = await (_db.select(_db.animeEpisodeRows)
-          ..where(
-            (table) =>
-                table.seriesId.equals(mediaId.value) &
-                table.id.equals(episodeId.value),
-          ))
-        .getSingleOrNull();
-    return row == null ? null : AnimeLocalMapper.fromEpisodeRow(row);
+    final episodes = await episodesFor(mediaId);
+    for (final episode in episodes) {
+      if (episode.id == episodeId) return episode;
+    }
+    return null;
   }
 
   Future<List<AnimeRelease>> releasesFor(AnimeMediaId mediaId) async {
-    final rows = await (_db.select(_db.animeReleaseRows)
-          ..where((table) => table.seriesId.equals(mediaId.value))
-          ..orderBy([
-            (table) => OrderingTerm.asc(table.releaseDate),
-            (table) => OrderingTerm.asc(table.title),
-            (table) => OrderingTerm.asc(table.id),
-          ]))
-        .get();
-    return rows.map(AnimeLocalMapper.fromReleaseRow).toList(growable: false);
+    final media = await getMedia(mediaId);
+    if (media == null) return const <AnimeRelease>[];
+    final releases = media.releases.toList();
+    releases.sort((left, right) {
+      final date = (left.releaseDate ?? DateTime(0))
+          .compareTo(right.releaseDate ?? DateTime(0));
+      if (date != 0) return date;
+      final title = left.title.compareTo(right.title);
+      return title != 0 ? title : left.id.value.compareTo(right.id.value);
+    });
+    return releases;
   }
 
   Future<AnimeRelease?> getRelease(
     AnimeMediaId mediaId,
     AnimeReleaseId releaseId,
   ) async {
-    final row = await (_db.select(_db.animeReleaseRows)
-          ..where(
-            (table) =>
-                table.seriesId.equals(mediaId.value) &
-                table.id.equals(releaseId.value),
-          ))
-        .getSingleOrNull();
-    return row == null ? null : AnimeLocalMapper.fromReleaseRow(row);
+    final releases = await releasesFor(mediaId);
+    for (final release in releases) {
+      if (release.id == releaseId) return release;
+    }
+    return null;
   }
 
   Future<void> updateMedia(AnimeMedia media) async {
@@ -106,37 +107,70 @@ final class AnimeRepository
       throw StateError('Cannot update AnimeMedia without an id');
     }
 
-    await _db.transaction(() async {
-      await _deleteMediaGraph(media.id);
-      await _db
-          .into(_db.animeMediaRows)
-          .insertOnConflictUpdate(AnimeLocalMapper.toMediaRow(media));
-      for (final episode in media.episodes) {
-        await _db.into(_db.animeEpisodeRows).insertOnConflictUpdate(
-              AnimeLocalMapper.toEpisodeRow(episode),
-            );
-      }
-      for (final release in media.releases) {
-        await _db.into(_db.animeReleaseRows).insertOnConflictUpdate(
-              AnimeLocalMapper.toReleaseRow(media.id, release),
-            );
-      }
-    });
+    final item = CatalogItemDto.fromJson({
+      ...media.toJson(),
+      'id': media.id.value,
+      'kind': CatalogMediaKind.anime.apiValue,
+    }).withKindMetadata(media);
+    await CatalogItemCacheRepository(_db).upsert(item);
   }
 
-  Future<void> updateEpisode(AnimeMediaId mediaId, AnimeEpisode episode) {
+  Future<void> updateEpisode(AnimeMediaId mediaId, AnimeEpisode episode) async {
     if (episode.seriesId != mediaId) {
       throw StateError('Anime episode does not belong to the supplied media');
     }
-    return _db.into(_db.animeEpisodeRows).insertOnConflictUpdate(
-          AnimeLocalMapper.toEpisodeRow(episode),
-        );
+    final media = await getMedia(mediaId);
+    if (media == null) {
+      throw StateError(
+          'Cannot update an episode without its Anime Catalog Item');
+    }
+    final episodes = media.episodes.toList();
+    final index = episodes.indexWhere((entry) => entry.id == episode.id);
+    if (index == -1) {
+      episodes.add(episode);
+    } else {
+      episodes[index] = episode;
+    }
+    await updateMedia(_withEpisodes(media, episodes));
   }
 
-  Future<void> updateRelease(AnimeMediaId mediaId, AnimeRelease release) {
-    return _db.into(_db.animeReleaseRows).insertOnConflictUpdate(
-          AnimeLocalMapper.toReleaseRow(mediaId, release),
-        );
+  Future<void> updateRelease(AnimeMediaId mediaId, AnimeRelease release) async {
+    final media = await getMedia(mediaId);
+    if (media == null) {
+      throw StateError(
+          'Cannot update a release without its Anime Catalog Item');
+    }
+    final releases = media.releases.toList();
+    final index = releases.indexWhere((entry) => entry.id == release.id);
+    final next = release.seriesId == mediaId
+        ? release
+        : AnimeRelease(
+            id: release.id,
+            title: release.title,
+            seriesId: mediaId,
+            coverImageKey: release.coverImageKey,
+            coverImageUrl: release.coverImageUrl,
+            description: release.description,
+            format: release.format,
+            language: release.language,
+            regionCode: release.regionCode,
+            releaseDate: release.releaseDate,
+            publisher: release.publisher,
+            distributor: release.distributor,
+            barcode: release.barcode,
+            mediaCount: release.mediaCount,
+            audioTracks: release.audioTracks,
+            subtitles: release.subtitles,
+            media: release.media,
+            episodeMappings: release.episodeMappings,
+            rawPayload: release.rawPayload,
+          );
+    if (index == -1) {
+      releases.add(next);
+    } else {
+      releases[index] = next;
+    }
+    await updateMedia(_withReleases(media, releases));
   }
 
   Future<AnimeTracking?> getTracking(String trackingId) async {
@@ -207,20 +241,15 @@ final class AnimeRepository
     );
   }
 
-  Future<AnimeMedia> _hydrateMedia(AnimeMediaRow row) async {
-    return AnimeLocalMapper.fromMediaRow(
-      row,
-      episodes: await episodesFor(AnimeMediaId(row.id)),
-      releases: await releasesFor(AnimeMediaId(row.id)),
-    );
-  }
+  AnimeMedia _withEpisodes(AnimeMedia media, List<AnimeEpisode> episodes) =>
+      AnimeMedia.fromJson({
+        ...media.toJson(),
+        'episodes': [for (final episode in episodes) episode.toJson()],
+      });
 
-  Future<void> _deleteMediaGraph(AnimeMediaId mediaId) async {
-    await (_db.delete(_db.animeEpisodeRows)
-          ..where((table) => table.seriesId.equals(mediaId.value)))
-        .go();
-    await (_db.delete(_db.animeReleaseRows)
-          ..where((table) => table.seriesId.equals(mediaId.value)))
-        .go();
-  }
+  AnimeMedia _withReleases(AnimeMedia media, List<AnimeRelease> releases) =>
+      AnimeMedia.fromJson({
+        ...media.toJson(),
+        'releases': [for (final release in releases) release.toJson()],
+      });
 }

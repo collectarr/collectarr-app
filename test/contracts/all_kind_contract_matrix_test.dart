@@ -112,7 +112,7 @@ void main() {
       kind: CatalogMediaKind.anime,
       workspace: animeKindWorkspace,
       contractFiles: const [
-        'test/domain/anime/anime_core_mapper_test.dart',
+        'test/domain/anime/anime_catalog_transport_test.dart',
         'test/domain/anime/anime_local_mapper_repository_test.dart',
         'test/domain/anime/anime_add_schema_test.dart',
         'test/domain/anime/anime_edit_schema_test.dart',

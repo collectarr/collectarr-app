@@ -27,6 +27,9 @@ void main() {
     expect(names, contains('music_owned_items_rows'));
     expect(names, contains('music_tracking_rows'));
     expect(names, contains('music_listen_events_rows'));
+    expect(names, isNot(contains('anime_media_rows')));
+    expect(names, isNot(contains('anime_episode_rows')));
+    expect(names, isNot(contains('anime_release_rows')));
     expect(names, isNot(contains('music_album_rows')));
     expect(names, isNot(contains('music_medium_rows')));
     expect(names, isNot(contains('music_track_rows')));
@@ -44,7 +47,6 @@ void main() {
       'board_game_media_rows',
       'movie_media_rows',
       'tv_series_rows',
-      'anime_media_rows',
       'music_album_images_rows',
       'music_owned_items_rows',
     ];

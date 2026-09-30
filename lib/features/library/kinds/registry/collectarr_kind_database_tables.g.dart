@@ -21,9 +21,6 @@ import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tab
 export 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
 
 const List<Type> collectarrKindTableTypes = <Type>[
-  AnimeMediaRows,
-  AnimeEpisodeRows,
-  AnimeReleaseRows,
   AnimeOwnedItemsRows,
   AnimeTrackingRows,
   AnimeTrackingUnitRows,
