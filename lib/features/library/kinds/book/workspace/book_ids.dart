@@ -32,14 +32,6 @@ abstract final class BookFieldIds {
       LibraryFieldId<BookKind, String?>('book.illustrator');
   static const coverArtist =
       LibraryFieldId<BookKind, String?>('book.cover_artist');
-  static const printing = LibraryFieldId<BookKind, String?>('book.printing');
-  static const numberLine =
-      LibraryFieldId<BookKind, String?>('book.number_line');
-  static const firstEdition =
-      LibraryFieldId<BookKind, bool>('book.first_edition');
-  static const dewey = LibraryFieldId<BookKind, String?>('book.dewey');
-  static const locClassification =
-      LibraryFieldId<BookKind, String?>('book.loc_classification');
   static const signedBy = LibraryFieldId<BookKind, String?>('book.signed_by');
 }
 

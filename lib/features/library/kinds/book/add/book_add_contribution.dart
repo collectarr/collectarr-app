@@ -115,18 +115,6 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   manualPaneBuilder: buildBookAddManualPane,
 );
 
-Future<List<LibraryHierarchyNode>> fetchBookVolumes({
-  required ApiClient api,
-  required String itemId,
-}) async {
-  final work =
-      await api.getBookWorkDto(itemId).timeout(const Duration(seconds: 60));
-  final book = BookCoreMapper.fromWorkDto(work);
-  return BookHierarchyMapper.toLibraryNodes(book.editions);
-}
-
-String bookChildrenTitle(int count) => 'Editions ($count)';
-
 Iterable<String> getBookFacetValues(
   BookWorkspaceDto dto,
   LibraryFacetIdRuntime facetId,

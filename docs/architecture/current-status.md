@@ -81,8 +81,12 @@ until their active callers move to the flat cache.
 Book calendar events now read each concrete item's release date from this cache
 instead of loading a `BookMedia` row from the old per-kind table. The Book
 barcode/ISBN lookup also reads root identifiers and contained printing ISBNs
-from the cache. The Book workspace and other old Book readers still require
-that table.
+from the cache. The Book workspace now exposes one combined Catalog Item field
+and column schema; it no longer registers a separate Release workspace or
+fetches nested volumes for browsing. The generic workspace registry still maps
+that root through its transitional `work` scope, and Book edit/storage readers
+still use the old `BookMedia` tables. The Book field ledger remains provisional
+until its Edit-form capture is available.
 
 Music-owned copies created through Add target the concrete Music Catalog Item
 directly and persist only that `catalog_ref`; they do not carry a redundant

@@ -1,12 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
-abstract final class BookWorkWorkspaceFields {
+abstract final class BookCatalogItemWorkspaceFields {
   static final title = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.title,
     label: 'Title',
@@ -70,68 +68,52 @@ abstract final class BookWorkWorkspaceFields {
     getValue: (dto) => dto.coverArtist,
     entityScope: LibraryEntityScope.work,
   );
-
-  static final printing = textField<BookKind, BookWorkspaceDto>(
-    id: BookFieldIds.printing,
-    label: 'Printing',
-    getValue: (dto) => dto.printing,
-    entityScope: LibraryEntityScope.work,
-  );
-
-  static final numberLine = textField<BookKind, BookWorkspaceDto>(
-    id: BookFieldIds.numberLine,
-    label: 'Number Line',
-    getValue: (dto) => dto.numberLine,
-    entityScope: LibraryEntityScope.work,
-  );
 }
 
-final bookWorkWorkspaceFieldDefinitions = [
-  BookWorkWorkspaceFields.title,
-  BookWorkWorkspaceFields.author,
-  BookWorkWorkspaceFields.series,
-  BookWorkWorkspaceFields.subtitle,
-  BookWorkWorkspaceFields.translator,
-  BookWorkWorkspaceFields.editor,
-  BookWorkWorkspaceFields.illustrator,
-  BookWorkWorkspaceFields.coverArtist,
-  BookWorkWorkspaceFields.printing,
-  BookWorkWorkspaceFields.numberLine,
-  BookWorkWorkspaceFields.cover,
+final bookCatalogItemWorkspaceFieldDefinitions = [
+  BookCatalogItemWorkspaceFields.title,
+  BookCatalogItemWorkspaceFields.author,
+  BookCatalogItemWorkspaceFields.series,
+  BookCatalogItemWorkspaceFields.subtitle,
+  BookCatalogItemWorkspaceFields.translator,
+  BookCatalogItemWorkspaceFields.editor,
+  BookCatalogItemWorkspaceFields.illustrator,
+  BookCatalogItemWorkspaceFields.coverArtist,
+  BookCatalogItemWorkspaceFields.cover,
 ];
 
-final bookWorkWorkspaceGroupDefinitions = [
+final bookCatalogItemWorkspaceGroupDefinitions = [
   groupFromField<BookKind, BookWorkspaceDto, String?>(
-    BookWorkWorkspaceFields.author,
+    BookCatalogItemWorkspaceFields.author,
     sidebarTitle: 'Authors',
     icon: Icons.person_outline,
   ),
   groupFromField<BookKind, BookWorkspaceDto, String?>(
-    BookWorkWorkspaceFields.series,
+    BookCatalogItemWorkspaceFields.series,
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
     sequenceValue: (context) => context.dto.itemNumber,
   ),
 ];
 
-final bookWorkWorkspaceSortDefinitions = [
+final bookCatalogItemWorkspaceSortDefinitions = [
   sortFromField<BookKind, BookWorkspaceDto, String>(
-      BookWorkWorkspaceFields.title),
+      BookCatalogItemWorkspaceFields.title),
   sortFromField<BookKind, BookWorkspaceDto, String>(
-      BookWorkWorkspaceFields.author),
+      BookCatalogItemWorkspaceFields.author),
 ];
 
-final bookWorkWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+final bookCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
   BookFieldIds.cover,
   BookFieldIds.author,
   BookFieldIds.title,
 };
 
-final bookWorkWorkspaceColumnDefinitions = [
+final bookCatalogItemWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.cover,
     label: '',
-    getValue: BookWorkWorkspaceFields.cover.getValue,
+    getValue: BookCatalogItemWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
         : Image.network(
@@ -146,55 +128,30 @@ final bookWorkWorkspaceColumnDefinitions = [
     minWidth: 44,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
-      BookWorkWorkspaceFields.author,
+      BookCatalogItemWorkspaceFields.author,
       defaultWidth: 150),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
-      BookWorkWorkspaceFields.title,
+      BookCatalogItemWorkspaceFields.title,
       defaultWidth: 260,
       maxWidth: 520),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
-    BookWorkWorkspaceFields.subtitle,
+    BookCatalogItemWorkspaceFields.subtitle,
     group: 'Details',
     defaultWidth: 180,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
-    BookWorkWorkspaceFields.translator,
+    BookCatalogItemWorkspaceFields.translator,
     group: 'Credits',
     defaultWidth: 130,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
-    BookWorkWorkspaceFields.editor,
+    BookCatalogItemWorkspaceFields.editor,
     group: 'Credits',
     defaultWidth: 130,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
-    BookWorkWorkspaceFields.illustrator,
+    BookCatalogItemWorkspaceFields.illustrator,
     group: 'Credits',
     defaultWidth: 130,
-  ),
-  columnFromField<BookKind, BookWorkspaceDto, String?>(
-    BookWorkWorkspaceFields.printing,
-    group: 'Edition',
-    defaultWidth: 100,
-  ),
-  columnFromField<BookKind, BookWorkspaceDto, String?>(
-    BookWorkWorkspaceFields.numberLine,
-    group: 'Edition',
-    defaultWidth: 100,
   ),
 ];
-
-final bookWorkWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<BookKind, BookWorkspaceDto>(
-  kindNamespace: 'book',
-  entityScope: LibraryEntityScope.work,
-  fields: bookWorkWorkspaceFieldDefinitions,
-  columns: bookWorkWorkspaceColumnDefinitions,
-  sorts: bookWorkWorkspaceSortDefinitions,
-  groups: bookWorkWorkspaceGroupDefinitions,
-  primaryColumn: BookFieldIds.title,
-  defaultVisibleColumns: bookWorkWorkspaceDefaultVisibleColumns,
-  defaultSort: BookSortIds.author,
-  defaultGroup: BookGroupIds.author,
-  preferenceCodec: const BookPreferenceCodec(),
-);

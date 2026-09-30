@@ -5,16 +5,9 @@ final bookKindWorkspace = TypedLibraryKindWorkspace<BookWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: bookWorkWorkspaceSchema.toRegistry(),
+      fields: bookCatalogItemWorkspaceSchema.toRegistry(),
       projector: const BookWorkspaceProjector(
         expectedScope: LibraryEntityScope.work,
-      ),
-    ),
-    LibraryEntityScope.release: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
-      scope: LibraryEntityScope.release,
-      fields: bookReleaseWorkspaceSchema.toRegistry(),
-      projector: const BookWorkspaceProjector(
-        expectedScope: LibraryEntityScope.release,
       ),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<BookWorkspaceDto>(

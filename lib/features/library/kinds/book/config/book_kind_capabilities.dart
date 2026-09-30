@@ -1,8 +1,5 @@
 import '../book_module_dependencies.dart';
 import 'book_kind_configuration.dart';
-import 'package:collectarr_app/features/library/kinds/book/release/book_release_projection_capability.dart'
-    as book_release;
-import '../add/book_add_contribution.dart';
 
 final bookKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.book,
@@ -24,11 +21,12 @@ final bookKindTrackingProfile = bookTrackingProfile;
 
 final bookKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final bookKindReleaseCapability = book_release.bookKindReleaseCapability;
+final ReleaseProjectionCapability<BookWorkspaceDto>? bookKindReleaseCapability =
+    null;
 
-final bookKindReleaseDetailSource = book_release.bookKindReleaseDetailSource;
+final bookKindReleaseDetailSource = null;
 
-final bookKindCatalogTarget = const BookCatalogTargetCapability();
+final bookKindCatalogTarget = const RootCatalogTargetCapability();
 
 final bookKindUiPolicy = const LibraryUiPolicy();
 
@@ -66,11 +64,7 @@ final bookKindMetadata = const LibraryMetadataCapability(
   searchQueryBuilder: bookMetadataSearchQuery,
 );
 
-final bookKindHierarchy = LibraryHierarchyCapability(
-  browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
-  fetchChildrenCallback: fetchBookVolumes,
-  childrenTitleBuilder: bookChildrenTitle,
-);
+final bookKindHierarchy = const LibraryHierarchyCapability();
 
 final bookKindEntityVocabulary = const LibraryEntityVocabulary(
   work: LibraryEntityLabel(singular: 'Book', plural: 'Books'),
@@ -80,14 +74,13 @@ final bookKindEntityVocabulary = const LibraryEntityVocabulary(
 
 final bookKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.read,
-  writableTargets: {LibraryTrackingTargetScope.content},
+  writableTargets: {LibraryTrackingTargetScope.work},
   aggregateTargets: {LibraryTrackingTargetScope.work},
-  contentTargets: {LibraryTrackingTargetScope.content},
 );
 
 final bookKindActions = const LibraryEntityActionCapability(
   work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
+  release: LibraryEntityActionSet(),
   copy: LibraryEntityActionSet.copy,
 );
 
@@ -98,11 +91,6 @@ final bookKindInspector = LibraryInspectorCapability(
         scope: LibraryEntityScope.work,
         heroBuilder: buildBookWorkInspectorHero,
         sectionsBuilder: buildBookWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildBookReleaseInspectorHero,
-        sectionsBuilder: buildBookReleaseInspectorSections,
       ),
       LibraryEntityInspectorContributor(
         scope: LibraryEntityScope.copy,

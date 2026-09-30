@@ -124,8 +124,6 @@ void main() {
       expect(dto.format, isNull);
       expect(dto.isbn, isNull);
       expect(dto.pageCount, isNull);
-      expect(dto.firstEdition, isFalse);
-      expect(dto.dewey, isNull);
 
       final ctx = LibraryProjectionContext<BookWorkspaceDto>(
         source: shelfEntry,
@@ -133,14 +131,19 @@ void main() {
         dto: dto,
       );
 
-      expect(BookWorkWorkspaceFields.title.getValue(ctx), 'Dune');
-      expect(BookWorkWorkspaceFields.author.getValue(ctx), 'Frank Herbert');
-      expect(BookWorkWorkspaceFields.subtitle.getValue(ctx), 'Part One');
-      expect(BookReleaseWorkspaceFields.format.getValue(ctx), isNull);
-      expect(BookReleaseWorkspaceFields.isbn.getValue(ctx), isNull);
-      expect(BookReleaseWorkspaceFields.pageCount.getValue(ctx), isNull);
-      expect(BookReleaseWorkspaceFields.firstEdition.getValue(ctx), isFalse);
-      expect(BookReleaseWorkspaceFields.dewey.getValue(ctx), isNull);
+      expect(BookCatalogItemWorkspaceFields.title.getValue(ctx), 'Dune');
+      expect(
+        BookCatalogItemWorkspaceFields.author.getValue(ctx),
+        'Frank Herbert',
+      );
+      expect(BookCatalogItemWorkspaceFields.subtitle.getValue(ctx), 'Part One');
+      expect(
+          BookCatalogItemDetailsWorkspaceFields.format.getValue(ctx), isNull);
+      expect(BookCatalogItemDetailsWorkspaceFields.isbn.getValue(ctx), isNull);
+      expect(
+        BookCatalogItemDetailsWorkspaceFields.pageCount.getValue(ctx),
+        isNull,
+      );
     });
   });
 }

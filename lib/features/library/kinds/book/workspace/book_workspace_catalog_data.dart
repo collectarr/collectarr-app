@@ -11,17 +11,21 @@ final class BookWorkspaceCatalogData
         LibraryWorkspaceCatalogSynopsisData {
   BookWorkspaceCatalogData({
     required this.ref,
+    required this.catalogTitle,
     required this.book,
     required this.metadata,
     this.catalogReleaseDate,
+    this.catalogCoverImageUrl,
   });
 
   factory BookWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
     final rawMetadata = item.kindMetadata;
     return BookWorkspaceCatalogData(
       ref: item.catalogRef,
+      catalogTitle: item.title,
       book: BookCatalogMapper.mapMetadataItemToBook(item),
       catalogReleaseDate: item.releaseDate,
+      catalogCoverImageUrl: item.displayCoverUrl,
       metadata: rawMetadata is BookCatalogMetadata
           ? rawMetadata
           : rawMetadata == null
@@ -32,23 +36,22 @@ final class BookWorkspaceCatalogData
 
   @override
   final CatalogEntityRef ref;
+  final String catalogTitle;
   final BookCatalogItem book;
   final BookCatalogMetadata? metadata;
   final DateTime? catalogReleaseDate;
+  final String? catalogCoverImageUrl;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.book;
   @override
-  String get title => book.title;
+  String get title => catalogTitle;
   @override
-  String? get synopsis => book.synopsis;
+  String? get synopsis => metadata?.synopsis ?? book.synopsis;
   @override
-  DateTime? get releaseDate =>
-      book.releaseDate ??
-      metadata?.publishing?.originalPublicationDate ??
-      catalogReleaseDate;
+  DateTime? get releaseDate => catalogReleaseDate;
   @override
-  String? get coverImageUrl => book.coverImageUrl;
+  String? get coverImageUrl => catalogCoverImageUrl;
   @override
   String? get thumbnailImageUrl => book.thumbnailImageUrl;
 }

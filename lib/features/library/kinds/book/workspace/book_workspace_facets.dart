@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
@@ -19,10 +18,7 @@ final bookLibraryFacetDefinitions =
     id: BookFacetIds.publisher,
     label: 'Publisher',
     extractValues: (dto) => [
-      if (dto.release?.publisher case final publisher?) publisher,
-      for (final edition
-          in dto.metadata?.editions ?? const <BookEditionMetadata>[])
-        if (edition.publisher case final publisher?) publisher,
+      if (dto.publisher case final publisher?) publisher,
     ],
   ),
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
@@ -34,11 +30,7 @@ final bookLibraryFacetDefinitions =
     id: BookFacetIds.format,
     label: 'Format',
     extractValues: (dto) => [
-      if (dto.release?.physicalFormatLabel case final format?) format,
-      if (dto.release?.physicalFormat case final format?) format,
-      for (final edition
-          in dto.metadata?.editions ?? const <BookEditionMetadata>[])
-        if (edition.format case final format?) format,
+      if (dto.format case final format?) format,
     ],
   ),
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(

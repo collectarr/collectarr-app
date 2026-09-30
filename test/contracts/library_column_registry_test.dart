@@ -11,7 +11,10 @@ void main() {
         fields.every((field) => field.entityScope == LibraryEntityScope.work),
         isTrue);
     expect(fields.any((field) => field.id.value == 'book.title'), isTrue);
-    expect(bookWorkWorkspaceFieldDefinitions, isNotEmpty);
-    expect(bookWorkWorkspaceFieldDefinitions.first.id.value, 'book.title');
+    expect(bookCatalogItemWorkspaceFieldDefinitions, isNotEmpty);
+    expect(
+      bookCatalogItemWorkspaceFieldDefinitions.first.id.value,
+      'book.title',
+    );
   });
 }

@@ -154,29 +154,24 @@ Sources: Work schema `[lib/features/library/kinds/anime/workspace/anime_work_wor
 
 ## Book
 
-Sources: Work schema `[lib/features/library/kinds/book/workspace/book_work_workspace_schema.dart]`; Release schema `[lib/features/library/kinds/book/workspace/book_release_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/book/workspace/book_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/book/workspace/book_workspace_facets.dart`; IDs: `[lib/features/library/kinds/book/workspace/book_ids.dart]`; preference codec: `lib/features/library/kinds/book/workspace/book_preference_codec.dart`; contribution/default overrides: `[lib/features/library/kinds/book/workspace/book_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: combined Catalog Item fields `[lib/features/library/kinds/book/workspace/book_catalog_item_workspace_fields.dart]` and details `[lib/features/library/kinds/book/workspace/book_catalog_item_details_workspace_fields.dart]`; Catalog Item schema `[lib/features/library/kinds/book/workspace/book_catalog_item_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/book/workspace/book_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/book/workspace/book_workspace_facets.dart`; IDs: `[lib/features/library/kinds/book/workspace/book_ids.dart]`; preference codec: `lib/features/library/kinds/book/workspace/book_preference_codec.dart`; contribution/default overrides: `[lib/features/library/kinds/book/workspace/book_workspace_contribution.dart]`. The Catalog Item is still routed through the generic `work` scope internally; it no longer has a separate Release workspace. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
-| work | `title` | `book.title` | Title | `dto.title` | yes | yes | — | yes |
-| work | `author` | `book.author` | Author | `dto.author` | yes | yes | yes | yes |
-| work | `series` | `book.series` | Series | `dto.seriesTitle` | — | — | yes | — |
-| work | `cover` | `book.cover` | Cover | `context.dto.coverImageUrl` | yes | — | — | yes |
-| work | `subtitle` | `book.subtitle` | Subtitle | `dto.subtitle` | yes | — | — | — |
-| work | `translator` | `book.translator` | Translator | `dto.translator` | yes | — | — | — |
-| work | `editor` | `book.editor` | Editor | `dto.editor` | yes | — | — | — |
-| work | `illustrator` | `book.illustrator` | Illustrator | `dto.illustrator` | yes | — | — | — |
-| work | `coverArtist` | `book.cover_artist` | Cover Artist | `dto.coverArtist` | — | — | — | — |
-| work | `printing` | `book.printing` | Printing | `dto.printing` | yes | — | — | — |
-| work | `numberLine` | `book.number_line` | Number Line | `dto.numberLine` | yes | — | — | — |
-| release | `publisher` | `book.publisher` | Publisher | `dto.publisher` | yes | — | yes | yes |
-| release | `pageCount` | `book.page_count` | Page count | `dto.pageCount` | — | yes | — | — |
-| release | `isbn` | `book.isbn` | ISBN | `dto.isbn ?? dto.barcode` | yes | — | — | yes |
-| release | `releaseDate` | `book.release_date` | Release Date | `dto.releaseDate` | yes | yes | — | yes |
-| release | `format` | `book.format` | Format | `dto.format` | yes | — | yes | — |
-| release | `firstEdition` | `book.first_edition` | First Edition | `context.dto.firstEdition` | yes | — | — | — |
-| release | `dewey` | `book.dewey` | Dewey Decimal | `dto.dewey` | yes | — | — | — |
-| release | `locClassification` | `book.loc_classification` | LoC Classification | `dto.locClassification` | — | — | — | — |
+| catalog_item | `title` | `book.title` | Title | `dto.title` | yes | yes | — | yes |
+| catalog_item | `author` | `book.author` | Author | `dto.author` | yes | yes | yes | yes |
+| catalog_item | `series` | `book.series` | Series | `dto.seriesTitle` | — | — | yes | — |
+| catalog_item | `cover` | `book.cover` | Cover | `context.dto.coverImageUrl` | yes | — | — | yes |
+| catalog_item | `subtitle` | `book.subtitle` | Subtitle | `dto.subtitle` | yes | — | — | — |
+| catalog_item | `translator` | `book.translator` | Translator | `dto.translator` | yes | — | — | — |
+| catalog_item | `editor` | `book.editor` | Editor | `dto.editor` | yes | — | — | — |
+| catalog_item | `illustrator` | `book.illustrator` | Illustrator | `dto.illustrator` | yes | — | — | — |
+| catalog_item | `coverArtist` | `book.cover_artist` | Cover Artist | `dto.coverArtist` | — | — | — | — |
+| catalog_item | `publisher` | `book.publisher` | Publisher | `dto.publisher` | yes | — | yes | yes |
+| catalog_item | `pageCount` | `book.page_count` | Page count | `dto.pageCount` | — | yes | — | — |
+| catalog_item | `isbn` | `book.isbn` | ISBN | `dto.isbn ?? dto.barcode` | yes | — | — | yes |
+| catalog_item | `releaseDate` | `book.release_date` | Release Date | `dto.releaseDate` | yes | yes | — | yes |
+| catalog_item | `format` | `book.format` | Format | `dto.format` | yes | — | yes | — |
 | copy | `condition` | `book.condition` | Condition | `derived from projection/context` | yes | — | yes | yes |
 | copy | `location` | `book.location` | Location | `context.source.locationPath` | yes | — | yes | yes |
 | copy | `pricePaid` | `book.price_paid` | Purchase Price | `context.source.pricePaidCents` | yes | — | — | yes |
@@ -190,8 +185,8 @@ Sources: Work schema `[lib/features/library/kinds/book/workspace/book_work_works
 
 - Workspace sort IDs: book.author, book.page_count, book.release_date, book.status, book.title
 - Workspace group IDs: book.author, book.condition, book.format, book.location, book.publisher, book.series
-- Default visible column IDs by scope: work: book.author, book.cover, book.title; release: book.isbn, book.publisher, book.release_date; copy: book.condition, book.location, book.price_paid, book.rating, book.read_status, book.status, book.updated_at, book.wishlist
-- Root schema defaults: sort `book.author`; group `book.author`. Release/Copy overrides: see `lib/features/library/kinds/book/workspace/book_workspace_contribution.dart`.
+- Default visible column IDs by scope: catalog_item: book.author, book.cover, book.isbn, book.publisher, book.release_date, book.title; copy: book.condition, book.location, book.price_paid, book.rating, book.read_status, book.status, book.updated_at, book.wishlist
+- Catalog Item/Copy defaults: sort `book.author`; group `book.author`. Copy schema: see `lib/features/library/kinds/book/workspace/book_workspace_contribution.dart`.
 - Facet ID members: author, publisher, genre, format, subject, translator
 - Add/Edit field IDs (prefix identifies source family): add:age_rating, add:authors, add:back_cover_image_url, add:barcode, add:characters, add:country, add:edition, add:number, add:publication, add:publication_year, add:series_group, add:variant, edit:additional_details, edit:details, edit:dust_jacket_condition, edit:dust_jacket_present, edit:edition, edit:edition_details, edit:identity, edit:owned, edit:publication, edit:publication_details, edit:signature, edit:signed_by, edit:titles, forms:audio_length_minutes, forms:binding, forms:cover_image_url, forms:description, forms:dimensions, forms:distributor, forms:edition_statement, forms:first_edition, forms:first_publication_date, forms:format, forms:genres, forms:imprint, forms:isbn, forms:language, forms:original_language, forms:original_publication_date, forms:page_count, forms:publisher, forms:region, forms:release_date, forms:release_status, forms:search_aliases, forms:sort_title, forms:subtitle, forms:thumbnail_image_url, forms:title, forms:upc
 

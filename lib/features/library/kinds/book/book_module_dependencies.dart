@@ -23,7 +23,6 @@ export 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_p
 export 'package:collectarr_app/features/library/kinds/book/add/book_catalog_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/book/book_physical_media_formats.dart';
 export 'package:collectarr_app/features/library/kinds/book/data/remote/book_core_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/book/domain/book_catalog_target_capability.dart';
 export 'package:collectarr_app/features/library/kinds/book/domain/book_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
@@ -39,7 +38,6 @@ export 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_
 export 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_create_payload.dart';
 export 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/book/presentation.dart';
-export 'package:collectarr_app/features/library/kinds/book/release/book_release_projection_capability.dart';
 export 'package:collectarr_app/features/library/kinds/book/stats/book_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
