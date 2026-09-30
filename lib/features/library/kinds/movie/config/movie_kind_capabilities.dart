@@ -52,11 +52,6 @@ final movieKindTrackingProfile = movieTrackingProfile;
 
 final movieKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final movieKindReleaseCapability =
-    const MovieReleaseProjectionCapability<LibraryWorkspaceDto>();
-
-final movieKindReleaseDetailSource = const MovieReleaseDetailSource();
-
 final movieKindCatalogTarget = const MovieCatalogTargetCapability();
 
 final LibraryRelationCapability? movieKindRelations = null;
@@ -111,7 +106,7 @@ final movieKindTrackingTopology = const LibraryTrackingTopology(
 
 final movieKindActions = const LibraryEntityActionCapability(
   work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
+  release: LibraryEntityActionSet(),
   copy: LibraryEntityActionSet.copy,
 );
 
@@ -122,12 +117,6 @@ final movieKindInspector = LibraryInspectorCapability(
         scope: LibraryEntityScope.work,
         heroBuilder: buildMovieWorkInspectorHero,
         sectionsBuilder: buildMovieWorkInspectorSections,
-        detailPageBuilder: buildLibraryReleaseDetailPage,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildMovieReleaseInspectorHero,
-        sectionsBuilder: buildMovieReleaseInspectorSections,
         detailPageBuilder: buildLibraryReleaseDetailPage,
       ),
       LibraryEntityInspectorContributor(

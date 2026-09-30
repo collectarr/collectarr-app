@@ -5,12 +5,8 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/release/anime_release_projection_capability.dart';
-import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/tv/release/tv_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,12 +15,7 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   group('Release Capability Ownership Contract Tests', () {
-    test('movie, tv, and anime kinds register concrete release capabilities',
-        () {
-      expect(
-        movieKindReleaseCapability,
-        isA<MovieReleaseProjectionCapability>(),
-      );
+    test('tv and anime kinds register concrete release capabilities', () {
       expect(
         tvKindReleaseCapability,
         isA<TvReleaseProjectionCapability>(),
@@ -35,9 +26,12 @@ void main() {
       );
     });
 
-    test('every kind registers a structural release capability', () {
+    test('release capabilities belong only to kinds with release children', () {
       for (final registration in collectarrKindRegistrationsList) {
         final kind = registration.kind;
+        if (kind == CatalogMediaKind.music || kind == CatalogMediaKind.movie) {
+          continue;
+        }
         expect(
           libraryReleaseCapabilityForKind(kind),
           isNotNull,
@@ -46,62 +40,10 @@ void main() {
       }
     });
 
-    test('music projects concrete releases below each release group', () {
-      final group = MusicReleaseGroup(
-        id: const MusicReleaseGroupId('group-1'),
-        title: 'Kind of Blue',
-        artist: 'Miles Davis',
-        releases: [
-          MusicRelease(
-            id: const MusicReleaseId('release-cd'),
-            releaseGroupId: const MusicReleaseGroupId('group-1'),
-            title: 'Kind of Blue (CD)',
-            releaseType: 'Album',
-          ),
-          MusicRelease(
-            id: const MusicReleaseId('release-vinyl'),
-            releaseGroupId: const MusicReleaseGroupId('group-1'),
-            title: 'Kind of Blue (Vinyl)',
-            releaseType: 'Album',
-          ),
-        ],
-      );
-      final item = testCatalogItem(
-        id: 'group-1',
-        kind: 'music',
-        title: group.title,
-        payload: group.toJson(),
-      ).withKindMetadata(group);
-      final shelf = ShelfState(
-        entries: [
-          LibraryWorkspaceSource(
-            itemId: 'group-1',
-            catalogData: testWorkspaceCatalogData(item),
-          ),
-        ],
-        ownedCount: 0,
-        wishlistCount: 0,
-        pricedCount: 0,
-        totalPaidCents: 0,
-        primaryCurrency: null,
-        hasMixedCurrencies: false,
-      );
-
-      final items = libraryItemsForShelf(
-        shelf,
-        libraryKindRegistrationForKind(CatalogMediaKind.music),
-        browserMode: LibraryWorkspaceBrowserMode.release,
-      );
-
-      expect(items, hasLength(2));
-      expect(
-        items.map((item) => (item.node as LibraryReleaseRef).releaseId),
-        ['release-cd', 'release-vinyl'],
-      );
-      expect(items.map((item) => item.dto.primaryLabel), [
-        'Kind of Blue (CD)',
-        'Kind of Blue (Vinyl)',
-      ]);
+    test('music and movie catalog items do not register a release scope', () {
+      for (final kind in [CatalogMediaKind.music, CatalogMediaKind.movie]) {
+        expect(libraryReleaseCapabilityForKind(kind), isNull);
+      }
     });
 
     test('release projection with no canonical releases is empty', () {
@@ -134,7 +76,7 @@ void main() {
       );
     });
 
-    test('supported kind projects releases through its concrete capability',
+    test('Movie edition is the root item, with no release child projection',
         () {
       final shelf = ShelfState(
         entries: [
@@ -168,11 +110,7 @@ void main() {
         browserMode: LibraryWorkspaceBrowserMode.release,
       );
 
-      expect(items, isNotEmpty);
-      expect(items.first.dto.primaryLabel, '4K Ultra HD');
-      expect(items.first.node, isA<LibraryReleaseRef>());
-      final releaseNode = items.first.node as LibraryReleaseRef;
-      expect(releaseNode.release.title, '4K Ultra HD');
+      expect(items, isEmpty);
     });
 
     test('browser policy opens the structural release folder', () {

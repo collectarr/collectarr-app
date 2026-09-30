@@ -122,7 +122,7 @@ final Map<CatalogMediaKind, ReleaseProjectionCapability<LibraryWorkspaceDto>?>
         as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
     CatalogMediaKind.manga: mangaKindReleaseCapability
         as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
-    CatalogMediaKind.movie: movieKindReleaseCapability,
+    CatalogMediaKind.movie: null,
     CatalogMediaKind.music: musicKindReleaseCapability
         as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
     CatalogMediaKind.tv: tvKindReleaseCapability,
@@ -143,9 +143,7 @@ final Map<CatalogMediaKind, LibraryReleaseDetailSource?>
         gameKindReleaseDetailSource as LibraryReleaseDetailSource?,
     CatalogMediaKind.manga:
         mangaKindReleaseDetailSource as LibraryReleaseDetailSource?,
-    CatalogMediaKind.movie: movieKindReleaseDetailSource,
-    CatalogMediaKind.music:
-        musicKindReleaseDetailSource as LibraryReleaseDetailSource?,
+    CatalogMediaKind.movie: null,
     CatalogMediaKind.tv: tvKindReleaseDetailSource,
   },
 );
@@ -160,7 +158,6 @@ final Map<CatalogMediaKind, LibraryCatalogTargetCapability>
   CatalogMediaKind.game: gameKindCatalogTarget,
   CatalogMediaKind.manga: mangaKindCatalogTarget,
   CatalogMediaKind.movie: movieKindCatalogTarget,
-  CatalogMediaKind.music: musicKindCatalogTarget,
   CatalogMediaKind.tv: tvKindCatalogTarget,
 });
 

@@ -11,59 +11,57 @@ abstract final class MovieReleaseWorkspaceFields {
   static final publisher = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.publisher,
     label: 'Studio / Publisher',
-    getValue: (dto) => dto.studio ?? dto.publisher,
-    entityScope: LibraryEntityScope.release,
+    getValue: (dto) => dto.publisher,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final releaseDate = dateField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.release,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final barcode = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.barcode,
     label: 'UPC / Barcode',
     getValue: (dto) => dto.barcode,
-    entityScope: LibraryEntityScope.release,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final format = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.format,
     label: 'Format',
     getValue: (dto) => dto.format,
-    entityScope: LibraryEntityScope.release,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final releaseYear = numberField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.releaseYear,
     label: 'Release Year',
     getValue: (dto) => dto.releaseDate?.year,
-    entityScope: LibraryEntityScope.release,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final edition = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.edition,
     label: 'Edition',
-    getValue: (dto) => dto.release?.title,
-    entityScope: LibraryEntityScope.release,
+    getValue: (dto) => dto.title,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final audioTracks = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.audioTracks,
     label: 'Audio Tracks',
-    getValue: (dto) =>
-        dto.release?.videoDetails?.audioTracks ??
-        dto.release?.media.firstOrNull?.audioTracks.firstOrNull,
-    entityScope: LibraryEntityScope.release,
+    getValue: (dto) => dto.movie.audioTracks,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final editionReleaseDate = dateField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.editionReleaseDate,
     label: 'Edition Release Date',
-    getValue: (dto) => dto.release?.releaseDate,
-    entityScope: LibraryEntityScope.release,
+    getValue: (dto) => dto.releaseDate,
+    entityScope: LibraryEntityScope.work,
   );
 }
 
@@ -114,7 +112,7 @@ final movieReleaseWorkspaceSortDefinitions = [
   LibrarySortDefinition<MovieKind, MovieWorkspaceDto>(
     id: MovieSortIds.releaseTitle,
     label: 'Release title',
-    entityScope: LibraryEntityScope.release,
+    entityScope: LibraryEntityScope.work,
     compare: (left, right) => left.dto.title.compareTo(right.dto.title),
   ),
   sortFromField<MovieKind, MovieWorkspaceDto, String>(
@@ -154,7 +152,7 @@ final movieReleaseWorkspaceColumnDefinitions = [
 final movieReleaseWorkspaceSchema =
     LibraryEntityWorkspaceSchema<MovieKind, MovieWorkspaceDto>(
   kindNamespace: 'movie',
-  entityScope: LibraryEntityScope.release,
+  entityScope: LibraryEntityScope.work,
   fields: movieReleaseWorkspaceFieldDefinitions,
   columns: movieReleaseWorkspaceColumnDefinitions,
   sorts: movieReleaseWorkspaceSortDefinitions,

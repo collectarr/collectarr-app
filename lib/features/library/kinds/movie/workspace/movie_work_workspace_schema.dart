@@ -33,7 +33,7 @@ abstract final class MovieWorkWorkspaceFields {
   static final runtimeMinutes = numberField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.runtimeMinutes,
     label: 'Runtime (min)',
-    getValue: (dto) => dto.runtimeMinutes ?? dto.movie.technical.runtimeMinutes,
+    getValue: (dto) => dto.runtimeMinutes,
     entityScope: LibraryEntityScope.work,
   );
 

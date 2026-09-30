@@ -9,17 +9,11 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/movie/release/movie_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 class MovieLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
@@ -41,19 +35,13 @@ class MovieLibraryMediaPresentationBuilder
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
-    final seen = <String>{};
-    final result = <LibraryFormatBadgeDescriptor>[];
-    for (final edition in item.kindCapability
-        .mapTransport((transport) => transport)
-        .editions) {
-      final badge = movieFormatBadge(
-        edition.physicalFormat,
-        label: edition.physicalFormatLabel,
-      );
-      if (badge == null || !seen.add(badge.key)) continue;
-      result.add(badge);
-    }
-    return result;
+    final transport =
+        item.kindCapability.mapTransport((transport) => transport);
+    final badge = movieFormatBadge(
+      transport.physicalFormat,
+      label: transport.physicalFormatLabel,
+    );
+    return badge == null ? const [] : [badge];
   }
 
   @override
@@ -63,13 +51,12 @@ class MovieLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! MovieWorkspaceCatalogData) return const [];
     final item = catalog.movie;
-    final identifier =
-        normalizeLibraryDuplicateIdentifier(item.primaryRelease?.barcode);
+    final identifier = normalizeLibraryDuplicateIdentifier(item.barcode);
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label: 'Identifier ${item.primaryRelease!.barcode!.trim()}',
+        label: 'Identifier ${item.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -82,20 +69,9 @@ class MovieLibraryMediaPresentationBuilder
   ) {
     final catalog = entry.catalogData;
     if (catalog is! MovieWorkspaceCatalogData) return const [];
-    return [
-      for (final release in catalog.media.releases)
-        LibraryWorkspaceReleaseSummary(
-          id: release.id.value,
-          title: release.title,
-          formatLabel: release.format,
-          formatBadge: movieFormatBadge(release.format),
-          releaseDate: release.releaseDate,
-          mediaLabels: [
-            for (var index = 0; index < release.media.length; index += 1)
-              release.media[index].title ?? 'Media \${index + 1}',
-          ],
-        ),
-    ];
+    // This Catalog Item already represents the concrete Movie edition.
+    // Disc/media rows are contained children, not another release level.
+    return const [];
   }
 
   @override
@@ -105,20 +81,21 @@ class MovieLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! MovieWorkspaceCatalogData) return const [];
     return [
-      for (final link in catalog.media.externalLinks)
-        if (link.url?.trim() case final url? when url.isNotEmpty)
+      for (final link in catalog.movie.externalLinks)
+        if (link['url']?.toString().trim() case final url? when url.isNotEmpty)
           LibraryWorkspaceLinkSummary(
             url: url,
-            label: link.title ?? link.label,
-            source: link.site,
-            isTrailer: link.linkType != 'external' && link.linkType != 'link',
+            label: (link['title'] ?? link['label'])?.toString(),
+            source: (link['site'] ?? link['source'])?.toString(),
+            isTrailer:
+                link['link_type'] != 'external' && link['link_type'] != 'link',
           ),
-      for (final link in catalog.media.trailerUrls)
-        if (link.url?.trim() case final url? when url.isNotEmpty)
+      for (final link in catalog.movie.trailerUrls)
+        if (link['url']?.toString().trim() case final url? when url.isNotEmpty)
           LibraryWorkspaceLinkSummary(
             url: url,
-            label: link.title,
-            source: link.site,
+            label: link['title']?.toString(),
+            source: link['site']?.toString(),
           ),
     ];
   }
@@ -127,39 +104,21 @@ class MovieLibraryMediaPresentationBuilder
   List<LibraryAddReleaseOption> buildReleaseOptions({
     required CatalogSearchCandidate item,
   }) {
+    final itemDto = item.kindCapability.mapTransport((transport) => transport);
     return [
-      for (final edition in item.kindCapability
-          .mapTransport((transport) => transport)
-          .editions)
-        LibraryAddReleaseOption(
-          id: edition.id,
-          title: edition.title,
-          formatId: edition.physicalFormat,
-          formatLabel: edition.physicalFormatLabel,
-          formatBadge: movieFormatBadge(
-            edition.physicalFormat,
-            label: edition.physicalFormatLabel,
-          ),
-          releaseDate: edition.releaseDate,
-          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
-          identifierCode: edition.identifierCode,
-          variants: [
-            for (final variant in edition.variants)
-              LibraryAddVariantOption(
-                id: variant.id,
-                name: variant.name,
-                coverImageUrl: variant.coverImageUrl,
-                identifierCode: variant.identifierCode,
-                formatId: variant.physicalFormat,
-                formatLabel: variant.physicalFormatLabel,
-                formatBadge: movieFormatBadge(
-                  variant.physicalFormat,
-                  label: variant.physicalFormatLabel,
-                ),
-                isPrimary: variant.isPrimary,
-              ),
-          ],
+      LibraryAddReleaseOption(
+        id: itemDto.id,
+        title: itemDto.title,
+        formatId: itemDto.physicalFormat,
+        formatLabel: itemDto.physicalFormatLabel,
+        formatBadge: movieFormatBadge(
+          itemDto.physicalFormat,
+          label: itemDto.physicalFormatLabel,
         ),
+        releaseDate: itemDto.releaseDate,
+        coverImageUrl: itemDto.coverImageUrl,
+        identifierCode: itemDto.barcode,
+      ),
     ];
   }
 
@@ -170,12 +129,6 @@ class MovieLibraryMediaPresentationBuilder
   }) {
     final hydratedMetadata = hydrated.movieCatalogFields;
     final fallbackMetadata = fallback.movieCatalogFields;
-    final hydratedEditions =
-        hydrated.kindCapability.mapTransport((transport) => transport.editions);
-    final fallbackEditions =
-        fallback.kindCapability.mapTransport((transport) => transport.editions);
-    final editions =
-        hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
     final coverImageUrl =
         hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
     final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
@@ -185,7 +138,6 @@ class MovieLibraryMediaPresentationBuilder
         hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
               coverImageUrl: coverImageUrl,
               thumbnailImageUrl: thumbnailImageUrl,
-              editions: editions,
             )));
   }
 
@@ -407,52 +359,6 @@ class MovieLibraryMediaPresentationBuilder
         ],
       ),
     ];
-  }
-
-  @override
-  bool canOpenKindDrilldown(LibraryProjectionView item) {
-    final kind = item.source.catalogData?.kind;
-    return item.node.scope == LibraryEntityScope.work &&
-        kind != null &&
-        const {
-          CatalogMediaKind.movie,
-          CatalogMediaKind.tv,
-          CatalogMediaKind.anime,
-        }.contains(kind);
-  }
-
-  @override
-  Widget? buildKindDrilldown({
-    required BuildContext context,
-    required LibraryProjectionView selectedItem,
-    required Color accent,
-    required double coverSize,
-    required VoidCallback onBack,
-    required Future<void> Function() onRefreshFromCore,
-    required VoidCallback onOpenTitleDetails,
-    required List<OwnedCopySummary> ownedCopies,
-    required List<WishlistItem> wishlistItems,
-    required String? selectedReleaseId,
-    required void Function(String releaseId) onSelectRelease,
-    required LibraryEntityWorkspaceProjector projector,
-  }) {
-    final drilldownItems = buildMovieShelfReleaseItems(
-      titleItem: selectedItem,
-      ownedCopies: ownedCopies,
-      wishlistItems: wishlistItems,
-      projector: projector,
-    );
-    return MovieShelfReleaseDrilldown(
-      titleItem: selectedItem,
-      items: drilldownItems,
-      selectedReleaseId: selectedReleaseId,
-      coverSize: coverSize,
-      accent: accent,
-      onBack: onBack,
-      onRefreshFromCore: onRefreshFromCore,
-      onOpenTitleDetails: onOpenTitleDetails,
-      onSelectRelease: onSelectRelease,
-    );
   }
 }
 

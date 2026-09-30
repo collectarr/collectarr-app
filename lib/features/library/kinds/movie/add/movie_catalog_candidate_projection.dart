@@ -9,4 +9,3 @@ CatalogSearchCandidate movieCatalogTransportFromCoreItem(
     return item.kindCapability.withKindMetadata(metadata);
   });
 }
-

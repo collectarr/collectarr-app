@@ -8,10 +8,6 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
       builder: buildMovieLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.release,
-      builder: buildMovieReleaseLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
       scope: LibraryEntityScope.copy,
       builder: buildMovieMediaLibraryEditDialog,
     ),

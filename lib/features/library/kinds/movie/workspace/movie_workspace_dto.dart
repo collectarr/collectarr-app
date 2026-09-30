@@ -1,24 +1,23 @@
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
+/// Read-only projection of one concrete Movie Catalog Item and its owned copy.
+///
+/// Edition facts live on [movie]. Contained discs remain children of that item
+/// and do not create another workspace node.
 final class MovieWorkspaceDto implements LibraryWorkspaceDto {
-  MovieWorkspaceDto({
+  const MovieWorkspaceDto({
     required this.common,
     required this.personal,
     required this.movie,
-    required this.media,
-    this.release,
     this.metadata,
   });
 
   final WorkspaceCommonProjection common;
   final PersonalCopyProjection personal;
   final MovieCatalogItem movie;
-  final MovieMedia media;
-  final MovieCatalogRelease? release;
   final MovieCatalogMetadata? metadata;
 
   String get title => common.title;
@@ -33,69 +32,28 @@ final class MovieWorkspaceDto implements LibraryWorkspaceDto {
   String? get synopsis => common.synopsis;
   String? get currency => common.currency;
 
-  MovieCatalogItem get video => movie;
-
-  // Domain convenience getters
   String? get director =>
-      metadata?.directors.firstOrNull?.name ?? _contributorWithRole('director');
-  String? get writer =>
-      metadata?.writers.firstOrNull?.name ?? _contributorWithRole('writer');
+      metadata?.directors.firstOrNull?.name ?? movie.director;
+  String? get writer => metadata?.writers.firstOrNull?.name ?? movie.writer;
   String? get producer =>
-      metadata?.producers.firstOrNull?.name ?? _contributorWithRole('producer');
-  String? get studio => metadata?.studio;
-  String? get publisher =>
-      release?.publisher ?? (release == null ? studio : null);
-  String? get seriesTitle =>
-      metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
-  String? get itemNumber => metadata?.itemNumber;
-  DateTime? get releaseDate =>
-      release?.releaseDate ??
-      (release == null
-          ? metadata?.releaseDate ??
-              movie.work.releaseDate ??
-              common.releaseDate
-          : null);
-  String? get country => metadata?.country;
-  String? get language => metadata?.language;
-  String? get identifierCode => release?.barcode;
+      metadata?.producers.firstOrNull?.name ?? movie.producer;
+  String? get studio => movie.publisher;
+  String? get publisher => movie.publisher;
+  String? get seriesTitle => movie.seriesTitle;
+  String? get itemNumber => movie.itemNumber;
+  DateTime? get releaseDate => movie.releaseDate ?? common.releaseDate;
+  String? get country => movie.country;
+  String? get language => movie.language;
+  String? get identifierCode => movie.barcode;
   String? get barcode => identifierCode;
-  String? get variant => metadata?.variant;
-  String? get referenceFormatLabel =>
-      release?.formatLabel ??
-      (release == null
-          ? metadata?.physicalFormatLabel ?? metadata?.physicalFormat
-          : null);
-  String? get format => referenceFormatLabel;
-  int? get runtimeMinutes =>
-      release?.videoDetails?.runtimeMinutes ??
-      (release == null
-          ? media.runtimeMinutes ??
-              metadata?.runtimeMinutes ??
-              movie.technical.runtimeMinutes
-          : null);
-  String? get originalTitle => metadata?.originalTitle;
-  String? get ageRating => metadata?.ageRating ?? movie.technical.ageRating;
-  String? get audienceRating =>
-      media.audienceRating ??
-      metadata?.audienceRating ??
-      movie.technical.audienceRating;
-  List<String> get genres => _stringList(media.rawPayload['genres']);
-
-  String? _contributorWithRole(String role) {
-    final normalized = role.toLowerCase();
-    for (final contributor in media.contributions) {
-      if (contributor.role.toLowerCase() == normalized) return contributor.name;
-    }
-    return null;
-  }
-
-  static List<String> _stringList(Object? value) {
-    if (value is! List) return const <String>[];
-    return [
-      for (final entry in value)
-        if (entry is String) entry
-    ];
-  }
+  String? get variant => movie.variant;
+  String? get format => movie.physicalFormat;
+  String? get referenceFormatLabel => format;
+  int? get runtimeMinutes => movie.runtimeMinutes;
+  String? get originalTitle => movie.originalTitle;
+  String? get ageRating => movie.ageRating;
+  String? get audienceRating => movie.audienceRating;
+  List<String> get genres => movie.genres;
 
   @override
   Iterable<String> get searchTokens => [

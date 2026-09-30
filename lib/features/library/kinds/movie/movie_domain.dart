@@ -24,4 +24,3 @@ export 'package:collectarr_app/features/library/kinds/movie/value/movie_value_ca
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
-export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_mapper.dart';

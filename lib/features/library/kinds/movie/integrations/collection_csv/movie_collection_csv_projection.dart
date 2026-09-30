@@ -130,7 +130,7 @@ final class MovieCollectionCsvProjection
       metadata?.physicalFormatLabel ?? '',
       metadata?.studio ?? metadata?.publisher ?? '',
       _formatDate(metadata?.releaseDate ??
-          movie?.work.releaseDate ??
+          movie?.releaseDate ??
           entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
