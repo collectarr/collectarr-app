@@ -33,9 +33,8 @@ final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
             'subtitle': 2,
             'artist': 2,
             'catalog_number': 2,
-            'genres': 2,
           },
-          rightAlignedFieldIds: const {'genres'},
+          fullWidthFieldIds: const {'genres'},
           fields: _fields([
             'title',
             'release_date',
