@@ -14,7 +14,9 @@ final class CatalogItemEnvelopeDto {
       ref: ref,
       kind: kind,
       common: common,
-      payload: Map<String, dynamic>.unmodifiable(payload),
+      payload: Map<String, dynamic>.unmodifiable(
+        _withoutSnapshotVersion(payload),
+      ),
     );
   }
 
@@ -51,14 +53,15 @@ final class CatalogItemEnvelopeDto {
     if (payloadJson == null) {
       rawPayload.removeWhere((key, _) => _commonKeys.contains(key));
     }
-    // Snapshot versions describe the transport envelope, even when an API
-    // response nests the kind payload inside `payload`.
-    rawPayload.remove('snapshot_version');
     return CatalogItemEnvelopeDto._raw(
       ref: ref,
       kind: resolvedKind,
       common: common,
-      payload: Map<String, dynamic>.unmodifiable(rawPayload),
+      // Snapshot versions describe the transport envelope, even when a kind
+      // payload is nested several levels below it (as with Music).
+      payload: Map<String, dynamic>.unmodifiable(
+        _withoutSnapshotVersion(rawPayload),
+      ),
     );
   }
 
@@ -117,3 +120,19 @@ const _commonKeys = <String>{
   'external_links',
   'editions',
 };
+
+Map<String, dynamic> _withoutSnapshotVersion(Map<String, dynamic> value) => {
+      for (final entry in value.entries)
+        if (entry.key != 'snapshot_version')
+          entry.key: _stripNestedSnapshotVersions(entry.value),
+    };
+
+Object? _stripNestedSnapshotVersions(Object? value) {
+  if (value is Map) {
+    return _withoutSnapshotVersion(Map<String, dynamic>.from(value));
+  }
+  if (value is List) {
+    return [for (final item in value) _stripNestedSnapshotVersions(item)];
+  }
+  return value;
+}
