@@ -5,9 +5,7 @@ import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,23 +32,22 @@ void main() {
     expect(source.catalogData?.kind.apiValue, 'boardgame');
   });
 
-  test('boardgame workspace projector applies release and copy projections',
-      () {
-    final edition = CatalogEditionDto(
-      id: 'edition-1',
-      title: 'Deluxe Edition',
-      publisher: 'Board Games Co.',
-      upc: '123456789',
-      language: 'English',
-      releaseDate: DateTime.utc(2026, 2, 3),
-    );
+  test('boardgame workspace projector applies catalog item and copy data', () {
     final source = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
       catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'boardgame-1',
         kind: 'boardgame',
-        title: 'Catan',
-        editions: [edition],
+        title: 'Catan — Deluxe Edition',
+        publisher: 'Board Games Co.',
+        barcode: '123456789',
+        language: 'English',
+        releaseDate: DateTime.utc(2026, 2, 3),
+        payload: const {
+          'edition_title': 'Deluxe Edition',
+          'min_players': 2,
+          'max_players': 4,
+        },
       ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
@@ -59,38 +56,25 @@ void main() {
       )),
     );
     const projector = BoardGameWorkspaceProjector();
-    final releaseDto = projector.project(
+    final catalogDto = projector.project(
       source: source,
-      entity: LibraryReleaseRef(
-        workId: 'boardgame-1',
-        releaseId: 'edition-1',
-        release: LibraryWorkspaceReleaseSummary(
-          id: edition.id,
-          title: edition.title,
-          formatLabel: edition.physicalFormatLabel ?? edition.physicalFormat,
-          releaseDate: edition.releaseDate,
-        ),
-      ),
-      releaseState: const LibraryReleaseState(
-        isOwned: false,
-        isWishlisted: true,
-        isTracked: false,
-      ),
+      entity: const LibraryWorkRef(workId: 'boardgame-1'),
     );
 
-    expect(releaseDto.boardgame.editions.single.id, 'edition-1');
-    expect(releaseDto.publisher, 'Board Games Co.');
-    expect(releaseDto.barcode, '123456789');
-    expect(releaseDto.language, 'English');
-    expect(releaseDto.releaseDate, DateTime.utc(2026, 2, 3));
-    expect(releaseDto.personal.isOwned, isFalse);
-    expect(releaseDto.personal.isWishlisted, isTrue);
+    expect(catalogDto.boardgame.title, 'Catan — Deluxe Edition');
+    expect(catalogDto.metadata.rawPayload['edition_title'], 'Deluxe Edition');
+    expect(catalogDto.publisher, 'Board Games Co.');
+    expect(catalogDto.barcode, '123456789');
+    expect(catalogDto.language, 'English');
+    expect(catalogDto.releaseDate, DateTime.utc(2026, 2, 3));
+    expect(catalogDto.metadata.minPlayers, 2);
+    expect(catalogDto.metadata.maxPlayers, 4);
 
     final copyDto = projector.project(
       source: source,
       entity: const LibraryCopyRef(
         workId: 'boardgame-1',
-        releaseId: 'edition-1',
+        releaseId: 'boardgame-1',
         ownedRef: OwnedCopyRef(
           kind: CatalogMediaKind.boardgame,
           itemId: 'boardgame-1',
@@ -98,7 +82,7 @@ void main() {
         ),
       ),
     );
-    expect(copyDto.title, 'Deluxe Edition');
+    expect(copyDto.title, 'Catan — Deluxe Edition');
     expect(copyDto.personal.isOwned, isTrue);
   });
 

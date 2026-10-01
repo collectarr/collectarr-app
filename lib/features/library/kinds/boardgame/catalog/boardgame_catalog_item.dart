@@ -1,144 +1,66 @@
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 
-class BoardGameStatsMetadata {
-  const BoardGameStatsMetadata({
-    this.bggRank,
-    this.bggRating,
-    this.bggRatingCount,
-    this.bggWeight,
-    this.playCount,
-    this.lastPlayed,
-    this.favoritePlayerCount,
-  });
-
-  final int? bggRank;
-  final double? bggRating;
-  final int? bggRatingCount;
-  final double? bggWeight;
-  final int? playCount;
-  final DateTime? lastPlayed;
-  final int? favoritePlayerCount;
-
-  String? get playerStats => null;
-}
-
-class BoardGameWorkMetadata {
-  const BoardGameWorkMetadata({
-    required this.title,
-    this.originalTitle,
-    this.synopsis,
-    this.releaseDate,
-    this.yearPublished,
-    this.originalLanguage,
-    this.publisher,
-    this.subtitle,
-    this.platforms = const [],
-    this.identifiers = const [],
-    this.contributors = const [],
-    this.rankings = const [],
-    this.searchAliases = const [],
-    this.minPlayers,
-    this.maxPlayers,
-    this.recommendedPlayers,
-    this.bestPlayers,
-    this.playingTimeMinutes,
-    this.minPlaytimeMinutes,
-    this.maxPlaytimeMinutes,
-    this.minAge,
-    this.complexityWeight,
-    this.designers = const [],
-    this.artists = const [],
-    this.publishers = const [],
-    this.mechanics = const [],
-    this.categories = const [],
-    this.families = const [],
-    this.themes = const [],
-    this.expansions = const [],
-    this.languages = const [],
-    this.genres = const [],
-  });
-
-  final String title;
-  final String? originalTitle;
-  final String? synopsis;
-  final DateTime? releaseDate;
-  final int? yearPublished;
-  final String? originalLanguage;
-  final String? publisher;
-  final String? subtitle;
-  final List<String> platforms;
-  final List<String> identifiers;
-  final List<String> contributors;
-  final List<String> rankings;
-  final List<String> searchAliases;
-  final int? minPlayers;
-  final int? maxPlayers;
-  final String? recommendedPlayers;
-  final String? bestPlayers;
-  final int? playingTimeMinutes;
-  final int? minPlaytimeMinutes;
-  final int? maxPlaytimeMinutes;
-  final int? minAge;
-  final double? complexityWeight;
-  final List<String> designers;
-  final List<String> artists;
-  final List<String> publishers;
-  final List<String> mechanics;
-  final List<String> categories;
-  final List<String> families;
-  final List<String> themes;
-  final List<String> expansions;
-  final List<String> languages;
-  final List<String> genres;
-}
-
-class BoardGameCatalogItem {
+/// One concrete board game edition represented by a Core Catalog Item.
+///
+/// Player counts, contents, publisher, identifiers, and release details all
+/// belong to this item. App-owned play sessions remain separate activity.
+final class BoardGameCatalogItem {
   const BoardGameCatalogItem({
-    required this.id,
-    required this.work,
-    required this.stats,
-    required this.releases,
+    required this.item,
+    required this.metadata,
   });
 
-  final String id;
-  final BoardGameWorkMetadata work;
-  final BoardGameStatsMetadata stats;
-  final List<BoardGameEdition> releases;
+  final CatalogItemDto item;
+  final BoardGameMetadata metadata;
 
-  List<String> get categories => work.categories;
-  List<String> get mechanics => work.mechanics;
-  List<String> get families => work.families;
-  List<String> get themes => work.themes;
-  List<String> get expansions => work.expansions;
-  List<String> get designers => work.designers;
-  List<String> get artists => work.artists;
-  List<String> get publishers => work.publishers;
-  List<String> get languages => work.languages;
-  List<BoardGameEdition> get editions => releases;
-  BoardGameEdition? get primaryRelease =>
-      releases.isEmpty ? null : releases.first;
-  String get title => work.title;
-  String? get displayTitle => work.title;
-  String? get originalTitle => work.originalTitle;
-  String? get synopsis => work.synopsis;
-  DateTime? get releaseDate => primaryRelease?.releaseDate ?? work.releaseDate;
-  int? get releaseYear => releaseDate?.year ?? work.yearPublished;
+  String get id => item.id;
+  String get title => item.title;
+  String? get displayTitle => item.displayTitle;
+  String? get originalTitle => item.originalTitle;
+  String? get synopsis => item.synopsis ?? metadata.synopsis;
+  String? get itemNumber => metadata.itemNumber ?? item.itemNumber;
+  String? get coverImageUrl => item.coverImageUrl;
+  String? get thumbnailImageUrl => item.thumbnailImageUrl ?? coverImageUrl;
+  DateTime? get releaseDate =>
+      item.releaseDate ?? _date(metadata.rawPayload['release_date']);
+  int? get releaseYear => releaseDate?.year ?? metadata.yearPublished;
   String? get publisher =>
-      primaryRelease?.publisher ??
-      work.publisher ??
-      work.publishers.firstOrNull;
-  String? get barcode => primaryRelease?.barcode;
-  String? get coverImageUrl => primaryRelease?.coverImageUrl;
-  String? get thumbnailImageUrl => coverImageUrl;
-  String? get country => primaryRelease?.country;
+      metadata.publisher ?? metadata.publishers.firstOrNull ?? item.publisher;
+  String? get barcode => metadata.barcode ?? item.barcode;
+  String? get country => _text(metadata.rawPayload['country']);
   String? get language =>
-      primaryRelease?.language ??
-      work.originalLanguage ??
-      work.languages.firstOrNull;
-  String? get ageRating => primaryRelease?.ageRating;
-  String? get audienceRating => primaryRelease?.audienceRating;
-  String? get format => primaryRelease?.format;
-  List<Map<String, dynamic>>? get creators => null;
-  List<String> get contributors => work.contributors;
-  BoardGameStatsMetadata? get playStats => stats;
+      metadata.languages.firstOrNull ?? _text(metadata.rawPayload['language']);
+  String? get ageRating => _text(metadata.rawPayload['age_rating']);
+  String? get audienceRating => _text(metadata.rawPayload['audience_rating']);
+  String? get format => metadata.physicalFormatLabel ?? metadata.physicalFormat;
+  String? get variant => metadata.variant;
+  List<String> get categories => metadata.categories;
+  List<String> get mechanics => metadata.mechanics;
+  List<String> get families => metadata.families;
+  List<String> get themes => _strings(metadata.rawPayload['themes']);
+  List<String> get expansions => metadata.expansions;
+  List<String> get designers => metadata.designers;
+  List<String> get artists => metadata.artists;
+  List<String> get publishers => metadata.publishers;
+  List<String> get languages => metadata.languages;
+  List<String> get contributors =>
+      _strings(metadata.rawPayload['contributors']);
+
+  CatalogItemDto toCatalogItemDto() => item.withKindMetadata(metadata);
 }
+
+String? _text(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
+}
+
+DateTime? _date(Object? value) =>
+    value is String ? DateTime.tryParse(value) : null;
+
+List<String> _strings(Object? value) => value is Iterable
+    ? [
+        for (final entry in value)
+          if (_text(entry) case final text?) text,
+      ]
+    : const [];

@@ -7,7 +7,6 @@ class BoardGameOwnedItemsRows extends Table {
   TextColumn get itemId => text()();
   DateTimeColumn get createdAt => dateTime().nullable()();
   BoolColumn get isDigital => boolean().nullable()();
-  TextColumn get targetRefJson => text().nullable()();
   TextColumn get condition => text().nullable()();
   TextColumn get grade => text().nullable()();
   DateTimeColumn get purchaseDate => dateTime().nullable()();

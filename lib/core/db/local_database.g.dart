@@ -10115,12 +10115,6 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _targetRefJsonMeta =
-      const VerificationMeta('targetRefJson');
-  @override
-  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
-      'target_ref_json', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
   @override
@@ -10311,7 +10305,6 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -10371,12 +10364,6 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
     if (data.containsKey('is_digital')) {
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
-    }
-    if (data.containsKey('target_ref_json')) {
-      context.handle(
-          _targetRefJsonMeta,
-          targetRefJson.isAcceptableOrUnknown(
-              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -10551,8 +10538,6 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      targetRefJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -10627,7 +10612,6 @@ class BoardGameOwnedItemsRow extends DataClass
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -10662,7 +10646,6 @@ class BoardGameOwnedItemsRow extends DataClass
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
@@ -10702,9 +10685,6 @@ class BoardGameOwnedItemsRow extends DataClass
     }
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
-    }
-    if (!nullToAbsent || targetRefJson != null) {
-      map['target_ref_json'] = Variable<String>(targetRefJson);
     }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
@@ -10796,9 +10776,6 @@ class BoardGameOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      targetRefJson: targetRefJson == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -10882,7 +10859,6 @@ class BoardGameOwnedItemsRow extends DataClass
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
@@ -10926,7 +10902,6 @@ class BoardGameOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
@@ -10965,7 +10940,6 @@ class BoardGameOwnedItemsRow extends DataClass
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
@@ -11000,8 +10974,6 @@ class BoardGameOwnedItemsRow extends DataClass
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        targetRefJson:
-            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -11058,9 +11030,6 @@ class BoardGameOwnedItemsRow extends DataClass
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      targetRefJson: data.targetRefJson.present
-          ? data.targetRefJson.value
-          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -11134,7 +11103,6 @@ class BoardGameOwnedItemsRow extends DataClass
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -11174,7 +11142,6 @@ class BoardGameOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -11213,7 +11180,6 @@ class BoardGameOwnedItemsRow extends DataClass
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
@@ -11251,7 +11217,6 @@ class BoardGameOwnedItemsRowsCompanion
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
@@ -11287,7 +11252,6 @@ class BoardGameOwnedItemsRowsCompanion
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -11324,7 +11288,6 @@ class BoardGameOwnedItemsRowsCompanion
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -11363,7 +11326,6 @@ class BoardGameOwnedItemsRowsCompanion
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
@@ -11400,7 +11362,6 @@ class BoardGameOwnedItemsRowsCompanion
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
@@ -11442,7 +11403,6 @@ class BoardGameOwnedItemsRowsCompanion
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
@@ -11478,7 +11438,6 @@ class BoardGameOwnedItemsRowsCompanion
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -11527,9 +11486,6 @@ class BoardGameOwnedItemsRowsCompanion
     }
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
-    }
-    if (targetRefJson.present) {
-      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
@@ -11633,7 +11589,6 @@ class BoardGameOwnedItemsRowsCompanion
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -18657,12 +18612,6 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _targetRefJsonMeta =
-      const VerificationMeta('targetRefJson');
-  @override
-  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
-      'target_ref_json', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
   @override
@@ -18831,7 +18780,6 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -18887,12 +18835,6 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
     if (data.containsKey('is_digital')) {
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
-    }
-    if (data.containsKey('target_ref_json')) {
-      context.handle(
-          _targetRefJsonMeta,
-          targetRefJson.isAcceptableOrUnknown(
-              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -19047,8 +18989,6 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      targetRefJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -19116,7 +19056,6 @@ class GameOwnedItemsRow extends DataClass
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -19148,7 +19087,6 @@ class GameOwnedItemsRow extends DataClass
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
@@ -19185,9 +19123,6 @@ class GameOwnedItemsRow extends DataClass
     }
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
-    }
-    if (!nullToAbsent || targetRefJson != null) {
-      map['target_ref_json'] = Variable<String>(targetRefJson);
     }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
@@ -19276,9 +19211,6 @@ class GameOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      targetRefJson: targetRefJson == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -19358,7 +19290,6 @@ class GameOwnedItemsRow extends DataClass
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
@@ -19395,7 +19326,6 @@ class GameOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
@@ -19430,7 +19360,6 @@ class GameOwnedItemsRow extends DataClass
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
@@ -19462,8 +19391,6 @@ class GameOwnedItemsRow extends DataClass
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        targetRefJson:
-            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -19510,9 +19437,6 @@ class GameOwnedItemsRow extends DataClass
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      targetRefJson: data.targetRefJson.present
-          ? data.targetRefJson.value
-          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -19574,7 +19498,6 @@ class GameOwnedItemsRow extends DataClass
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -19611,7 +19534,6 @@ class GameOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -19647,7 +19569,6 @@ class GameOwnedItemsRow extends DataClass
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
@@ -19681,7 +19602,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
@@ -19714,7 +19634,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -19748,7 +19667,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -19784,7 +19702,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
@@ -19818,7 +19735,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
@@ -19854,7 +19770,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
@@ -19887,7 +19802,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -19932,9 +19846,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     }
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
-    }
-    if (targetRefJson.present) {
-      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
@@ -20027,7 +19938,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -38900,7 +38810,6 @@ typedef $$BoardGameOwnedItemsRowsTableCreateCompanionBuilder
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -38938,7 +38847,6 @@ typedef $$BoardGameOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -38991,9 +38899,6 @@ class $$BoardGameOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -39113,10 +39018,6 @@ class $$BoardGameOwnedItemsRowsTableOrderingComposer
 
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnOrderings(column));
@@ -39242,9 +39143,6 @@ class $$BoardGameOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => column);
-
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
 
@@ -39368,7 +39266,6 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -39405,7 +39302,6 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -39442,7 +39338,6 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -39479,7 +39374,6 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -42631,7 +42525,6 @@ typedef $$GameOwnedItemsRowsTableCreateCompanionBuilder
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -42666,7 +42559,6 @@ typedef $$GameOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -42716,9 +42608,6 @@ class $$GameOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -42824,10 +42713,6 @@ class $$GameOwnedItemsRowsTableOrderingComposer
 
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnOrderings(column));
@@ -42938,9 +42823,6 @@ class $$GameOwnedItemsRowsTableAnnotationComposer
 
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
-
-  GeneratedColumn<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
@@ -43054,7 +42936,6 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -43088,7 +42969,6 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -43122,7 +43002,6 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -43156,7 +43035,6 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,

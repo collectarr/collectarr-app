@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_fields.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
@@ -30,21 +29,11 @@ bool? resolveBoardGameOwnedDigitalFlag(
 }) {
   return resolveDigitalMediaFormatFlag(
     explicitDigital: ownedItem?.isDigital,
-    editionId: _boardGameEditionId(ownedItem?.targetRef),
-    variantId: _boardGameReleaseId(ownedItem?.targetRef),
+    editionId: null,
+    variantId: null,
     releases: editions,
     fallbackFormat: fallbackFormat,
     fallbackLabel: fallbackLabel,
     formats: formats.isEmpty ? boardGamePhysicalMediaFormats : formats,
   );
 }
-
-String? _boardGameEditionId(CatalogEntityRef? ref) =>
-    switch (ref?.entityType.apiValue) {
-      'edition' => ref?.id,
-      'release' => ref?.parentId,
-      _ => null,
-    };
-
-String? _boardGameReleaseId(CatalogEntityRef? ref) =>
-    ref?.entityType.apiValue == 'release' ? ref?.id : null;

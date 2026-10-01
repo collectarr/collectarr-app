@@ -23,22 +23,13 @@ Widget buildBoardGameInspectorPanel(
   return BoardGameInspectorPanel(request: request);
 }
 
-List<Widget> buildBoardGameWorkInspectorSections(
+List<Widget> buildBoardGameCatalogItemInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
   return [
     _BoardGameInspectorMain(inspector: inspector),
     BoardGamePlayStatsSection(request: inspector),
-  ];
-}
-
-List<Widget> buildBoardGameReleaseInspectorSections(
-  BuildContext context,
-  LibraryInspectorRequest inspector,
-) {
-  return [
-    _BoardGameInspectorMain(inspector: inspector),
   ];
 }
 
@@ -61,19 +52,7 @@ List<Widget> buildBoardGameCopyInspectorSections(
   ];
 }
 
-Widget buildBoardGameWorkInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) =>
-    LibraryDetailHero(
-      type: request.type,
-      item: request.item,
-      ownedItem: request.ownedItem,
-      ownedCopies: request.ownedCopies,
-      accent: request.accent,
-    );
-
-Widget buildBoardGameReleaseInspectorHero(
+Widget buildBoardGameCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>

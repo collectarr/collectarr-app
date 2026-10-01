@@ -14,7 +14,6 @@ final class BoardGameOwnedItem {
     required this.catalogRef,
     this.createdAt,
     this.isDigital,
-    this.targetRef,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -42,7 +41,6 @@ final class BoardGameOwnedItem {
   final CatalogEntityRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
-  final CatalogEntityRef? targetRef;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -74,7 +72,6 @@ final class BoardGameOwnedItem {
         'catalog_ref': catalogRef.toJson(),
         'created_at': createdAt?.toUtc().toIso8601String(),
         'is_digital': isDigital,
-        'target_ref': targetRef?.toJson(),
         'condition': condition,
         'grade': grade,
         'purchase_date': purchaseDate?.toUtc().toIso8601String(),
@@ -114,7 +111,6 @@ final class BoardGameOwnedItem {
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
-      targetRef: _targetRef(json['target_ref']),
       condition: json['condition'] as String?,
       grade: json['grade'] as String?,
       purchaseDate: _date(json['purchase_date']),
@@ -144,7 +140,6 @@ final class BoardGameOwnedItem {
     CatalogEntityRef? catalogRef,
     Object? createdAt = _unset,
     Object? isDigital = _unset,
-    Object? targetRef = _unset,
     Object? condition = _unset,
     Object? grade = _unset,
     Object? purchaseDate = _unset,
@@ -175,9 +170,6 @@ final class BoardGameOwnedItem {
           : createdAt as DateTime?,
       isDigital:
           identical(isDigital, _unset) ? this.isDigital : isDigital as bool?,
-      targetRef: identical(targetRef, _unset)
-          ? this.targetRef
-          : targetRef as CatalogEntityRef?,
       condition:
           identical(condition, _unset) ? this.condition : condition as String?,
       grade: identical(grade, _unset) ? this.grade : grade as String?,
@@ -230,11 +222,6 @@ final class BoardGameOwnedItem {
 }
 
 const Object _unset = Object();
-
-CatalogEntityRef? _targetRef(Object? raw) {
-  if (raw is! Map) return null;
-  return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
-}
 
 DateTime? _date(Object? value) {
   if (value is! String || value.trim().isEmpty) return null;

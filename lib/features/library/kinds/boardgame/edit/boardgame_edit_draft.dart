@@ -46,6 +46,11 @@ class BoardGameEditDraft
     this.storageNotes,
     required this.editionTitleController,
     required this.originalTitleController,
+    required this.subtitleController,
+    required this.platformsController,
+    required this.identifiersController,
+    required this.contributorsController,
+    required this.originalLanguageController,
     required this.releaseYearController,
     required this.minPlayersController,
     required this.maxPlayersController,
@@ -53,6 +58,7 @@ class BoardGameEditDraft
     required this.bestPlayersController,
     required this.minPlaytimeController,
     required this.maxPlaytimeController,
+    required this.playingTimeController,
     required this.minimumAgeController,
     required this.complexityWeightController,
     required this.designersController,
@@ -64,6 +70,7 @@ class BoardGameEditDraft
     required this.themesController,
     required this.expansionsController,
     required this.expansionForController,
+    required this.rankingsController,
     required this.languagesController,
     required this.bggRatingController,
     required this.bggRatingCountController,
@@ -72,7 +79,13 @@ class BoardGameEditDraft
     required this.itemNumberController,
     required this.physicalFormatController,
     required this.barcodeController,
+    required this.catalogNumberController,
     required this.variantController,
+    required this.countryController,
+    required this.languageController,
+    required this.ageRatingController,
+    required this.audienceRatingController,
+    required this.releaseStatusController,
     required this.releaseDateController,
   });
 
@@ -89,12 +102,18 @@ class BoardGameEditDraft
   String? storageNotes;
   final TextEditingController editionTitleController;
   final TextEditingController originalTitleController;
+  final TextEditingController subtitleController;
+  final TextEditingController platformsController;
+  final TextEditingController identifiersController;
+  final TextEditingController contributorsController;
+  final TextEditingController originalLanguageController;
   final TextEditingController minPlayersController;
   final TextEditingController maxPlayersController;
   final TextEditingController recommendedPlayersController;
   final TextEditingController bestPlayersController;
   final TextEditingController minPlaytimeController;
   final TextEditingController maxPlaytimeController;
+  final TextEditingController playingTimeController;
   final TextEditingController minimumAgeController;
   final TextEditingController complexityWeightController;
   final TextEditingController designersController;
@@ -106,6 +125,7 @@ class BoardGameEditDraft
   final TextEditingController themesController;
   final TextEditingController expansionsController;
   final TextEditingController expansionForController;
+  final TextEditingController rankingsController;
   final TextEditingController languagesController;
   final TextEditingController bggRatingController;
   final TextEditingController bggRatingCountController;
@@ -114,7 +134,13 @@ class BoardGameEditDraft
   final TextEditingController itemNumberController;
   final TextEditingController physicalFormatController;
   final TextEditingController barcodeController;
+  final TextEditingController catalogNumberController;
   final TextEditingController variantController;
+  final TextEditingController countryController;
+  final TextEditingController languageController;
+  final TextEditingController ageRatingController;
+  final TextEditingController audienceRatingController;
+  final TextEditingController releaseStatusController;
   final TextEditingController releaseDateController;
   final TextEditingController releaseYearController;
 
@@ -166,9 +192,7 @@ class BoardGameEditDraft
     required OwnedCopyRef ownedRef,
     required PersonalStateDraft personal,
   }) {
-    final targetRef = personal.selectedOwnedTargetRef;
     return BoardgameOwnedItemUpdatePayload(
-      targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
       quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
@@ -219,6 +243,11 @@ class BoardGameEditDraft
   void dispose() {
     editionTitleController.dispose();
     originalTitleController.dispose();
+    subtitleController.dispose();
+    platformsController.dispose();
+    identifiersController.dispose();
+    contributorsController.dispose();
+    originalLanguageController.dispose();
     releaseYearController.dispose();
     minPlayersController.dispose();
     maxPlayersController.dispose();
@@ -226,6 +255,7 @@ class BoardGameEditDraft
     bestPlayersController.dispose();
     minPlaytimeController.dispose();
     maxPlaytimeController.dispose();
+    playingTimeController.dispose();
     minimumAgeController.dispose();
     complexityWeightController.dispose();
     designersController.dispose();
@@ -237,6 +267,7 @@ class BoardGameEditDraft
     themesController.dispose();
     expansionsController.dispose();
     expansionForController.dispose();
+    rankingsController.dispose();
     languagesController.dispose();
     bggRatingController.dispose();
     bggRatingCountController.dispose();
@@ -245,7 +276,13 @@ class BoardGameEditDraft
     itemNumberController.dispose();
     physicalFormatController.dispose();
     barcodeController.dispose();
+    catalogNumberController.dispose();
     variantController.dispose();
+    countryController.dispose();
+    languageController.dispose();
+    ageRatingController.dispose();
+    audienceRatingController.dispose();
+    releaseStatusController.dispose();
     releaseDateController.dispose();
   }
 
@@ -301,6 +338,63 @@ class BoardGameEditDraft
     CatalogSearchCandidate item,
   ) {
     final metadata = item.boardGameCatalogFields;
+    final catalogFields = <(String, String, TextEditingController)>[
+      ('edition_title', 'Edition title', editionTitleController),
+      ('original_title', 'Original title', originalTitleController),
+      ('subtitle', 'Subtitle', subtitleController),
+      ('platforms', 'Platforms', platformsController),
+      ('identifiers', 'Identifiers', identifiersController),
+      ('contributors', 'Contributors', contributorsController),
+      ('original_language', 'Original language', originalLanguageController),
+      ('year_published', 'Year published', releaseYearController),
+      ('publisher', 'Publisher', publisherController),
+      ('designers', 'Designers', designersController),
+      ('artists', 'Artists', artistsController),
+      ('min_players', 'Minimum players', minPlayersController),
+      ('max_players', 'Maximum players', maxPlayersController),
+      (
+        'recommended_players',
+        'Recommended players',
+        recommendedPlayersController
+      ),
+      ('best_players', 'Best player count', bestPlayersController),
+      (
+        'min_playtime_minutes',
+        'Minimum play time (minutes)',
+        minPlaytimeController
+      ),
+      (
+        'max_playtime_minutes',
+        'Maximum play time (minutes)',
+        maxPlaytimeController
+      ),
+      ('playing_time_minutes', 'Playing time (minutes)', playingTimeController),
+      ('minimum_age', 'Minimum age', minimumAgeController),
+      ('complexity_weight', 'Complexity weight', complexityWeightController),
+      ('mechanics', 'Mechanics', mechanicsController),
+      ('categories', 'Categories', categoriesController),
+      ('families', 'Families', familiesController),
+      ('themes', 'Themes', themesController),
+      ('expansions', 'Expansions', expansionsController),
+      ('expansion_for', 'Expansion for', expansionForController),
+      ('rankings', 'Rankings', rankingsController),
+      ('languages', 'Languages', languagesController),
+      ('bgg_rating', 'BoardGameGeek rating', bggRatingController),
+      ('bgg_rating_count', 'Rating count', bggRatingCountController),
+      ('bgg_rank', 'BoardGameGeek rank', bggRankController),
+      ('series_title', 'Series', seriesTitleController),
+      ('item_number', 'Item number', itemNumberController),
+      ('physical_format', 'Format', physicalFormatController),
+      ('barcode', 'Barcode', barcodeController),
+      ('catalog_number', 'Catalog number', catalogNumberController),
+      ('variant', 'Variant', variantController),
+      ('country', 'Country / region', countryController),
+      ('language', 'Language', languageController),
+      ('release_date', 'Release date', releaseDateController),
+      ('age_rating', 'Age rating', ageRatingController),
+      ('audience_rating', 'Audience rating', audienceRatingController),
+      ('release_status', 'Release status', releaseStatusController),
+    ];
     fields.create(BoardGameCanonicalEditField.title,
         initialValue: metadata.title);
     fields.create(BoardGameCanonicalEditField.displayTitle,
@@ -340,6 +434,7 @@ class BoardGameEditDraft
           controller:
               fields.controller(BoardGameCanonicalEditField.originalTitle),
           label: 'Original title',
+          visible: false,
         ),
         LibraryEditFormFieldSpec(
           id: BoardGameCanonicalEditField.localizedTitle,
@@ -384,9 +479,16 @@ class BoardGameEditDraft
           label: 'Synopsis',
           maxLines: 8,
         ),
+        for (final field in catalogFields)
+          LibraryEditFormFieldSpec(
+            id: 'boardgame.${field.$1}',
+            section: LibraryEditFormSection.details,
+            controller: field.$3,
+            label: field.$2,
+          ),
       ],
       sectionTitles: const {
-        LibraryEditFormSection.details: 'Details',
+        LibraryEditFormSection.details: 'Catalog Item',
         LibraryEditFormSection.artwork: 'Cover Image',
         LibraryEditFormSection.description: 'Synopsis',
       },
@@ -403,6 +505,8 @@ class BoardGameEditDraft
             .kindMetadata as BoardGameMetadata)
         : null;
     if (meta != null) {
+      final transport =
+          selection.kindItem.kindCapability.mapTransport((item) => item);
       final originalTitle = _nullableText(originalTitleController);
       final editionTitle = _nullableText(editionTitleController);
       final year = _intValue(releaseYearController);
@@ -414,27 +518,19 @@ class BoardGameEditDraft
       final maxPlaytime = _intValue(maxPlaytimeController);
       final minimumAge = _intValue(minimumAgeController);
       final complexityWeight = _doubleValue(complexityWeightController);
-      final designers =
-          _splitValues(designersController, fallback: meta.designers);
-      final artists = _splitValues(artistsController, fallback: meta.artists);
+      final designers = _splitValues(designersController, fallback: const []);
+      final artists = _splitValues(artistsController, fallback: const []);
       final publishers = _splitValues(
         publisherController,
-        fallback: meta.publishers.isNotEmpty
-            ? meta.publishers
-            : [if (meta.publisher != null) meta.publisher!],
+        fallback: const [],
       );
-      final mechanics =
-          _splitValues(mechanicsController, fallback: meta.mechanics);
-      final categories =
-          _splitValues(categoriesController, fallback: meta.categories);
-      final families =
-          _splitValues(familiesController, fallback: meta.families);
-      final themes = _splitValues(themesController, fallback: meta.themes);
-      final expansions =
-          _splitValues(expansionsController, fallback: meta.expansions);
+      final mechanics = _splitValues(mechanicsController, fallback: const []);
+      final categories = _splitValues(categoriesController, fallback: const []);
+      final families = _splitValues(familiesController, fallback: const []);
+      final themes = _splitValues(themesController, fallback: const []);
+      final expansions = _splitValues(expansionsController, fallback: const []);
       final expansionFor = _nullableText(expansionForController);
-      final languages =
-          _splitValues(languagesController, fallback: meta.languages);
+      final languages = _splitValues(languagesController, fallback: const []);
       final bggRating = _doubleValue(bggRatingController);
       final bggRatingCount = _intValue(bggRatingCountController);
       final bggRank = _intValue(bggRankController);
@@ -446,14 +542,39 @@ class BoardGameEditDraft
       final variant = _nullableText(variantController);
       final releaseDate = DateTime.tryParse(releaseDateController.text.trim());
       final rawPayload = _withoutEditedFields(meta.rawPayload);
-      if (editionTitle != null) rawPayload['edition_title'] = editionTitle;
-      if (releaseDate != null) {
-        rawPayload['release_date'] = releaseDate.toIso8601String();
-      }
+      _writeRaw(rawPayload, 'edition_title', editionTitle);
+      _writeRaw(rawPayload, 'subtitle', _nullableText(subtitleController));
+      _writeRaw(rawPayload, 'platforms',
+          _splitValues(platformsController, fallback: const []));
+      _writeRaw(rawPayload, 'identifiers',
+          _splitValues(identifiersController, fallback: const []));
+      _writeRaw(rawPayload, 'contributors',
+          _splitValues(contributorsController, fallback: const []));
+      _writeRaw(rawPayload, 'original_language',
+          _nullableText(originalLanguageController));
+      _writeRaw(rawPayload, 'rankings',
+          _splitValues(rankingsController, fallback: const []));
+      _writeRaw(
+          rawPayload, 'playing_time_minutes', _intValue(playingTimeController));
+      _writeRaw(rawPayload, 'country', _nullableText(countryController));
+      _writeRaw(rawPayload, 'language', _nullableText(languageController));
+      _writeRaw(rawPayload, 'age_rating', _nullableText(ageRatingController));
+      _writeRaw(rawPayload, 'audience_rating',
+          _nullableText(audienceRatingController));
+      _writeRaw(
+          rawPayload, 'catalog_number', _nullableText(catalogNumberController));
+      _writeRaw(
+          rawPayload, 'release_status', _nullableText(releaseStatusController));
+      _writeRaw(rawPayload, 'release_date', releaseDate?.toIso8601String());
+      _writeRaw(
+        rawPayload,
+        'cover_image_url',
+        transport.coverImageUrl,
+      );
       final updatedMeta = BoardGameMetadata(
-        title: meta.title,
+        title: transport.title,
         originalTitle: originalTitle,
-        synopsis: meta.synopsis,
+        synopsis: transport.synopsis,
         yearPublished: year,
         minPlayers: minPlayers,
         maxPlayers: maxPlayers,
@@ -545,6 +666,12 @@ Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
   final cleaned = Map<String, dynamic>.from(rawPayload);
   for (final key in [
     'original_title',
+    'subtitle',
+    'platforms',
+    'identifiers',
+    'contributors',
+    'original_language',
+    'rankings',
     'year_published',
     'release_year',
     'min_players',
@@ -553,6 +680,7 @@ Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
     'best_players',
     'min_playtime_minutes',
     'max_playtime_minutes',
+    'playing_time_minutes',
     'minimum_age',
     'min_age',
     'complexity_weight',
@@ -583,6 +711,13 @@ Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
     'physical_format_label',
     'edition_title',
     'release_date',
+    'country',
+    'language',
+    'age_rating',
+    'audience_rating',
+    'catalog_number',
+    'release_status',
+    'cover_image_url',
     'barcode',
     'variant',
   ]) {
@@ -629,6 +764,21 @@ LibraryEditSessionBundle createBoardGameEditDraft({
           item.boardGameCatalogFields.originalTitle ??
           '',
     ),
+    subtitleController: textControllers.create(
+      text: _rawText(meta, 'subtitle'),
+    ),
+    platformsController: textControllers.create(
+      text: _rawList(meta, 'platforms'),
+    ),
+    identifiersController: textControllers.create(
+      text: _rawList(meta, 'identifiers'),
+    ),
+    contributorsController: textControllers.create(
+      text: _rawList(meta, 'contributors'),
+    ),
+    originalLanguageController: textControllers.create(
+      text: _rawText(meta, 'original_language'),
+    ),
     minPlayersController: textControllers.create(
       text: meta?.minPlayers?.toString() ?? '',
     ),
@@ -646,6 +796,9 @@ LibraryEditSessionBundle createBoardGameEditDraft({
     ),
     maxPlaytimeController: textControllers.create(
       text: meta?.maxPlaytimeMinutes?.toString() ?? '',
+    ),
+    playingTimeController: textControllers.create(
+      text: _rawText(meta, 'playing_time_minutes'),
     ),
     minimumAgeController: textControllers.create(
       text: meta?.minimumAge?.toString() ?? '',
@@ -680,6 +833,9 @@ LibraryEditSessionBundle createBoardGameEditDraft({
     expansionForController: textControllers.create(
       text: meta?.expansionFor ?? '',
     ),
+    rankingsController: textControllers.create(
+      text: _rawList(meta, 'rankings'),
+    ),
     languagesController: textControllers.create(
       text: meta?.languages.join(', ') ?? '',
     ),
@@ -704,8 +860,26 @@ LibraryEditSessionBundle createBoardGameEditDraft({
     barcodeController: textControllers.create(
       text: meta?.barcode ?? '',
     ),
+    catalogNumberController: textControllers.create(
+      text: _rawText(meta, 'catalog_number'),
+    ),
     variantController: textControllers.create(
       text: meta?.variant ?? '',
+    ),
+    countryController: textControllers.create(
+      text: _rawText(meta, 'country'),
+    ),
+    languageController: textControllers.create(
+      text: _rawText(meta, 'language'),
+    ),
+    ageRatingController: textControllers.create(
+      text: _rawText(meta, 'age_rating'),
+    ),
+    audienceRatingController: textControllers.create(
+      text: _rawText(meta, 'audience_rating'),
+    ),
+    releaseStatusController: textControllers.create(
+      text: _rawText(meta, 'release_status'),
     ),
     releaseDateController: textControllers.create(
       text: item.boardGameCatalogFields.releaseDate == null
@@ -724,4 +898,23 @@ LibraryEditSessionBundle createBoardGameEditDraft({
     copySession: draft,
     disposeSession: draft.dispose,
   );
+}
+
+String _rawText(BoardGameMetadata? metadata, String key) =>
+    metadata?.rawPayload[key]?.toString() ?? '';
+
+String _rawList(BoardGameMetadata? metadata, String key) {
+  final value = metadata?.rawPayload[key];
+  if (value is! Iterable) return '';
+  return value.map((entry) => entry.toString()).join(', ');
+}
+
+void _writeRaw(Map<String, dynamic> target, String key, Object? value) {
+  if (value == null ||
+      value is String && value.trim().isEmpty ||
+      value is Iterable && value.isEmpty) {
+    target.remove(key);
+    return;
+  }
+  target[key] = value;
 }

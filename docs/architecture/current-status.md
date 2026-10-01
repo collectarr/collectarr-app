@@ -96,9 +96,14 @@ region, publisher, release date, format, barcode, and catalog number on the
 Catalog Item. Game Owned Copies persist only a reference to that Catalog Item;
 they do not store a nested target. Manga's title/number lookup, calendar, series hierarchy, and
 Shelf grouping now read the shared cache; chapters remain contained beneath
-each volume Catalog Item. Board Game's catalog tables are also removed; Add
-lookup, calendar dates, pick-list counts, and offline reads use the cache, while
-owned copies and play sessions remain in App-owned tables. Anime's media,
+each volume Catalog Item. Board Game now maps one flat Catalog Item per
+edition. Its Add form has one Catalog Item section, its workspace has no Release
+projection, and its owned copies no longer store a nested target reference.
+The old `BoardGameMedia`, `BoardGameEdition`, release schema, and split edit
+dialogs have been removed. Add lookup, calendar dates, pick-list counts, and
+offline reads use the shared cache, while owned copies and play sessions remain
+in App-owned tables. The generic host still represents the Catalog Item
+through its transitional `work` scope. Anime's media,
 episode, and release tables are removed; the shared cache now holds each Anime
 Catalog Item with its contained episode and release data. Owned copies,
 tracking, watch sessions, custom episodes, and tracking-unit state remain in
@@ -130,12 +135,11 @@ directly and persist only that `catalog_ref`; they do not carry a redundant
 `target_ref` alias. The Music workspace's scope selector is hidden because this
 kind has no child Release scope. Movie's root workspace also hides the selector.
 Board Game, Book, Game, Manga, Music, Movie, and TV catalog lookups, summaries,
-and offline root reads use the flat Catalog Item cache. The remaining App cutover
-covers Music image ownership and remaining
-Work/Release domain and Edit paths, including legacy Book, Board Game, and
-Manga Edit adapters. Game no longer has per-kind Release domain or Edit
-adapters, though its root still passes through the shared transitional `work`
-scope.
+and offline root reads use the flat Catalog Item cache. The remaining App
+cutover covers Music image ownership and remaining Work/Release domain and Edit
+paths, including legacy Book and Manga adapters. Game and Board Game no longer
+have per-kind Release domain or Edit adapters, though their Catalog Item roots
+still pass through the shared transitional `work` scope.
 Music lifecycle tracking records also target the Catalog Item and use the
 existing personal Sync contract. Listening history targets the same Catalog
 Item, may optionally identify the owned copy used, and now round-trips through

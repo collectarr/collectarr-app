@@ -25,7 +25,6 @@ final class BoardGameLocalMapper {
       itemId: item.itemId,
       createdAt: Value(item.createdAt),
       isDigital: Value(item.isDigital),
-      targetRefJson: Value(_encodeTargetRef(item.targetRef)),
       condition: Value(item.condition),
       grade: Value(item.grade),
       purchaseDate: Value(item.purchaseDate),
@@ -61,7 +60,7 @@ final class BoardGameLocalMapper {
   static BoardGameOwnedItem fromOwnedItemRow(BoardGameOwnedItemsRow row) {
     final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.boardgame,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.root,
       id: row.itemId,
     );
     return BoardGameOwnedItem(
@@ -69,7 +68,6 @@ final class BoardGameLocalMapper {
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
-      targetRef: _decodeTargetRef(row.targetRefJson),
       condition: row.condition,
       grade: row.grade,
       purchaseDate: row.purchaseDate,
@@ -154,16 +152,6 @@ final class BoardGameLocalMapper {
 
   static String _encodeList(Iterable<String> values) =>
       jsonEncode(values.toList(growable: false));
-
-  static String? _encodeTargetRef(CatalogEntityRef? targetRef) =>
-      targetRef == null ? null : jsonEncode(targetRef.toJson());
-
-  static CatalogEntityRef? _decodeTargetRef(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
-    final decoded = _decodeJson(raw);
-    if (decoded is! Map) return null;
-    return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
-  }
 
   static dynamic _decodeJson(String raw) {
     try {

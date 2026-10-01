@@ -10,7 +10,7 @@ final class BoardGamePlaySessionRepository {
   final LocalDatabase _db;
 
   Future<List<BoardGamePlaySession>> listForBoardGame(
-    BoardGameMediaId boardGameId,
+    BoardGameCatalogItemId boardGameId,
   ) async {
     if (boardGameId.value.isEmpty) return const <BoardGamePlaySession>[];
     final rows = await (_db.select(_db.boardGamePlaySessionsRows)

@@ -77,7 +77,6 @@ final class BoardgameOwnedItemCreatePayload implements OwnedItemCreatePayload {
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,
-      targetRef: resolvedCatalogRef,
       details: details.toDetails(),
       condition: condition,
       grade: grade,

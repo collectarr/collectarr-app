@@ -18,12 +18,9 @@ export 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_ad
 export 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_pane.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_catalog_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/boardgame_physical_media_formats.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_catalog_target_capability.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_dialog.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_release_edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/edit_presentation_builder.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/inspector_panel.dart';
@@ -33,7 +30,6 @@ export 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardg
 export 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_create_payload.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/release/boardgame_release_projection_capability.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';

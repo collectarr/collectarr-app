@@ -21,31 +21,32 @@ class BoardGamePlayStatsSection extends ConsumerWidget {
     if (dto is! BoardGameWorkspaceDto) {
       return const SizedBox.shrink();
     }
-    final work = dto.boardgame;
-
-    final edition = _primaryEdition(work);
-    final stats = work.playStats;
+    final boardgame = dto.boardgame;
+    final metadata = dto.metadata;
     final sessionStats = ref
-        .watch(boardGamePlayStatsProvider(BoardGameMediaId(work.id)))
+        .watch(boardGamePlayStatsProvider(BoardGameCatalogItemId(boardgame.id)))
         .asData
         ?.value;
-    final playCount = sessionStats?.playCount ?? stats?.playCount;
-    final lastPlayed = sessionStats?.lastPlayed ?? stats?.lastPlayed;
+    final playCount = sessionStats?.playCount;
+    final lastPlayed = sessionStats?.lastPlayed;
     final facts = <LibraryDetailField>[
-      if (edition?.minPlayers != null ||
-          edition?.maxPlayers != null ||
-          edition?.bestPlayers != null)
-        LibraryDetailField(label: 'Players', value: _playersLabel(edition)),
-      if (edition?.playingTimeMinutes != null)
+      if (metadata.minPlayers != null ||
+          metadata.maxPlayers != null ||
+          metadata.bestPlayers != null)
+        LibraryDetailField(label: 'Players', value: _playersLabel(dto)),
+      if (metadata.minPlaytimeMinutes != null ||
+          metadata.maxPlaytimeMinutes != null)
         LibraryDetailField(
-            label: 'Play time', value: '${edition!.playingTimeMinutes} min'),
-      if (edition?.minAge != null)
-        LibraryDetailField(label: 'Age', value: '${edition!.minAge}+'),
-      if (stats?.bggRank != null)
-        LibraryDetailField(label: 'BGG rank', value: '#${stats!.bggRank}'),
-      if (stats?.bggRating != null)
+          label: 'Play time',
+          value: _playtimeLabel(dto),
+        ),
+      if (metadata.minimumAge != null)
+        LibraryDetailField(label: 'Age', value: '${metadata.minimumAge}+'),
+      if (metadata.bggRank != null)
+        LibraryDetailField(label: 'BGG rank', value: '#${metadata.bggRank}'),
+      if (metadata.bggRating != null)
         LibraryDetailField(
-            label: 'BGG rating', value: stats!.bggRating!.toStringAsFixed(2)),
+            label: 'BGG rating', value: metadata.bggRating!.toStringAsFixed(2)),
       if (playCount != null && playCount > 0)
         LibraryDetailField(label: 'Play count', value: playCount.toString()),
       if (lastPlayed != null)
@@ -56,48 +57,33 @@ class BoardGamePlayStatsSection extends ConsumerWidget {
           label: 'Average duration',
           value: '${sessionStats!.averageDurationMinutes!.round()} min',
         ),
-      if (stats?.favoritePlayerCount != null)
-        LibraryDetailField(
-            label: 'Favorite players',
-            value: stats!.favoritePlayerCount.toString()),
     ];
 
     final chipSections = <Widget>[
-      if (work.mechanics.isNotEmpty)
+      if (boardgame.mechanics.isNotEmpty)
         LibraryDetailChipGroupWidget(
           label: 'Mechanics',
-          values: work.mechanics,
+          values: boardgame.mechanics,
         ),
-      if (work.categories.isNotEmpty) ...[
-        if (work.mechanics.isNotEmpty) const SizedBox(height: 8),
+      if (boardgame.categories.isNotEmpty) ...[
+        if (boardgame.mechanics.isNotEmpty) const SizedBox(height: 8),
         LibraryDetailChipGroupWidget(
           label: 'Categories',
-          values: work.categories,
+          values: boardgame.categories,
         ),
       ],
-      if (work.expansions.isNotEmpty) ...[
-        if (work.mechanics.isNotEmpty || work.categories.isNotEmpty)
+      if (boardgame.expansions.isNotEmpty) ...[
+        if (boardgame.mechanics.isNotEmpty || boardgame.categories.isNotEmpty)
           const SizedBox(height: 8),
         LibraryDetailChipGroupWidget(
           label: 'Expansions',
-          values: work.expansions,
-        ),
-      ],
-      if (stats?.playerStats?.isNotEmpty == true) ...[
-        if (work.mechanics.isNotEmpty ||
-            work.categories.isNotEmpty ||
-            work.expansions.isNotEmpty)
-          const SizedBox(height: 8),
-        LibraryDetailChipGroupWidget(
-          label: 'Player stats',
-          values: [stats!.playerStats!],
+          values: boardgame.expansions,
         ),
       ],
       if (sessionStats?.mostPlayedWith.isNotEmpty == true) ...[
-        if (work.mechanics.isNotEmpty ||
-            work.categories.isNotEmpty ||
-            work.expansions.isNotEmpty ||
-            stats?.playerStats?.isNotEmpty == true)
+        if (boardgame.mechanics.isNotEmpty ||
+            boardgame.categories.isNotEmpty ||
+            boardgame.expansions.isNotEmpty)
           const SizedBox(height: 8),
         LibraryDetailChipGroupWidget(
           label: 'Most played with',
@@ -105,10 +91,9 @@ class BoardGamePlayStatsSection extends ConsumerWidget {
         ),
       ],
       if (sessionStats?.winStats.isNotEmpty == true) ...[
-        if (work.mechanics.isNotEmpty ||
-            work.categories.isNotEmpty ||
-            work.expansions.isNotEmpty ||
-            stats?.playerStats?.isNotEmpty == true ||
+        if (boardgame.mechanics.isNotEmpty ||
+            boardgame.categories.isNotEmpty ||
+            boardgame.expansions.isNotEmpty ||
             sessionStats!.mostPlayedWith.isNotEmpty)
           const SizedBox(height: 8),
         LibraryDetailChipGroupWidget(
@@ -139,17 +124,10 @@ class BoardGamePlayStatsSection extends ConsumerWidget {
   }
 }
 
-BoardGameEdition? _primaryEdition(BoardGameCatalogItem work) {
-  return work.editions.isEmpty ? null : work.editions.first;
-}
-
-String _playersLabel(BoardGameEdition? edition) {
-  if (edition == null) {
-    return 'Players';
-  }
-  final minPlayers = edition.minPlayers;
-  final maxPlayers = edition.maxPlayers;
-  final bestPlayers = edition.bestPlayers;
+String _playersLabel(BoardGameWorkspaceDto dto) {
+  final minPlayers = dto.minPlayers;
+  final maxPlayers = dto.maxPlayers;
+  final bestPlayers = dto.bestPlayers;
   if (minPlayers != null && maxPlayers != null && minPlayers != maxPlayers) {
     final label = '$minPlayers-$maxPlayers';
     return bestPlayers == null ? label : '$label (best $bestPlayers)';
@@ -168,6 +146,15 @@ String _playersLabel(BoardGameEdition? edition) {
     return 'Best $bestPlayers';
   }
   return 'Players';
+}
+
+String _playtimeLabel(BoardGameWorkspaceDto dto) {
+  final minMinutes = dto.minPlaytimeMinutes;
+  final maxMinutes = dto.maxPlaytimeMinutes;
+  if (minMinutes != null && maxMinutes != null && minMinutes != maxMinutes) {
+    return '$minMinutes–$maxMinutes min';
+  }
+  return '${minMinutes ?? maxMinutes} min';
 }
 
 String _formatDate(DateTime value) {

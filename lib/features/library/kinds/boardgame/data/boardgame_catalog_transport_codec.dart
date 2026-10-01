@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
@@ -10,12 +9,14 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 
 final class BoardGameCatalogTransportCodec
     implements
-        CatalogKindTransportCodec<BoardGameMedia>,
+        CatalogKindTransportCodec<BoardGameCatalogItem>,
         CatalogSharedCachePrimaryStore {
   const BoardGameCatalogTransportCodec();
 
@@ -23,22 +24,24 @@ final class BoardGameCatalogTransportCodec
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
 
   @override
-  BoardGameMedia decode(CatalogItemDto item) {
+  BoardGameCatalogItem decode(CatalogItemDto item) {
     final metadata = item.kindMetadata;
-    if (metadata is BoardGameMedia) return metadata;
-    return BoardGameMedia.fromJson(catalogTransportPayloadFor(item));
+    if (metadata is BoardGameMetadata) {
+      return BoardGameCatalogItem(item: item, metadata: metadata);
+    }
+    return BoardGameCatalogMapper.mapMetadataItemToBoardGame(item);
   }
 
   @override
-  Future<void> upsert(LocalDatabase db, BoardGameMedia item) {
+  Future<void> upsert(LocalDatabase db, BoardGameCatalogItem item) {
     return CatalogItemCacheRepository(db).upsert(_projection(item));
   }
 
   @override
-  CatalogDisplaySummary summarize(BoardGameMedia item) =>
+  CatalogDisplaySummary summarize(BoardGameCatalogItem item) =>
       CatalogDisplaySummary.root(
         kind: kind,
-        id: item.id.value,
+        id: item.id,
         primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
@@ -95,7 +98,7 @@ final class BoardGameCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    BoardGameMedia item,
+    BoardGameCatalogItem item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -105,10 +108,10 @@ final class BoardGameCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(BoardGameMedia item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(BoardGameCatalogItem item) =>
       catalogDerivedDataFor(
         kind: kind,
-        metadata: item,
+        metadata: item.metadata,
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
@@ -139,13 +142,5 @@ int? _replacementValueFromPayload(CatalogItemDto item) {
   return nested is num ? nested.toInt() : null;
 }
 
-CatalogItemDto _projection(BoardGameMedia item) {
-  final payload = Map<String, dynamic>.from(item.rawPayload);
-  payload['id'] ??= item.id.value;
-  payload['kind'] ??= 'boardgame';
-  payload['title'] ??= item.title;
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(
-    BoardGameMedia.fromJson(projection.payload),
-  );
-}
+CatalogItemDto _projection(BoardGameCatalogItem item) =>
+    item.toCatalogItemDto();

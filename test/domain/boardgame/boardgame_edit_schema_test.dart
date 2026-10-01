@@ -1,102 +1,64 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/owned/boardgame_owned_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../contracts/media_edit_contract.dart';
-
 void main() {
-  defineMediaEditContract<
-      EditSchema<BoardGameMedia, BoardGameCatalogFormValues>>(
-    name: 'BoardGame',
-    create: () => boardGameMediaEditSchema,
-    tabIds: (schema) => schema.tabs.map((tab) => tab.id),
-    fieldIds: (schema, tabId) => [
-      for (final tab in schema.tabs)
-        if (tab.id == tabId)
-          for (final section in tab.sections)
-            for (final field in section.fields) field.id,
-    ],
-  );
-
-  defineMediaEditContract<
-      EditSchema<BoardGameEdition, BoardGameCatalogFormValues>>(
-    name: 'BoardGame release',
-    create: () => boardGameEditionEditSchema,
-    tabIds: (schema) => schema.tabs.map((tab) => tab.id),
-    fieldIds: (schema, tabId) => [
-      for (final tab in schema.tabs)
-        if (tab.id == tabId)
-          for (final section in tab.sections)
-            for (final field in section.fields) field.id,
-    ],
-  );
-
-  defineMediaEditContract<
-      EditSchema<BoardgameOwnedDetails, BoardGameEditDraft>>(
-    name: 'BoardGame ownership',
-    create: () => boardGameOwnedEditSchema,
-    tabIds: (schema) => schema.tabs.map((tab) => tab.id),
-    fieldIds: (schema, tabId) => [
-      for (final tab in schema.tabs)
-        if (tab.id == tabId)
-          for (final section in tab.sections)
-            for (final field in section.fields) field.id,
-    ],
-  );
-
-  test('BoardGame media form maps typed fields and preserves unknown data', () {
-    const media = BoardGameMedia(
-      id: BoardGameMediaId('boardgame-1'),
-      title: 'Brass: Birmingham',
-      publisher: 'Roxley',
-      mechanics: ['Hand Management'],
-      categories: ['Economic'],
-      families: ['Brass'],
-      expansions: ['Brass: Lancashire'],
-      rankings: ['1'],
-      rawPayload: {'provider_only': 'keep'},
-    );
-    final values = boardGameCatalogFormValuesFromMedia(media);
-    (_workField('publisher')
-            as LibraryVocabularyFieldSpec<BoardGameCatalogFormValues, String>)
-        .setValue(values, 'New Publisher');
-    (_workField('categories') as LibraryMultiVocabularyFieldSpec<
-            BoardGameCatalogFormValues, String>)
-        .setValues(values, {'Economic', 'Strategy'});
-    (_workField('mechanics')
-            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 'Hand Management, Networking');
-    (_workField('original_language')
-            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 'German');
-    final updated = boardGameMediaFromCatalogFormValues(
-      original: media,
-      values: values,
-    );
-
-    expect(updated.publisher, 'New Publisher');
-    expect(updated.categories, ['Economic', 'Strategy']);
-    expect(updated.mechanics, ['Hand Management', 'Networking']);
-    expect(updated.originalLanguage, 'German');
-    expect(updated.rawPayload['provider_only'], 'keep');
+  test('manual Add exposes one Catalog Item section', () {
+    expect(boardGameAddSchema.sections, hasLength(1));
+    expect(boardGameAddSchema.sections.single.id, 'catalog_item');
+    expect(boardGameAddSchema.sections.single.label, 'Catalog Item');
   });
 
-  test('BoardGame ownership schema round trips typed details', () {
+  test('flat Catalog Item form values map to Board Game metadata', () {
+    final values = BoardGameCatalogFormValues(
+      originalTitle: 'Catan',
+      publisher: 'Kosmos',
+      barcode: '123456789',
+      country: 'DE',
+      language: 'German',
+      format: 'Board game',
+      minPlayers: 2,
+      maxPlayers: 4,
+      designers: ['Klaus Teuber'],
+      mechanics: ['Trading'],
+      releaseDate: DateTime.utc(1995, 1, 1),
+    );
+
+    final metadata = boardGameMetadataFromManualFormValues(
+      values: values,
+      id: 'boardgame-edition-1',
+      title: 'Catan Revised Edition',
+    );
+    final restored = boardGameCatalogFormValuesFromMetadata(metadata);
+
+    expect(metadata.title, 'Catan Revised Edition');
+    expect(metadata.originalTitle, 'Catan');
+    expect(metadata.publisher, 'Kosmos');
+    expect(metadata.barcode, '123456789');
+    expect(metadata.minPlayers, 2);
+    expect(metadata.maxPlayers, 4);
+    expect(restored.country, 'DE');
+    expect(restored.language, 'German');
+    expect(restored.format, 'Board game');
+    expect(restored.releaseDate, DateTime.utc(1995, 1, 1));
+    expect(restored.designers, ['Klaus Teuber']);
+    expect(restored.mechanics, ['Trading']);
+  });
+
+  test('Board Game Owned Copy schema round trips typed details', () {
     final draft = createBoardGameEditDraft(
       item: _item(const BoardGameMetadata(title: 'Catan')),
       textControllers: TextControllerGroup(),
@@ -143,113 +105,6 @@ void main() {
       ),
     );
   });
-
-  test('BoardGame release form round trips typed edition fields', () {
-    final original = BoardGameEdition(
-      id: 'edition-1',
-      title: 'Catan',
-      titleValue: 'Catan',
-      workId: 'boardgame-1',
-      editionTitle: 'Fifth Edition',
-      ageRating: '10+',
-      audienceRating: 'Family',
-      barcode: '123',
-      catalogNumber: 'CAT-1',
-      country: 'US',
-      coverImageUrl: 'https://example.test/old.jpg',
-      description: 'Old description',
-      format: 'Base Game',
-      language: 'English',
-      maxPlayers: 4,
-      minAge: 10,
-      minPlayers: 3,
-      playingTimeMinutes: 90,
-      publisher: 'Old Publisher',
-      releaseDate: DateTime(1995, 1, 1),
-      releaseStatus: 'released',
-      rawPayload: {'provider_only': 'keep'},
-    );
-    final values = boardGameCatalogFormValuesFromEdition(original);
-
-    (_releaseField('title') as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 'Catan Revised');
-    (_releaseField('edition_title')
-            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 'Collector Edition');
-    (_releaseField('barcode')
-            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, '456');
-    (_releaseField('catalog_number')
-            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 'CAT-2');
-    (_releaseField('format')
-            as LibraryVocabularyFieldSpec<BoardGameCatalogFormValues, String>)
-        .setValue(values, 'Deluxe Edition');
-    (_releaseField('publisher')
-            as LibraryVocabularyFieldSpec<BoardGameCatalogFormValues, String>)
-        .setValue(values, 'New Publisher');
-    (_releaseField('country')
-            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 'DE');
-    (_releaseField('language')
-            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 'German');
-    (_releaseField('age_rating')
-            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, '12+');
-    (_releaseField('audience_rating')
-            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 'Hobby');
-    (_releaseField('cover_image_url')
-            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 'https://example.test/new.jpg');
-    (_releaseField('description')
-            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 'New description');
-    (_releaseField('release_status')
-            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 'available');
-    (_releaseField('min_players')
-            as LibraryNumberFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 2);
-    (_releaseField('max_players')
-            as LibraryNumberFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 6);
-    (_releaseField('min_age')
-            as LibraryNumberFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 12);
-    (_releaseField('playing_time_minutes')
-            as LibraryNumberFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, 120);
-    (_releaseField('release_date')
-            as LibraryDateFieldSpec<BoardGameCatalogFormValues>)
-        .setValue(values, DateTime(2026, 9, 4));
-
-    final updated = boardGameEditionFromCatalogFormValues(
-      original: original,
-      values: values,
-    );
-    expect(updated.title, 'Catan Revised');
-    expect(updated.editionTitle, 'Collector Edition');
-    expect(updated.barcode, '456');
-    expect(updated.catalogNumber, 'CAT-2');
-    expect(updated.format, 'Deluxe Edition');
-    expect(updated.publisher, 'New Publisher');
-    expect(updated.country, 'DE');
-    expect(updated.language, 'German');
-    expect(updated.ageRating, '12+');
-    expect(updated.audienceRating, 'Hobby');
-    expect(updated.coverImageUrl, 'https://example.test/new.jpg');
-    expect(updated.description, 'New description');
-    expect(updated.releaseStatus, 'available');
-    expect(updated.minPlayers, 2);
-    expect(updated.maxPlayers, 6);
-    expect(updated.minAge, 12);
-    expect(updated.playingTimeMinutes, 120);
-    expect(updated.releaseDate, DateTime(2026, 9, 4));
-    expect(updated.rawPayload['provider_only'], 'keep');
-    expect(boardGameEditionEditSchema.validate!(original, values), isNull);
-  });
 }
 
 CatalogSearchCandidate _item(BoardGameMetadata metadata) =>
@@ -263,22 +118,8 @@ CatalogSearchCandidate _item(BoardGameMetadata metadata) =>
       ),
     );
 
-LibraryFieldSpec<BoardGameCatalogFormValues> _workField(String id) => [
-      for (final tab in boardGameMediaEditSchema.tabs)
-        for (final section in tab.sections)
-          for (final field in section.fields)
-            if (field.id == id) field,
-    ].single;
-
 LibraryFieldSpec<BoardGameEditDraft> _ownedField(String id) => [
       for (final tab in boardGameOwnedEditSchema.tabs)
-        for (final section in tab.sections)
-          for (final field in section.fields)
-            if (field.id == id) field,
-    ].single;
-
-LibraryFieldSpec<BoardGameCatalogFormValues> _releaseField(String id) => [
-      for (final tab in boardGameEditionEditSchema.tabs)
         for (final section in tab.sections)
           for (final field in section.fields)
             if (field.id == id) field,

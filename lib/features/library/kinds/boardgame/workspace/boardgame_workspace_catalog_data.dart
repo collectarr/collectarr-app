@@ -16,22 +16,18 @@ final class BoardGameWorkspaceCatalogData
   });
 
   factory BoardGameWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
-    final rawMetadata = item.kindMetadata;
+    final boardgame = BoardGameCatalogMapper.mapMetadataItemToBoardGame(item);
     return BoardGameWorkspaceCatalogData(
       ref: item.catalogRef,
-      boardgame: BoardGameCatalogMapper.mapMetadataItemToBoardGame(item),
-      metadata: rawMetadata is BoardGameMetadata
-          ? rawMetadata
-          : rawMetadata == null
-              ? null
-              : BoardGameMetadata.fromJson(item.payload),
+      boardgame: boardgame,
+      metadata: boardgame.metadata,
     );
   }
 
   @override
   final CatalogEntityRef ref;
   final BoardGameCatalogItem boardgame;
-  final BoardGameMetadata? metadata;
+  final BoardGameMetadata metadata;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;

@@ -34,7 +34,7 @@ void main() {
     await repository.upsertAll([older, newer]);
 
     final sessions = await repository.listForBoardGame(
-      const BoardGameMediaId('boardgame-1'),
+      const BoardGameCatalogItemId('boardgame-1'),
     );
     expect(
       sessions.map((session) => session.id),

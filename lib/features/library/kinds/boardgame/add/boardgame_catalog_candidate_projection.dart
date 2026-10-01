@@ -9,4 +9,3 @@ CatalogSearchCandidate boardGameCatalogTransportFromCoreItem(
     return item.kindCapability.withKindMetadata(metadata);
   });
 }
-

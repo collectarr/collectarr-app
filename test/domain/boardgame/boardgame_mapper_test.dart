@@ -22,14 +22,14 @@ void main() {
     );
     final boardGame = BoardGameCatalogMapper.mapDtoToBoardGame(dto);
 
-    expect(boardGame.work.platforms, ['Base Game']);
-    expect(boardGame.work.identifiers, ['BGG:13']);
-    expect(boardGame.work.contributors, ['Klaus Teuber']);
-    expect(boardGame.work.mechanics, ['dice rolling']);
-    expect(boardGame.work.categories, ['economic']);
-    expect(boardGame.work.families, ['catan']);
-    expect(boardGame.work.expansions, ['Seafarers']);
-    expect(boardGame.work.rankings, ['BGG Rank #1']);
+    expect(boardGame.metadata.rawPayload['platforms'], ['Base Game']);
+    expect(boardGame.metadata.rawPayload['identifiers'], ['BGG:13']);
+    expect(boardGame.metadata.rawPayload['contributors'], ['Klaus Teuber']);
+    expect(boardGame.metadata.mechanics, ['dice rolling']);
+    expect(boardGame.metadata.categories, ['economic']);
+    expect(boardGame.metadata.families, ['catan']);
+    expect(boardGame.metadata.expansions, ['Seafarers']);
+    expect(boardGame.metadata.rawPayload['rankings'], ['BGG Rank #1']);
   });
 
   test('BoardgameOwnedDetails supports rich copy fields and serialization', () {

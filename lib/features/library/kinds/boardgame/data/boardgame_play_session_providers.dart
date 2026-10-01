@@ -10,7 +10,7 @@ final boardGamePlaySessionRepositoryProvider =
 });
 
 final boardGamePlaySessionsProvider =
-    FutureProvider.family<List<BoardGamePlaySession>, BoardGameMediaId>(
+    FutureProvider.family<List<BoardGamePlaySession>, BoardGameCatalogItemId>(
   (ref, boardGameId) {
     return ref
         .watch(boardGamePlaySessionRepositoryProvider)
@@ -24,7 +24,7 @@ final boardGameAllPlaySessionsProvider =
 });
 
 final boardGamePlayStatsProvider =
-    FutureProvider.family<BoardGamePlayStats, BoardGameMediaId>(
+    FutureProvider.family<BoardGamePlayStats, BoardGameCatalogItemId>(
   (ref, boardGameId) async {
     final sessions =
         await ref.watch(boardGamePlaySessionsProvider(boardGameId).future);

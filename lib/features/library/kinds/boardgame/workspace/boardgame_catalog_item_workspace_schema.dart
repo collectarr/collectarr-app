@@ -4,9 +4,10 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardg
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:flutter/material.dart';
 
-abstract final class BoardGameWorkWorkspaceFields {
+abstract final class BoardGameCatalogItemWorkspaceFields {
   static final title = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.title,
     label: 'Title',
@@ -14,10 +15,31 @@ abstract final class BoardGameWorkWorkspaceFields {
     entityScope: LibraryEntityScope.work,
   );
 
+  static final publisher = textField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.publisher,
+    label: 'Publisher',
+    getValue: (dto) => dto.publisher,
+    entityScope: LibraryEntityScope.work,
+  );
+
+  static final releaseDate = dateField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.releaseDate,
+    label: 'Release Date',
+    getValue: (dto) => dto.releaseDate,
+    entityScope: LibraryEntityScope.work,
+  );
+
+  static final barcode = textField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.barcode,
+    label: 'Barcode',
+    getValue: (dto) => dto.barcode,
+    entityScope: LibraryEntityScope.work,
+  );
+
   static final designer = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.designer,
     label: 'Designer',
-    getValue: (dto) => dto.metadata?.designers.firstOrNull ?? dto.publisher,
+    getValue: (dto) => dto.metadata.designers.firstOrNull ?? dto.publisher,
     entityScope: LibraryEntityScope.work,
   );
 
@@ -32,21 +54,21 @@ abstract final class BoardGameWorkWorkspaceFields {
   static final minPlayers = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.minPlayers,
     label: 'Min Players',
-    getValue: (dto) => dto.metadata?.minPlayers,
+    getValue: (dto) => dto.metadata.minPlayers,
     entityScope: LibraryEntityScope.work,
   );
 
   static final maxPlayers = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.maxPlayers,
     label: 'Max Players',
-    getValue: (dto) => dto.metadata?.maxPlayers,
+    getValue: (dto) => dto.metadata.maxPlayers,
     entityScope: LibraryEntityScope.work,
   );
 
   static final bestPlayers = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.bestPlayers,
     label: 'Best Players',
-    getValue: (dto) => dto.metadata?.bestPlayers,
+    getValue: (dto) => dto.metadata.bestPlayers,
     entityScope: LibraryEntityScope.work,
   );
 
@@ -54,7 +76,7 @@ abstract final class BoardGameWorkWorkspaceFields {
       textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.recommendedPlayers,
     label: 'Recommended Players',
-    getValue: (dto) => dto.metadata?.recommendedPlayers,
+    getValue: (dto) => dto.metadata.recommendedPlayers,
     entityScope: LibraryEntityScope.work,
   );
 
@@ -62,7 +84,7 @@ abstract final class BoardGameWorkWorkspaceFields {
       numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.minPlaytimeMinutes,
     label: 'Min Playtime (m)',
-    getValue: (dto) => dto.metadata?.minPlaytimeMinutes,
+    getValue: (dto) => dto.metadata.minPlaytimeMinutes,
     entityScope: LibraryEntityScope.work,
   );
 
@@ -70,7 +92,7 @@ abstract final class BoardGameWorkWorkspaceFields {
       numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.maxPlaytimeMinutes,
     label: 'Max Playtime (m)',
-    getValue: (dto) => dto.metadata?.maxPlaytimeMinutes,
+    getValue: (dto) => dto.metadata.maxPlaytimeMinutes,
     entityScope: LibraryEntityScope.work,
   );
 
@@ -78,79 +100,101 @@ abstract final class BoardGameWorkWorkspaceFields {
       numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.complexityWeight,
     label: 'Complexity / Weight',
-    getValue: (dto) => dto.metadata?.complexityWeight,
+    getValue: (dto) => dto.metadata.complexityWeight,
     entityScope: LibraryEntityScope.work,
   );
 
   static final bggRating = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.bggRating,
     label: 'BGG Rating',
-    getValue: (dto) => dto.metadata?.bggRating,
+    getValue: (dto) => dto.metadata.bggRating,
     entityScope: LibraryEntityScope.work,
   );
 
   static final bggRank = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.bggRank,
     label: 'BGG Rank',
-    getValue: (dto) => dto.metadata?.bggRank,
+    getValue: (dto) => dto.metadata.bggRank,
     entityScope: LibraryEntityScope.work,
   );
 
   static final expansionFor = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.expansionFor,
     label: 'Expansion For',
-    getValue: (dto) => dto.metadata?.expansionFor,
+    getValue: (dto) => dto.metadata.expansionFor,
     entityScope: LibraryEntityScope.work,
   );
 }
 
-final boardgameWorkWorkspaceFieldDefinitions = [
-  BoardGameWorkWorkspaceFields.cover,
-  BoardGameWorkWorkspaceFields.title,
-  BoardGameWorkWorkspaceFields.designer,
-  BoardGameWorkWorkspaceFields.minPlayers,
-  BoardGameWorkWorkspaceFields.maxPlayers,
-  BoardGameWorkWorkspaceFields.bestPlayers,
-  BoardGameWorkWorkspaceFields.recommendedPlayers,
-  BoardGameWorkWorkspaceFields.minPlaytimeMinutes,
-  BoardGameWorkWorkspaceFields.maxPlaytimeMinutes,
-  BoardGameWorkWorkspaceFields.complexityWeight,
-  BoardGameWorkWorkspaceFields.bggRating,
-  BoardGameWorkWorkspaceFields.bggRank,
-  BoardGameWorkWorkspaceFields.expansionFor,
+final boardgameCatalogItemWorkspaceFieldDefinitions = [
+  BoardGameCatalogItemWorkspaceFields.cover,
+  BoardGameCatalogItemWorkspaceFields.title,
+  BoardGameCatalogItemWorkspaceFields.publisher,
+  BoardGameCatalogItemWorkspaceFields.releaseDate,
+  BoardGameCatalogItemWorkspaceFields.barcode,
+  BoardGameCatalogItemWorkspaceFields.designer,
+  BoardGameCatalogItemWorkspaceFields.minPlayers,
+  BoardGameCatalogItemWorkspaceFields.maxPlayers,
+  BoardGameCatalogItemWorkspaceFields.bestPlayers,
+  BoardGameCatalogItemWorkspaceFields.recommendedPlayers,
+  BoardGameCatalogItemWorkspaceFields.minPlaytimeMinutes,
+  BoardGameCatalogItemWorkspaceFields.maxPlaytimeMinutes,
+  BoardGameCatalogItemWorkspaceFields.complexityWeight,
+  BoardGameCatalogItemWorkspaceFields.bggRating,
+  BoardGameCatalogItemWorkspaceFields.bggRank,
+  BoardGameCatalogItemWorkspaceFields.expansionFor,
 ];
 
-final boardgameWorkWorkspaceGroupDefinitions = [
+final boardgameCatalogItemWorkspaceGroupDefinitions = [
   groupFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
-    BoardGameWorkWorkspaceFields.bestPlayers,
+    BoardGameCatalogItemWorkspaceFields.bestPlayers,
     sidebarTitle: 'Best Player Count',
     icon: Icons.group_outlined,
   ),
+  groupFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    BoardGameCatalogItemWorkspaceFields.publisher,
+    sidebarTitle: 'Publishers',
+    icon: Icons.business_outlined,
+    supportsBucketManagement: true,
+    bucketValueMutator: catalogTransportStringListBucketValueMutator(
+      'publishers',
+      scalarMirrorKeys: ['publisher'],
+    ),
+  ),
 ];
 
-final boardgameWorkWorkspaceSortDefinitions = [
+final boardgameCatalogItemWorkspaceSortDefinitions = [
   sortFromField<BoardGameKind, BoardGameWorkspaceDto, String>(
-      BoardGameWorkWorkspaceFields.title),
-  sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
-      BoardGameWorkWorkspaceFields.bggRating,
+      BoardGameCatalogItemWorkspaceFields.title),
+  sortFromField<BoardGameKind, BoardGameWorkspaceDto, String>(
+      BoardGameCatalogItemWorkspaceFields.publisher),
+  sortFromField<BoardGameKind, BoardGameWorkspaceDto, DateTime>(
+      BoardGameCatalogItemWorkspaceFields.releaseDate,
       defaultAscending: false),
   sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
-      BoardGameWorkWorkspaceFields.bggRank),
+      BoardGameCatalogItemWorkspaceFields.bggRating,
+      defaultAscending: false),
   sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
-      BoardGameWorkWorkspaceFields.complexityWeight,
+      BoardGameCatalogItemWorkspaceFields.bggRank),
+  sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
+      BoardGameCatalogItemWorkspaceFields.complexityWeight,
       defaultAscending: false),
 ];
 
-final boardgameWorkWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+final boardgameCatalogItemWorkspaceDefaultVisibleColumns =
+    <LibraryFieldIdRuntime>{
   BoardGameFieldIds.cover,
   BoardGameFieldIds.title,
+  BoardGameFieldIds.publisher,
+  BoardGameFieldIds.releaseDate,
+  BoardGameFieldIds.barcode,
 };
 
-final boardgameWorkWorkspaceColumnDefinitions = [
+final boardgameCatalogItemWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.cover,
     label: '',
-    getValue: BoardGameWorkWorkspaceFields.cover.getValue,
+    getValue: BoardGameCatalogItemWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
         : Image.network(
@@ -165,62 +209,83 @@ final boardgameWorkWorkspaceColumnDefinitions = [
     minWidth: 44,
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
-      BoardGameWorkWorkspaceFields.title,
+      BoardGameCatalogItemWorkspaceFields.title,
       defaultWidth: 260,
       maxWidth: 520),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+      BoardGameCatalogItemWorkspaceFields.publisher,
+      defaultWidth: 150),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, DateTime?>(
+    BoardGameCatalogItemWorkspaceFields.releaseDate,
+    cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
+    defaultWidth: 118,
+  ),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    BoardGameCatalogItemWorkspaceFields.barcode,
+    group: 'Catalog Item',
+    defaultWidth: 160,
+    maxWidth: 260,
+  ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, num?>(
-    BoardGameWorkWorkspaceFields.minPlayers,
+    BoardGameCatalogItemWorkspaceFields.minPlayers,
     group: 'Players',
     isNumeric: true,
     defaultWidth: 90,
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, num?>(
-    BoardGameWorkWorkspaceFields.maxPlayers,
+    BoardGameCatalogItemWorkspaceFields.maxPlayers,
     group: 'Players',
     isNumeric: true,
     defaultWidth: 90,
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
-    BoardGameWorkWorkspaceFields.bestPlayers,
+    BoardGameCatalogItemWorkspaceFields.bestPlayers,
     group: 'Players',
     defaultWidth: 100,
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, num?>(
-    BoardGameWorkWorkspaceFields.complexityWeight,
+    BoardGameCatalogItemWorkspaceFields.complexityWeight,
     group: 'Details',
     isNumeric: true,
     defaultWidth: 100,
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, num?>(
-    BoardGameWorkWorkspaceFields.bggRating,
+    BoardGameCatalogItemWorkspaceFields.bggRating,
     group: 'Details',
     isNumeric: true,
     defaultWidth: 90,
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, num?>(
-    BoardGameWorkWorkspaceFields.bggRank,
+    BoardGameCatalogItemWorkspaceFields.bggRank,
     group: 'Details',
     isNumeric: true,
     defaultWidth: 80,
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
-    BoardGameWorkWorkspaceFields.expansionFor,
+    BoardGameCatalogItemWorkspaceFields.expansionFor,
     group: 'Details',
     defaultWidth: 150,
   ),
 ];
 
-final boardgameWorkWorkspaceSchema =
+final boardgameCatalogItemWorkspaceSchema =
     LibraryEntityWorkspaceSchema<BoardGameKind, BoardGameWorkspaceDto>(
   kindNamespace: 'boardgame',
   entityScope: LibraryEntityScope.work,
-  fields: boardgameWorkWorkspaceFieldDefinitions,
-  columns: boardgameWorkWorkspaceColumnDefinitions,
-  sorts: boardgameWorkWorkspaceSortDefinitions,
-  groups: boardgameWorkWorkspaceGroupDefinitions,
+  fields: boardgameCatalogItemWorkspaceFieldDefinitions,
+  columns: boardgameCatalogItemWorkspaceColumnDefinitions,
+  sorts: boardgameCatalogItemWorkspaceSortDefinitions,
+  groups: boardgameCatalogItemWorkspaceGroupDefinitions,
   primaryColumn: BoardGameFieldIds.title,
-  defaultVisibleColumns: boardgameWorkWorkspaceDefaultVisibleColumns,
+  defaultVisibleColumns: boardgameCatalogItemWorkspaceDefaultVisibleColumns,
   defaultSort: BoardGameSortIds.title,
   defaultGroup: BoardGameGroupIds.bestPlayers,
   preferenceCodec: const BoardGamePreferenceCodec(),
 );
+
+String _formatDate(DateTime? value) {
+  if (value == null) return '';
+  return '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
+}

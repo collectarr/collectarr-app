@@ -89,7 +89,8 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
       ),
       BoardGamePlayStatsCard(
         mediaIds: [
-          for (final entry in state.entries) BoardGameMediaId(entry.itemId),
+          for (final entry in state.entries)
+            BoardGameCatalogItemId(entry.itemId),
         ],
       ),
     ];
@@ -164,7 +165,7 @@ class BoardGamePlayStatsCard extends ConsumerWidget {
     required this.mediaIds,
   });
 
-  final List<BoardGameMediaId> mediaIds;
+  final List<BoardGameCatalogItemId> mediaIds;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -176,7 +177,7 @@ class BoardGamePlayStatsCard extends ConsumerWidget {
         final ids = mediaIds.toSet();
         final scopedSessions = allSessions
             .where((session) =>
-                ids.contains(BoardGameMediaId(session.boardGameId)))
+                ids.contains(BoardGameCatalogItemId(session.boardGameId)))
             .toList(growable: false);
         if (scopedSessions.isEmpty) return const SizedBox.shrink();
 

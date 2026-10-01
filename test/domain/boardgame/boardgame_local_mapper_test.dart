@@ -15,16 +15,11 @@ void main() {
       id: const BoardGameOwnedCopyId('owned-boardgame-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.boardgame,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.root,
         id: 'boardgame-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),
       isDigital: false,
-      targetRef: const CatalogEntityRef(
-        kind: CatalogMediaKind.boardgame,
-        entityType: CatalogEntityTypeId('edition'),
-        id: 'edition-1',
-      ),
       condition: 'Near Mint',
       grade: '9.5',
       purchaseDate: DateTime.utc(2026, 4, 2),
@@ -60,13 +55,10 @@ void main() {
     final row = await db.select(db.boardGameOwnedItemsRows).getSingle();
     final restored = BoardGameLocalMapper.fromOwnedItemRow(row);
 
-    expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
     expect(restored.isDigital, false);
-    expect(restored.targetRef?.entityType.apiValue, 'edition');
-    expect(restored.targetRef?.id, 'edition-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);
@@ -93,7 +85,7 @@ void main() {
           id: const BoardGameOwnedCopyId(''),
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.boardgame,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.root,
             id: 'boardgame-1',
           ),
           updatedAt: DateTime.utc(2026, 1, 1),

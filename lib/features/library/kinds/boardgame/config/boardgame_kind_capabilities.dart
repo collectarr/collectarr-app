@@ -1,7 +1,5 @@
 import '../boardgame_module_dependencies.dart';
 import 'boardgame_kind_configuration.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/release/boardgame_release_projection_capability.dart'
-    as boardgame_release;
 
 final boardGameKindPresentation = boardGamesLibraryMediaPresentation;
 
@@ -11,13 +9,11 @@ final boardGameKindTrackingProfile = boardGameTrackingProfile;
 
 final boardGameKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final boardGameKindReleaseCapability =
-    boardgame_release.boardGameKindReleaseCapability;
+final boardGameKindReleaseCapability = null;
 
-final boardGameKindReleaseDetailSource =
-    boardgame_release.boardGameKindReleaseDetailSource;
+final boardGameKindReleaseDetailSource = null;
 
-final boardGameKindCatalogTarget = const BoardGameCatalogTargetCapability();
+final boardGameKindCatalogTarget = const RootCatalogTargetCapability();
 
 final boardGameKindUiPolicy = const LibraryUiPolicy();
 
@@ -53,7 +49,7 @@ final boardGameKindMetadata = const LibraryMetadataCapability(
 );
 
 final boardGameKindHierarchy = const LibraryHierarchyCapability(
-  browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
+  browserDelegateBuilder: LibraryNoopBrowserDelegate.new,
 );
 
 final boardGameKindEntityVocabulary = const LibraryEntityVocabulary(
@@ -79,13 +75,8 @@ final boardGameKindInspector = LibraryInspectorCapability(
     contributors: [
       LibraryEntityInspectorContributor(
         scope: LibraryEntityScope.work,
-        heroBuilder: buildBoardGameWorkInspectorHero,
-        sectionsBuilder: buildBoardGameWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildBoardGameReleaseInspectorHero,
-        sectionsBuilder: buildBoardGameReleaseInspectorSections,
+        heroBuilder: buildBoardGameCatalogItemInspectorHero,
+        sectionsBuilder: buildBoardGameCatalogItemInspectorSections,
       ),
       LibraryEntityInspectorContributor(
         scope: LibraryEntityScope.copy,
