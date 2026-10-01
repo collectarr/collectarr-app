@@ -163,6 +163,13 @@ Item, may optionally identify the owned copy used, and now round-trips through
 the personal Sync queue as `music_listen_event` records. Local event storage,
 edit UI, and workspace statistics use that item identity.
 
+Smart List criteria now identify `catalog_item` or `owned_copy` directly with
+an `entity_type` field. Sort tokens use the same target identity, and criteria
+using the former `entity_scope` field are rejected rather than decoded through
+a compatibility path. The active generic workspace still maps these target
+types onto its transitional Work/Copy presentation scopes until that host is
+flattened.
+
 ## Contracts and field confidence
 
 The pinned Catalog Item contract is version `1` and is checked against the
