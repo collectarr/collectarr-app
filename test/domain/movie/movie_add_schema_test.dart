@@ -21,14 +21,13 @@ void main() {
     ].single,
   );
 
-  test('declares Movie release and metadata sections', () {
+  test('declares one flat Movie Catalog Item section', () {
     final draft = MovieAddManualDraft();
     addTearDown(draft.dispose);
 
     expect(movieAddSchema.title!(draft), 'Manual movie');
     expect(movieAddSchema.sections.map((section) => section.id), [
-      'release',
-      'work',
+      'catalog_item',
     ]);
     expect(
       [
@@ -43,6 +42,7 @@ void main() {
         'release_year',
         'release_date',
         'distributor',
+        'original_language',
         'directors',
         'genres',
         'age_rating',

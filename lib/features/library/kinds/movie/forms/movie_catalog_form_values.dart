@@ -9,7 +9,6 @@ final class MovieCatalogFormValues {
     this.ageRating = '',
     this.audienceRating = '',
     this.runtimeMinutes,
-    this.workReleaseDate,
     this.subtitle = '',
     this.releaseTitle = '',
     this.format = '',
@@ -17,7 +16,6 @@ final class MovieCatalogFormValues {
     this.releaseDate,
     this.distributor = '',
     this.language = '',
-    this.releaseDescription = '',
     this.coverImageUrl = '',
     this.barcode = '',
     this.itemNumber = '',
@@ -25,7 +23,6 @@ final class MovieCatalogFormValues {
     this.releaseYear,
     this.directors = '',
     this.characters = '',
-    this.backCoverImageUrl = '',
   });
 
   String sortTitle;
@@ -36,7 +33,6 @@ final class MovieCatalogFormValues {
   String ageRating;
   String audienceRating;
   int? runtimeMinutes;
-  DateTime? workReleaseDate;
   String subtitle;
 
   String releaseTitle;
@@ -45,7 +41,6 @@ final class MovieCatalogFormValues {
   DateTime? releaseDate;
   String distributor;
   String language;
-  String releaseDescription;
   String coverImageUrl;
   String barcode;
   String itemNumber;
@@ -53,5 +48,4 @@ final class MovieCatalogFormValues {
   int? releaseYear;
   String directors;
   String characters;
-  String backCoverImageUrl;
 }

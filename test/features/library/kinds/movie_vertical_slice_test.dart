@@ -13,8 +13,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Movie Kind Vertical Slice Tests (C8)', () {
-    test(
-        'MovieCatalogMetadata and MovieReleaseMetadata serialize and deserialize full domain fields',
+    test('MovieCatalogMetadata serializes concrete edition fields on the root',
         () {
       final metadata = MovieCatalogMetadata(
         title: 'Inception',
@@ -31,6 +30,11 @@ void main() {
         country: 'US',
         originalLanguage: 'en',
         releaseDate: DateTime(2010, 7, 16),
+        physicalFormat: 'Blu-ray',
+        physicalFormatLabel: 'Blu-ray',
+        region: 'Region A',
+        distributor: 'Warner Home Video',
+        packaging: 'Keep Case',
         directors: const [
           MoviePersonCredit(name: 'Christopher Nolan', role: 'Director')
         ],
@@ -59,6 +63,10 @@ void main() {
       expect(restored.producers.first.name, 'Emma Thomas');
       expect(restored.cast.first.name, 'Leonardo DiCaprio');
       expect(restored.cast.first.character, 'Dom Cobb');
+      expect(restored.physicalFormat, 'Blu-ray');
+      expect(restored.region, 'Region A');
+      expect(restored.distributor, 'Warner Home Video');
+      expect(restored.packaging, 'Keep Case');
     });
 
     test('MovieWorkspaceProjector projects metadata and schema fields', () {

@@ -309,55 +309,47 @@ Iterable<String?> _physicalFormatCatalogValues(
   yield* vocabularyValues([
     metadata.physicalFormatLabel,
     metadata.physicalFormat,
-    metadata.releases.map((release) => release.physicalFormat),
   ]);
 }
 
 Iterable<String?> _regionCatalogValues(MovieCatalogMetadata metadata) {
   return vocabularyValues([
     metadata.region,
-    metadata.releases.map((release) => release.region),
   ]);
 }
 
 Iterable<String?> _packagingCatalogValues(MovieCatalogMetadata metadata) {
   return vocabularyValues([
     metadata.packaging,
-    metadata.releases.map((release) => release.packaging),
   ]);
 }
 
 Iterable<String?> _distributorCatalogValues(MovieCatalogMetadata metadata) {
   return vocabularyValues([
     metadata.distributor,
-    metadata.releases.map((release) => release.distributor),
   ]);
 }
 
 Iterable<String?> _screenRatioCatalogValues(MovieCatalogMetadata metadata) {
   return vocabularyValues([
     metadata.screenRatio,
-    metadata.releases.map((release) => release.screenRatio),
   ]);
 }
 
 Iterable<String?> _audioCatalogValues(MovieCatalogMetadata metadata) {
   return vocabularyValues([
     metadata.audioTracks,
-    metadata.releases.expand((release) => release.audioTracks),
   ]);
 }
 
 Iterable<String?> _subtitlesCatalogValues(MovieCatalogMetadata metadata) {
   return vocabularyValues([
     metadata.subtitles,
-    metadata.releases.expand((release) => release.subtitles),
   ]);
 }
 
 Iterable<String?> _hdrCatalogValues(MovieCatalogMetadata metadata) {
   return vocabularyValues([
     metadata.hdr,
-    metadata.releases.expand((release) => release.hdrFormats),
   ]);
 }

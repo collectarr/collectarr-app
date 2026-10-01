@@ -54,15 +54,34 @@ List<String> validateMovieSeedCatalog(CatalogItemDto item) {
 List<String> validateMovieSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  seedValidateReleases(
-    issues,
-    prefix,
-    item,
-    item.payload['releases'],
-    kind: CatalogMediaKind.movie,
-    parentKey: 'work_id',
-    titleKey: 'release_title',
-  );
+  if (item.payload.containsKey('editions') ||
+      item.payload.containsKey('releases') ||
+      item.editions.isNotEmpty) {
+    issues.add('$prefix must be a flat Movie Catalog Item.');
+  }
+  final media = item.payload['media'];
+  if (media is! List || media.isEmpty) {
+    issues.add('$prefix must contain its media/disc rows directly.');
+  } else {
+    final mediaIds = <String>{};
+    for (var index = 0; index < media.length; index++) {
+      final row = media[index];
+      if (row is! Map) {
+        issues.add('$prefix media[$index] must be an object.');
+        continue;
+      }
+      final id = row['id']?.toString().trim() ?? '';
+      if (id.isEmpty || !mediaIds.add(id)) {
+        issues.add('$prefix media[$index] has a missing or duplicate id.');
+      }
+      seedRequirePositiveInt(
+        issues,
+        prefix,
+        'media[$index].media_number',
+        row['media_number'],
+      );
+    }
+  }
   return issues;
 }
 
@@ -76,81 +95,92 @@ List<String> validateMovieSeedOwned(MovieOwnedItem item) {
   return issues;
 }
 
-CatalogItemDto enrichMovieSeedItem(CatalogItemDto item) {
-  final releases = [
-    for (final edition in seedEditionPayloads(item))
-      {
-        ...edition,
-        'id': edition['id']?.toString() ?? '${item.id}-release-01',
-        'kind': 'movie',
-        'work_id': item.id,
-        'release_title': edition['title'] ?? item.editionTitle ?? item.title,
-        'format': edition['format'] ?? item.physicalFormat,
-        'language': edition['language'] ?? item.payload['language'],
-        'region': edition['region'] ?? item.payload['country'],
-        'release_date': edition['release_date'] ??
-            item.releaseDate?.toUtc().toIso8601String(),
-        'distributor': edition['distributor'] ?? item.publisher,
-        'media': _movieSeedMedia(item, edition),
-      },
-  ];
-  return withSeedPayload(item, {'releases': releases});
-}
+CatalogItemDto enrichMovieSeedItem(CatalogItemDto item) => item;
 
-List<Map<String, dynamic>> _movieSeedMedia(
-  CatalogItemDto item,
-  Map<String, dynamic> edition,
-) {
-  final releaseId = edition['id']?.toString() ?? '${item.id}-release-01';
-  final discs = edition['discs'];
-  if (discs is List && discs.isNotEmpty) {
+List<Map<String, dynamic>> _movieSeedMedia(CatalogItemDto item) {
+  final rawMedia = item.payload['media'];
+  if (rawMedia is List) {
     return [
-      for (var index = 0; index < discs.length; index++)
-        {
-          'id': '$releaseId-media-${index + 1}',
-          'release_id': releaseId,
-          'media_number': index + 1,
-          'media_type': item.physicalFormat,
-          'title': discs[index] is Map
-              ? (discs[index] as Map)['name']?.toString()
-              : 'Disc ${index + 1}',
-          'num_discs': 1,
-          'screen_ratio': item.payload['screen_ratio'],
-          'color': item.payload['color'],
-          'audio_tracks': item.payload['audio_tracks'],
-          'subtitles': item.payload['subtitles'],
-          'layers': item.payload['layers'],
-        },
+      for (var index = 0; index < rawMedia.length; index++)
+        if (rawMedia[index] is Map)
+          {
+            ...Map<String, dynamic>.from(rawMedia[index] as Map),
+            'id': (rawMedia[index] as Map)['id']?.toString() ??
+                '${item.id}-media-${index + 1}',
+          },
     ];
   }
+  final video = item.payload['video'];
+  final videoPayload = video is Map
+      ? Map<String, dynamic>.from(video)
+      : const <String, dynamic>{};
   return [
     {
-      'id': '$releaseId-media-01',
-      'release_id': releaseId,
+      'id': '${item.id}-media-01',
       'media_number': 1,
       'media_type': item.physicalFormat,
-      'title': item.title,
-      'num_discs': item.payload['nr_discs'] ?? 1,
-      'screen_ratio': item.payload['screen_ratio'],
-      'color': item.payload['color'],
-      'audio_tracks': item.payload['audio_tracks'],
-      'subtitles': item.payload['subtitles'],
-      'layers': item.payload['layers'],
+      'title': item.editionTitle ?? item.title,
+      'num_discs': videoPayload['nr_discs'] ?? item.payload['nr_discs'] ?? 1,
+      'screen_ratio': videoPayload['screen_ratio'],
+      'color': videoPayload['color'],
+      'audio_tracks': videoPayload['audio_tracks'],
+      'subtitles': videoPayload['subtitles'],
+      'layers': videoPayload['layers'],
     },
   ];
 }
 
 List<CatalogItemDto> movieSeedCatalogItems() => [
+      for (final item in _movieSeedSourceItems()) _movieSeedItemWithMedia(item),
+    ];
+
+CatalogItemDto _movieSeedItemWithMedia(CatalogItemDto item) {
+  if (item.editions.isNotEmpty ||
+      item.payload.containsKey('editions') ||
+      item.payload.containsKey('releases')) {
+    throw StateError(
+      'Movie seed ${item.id} must define one flat Catalog Item per edition.',
+    );
+  }
+  final payload = Map<String, dynamic>.from(item.payload);
+  payload['media'] = _movieSeedMedia(item);
+  final source = item.common;
+  final common = CatalogCommonDto(
+    title: source.title,
+    displayTitle: source.displayTitle,
+    localizedTitle: source.localizedTitle,
+    originalTitle: source.originalTitle,
+    titleExtension: source.titleExtension,
+    searchAliases: source.searchAliases,
+    sortKey: source.sortKey,
+    synopsis: source.synopsis,
+    coverImageUrl: source.coverImageUrl,
+    thumbnailImageUrl: source.thumbnailImageUrl,
+    coverImageData: source.coverImageData,
+    releaseDate: source.releaseDate,
+    releaseDateParts: source.releaseDateParts,
+    releaseYear: source.releaseYear,
+    trailerUrls: source.trailerUrls,
+  );
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.movie,
+    common: common,
+    payload: payload,
+  );
+}
+
+List<CatalogItemDto> _movieSeedSourceItems() => [
       seedCatalogItem(
         id: 'seed-movie-01',
         kind: CatalogMediaKind.movie,
         title: 'Batman Begins',
-        displayTitle: 'Batman Begins (2005)',
+        displayTitle: 'Batman Begins (4K UHD, 2017)',
         synopsis:
             'After witnessing his parents\' murder, Bruce Wayne trains with the League of Shadows before returning to Gotham to fight crime as Batman.',
         publisher: 'Warner Bros.',
-        releaseYear: 2005,
-        releaseDate: DateTime.utc(2005, 6, 15),
+        releaseYear: 2017,
+        releaseDate: DateTime.utc(2017, 12, 19),
         coverImageUrl:
             'https://upload.wikimedia.org/wikipedia/en/a/af/Batman_Begins_Poster.jpg',
         thumbnailImageUrl:
@@ -158,7 +188,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         editionTitle: '4K Ultra HD + Blu-ray',
         physicalFormat: '4K UHD',
         physicalFormatLabel: '4K Ultra HD Blu-ray',
-        barcode: '012569593763',
+        barcode: '883929621415',
         variant: 'Steelbook 4K',
         country: 'US',
         language: 'en',
@@ -201,54 +231,67 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         ],
         storyArcs: ['Batman Origin'],
         genres: ['superhero', 'action', 'thriller', 'crime'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-bb-4k',
-            title: '4K Ultra HD + Blu-ray',
-            format: '4K UHD',
-            publisher: 'Warner Bros.',
-            releaseDate: DateTime.utc(2017, 12, 19),
-            region: 'Region Free',
-            discs: const [
-              CatalogDiscDto(discNumber: 1, name: '4K Feature Film'),
-              CatalogDiscDto(discNumber: 2, name: 'Blu-ray Feature + Extras'),
-            ],
-            variants: [
-              CatalogVariantDto(
-                id: 'seed-var-bb-4k',
-                name: 'Steelbook 4K UHD',
-                variantType: 'physical',
-                coverPriceCents: 3499,
-                currency: 'USD',
-                isPrimary: true,
-                barcode: '883929621415',
-              ),
-            ],
-          ),
-          CatalogEditionDto(
-            id: 'seed-ed-bb-bluray',
-            title: 'Standard Blu-ray Edition',
-            format: 'Blu-ray',
-            publisher: 'Warner Bros.',
-            releaseDate: DateTime.utc(2008, 7, 8),
-            region: 'Region A',
-            discs: const [
-              CatalogDiscDto(
-                  discNumber: 1, name: 'Feature Film + Genesis of the Bat'),
-            ],
-          ),
-        ],
+        payload: {
+          'media': [
+            {
+              'id': 'seed-movie-01-media-1',
+              'media_number': 1,
+              'media_type': '4K UHD',
+              'title': '4K Feature Film',
+              'num_discs': 1,
+            },
+            {
+              'id': 'seed-movie-01-media-2',
+              'media_number': 2,
+              'media_type': 'Blu-ray',
+              'title': 'Blu-ray Feature + Extras',
+              'num_discs': 1,
+            },
+          ],
+        },
+      ),
+      seedCatalogItem(
+        id: 'seed-movie-16',
+        kind: CatalogMediaKind.movie,
+        title: 'Batman Begins',
+        displayTitle: 'Batman Begins (Standard Blu-ray, 2008)',
+        synopsis:
+            'After witnessing his parents\' murder, Bruce Wayne trains with the League of Shadows before returning to Gotham to fight crime as Batman.',
+        publisher: 'Warner Bros.',
+        releaseYear: 2008,
+        releaseDate: DateTime.utc(2008, 7, 8),
+        coverImageUrl:
+            'https://upload.wikimedia.org/wikipedia/en/a/af/Batman_Begins_Poster.jpg',
+        thumbnailImageUrl:
+            'https://upload.wikimedia.org/wikipedia/en/a/af/Batman_Begins_Poster.jpg',
+        editionTitle: 'Standard Blu-ray Edition',
+        physicalFormat: 'Blu-ray',
+        physicalFormatLabel: 'Blu-ray',
+        country: 'US',
+        language: 'en',
+        ageRating: 'PG-13',
+        payload: {
+          'media': [
+            {
+              'id': 'seed-movie-16-media-1',
+              'media_number': 1,
+              'media_type': 'Blu-ray',
+              'title': 'Feature Film + Genesis of the Bat',
+              'num_discs': 1,
+            },
+          ],
+        },
       ),
       seedCatalogItem(
         id: 'seed-movie-02',
         kind: CatalogMediaKind.movie,
         title: 'The Dark Knight',
-        displayTitle: 'The Dark Knight (2008)',
+        displayTitle: 'The Dark Knight (4K UHD, 2017)',
         synopsis:
             'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
         publisher: 'Warner Bros.',
-        releaseYear: 2008,
-        releaseDate: DateTime.utc(2008, 7, 18),
+        releaseYear: 2017,
+        releaseDate: DateTime.utc(2017, 12, 19),
         coverImageUrl:
             'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
         thumbnailImageUrl:
@@ -294,23 +337,31 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         characters: ['Bruce Wayne', 'The Joker', 'Harvey Dent', 'Jim Gordon'],
         storyArcs: ['Fall of Harvey Dent'],
         genres: ['superhero', 'crime', 'thriller', 'drama'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-tdk-4k',
-            title: '4K Ultra HD 3-Disc Set',
-            format: '4K UHD',
-            publisher: 'Warner Bros.',
-            releaseDate: DateTime.utc(2017, 12, 19),
-            region: 'Region Free',
-            discs: const [
-              CatalogDiscDto(
-                  discNumber: 1, name: '4K Feature Film (IMAX Sequences)'),
-              CatalogDiscDto(discNumber: 2, name: 'Blu-ray Feature Film'),
-              CatalogDiscDto(
-                  discNumber: 3, name: 'Bonus Features & Gotham Tonight'),
-            ],
-          ),
-        ],
+        payload: {
+          'media': [
+            {
+              'id': 'seed-movie-02-media-1',
+              'media_number': 1,
+              'media_type': '4K UHD',
+              'title': '4K Feature Film (IMAX Sequences)',
+              'num_discs': 1,
+            },
+            {
+              'id': 'seed-movie-02-media-2',
+              'media_number': 2,
+              'media_type': 'Blu-ray',
+              'title': 'Blu-ray Feature Film',
+              'num_discs': 1,
+            },
+            {
+              'id': 'seed-movie-02-media-3',
+              'media_number': 3,
+              'media_type': 'Blu-ray',
+              'title': 'Bonus Features & Gotham Tonight',
+              'num_discs': 1,
+            },
+          ],
+        },
       ),
       seedCatalogItem(
         id: 'seed-movie-03',
@@ -632,20 +683,20 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         id: 'seed-movie-10',
         kind: CatalogMediaKind.movie,
         title: 'Parasite',
-        displayTitle: 'Parasite (2019)',
+        displayTitle: 'Parasite (Criterion Blu-ray, 2020)',
         synopsis:
             'Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.',
         publisher: 'Criterion Collection / Neon',
-        releaseYear: 2019,
-        releaseDate: DateTime.utc(2019, 5, 30),
+        releaseYear: 2020,
+        releaseDate: DateTime.utc(2020, 10, 27),
         coverImageUrl:
             'https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
         thumbnailImageUrl:
             'https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
-        editionTitle: 'The Criterion Collection Edition',
+        editionTitle: 'The Criterion Collection #1052',
         physicalFormat: 'Blu-ray',
         barcode: '715515250412',
-        variant: 'Criterion #1052',
+        variant: 'The Criterion Collection #1052',
         country: 'KR',
         language: 'ko',
         ageRating: 'R',
@@ -671,23 +722,24 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
           'Park Dong-ik'
         ],
         genres: ['drama', 'thriller', 'black comedy'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-parasite-criterion',
-            title: 'The Criterion Collection #1052',
-            format: 'Blu-ray',
-            publisher: 'The Criterion Collection',
-            releaseDate: DateTime.utc(2020, 10, 27),
-            region: 'Region A',
-            discs: const [
-              CatalogDiscDto(
-                  discNumber: 1, name: 'Color Feature Film + Commentary'),
-              CatalogDiscDto(
-                  discNumber: 2,
-                  name: 'Black-and-White Edition + Cannes Masterclass'),
-            ],
-          ),
-        ],
+        payload: {
+          'media': [
+            {
+              'id': 'seed-movie-10-media-1',
+              'media_number': 1,
+              'media_type': 'Blu-ray',
+              'title': 'Color Feature Film + Commentary',
+              'num_discs': 1,
+            },
+            {
+              'id': 'seed-movie-10-media-2',
+              'media_number': 2,
+              'media_type': 'Blu-ray',
+              'title': 'Black-and-White Edition + Cannes Masterclass',
+              'num_discs': 1,
+            },
+          ],
+        },
       ),
       seedCatalogItem(
         id: 'seed-movie-11',

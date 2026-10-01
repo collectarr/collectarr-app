@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -16,29 +16,32 @@ class MovieEditDiscsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final editions =
-        item.kindCapability.mapTransport((transport) => transport.editions);
-    final allDiscs = <(String, CatalogDiscDto)>[];
-    for (final edition in editions) {
-      for (final disc in edition.discs) {
-        allDiscs.add((edition.title, disc));
-      }
-    }
+    final payload =
+        item.kindCapability.mapTransport((transport) => transport).payload;
+    final rawMedia = payload['media'] ?? payload['discs'];
+    final media = rawMedia is Iterable
+        ? [
+            for (final value in rawMedia)
+              if (value is Map)
+                MovieCatalogItemMedia.fromJson(
+                  Map<String, dynamic>.from(value),
+                ),
+          ]
+        : const <MovieCatalogItemMedia>[];
     return EditTabShell(
       children: [
         EditSection(
-          title: 'Provider disc metadata',
+          title: 'Disc and media contents',
           accent: accent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const EditSectionStateMessage(
-                message:
-                    'Read-only: disc metadata is synced from provider/Core metadata.',
+                message: 'Read-only catalog contents for this Movie item.',
                 icon: Icons.lock_outline,
               ),
               const SizedBox(height: 10),
-              if (allDiscs.isEmpty)
+              if (media.isEmpty)
                 const EditSectionStateMessage(
                   message: 'No disc data available yet.',
                   icon: Icons.album_outlined,
@@ -47,7 +50,7 @@ class MovieEditDiscsTab extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final (editionTitle, disc) in allDiscs)
+                    for (final disc in media)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 6),
                         child: Row(
@@ -55,35 +58,28 @@ class MovieEditDiscsTab extends StatelessWidget {
                             Icon(Icons.album,
                                 size: 16, color: appPalette(context).textMuted),
                             const SizedBox(width: 8),
-                            Text(disc.discName ?? 'Disc ${disc.discNumber}',
+                            Text(disc.title ?? 'Disc ${disc.mediaNumber}',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w700)),
-                            if (disc.discFormat != null) ...[
+                            if (disc.formatLabel != null) ...[
                               const SizedBox(width: 6),
-                              Text('(${disc.discFormat})',
+                              Text('(${disc.formatLabel})',
                                   style: TextStyle(
                                       color: appPalette(context).textMuted)),
                             ],
-                            const Spacer(),
-                            Text(editionTitle,
-                                style: TextStyle(
-                                    color: appPalette(context).textMuted,
-                                    fontSize: 12)),
+                            if (disc.numDiscs != null) ...[
+                              const Spacer(),
+                              Text('${disc.numDiscs} disc(s)',
+                                  style: TextStyle(
+                                      color: appPalette(context).textMuted,
+                                      fontSize: 12)),
+                            ],
                           ],
                         ),
                       ),
                   ],
                 ),
             ],
-          ),
-        ),
-        EditSection(
-          title: 'Local disc notes',
-          accent: accent,
-          child: const EditSectionStateMessage(
-            message:
-                'Use the release details tab for package/disc notes and the episode map tab for disc assignments.',
-            icon: Icons.edit_note,
           ),
         ),
       ],

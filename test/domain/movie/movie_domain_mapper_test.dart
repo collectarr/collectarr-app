@@ -132,7 +132,7 @@ void main() {
         isNull);
   });
 
-  test('MovieCatalogMetadata and MovieReleaseMetadata roundtrip', () {
+  test('MovieCatalogMetadata roundtrips concrete edition details', () {
     final meta = MovieCatalogMetadata(
       title: 'The Matrix',
       originalTitle: 'The Matrix',
@@ -143,6 +143,13 @@ void main() {
       country: 'US',
       originalLanguage: 'en',
       releaseDate: DateTime.utc(1999, 3, 31),
+      physicalFormat: '4K UHD',
+      physicalFormatLabel: '4K UHD',
+      region: 'Region Free',
+      distributor: 'Warner Home Video',
+      packaging: 'SteelBook',
+      hdr: 'HDR10, Dolby Vision',
+      nrDiscs: 2,
       directors: const [
         MoviePersonCredit(name: 'Lana Wachowski', role: 'Director'),
       ],
@@ -158,29 +165,12 @@ void main() {
     expect(fromJson.runtimeMinutes, 136);
     expect(fromJson.directors.first.name, 'Lana Wachowski');
     expect(fromJson.cast.first.character, 'Neo');
-
-    final release = MovieReleaseMetadata(
-      id: 'rel-1',
-      title: '4K Collector Edition',
-      physicalFormat: '4K UHD',
-      region: 'Region Free',
-      distributor: 'Warner Home Video',
-      packaging: 'SteelBook',
-      discCount: 2,
-      edition: 'Special Edition',
-      hdrFormats: const ['HDR10', 'Dolby Vision'],
-      subtitles: const ['English', 'Spanish'],
-      audioTracks: const ['Dolby Atmos'],
-      releaseDate: DateTime.utc(2018, 5, 22),
-    );
-
-    final relJson = release.toJson();
-    final relFromJson = MovieReleaseMetadata.fromJson(relJson);
-
-    expect(relFromJson.title, '4K Collector Edition');
-    expect(relFromJson.packaging, 'SteelBook');
-    expect(relFromJson.hdrFormats, contains('Dolby Vision'));
-    expect(relFromJson.discCount, 2);
+    expect(fromJson.physicalFormat, '4K UHD');
+    expect(fromJson.region, 'Region Free');
+    expect(fromJson.distributor, 'Warner Home Video');
+    expect(fromJson.packaging, 'SteelBook');
+    expect(fromJson.hdr, 'HDR10, Dolby Vision');
+    expect(fromJson.nrDiscs, 2);
   });
 
   test('MovieKindRegistration uses Movie-owned capabilities', () {

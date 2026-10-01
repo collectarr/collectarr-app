@@ -35,6 +35,8 @@ CatalogSearchCandidate? buildMovieManualCandidate(
     payload: {
       if (releaseTitle != null) 'edition_title': releaseTitle,
       if (_text(values.subtitle) case final value?) 'subtitle': value,
+      if (_text(values.originalLanguage) case final value?)
+        'original_language': value,
       if (_text(values.format) case final value?) 'physical_format': value,
       if (_text(values.region) case final value?) 'country': value,
       if (_text(values.distributor) case final value?) 'publisher': value,

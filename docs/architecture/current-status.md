@@ -69,6 +69,9 @@ Movie's active workspace now projects one concrete Movie Catalog Item and its
 Owned Copies, with no Release workspace or drilldown. Catalog Item and Owned
 Copy actions now use the shared Edit dialog and separate presentation tabs;
 Movie no longer routes Owned Copy editing through the old Media edit dialog.
+Movie catalog metadata and manual Add now describe one concrete edition per
+Catalog Item; disc rows are contained directly by that item, with no nested
+Release or Edition metadata.
 The unused Movie catalog repository, remote mapper, per-kind catalog Drift
 tables, and MovieMedia/MovieRelease domain and edit-form adapters have been
 removed. The workspace schema now composes Catalog Item identity fields and
