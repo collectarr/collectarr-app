@@ -53,11 +53,6 @@ final tvKindTrackingProfile = tvTrackingProfile;
 
 final tvKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final tvKindReleaseCapability =
-    const TvReleaseProjectionCapability<LibraryWorkspaceDto>();
-
-final tvKindReleaseDetailSource = const TvReleaseDetailSource();
-
 final tvKindCatalogTarget = const TvCatalogTargetCapability();
 
 final LibraryRelationCapability? tvKindRelations = null;
@@ -117,7 +112,7 @@ final tvKindTrackingTopology = const LibraryTrackingTopology(
 
 final tvKindActions = const LibraryEntityActionCapability(
   work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
+  release: LibraryEntityActionSet(),
   copy: LibraryEntityActionSet.copy,
 );
 
@@ -126,15 +121,8 @@ final tvKindInspector = LibraryInspectorCapability(
     contributors: [
       LibraryEntityInspectorContributor(
         scope: LibraryEntityScope.work,
-        heroBuilder: buildTvWorkInspectorHero,
-        sectionsBuilder: buildTvWorkInspectorSections,
-        detailPageBuilder: buildLibraryReleaseDetailPage,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildTvReleaseInspectorHero,
-        sectionsBuilder: buildTvReleaseInspectorSections,
-        detailPageBuilder: buildLibraryReleaseDetailPage,
+        heroBuilder: buildTvCatalogItemInspectorHero,
+        sectionsBuilder: buildTvCatalogItemInspectorSections,
       ),
       LibraryEntityInspectorContributor(
         scope: LibraryEntityScope.copy,

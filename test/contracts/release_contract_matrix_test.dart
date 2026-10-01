@@ -5,9 +5,6 @@ import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_values.dart';
 
 import 'release_contract.dart';
 import 'release_edit_contract.dart';
@@ -29,18 +26,6 @@ void main() {
     id: (release) => release.id.value,
     title: (release) => release.title,
   );
-  defineReleaseContract<TvRelease>(
-    name: 'TV',
-    create: () => TvRelease.fromJson(
-      const {
-        'id': 'tv-release-1',
-        'series_id': 'tv-series-1',
-        'title': 'Complete Series',
-      },
-    ),
-    id: (release) => release.id,
-    title: (release) => release.title,
-  );
 
   defineReleaseEditContract<EditSchema<AnimeRelease, AnimeReleaseFormValues>>(
     name: 'Anime',
@@ -51,12 +36,6 @@ void main() {
   defineReleaseEditContract<EditSchema<MusicAlbum, MusicAlbumEditDraft>>(
     name: 'Music',
     create: () => musicAlbumEditSchema,
-    tabIds: _tabIds,
-    fieldIds: _fieldIds,
-  );
-  defineReleaseEditContract<EditSchema<TvRelease, TvReleaseFormValues>>(
-    name: 'TV',
-    create: () => tvReleaseEditSchema,
     tabIds: _tabIds,
     fieldIds: _fieldIds,
   );

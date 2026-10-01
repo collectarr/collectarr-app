@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/detail/library_detail_hero.dart'
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
-import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/personal_status_section.dart';
 import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_section.dart';
@@ -22,7 +21,7 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
-List<Widget> buildTvWorkInspectorSections(
+List<Widget> buildTvCatalogItemInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -30,18 +29,6 @@ List<Widget> buildTvWorkInspectorSections(
     context,
     request,
     includeSeriesSections: true,
-    includePersonalStatus: false,
-  );
-}
-
-List<Widget> buildTvReleaseInspectorSections(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return _buildTvEntitySections(
-    context,
-    request,
-    includeSeriesSections: false,
     includePersonalStatus: false,
   );
 }
@@ -77,19 +64,7 @@ List<Widget> _buildTvEntitySections(
   ];
 }
 
-Widget buildTvWorkInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) =>
-    LibraryDetailHero(
-      type: request.type,
-      item: request.item,
-      ownedItem: request.ownedItem,
-      ownedCopies: request.ownedCopies,
-      accent: request.accent,
-    );
-
-Widget buildTvReleaseInspectorHero(
+Widget buildTvCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>
@@ -125,28 +100,11 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   final dto = item.dto;
   final catalog = item.source.catalogData;
   final metadata = catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
-  final seriesRef = CatalogEntityRef(
+  final catalogRef = CatalogEntityRef(
     kind: request.type.kind,
-    entityType: const CatalogEntityTypeId('work'),
-    id: item.node.workId,
+    entityType: CatalogEntityTypeId.root,
+    id: item.source.itemId,
   );
-  final rawEditions = metadata?.editions ?? const [];
-  final releaseOptions = [
-    for (final edition in rawEditions)
-      WatchHistoryTargetOption(
-        ref: CatalogEntityRef(
-          kind: seriesRef.kind,
-          entityType: const CatalogEntityTypeId('release'),
-          id: '${seriesRef.id}:release:${edition.id}',
-        ),
-        label: edition.title.isEmpty ? edition.id : edition.title,
-        subtitle: [
-          if (edition.format?.trim().isNotEmpty == true) edition.format!,
-          if (edition.releaseDate != null)
-            edition.releaseDate!.toLocal().toIso8601String().split('T').first,
-        ].join(' • '),
-      ),
-  ];
 
   final tvLinks = metadata?.links ?? const <TrailerLinkDto>[];
 
@@ -155,18 +113,18 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   final tvDto = dto is TvWorkspaceDto ? dto : null;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Display title', value: dto.primaryLabel),
-    if (tvDto?.release?.title case final title? when title.trim().isNotEmpty)
-      LibraryDetailField(label: 'Release', value: title),
     if (tvDto?.publisher?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Studio', value: tvDto!.publisher!),
-    if (tvDto?.release == null)
+    if (tvDto?.seasonCount != null)
       LibraryDetailField(
-          label: 'Releases', value: rawEditions.length.toString()),
-    if (tvDto?.release?.media.isNotEmpty == true)
+          label: 'Seasons', value: tvDto!.seasonCount.toString()),
+    if (tvDto?.episodeCount != null)
       LibraryDetailField(
-        label: 'Media',
-        value: tvDto!.release!.media.length.toString(),
+        label: 'Episodes',
+        value: tvDto!.episodeCount.toString(),
       ),
+    if (tvDto?.format?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Format', value: tvDto!.format!),
     if (ownedItem?.condition?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Condition', value: ownedItem!.condition!),
     if (tvLinks.isNotEmpty)
@@ -176,10 +134,10 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   return <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.identity,
-      title: 'Series metadata',
+      title: 'Catalog Item',
       children: [
         InspectorMetadataFactsSection(
-          title: 'Series metadata',
+          title: 'Catalog Item',
           accent: request.accent,
           facts: facts,
         ),
@@ -193,15 +151,15 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           if (request.onEdit != null)
             _editSectionAction(
               request.onEdit!,
-              tooltip: 'Edit TV series',
+              tooltip: 'Edit TV Catalog Item',
             ),
         ],
         children: [
           InspectorEpisodeGridSection(
-            seriesRef: seriesRef,
+            seriesRef: catalogRef,
             kind: request.type.kind.apiValue,
             accent: request.accent,
-            itemId: item.node.workId,
+            itemId: item.source.itemId,
           ),
         ],
       ),
@@ -211,16 +169,15 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
         title: 'TV progress',
         children: [
           VideoProgressSection(
-            seriesRef: seriesRef,
+            seriesRef: catalogRef,
             accent: request.accent,
           ),
           const SizedBox(height: 8),
           TvEpisodeRatingDisplaySection(
-            itemId: item.node.workId,
+            itemId: item.source.itemId,
             accent: request.accent,
           ),
           const SizedBox(height: 8),
-          InspectorReleasesSection(request: request),
         ],
       ),
     LibraryDetailSectionSpec(
@@ -246,12 +203,12 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
         ),
         const SizedBox(height: 8),
         LibraryDetailUserLinksSection(
-          catalogRef: seriesRef,
+          catalogRef: catalogRef,
           accent: request.accent,
         ),
         const SizedBox(height: 8),
         TvUpcomingEpisodesSection(
-          seriesRef: seriesRef,
+          seriesRef: catalogRef,
           accent: request.accent,
         ),
       ],
@@ -262,8 +219,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       children: [
         InspectorSessionHistorySection(
           request: request,
-          seriesRef: seriesRef,
-          releaseOptions: releaseOptions,
+          catalogRef: catalogRef,
         ),
         if (includePersonalStatus &&
             (request.ownedItem != null || request.trackingSummary != null))

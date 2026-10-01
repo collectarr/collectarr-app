@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_owned_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_owned_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
@@ -20,17 +19,6 @@ void main() {
   defineMediaEditContract<EditSchema<TvSeries, TvSeriesFormValues>>(
     name: 'TV media',
     create: () => tvMediaEditSchema,
-    tabIds: (schema) => schema.tabs.map((tab) => tab.id),
-    fieldIds: (schema, tabId) => [
-      for (final tab in schema.tabs)
-        if (tab.id == tabId)
-          for (final section in tab.sections)
-            for (final field in section.fields) field.id,
-    ],
-  );
-  defineMediaEditContract<EditSchema<TvRelease, TvReleaseFormValues>>(
-    name: 'TV release',
-    create: () => tvReleaseEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
     fieldIds: (schema, tabId) => [
       for (final tab in schema.tabs)
@@ -80,43 +68,6 @@ void main() {
     expect(
       tvMediaEditSchema.validate!(original, draft),
       'Series title is required',
-    );
-  });
-
-  test('edits a typed TV release and preserves its graph', () {
-    final original = const TvRelease(
-      id: 'release-1',
-      seriesId: 'series-1',
-      title: 'Complete Series',
-      format: 'Blu-ray',
-      regionCode: 'Region A / Region 1',
-      media: [
-        TvReleaseMedia(id: 'media-1', releaseId: 'release-1'),
-      ],
-    );
-    final draft = tvReleaseFormValuesFrom(original);
-
-    final format = _releaseField('format')
-        as LibraryVocabularyFieldSpec<TvReleaseFormValues, String>;
-    final region = _releaseField('region')
-        as LibraryVocabularyFieldSpec<TvReleaseFormValues, String>;
-    format.setValue(draft, '4K Ultra HD Blu-ray');
-    region.setValue(draft, 'Region Free');
-    (_releaseField('release_title')
-            as LibraryTextFieldSpec<TvReleaseFormValues>)
-        .setValue(draft, 'Collector Edition');
-
-    final updated = tvReleaseFromFormValues(original: original, values: draft);
-    expect(updated.title, 'Collector Edition');
-    expect(updated.format, '4K Ultra HD Blu-ray');
-    expect(updated.regionCode, 'Region Free');
-    expect(updated.media.single.id, 'media-1');
-    expect(tvReleaseEditSchema.validate!(original, draft), isNull);
-
-    draft.title = '';
-    expect(
-      tvReleaseEditSchema.validate!(original, draft),
-      'Release title is required',
     );
   });
 
@@ -218,15 +169,6 @@ void main() {
 LibraryFieldSpec<TvSeriesFormValues> _mediaField(String id) {
   return [
     for (final tab in tvMediaEditSchema.tabs)
-      for (final section in tab.sections)
-        for (final field in section.fields)
-          if (field.id == id) field,
-  ].single;
-}
-
-LibraryFieldSpec<TvReleaseFormValues> _releaseField(String id) {
-  return [
-    for (final tab in tvReleaseEditSchema.tabs)
       for (final section in tab.sections)
         for (final field in section.fields)
           if (field.id == id) field,

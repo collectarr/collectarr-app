@@ -32,7 +32,6 @@ export 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 export 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_dialog.dart';
-export 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/tv/edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/tv/edit_presentation_builder.dart';
 export 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
@@ -42,8 +41,6 @@ export 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_deta
 export 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_create_payload.dart';
 export 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
-export 'package:collectarr_app/features/library/kinds/tv/release/tv_release_detail_source.dart';
-export 'package:collectarr_app/features/library/kinds/tv/release/tv_release_projection_capability.dart';
 export 'package:collectarr_app/features/library/kinds/tv/stats/tv_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_editor_extension.dart';
 export 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';

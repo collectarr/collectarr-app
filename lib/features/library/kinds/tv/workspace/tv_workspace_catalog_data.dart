@@ -15,8 +15,7 @@ final class TvWorkspaceCatalogData
     required this.video,
     required this.series,
     required this.metadata,
-    required CatalogItemDto transport,
-  }) : _transport = transport;
+  });
 
   factory TvWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
     final rawMetadata = item.kindMetadata;
@@ -29,7 +28,6 @@ final class TvWorkspaceCatalogData
       video: TvCatalogMapper.mapMetadataItemToTv(item),
       series: TvWorkspaceMapper.fromCatalogItem(item),
       metadata: metadata,
-      transport: item,
     );
   }
 
@@ -38,9 +36,6 @@ final class TvWorkspaceCatalogData
   final TvCatalogItem video;
   final TvSeries series;
   final TvSeriesMetadata? metadata;
-  final CatalogItemDto _transport;
-
-  CatalogItemDto get releaseTransport => _transport;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.tv;

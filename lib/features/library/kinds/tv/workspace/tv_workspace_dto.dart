@@ -10,7 +10,6 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
     required this.personal,
     required this.video,
     required this.series,
-    this.release,
     this.metadata,
   });
 
@@ -18,7 +17,6 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
   final PersonalCopyProjection personal;
   final TvCatalogItem video;
   final TvSeries series;
-  final TvCatalogRelease? release;
   final TvSeriesMetadata? metadata;
 
   String get title => common.title;
@@ -43,22 +41,18 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
       _text(series.rawPayload['streaming_service']) ??
       metadata?.streamingService;
   String? get network => streamingService;
-  String? get publisher =>
-      release?.publisher ?? metadata?.publisher ?? streamingService;
+  String? get publisher => metadata?.publisher ?? streamingService;
   String? get seriesTitle =>
       metadata?.seriesTitle ?? metadata?.series?.seriesTitle ?? series.title;
   String? get itemNumber => metadata?.itemNumber;
-  DateTime? get releaseDate => release?.releaseDate ?? common.releaseDate;
-  String? get country => release == null ? metadata?.country : null;
-  String? get language => release == null ? metadata?.originalLanguage : null;
-  String? get identifierCode => release?.barcode ?? metadata?.barcode;
+  DateTime? get releaseDate => common.releaseDate;
+  String? get country => metadata?.country;
+  String? get language => metadata?.originalLanguage;
+  String? get identifierCode => metadata?.barcode;
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
   String? get referenceFormatLabel =>
-      release?.formatLabel ??
-      (release == null
-          ? metadata?.physicalFormatLabel ?? metadata?.physicalFormat
-          : null);
+      metadata?.physicalFormatLabel ?? metadata?.physicalFormat;
   String? get format => referenceFormatLabel;
   String? get contentRating =>
       _text(series.rawPayload['content_rating']) ?? metadata?.contentRating;

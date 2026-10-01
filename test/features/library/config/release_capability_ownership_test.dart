@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/release/anime_release_projection_capability.dart';
-import 'package:collectarr_app/features/library/kinds/tv/release/tv_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
@@ -15,11 +14,7 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   group('Release Capability Ownership Contract Tests', () {
-    test('tv and anime kinds register concrete release capabilities', () {
-      expect(
-        tvKindReleaseCapability,
-        isA<TvReleaseProjectionCapability>(),
-      );
+    test('anime registers a concrete release capability', () {
       expect(
         animeKindReleaseCapability,
         isA<AnimeReleaseProjectionCapability>(),
@@ -29,7 +24,9 @@ void main() {
     test('release capabilities belong only to kinds with release children', () {
       for (final registration in collectarrKindRegistrationsList) {
         final kind = registration.kind;
-        if (kind == CatalogMediaKind.music || kind == CatalogMediaKind.movie) {
+        if (kind == CatalogMediaKind.music ||
+            kind == CatalogMediaKind.movie ||
+            kind == CatalogMediaKind.tv) {
           continue;
         }
         expect(
@@ -40,8 +37,12 @@ void main() {
       }
     });
 
-    test('music and movie catalog items do not register a release scope', () {
-      for (final kind in [CatalogMediaKind.music, CatalogMediaKind.movie]) {
+    test('flat catalog kinds do not register a release scope', () {
+      for (final kind in [
+        CatalogMediaKind.music,
+        CatalogMediaKind.movie,
+        CatalogMediaKind.tv,
+      ]) {
         expect(libraryReleaseCapabilityForKind(kind), isNull);
       }
     });

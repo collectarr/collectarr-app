@@ -8,10 +8,6 @@ final tvKindEditCapabilities = LibraryEditCapabilitySet(
       builder: buildTvLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.release,
-      builder: buildTvReleaseLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
       scope: LibraryEntityScope.copy,
       builder: buildTvMediaLibraryEditDialog,
     ),

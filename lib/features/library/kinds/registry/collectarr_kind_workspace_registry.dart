@@ -123,7 +123,7 @@ final Map<CatalogMediaKind, ReleaseProjectionCapability<LibraryWorkspaceDto>?>
     CatalogMediaKind.movie: null,
     CatalogMediaKind.music: musicKindReleaseCapability
         as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
-    CatalogMediaKind.tv: tvKindReleaseCapability,
+    CatalogMediaKind.tv: null,
   },
 );
 
@@ -140,7 +140,7 @@ final Map<CatalogMediaKind, LibraryReleaseDetailSource?>
     CatalogMediaKind.manga:
         mangaKindReleaseDetailSource as LibraryReleaseDetailSource?,
     CatalogMediaKind.movie: null,
-    CatalogMediaKind.tv: tvKindReleaseDetailSource,
+    CatalogMediaKind.tv: null,
   },
 );
 

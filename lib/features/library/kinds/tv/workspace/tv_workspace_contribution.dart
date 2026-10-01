@@ -10,13 +10,6 @@ final tvKindWorkspace = TypedLibraryKindWorkspace<TvWorkspaceDto>(
         expectedScope: LibraryEntityScope.work,
       ),
     ),
-    LibraryEntityScope.release: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
-      scope: LibraryEntityScope.release,
-      fields: tvReleaseWorkspaceSchema.toRegistry(),
-      projector: const TvWorkspaceProjector(
-        expectedScope: LibraryEntityScope.release,
-      ),
-    ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
       scope: LibraryEntityScope.copy,
       fields: tvCopyWorkspaceSchema.toRegistry(),

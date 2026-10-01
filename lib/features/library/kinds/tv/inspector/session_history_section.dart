@@ -7,21 +7,18 @@ class InspectorSessionHistorySection extends StatelessWidget {
   const InspectorSessionHistorySection({
     super.key,
     required this.request,
-    required this.seriesRef,
-    required this.releaseOptions,
+    required this.catalogRef,
   });
 
   final LibraryInspectorRequest request;
-  final CatalogEntityRef seriesRef;
-  final List<WatchHistoryTargetOption> releaseOptions;
+  final CatalogEntityRef catalogRef;
 
   @override
   Widget build(BuildContext context) {
     return WatchHistorySection(
-      catalogRef: seriesRef,
+      catalogRef: catalogRef,
       accent: request.accent,
-      defaultTargetRef: seriesRef,
-      targetOptions: releaseOptions,
+      defaultTargetRef: catalogRef,
     );
   }
 }
