@@ -1,8 +1,6 @@
 import '../comic_module_dependencies.dart';
 import 'comic_kind_configuration.dart';
-import '../workspace/comic_hierarchy_contract_diagnostics.dart';
 import '../actions/comic_missing_issues_action.dart';
-import '../add/comic_add_contribution.dart';
 import 'package:collectarr_app/features/library/kinds/comic/release/comic_release_projection_capability.dart'
     as comic_release;
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
@@ -54,11 +52,9 @@ final comicKindMetadata = LibraryMetadataCapability(
   compareBuilder: buildComicMetadataComparePanels,
 );
 
-final comicKindHierarchy = const LibraryHierarchyCapability(
-  fetchChildrenCallback: fetchComicVolumes,
-  childrenTitleBuilder: comicChildrenTitle,
-  contractDiagnosticLabelBuilder: comicHierarchyContractDiagnosticLabel,
-);
+// A Comic Catalog Item already represents one concrete issue or edition.
+// There is no Work -> issue -> variant child tree to fetch.
+final comicKindHierarchy = const LibraryHierarchyCapability();
 
 final comicKindEntityVocabulary = const LibraryEntityVocabulary(
   work: LibraryEntityLabel(singular: 'Issue', plural: 'Issues'),

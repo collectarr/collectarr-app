@@ -41,8 +41,11 @@ use Work/Release models.
 
 The App's generic library-detail cache hydration, Admin item refresh, and
 metadata comparison now read the flat per-kind Catalog Item detail routes.
-Comic and TV still have active callers for older Core routes. Game's obsolete
-direct Work/Release API client and mapper have been removed. Its local catalog
+TV still has active callers for older Core routes. Comic Add now consumes a
+flat Catalog Item and no longer calls Core's old Comic Work endpoint to expand
+issue and variant children. Comic's edit and workspace registries still expose
+separate Work and Release scopes and remain unfinished. Game's obsolete direct
+Work/Release API client and mapper have been removed. Its local catalog
 model, Add proposal, transport codec, and workspace now project one concrete
 Game Catalog Item; no Game Release model or Release workspace remains. The
 shared library host still names its generic root scope `work`, so removing that

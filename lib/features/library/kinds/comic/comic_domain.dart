@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owne
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 export 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-export 'package:collectarr_app/features/library/kinds/comic/domain/comic_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';

@@ -203,19 +203,6 @@ final class ComicMissingIssuesAction
   }
 }
 
-String comicChildrenTitle(int count) => 'Volumes ($count)';
-
-Future<List<LibraryHierarchyNode>> fetchComicVolumes({
-  required ApiClient api,
-  required String itemId,
-}) async {
-  final work =
-      await api.getComicWorkDto(itemId).timeout(const Duration(seconds: 60));
-  return ComicHierarchyMapper.toLibraryNodes(
-    ComicCoreMapper.fromWorkDto(work),
-  );
-}
-
 Iterable<String> getComicFacetValues(
     ComicWorkspaceDto dto, LibraryFacetIdRuntime facetId) {
   for (final definition in comicLibraryFacetDefinitions) {
