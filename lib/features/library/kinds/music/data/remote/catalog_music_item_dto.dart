@@ -62,6 +62,9 @@ final class CatalogMusicItemDto implements JsonEncodable {
     final catalogJson = catalogPayloadWithoutSnapshotVersion(json)
       ..remove('snapshot_version');
     const allowedKeys = {
+      // Accept this transport envelope marker defensively, but never expose it
+      // as Music catalog metadata.
+      'snapshot_version',
       'id',
       'kind',
       'title',
