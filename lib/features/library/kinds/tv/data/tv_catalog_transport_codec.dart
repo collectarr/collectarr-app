@@ -26,7 +26,9 @@ final class TvCatalogTransportCodec
   TvSeries decode(CatalogItemDto item) {
     final metadata = item.kindMetadata;
     if (metadata is TvSeries) return metadata;
-    return TvSeries.fromJson(catalogTransportPayloadFor(item));
+    return TvSeries.fromJson(
+      catalogPayloadWithoutSnapshotVersion(item.toSyncPayload()),
+    );
   }
 
   @override

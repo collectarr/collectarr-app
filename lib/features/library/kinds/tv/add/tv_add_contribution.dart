@@ -85,6 +85,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
                   .kindMetadata;
               return metadata is TvSeriesMetadata
                   ? [
+                      metadata.publisher,
                       metadata.network,
                       metadata.streamingService,
                       ...metadata.productionCompanies,
@@ -104,6 +105,9 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
                   ? [
                       metadata.firstAirDate?.year,
                       metadata.lastAirDate?.year,
+                      item.kindCapability
+                          .mapTransport((transport) => transport.releaseDate)
+                          ?.year,
                     ]
                   : const <Object?>[];
             },

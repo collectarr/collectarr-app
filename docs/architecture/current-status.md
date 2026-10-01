@@ -95,9 +95,11 @@ Catalog Item or Owned Copy identities.
 Catalog transport now writes every Core item into a shared Drift cache keyed
 by `(kind, item_id)`. Snapshot reads and batched reference hydration use this
 flat cache. Anime, Board Game, Book, Comic, Game, Manga, Movie, Music, and TV
-use it as their only active catalog store. TV's typed aggregate, Add form, and
-edit adapters still carry some Work/Release assumptions that remain to be
-removed. Book, Game, and Manga
+use it as their only active catalog store. TV's typed workspace and Edit
+adapters still carry Work/Release assumptions that remain to be removed. Its
+manual Add now emits one flat Catalog Item; Core common fields and kind-owned
+fields are decoded together, and an edition release date is no longer
+misrepresented as a series first-air date. Book, Game, and Manga
 catalog facts no longer have per-kind media or release tables; their owned-copy
 and tracking data stays in App-owned tables while the broader personal-data
 cutover proceeds. Game's flat workspace combines edition title, platform,

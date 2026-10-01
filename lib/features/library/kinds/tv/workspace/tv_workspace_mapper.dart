@@ -10,11 +10,7 @@ final class TvWorkspaceMapper {
   const TvWorkspaceMapper._();
 
   static TvSeries fromCatalogItem(CatalogItemDto item) {
-    final metadataPayload = <String, dynamic>{
-      ...item.toSyncPayload(),
-      if (item.releaseDate != null)
-        'first_air_date': item.releaseDate!.toIso8601String(),
-    };
+    final metadataPayload = item.toSyncPayload();
     final basePayload = Map<String, dynamic>.from(metadataPayload);
     final metadata = item.kindMetadata is TvSeriesMetadata
         ? item.kindMetadata as TvSeriesMetadata

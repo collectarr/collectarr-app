@@ -44,20 +44,14 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
       metadata?.streamingService;
   String? get network => streamingService;
   String? get publisher =>
-      release?.publisher ?? (release == null ? streamingService : null);
+      release?.publisher ?? metadata?.publisher ?? streamingService;
   String? get seriesTitle =>
       metadata?.seriesTitle ?? metadata?.series?.seriesTitle ?? series.title;
   String? get itemNumber => metadata?.itemNumber;
-  DateTime? get releaseDate =>
-      release?.releaseDate ??
-      (release == null
-          ? series.originalAirDate ??
-              metadata?.firstAirDate ??
-              common.releaseDate
-          : null);
+  DateTime? get releaseDate => release?.releaseDate ?? common.releaseDate;
   String? get country => release == null ? metadata?.country : null;
   String? get language => release == null ? metadata?.originalLanguage : null;
-  String? get identifierCode => release?.barcode;
+  String? get identifierCode => release?.barcode ?? metadata?.barcode;
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
   String? get referenceFormatLabel =>

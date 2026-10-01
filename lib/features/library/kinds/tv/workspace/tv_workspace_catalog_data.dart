@@ -20,11 +20,7 @@ final class TvWorkspaceCatalogData
 
   factory TvWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
     final rawMetadata = item.kindMetadata;
-    final metadataPayload = <String, dynamic>{
-      ...item.toSyncPayload(),
-      if (item.releaseDate != null)
-        'first_air_date': item.releaseDate!.toIso8601String(),
-    };
+    final metadataPayload = item.toSyncPayload();
     final metadata = rawMetadata is TvSeriesMetadata
         ? rawMetadata
         : TvSeriesMetadata.fromJson(metadataPayload);
