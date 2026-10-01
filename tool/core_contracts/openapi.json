@@ -5264,17 +5264,12 @@
           "status": {
             "title": "Status",
             "type": "string"
-          },
-          "title": {
-            "title": "Title",
-            "type": "string"
           }
         },
         "required": [
           "id",
           "kind",
           "catalog_item",
-          "title",
           "status",
           "created_at"
         ],
