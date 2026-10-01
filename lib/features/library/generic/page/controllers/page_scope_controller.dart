@@ -273,7 +273,7 @@ abstract final class _LibraryScopeControllerOps {
               state._session.preferences.viewState!.withSortRules(
             state._viewProfile.decodeSortRules(
               smartList.sortRules!,
-              scope: smartList.entityScope ?? state.activeEntityScope,
+              scope: smartList.entityType.workspaceScope,
             ),
             state._viewProfile,
           );
@@ -283,7 +283,7 @@ abstract final class _LibraryScopeControllerOps {
               state._session.preferences.viewState!.copyWith(
             sortId: libraryKindWorkspaceForKind(registration.kind)
                 .fieldsForScope(
-                  smartList.entityScope ?? state.activeEntityScope,
+                  smartList.entityType.workspaceScope,
                 )
                 .decodeSortId(smartList.sortColumn!),
             sortAscending: smartList.sortAscending ?? true,

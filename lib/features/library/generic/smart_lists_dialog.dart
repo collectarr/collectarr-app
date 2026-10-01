@@ -171,7 +171,8 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
       id: id ?? '',
       name: name,
       mediaKind: widget.mediaKind,
-      entityScope: widget.currentEntityScope,
+      entityType:
+          SmartListEntityType.forWorkspaceScope(widget.currentEntityScope),
       filterSelection: widget.currentFilter,
       quickView: widget.currentQuickView,
       sortRules: widget.currentSortRules,
@@ -198,7 +199,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
         id: list.id,
         name: name,
         mediaKind: list.mediaKind,
-        entityScope: list.entityScope,
+        entityType: list.entityType,
         filterSelection: list.filterSelection,
         quickView: list.quickView,
         sortRules: list.sortRules,
@@ -278,7 +279,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
         sortColumn: list.sortColumn,
         sortAscending: list.sortAscending,
         searchQuery: list.searchQuery,
-        entityScope: list.entityScope,
+        entityScope: list.entityType.workspaceScope,
       ),
     );
   }

@@ -133,7 +133,7 @@ void main() {
         .getSingle();
     final criteriaJson = row.read(db.smartListsCache.criteriaJson);
 
-    expect(criteriaJson, contains('book.title'));
+    expect(criteriaJson, contains('book.catalog_item.title'));
   });
 
   test('update and delete persist changed criteria', () async {

@@ -7,13 +7,35 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
+enum SmartListEntityType {
+  catalogItem('catalog_item', LibraryEntityScope.work),
+  ownedCopy('owned_copy', LibraryEntityScope.copy);
+
+  const SmartListEntityType(this.apiValue, this.workspaceScope);
+
+  final String apiValue;
+  final LibraryEntityScope workspaceScope;
+
+  static SmartListEntityType forWorkspaceScope(LibraryEntityScope? scope) =>
+      scope == LibraryEntityScope.copy
+          ? SmartListEntityType.ownedCopy
+          : SmartListEntityType.catalogItem;
+
+  static SmartListEntityType parse(Object? value) {
+    for (final type in values) {
+      if (type.apiValue == value) return type;
+    }
+    throw FormatException('Unsupported SmartList entity_type: $value.');
+  }
+}
+
 /// A saved filter/sort preset that acts as a "smart list".
 class SmartList {
   const SmartList({
     required this.id,
     required this.name,
     this.mediaKind,
-    this.entityScope,
+    this.entityType = SmartListEntityType.catalogItem,
     this.filterSelection = LibraryFilterSelection.none,
     this.quickView,
     this.sortRules,
@@ -29,7 +51,7 @@ class SmartList {
 
   /// If non-null, this smart list only applies to a specific media kind.
   final String? mediaKind;
-  final LibraryEntityScope? entityScope;
+  final SmartListEntityType entityType;
   final LibraryFilterSelection filterSelection;
   final LibraryQuickView? quickView;
   final List<LibrarySortRule>? sortRules;
@@ -64,19 +86,19 @@ class SmartList {
       'schema_version': 1,
       'name': name,
       if (mediaKind != null) 'media_kind': mediaKind,
-      if (entityScope != null) 'entity_scope': entityScope!.apiValue,
+      'entity_type': entityType.apiValue,
       if (searchQuery != null) 'search_query': searchQuery,
       if (quickView != null) 'quick_view': quickView!.name,
       if (effectiveSortRules.isNotEmpty)
         'sort_rules': [
           for (final rule in effectiveSortRules)
             {
-              'column': _sortColumnToken(mediaKind, entityScope, rule.column),
+              'column': _sortColumnToken(mediaKind, entityType, rule.column),
               'ascending': rule.ascending,
             },
         ],
       if (sortColumn != null)
-        'sort_column': _sortColumnToken(mediaKind, entityScope, sortColumn!),
+        'sort_column': _sortColumnToken(mediaKind, entityType, sortColumn!),
       if (sortAscending != null) 'sort_ascending': sortAscending,
       'filter': _filterToJson(filterSelection),
     };
@@ -86,25 +108,25 @@ class SmartList {
     final json = _criteriaObject(criteriaJson);
     _validateCriteria(json);
     final mediaKind = json['media_kind'] as String?;
-    final entityScope = _scopeFromValue(json['entity_scope']);
+    final entityType = SmartListEntityType.parse(json['entity_type']);
     final decodedSortRules = _sortRulesFromJson(
       json['sort_rules'],
       mediaKind: mediaKind,
-      entityScope: entityScope,
+      entityType: entityType,
     );
     final primarySortColumn = decodedSortRules.rules.isNotEmpty
         ? decodedSortRules.rules.first.column
         : _sortColumnFromToken(
             json['sort_column'],
             mediaKind: mediaKind,
-            entityScope: entityScope,
+            entityType: entityType,
           ).value;
     final degradedSortTokens = <String>[
       ...decodedSortRules.degraded,
       if (_sortColumnFromToken(
             json['sort_column'],
             mediaKind: mediaKind,
-            entityScope: entityScope,
+            entityType: entityType,
           ).degraded &&
           json['sort_column'] != null)
         json['sort_column'].toString(),
@@ -114,7 +136,7 @@ class SmartList {
           ? const <String, dynamic>{}
           : Map<String, dynamic>.from(json['filter'] as Map),
       mediaKind: mediaKind,
-      entityScope: entityScope,
+      entityType: entityType,
     );
     final primarySortAscending = decodedSortRules.rules.isNotEmpty
         ? decodedSortRules.rules.first.ascending
@@ -123,7 +145,7 @@ class SmartList {
       id: id,
       name: name,
       mediaKind: mediaKind,
-      entityScope: entityScope,
+      entityType: entityType,
       searchQuery: json['search_query'] as String?,
       quickView: _enumByNameOrNull(
         LibraryQuickView.values.asNameMap(),
@@ -162,17 +184,31 @@ class SmartList {
         'Unsupported SmartList criteria schema version.',
       );
     }
+    const allowedKeys = {
+      'schema_version',
+      'name',
+      'media_kind',
+      'entity_type',
+      'search_query',
+      'quick_view',
+      'sort_rules',
+      'sort_column',
+      'sort_ascending',
+      'filter',
+    };
+    for (final key in json.keys) {
+      if (!allowedKeys.contains(key)) {
+        throw FormatException('Unsupported SmartList criteria field: $key.');
+      }
+    }
     _validateOptionalType(json, 'media_kind', (value) => value is String);
-    _validateOptionalType(json, 'entity_scope', (value) => value is String);
+    _validateOptionalType(json, 'entity_type', (value) => value is String);
     _validateOptionalType(json, 'search_query', (value) => value is String);
     _validateOptionalType(json, 'quick_view', (value) => value is String);
     _validateOptionalType(json, 'sort_column', (value) => value is String);
     _validateOptionalType(json, 'sort_ascending', (value) => value is bool);
 
-    final rawScope = json['entity_scope'];
-    if (rawScope != null && _scopeFromValue(rawScope) == null) {
-      throw FormatException('Unsupported SmartList entity_scope: $rawScope.');
-    }
+    SmartListEntityType.parse(json['entity_type']);
 
     final rawSortRules = json['sort_rules'];
     if (rawSortRules != null) {
@@ -282,7 +318,7 @@ class SmartList {
       _filterFromJson(
     Map<String, dynamic> json, {
     required String? mediaKind,
-    required LibraryEntityScope? entityScope,
+    required SmartListEntityType entityType,
   }) {
     final fieldValues = <String, String?>{};
     final degraded = <String>[];
@@ -293,7 +329,7 @@ class SmartList {
         if (value != null && value.isNotEmpty) {
           final token = _stableToken(entry.key.toString());
           fieldValues[token] = value;
-          if (!_isKnownField(token, mediaKind, entityScope)) {
+          if (!_isKnownField(token, mediaKind, entityType)) {
             degraded.add(token);
           }
         }
@@ -351,7 +387,7 @@ class SmartList {
       _sortRulesFromJson(
     Object? rawValue, {
     required String? mediaKind,
-    required LibraryEntityScope? entityScope,
+    required SmartListEntityType entityType,
   }) {
     if (rawValue is! List) {
       return (rules: const [], degraded: const []);
@@ -365,7 +401,7 @@ class SmartList {
       final decoded = _sortColumnFromToken(
         entry['column'],
         mediaKind: mediaKind,
-        entityScope: entityScope,
+        entityType: entityType,
       );
       final column = decoded.value;
       if (column == null) continue;
@@ -385,22 +421,26 @@ class SmartList {
 
   static String _sortColumnToken(
     String? mediaKind,
-    LibraryEntityScope? entityScope,
+    SmartListEntityType entityType,
     String column,
   ) {
     final kind = mediaKind?.trim().toLowerCase();
     final stableColumn = _stableToken(column);
     if (stableColumn.contains('.')) {
       final parts = stableColumn.split('.');
-      if (parts.length == 2 && kind != null && entityScope != null) {
-        return '$kind.${entityScope.apiValue}.${parts.last}';
+      if (parts.length == 3 &&
+          kind != null &&
+          parts.first == kind &&
+          parts[1] == entityType.apiValue) {
+        return stableColumn;
+      }
+      if (parts.length == 2 && kind != null && parts.first == kind) {
+        return '$kind.${entityType.apiValue}.${parts.last}';
       }
       return stableColumn;
     }
     if (kind == null || kind.isEmpty) return stableColumn;
-    return entityScope == null
-        ? '$kind.$stableColumn'
-        : '$kind.${entityScope.apiValue}.$stableColumn';
+    return '$kind.${entityType.apiValue}.$stableColumn';
   }
 
   static String? _sortColumnTokenFromJson(Object? rawValue) {
@@ -413,7 +453,7 @@ class SmartList {
   static ({String? value, bool degraded}) _sortColumnFromToken(
     Object? rawValue, {
     required String? mediaKind,
-    required LibraryEntityScope? entityScope,
+    required SmartListEntityType entityType,
   }) {
     final candidate = _sortColumnTokenFromJson(rawValue);
     if (candidate == null) return (value: null, degraded: false);
@@ -423,20 +463,19 @@ class SmartList {
     final lookup = switch (parts.length) {
       1 => '${kind.apiValue}.${parts.single}',
       2 when parts.first == kind.apiValue => '${kind.apiValue}.${parts.last}',
-      3 when parts.first == kind.apiValue =>
+      3 when parts.first == kind.apiValue && parts[1] == entityType.apiValue =>
         '${kind.apiValue}.${parts.sublist(2).join('.')}',
       _ => candidate,
     };
     if (parts.length == 3 &&
-        entityScope != null &&
-        parts[1] != entityScope.apiValue) {
+        (parts.first != kind.apiValue || parts[1] != entityType.apiValue)) {
       return (value: candidate, degraded: true);
     }
     if (parts.length >= 2 && parts.first != kind.apiValue) {
       return (value: candidate, degraded: true);
     }
     final registry = libraryKindWorkspaceForKind(kind).fieldsForScope(
-      entityScope ?? LibraryEntityScope.work,
+      entityType.workspaceScope,
     );
     final definition =
         registry.findSortDefinition(registry.decodeSortId(lookup));
@@ -453,23 +492,15 @@ class SmartList {
     return (value: definition.id.value.split('.').last, degraded: false);
   }
 
-  static LibraryEntityScope? _scopeFromValue(Object? value) {
-    if (value is! String) return null;
-    for (final scope in LibraryEntityScope.values) {
-      if (scope.apiValue == value.trim().toLowerCase()) return scope;
-    }
-    return null;
-  }
-
   static bool _isKnownField(
     String token,
     String? mediaKind,
-    LibraryEntityScope? entityScope,
+    SmartListEntityType entityType,
   ) {
     final kind = catalogMediaKindFromValue(mediaKind);
     if (kind.isUnknown) return false;
     final registry = libraryKindWorkspaceForKind(kind).fieldsForScope(
-      entityScope ?? LibraryEntityScope.work,
+      entityType.workspaceScope,
     );
     final normalized = _stableToken(token);
     return registry.fields.any((field) => field.id.value == normalized) ||
