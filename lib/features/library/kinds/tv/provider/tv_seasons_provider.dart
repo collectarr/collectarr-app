@@ -1,25 +1,18 @@
 import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Loads TV hierarchy through TV-owned models rather than shared video types.
-final tvSeasonsBySeriesProvider = FutureProvider.autoDispose
-    .family<List<TvSeason>, String>((ref, seriesId) async {
+/// Reads the contained seasons from a flat TV Catalog Item response.
+final tvSeasonsByCatalogItemIdProvider = FutureProvider.autoDispose
+    .family<List<TvSeason>, String>((ref, itemId) async {
   final api = ref.watch(apiClientProvider);
-  final seasons = await api
-      .getTvSeriesSeasonsDto(seriesId)
+  final item = await api
+      .getCatalogItemJson(kind: CatalogMediaKind.tv, id: itemId)
       .timeout(const Duration(seconds: 60));
-  return [
-    for (final season in seasons) TvCoreMapper.fromSeasonDto(season),
-  ];
-});
-
-/// Typed TV hierarchy access for callers that already have a series identity.
-final tvSeasonsBySeriesRefProvider = FutureProvider.autoDispose
-    .family<List<TvSeason>, String>((ref, seriesId) async {
-  return ref.watch(tvSeasonsBySeriesProvider(seriesId).future);
+  return TvCoreMapper.fromCatalogItemJson(item).seasons;
 });
 
 /// Typed TV hierarchy access at the generic catalog reference boundary.
@@ -28,5 +21,5 @@ final tvSeasonsByCatalogRefProvider = FutureProvider.autoDispose
   if (catalogRef.mediaKind != CatalogMediaKind.tv) {
     return const <TvSeason>[];
   }
-  return ref.watch(tvSeasonsBySeriesRefProvider(catalogRef.id).future);
+  return ref.watch(tvSeasonsByCatalogItemIdProvider(catalogRef.id).future);
 });

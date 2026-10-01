@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
@@ -30,14 +31,11 @@ final class TvReleaseMediaEditController {
   Future<TvSeries?> loadTvSeriesSnapshot() async {
     if (ref == null) return null;
     final api = ref!.read(apiClientProvider);
-    final meta = item.kindMetadata;
-    final seriesId =
-        (meta is TvSeriesMetadata ? meta.series?.seriesId : null) ?? item.id;
     try {
-      final dto = await api
-          .getTvSeriesDto(seriesId)
+      final itemJson = await api
+          .getCatalogItemJson(kind: CatalogMediaKind.tv, id: item.id)
           .timeout(const Duration(seconds: 20));
-      final series = TvCoreMapper.fromSeriesDto(dto);
+      final series = TvCoreMapper.fromCatalogItemJson(itemJson);
       tvSeriesSnapshot = series;
       primeTvSeriesDraft(series);
       return series;

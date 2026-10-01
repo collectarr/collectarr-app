@@ -39,7 +39,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
       return _buildWithSeasons(context, seasons);
     }
     final seasonsAsync = ref.watch(
-      tvSeasonsBySeriesProvider(titleItem.node.workId),
+      tvSeasonsByCatalogItemIdProvider(titleItem.node.workId),
     );
     return seasonsAsync.when(
       loading: () => _TvShelfDrilldownShell(

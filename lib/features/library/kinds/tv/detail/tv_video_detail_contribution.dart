@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -28,7 +29,7 @@ Widget buildTvVideoDetailContribution(
   return TvVideoDetailContribution(request: request);
 }
 
-/// TV owns its provider-backed episodic detail sections and release graph.
+/// TV owns its episodic detail sections and contained episode presentation.
 final class TvVideoDetailContribution extends ConsumerStatefulWidget {
   const TvVideoDetailContribution({super.key, required this.request});
 
@@ -63,10 +64,13 @@ class _TvVideoDetailContributionState
   Future<TvSeries?> _loadSeries() async {
     final api = ref.read(apiClientProvider);
     try {
-      final dto = await api
-          .getTvSeriesDto(widget.request.item.source.itemId)
+      final item = await api
+          .getCatalogItemJson(
+            kind: CatalogMediaKind.tv,
+            id: widget.request.item.source.itemId,
+          )
           .timeout(const Duration(seconds: 20));
-      final series = TvCoreMapper.fromSeriesDto(dto);
+      final series = TvCoreMapper.fromCatalogItemJson(item);
       _seriesSnapshot = series;
       return series;
     } on Object {

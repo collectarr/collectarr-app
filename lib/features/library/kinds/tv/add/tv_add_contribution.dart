@@ -1,6 +1,7 @@
 import '../tv_module_dependencies.dart';
 import '../config/tv_kind_configuration.dart';
 import 'tv_manual_candidate.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   kind: CatalogMediaKind.tv,
@@ -125,13 +126,11 @@ Future<List<LibraryHierarchyNode>> fetchTvSeasons({
   required ApiClient api,
   required String itemId,
 }) async {
-  final seasons = await api
-      .getTvSeriesSeasonsDto(itemId)
+  final item = await api
+      .getCatalogItemJson(kind: CatalogMediaKind.tv, id: itemId)
       .timeout(const Duration(seconds: 60));
-  final typedSeasons = [
-    for (final season in seasons) TvCoreMapper.fromSeasonDto(season),
-  ];
-  return TvHierarchyMapper.toLibraryNodes(typedSeasons);
+  final series = TvCoreMapper.fromCatalogItemJson(item);
+  return TvHierarchyMapper.toLibraryNodes(series.seasons);
 }
 
 List<LibraryAddAdvancedFilterField<String>> buildTvAddAdvancedFilterFields(

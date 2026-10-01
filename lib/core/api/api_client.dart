@@ -206,42 +206,6 @@ class ApiClient {
     );
   }
 
-  Future<TvSeriesDto> getTvSeriesDto(String id) {
-    return _catalogApi.getTvSeriesDto(id);
-  }
-
-  Future<List<TvSeasonDto>> getTvSeriesSeasonsDto(String id) {
-    return _catalogApi.getTvSeriesSeasonsDto(id);
-  }
-
-  Future<List<TvReleaseDto>> getTvSeriesReleasesDto(String id) {
-    return _catalogApi.getTvSeriesReleasesDto(id);
-  }
-
-  Future<TvSeasonDto> getTvSeasonDto(String id) {
-    return _catalogApi.getTvSeasonDto(id);
-  }
-
-  Future<List<TvEpisodeDto>> getTvSeasonEpisodesDto(String id) {
-    return _catalogApi.getTvSeasonEpisodesDto(id);
-  }
-
-  Future<TvReleaseDto> getTvReleaseDto(String id) {
-    return _catalogApi.getTvReleaseDto(id);
-  }
-
-  Future<List<TvReleaseMediaDto>> getTvReleaseMediaDto(String id) {
-    return _catalogApi.getTvReleaseMediaDto(id);
-  }
-
-  Future<List<TvReleaseEpisodeMapDto>> getTvReleaseEpisodeMapDto(String id) {
-    return _catalogApi.getTvReleaseEpisodeMapDto(id);
-  }
-
-  Future<TvReleaseMediaDto> getTvReleaseMediaItemDto(String id) {
-    return _catalogApi.getTvReleaseMediaItemDto(id);
-  }
-
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     return _catalogApi.getBundleRelease(bundleReleaseId);
   }
