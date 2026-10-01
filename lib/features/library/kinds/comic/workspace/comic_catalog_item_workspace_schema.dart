@@ -4,9 +4,10 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:flutter/material.dart';
 
-abstract final class ComicWorkWorkspaceFields {
+abstract final class ComicCatalogItemWorkspaceFields {
   static final title = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.title,
     label: 'Title',
@@ -70,52 +71,102 @@ abstract final class ComicWorkWorkspaceFields {
     getValue: (dto) => dto.pageCount,
     entityScope: LibraryEntityScope.work,
   );
+
+  static final publisher = textField<ComicKind, ComicWorkspaceDto>(
+    id: ComicFieldIds.publisher,
+    label: 'Publisher',
+    getValue: (dto) => dto.publisher,
+    entityScope: LibraryEntityScope.work,
+  );
+
+  static final releaseDate = dateField<ComicKind, ComicWorkspaceDto>(
+    id: ComicFieldIds.releaseDate,
+    label: 'Release Date',
+    getValue: (dto) => dto.releaseDate,
+    entityScope: LibraryEntityScope.work,
+  );
+
+  static final barcode = textField<ComicKind, ComicWorkspaceDto>(
+    id: ComicFieldIds.barcode,
+    label: 'Barcode',
+    getValue: (dto) => dto.barcode,
+    entityScope: LibraryEntityScope.work,
+  );
+
+  static final variant = textField<ComicKind, ComicWorkspaceDto>(
+    id: ComicFieldIds.variant,
+    label: 'Variant',
+    getValue: (dto) => dto.variant,
+    entityScope: LibraryEntityScope.work,
+  );
 }
 
-final comicWorkWorkspaceFieldDefinitions = [
-  ComicWorkWorkspaceFields.title,
-  ComicWorkWorkspaceFields.cover,
-  ComicWorkWorkspaceFields.series,
-  ComicWorkWorkspaceFields.issueNumber,
-  ComicWorkWorkspaceFields.writer,
-  ComicWorkWorkspaceFields.artist,
-  ComicWorkWorkspaceFields.coverArtist,
-  ComicWorkWorkspaceFields.imprint,
-  ComicWorkWorkspaceFields.pageCount,
+final comicCatalogItemWorkspaceFieldDefinitions = [
+  ComicCatalogItemWorkspaceFields.title,
+  ComicCatalogItemWorkspaceFields.cover,
+  ComicCatalogItemWorkspaceFields.series,
+  ComicCatalogItemWorkspaceFields.issueNumber,
+  ComicCatalogItemWorkspaceFields.writer,
+  ComicCatalogItemWorkspaceFields.artist,
+  ComicCatalogItemWorkspaceFields.coverArtist,
+  ComicCatalogItemWorkspaceFields.imprint,
+  ComicCatalogItemWorkspaceFields.pageCount,
+  ComicCatalogItemWorkspaceFields.publisher,
+  ComicCatalogItemWorkspaceFields.releaseDate,
+  ComicCatalogItemWorkspaceFields.barcode,
+  ComicCatalogItemWorkspaceFields.variant,
 ];
 
-final comicWorkWorkspaceGroupDefinitions = [
+final comicCatalogItemWorkspaceGroupDefinitions = [
   groupFromField<ComicKind, ComicWorkspaceDto, String?>(
-    ComicWorkWorkspaceFields.series,
+    ComicCatalogItemWorkspaceFields.series,
     sidebarTitle: 'Series',
     category: 'Main',
     icon: Icons.collections_bookmark_outlined,
     supportsJump: true,
     sequenceValue: (context) => context.dto.itemNumber,
   ),
+  groupFromField<ComicKind, ComicWorkspaceDto, String?>(
+    ComicCatalogItemWorkspaceFields.publisher,
+    sidebarTitle: 'Publishers',
+    category: 'Main',
+    icon: Icons.business_outlined,
+    supportsBucketManagement: true,
+    bucketValueMutator: catalogTransportStringBucketValueMutator(
+      ['publisher'],
+    ),
+  ),
 ];
 
-final comicWorkWorkspaceSortDefinitions = [
+final comicCatalogItemWorkspaceSortDefinitions = [
   sortFromField<ComicKind, ComicWorkspaceDto, String>(
-      ComicWorkWorkspaceFields.series),
+      ComicCatalogItemWorkspaceFields.series),
   sortFromField<ComicKind, ComicWorkspaceDto, String>(
-      ComicWorkWorkspaceFields.issueNumber),
+      ComicCatalogItemWorkspaceFields.issueNumber),
   sortFromField<ComicKind, ComicWorkspaceDto, String>(
-      ComicWorkWorkspaceFields.title),
+      ComicCatalogItemWorkspaceFields.title),
+  sortFromField<ComicKind, ComicWorkspaceDto, String>(
+      ComicCatalogItemWorkspaceFields.publisher),
+  sortFromField<ComicKind, ComicWorkspaceDto, DateTime>(
+    ComicCatalogItemWorkspaceFields.releaseDate,
+    defaultAscending: false,
+  ),
 ];
 
-final comicWorkWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+final comicCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
   ComicFieldIds.cover,
   ComicFieldIds.series,
   ComicFieldIds.issueNumber,
   ComicFieldIds.title,
+  ComicFieldIds.publisher,
+  ComicFieldIds.releaseDate,
 };
 
-final comicWorkWorkspaceColumnDefinitions = [
+final comicCatalogItemWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.cover,
     label: '',
-    getValue: ComicWorkWorkspaceFields.cover.getValue,
+    getValue: ComicCatalogItemWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
         : Image.network(
@@ -130,48 +181,77 @@ final comicWorkWorkspaceColumnDefinitions = [
     minWidth: 44,
   ),
   columnFromField<ComicKind, ComicWorkspaceDto, String?>(
-      ComicWorkWorkspaceFields.series,
+      ComicCatalogItemWorkspaceFields.series,
       defaultWidth: 160),
   columnFromField<ComicKind, ComicWorkspaceDto, String?>(
-      ComicWorkWorkspaceFields.issueNumber,
+      ComicCatalogItemWorkspaceFields.issueNumber,
       defaultWidth: 80),
   columnFromField<ComicKind, ComicWorkspaceDto, String?>(
-      ComicWorkWorkspaceFields.title,
+      ComicCatalogItemWorkspaceFields.title,
       defaultWidth: 260,
       maxWidth: 520),
   columnFromField<ComicKind, ComicWorkspaceDto, String?>(
-    ComicWorkWorkspaceFields.writer,
+    ComicCatalogItemWorkspaceFields.writer,
     group: 'Credits',
     defaultWidth: 130,
   ),
   columnFromField<ComicKind, ComicWorkspaceDto, String?>(
-    ComicWorkWorkspaceFields.artist,
+    ComicCatalogItemWorkspaceFields.artist,
     group: 'Credits',
     defaultWidth: 130,
   ),
   columnFromField<ComicKind, ComicWorkspaceDto, String?>(
-    ComicWorkWorkspaceFields.coverArtist,
+    ComicCatalogItemWorkspaceFields.coverArtist,
     group: 'Credits',
     defaultWidth: 130,
   ),
   columnFromField<ComicKind, ComicWorkspaceDto, String?>(
-    ComicWorkWorkspaceFields.imprint,
+    ComicCatalogItemWorkspaceFields.imprint,
     group: 'Publisher',
     defaultWidth: 120,
   ),
+  columnFromField<ComicKind, ComicWorkspaceDto, String?>(
+    ComicCatalogItemWorkspaceFields.publisher,
+    group: 'Publisher',
+    defaultWidth: 140,
+  ),
+  columnFromField<ComicKind, ComicWorkspaceDto, DateTime?>(
+    ComicCatalogItemWorkspaceFields.releaseDate,
+    cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
+    defaultWidth: 118,
+  ),
+  columnFromField<ComicKind, ComicWorkspaceDto, String?>(
+    ComicCatalogItemWorkspaceFields.barcode,
+    group: 'Edition',
+    defaultWidth: 160,
+    maxWidth: 260,
+  ),
+  columnFromField<ComicKind, ComicWorkspaceDto, String?>(
+    ComicCatalogItemWorkspaceFields.variant,
+    group: 'Edition',
+    defaultWidth: 140,
+  ),
 ];
 
-final comicWorkWorkspaceSchema =
+final comicCatalogItemWorkspaceSchema =
     LibraryEntityWorkspaceSchema<ComicKind, ComicWorkspaceDto>(
   kindNamespace: 'comic',
   entityScope: LibraryEntityScope.work,
-  fields: comicWorkWorkspaceFieldDefinitions,
-  columns: comicWorkWorkspaceColumnDefinitions,
-  sorts: comicWorkWorkspaceSortDefinitions,
-  groups: comicWorkWorkspaceGroupDefinitions,
+  fields: comicCatalogItemWorkspaceFieldDefinitions,
+  columns: comicCatalogItemWorkspaceColumnDefinitions,
+  sorts: comicCatalogItemWorkspaceSortDefinitions,
+  groups: comicCatalogItemWorkspaceGroupDefinitions,
   primaryColumn: ComicFieldIds.title,
-  defaultVisibleColumns: comicWorkWorkspaceDefaultVisibleColumns,
-  defaultSort: ComicSortIds.series,
+  defaultVisibleColumns: comicCatalogItemWorkspaceDefaultVisibleColumns,
+  defaultSort: ComicSortIds.releaseDate,
   defaultGroup: ComicGroupIds.series,
   preferenceCodec: const IdentityLibraryWorkspacePreferenceCodec<ComicKind>(),
 );
+
+String _formatDate(DateTime? value) {
+  if (value == null) return '—';
+  final year = value.year.toString().padLeft(4, '0');
+  final month = value.month.toString().padLeft(2, '0');
+  final day = value.day.toString().padLeft(2, '0');
+  return '$year-$month-$day';
+}

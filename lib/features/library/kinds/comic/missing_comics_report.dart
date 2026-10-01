@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -83,9 +83,7 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
         : series?.seriesTitle?.trim().isNotEmpty == true
             ? series!.seriesTitle!.trim()
             : metadata.title;
-    final coverUrl = metadata.releases.isEmpty
-        ? null
-        : metadata.releases.first.coverImageUrl;
+    final coverUrl = metadata.coverImageUrl;
     final accumulator = bySeries.putIfAbsent(
       seriesKey,
       () => _MissingComicSeriesAccumulator(
@@ -270,7 +268,7 @@ String _verboseGroupLabel(MissingComicIssueGroup group) {
   return '${formatComicIssueLabel(group.issueNumber)} (${variants.join(' / ')})';
 }
 
-String _missingComicVariantLabel(ComicMedia metadata) {
+String _missingComicVariantLabel(ComicCatalogItem metadata) {
   final variant = metadata.variant?.trim();
   if (variant != null && variant.isNotEmpty) {
     return variant;

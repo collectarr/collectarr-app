@@ -9,7 +9,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Comic Core catalog results map to canonical ComicMedia', () {
+  test('Comic Core catalog results map to canonical ComicCatalogItem', () {
     final dto = testCatalogItem(
       id: 'comic-work-1',
       title: 'Saga',
@@ -20,7 +20,7 @@ void main() {
 
     final comic = ComicCoreMapper.fromCatalogItem(dto);
 
-    expect(comic.id, const ComicMediaId('comic-work-1'));
+    expect(comic.id, const ComicCatalogItemId('comic-work-1'));
     expect(comic.title, 'Saga');
     expect(comic.issueNumber, '1');
     expect(comic.publisher, 'Image Comics');
@@ -142,8 +142,8 @@ void main() {
         DateTime.utc(2025, 6, 1));
   });
 
-  test('ComicMedia and structured ComicKeyEvent roundtrip', () {
-    final meta = ComicMedia(
+  test('ComicCatalogItem and structured ComicKeyEvent roundtrip', () {
+    final meta = ComicCatalogItem(
       title: 'Amazing Fantasy #15',
       seriesTitle: 'Amazing Fantasy',
       issueNumber: '15',
@@ -182,7 +182,7 @@ void main() {
     );
 
     final json = meta.toJson();
-    final fromJson = ComicMedia.fromJson(json);
+    final fromJson = ComicCatalogItem.fromJson(json);
 
     expect(fromJson.title, 'Amazing Fantasy #15');
     expect(fromJson.writers, contains('Stan Lee'));

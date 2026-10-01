@@ -43,8 +43,11 @@ The App's generic library-detail cache hydration, Admin item refresh, and
 metadata comparison now read the flat per-kind Catalog Item detail routes.
 TV still has active callers for older Core routes. Comic Add now consumes a
 flat Catalog Item and no longer calls Core's old Comic Work endpoint to expand
-issue and variant children. Comic's edit and workspace registries still expose
-separate Work and Release scopes and remain unfinished. Game's obsolete direct
+issue and variant children. Comic's App model and editor now represent the
+concrete issue or edition directly; its nested release editor, release
+workspace, target selection, and release inspector have been removed. Comic
+workspace and edit registration still use the shared host's transitional root
+`work` scope, but Comic no longer has a separate release scope. Game's obsolete direct
 Work/Release API client and mapper have been removed. Its local catalog
 model, Add proposal, transport codec, and workspace now project one concrete
 Game Catalog Item; no Game Release model or Release workspace remains. The
@@ -115,7 +118,10 @@ Catalog Item with its contained episode and release data. Owned copies,
 tracking, watch sessions, custom episodes, and tracking-unit state remain in
 their App-owned tables. Comic's media and release tables are also removed;
 Comic catalog lookups, summaries, and offline reads use the shared cache while
-owned copies, reading progress, and tracking stay in App-owned tables.
+owned copies, reading progress, and tracking stay in App-owned tables. Its
+former `ComicMedia`/`ComicRelease` model split and related edit/workspace
+projections are removed; the Comic domain root is now named `ComicCatalogItem`
+and carries the direct issue/edition fields.
 Book calendar events now read each concrete item's release date from this cache
 instead of loading a `BookMedia` row from the old per-kind table. The Book
 barcode/ISBN lookup also reads root identifiers and contained printing ISBNs

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
@@ -21,12 +21,12 @@ Widget? buildComicCustomTabView({
 }) {
   final metadata =
       item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (metadata is! ComicMedia) {
-    throw StateError('Expected ComicMedia for comic edit tabs');
+  if (metadata is! ComicCatalogItem) {
+    throw StateError('Expected ComicCatalogItem for comic edit tabs');
   }
   final media = metadata.id?.value == item.reference.id
       ? metadata
-      : metadata.copyWith(id: ComicMediaId(item.reference.id));
+      : metadata.copyWith(id: ComicCatalogItemId(item.reference.id));
   final host = ComicEditHostAdapter(
     context: context,
     draft: draft,

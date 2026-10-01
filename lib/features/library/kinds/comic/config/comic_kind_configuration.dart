@@ -61,7 +61,7 @@ final comicUniversalTransferableFields =
   ),
 );
 
-Iterable<String?> comicLinkedMetadataValues(ComicMedia metadata) => [
+Iterable<String?> comicLinkedMetadataValues(ComicCatalogItem metadata) => [
       metadata.seriesTitle,
       metadata.series?.seriesTitle,
       metadata.issueNumber,
@@ -76,7 +76,7 @@ Iterable<String?> comicLinkedMetadataValues(ComicMedia metadata) => [
       ...metadata.genres,
     ];
 
-ComicMedia? comicLinkedMetadata(LibraryWorkspaceSource source) {
+ComicCatalogItem? comicLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is ComicWorkspaceCatalogData ? catalog.comic : null;
 }

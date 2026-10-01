@@ -4,13 +4,19 @@ import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 
-List<LibraryFieldSpec<T>> comicMediaIdentityFields<T>({
-  required ComicMediaValuesReader<T> values,
+List<LibraryFieldSpec<T>> comicCatalogItemIdentityFields<T>({
+  required ComicCatalogItemValuesReader<T> values,
   Iterable<String>? physicalFormatOptions,
   FutureOr<void> Function()? onManagePhysicalFormat,
   bool includeSeries = true,
 }) =>
     [
+      _text<T>(
+        id: 'title',
+        label: 'Title',
+        value: (draft) => values(draft).title,
+        setValue: (draft, value) => values(draft).title = value,
+      ),
       if (includeSeries)
         _text<T>(
           id: 'series',
@@ -42,6 +48,18 @@ List<LibraryFieldSpec<T>> comicMediaIdentityFields<T>({
         value: (draft) => values(draft).barcode,
         setValue: (draft, value) => values(draft).barcode = value,
       ),
+      _text<T>(
+        id: 'isbn',
+        label: 'ISBN',
+        value: (draft) => values(draft).isbn,
+        setValue: (draft, value) => values(draft).isbn = value,
+      ),
+      _text<T>(
+        id: 'upc',
+        label: 'UPC',
+        value: (draft) => values(draft).upc,
+        setValue: (draft, value) => values(draft).upc = value,
+      ),
       LibraryVocabularyFieldSpec<T, String>(
         id: 'physical_format',
         label: 'Format',
@@ -69,8 +87,8 @@ List<LibraryFieldSpec<T>> comicMediaIdentityFields<T>({
       ),
     ];
 
-List<LibraryFieldSpec<T>> comicMediaPublicationFields<T>({
-  required ComicMediaValuesReader<T> values,
+List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
+  required ComicCatalogItemValuesReader<T> values,
   Iterable<String>? publisherOptions,
   Iterable<String>? imprintOptions,
   Iterable<String>? seriesGroupOptions,
@@ -154,58 +172,6 @@ List<LibraryFieldSpec<T>> comicMediaPublicationFields<T>({
         label: 'Cover image URL',
         value: (draft) => values(draft).coverImageUrl,
         setValue: (draft, value) => values(draft).coverImageUrl = value,
-      ),
-    ];
-
-List<LibraryFieldSpec<T>> comicReleaseFields<T>({
-  required ComicReleaseValuesReader<T> values,
-  Iterable<String>? publisherOptions,
-  Iterable<String>? imprintOptions,
-}) =>
-    [
-      _text<T>(
-        id: 'release_title',
-        label: 'Edition title',
-        value: (draft) => values(draft).title,
-        setValue: (draft, value) => values(draft).title = value,
-      ),
-      _vocabulary<T>(
-        id: 'publisher',
-        label: 'Publisher',
-        value: (draft) => values(draft).publisher,
-        setValue: (draft, value) => values(draft).publisher = value ?? '',
-        options: publisherOptions ?? ComicVocabularies.publisher.builtIns,
-      ),
-      _vocabulary<T>(
-        id: 'imprint',
-        label: 'Imprint',
-        value: (draft) => values(draft).imprint,
-        setValue: (draft, value) => values(draft).imprint = value ?? '',
-        options: imprintOptions ?? ComicVocabularies.imprint.builtIns,
-      ),
-      _text<T>(
-        id: 'isbn',
-        label: 'ISBN',
-        value: (draft) => values(draft).isbn,
-        setValue: (draft, value) => values(draft).isbn = value,
-      ),
-      _text<T>(
-        id: 'upc',
-        label: 'UPC',
-        value: (draft) => values(draft).upc,
-        setValue: (draft, value) => values(draft).upc = value,
-      ),
-      LibraryDateFieldSpec<T>(
-        id: 'release_date',
-        label: 'Release date',
-        value: (draft) => values(draft).releaseDate,
-        setValue: (draft, value) => values(draft).releaseDate = value,
-      ),
-      LibraryImageFieldSpec<T, String>(
-        id: 'cover_image_url',
-        label: 'Cover image',
-        value: (draft) => _nullable(values(draft).coverImageUrl),
-        setValue: (draft, value) => values(draft).coverImageUrl = value ?? '',
       ),
     ];
 

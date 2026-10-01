@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 
 /// Projects Comic's typed series identity into serial authority storage.
 final class ComicSerialAuthorityContributor
@@ -17,7 +17,7 @@ final class ComicSerialAuthorityContributor
     Iterable<Object?> metadata,
   ) sync* {
     for (final value in metadata) {
-      if (value is! ComicMedia) continue;
+      if (value is! ComicCatalogItem) continue;
       final title =
           (value.seriesTitle ?? value.series?.seriesTitle ?? '').trim();
       if (title.isEmpty) {
@@ -84,11 +84,11 @@ final class ComicSerialAuthorityContributor
       }
       series['series_title'] = seriesTitle;
       payload['series'] = series;
-      await repository.updateMedia(ComicMedia.fromJson(payload));
+      await repository.updateCatalogItem(ComicCatalogItem.fromJson(payload));
     }
   }
 
-  static String? _seriesTitle(ComicMedia item) {
+  static String? _seriesTitle(ComicCatalogItem item) {
     final value = (item.seriesTitle ?? item.series?.seriesTitle)?.trim();
     return value == null || value.isEmpty ? null : value;
   }

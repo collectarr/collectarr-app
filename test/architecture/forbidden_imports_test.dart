@@ -309,12 +309,12 @@ class TestValue {}
     );
   });
   test(
-      'architecture boundary checker rejects generic referencing concrete ComicMedia',
+      'architecture boundary checker rejects generic referencing concrete ComicCatalogItem',
       () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 class GenericClass {
-  void doSomething(ComicMedia metadata) {}
+  void doSomething(ComicCatalogItem metadata) {}
 }
 ''';
     final parseResult = parseString(
@@ -488,7 +488,7 @@ class GenericFieldHandler {
 
   test('architecture boundary checker rejects provider importing a kind', () {
     const testCode = '''
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 
 class TestProvider {}
 ''';

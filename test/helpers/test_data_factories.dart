@@ -48,7 +48,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
@@ -225,7 +225,7 @@ CatalogItemDto testCatalogItemWithKindMetadata(CatalogItemDto item) {
     CatalogMediaKind.book =>
       item.withKindMetadata(BookCatalogMetadata.fromJson(payload)),
     CatalogMediaKind.comic =>
-      item.withKindMetadata(ComicMedia.fromJson(payload)),
+      item.withKindMetadata(ComicCatalogItem.fromJson(payload)),
     CatalogMediaKind.game =>
       item.withKindMetadata(GameCatalogMetadata.fromJson(payload)),
     CatalogMediaKind.manga =>

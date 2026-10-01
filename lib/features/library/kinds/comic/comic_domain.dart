@@ -5,9 +5,8 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_i
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 export 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
-export 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+export 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-export 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 export 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';

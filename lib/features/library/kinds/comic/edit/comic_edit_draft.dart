@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/owned/comic_owned_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
@@ -323,7 +323,7 @@ LibraryEditSessionBundle createComicEditDraft({
   final comicEdit = ComicEditController(
     item: item.kindCapability
         .mapTransport((transport) => transport)
-        .kindMetadata as ComicMedia,
+        .kindMetadata as ComicCatalogItem,
     itemImages: const [],
   );
   comicEdit.initialize();

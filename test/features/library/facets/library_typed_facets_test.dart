@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
@@ -61,7 +61,7 @@ void main() {
       final dtoWithPublisher = ComicWorkspaceDto(
         common: const WorkspaceCommonProjection(title: 'Spider-Man'),
         personal: PersonalCopyProjection(),
-        comic: const ComicMedia(
+        comic: const ComicCatalogItem(
           title: 'Spider-Man',
           publisher: 'Marvel Comics',
         ),
@@ -69,7 +69,7 @@ void main() {
       final dtoWithoutPublisher = ComicWorkspaceDto(
         common: const WorkspaceCommonProjection(title: 'Indie Comic'),
         personal: PersonalCopyProjection(),
-        comic: const ComicMedia(
+        comic: const ComicCatalogItem(
           title: 'Indie Comic',
         ),
       );

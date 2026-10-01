@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:flutter/material.dart';
 
 import 'comic_edit_models.dart';
@@ -47,7 +47,7 @@ class ComicEditController {
         releaseYearController = TextEditingController(
             text: item.releaseDate?.year.toString() ?? '');
 
-  final ComicMedia item;
+  final ComicCatalogItem item;
   final List<ItemImage> itemImages;
 
   final TextEditingController crossoverController;
@@ -147,10 +147,10 @@ class ComicEditController {
 
     final currentMeta = selection.kindItem.kindCapability
             .mapTransport((transport) => transport)
-            .kindMetadata is ComicMedia
+            .kindMetadata is ComicCatalogItem
         ? selection.kindItem.kindCapability
             .mapTransport((transport) => transport)
-            .kindMetadata as ComicMedia
+            .kindMetadata as ComicCatalogItem
         : item;
 
     final updatedSeries = (currentMeta.series != null ||

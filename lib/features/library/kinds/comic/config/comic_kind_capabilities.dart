@@ -1,11 +1,9 @@
 import '../comic_module_dependencies.dart';
 import 'comic_kind_configuration.dart';
 import '../actions/comic_missing_issues_action.dart';
-import 'package:collectarr_app/features/library/kinds/comic/release/comic_release_projection_capability.dart'
-    as comic_release;
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 
-final comicKindPresentation = comicLibraryMediaPresentation;
+final comicKindPresentation = comicLibraryCatalogItemPresentation;
 
 final comicKindPhysicalMediaFormats = comicPhysicalMediaFormats;
 
@@ -13,16 +11,12 @@ final comicKindTrackingProfile = comicTrackingProfile;
 
 final comicKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final comicKindCatalogTarget = const ComicCatalogTargetCapability();
+final comicKindCatalogTarget = const RootCatalogTargetCapability();
 
 final comicKindViewProfile = standardMediaWorkspaceViewProfile(
   CatalogMediaKind.comic,
   comicKindUiPolicy,
 );
-
-final comicKindReleaseCapability = comic_release.comicKindReleaseCapability;
-
-final comicKindReleaseDetailSource = comic_release.comicKindReleaseDetailSource;
 
 final comicKindUiPolicy = const LibraryUiPolicy();
 
@@ -46,7 +40,7 @@ final comicKindIdentity = const LibraryKindIdentity(
 );
 
 final comicKindMetadata = LibraryMetadataCapability(
-  catalogMetadataDecoder: ComicMedia.fromJson,
+  catalogMetadataDecoder: ComicCatalogItem.fromJson,
   searchQueryBuilder: comicMetadataSearchQuery,
   supportsServerCompare: true,
   compareBuilder: buildComicMetadataComparePanels,
@@ -173,11 +167,6 @@ final comicKindInspector = LibraryInspectorCapability(
         sectionsBuilder: buildComicWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildComicReleaseInspectorHero,
-        sectionsBuilder: buildComicReleaseInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
         scope: LibraryEntityScope.copy,
         heroBuilder: buildComicCopyInspectorHero,
         sectionsBuilder: buildComicCopyInspectorSections,
@@ -189,7 +178,7 @@ final comicKindInspector = LibraryInspectorCapability(
 );
 
 final comicKindLinkedMetadata =
-    TypedLibraryLinkedMetadataCapability<ComicMedia>(
+    TypedLibraryLinkedMetadataCapability<ComicCatalogItem>(
   comicLinkedMetadata,
   comicLinkedMetadataValues,
 );

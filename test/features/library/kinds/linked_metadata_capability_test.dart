@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
@@ -13,7 +13,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('kind runtime projects linked metadata from typed catalog values', () {
-    const metadata = ComicMedia(
+    const metadata = ComicCatalogItem(
       title: 'Common Title',
       searchAliases: ['Alias'],
       seriesTitle: 'Typed Series',
@@ -53,7 +53,7 @@ void main() {
   });
 
   test('typed capability ignores invalid metadata runtimes', () {
-    const capability = TypedLibraryLinkedMetadataCapability<ComicMedia>(
+    const capability = TypedLibraryLinkedMetadataCapability<ComicCatalogItem>(
       _comicMetadataReader,
       _comicPublisher,
     );
@@ -74,7 +74,7 @@ void main() {
     final item = LibraryProjectionItem.fromShelf(
       _shelfEntry(
         CatalogMediaKind.comic,
-        const ComicMedia(
+        const ComicCatalogItem(
           title: 'Typed Comic',
           publisher: 'Typed Publisher',
         ),
@@ -128,11 +128,11 @@ void main() {
   });
 }
 
-Iterable<String?> _comicPublisher(ComicMedia metadata) => [
+Iterable<String?> _comicPublisher(ComicCatalogItem metadata) => [
       metadata.publisher,
     ];
 
-ComicMedia? _comicMetadataReader(LibraryWorkspaceSource source) {
+ComicCatalogItem? _comicMetadataReader(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   return data is ComicWorkspaceCatalogData ? data.comic : null;
 }

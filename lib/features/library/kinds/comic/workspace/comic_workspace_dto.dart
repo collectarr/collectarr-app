@@ -1,5 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -9,14 +8,12 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
     required this.common,
     required this.personal,
     required this.comic,
-    this.release,
     this.ownedItem,
   });
 
   final WorkspaceCommonProjection common;
   final PersonalCopyProjection personal;
-  final ComicMedia comic;
-  final ComicRelease? release;
+  final ComicCatalogItem comic;
   final ComicOwnedItem? ownedItem;
 
   String get title => common.title;
@@ -35,37 +32,22 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
   String? get writer => comic.writers.firstOrNull;
   String? get artist => comic.artists.firstOrNull;
   String? get coverArtist => comic.coverArtists.firstOrNull;
-  String? get imprint =>
-      release?.imprint ??
-      (release == null ? comic.imprint ?? comic.publishing?.imprint : null);
+  String? get imprint => comic.imprint ?? comic.publishing?.imprint;
   String? get publisher =>
-      release?.publisher ??
-      (release == null ? comic.publisher : null) ??
-      (release == null ? imprint : null);
+      comic.publisher ?? comic.publishing?.originalPublisher ?? imprint;
   String? get seriesTitle => comic.seriesTitle ?? comic.series?.seriesTitle;
   String? get itemNumber => comic.issueNumber;
-  DateTime? get releaseDate =>
-      release?.releaseDate ?? (release == null ? common.releaseDate : null);
-  String? get country => release == null ? comic.country : null;
-  String? get language => release == null ? comic.language : null;
-  String? get identifierCode =>
-      release?.upc ?? release?.isbn ?? (release == null ? comic.barcode : null);
+  DateTime? get releaseDate => common.releaseDate ?? comic.releaseDate;
+  String? get country => comic.country;
+  String? get language => comic.language;
+  String? get identifierCode => comic.barcode ?? comic.upc ?? comic.isbn;
   String? get barcode => identifierCode;
-  String? get variant {
-    if (release == null) return comic.variant;
-    final names = release!.variants
-        .map((variant) => variant.name.trim())
-        .where((name) => name.isNotEmpty)
-        .toList(growable: false);
-    return names.isEmpty ? null : names.join(', ');
-  }
+  String? get variant => comic.variant;
 
-  String? get referenceFormatLabel => release == null
-      ? comic.physicalFormatLabel ?? comic.physicalFormat
-      : null;
+  String? get referenceFormatLabel =>
+      comic.physicalFormatLabel ?? comic.physicalFormat;
   String? get format => referenceFormatLabel;
-  int? get pageCount =>
-      release == null ? comic.pageCount ?? comic.publishing?.pageCount : null;
+  int? get pageCount => comic.pageCount ?? comic.publishing?.pageCount;
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,

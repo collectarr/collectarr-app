@@ -22,7 +22,7 @@ void main() {
 
     final comic = ComicCoreMapper.fromCatalogItem(dto);
 
-    expect(comic.id, const ComicMediaId('comic-1'));
+    expect(comic.id, const ComicCatalogItemId('comic-1'));
     expect(comic.title, 'Saga #1');
     expect(comic.seriesTitle, 'Saga');
     expect(comic.issueNumber, '1');

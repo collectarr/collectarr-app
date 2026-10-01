@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
@@ -16,9 +16,9 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 void main() {
   group('Comic Kind Vertical Slice Tests (C9)', () {
     test(
-        'ComicMedia and ComicKeyEvent serialize and deserialize full domain fields',
+        'ComicCatalogItem and ComicKeyEvent serialize and deserialize full domain fields',
         () {
-      final metadata = ComicMedia(
+      final metadata = ComicCatalogItem(
         title: 'Amazing Fantasy #15',
         seriesTitle: 'Amazing Fantasy',
         issueNumber: '15',
@@ -61,7 +61,7 @@ void main() {
       );
 
       final json = metadata.toJson();
-      final restored = ComicMedia.fromJson(json);
+      final restored = ComicCatalogItem.fromJson(json);
 
       expect(restored.title, 'Amazing Fantasy #15');
       expect(restored.seriesTitle, 'Amazing Fantasy');
@@ -79,7 +79,7 @@ void main() {
     });
 
     test('ComicWorkspaceProjector projects metadata and schema fields', () {
-      const comicMeta = ComicMedia(
+      const comicMeta = ComicCatalogItem(
         title: 'Amazing Fantasy #15',
         seriesTitle: 'Amazing Fantasy',
         issueNumber: '15',
@@ -153,13 +153,13 @@ void main() {
       );
 
       expect(
-          ComicWorkWorkspaceFields.title.getValue(ctx), 'Amazing Fantasy #15');
-      expect(ComicWorkWorkspaceFields.writer.getValue(ctx), 'Stan Lee');
-      expect(ComicWorkWorkspaceFields.artist.getValue(ctx), 'Steve Ditko');
-      expect(ComicWorkWorkspaceFields.coverArtist.getValue(ctx), 'Jack Kirby');
-      expect(ComicWorkWorkspaceFields.imprint.getValue(ctx), 'Marvel');
-      expect(ComicReleaseWorkspaceFields.variant.getValue(ctx), 'Direct');
-      expect(ComicWorkWorkspaceFields.pageCount.getValue(ctx), 36);
+          ComicCatalogItemWorkspaceFields.title.getValue(ctx), 'Amazing Fantasy #15');
+      expect(ComicCatalogItemWorkspaceFields.writer.getValue(ctx), 'Stan Lee');
+      expect(ComicCatalogItemWorkspaceFields.artist.getValue(ctx), 'Steve Ditko');
+      expect(ComicCatalogItemWorkspaceFields.coverArtist.getValue(ctx), 'Jack Kirby');
+      expect(ComicCatalogItemWorkspaceFields.imprint.getValue(ctx), 'Marvel');
+      expect(ComicCatalogItemWorkspaceFields.variant.getValue(ctx), 'Direct');
+      expect(ComicCatalogItemWorkspaceFields.pageCount.getValue(ctx), 36);
       expect(ComicCopyWorkspaceFields.grade.getValue(ctx), '9.8');
       expect(ComicCopyWorkspaceFields.keyComic.getValue(ctx), isTrue);
       expect(
@@ -169,7 +169,7 @@ void main() {
     });
 
     test('Comic edit draft initializes and saves without generic bridge', () {
-      const comic = ComicMedia(
+      const comic = ComicCatalogItem(
         title: 'Saga #1',
         issueNumber: '1',
         publisher: 'Image Comics',
@@ -193,7 +193,7 @@ void main() {
         ],
       );
 
-      final metadata = ComicMedia.fromJson(comic.toJson());
+      final metadata = ComicCatalogItem.fromJson(comic.toJson());
       final item = CatalogItemDto(
         identity: const LibraryItemIdentity(
           id: 'comic-edit-1',
@@ -202,7 +202,7 @@ void main() {
         kindMetadata: metadata,
       );
 
-      final itemMeta = item.kindMetadata as ComicMedia;
+      final itemMeta = item.kindMetadata as ComicCatalogItem;
       expect(itemMeta.issueNumber, '1');
       expect(itemMeta.publisher, 'Image Comics');
       expect(itemMeta.country, 'US');

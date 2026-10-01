@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 const comicAddHideOwnedOptionId = 'comic.hide-owned';
@@ -40,5 +40,5 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
 bool _comicItemIsVariant(CatalogSearchCandidate item) {
   final metadata =
       item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  return metadata is ComicMedia && metadata.variant?.trim().isNotEmpty == true;
+  return metadata is ComicCatalogItem && metadata.variant?.trim().isNotEmpty == true;
 }

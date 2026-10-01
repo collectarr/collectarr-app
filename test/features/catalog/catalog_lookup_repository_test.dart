@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.d
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:drift/native.dart';
@@ -126,9 +126,9 @@ Future<void> _seedTypedItem(
   };
   switch (kind) {
     case CatalogMediaKind.comic:
-      await ComicRepository(db).updateMedia(
-        ComicMedia(
-          id: ComicMediaId(id),
+      await ComicRepository(db).updateCatalogItem(
+        ComicCatalogItem(
+          id: ComicCatalogItemId(id),
           title: '${kind.apiValue} title',
           issueNumber: itemNumber,
           barcode: barcode,

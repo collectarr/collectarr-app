@@ -25,16 +25,15 @@ void main() {
     });
 
     test('findGroupDefinition resolves stored canonical group ID', () {
-      final comicReleaseFields =
-          comicWorkspace.fieldsForScope(LibraryEntityScope.release);
-      final comicPublisherDef = comicReleaseFields.findGroupDefinition(
-        comicReleaseFields.decodeGroupId('group.comic.publisher'),
+      final comicFields = comicWorkspace.fieldsForScope(LibraryEntityScope.work);
+      final comicPublisherDef = comicFields.findGroupDefinition(
+        comicFields.decodeGroupId('group.comic.publisher'),
       );
       expect(comicPublisherDef, isNotNull);
       expect(comicPublisherDef!.id.value, 'comic.publisher');
 
-      final unqualified = comicReleaseFields.findGroupDefinition(
-        comicReleaseFields.decodeGroupId('publisher'),
+      final unqualified = comicFields.findGroupDefinition(
+        comicFields.decodeGroupId('publisher'),
       );
       expect(unqualified, isNotNull);
       expect(unqualified!.id.value, 'comic.publisher');

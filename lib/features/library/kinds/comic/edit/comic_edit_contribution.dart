@@ -8,12 +8,8 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
       builder: buildComicLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.release,
-      builder: buildComicReleaseLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
       scope: LibraryEntityScope.copy,
-      builder: buildComicMediaLibraryEditDialog,
+      builder: buildComicCatalogItemLibraryEditDialog,
     ),
   ]),
   vocabularies: StandardKindVocabularyCapability(ComicVocabularies.all),

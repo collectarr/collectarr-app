@@ -48,7 +48,7 @@ void main() {
     expect(comicKindIdentity.singularLabel, 'Comic');
     expect(comicKindIdentity.pluralLabel, 'Comics');
     expect(comicKindTrackingProfile, comicTrackingProfile);
-    expect(comicKindPresentation, comicLibraryMediaPresentation);
+    expect(comicKindPresentation, comicLibraryCatalogItemPresentation);
     expect(comicKindAdd.headerBuilder, isNotNull);
     expect(comicKindAdd.modeBarBuilder, isNotNull);
     expect(comicKindAdd.searchPaneBuilder, isNotNull);
@@ -329,10 +329,6 @@ void main() {
 
   test('typed browser scopes preserve comic and movie options', () {
     const comicKind = CatalogMediaKind.comic;
-    expect(
-      libraryEntityVocabularyForKind(comicKind).release.singular,
-      'Variant',
-    );
     final comicMediaGroups = libraryKindWorkspaceForKind(comicKind)
         .availableGroupIdsForScope(LibraryEntityScope.work)
         .map((id) => id.value)
@@ -341,8 +337,8 @@ void main() {
         .availableGroupIdsForScope(LibraryEntityScope.release)
         .map((id) => id.value)
         .toSet();
-    expect(comicMediaGroups, contains('comic.series'));
-    expect(comicReleaseGroups, contains('comic.publisher'));
+    expect(comicMediaGroups, containsAll(['comic.series', 'comic.publisher']));
+    expect(comicReleaseGroups, isEmpty);
 
     const movieKind = CatalogMediaKind.movie;
     final movieMediaGroups = libraryKindWorkspaceForKind(movieKind)

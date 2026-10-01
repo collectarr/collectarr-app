@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:flutter/foundation.dart';
@@ -71,8 +70,8 @@ class ComicCreatorCredit {
 }
 
 @immutable
-class ComicMedia implements JsonEncodable {
-  const ComicMedia({
+class ComicCatalogItem implements JsonEncodable {
+  const ComicCatalogItem({
     this.id,
     required this.title,
     this.sortTitle,
@@ -114,8 +113,8 @@ class ComicMedia implements JsonEncodable {
     this.titleExtension,
     this.physicalFormat,
     this.physicalFormatLabel,
+    this.identifiers = const [],
     this.links = const [],
-    this.releases = const [],
     this.rawPayload = const <String, dynamic>{},
   });
 
@@ -124,7 +123,7 @@ class ComicMedia implements JsonEncodable {
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
-  final ComicMediaId? id;
+  final ComicCatalogItemId? id;
   final String? sortTitle;
   final String? seriesTitle;
   final String? issueNumber;
@@ -164,93 +163,100 @@ class ComicMedia implements JsonEncodable {
   final String? titleExtension;
   final String? physicalFormat;
   final String? physicalFormatLabel;
+  final List<Map<String, dynamic>> identifiers;
   final List<ComicLink> links;
-  final List<ComicRelease> releases;
   final Map<String, dynamic> rawPayload;
 
   String? get coverImageUrl =>
-      _comicText(rawPayload['cover_image_url']) ??
-      releases.firstOrNull?.coverImageUrl;
+      _comicText(rawPayload['cover_image_url']);
   String? get thumbnailImageUrl =>
       _comicText(rawPayload['thumbnail_image_url']) ?? coverImageUrl;
+  String? get isbn => identifierValue('isbn');
+  String? get upc => identifierValue('upc');
+
+  String? identifierValue(String identifierType) {
+    for (final identifier in identifiers) {
+      if (identifier['identifier_type']?.toString().toLowerCase() !=
+          identifierType.toLowerCase()) {
+        continue;
+      }
+      final value = _comicText(identifier['value']);
+      if (value != null) return value;
+    }
+    return null;
+  }
 
   @override
-  Map<String, dynamic> toJson() => {
-        ...rawPayload,
-        if (id != null) 'id': id!.value,
-        'title': title,
-        if (sortTitle != null) 'sort_title': sortTitle,
-        if (seriesTitle != null) 'series_title': seriesTitle,
-        if (issueNumber != null) ...{
-          'issue_number': issueNumber,
-          'item_number': issueNumber,
-        },
-        if (publisher != null) 'publisher': publisher,
-        if (imprint != null) 'imprint': imprint,
-        if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
-        if (coverDate != null) 'cover_date': coverDate!.toIso8601String(),
-        if (pageCount != null) 'page_count': pageCount,
-        'country': country,
-        'language': language,
-        if (ageRating != null) 'age_rating': ageRating,
-        if (crossover != null) 'crossover': crossover,
-        if (genres.isNotEmpty) 'genres': genres,
-        if (searchAliases.isNotEmpty) 'search_aliases': searchAliases,
-        if (synopsis != null) 'synopsis': synopsis,
-        if (writers.isNotEmpty) 'writers': writers,
-        if (artists.isNotEmpty) 'artists': artists,
-        if (inkers.isNotEmpty) 'inkers': inkers,
-        if (colorists.isNotEmpty) 'colorists': colorists,
-        if (letterers.isNotEmpty) 'letterers': letterers,
-        if (editors.isNotEmpty) 'editors': editors,
-        if (coverArtists.isNotEmpty) 'cover_artists': coverArtists,
-        if (creatorCredits.isNotEmpty)
-          'contributors': creatorCredits.map((e) => e.toJson()).toList(),
-        if (characters.isNotEmpty) 'characters': characters,
-        if (characterDetails.isNotEmpty) 'character_details': characterDetails,
-        if (creators.isNotEmpty) 'creators': creators,
-        if (storyArcs.isNotEmpty) 'story_arcs': storyArcs,
-        if (keyEvents.isNotEmpty)
-          'key_events': keyEvents.map((e) => e.toJson()).toList(),
-        if (isKeyComic) 'is_key_comic': true,
-        if (keyReason != null) 'key_reason': keyReason,
-        if (variant != null) 'variant': variant,
-        if (variantDescription != null)
-          'variant_description': variantDescription,
-        if (barcode != null) 'barcode': barcode,
-        if (series != null && series!.hasData) ...{
-          'series': series!.toJson(),
-          ...series!.toJson(),
-        },
-        if (publishing != null && publishing!.hasData) ...{
-          'publishing': publishing!.toJson(),
-          ...publishing!.toJson(),
-        },
-        if (editionTitle != null) 'edition_title': editionTitle,
-        if (titleExtension != null) 'title_extension': titleExtension,
-        if (physicalFormat != null) 'physical_format': physicalFormat,
-        if (physicalFormatLabel != null)
-          'physical_format_label': physicalFormatLabel,
-        if (links.isNotEmpty) ...{
-          if (links.any((l) => l.isTrailerLink))
-            'trailer_urls': links
-                .where((l) => l.isTrailerLink)
-                .map((e) => e.toJson())
-                .toList(),
-          if (links.any((l) => l.isExternalLink))
-            'external_links': links
-                .where((l) => l.isExternalLink)
-                .map((e) => e.toJson())
-                .toList(),
-        },
-        if (releases.isNotEmpty) ...{
-          'editions': releases.map((e) => e.toEditionDto().toJson()).toList(),
-          'issues': releases.map((e) => e.toJson()).toList(),
-        },
-      };
+  Map<String, dynamic> toJson() {
+    final contributors = <Map<String, dynamic>>[
+      for (final credit in creatorCredits) credit.toJson(),
+      ..._comicCredits(writers, 'writer'),
+      ..._comicCredits(artists, 'artist'),
+      ..._comicCredits(inkers, 'inker'),
+      ..._comicCredits(colorists, 'colorist'),
+      ..._comicCredits(letterers, 'letterer'),
+      ..._comicCredits(editors, 'editor'),
+      ..._comicCredits(coverArtists, 'cover artist'),
+    ];
+    final externalLinks = [
+      for (final link in links)
+        if (link.isExternalLink) link.toJson(),
+    ];
+    final payload = <String, dynamic>{
+      ...rawPayload,
+      'kind': CatalogMediaKind.comic.apiValue,
+      if (id != null) 'id': id!.value,
+      'title': title,
+      if (sortTitle != null) 'sort_key': sortTitle,
+      if (seriesTitle != null) 'series_title': seriesTitle,
+      if (issueNumber != null) ...{
+        'issue_number': issueNumber,
+        'item_number': issueNumber,
+      },
+      if (publisher != null) 'publisher': publisher,
+      if (imprint != null) 'imprint': imprint,
+      if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
+      if (pageCount != null) 'page_count': pageCount,
+      'country': country,
+      'language': language,
+      if (ageRating != null) 'age_rating': ageRating,
+      if (crossover != null) 'crossover': crossover,
+      if (genres.isNotEmpty) 'genres': genres,
+      if (searchAliases.isNotEmpty) 'search_aliases': searchAliases,
+      if (synopsis != null) 'synopsis': synopsis,
+      if (characters.isNotEmpty) 'characters': characters,
+      if (characterDetails.isNotEmpty) 'character_details': characterDetails,
+      if (contributors.isNotEmpty) 'contributors': contributors,
+      if (creators.isNotEmpty) 'creators': creators,
+      if (storyArcs.isNotEmpty) 'story_arcs': storyArcs,
+      if (isKeyComic) 'key_comic': true,
+      if (keyReason != null) 'key_reason': keyReason,
+      if (variant != null) 'variant_name': variant,
+      if (barcode != null) 'barcode': barcode,
+      if (editionTitle != null) 'edition_title': editionTitle,
+      if (titleExtension != null) 'title_extension': titleExtension,
+      if (physicalFormat != null || physicalFormatLabel != null)
+        'physical_format': physicalFormat ?? physicalFormatLabel,
+      if (identifiers.isNotEmpty) 'identifiers': identifiers,
+      if (externalLinks.isNotEmpty) 'external_links': externalLinks,
+      if (series?.tags?.isNotEmpty == true) 'series_tags': series!.tags,
+      if (series?.volumeName != null) 'volume_name': series!.volumeName,
+      if (series?.volumeNumber != null) 'volume_number': series!.volumeNumber,
+      if (publishing?.seriesGroup != null)
+        'series_group': publishing!.seriesGroup,
+      if (publishing?.coverPriceCents != null)
+        'cover_price_cents': publishing!.coverPriceCents,
+      if (publishing?.currency != null) 'currency': publishing!.currency,
+    };
+    return {
+      for (final entry in payload.entries)
+        if (_comicCatalogItemPayloadKeys.contains(entry.key))
+          entry.key: entry.value,
+    };
+  }
 
-  ComicMedia copyWith({
-    ComicMediaId? id,
+  ComicCatalogItem copyWith({
+    ComicCatalogItemId? id,
     String? title,
     String? sortTitle,
     String? seriesTitle,
@@ -291,10 +297,10 @@ class ComicMedia implements JsonEncodable {
     String? titleExtension,
     String? physicalFormat,
     String? physicalFormatLabel,
+    List<Map<String, dynamic>>? identifiers,
     List<ComicLink>? links,
-    List<ComicRelease>? releases,
   }) {
-    return ComicMedia(
+    return ComicCatalogItem(
       id: id ?? this.id,
       title: title ?? this.title,
       sortTitle: sortTitle ?? this.sortTitle,
@@ -336,13 +342,13 @@ class ComicMedia implements JsonEncodable {
       titleExtension: titleExtension ?? this.titleExtension,
       physicalFormat: physicalFormat ?? this.physicalFormat,
       physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
+      identifiers: identifiers ?? this.identifiers,
       links: links ?? this.links,
-      releases: releases ?? this.releases,
       rawPayload: rawPayload,
     );
   }
 
-  factory ComicMedia.fromJson(Map<String, dynamic> json) {
+  factory ComicCatalogItem.fromJson(Map<String, dynamic> json) {
     final rawLinks = <ComicLink>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
@@ -381,13 +387,6 @@ class ComicMedia implements JsonEncodable {
       }
     }
 
-    final rawReleases = ((json['editions'] ?? json['issues']) as List<dynamic>?)
-            ?.whereType<Map<String, dynamic>>()
-            .map((e) =>
-                ComicRelease.fromEditionDto(CatalogEditionDto.fromJson(e)))
-            .toList(growable: false) ??
-        const <ComicRelease>[];
-
     final rawCreators = (json['creators'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
             .toList(growable: true) ??
@@ -398,20 +397,19 @@ class ComicMedia implements JsonEncodable {
             .toList(growable: false) ??
         const <Map<String, dynamic>>[];
 
-    return ComicMedia(
+    return ComicCatalogItem(
       id: json['id'] is String && (json['id'] as String).isNotEmpty
-          ? ComicMediaId(json['id'] as String)
+          ? ComicCatalogItemId(json['id'] as String)
           : null,
       title: (json['title'] as String?) ?? '',
-      sortTitle: json['sort_title'] as String?,
+      sortTitle: (json['sort_key'] ?? json['sort_title']) as String?,
       rawPayload: Map<String, dynamic>.from(json),
       seriesTitle: (json['series_title'] ?? series.seriesTitle) as String?,
       issueNumber: (json['issue_number'] ?? json['item_number']) as String?,
       publisher: (json['publisher'] ?? publishing.originalPublisher) as String?,
       imprint: (json['imprint'] ?? publishing.imprint) as String?,
-      releaseDate: json['release_date'] != null
-          ? DateTime.tryParse(json['release_date'] as String)
-          : null,
+      releaseDate: _comicDate(json['release_date']) ??
+          _comicDate(json['release_date_parts']),
       coverDate: json['cover_date'] != null
           ? DateTime.tryParse(json['cover_date'] as String)
           : null,
@@ -475,7 +473,7 @@ class ComicMedia implements JsonEncodable {
           const [],
       isKeyComic: json['is_key_comic'] as bool? ?? false,
       keyReason: json['key_reason'] as String?,
-      variant: json['variant'] as String?,
+      variant: (json['variant_name'] ?? json['variant']) as String?,
       variantDescription: json['variant_description'] as String?,
       barcode: json['barcode'] as String?,
       series: series.hasData ? series : null,
@@ -484,8 +482,18 @@ class ComicMedia implements JsonEncodable {
       titleExtension: json['title_extension'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
+      identifiers: (json['identifiers'] as List<dynamic>?)
+              ?.map((value) => value is Map
+                  ? Map<String, dynamic>.from(value)
+                  : <String, dynamic>{
+                      'identifier_type': 'other',
+                      'value': value?.toString() ?? '',
+                    })
+              .where((identifier) =>
+                  _comicText(identifier['value']) != null)
+              .toList(growable: false) ??
+          const <Map<String, dynamic>>[],
       links: rawLinks,
-      releases: rawReleases,
     );
   }
 }
@@ -494,3 +502,76 @@ String? _comicText(Object? value) {
   final text = value?.toString().trim();
   return text == null || text.isEmpty ? null : text;
 }
+
+DateTime? _comicDate(Object? value) {
+  if (value is String) return DateTime.tryParse(value);
+  if (value is! Map) return null;
+  final year = int.tryParse(value['year']?.toString() ?? '');
+  if (year == null) return null;
+  final month = int.tryParse(value['month']?.toString() ?? '');
+  final day = int.tryParse(value['day']?.toString() ?? '');
+  return DateTime(year, month ?? 1, day ?? 1);
+}
+
+List<Map<String, dynamic>> _comicCredits(
+  Iterable<String> names,
+  String role,
+) => [
+      for (final name in names)
+        if (name.trim().isNotEmpty)
+          {'name': name.trim(), 'role': role},
+    ];
+
+const _comicCatalogItemPayloadKeys = <String>{
+  'id',
+  'kind',
+  'revision',
+  'title',
+  'sort_key',
+  'age_rating',
+  'audience_rating',
+  'barcode',
+  'catalog_number',
+  'character_details',
+  'characters',
+  'contributors',
+  'country',
+  'cover_image_url',
+  'cover_price_cents',
+  'creators',
+  'crossover',
+  'currency',
+  'description',
+  'edition_title',
+  'external_links',
+  'genres',
+  'identifiers',
+  'imprint',
+  'issue_number',
+  'item_number',
+  'key_comic',
+  'key_reason',
+  'language',
+  'localized_title',
+  'original_title',
+  'page_count',
+  'physical_format',
+  'plot_description',
+  'plot_summary',
+  'publisher',
+  'release_date',
+  'release_date_parts',
+  'release_status',
+  'search_aliases',
+  'series_group',
+  'series_tags',
+  'series_title',
+  'story_arcs',
+  'subtitle',
+  'synopsis',
+  'thumbnail_image_url',
+  'title_extension',
+  'variant_name',
+  'volume_name',
+  'volume_number',
+};

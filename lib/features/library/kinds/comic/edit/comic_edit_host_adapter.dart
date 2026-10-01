@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
@@ -33,7 +33,7 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   final BuildContext context;
   final LibraryEditShellState draft;
-  final ComicMedia media;
+  final ComicCatalogItem media;
   final Color accent;
   final LibraryEntityScope scope;
   final VoidCallback markDirty;
@@ -108,7 +108,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   LibraryKindRegistration get comicLibraryType => draft.type;
 
   @override
-  ComicMedia get comicMedia => media;
+  ComicCatalogItem get comicCatalogItem => media;
 
   @override
   List<ItemImage> get comicItemImages => draft.itemImages;

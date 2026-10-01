@@ -1,18 +1,20 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 
-ComicMediaFormValues comicMediaFormValuesFrom(ComicMedia media) =>
-    ComicMediaFormValues(
+ComicCatalogItemFormValues comicCatalogItemFormValuesFrom(ComicCatalogItem media) =>
+    ComicCatalogItemFormValues(
+      title: media.title,
       seriesTitle:
-          media.seriesTitle ?? media.series?.seriesTitle ?? media.title,
+          media.seriesTitle ?? media.series?.seriesTitle ?? '',
       seriesId: media.series?.seriesId,
       issueNumber: media.issueNumber ?? '',
       variant: media.variant ?? '',
       editionTitle: media.editionTitle ?? '',
       barcode: media.barcode ?? '',
+      isbn: media.isbn ?? '',
+      upc: media.upc ?? '',
       physicalFormatLabel: media.physicalFormatLabel ?? '',
       coverDate: media.coverDate,
       releaseDate: media.releaseDate,
@@ -29,9 +31,9 @@ ComicMediaFormValues comicMediaFormValuesFrom(ComicMedia media) =>
       coverImageUrl: media.coverImageUrl ?? '',
     );
 
-ComicMedia comicMediaFromFormValues({
-  required ComicMedia original,
-  required ComicMediaFormValues values,
+ComicCatalogItem comicCatalogItemFromFormValues({
+  required ComicCatalogItem original,
+  required ComicCatalogItemFormValues values,
 }) {
   final seriesTitle = _nullable(values.seriesTitle);
   final oldSeries = original.series;
@@ -83,9 +85,9 @@ ComicMedia comicMediaFromFormValues({
           dewey: oldPublishing?.dewey,
         );
 
-  return ComicMedia(
+  return ComicCatalogItem(
     id: original.id,
-    title: seriesTitle ?? original.title,
+    title: _nullable(values.title) ?? original.title,
     sortTitle: original.sortTitle,
     seriesTitle: seriesTitle,
     issueNumber: _nullable(values.issueNumber),
@@ -123,10 +125,14 @@ ComicMedia comicMediaFromFormValues({
     publishing: publishing?.hasData == true ? publishing : null,
     editionTitle: _nullable(values.editionTitle),
     titleExtension: original.titleExtension,
-    physicalFormat: original.physicalFormat,
+    physicalFormat: _nullable(values.physicalFormatLabel),
     physicalFormatLabel: _nullable(values.physicalFormatLabel),
+    identifiers: _replaceComicIdentifiers(
+      original.identifiers,
+      isbn: _nullable(values.isbn),
+      upc: _nullable(values.upc),
+    ),
     links: original.links,
-    releases: original.releases,
     rawPayload: {
       ..._withoutKeys(original.rawPayload, const {
         'title',
@@ -158,33 +164,21 @@ ComicMedia comicMediaFromFormValues({
   );
 }
 
-ComicReleaseFormValues comicReleaseFormValuesFrom(ComicRelease release) =>
-    ComicReleaseFormValues(
-      id: release.id,
-      title: release.title,
-      publisher: release.publisher ?? '',
-      imprint: release.imprint ?? '',
-      isbn: release.isbn ?? '',
-      upc: release.upc ?? '',
-      releaseDate: release.releaseDate,
-      coverImageUrl: release.coverImageUrl ?? '',
-    );
-
-ComicRelease comicReleaseFromFormValues({
-  required ComicRelease original,
-  required ComicReleaseFormValues values,
-}) =>
-    ComicRelease(
-      id: original.id,
-      title: values.title.trim(),
-      publisher: _nullable(values.publisher),
-      imprint: _nullable(values.imprint),
-      isbn: _nullable(values.isbn),
-      upc: _nullable(values.upc),
-      releaseDate: values.releaseDate,
-      coverImageUrl: _nullable(values.coverImageUrl),
-      variants: List.unmodifiable(original.variants),
-    );
+List<Map<String, dynamic>> _replaceComicIdentifiers(
+  List<Map<String, dynamic>> original, {
+  required String? isbn,
+  required String? upc,
+}) => [
+      for (final identifier in original)
+        if (!{'isbn', 'upc'}.contains(
+          identifier['identifier_type']?.toString().toLowerCase(),
+        ))
+          identifier,
+      if (isbn != null)
+        {'identifier_type': 'isbn', 'value': isbn, 'is_primary': false},
+      if (upc != null)
+        {'identifier_type': 'upc', 'value': upc, 'is_primary': false},
+    ];
 
 String? _nullable(String value) {
   final normalized = value.trim();

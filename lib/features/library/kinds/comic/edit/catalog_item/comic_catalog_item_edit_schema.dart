@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 import 'package:flutter/material.dart';
 
-final EditSchema<ComicMedia, ComicMediaFormValues> comicMediaEditSchema =
+final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues> comicCatalogItemEditSchema =
     EditSchema(
   title: (_) => 'Edit comic',
   validate: (_, values) {
@@ -15,29 +15,29 @@ final EditSchema<ComicMedia, ComicMediaFormValues> comicMediaEditSchema =
     return null;
   },
   tabs: [
-    EditTabSpec<ComicMediaFormValues>(
+    EditTabSpec<ComicCatalogItemFormValues>(
       id: 'main',
       label: 'Main',
       icon: Icons.article,
       sections: [
-        EditSectionSpec<ComicMediaFormValues>(
+        EditSectionSpec<ComicCatalogItemFormValues>(
           id: 'catalog_snapshot',
           label: 'Issue',
-          fields: comicMediaIdentityFields(
+          fields: comicCatalogItemIdentityFields(
             values: (values) => values,
           ),
         ),
       ],
     ),
-    EditTabSpec<ComicMediaFormValues>(
+    EditTabSpec<ComicCatalogItemFormValues>(
       id: 'details',
       label: 'Details',
       icon: Icons.search,
       sections: [
-        EditSectionSpec<ComicMediaFormValues>(
+        EditSectionSpec<ComicCatalogItemFormValues>(
           id: 'catalog_details',
           label: 'Publication details',
-          fields: comicMediaPublicationFields(
+          fields: comicCatalogItemPublicationFields(
             values: (values) => values,
           ),
         ),
@@ -91,7 +91,7 @@ final EditSchema<ComicMedia, ComicMediaFormValues> comicMediaEditSchema =
   ],
 );
 
-EditTabSpec<ComicMediaFormValues> _customTab({
+EditTabSpec<ComicCatalogItemFormValues> _customTab({
   required String id,
   required String label,
   required IconData icon,
@@ -100,16 +100,16 @@ EditTabSpec<ComicMediaFormValues> _customTab({
   required String fieldId,
   required String fieldLabel,
 }) =>
-    EditTabSpec<ComicMediaFormValues>(
+    EditTabSpec<ComicCatalogItemFormValues>(
       id: id,
       label: label,
       icon: icon,
       sections: [
-        EditSectionSpec<ComicMediaFormValues>(
+        EditSectionSpec<ComicCatalogItemFormValues>(
           id: sectionId,
           label: sectionLabel,
           fields: [
-            LibraryCustomFieldSpec<ComicMediaFormValues>(
+            LibraryCustomFieldSpec<ComicCatalogItemFormValues>(
               id: fieldId,
               label: fieldLabel,
               builder: (_, __) => const SizedBox.shrink(),

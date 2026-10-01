@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
 final class ComicWorkspaceCatalogData
@@ -16,15 +16,15 @@ final class ComicWorkspaceCatalogData
     final rawMetadata = item.kindMetadata;
     return ComicWorkspaceCatalogData(
       ref: item.catalogRef,
-      comic: rawMetadata is ComicMedia
+      comic: rawMetadata is ComicCatalogItem
           ? rawMetadata
-          : ComicMedia.fromJson(item.payload),
+          : ComicCatalogItem.fromJson(item.payload),
     );
   }
 
   @override
   final CatalogEntityRef ref;
-  final ComicMedia comic;
+  final ComicCatalogItem comic;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.comic;

@@ -19,13 +19,6 @@ Widget buildComicWorkInspectorHero(
   return ComicInspectorHero(request: request);
 }
 
-Widget buildComicReleaseInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return ComicInspectorHero(request: request);
-}
-
 Widget buildComicCopyInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
@@ -195,8 +188,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                       itemNumber: adapter?.itemNumber,
                       imageUrl: back
                           ? null
-                          : (dto.imageUrl ??
-                              comic?.releases.firstOrNull?.coverImageUrl),
+                          : (dto.imageUrl ?? comic?.coverImageUrl),
                       localBytes: back ? localBack : localFront,
                       ownedRef: back ? null : ownedRef,
                       accentColor: request.accent,

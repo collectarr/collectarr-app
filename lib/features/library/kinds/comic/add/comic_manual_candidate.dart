@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_schema.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -16,10 +16,19 @@ CatalogSearchCandidate? buildComicManualCandidate(
   if (comicAddSchema.validate?.call(draft) != null) return null;
   final id = 'manual-comic-${DateTime.now().microsecondsSinceEpoch}';
   final values = draft.values..seriesTitle = title.trim();
-  final metadata = comicMediaFromFormValues(
-    original: ComicMedia(
-      id: ComicMediaId(id),
-      title: title.trim(),
+  final issueNumber = values.issueNumber.trim();
+  final generatedTitle = [
+    title.trim(),
+    if (issueNumber.isNotEmpty) '#$issueNumber',
+  ].join(' ');
+  final candidateTitle = values.title.trim().isEmpty
+      ? generatedTitle
+      : values.title.trim();
+  values.title = candidateTitle;
+  final metadata = comicCatalogItemFromFormValues(
+    original: ComicCatalogItem(
+      id: ComicCatalogItemId(id),
+      title: candidateTitle,
     ),
     values: values,
   );
@@ -43,7 +52,7 @@ Map<String, Object?>? buildComicManualProposalData(
   if (candidate == null) return null;
   return candidate.kindCapability.mapTransport(
     (item) => Map<String, Object?>.from(
-      (item.kindMetadata as ComicMedia).toJson(),
+      (item.kindMetadata as ComicCatalogItem).toJson(),
     ),
   );
 }

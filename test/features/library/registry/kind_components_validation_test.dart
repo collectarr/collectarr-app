@@ -157,12 +157,12 @@ void main() {
           kindNamespace: 'comic',
           entityScope: LibraryEntityScope.work,
           columns: [
-            comicWorkWorkspaceColumnDefinitions.first,
-            comicWorkWorkspaceColumnDefinitions.first,
+            comicCatalogItemWorkspaceColumnDefinitions.first,
+            comicCatalogItemWorkspaceColumnDefinitions.first,
           ],
           sorts: const [],
           groups: const [],
-          primaryColumn: comicWorkWorkspaceSchema.primaryColumn,
+          primaryColumn: comicCatalogItemWorkspaceSchema.primaryColumn,
           defaultVisibleColumns: const {},
           defaultSort: ComicSortIds.series,
           preferenceCodec:
@@ -179,11 +179,11 @@ void main() {
           entityScope: LibraryEntityScope.release,
           columns: const [],
           sorts: [
-            comicWorkWorkspaceSortDefinitions.first,
-            comicWorkWorkspaceSortDefinitions.first,
+            comicCatalogItemWorkspaceSortDefinitions.first,
+            comicCatalogItemWorkspaceSortDefinitions.first,
           ],
           groups: const [],
-          primaryColumn: comicWorkWorkspaceSchema.primaryColumn,
+          primaryColumn: comicCatalogItemWorkspaceSchema.primaryColumn,
           defaultVisibleColumns: const {},
           defaultSort: ComicSortIds.series,
           preferenceCodec:

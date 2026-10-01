@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_xml.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_data_factories.dart';
@@ -33,7 +33,7 @@ void main() {
   });
 
   test('ComicInfo XML serializes comic-owned metadata and personal state', () {
-    final metadata = ComicMedia(
+    final metadata = ComicCatalogItem(
       title: 'Amazing Fantasy',
       seriesTitle: 'Amazing Fantasy',
       issueNumber: '15',

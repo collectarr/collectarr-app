@@ -57,8 +57,8 @@ void main() {
     expect(item.thumbnailImageUrl, 'https://cdn.example/thumb.jpg');
     expect(item.displayCoverUrl, 'https://cdn.example/thumb.jpg');
     final comic = ComicCoreMapper.fromCatalogItem(item);
-    expect(comic, isA<ComicMedia>());
-    expect(comic.id, const ComicMediaId('id-1'));
+    expect(comic, isA<ComicCatalogItem>());
+    expect(comic.id, const ComicCatalogItemId('id-1'));
   });
 
   test('catalog item builds sync snapshot payload', () {

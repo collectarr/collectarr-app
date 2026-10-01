@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:flutter/material.dart';
 
 class EditableComicCreator {
@@ -134,7 +134,7 @@ class EditableComicCharacter {
   }
 }
 
-List<EditableComicCreator> initComicCreators(ComicMedia item) {
+List<EditableComicCreator> initComicCreators(ComicCatalogItem item) {
   final payload = item.toSyncPayload();
   final creators = payload['creators'];
   if (creators is List) {
@@ -146,7 +146,7 @@ List<EditableComicCreator> initComicCreators(ComicMedia item) {
   return const [];
 }
 
-List<EditableComicCharacter> initComicCharacters(ComicMedia item) {
+List<EditableComicCharacter> initComicCharacters(ComicCatalogItem item) {
   final payload = item.toSyncPayload();
   final characterDetails = payload['character_details'];
   if (characterDetails is List && characterDetails.isNotEmpty) {
@@ -190,11 +190,11 @@ LibraryEditSelection applyComicSelectionEdits(
       .toList(growable: false);
   final current = selection.kindItem.kindCapability
           .mapTransport((transport) => transport)
-          .kindMetadata is ComicMedia
+          .kindMetadata is ComicCatalogItem
       ? selection.kindItem.kindCapability
           .mapTransport((transport) => transport)
-          .kindMetadata as ComicMedia
-      : ComicMedia.fromJson(selection.kindItem.kindCapability
+          .kindMetadata as ComicCatalogItem
+      : ComicCatalogItem.fromJson(selection.kindItem.kindCapability
           .mapTransport((transport) => transport)
           .payload);
 

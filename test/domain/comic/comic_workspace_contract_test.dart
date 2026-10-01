@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -78,7 +78,7 @@ ComicWorkspaceDto _createWorkspace() {
       title: 'Saga',
     ),
     personal: PersonalCopyProjection(),
-    comic: const ComicMedia(
+    comic: const ComicCatalogItem(
       title: 'Saga',
       characters: ['Alana', 'Marko'],
       storyArcs: ['The Beginning'],

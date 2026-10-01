@@ -4,8 +4,7 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -22,8 +21,8 @@ void main() {
 
   test('stores Comic Catalog Items in the shared cache for offline reads',
       () async {
-    const media = ComicMedia(
-      id: ComicMediaId('comic-1'),
+    const media = ComicCatalogItem(
+      id: ComicCatalogItemId('comic-1'),
       title: 'Saga #1',
       sortTitle: 'Saga #001',
       seriesTitle: 'Saga',
@@ -31,12 +30,12 @@ void main() {
       barcode: '123456789',
     );
 
-    await repository.updateMedia(media);
+    await repository.updateCatalogItem(media);
 
     final cached = await CatalogItemCacheRepository(db).find(
       const CatalogItemRef(kind: CatalogMediaKind.comic, id: 'comic-1'),
     );
-    final loaded = await repository.getMedia(media.id!);
+    final loaded = await repository.getCatalogItem(media.id!);
 
     expect(cached, isNotNull);
     expect(cached!.title, 'Saga #1');
@@ -46,17 +45,17 @@ void main() {
   });
 
   test('searches cached items and orders results deterministically', () async {
-    await repository.updateMedia(
-      const ComicMedia(
-        id: ComicMediaId('comic-2'),
+    await repository.updateCatalogItem(
+      const ComicCatalogItem(
+        id: ComicCatalogItemId('comic-2'),
         title: 'Batman #2',
         sortTitle: 'Batman #002',
         seriesTitle: 'Batman',
       ),
     );
-    await repository.updateMedia(
-      const ComicMedia(
-        id: ComicMediaId('comic-1'),
+    await repository.updateCatalogItem(
+      const ComicCatalogItem(
+        id: ComicCatalogItemId('comic-1'),
         title: 'Saga #1',
         sortTitle: 'Saga #001',
         seriesTitle: 'Saga',
@@ -73,33 +72,13 @@ void main() {
     );
   });
 
-  test('updates contained issue details on the catalog item', () async {
-    await repository.updateMedia(
-      const ComicMedia(id: ComicMediaId('comic-3'), title: 'Saga #3'),
-    );
-
-    await repository.updateRelease(
-      const ComicMediaId('comic-3'),
-      const ComicRelease(id: 'printing-1', title: 'First printing'),
-    );
-
-    expect(
-      (await repository.getRelease(
-        const ComicMediaId('comic-3'),
-        const ComicReleaseId('printing-1'),
-      ))
-          ?.title,
-      'First printing',
-    );
-  });
-
   test('returns null when a Catalog Item is not cached', () async {
     expect(
-      await repository.getMedia(const ComicMediaId('missing')),
+      await repository.getCatalogItem(const ComicCatalogItemId('missing')),
       isNull,
     );
     expect(
-      () => repository.updateMedia(const ComicMedia(title: 'No id')),
+      () => repository.updateCatalogItem(const ComicCatalogItem(title: 'No id')),
       throwsStateError,
     );
   });
@@ -114,7 +93,7 @@ void main() {
     await CatalogItemCacheRepository(db).upsert(dto);
 
     expect(
-      (await repository.getMedia(const ComicMediaId('comic-4')))?.title,
+      (await repository.getCatalogItem(const ComicCatalogItemId('comic-4')))?.title,
       'Daredevil #1',
     );
   });

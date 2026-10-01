@@ -13,7 +13,7 @@ For workspace fields, the projected source is taken from each field callback whe
 
 ## Comic
 
-Sources: Work schema `[lib/features/library/kinds/comic/workspace/comic_work_workspace_schema.dart]`; Release schema `[lib/features/library/kinds/comic/workspace/comic_release_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/comic/workspace/comic_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/comic/workspace/comic_workspace_facets.dart`; IDs: `[lib/features/library/kinds/comic/workspace/comic_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/comic/workspace/comic_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: Catalog Item schema `[lib/features/library/kinds/comic/workspace/comic_catalog_item_workspace_schema.dart]`; Owned Copy schema `[lib/features/library/kinds/comic/workspace/comic_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/comic/workspace/comic_workspace_facets.dart`; IDs: `[lib/features/library/kinds/comic/workspace/comic_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/comic/workspace/comic_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|

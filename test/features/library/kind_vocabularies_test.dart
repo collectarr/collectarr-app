@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_voc
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
@@ -95,7 +95,7 @@ void main() {
       expect(projector!(const Object()), isEmpty);
       expect(
         projector(
-          const ComicMedia(
+          const ComicCatalogItem(
             title: 'Typed Comic',
             publisher: 'Image Comics',
           ),

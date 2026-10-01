@@ -28,7 +28,7 @@ void main() {
         'test/domain/comic/comic_local_mapper_test.dart',
         'test/domain/comic/comic_workspace_contract_test.dart',
         'test/domain/comic/comic_add_schema_test.dart',
-        'test/domain/comic/comic_media_edit_schema_test.dart',
+        'test/domain/comic/comic_catalog_item_edit_schema_test.dart',
       ],
     );
     _checkTypedKind<MangaWorkspaceDto>(

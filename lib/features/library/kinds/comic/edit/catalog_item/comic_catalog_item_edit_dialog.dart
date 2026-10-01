@@ -2,31 +2,33 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/media/comic_media_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/catalog_item/comic_catalog_item_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
-Widget buildComicMediaLibraryEditDialog(
+Widget buildComicCatalogItemLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) =>
-    _ComicMediaEditDialog(request: request);
+    _ComicCatalogItemEditDialog(request: request);
 
-class _ComicMediaEditDialog extends StatefulWidget {
-  const _ComicMediaEditDialog({required this.request});
+class _ComicCatalogItemEditDialog extends StatefulWidget {
+  const _ComicCatalogItemEditDialog({required this.request});
 
   final LibraryEditDialogRequest request;
 
   @override
-  State<_ComicMediaEditDialog> createState() => _ComicMediaEditDialogState();
+  State<_ComicCatalogItemEditDialog> createState() =>
+      _ComicCatalogItemEditDialogState();
 }
 
-class _ComicMediaEditDialogState extends State<_ComicMediaEditDialog> {
-  late final ComicMedia _media;
-  late final ComicMediaFormValues _draft;
+class _ComicCatalogItemEditDialogState
+    extends State<_ComicCatalogItemEditDialog> {
+  late final ComicCatalogItem _media;
+  late final ComicCatalogItemFormValues _draft;
 
   @override
   void initState() {
@@ -34,28 +36,28 @@ class _ComicMediaEditDialogState extends State<_ComicMediaEditDialog> {
     final transport = widget.request.kindItem.kindCapability
         .mapTransport((transport) => transport);
     final canonical = transport.kindMetadata;
-    _media = canonical is ComicMedia
+    _media = canonical is ComicCatalogItem
         ? canonical
-        : ComicMedia.fromJson(transport.payload);
-    _draft = comicMediaFormValuesFrom(_media);
+        : ComicCatalogItem.fromJson(transport.payload);
+    _draft = comicCatalogItemFormValuesFrom(_media);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<ComicMedia, ComicMediaFormValues>(
-        schema: comicMediaEditSchema,
+      LibraryEditSchemaDialog<ComicCatalogItem, ComicCatalogItemFormValues>(
+        schema: comicCatalogItemEditSchema,
         model: _media,
         draft: _draft,
-        title: comicMediaEditSchema.title?.call(_media) ?? 'Edit comic',
+        title: comicCatalogItemEditSchema.title?.call(_media) ?? 'Edit comic',
         icon: widget.request.type.identity.icon,
         mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
-        tabOrderKey: 'library_edit_tabs_comic_media',
+        tabOrderKey: 'library_edit_tabs_comic_catalog_item',
         coreCorrectionSourceBuilder: () =>
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _media.toJson(),
-          proposedFields: comicMediaFromFormValues(
+          proposedFields: comicCatalogItemFromFormValues(
             original: _media,
             values: _draft,
           ).toJson(),
@@ -64,7 +66,7 @@ class _ComicMediaEditDialogState extends State<_ComicMediaEditDialog> {
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updatedMedia = comicMediaFromFormValues(
+          final updatedMedia = comicCatalogItemFromFormValues(
             original: _media,
             values: _draft,
           );

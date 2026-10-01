@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 
 final class ComicCatalogLookup implements CatalogKindLookup {
   ComicCatalogLookup(this._db);
@@ -65,20 +65,14 @@ final class ComicCatalogLookup implements CatalogKindLookup {
     return null;
   }
 
-  bool _matchesBarcode(ComicMedia media, String normalized) {
-    if (_same(media.barcode, normalized)) return true;
-    for (final release in media.releases) {
-      if (_same(release.upc, normalized) || _same(release.isbn, normalized)) {
-        return true;
-      }
-      for (final variant in release.variants) {
-        if (_same(variant.barcode, normalized) ||
-            _same(variant.isbn, normalized)) {
-          return true;
-        }
-      }
-    }
-    return false;
+  bool _matchesBarcode(ComicCatalogItem media, String normalized) {
+    return _same(media.barcode, normalized) ||
+        _same(media.upc, normalized) ||
+        _same(media.isbn, normalized) ||
+        media.identifiers.any(
+          (identifier) =>
+              _same(identifier['value']?.toString(), normalized),
+        );
   }
 
   bool _same(String? value, String normalized) {

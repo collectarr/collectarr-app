@@ -5,16 +5,9 @@ final comicKindWorkspace = TypedLibraryKindWorkspace<ComicWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: comicWorkWorkspaceSchema.toRegistry(),
+      fields: comicCatalogItemWorkspaceSchema.toRegistry(),
       projector: const ComicWorkspaceProjector(
         expectedScope: LibraryEntityScope.work,
-      ),
-    ),
-    LibraryEntityScope.release: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
-      scope: LibraryEntityScope.release,
-      fields: comicReleaseWorkspaceSchema.toRegistry(),
-      projector: const ComicWorkspaceProjector(
-        expectedScope: LibraryEntityScope.release,
       ),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(

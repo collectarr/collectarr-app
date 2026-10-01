@@ -10,16 +10,15 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_physical_media
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_group_mode_categories.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 
-class ComicLibraryMediaPresentationBuilder
+class ComicLibraryCatalogItemPresentationBuilder
     extends LibraryMediaPresentationBuilder {
-  const ComicLibraryMediaPresentationBuilder({
+  const ComicLibraryCatalogItemPresentationBuilder({
     this.showSummary = false,
     this.metadataLabels = const LibraryMetadataLabels(),
   });
@@ -39,16 +38,12 @@ class ComicLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <LibraryFormatBadgeDescriptor>[];
-    for (final edition in item.kindCapability
-        .mapTransport((transport) => transport)
-        .editions) {
-      final badge = comicFormatBadge(
-        edition.physicalFormat,
-        label: edition.physicalFormatLabel,
-      );
-      if (badge == null || !seen.add(badge.key)) continue;
-      result.add(badge);
-    }
+    final transport = item.kindCapability.mapTransport((value) => value);
+    final badge = comicFormatBadge(
+      transport.physicalFormat,
+      label: transport.physicalFormatLabel,
+    );
+    if (badge != null && seen.add(badge.key)) result.add(badge);
     return result;
   }
 
@@ -107,38 +102,6 @@ class ComicLibraryMediaPresentationBuilder
   }
 
   @override
-  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
-    LibraryWorkspaceSource entry,
-  ) {
-    final catalog = entry.catalogData;
-    if (catalog is! ComicWorkspaceCatalogData) return const [];
-    return [
-      for (final release in catalog.comic.releases)
-        LibraryWorkspaceReleaseSummary(
-          id: release.id,
-          title: release.title,
-          releaseDate: release.releaseDate,
-          variantCount: release.variants.length,
-          variants: [
-            for (final variant in release.variants)
-              LibraryWorkspaceVariantSummary(
-                id: variant.id,
-                name: variant.name,
-                coverImageUrl: variant.coverImageUrl,
-                thumbnailImageUrl: variant.thumbnailImageUrl,
-                formatLabel:
-                    variant.physicalFormatLabel ?? variant.physicalFormat,
-                formatBadge: comicFormatBadge(
-                  variant.physicalFormat,
-                  label: variant.physicalFormatLabel,
-                ),
-              ),
-          ],
-        ),
-    ];
-  }
-
-  @override
   List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
     LibraryWorkspaceSource entry,
   ) {
@@ -157,58 +120,12 @@ class ComicLibraryMediaPresentationBuilder
   }
 
   @override
-  List<LibraryAddReleaseOption> buildReleaseOptions({
-    required CatalogSearchCandidate item,
-  }) {
-    return [
-      for (final edition in item.kindCapability
-          .mapTransport((transport) => transport)
-          .editions)
-        LibraryAddReleaseOption(
-          id: edition.id,
-          title: edition.title,
-          formatId: edition.physicalFormat,
-          formatLabel: edition.physicalFormatLabel,
-          formatBadge: comicFormatBadge(
-            edition.physicalFormat,
-            label: edition.physicalFormatLabel,
-          ),
-          releaseDate: edition.releaseDate,
-          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
-          identifierCode: edition.identifierCode,
-          variants: [
-            for (final variant in edition.variants)
-              LibraryAddVariantOption(
-                id: variant.id,
-                name: variant.name,
-                coverImageUrl: variant.coverImageUrl,
-                identifierCode: variant.identifierCode,
-                formatId: variant.physicalFormat,
-                formatLabel: variant.physicalFormatLabel,
-                formatBadge: comicFormatBadge(
-                  variant.physicalFormat,
-                  label: variant.physicalFormatLabel,
-                ),
-                isPrimary: variant.isPrimary,
-              ),
-          ],
-        ),
-    ];
-  }
-
-  @override
   CatalogSearchCandidate mergeHydratedAddItem({
     required CatalogSearchCandidate hydrated,
     required CatalogSearchCandidate fallback,
   }) {
     final hydratedMetadata = hydrated.comicCatalogFields;
     final fallbackMetadata = fallback.comicCatalogFields;
-    final hydratedEditions =
-        hydrated.kindCapability.mapTransport((transport) => transport.editions);
-    final fallbackEditions =
-        fallback.kindCapability.mapTransport((transport) => transport.editions);
-    final editions =
-        hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
     final coverImageUrl =
         hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
     final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
@@ -218,8 +135,7 @@ class ComicLibraryMediaPresentationBuilder
         hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
               coverImageUrl: coverImageUrl,
               thumbnailImageUrl: thumbnailImageUrl,
-              editions: editions,
-            )));
+             )));
   }
 
   @override
@@ -300,8 +216,8 @@ class ComicLibraryMediaPresentationBuilder
     final metadata = dto.comic;
     final series = metadata.series;
     final publishing = metadata.publishing;
-    final referenceRelease = _comicReferenceRelease(item);
-    final referenceVariant = referenceRelease.variant;
+    final referenceFormat =
+        metadata.physicalFormatLabel ?? metadata.physicalFormat ?? metadata.variant;
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
@@ -377,22 +293,11 @@ class ComicLibraryMediaPresentationBuilder
         LibraryDetailField(label: 'Language', value: metadata.language),
         if (metadata.ageRating != null)
           LibraryDetailField(label: 'Age Rating', value: metadata.ageRating!),
-        if (referenceVariant?.formatLabel case final variantType?
-            when variantType.trim().isNotEmpty)
-          LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
-        if (referenceVariant?.sku case final sku? when sku.trim().isNotEmpty)
-          LibraryDetailField(label: 'SKU', value: sku.trim()),
-        if (referenceRelease.release != null)
-          LibraryDetailField(
-              label: 'Primary release',
-              value: [
-                referenceRelease.release!.title,
-                if (referenceVariant?.name.trim().isNotEmpty == true)
-                  referenceVariant!.name.trim(),
-              ].join(' Â· ')),
+        if (referenceFormat?.trim().isNotEmpty == true)
+          LibraryDetailField(label: 'Format', value: referenceFormat!.trim()),
         LibraryDetailField(
             label: 'Cover',
-            value: metadata.releases.isEmpty ? 'Missing' : 'Ready'),
+            value: metadata.coverImageUrl == null ? 'Missing' : 'Ready'),
         LibraryDetailField(
             label: 'Metadata',
             value: metadata.publisher == null || metadata.publisher!.isEmpty
@@ -452,26 +357,6 @@ class ComicLibraryMediaPresentationBuilder
       ),
     ];
   }
-}
-
-({
-  LibraryWorkspaceReleaseSummary? release,
-  LibraryWorkspaceVariantSummary? variant
-}) _comicReferenceRelease(LibraryProjectionView item) {
-  final node = item.node;
-  if (node is! LibraryReleaseRef || node.release.id != node.releaseId) {
-    return (release: null, variant: null);
-  }
-  LibraryWorkspaceVariantSummary? variant;
-  for (final candidate in node.release.variants) {
-    if (candidate.isPrimary) {
-      variant = candidate;
-      break;
-    }
-  }
-  variant ??=
-      node.release.variants.isEmpty ? null : node.release.variants.first;
-  return (release: node.release, variant: variant);
 }
 
 LibraryAddSearchResultDisplay _buildComicSearchResultDisplay(

@@ -72,7 +72,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
               final metadata = item.kindCapability
                   .mapTransport((transport) => transport)
                   .kindMetadata;
-              return metadata is ComicMedia
+              return metadata is ComicCatalogItem
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const [];
             },
@@ -85,7 +85,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
               final metadata = item.kindCapability
                   .mapTransport((transport) => transport)
                   .kindMetadata;
-              return metadata is ComicMedia ? [metadata.issueNumber] : const [];
+              return metadata is ComicCatalogItem ? [metadata.issueNumber] : const [];
             },
           ),
           LibraryAddSearchRankField(
@@ -96,7 +96,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
               final metadata = item.kindCapability
                   .mapTransport((transport) => transport)
                   .kindMetadata;
-              return metadata is ComicMedia
+              return metadata is ComicCatalogItem
                   ? [metadata.publisher, metadata.imprint]
                   : const [];
             },
@@ -109,7 +109,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
               final metadata = item.kindCapability
                   .mapTransport((transport) => transport)
                   .kindMetadata;
-              return metadata is ComicMedia
+              return metadata is ComicCatalogItem
                   ? [
                       metadata.releaseDate?.year,
                       metadata.coverDate?.year,

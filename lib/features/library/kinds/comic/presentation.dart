@@ -16,7 +16,7 @@ const comicsMetadataLabels = LibraryMetadataLabels(
   },
 );
 
-const comicLibraryMediaBuilder = ComicLibraryMediaPresentationBuilder(
+const comicLibraryMediaBuilder = ComicLibraryCatalogItemPresentationBuilder(
   showSummary: true,
   metadataLabels: comicsMetadataLabels,
 );
@@ -161,7 +161,7 @@ String comicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   );
 }
 
-final comicLibraryMediaPresentation = LibraryMediaPresentation(
+final comicLibraryCatalogItemPresentation = LibraryMediaPresentation(
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',

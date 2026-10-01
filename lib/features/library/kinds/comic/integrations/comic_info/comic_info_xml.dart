@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:xml/xml.dart';
 
@@ -8,7 +8,7 @@ class ComicInfoXml {
   const ComicInfoXml();
 
   /// Builds ComicInfo.xml from the typed Comic media and owned copy.
-  String serialize(ComicMedia comic, [ComicOwnedItem? owned]) {
+  String serialize(ComicCatalogItem comic, [ComicOwnedItem? owned]) {
     final builder = XmlBuilder();
     builder.processing('xml', 'version="1.0" encoding="utf-8"');
     builder.element('ComicInfo', nest: () {

@@ -78,7 +78,7 @@ void main() {
 
     test('runtime builds card presentation via behavior boundary', () {
       final item = createComicItem('1', 'Saga');
-      final card = comicLibraryMediaPresentation.buildCardPresentation(
+      final card = comicLibraryCatalogItemPresentation.buildCardPresentation(
         item,
         coverFocused: false,
       );

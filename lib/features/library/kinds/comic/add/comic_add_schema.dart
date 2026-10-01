@@ -30,7 +30,7 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
         AddSectionSpec<ComicAddManualDraft>(
           id: 'issue',
           label: 'Issue',
-          fields: comicMediaIdentityFields(
+          fields: comicCatalogItemIdentityFields(
             values: (draft) => draft.values,
             physicalFormatOptions: physicalFormatOptions ??
                 ComicVocabularies.physicalFormat.builtIns,
@@ -41,7 +41,7 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
         AddSectionSpec<ComicAddManualDraft>(
           id: 'publication',
           label: 'Publication',
-          fields: comicMediaPublicationFields(
+          fields: comicCatalogItemPublicationFields(
             values: (draft) => draft.values,
             publisherOptions: publisherOptions,
             imprintOptions: imprintOptions,

@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
@@ -307,18 +307,6 @@ List<Widget> buildComicWorkInspectorSections(
     ComicInspectorTabsSection(
       request: request,
       scope: LibraryEntityScope.work,
-    ),
-  ];
-}
-
-List<Widget> buildComicReleaseInspectorSections(
-  BuildContext _,
-  LibraryInspectorRequest request,
-) {
-  return [
-    ComicInspectorTabsSection(
-      request: request,
-      scope: LibraryEntityScope.release,
     ),
   ];
 }
@@ -745,7 +733,7 @@ List<LibraryDetailField> _linkFacts(LibraryProjectionView item) {
   ];
 }
 
-ComicMedia? _comicMetadata(LibraryProjectionView item) {
+ComicCatalogItem? _comicMetadata(LibraryProjectionView item) {
   final dto = item.dto;
   if (dto is ComicWorkspaceDto) {
     return dto.comic;

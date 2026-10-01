@@ -116,8 +116,7 @@ final Map<CatalogMediaKind, ReleaseProjectionCapability<LibraryWorkspaceDto>?>
         as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
     CatalogMediaKind.book: bookKindReleaseCapability
         as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
-    CatalogMediaKind.comic: comicKindReleaseCapability
-        as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
+    CatalogMediaKind.comic: null,
     CatalogMediaKind.game: null,
     CatalogMediaKind.manga: mangaKindReleaseCapability
         as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
@@ -136,8 +135,7 @@ final Map<CatalogMediaKind, LibraryReleaseDetailSource?>
         boardGameKindReleaseDetailSource as LibraryReleaseDetailSource?,
     CatalogMediaKind.book:
         bookKindReleaseDetailSource as LibraryReleaseDetailSource?,
-    CatalogMediaKind.comic:
-        comicKindReleaseDetailSource as LibraryReleaseDetailSource?,
+    CatalogMediaKind.comic: null,
     CatalogMediaKind.game: null,
     CatalogMediaKind.manga:
         mangaKindReleaseDetailSource as LibraryReleaseDetailSource?,

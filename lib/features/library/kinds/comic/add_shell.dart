@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dar
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_add_search_options_scope.dart';
@@ -466,7 +466,7 @@ class _ComicSearchEntry {
   _ComicSearchEntry.core(CatalogSearchCandidate item)
       : catalog = _comicMediaFromResult(item);
 
-  final ComicMedia catalog;
+  final ComicCatalogItem catalog;
 
   String get catalogId {
     final id = catalog.id?.value;
@@ -479,16 +479,16 @@ class _ComicSearchEntry {
   String get catalogIdOrCandidateId => catalogId;
 }
 
-ComicMedia _comicMediaFromResult(CatalogSearchCandidate item) {
+ComicCatalogItem _comicMediaFromResult(CatalogSearchCandidate item) {
   final metadata =
       item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (metadata is! ComicMedia) {
-    throw StateError('Expected ComicMedia for comic add result');
+  if (metadata is! ComicCatalogItem) {
+    throw StateError('Expected ComicCatalogItem for comic add result');
   }
   if (metadata.id?.value == item.reference.id) {
     return metadata;
   }
-  return metadata.copyWith(id: ComicMediaId(item.reference.id));
+  return metadata.copyWith(id: ComicCatalogItemId(item.reference.id));
 }
 
 String _formatReleaseDate(DateTime? date, int? year) {

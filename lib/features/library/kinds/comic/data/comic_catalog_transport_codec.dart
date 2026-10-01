@@ -11,12 +11,12 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 
 final class ComicCatalogTransportCodec
     implements
-        CatalogKindTransportCodec<ComicMedia>,
+        CatalogKindTransportCodec<ComicCatalogItem>,
         CatalogSharedCachePrimaryStore {
   const ComicCatalogTransportCodec();
 
@@ -24,19 +24,19 @@ final class ComicCatalogTransportCodec
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  ComicMedia decode(CatalogItemDto item) {
+  ComicCatalogItem decode(CatalogItemDto item) {
     final metadata = item.kindMetadata;
-    if (metadata is ComicMedia) return metadata;
-    return ComicMedia.fromJson(catalogTransportPayloadFor(item));
+    if (metadata is ComicCatalogItem) return metadata;
+    return ComicCatalogItem.fromJson(catalogTransportPayloadFor(item));
   }
 
   @override
-  Future<void> upsert(LocalDatabase db, ComicMedia item) {
-    return ComicRepository(db).updateMedia(item);
+  Future<void> upsert(LocalDatabase db, ComicCatalogItem item) {
+    return ComicRepository(db).updateCatalogItem(item);
   }
 
   @override
-  CatalogDisplaySummary summarize(ComicMedia item) => _comicSummary(item);
+  CatalogDisplaySummary summarize(ComicCatalogItem item) => _comicSummary(item);
 
   @override
   ComicWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
@@ -90,7 +90,7 @@ final class ComicCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    ComicMedia item,
+    ComicCatalogItem item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -100,7 +100,7 @@ final class ComicCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(ComicMedia item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(ComicCatalogItem item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -133,7 +133,7 @@ int? _replacementValueFromPayload(CatalogItemDto item) {
   return nested is num ? nested.toInt() : null;
 }
 
-CatalogDisplaySummary _comicSummary(ComicMedia item) {
+CatalogDisplaySummary _comicSummary(ComicCatalogItem item) {
   final issue = item.issueNumber?.trim();
   return CatalogDisplaySummary.root(
     kind: CatalogMediaKind.comic,
