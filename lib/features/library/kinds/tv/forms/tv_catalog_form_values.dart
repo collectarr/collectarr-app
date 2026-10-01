@@ -1,4 +1,52 @@
-/// Form values used by TV Add and Edit; UI controllers remain in the renderer.
+/// Flat values used by TV Catalog Item Add; controllers remain in the renderer.
+final class TvCatalogItemFormValues {
+  TvCatalogItemFormValues({
+    this.sortKey = '',
+    this.originalTitle = '',
+    this.editionTitle = '',
+    this.synopsis = '',
+    this.physicalFormat = '',
+    this.country = '',
+    this.publisher = '',
+    this.language = '',
+    this.ageRating = '',
+    this.barcode = '',
+    this.genres = const [],
+    this.creators = const [],
+    this.characters = const [],
+    this.audioTracks = '',
+    this.subtitles = '',
+    this.releaseDate,
+    this.seasonNumber,
+    this.runtimeMinutes,
+    this.discCount,
+    this.screenRatio = '',
+  });
+
+  String sortKey;
+  String originalTitle;
+  String editionTitle;
+  String synopsis;
+  String physicalFormat;
+  String country;
+  String publisher;
+  String language;
+  String ageRating;
+  String barcode;
+  List<String> genres;
+  List<String> creators;
+  List<String> characters;
+  String audioTracks;
+  String subtitles;
+  DateTime? releaseDate;
+  int? seasonNumber;
+  int? runtimeMinutes;
+  int? discCount;
+  String screenRatio;
+}
+
+/// Form values used by the previous TV editor adapters; UI controllers remain
+/// in the renderer while these adapters are removed from the active path.
 final class TvSeriesFormValues {
   TvSeriesFormValues({
     this.title = '',

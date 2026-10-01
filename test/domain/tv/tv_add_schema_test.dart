@@ -21,49 +21,48 @@ void main() {
     ].single,
   );
 
-  test('declares TV series, release, and metadata fields', () {
+  test('declares flat TV Catalog Item fields', () {
     final draft = TvAddManualDraft();
     addTearDown(draft.dispose);
 
-    expect(tvAddSchema.title!(draft), 'Manual TV show');
-    expect(tvAddSchema.sections.map((section) => section.id), [
-      'series',
-      'release',
-      'metadata',
-    ]);
+    expect(tvAddSchema.title!(draft), 'Manual TV Catalog Item');
+    expect(tvAddSchema.sections.map((section) => section.id), ['catalog_item']);
     expect(
       [
         for (final section in tvAddSchema.sections)
           for (final field in section.fields) field.id,
       ],
       containsAll(<String>[
-        'network',
+        'sort_key',
+        'edition_title',
+        'physical_format',
+        'country',
+        'publisher',
+        'language',
+        'age_rating',
         'season_number',
-        'first_air_year',
-        'release_title',
-        'format',
-        'region',
         'barcode',
         'release_date',
         'creators',
         'genres',
-        'content_rating',
+        'audio_tracks',
+        'subtitles',
       ]),
     );
   });
 
-  test('binds TV vocabularies and validates manual values', () {
+  test('binds TV format vocabulary and validates manual values', () {
     final draft = TvAddManualDraft();
     addTearDown(draft.dispose);
 
-    final network = _field('network')
+    final format = _field('physical_format')
         as LibraryVocabularyFieldSpec<TvAddManualDraft, String>;
     expect(
-      network.options.map((option) => option.value),
-      TvVocabularies.network.builtIns,
+      format.options.map((option) => option.value),
+      TvVocabularies.physicalFormat.builtIns,
     );
-    network.updateValue(draft, 'HBO');
-    expect(network.currentValue(draft), 'HBO');
+    format.updateValue(draft, 'DVD');
+    expect(format.currentValue(draft), 'DVD');
 
     final season =
         _field('season_number') as LibraryNumberFieldSpec<TvAddManualDraft>;
@@ -74,7 +73,7 @@ void main() {
     final releaseDate =
         _field('release_date') as LibraryDateFieldSpec<TvAddManualDraft>;
     releaseDate.setValue(draft, DateTime.utc(2020, 1, 2));
-    expect(draft.release.releaseDate, DateTime.utc(2020, 1, 2));
+    expect(draft.values.releaseDate, DateTime.utc(2020, 1, 2));
     expect(tvAddSchema.validate!(draft), isNull);
   });
 }

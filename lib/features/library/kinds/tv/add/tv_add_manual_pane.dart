@@ -16,15 +16,15 @@ class TvAddManualPane extends StatelessWidget {
     final draft = request.manualDraftAs<TvAddManualDraft>();
     return LibraryAddManualPaneShell(
       request: request,
-      title: 'Manual TV show setup',
-      subtitle: 'Set series and release details before saving to your library.',
+      title: 'Manual TV Catalog Item',
+      subtitle: 'Enter the details for this specific TV edition or release.',
       identity: LibraryFormSection(
-        title: 'Series identity',
+        title: 'Catalog Item identity',
         accent: request.accent,
         child: TextField(
           controller: request.titleController,
           decoration: const InputDecoration(
-            labelText: 'Show title',
+            labelText: 'Title',
             prefixIcon: Icon(Icons.tv_outlined),
           ),
         ),

@@ -2,18 +2,10 @@ import 'package:collectarr_app/features/library/add/models/library_kind_add_draf
 import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_values.dart';
 
 final class TvAddManualDraft implements LibraryKindAddDraft {
-  TvAddManualDraft({
-    TvSeriesFormValues? series,
-    TvReleaseFormValues? release,
-    this.seasonNumber,
-    this.firstAirYear,
-  })  : series = series ?? TvSeriesFormValues(),
-        release = release ?? TvReleaseFormValues();
+  TvAddManualDraft({TvCatalogItemFormValues? values})
+      : values = values ?? TvCatalogItemFormValues();
 
-  final TvSeriesFormValues series;
-  final TvReleaseFormValues release;
-  int? seasonNumber;
-  int? firstAirYear;
+  final TvCatalogItemFormValues values;
 
   @override
   void dispose() {}

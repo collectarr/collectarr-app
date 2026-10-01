@@ -1,10 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_schema.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 
 CatalogSearchCandidate? buildTvManualCandidate(
   LibraryKindAddDraft draft, {
@@ -13,65 +12,58 @@ CatalogSearchCandidate? buildTvManualCandidate(
   if (draft is! TvAddManualDraft || title.trim().isEmpty) return null;
   if (tvAddSchema.validate?.call(draft) != null) return null;
 
-  final series = draft.series;
-  final release = draft.release;
-  final firstAirDate = series.originalAirDate ??
-      (draft.firstAirYear == null ? null : DateTime.utc(draft.firstAirYear!));
-  final releaseTitle = release.title.trim();
-  final id = 'manual-tv-${DateTime.now().microsecondsSinceEpoch}';
-  final metadata = TvSeriesMetadata.fromJson({
-    'id': id,
-    'title': title.trim(),
-    'series_title': title.trim(),
-    'sort_title': _nullable(series.sortTitle),
-    'synopsis': _nullable(series.description),
-    if (firstAirDate != null) 'first_air_date': firstAirDate.toIso8601String(),
-    if (series.endDate != null)
-      'last_air_date': series.endDate!.toIso8601String(),
-    'network': _nullable(series.network),
-    'streaming_service': _nullable(series.streamingService),
-    'status': _nullable(series.status),
-    'original_language': _nullable(series.originalLanguage),
-    'genres': series.genres,
-    'content_rating': _nullable(series.contentRating),
-    if (draft.seasonNumber != null) 'season_number': draft.seasonNumber,
-    if (releaseTitle.isNotEmpty)
-      'editions': [
-        {
-          'id': '$id-release',
-          'title': releaseTitle,
-          'format': _nullable(release.format),
-          'region': _nullable(release.region),
-          'release_date': release.releaseDate?.toIso8601String(),
-          'publisher': _nullable(release.publisher),
-          'barcode': _nullable(release.barcode),
-          'case_type': _nullable(release.caseType),
-          'description': _nullable(release.description),
-          'content_rating': _nullable(release.contentRating),
-          'audio': release.audioLanguages,
-          'subtitles': release.subtitleLanguages,
-          'cover_image_url': _nullable(release.coverImageUrl),
-        },
-      ],
-    'edition_title': releaseTitle.isEmpty ? null : releaseTitle,
-    'physical_format_label': _nullable(release.format),
-    'region': _nullable(release.region),
-    'release_date': release.releaseDate?.toIso8601String(),
-    'publisher': _nullable(release.publisher),
-    'barcode': _nullable(release.barcode),
-    'cover_image_url': _nullable(release.coverImageUrl),
-    'creators': [
-      for (final name in series.creators) {'name': name, 'role': 'creator'},
-    ],
-    'cast': [
-      for (final name in series.characters) {'name': name}
-    ],
-  });
+  final values = draft.values;
+  final releaseDateParts = values.releaseDate == null
+      ? null
+      : PartialDate(
+          year: values.releaseDate!.year,
+          month: values.releaseDate!.month,
+          day: values.releaseDate!.day,
+        );
 
   return CatalogSearchCandidate.fromItem(
-    CatalogItemDto(
-      identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.tv),
-      kindMetadata: metadata,
+    CatalogItemDto.raw(
+      id: 'manual-tv-${DateTime.now().microsecondsSinceEpoch}',
+      mediaKind: CatalogMediaKind.tv,
+      common: CatalogCommonDto(
+        title: title.trim(),
+        sortKey: _nullable(values.sortKey),
+        originalTitle: _nullable(values.originalTitle),
+        synopsis: _nullable(values.synopsis),
+        releaseDate: releaseDateParts?.asDateTime,
+        releaseDateParts: releaseDateParts,
+      ),
+      payload: {
+        if (_nullable(values.editionTitle) case final value?)
+          'edition_title': value,
+        if (_nullable(values.physicalFormat) case final value?)
+          'physical_format': value,
+        if (_nullable(values.country) case final value?) 'country': value,
+        if (_nullable(values.publisher) case final value?) 'publisher': value,
+        if (_nullable(values.language) case final value?) 'language': value,
+        if (_nullable(values.ageRating) case final value?) 'age_rating': value,
+        if (values.genres.isNotEmpty) 'genres': List<String>.of(values.genres),
+        if (_nullable(values.barcode) case final value?) 'barcode': value,
+        if (values.creators.isNotEmpty)
+          'creators': [
+            for (final name in values.creators)
+              {'name': name, 'role': 'creator'},
+          ],
+        if (values.characters.isNotEmpty)
+          'characters': List<String>.of(values.characters),
+        if (_nullable(values.audioTracks) case final value?)
+          'audio_tracks': value,
+        if (_nullable(values.subtitles) case final value?) 'subtitles': value,
+        if (values.seasonNumber case final seasonNumber?)
+          'seasons': [
+            {'season_number': seasonNumber},
+          ],
+        if (values.runtimeMinutes case final runtimeMinutes?)
+          'runtime_minutes': runtimeMinutes,
+        if (values.discCount case final discCount?) 'nr_discs': discCount,
+        if (_nullable(values.screenRatio) case final value?)
+          'screen_ratio': value,
+      },
     ),
   );
 }
@@ -81,10 +73,7 @@ String? _nullable(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-/// Serializes this kind's typed manual catalog model for Core review.
-///
-/// Core projects the supplied object onto the recognized flattened fields for
-/// this kind, so this mapper does not maintain a second field denylist.
+/// Serializes TV's flat Catalog Item fields for Core review.
 Map<String, Object?>? buildTvManualProposalData(
   LibraryKindAddDraft draft, {
   required String title,
@@ -92,8 +81,8 @@ Map<String, Object?>? buildTvManualProposalData(
   final candidate = buildTvManualCandidate(draft, title: title);
   if (candidate == null) return null;
   return candidate.kindCapability.mapTransport(
-    (item) => Map<String, Object?>.from(
-      (item.kindMetadata as TvSeriesMetadata).toJson(),
-    ),
+    (item) => Map<String, Object?>.from(item.payload)
+      ..remove('id')
+      ..remove('kind'),
   );
 }
