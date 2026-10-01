@@ -60,6 +60,13 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
             setValue: (draft, value) => values(draft).synopsis = value,
             maxLines: 4,
           ),
+          LibraryImageFieldSpec<TvAddManualDraft, String>(
+            id: 'cover_image_url',
+            label: 'Front Cover URL',
+            value: (draft) => _nullable(values(draft).coverImageUrl),
+            setValue: (draft, value) =>
+                values(draft).coverImageUrl = value ?? '',
+          ),
           LibraryDateFieldSpec<TvAddManualDraft>(
             id: 'release_date',
             label: 'Release Date',

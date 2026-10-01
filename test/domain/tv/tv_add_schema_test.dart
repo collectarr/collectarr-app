@@ -35,6 +35,7 @@ void main() {
       containsAll(<String>[
         'sort_key',
         'edition_title',
+        'cover_image_url',
         'physical_format',
         'country',
         'publisher',

@@ -30,6 +30,7 @@ CatalogSearchCandidate? buildTvManualCandidate(
         sortKey: _nullable(values.sortKey),
         originalTitle: _nullable(values.originalTitle),
         synopsis: _nullable(values.synopsis),
+        coverImageUrl: _nullable(values.coverImageUrl),
         releaseDate: releaseDateParts?.asDateTime,
         releaseDateParts: releaseDateParts,
       ),

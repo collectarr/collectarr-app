@@ -5,6 +5,7 @@ final class TvCatalogItemFormValues {
     this.originalTitle = '',
     this.editionTitle = '',
     this.synopsis = '',
+    this.coverImageUrl = '',
     this.physicalFormat = '',
     this.country = '',
     this.publisher = '',
@@ -27,6 +28,7 @@ final class TvCatalogItemFormValues {
   String originalTitle;
   String editionTitle;
   String synopsis;
+  String coverImageUrl;
   String physicalFormat;
   String country;
   String publisher;
