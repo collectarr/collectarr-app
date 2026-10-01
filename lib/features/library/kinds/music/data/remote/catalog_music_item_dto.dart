@@ -56,13 +56,12 @@ final class CatalogMusicItemDto implements JsonEncodable {
 
   factory CatalogMusicItemDto.fromJson(Map<String, dynamic> json) {
     // Transport snapshot metadata is not part of the strict Music catalog
-    // contract. Strip it before validating this kind-owned payload.
-    final catalogJson = catalogPayloadWithoutSnapshotVersion(json);
+    // contract. Strip it before validating this kind-owned payload. Remove
+    // the root marker explicitly as well so this decoder remains defensive
+    // when called directly with a transport envelope.
+    final catalogJson = catalogPayloadWithoutSnapshotVersion(json)
+      ..remove('snapshot_version');
     const allowedKeys = {
-      // This marker belongs to the shared transport envelope. It is ignored
-      // here as a defensive boundary in case a caller passes the envelope
-      // payload directly instead of stripping it first.
-      'snapshot_version',
       'id',
       'kind',
       'title',
