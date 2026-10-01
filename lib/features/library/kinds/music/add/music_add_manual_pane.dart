@@ -20,33 +20,75 @@ class MusicAddManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final draft = request.manualDraftAs<MusicAddManualDraft>();
+    final fieldsById = {
+      for (final section in musicAddSchema.sections)
+        for (final field in section.fields) field.id: field,
+    };
+    const mainFieldIds = [
+      'release_date',
+      'original_release_date',
+      'sort_title',
+      'record_label',
+      'recording_date',
+      'subtitle',
+      'format',
+      'barcode',
+      'artist',
+      'catalog_number',
+      'genres',
+    ];
     final mainSchema = AddSchema<MusicAddManualDraft>(
-      sections: musicAddSchema.sections
-          .where((section) => section.id != 'technical')
-          .toList(growable: false),
+      validate: musicAddSchema.validate,
+      sections: [
+        AddSectionSpec<MusicAddManualDraft>(
+          id: 'catalog_item',
+          label: '',
+          maxColumns: 4,
+          fieldColumnSpans: const {
+            'title': 2,
+            'sort_title': 2,
+            'subtitle': 2,
+            'artist': 2,
+            'catalog_number': 2,
+            'genres': 2,
+          },
+          rightAlignedFieldIds: const {'genres'},
+          fields: [
+            LibraryTextFieldSpec<MusicAddManualDraft>(
+              id: 'title',
+              label: 'Title',
+              value: (_) => request.titleController.text,
+              setValue: (_, value) {
+                request.titleController.value = TextEditingValue(
+                  text: value,
+                  selection: TextSelection.collapsed(offset: value.length),
+                );
+              },
+            ),
+            for (final id in mainFieldIds) fieldsById[id]!,
+          ],
+        ),
+      ],
     );
     final detailsSchema = AddSchema<MusicAddManualDraft>(
-      sections: musicAddSchema.sections
-          .where((section) => section.id == 'technical')
-          .toList(growable: false),
+      sections: [
+        AddSectionSpec<MusicAddManualDraft>(
+          id: 'additional_details',
+          label: 'Additional details',
+          fields: [
+            for (final section in musicAddSchema.sections)
+              for (final field in section.fields)
+                if (!mainFieldIds.contains(field.id)) field,
+          ],
+        ),
+      ],
     );
 
     return LibraryAddManualPaneShell(
       request: request,
       title: 'Manual music album setup',
-      subtitle:
-          'Capture the release identity before saving it to your library.',
-      identity: LibraryFormSection(
-        title: 'Album title',
-        accent: request.accent,
-        child: TextField(
-          controller: request.titleController,
-          decoration: const InputDecoration(
-            labelText: 'Album title',
-            prefixIcon: Icon(Icons.album_outlined),
-          ),
-        ),
-      ),
+      subtitle: '',
+      identity: null,
       tabs: [
         LibraryAddManualPaneTab(
           label: 'Main',

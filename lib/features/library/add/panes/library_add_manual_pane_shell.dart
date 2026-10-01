@@ -26,7 +26,7 @@ class LibraryAddManualPaneShell extends StatefulWidget {
   final LibraryAddManualPaneRequest request;
   final String title;
   final String subtitle;
-  final Widget identity;
+  final Widget? identity;
   final Widget? formContent;
   final List<LibraryAddManualPaneTab>? tabs;
 
@@ -162,8 +162,8 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
                   ),
                 ),
               if (index == 0 && subtitle.isNotEmpty) const SizedBox(height: 12),
-              if (index == 0) ...[
-                widget.identity,
+              if (index == 0 && widget.identity != null) ...[
+                widget.identity!,
                 const SizedBox(height: 10),
               ],
               tabs[index].content,

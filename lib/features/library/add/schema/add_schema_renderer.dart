@@ -174,9 +174,18 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final section in sections) ...[
-          Text(section.label, style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: 8),
-          _buildFieldWrap(context, section.fields),
+          if (section.label.trim().isNotEmpty) ...[
+            Text(section.label, style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 8),
+          ],
+          _buildFieldWrap(
+            context,
+            section.fields,
+            maxColumns: section.maxColumns,
+            fullWidthFieldIds: section.fullWidthFieldIds,
+            fieldColumnSpans: section.fieldColumnSpans,
+            rightAlignedFieldIds: section.rightAlignedFieldIds,
+          ),
           const SizedBox(height: 18),
         ],
       ],
@@ -185,25 +194,69 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
 
   Widget _buildFieldWrap(
     BuildContext context,
-    List<LibraryFieldSpec<TDraft>> fields,
-  ) {
+    List<LibraryFieldSpec<TDraft>> fields, {
+    required int maxColumns,
+    required Set<String> fullWidthFieldIds,
+    required Map<String, int> fieldColumnSpans,
+    required Set<String> rightAlignedFieldIds,
+  }) {
     final visibleFields = fields
         .where((field) => field.isVisible(widget.draft))
         .toList(growable: false);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final wide = constraints.maxWidth >= 680;
-        final width =
-            wide ? (constraints.maxWidth - 12) / 2 : constraints.maxWidth;
+        final columns = constraints.maxWidth >= 960
+            ? maxColumns
+            : constraints.maxWidth >= 680
+                ? math.min(maxColumns, 2)
+                : 1;
+        final columnWidth = columns == 1
+            ? constraints.maxWidth
+            : (constraints.maxWidth - 12 * (columns - 1)) / columns;
         return Wrap(
           spacing: 12,
           runSpacing: 12,
           children: [
             for (final field in visibleFields)
-              SizedBox(width: width, child: _buildField(field)),
+              _buildFieldSlot(
+                field,
+                constraints: constraints,
+                columns: columns,
+                columnWidth: columnWidth,
+                fullWidth: fullWidthFieldIds.contains(field.id),
+                span: fieldColumnSpans[field.id] ?? 1,
+                rightAligned: rightAlignedFieldIds.contains(field.id),
+              ),
           ],
         );
       },
+    );
+  }
+
+  Widget _buildFieldSlot(
+    LibraryFieldSpec<TDraft> field, {
+    required BoxConstraints constraints,
+    required int columns,
+    required double columnWidth,
+    required bool fullWidth,
+    required int span,
+    required bool rightAligned,
+  }) {
+    final resolvedSpan = fullWidth ? columns : span.clamp(1, columns).toInt();
+    final fieldWidth = resolvedSpan * columnWidth + 12 * (resolvedSpan - 1);
+    final fieldWidget = _buildField(field);
+    if (rightAligned && columns > 1 && !fullWidth) {
+      return SizedBox(
+        width: constraints.maxWidth,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox(width: fieldWidth, child: fieldWidget),
+        ),
+      );
+    }
+    return SizedBox(
+      width: fullWidth ? constraints.maxWidth : fieldWidth,
+      child: fieldWidget,
     );
   }
 
