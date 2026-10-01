@@ -28,20 +28,20 @@ Core has typed flat Catalog Item routes for all nine kinds. Music's current API,
 search query, proposal creation, Admin corrections, worker index, and Admin
 reindex path use the concrete `MusicItem` model with contained discs and tracks.
 The old Music Release Group and Release ORM graph has been removed from Core.
-Core has also removed the old Work/Release graphs for Movie, Book, Game, Board
-Game, Comic, Manga, and Anime. TV still has active Work/Release models and
-services alongside its flat Catalog Item API.
+Core has removed the old Work/Release graphs and kind-specific routes for all
+nine kinds. TV seasons, media, and episodes remain contained beneath a flat TV
+Catalog Item.
 
 Core's Admin catalog search, item detail, root-level correction, per-kind item
 counts, and search reindex now include flat Catalog Item roots for all nine
 kinds. Admin corrections update root fields, normalized identifiers, and Book
 credits; structured contents such as discs and episodes remain kind-owned
-child data. Other old Core read, diagnostic, and administration paths still
-use Work/Release models.
+child data. Core's active metadata, search, correction, indexing, and Admin
+paths operate on flat Catalog Items.
 
 The App's generic library-detail cache hydration, Admin item refresh, and
 metadata comparison now read the flat per-kind Catalog Item detail routes.
-TV still has active callers for older Core routes. Comic Add now consumes a
+TV has no remaining calls to its old Core routes. Comic Add now consumes a
 flat Catalog Item and no longer calls Core's old Comic Work endpoint to expand
 issue and variant children. Comic's App model and editor now represent the
 concrete issue or edition directly; its nested release editor, release
@@ -94,10 +94,10 @@ Catalog Item or Owned Copy identities.
 
 Catalog transport now writes every Core item into a shared Drift cache keyed
 by `(kind, item_id)`. Snapshot reads and batched reference hydration use this
-flat cache. Anime, Board Game, Book, Comic, Game, Manga, Movie, and Music use it
-as their only active catalog store. TV no longer has per-kind catalog tables;
-its typed aggregate and older edit adapters still carry some Work/Release
-assumptions that remain to be removed. Book, Game, and Manga
+flat cache. Anime, Board Game, Book, Comic, Game, Manga, Movie, Music, and TV
+use it as their only active catalog store. TV's typed aggregate, Add form, and
+edit adapters still carry some Work/Release assumptions that remain to be
+removed. Book, Game, and Manga
 catalog facts no longer have per-kind media or release tables; their owned-copy
 and tracking data stays in App-owned tables while the broader personal-data
 cutover proceeds. Game's flat workspace combines edition title, platform,
