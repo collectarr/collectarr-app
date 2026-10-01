@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/local/game_owned_item_local_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_copy_id.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:drift/drift.dart';
 

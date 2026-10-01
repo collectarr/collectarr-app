@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/game/tracking/game_trackin
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_copy_id.dart';
 
 final gameDevSeedContributor = TypedDevSeedKindContributor<GameOwnedItem>(
   kind: CatalogMediaKind.game,

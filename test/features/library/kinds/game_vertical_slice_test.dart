@@ -163,15 +163,27 @@ void main() {
         dto: dto,
       );
 
-      expect(GameWorkWorkspaceFields.title.getValue(ctx), 'Super Mario 64');
-      expect(GameWorkWorkspaceFields.franchise.getValue(ctx), 'Super Mario');
-      expect(GameReleaseWorkspaceFields.edition.getValue(ctx), 'Standard');
-      expect(GameWorkWorkspaceFields.ageRating.getValue(ctx), 'ESRB: E');
+      expect(
+        GameCatalogItemWorkspaceFields.title.getValue(ctx),
+        'Super Mario 64',
+      );
+      expect(
+        GameCatalogItemWorkspaceFields.franchise.getValue(ctx),
+        'Super Mario',
+      );
+      expect(
+        GameCatalogItemWorkspaceFields.edition.getValue(ctx),
+        'Standard',
+      );
+      expect(
+        GameCatalogItemWorkspaceFields.ageRating.getValue(ctx),
+        'ESRB: E',
+      );
       expect(GameCopyWorkspaceFields.coreRegion.getValue(ctx), isNull);
-      expect(GameWorkWorkspaceFields.loosePrice.getValue(ctx), 3500);
-      expect(GameWorkWorkspaceFields.cibPrice.getValue(ctx), 9000);
-      expect(GameWorkWorkspaceFields.newPrice.getValue(ctx), 35000);
-      expect(GameWorkWorkspaceFields.gradedPrice.getValue(ctx), 95000);
+      expect(GameCatalogItemWorkspaceFields.loosePrice.getValue(ctx), 3500);
+      expect(GameCatalogItemWorkspaceFields.cibPrice.getValue(ctx), 9000);
+      expect(GameCatalogItemWorkspaceFields.newPrice.getValue(ctx), 35000);
+      expect(GameCatalogItemWorkspaceFields.gradedPrice.getValue(ctx), 95000);
     });
   });
 }

@@ -100,9 +100,7 @@ class GameEditDraft
     required OwnedCopyRef ownedRef,
     required PersonalStateDraft personal,
   }) {
-    final targetRef = personal.selectedOwnedTargetRef;
     return GameOwnedItemUpdatePayload(
-      targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
       quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),

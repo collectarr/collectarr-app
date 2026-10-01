@@ -8,9 +8,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
-import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_schema.dart';
@@ -42,14 +39,6 @@ void main() {
     name: 'Comic',
     create: () => ComicRelease.fromJson(
       const {'id': 'comic-release-1', 'title': 'Collected Edition'},
-    ),
-    id: (release) => release.id,
-    title: (release) => release.title,
-  );
-  defineReleaseContract<GameRelease>(
-    name: 'Game',
-    create: () => GameRelease.fromJson(
-      const {'id': 'game-release-1', 'title': 'Launch Edition'},
     ),
     id: (release) => release.id,
     title: (release) => release.title,
@@ -91,12 +80,6 @@ void main() {
   defineReleaseEditContract<EditSchema<ComicRelease, ComicReleaseFormValues>>(
     name: 'Comic',
     create: () => comicReleaseEditSchema,
-    tabIds: _tabIds,
-    fieldIds: _fieldIds,
-  );
-  defineReleaseEditContract<EditSchema<GameRelease, GameCatalogFormValues>>(
-    name: 'Game',
-    create: () => gameReleaseEditSchema,
     tabIds: _tabIds,
     fieldIds: _fieldIds,
   );

@@ -1,14 +1,17 @@
-import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_catalog_item_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_facet_definitions.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Game workspace exposes a complete typed schema registry', () {
+  test('Game workspace exposes a complete typed Catalog Item schema', () {
     final registry = gameKindWorkspace.fields;
     final fieldIds = registry.fields.map((field) => field.id.value).toList();
     final columnIds =
@@ -54,31 +57,30 @@ void main() {
     );
   });
 
-  test('Game facets extract typed metadata and remain kind-owned', () {
-    final dto = GameWorkspaceDto(
-      common: const WorkspaceCommonProjection(
-        title: 'Super Mario 64',
-      ),
-      personal: PersonalCopyProjection(),
-      game: const GameCatalogItem(
+  test('Game facets read metadata from one concrete Catalog Item', () {
+    const metadata = GameCatalogMetadata(
+      title: 'Super Mario 64',
+      platform: 'Nintendo 64',
+      platforms: ['Nintendo 64', 'Virtual Console'],
+      releaseRegion: 'NTSC-U',
+      developers: ['Nintendo EAD'],
+      publishers: ['Nintendo'],
+      franchise: 'Super Mario',
+      genres: ['Platformer'],
+    );
+    final catalogDto = CatalogItemDto(
+      identity: const LibraryItemIdentity(
         id: 'game-1',
-        work: GameWorkMetadata(
-          title: 'Super Mario 64',
-          platforms: ['Nintendo 64'],
-          genres: ['Platformer'],
-        ),
-        releases: [],
+        mediaKind: CatalogMediaKind.game,
       ),
-      metadata: const GameCatalogMetadata(
-        title: 'Super Mario 64',
-        platform: 'Nintendo 64',
-        platforms: ['Nintendo 64', 'Virtual Console'],
-        releaseRegion: 'NTSC-U',
-        developers: ['Nintendo EAD'],
-        publishers: ['Nintendo'],
-        franchise: 'Super Mario',
-        genres: ['Platformer'],
-      ),
+      kindMetadata: metadata,
+    );
+    final catalogItem = GameCatalogMapper.mapMetadataItemToGame(catalogDto);
+    final dto = GameWorkspaceDto(
+      common: const WorkspaceCommonProjection(title: 'Super Mario 64'),
+      personal: PersonalCopyProjection(),
+      game: catalogItem,
+      metadata: metadata,
     );
 
     final values = <String, List<String>>{
@@ -94,6 +96,11 @@ void main() {
     expect(values[GameFacetIds.franchise.value], ['Super Mario']);
     expect(values[GameFacetIds.genre.value], ['Platformer']);
     expect(values[GameFacetIds.region.value], ['NTSC-U', 'US']);
+
+    expect(catalogItem.id, 'game-1');
+    expect(catalogItem.edition, isNull);
+    expect(GameCatalogItemWorkspaceFields.title.id.value, 'game.title');
+    expect(GameCatalogItemWorkspaceFields.edition.id.value, 'game.edition');
 
     final facets = gameLibraryFacetModule;
     expect(

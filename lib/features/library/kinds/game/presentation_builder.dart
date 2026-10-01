@@ -29,19 +29,12 @@ class GameLibraryMediaPresentationBuilder
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
-    final seen = <String>{};
-    final result = <LibraryFormatBadgeDescriptor>[];
-    for (final edition in item.kindCapability
-        .mapTransport((transport) => transport)
-        .editions) {
-      final badge = gameFormatBadge(
-        edition.physicalFormat,
-        label: edition.physicalFormatLabel,
-      );
-      if (badge == null || !seen.add(badge.key)) continue;
-      result.add(badge);
-    }
-    return result;
+    final itemDto = item.kindCapability.mapTransport((transport) => transport);
+    final badge = gameFormatBadge(
+      itemDto.physicalFormat,
+      label: itemDto.physicalFormatLabel,
+    );
+    return badge == null ? const [] : [badge];
   }
 
   @override
@@ -64,76 +57,12 @@ class GameLibraryMediaPresentationBuilder
   }
 
   @override
-  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
-    LibraryWorkspaceSource entry,
-  ) {
-    final catalog = entry.catalogData;
-    if (catalog is! GameWorkspaceCatalogData) return const [];
-    return [
-      for (final release in catalog.game.releases)
-        LibraryWorkspaceReleaseSummary(
-          id: release.id,
-          title: release.title,
-          formatLabel: release.format,
-          formatBadge: gameFormatBadge(release.format),
-          releaseDate: release.releaseDate,
-        ),
-    ];
-  }
-
-  @override
-  List<LibraryAddReleaseOption> buildReleaseOptions({
-    required CatalogSearchCandidate item,
-  }) {
-    return [
-      for (final edition in item.kindCapability
-          .mapTransport((transport) => transport)
-          .editions)
-        LibraryAddReleaseOption(
-          id: edition.id,
-          title: edition.title,
-          formatId: edition.physicalFormat,
-          formatLabel: edition.physicalFormatLabel,
-          formatBadge: gameFormatBadge(
-            edition.physicalFormat,
-            label: edition.physicalFormatLabel,
-          ),
-          releaseDate: edition.releaseDate,
-          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
-          identifierCode: edition.identifierCode,
-          variants: [
-            for (final variant in edition.variants)
-              LibraryAddVariantOption(
-                id: variant.id,
-                name: variant.name,
-                coverImageUrl: variant.coverImageUrl,
-                identifierCode: variant.identifierCode,
-                formatId: variant.physicalFormat,
-                formatLabel: variant.physicalFormatLabel,
-                formatBadge: gameFormatBadge(
-                  variant.physicalFormat,
-                  label: variant.physicalFormatLabel,
-                ),
-                isPrimary: variant.isPrimary,
-              ),
-          ],
-        ),
-    ];
-  }
-
-  @override
   CatalogSearchCandidate mergeHydratedAddItem({
     required CatalogSearchCandidate hydrated,
     required CatalogSearchCandidate fallback,
   }) {
     final hydratedMetadata = hydrated.gameCatalogFields;
     final fallbackMetadata = fallback.gameCatalogFields;
-    final hydratedEditions =
-        hydrated.kindCapability.mapTransport((transport) => transport.editions);
-    final fallbackEditions =
-        fallback.kindCapability.mapTransport((transport) => transport.editions);
-    final editions =
-        hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
     final coverImageUrl =
         hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
     final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
@@ -143,7 +72,6 @@ class GameLibraryMediaPresentationBuilder
         hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
               coverImageUrl: coverImageUrl,
               thumbnailImageUrl: thumbnailImageUrl,
-              editions: editions,
             )));
   }
 

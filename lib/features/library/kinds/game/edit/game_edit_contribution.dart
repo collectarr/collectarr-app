@@ -8,12 +8,8 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
       builder: buildGameLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.release,
-      builder: buildGameReleaseLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
       scope: LibraryEntityScope.copy,
-      builder: buildGameMediaLibraryEditDialog,
+      builder: buildGameLibraryEditDialog,
     ),
   ]),
   vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),

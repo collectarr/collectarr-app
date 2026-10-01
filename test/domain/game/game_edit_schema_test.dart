@@ -1,38 +1,20 @@
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/game_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/owned/game_owned_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_adapters.dart';
-import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../contracts/media_edit_contract.dart';
 import '../../contracts/owned_edit_contract.dart';
 
 void main() {
-  defineMediaEditContract<EditSchema<GameMedia, GameCatalogFormValues>>(
-    name: 'Game',
-    create: () => gameMediaEditSchema,
-    tabIds: (schema) => schema.tabs.map((tab) => tab.id),
-    fieldIds: (schema, tabId) => [
-      for (final tab in schema.tabs)
-        if (tab.id == tabId)
-          for (final section in tab.sections)
-            for (final field in section.fields) field.id,
-    ],
-  );
-
   defineOwnedEditContract<EditSchema<GameOwnedDetails, GameEditDraft>>(
     name: 'Game',
     create: () => gameOwnedEditSchema,
@@ -45,51 +27,70 @@ void main() {
     ],
   );
 
-  defineMediaEditContract<EditSchema<GameRelease, GameCatalogFormValues>>(
-    name: 'Game release',
-    create: () => gameReleaseEditSchema,
-    tabIds: (schema) => schema.tabs.map((tab) => tab.id),
-    fieldIds: (schema, tabId) => [
-      for (final tab in schema.tabs)
-        if (tab.id == tabId)
-          for (final section in tab.sections)
-            for (final field in section.fields) field.id,
-    ],
-  );
+  test('Game Add describes one concrete Catalog Item edition', () {
+    final sectionIds = gameAddSchema.sections.map((section) => section.id);
+    final fieldIds = {
+      for (final section in gameAddSchema.sections)
+        for (final field in section.fields) field.id,
+    };
 
-  test('Game media form maps typed fields and preserves unrelated payload', () {
-    const media = GameMedia(
-      id: GameMediaId('game-1'),
-      title: 'Chrono Trigger',
-      platforms: ['Super Nintendo Entertainment System'],
-      publisher: 'Square',
-      genres: ['Role-playing'],
-      originalLanguage: 'Japanese',
-      ageRatings: ['CERO A'],
-      rawPayload: {'provider_only': 'keep'},
+    expect(sectionIds, ['catalog_item', 'game_details']);
+    expect(
+      fieldIds,
+      containsAll([
+        'edition_title',
+        'platform',
+        'region',
+        'release_date',
+        'publisher',
+        'barcode',
+      ]),
     );
-    final values = gameCatalogFormValuesFromMedia(media);
+    expect(fieldIds, isNot(contains('release_title')));
+  });
 
-    (_field('publisher') as LibraryTextFieldSpec<GameCatalogFormValues>)
-        .setValue(values, 'New Publisher');
-    (_field('platforms')
-            as LibraryMultiVocabularyFieldSpec<GameCatalogFormValues, String>)
-        .setValues(values, {'Nintendo Switch', 'PC'});
-    (_field('genres')
-            as LibraryMultiVocabularyFieldSpec<GameCatalogFormValues, String>)
-        .setValues(values, {'Role-playing', 'Adventure'});
-    (_field('original_language') as LibraryTextFieldSpec<GameCatalogFormValues>)
-        .setValue(values, 'English');
+  test('Game Catalog Item form maps recognized edition data', () {
+    final source = GameCatalogMetadata.fromJson({
+      'title': 'Chrono Trigger',
+      'edition_title': 'Collector Edition',
+      'platforms': ['Super Nintendo'],
+      'release_region': 'NTSC-U',
+      'publisher': 'Square',
+      'genres': ['Role-playing'],
+      'language': 'Japanese',
+      'release_date': '1995-03-11',
+      'barcode': '045496870034',
+      'physical_format': 'Cartridge',
+    });
+    final values = gameCatalogFormValuesFromMetadata(source);
 
-    final updated = gameMediaFromCatalogFormValues(
-      original: media,
+    expect(values.editionTitle, 'Collector Edition');
+    expect(values.platforms, ['Super Nintendo']);
+    expect(values.region, 'NTSC-U');
+    expect(values.publisher, 'Square');
+    expect(values.releaseDate, DateTime(1995, 3, 11));
+
+    values.editionTitle = 'Anniversary Edition';
+    values.platforms = ['Nintendo Switch', 'PC'];
+    values.region = 'Region Free';
+    values.publisher = 'Square Enix';
+    values.barcode = '000123';
+
+    final updated = gameMetadataFromManualFormValues(
       values: values,
+      id: 'game-1',
+      title: 'Chrono Trigger',
     );
-    expect(updated.publisher, 'New Publisher');
-    expect(updated.platforms, unorderedEquals(['Nintendo Switch', 'PC']));
-    expect(updated.genres, unorderedEquals(['Role-playing', 'Adventure']));
-    expect(updated.originalLanguage, 'English');
-    expect(updated.rawPayload['provider_only'], 'keep');
+    final payload = updated.toJson();
+
+    expect(payload['title'], 'Chrono Trigger');
+    expect(payload['edition_title'], 'Anniversary Edition');
+    expect(payload['platforms'], ['Nintendo Switch', 'PC']);
+    expect(payload['release_region'], 'Region Free');
+    expect(payload['publisher'], 'Square Enix');
+    expect(payload['barcode'], '000123');
+    expect(payload['release_date'], '1995-03-11T00:00:00.000');
+    expect(payload, isNot(contains('editions')));
   });
 
   test('Game ownership schema round trips typed owned details', () {
@@ -123,99 +124,25 @@ void main() {
       ),
     );
   });
-
-  test('Game release form updates a typed release and preserves release data',
-      () {
-    const original = GameRelease(
-      id: 'release-1',
-      title: 'Launch edition',
-      workId: 'work-1',
-      platform: 'Nintendo 64',
-      regionCode: 'NTSC-U/C (US/Canada)',
-      format: 'Cartridge',
-      publisher: 'Old Publisher',
-      catalogNumber: 'OLD-1',
-      releaseStatus: 'released',
-      language: 'English',
-      barcode: '0001',
-      coverImageUrl: 'https://example.test/old.jpg',
-      rawPayload: {'provider_only': 'keep'},
-    );
-    final values = gameCatalogFormValuesFromRelease(original);
-
-    (_releaseField('platform')
-            as LibraryVocabularyFieldSpec<GameCatalogFormValues, String>)
-        .setValue(values, 'Nintendo Switch');
-    (_releaseField('region')
-            as LibraryVocabularyFieldSpec<GameCatalogFormValues, String>)
-        .setValue(values, 'Region Free');
-    (_releaseField('release_title')
-            as LibraryTextFieldSpec<GameCatalogFormValues>)
-        .setValue(values, 'Remastered edition');
-    (_releaseField('publisher') as LibraryTextFieldSpec<GameCatalogFormValues>)
-        .setValue(values, 'New Publisher');
-    (_releaseField('catalog_number')
-            as LibraryTextFieldSpec<GameCatalogFormValues>)
-        .setValue(values, 'NEW-1');
-    (_releaseField('barcode') as LibraryTextFieldSpec<GameCatalogFormValues>)
-        .setValue(values, '0002');
-    (_releaseField('release_date')
-            as LibraryDateFieldSpec<GameCatalogFormValues>)
-        .setValue(values, DateTime(2026, 4, 12));
-
-    final updated = gameReleaseFromCatalogFormValues(
-      original: original,
-      values: values,
-    );
-    expect(updated.id, 'release-1');
-    expect(updated.workId, 'work-1');
-    expect(updated.title, 'Remastered edition');
-    expect(updated.platform, 'Nintendo Switch');
-    expect(updated.regionCode, 'Region Free');
-    expect(updated.publisher, 'New Publisher');
-    expect(updated.catalogNumber, 'NEW-1');
-    expect(updated.barcode, '0002');
-    expect(updated.releaseDate, DateTime(2026, 4, 12));
-    expect(updated.rawPayload['provider_only'], 'keep');
-    expect(gameReleaseEditSchema.validate!(original, values), isNull);
-  });
 }
 
 GameEditDraft _createDraft(GameCatalogMetadata metadata) {
   return createGameEditDraft(
-    item: _item(metadata),
+    item: CatalogSearchCandidate.fromItem(
+      CatalogItemDto(
+        identity: const LibraryItemIdentity(
+          id: 'game-1',
+          mediaKind: CatalogMediaKind.game,
+        ),
+        kindMetadata: metadata,
+      ),
+    ),
     textControllers: TextControllerGroup(),
   ).copySession as GameEditDraft;
 }
 
-CatalogSearchCandidate _item(GameCatalogMetadata metadata) {
-  return CatalogSearchCandidate.fromItem(
-    CatalogItemDto(
-      identity: const LibraryItemIdentity(
-        id: 'game-1',
-        mediaKind: CatalogMediaKind.game,
-      ),
-      kindMetadata: metadata,
-    ),
-  );
-}
-
-LibraryFieldSpec<GameCatalogFormValues> _field(String id) => [
-      for (final tab in gameMediaEditSchema.tabs)
-        for (final section in tab.sections)
-          for (final field in section.fields)
-            if (field.id == id) field,
-    ].single;
-
 LibraryFieldSpec<GameEditDraft> _ownedField(String id) => [
       for (final tab in gameOwnedEditSchema.tabs)
-        for (final section in tab.sections)
-          for (final field in section.fields)
-            if (field.id == id) field,
-    ].single;
-
-LibraryFieldSpec<GameCatalogFormValues> _releaseField(String id) => [
-      for (final tab in gameReleaseEditSchema.tabs)
         for (final section in tab.sections)
           for (final field in section.fields)
             if (field.id == id) field,

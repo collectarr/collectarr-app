@@ -5,16 +5,9 @@ final gameKindWorkspace = TypedLibraryKindWorkspace<GameWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: gameWorkWorkspaceSchema.toRegistry(),
+      fields: gameCatalogItemWorkspaceSchema.toRegistry(),
       projector: const GameWorkspaceProjector(
         expectedScope: LibraryEntityScope.work,
-      ),
-    ),
-    LibraryEntityScope.release: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
-      scope: LibraryEntityScope.release,
-      fields: gameReleaseWorkspaceSchema.toRegistry(),
-      projector: const GameWorkspaceProjector(
-        expectedScope: LibraryEntityScope.release,
       ),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<GameWorkspaceDto>(

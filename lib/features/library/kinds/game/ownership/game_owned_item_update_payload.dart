@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
@@ -6,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 
 final class GameOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   const GameOwnedItemUpdatePayload({
-    required this.targetRef,
     required this.quantity,
     required this.condition,
     required this.grade,
@@ -28,7 +26,6 @@ final class GameOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   });
 
   factory GameOwnedItemUpdatePayload.partial({
-    Patch<CatalogEntityRef?> targetRef = const Patch.unchanged(),
     Patch<int> quantity = const Patch.unchanged(),
     Patch<String?> condition = const Patch.unchanged(),
     Patch<String?> grade = const Patch.unchanged(),
@@ -49,7 +46,6 @@ final class GameOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
     Patch<GameOwnedDetailsDraft> details = const Patch.unchanged(),
   }) =>
       GameOwnedItemUpdatePayload(
-        targetRef: targetRef,
         quantity: quantity,
         condition: condition,
         grade: grade,
@@ -70,7 +66,6 @@ final class GameOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
         details: details,
       );
 
-  final Patch<CatalogEntityRef?> targetRef;
   final Patch<int> quantity;
   final Patch<String?> condition;
   final Patch<String?> grade;
@@ -113,15 +108,6 @@ final class GameOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
       isDigital: isDigital.when(
         unchanged: () => existing.isDigital,
         set: (value) => value,
-        clear: () => null,
-      ),
-      targetRef: targetRef.when(
-        unchanged: () => existing.targetRef,
-        set: (value) => value?.copyWith(
-          rootId: value.rootId ??
-              existing.catalogRef.rootId ??
-              existing.catalogRef.id,
-        ),
         clear: () => null,
       ),
       details: resolvedDetails,

@@ -17,14 +17,15 @@ final class GameWorkspaceCatalogData
 
   factory GameWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
     final rawMetadata = item.kindMetadata;
+    final metadata = rawMetadata is GameCatalogMetadata
+        ? rawMetadata
+        : GameCatalogMetadata.fromJson(item.payload);
     return GameWorkspaceCatalogData(
       ref: item.catalogRef,
-      game: GameCatalogMapper.mapMetadataItemToGame(item),
-      metadata: rawMetadata is GameCatalogMetadata
-          ? rawMetadata
-          : rawMetadata == null
-              ? null
-              : GameCatalogMetadata.fromJson(item.payload),
+      game: GameCatalogMapper.mapMetadataItemToGame(
+        item.withKindMetadata(metadata),
+      ),
+      metadata: metadata,
     );
   }
 

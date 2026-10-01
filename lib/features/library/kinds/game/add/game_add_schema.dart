@@ -26,13 +26,12 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
     },
     sections: [
       AddSectionSpec<GameAddManualDraft>(
-        id: 'release',
-        label: 'Release',
-        fields: gameReleaseFields(
+        id: 'catalog_item',
+        label: 'Catalog Item',
+        fields: gameCatalogItemFields(
           values: values,
-          titleLabel: 'Edition title',
           include: {
-            'release_title',
+            'edition_title',
             'platform',
             'region',
             'format',
@@ -52,9 +51,9 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
         ),
       ),
       AddSectionSpec<GameAddManualDraft>(
-        id: 'metadata',
-        label: 'Metadata',
-        fields: gameWorkFields(
+        id: 'game_details',
+        label: 'Game Details',
+        fields: gameMetadataFields(
           values: values,
           ageRatingOptions: ageRatingOptions,
           include: {

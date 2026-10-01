@@ -1,7 +1,5 @@
 import '../game_module_dependencies.dart';
 import 'game_kind_configuration.dart';
-import 'package:collectarr_app/features/library/kinds/game/release/game_release_projection_capability.dart'
-    as game_release;
 
 final gameKindPresentation = gamesLibraryMediaPresentation;
 
@@ -11,11 +9,7 @@ final gameKindTrackingProfile = gameTrackingProfile;
 
 final gameKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final gameKindReleaseCapability = game_release.gameKindReleaseCapability;
-
-final gameKindReleaseDetailSource = game_release.gameKindReleaseDetailSource;
-
-final gameKindCatalogTarget = const GameCatalogTargetCapability();
+final gameKindCatalogTarget = const RootCatalogTargetCapability();
 
 final gameKindUiPolicy = const LibraryUiPolicy();
 
@@ -50,7 +44,7 @@ final gameKindMetadata = const LibraryMetadataCapability(
 );
 
 final gameKindHierarchy = const LibraryHierarchyCapability(
-  browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
+  browserDelegateBuilder: LibraryNoopBrowserDelegate.new,
 );
 
 final gameKindEntityVocabulary = const LibraryEntityVocabulary(
@@ -61,7 +55,7 @@ final gameKindEntityVocabulary = const LibraryEntityVocabulary(
 
 final gameKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.play,
-  writableTargets: {LibraryTrackingTargetScope.release},
+  writableTargets: {LibraryTrackingTargetScope.work},
   aggregateTargets: {LibraryTrackingTargetScope.work},
 );
 
@@ -114,11 +108,6 @@ final gameKindInspector = LibraryInspectorCapability(
         scope: LibraryEntityScope.work,
         heroBuilder: buildGameWorkInspectorHero,
         sectionsBuilder: buildGameWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildGameReleaseInspectorHero,
-        sectionsBuilder: buildGameReleaseInspectorSections,
       ),
       LibraryEntityInspectorContributor(
         scope: LibraryEntityScope.copy,

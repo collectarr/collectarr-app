@@ -8,7 +8,7 @@ typedef GameFormValuesReader<TDraft> = GameCatalogFormValues Function(
   TDraft draft,
 );
 
-List<LibraryFieldSpec<TDraft>> gameWorkFields<TDraft>({
+List<LibraryFieldSpec<TDraft>> gameMetadataFields<TDraft>({
   required GameFormValuesReader<TDraft> values,
   bool includeTitle = true,
   Set<String>? include,
@@ -111,12 +111,6 @@ List<LibraryFieldSpec<TDraft>> gameWorkFields<TDraft>({
         value: (draft) => values(draft).originalLanguage,
         setValue: (draft, value) => values(draft).originalLanguage = value,
       ),
-      LibraryDateFieldSpec<TDraft>(
-        id: 'work_release_date',
-        label: 'Release date',
-        value: (draft) => values(draft).workReleaseDate,
-        setValue: (draft, value) => values(draft).workReleaseDate = value,
-      ),
       LibraryTextFieldSpec<TDraft>(
         id: 'franchise',
         label: 'Franchise',
@@ -143,10 +137,10 @@ List<LibraryFieldSpec<TDraft>> gameWorkFields<TDraft>({
       ),
     ].where((field) => include == null || include.contains(field.id)).toList();
 
-List<LibraryFieldSpec<TDraft>> gameReleaseFields<TDraft>({
+List<LibraryFieldSpec<TDraft>> gameCatalogItemFields<TDraft>({
   required GameFormValuesReader<TDraft> values,
   Set<String>? include,
-  String titleLabel = 'Release title',
+  String titleLabel = 'Edition title',
   Iterable<String>? platformOptions,
   Iterable<String>? regionOptions,
   Iterable<String>? formatOptions,
@@ -156,10 +150,10 @@ List<LibraryFieldSpec<TDraft>> gameReleaseFields<TDraft>({
 }) =>
     [
       LibraryTextFieldSpec<TDraft>(
-        id: 'release_title',
+        id: 'edition_title',
         label: titleLabel,
-        value: (draft) => values(draft).releaseTitle,
-        setValue: (draft, value) => values(draft).releaseTitle = value,
+        value: (draft) => values(draft).editionTitle,
+        setValue: (draft, value) => values(draft).editionTitle = value,
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'platform',
@@ -196,8 +190,8 @@ List<LibraryFieldSpec<TDraft>> gameReleaseFields<TDraft>({
       LibraryTextFieldSpec<TDraft>(
         id: 'publisher',
         label: 'Publisher',
-        value: (draft) => values(draft).releasePublisher,
-        setValue: (draft, value) => values(draft).releasePublisher = value,
+        value: (draft) => values(draft).publisher,
+        setValue: (draft, value) => values(draft).publisher = value,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'catalog_number',

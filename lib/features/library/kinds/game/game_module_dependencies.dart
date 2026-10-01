@@ -18,12 +18,9 @@ export 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.da
 export 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 export 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_pane.dart';
 export 'package:collectarr_app/features/library/kinds/game/add/game_catalog_candidate_projection.dart';
-export 'package:collectarr_app/features/library/kinds/game/domain/game_catalog_target_capability.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 export 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
-export 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_dialog.dart';
-export 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
 export 'package:collectarr_app/features/library/kinds/game/game_physical_media_formats.dart';
@@ -34,7 +31,6 @@ export 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 export 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_create_payload.dart';
 export 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/game/presentation.dart';
-export 'package:collectarr_app/features/library/kinds/game/release/game_release_projection_capability.dart';
 export 'package:collectarr_app/features/library/kinds/game/stats/game_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state_codec.dart';

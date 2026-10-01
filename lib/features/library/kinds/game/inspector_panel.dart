@@ -37,17 +37,6 @@ List<Widget> buildGameWorkInspectorSections(
   );
 }
 
-List<Widget> buildGameReleaseInspectorSections(
-  BuildContext context,
-  LibraryInspectorRequest inspector,
-) {
-  return _buildGameEntitySections(
-    context,
-    inspector,
-    includeCopyDetails: false,
-  );
-}
-
 List<Widget> buildGameCopyInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
@@ -75,18 +64,6 @@ List<Widget> _buildGameEntitySections(
 }
 
 Widget buildGameWorkInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) =>
-    LibraryDetailHero(
-      type: request.type,
-      item: request.item,
-      ownedItem: request.ownedItem,
-      ownedCopies: request.ownedCopies,
-      accent: request.accent,
-    );
-
-Widget buildGameReleaseInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>

@@ -64,48 +64,84 @@ class GameCatalogMetadata implements JsonEncodable {
   final Map<String, dynamic> rawPayload;
 
   @override
-  Map<String, dynamic> toJson() => {
-        ...rawPayload,
-        'title': title,
-        if (platform != null) 'platform': platform,
-        if (platforms.isNotEmpty) 'platforms': platforms,
-        if (toySubtype != null) 'toy_subtype': toySubtype,
-        if (toyType != null) 'toy_type': toyType,
-        if (releaseRegion != null) 'release_region': releaseRegion,
-        if (edition != null) 'edition_title': edition,
-        if (physicalFormat != null) 'physical_format': physicalFormat,
-        if (physicalFormatLabel != null)
-          'physical_format_label': physicalFormatLabel,
-        if (developers.isNotEmpty) 'developers': developers,
-        if (publishers.isNotEmpty) ...{
-          'publishers': publishers,
-          'publisher': publishers.first,
-        },
-        if (franchise != null) 'franchise': franchise,
-        if (series != null) 'series': series,
-        if (genres.isNotEmpty) 'genres': genres,
-        if (ageRating != null) 'age_rating': ageRating,
-        if (languages.isNotEmpty) 'languages': languages,
-        'country': country,
-        if (synopsis != null) 'synopsis': synopsis,
-        if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
-        if (barcode != null) 'barcode': barcode,
-        if (priceChartingId != null) 'price_charting_id': priceChartingId,
-        if (valuations != null) 'valuations': valuations!.toJson(),
-        if (creators.isNotEmpty) 'creators': creators,
-        if (links.isNotEmpty) ...{
-          if (links.any((l) => l.isTrailerLink))
-            'trailer_urls': links
-                .where((l) => l.isTrailerLink)
-                .map((e) => e.toJson())
-                .toList(),
-          if (links.any((l) => l.isExternalLink))
-            'external_links': links
-                .where((l) => l.isExternalLink)
-                .map((e) => e.toJson())
-                .toList(),
-        },
-      };
+  Map<String, dynamic> toJson() {
+    final aliases = _rawList('search_aliases');
+    final identifiers = _rawList('identifiers');
+    final companyRoles = _rawList('company_roles');
+    final seriesTags = _rawList('series_tags');
+    final externalLinks = [
+      ...links.where((link) => link.isExternalLink).map((link) => link.toJson()),
+    ];
+    final trailers = [
+      ...links.where((link) => link.isTrailerLink).map((link) => link.toJson()),
+    ];
+    return {
+      'title': title,
+      if (_rawText('sort_key') ?? _rawText('sort_title') case final value?)
+        'sort_key': value,
+      if (_rawText('localized_title') case final value?)
+        'localized_title': value,
+      if (_rawText('original_title') case final value?)
+        'original_title': value,
+      if (_rawText('title_extension') case final value?)
+        'title_extension': value,
+      if (_rawText('subtitle') case final value?) 'subtitle': value,
+      if (aliases.isNotEmpty) 'search_aliases': aliases,
+      if (synopsis != null) 'synopsis': synopsis,
+      if (_rawText('description') case final value?) 'description': value,
+      if (_rawText('plot_summary') case final value?) 'plot_summary': value,
+      if (_rawText('plot_description') case final value?)
+        'plot_description': value,
+      if (ageRating != null) 'age_rating': ageRating,
+      if (_rawText('audience_rating') case final value?)
+        'audience_rating': value,
+      if (barcode != null) 'barcode': barcode,
+      if (_rawText('catalog_number') case final value?)
+        'catalog_number': value,
+      if (companyRoles.isNotEmpty) 'company_roles': companyRoles,
+      if (_rawMaps('contributors') case final values when values.isNotEmpty)
+        'contributors': values,
+      if (country.isNotEmpty) 'country': country,
+      if (_rawText('cover_image_url') case final value?)
+        'cover_image_url': value,
+      if (creators.isNotEmpty) 'creators': creators,
+      if (developers.isNotEmpty) 'developers': developers,
+      if (edition != null) 'edition_title': edition,
+      if (externalLinks.isNotEmpty) 'external_links': externalLinks,
+      if (genres.isNotEmpty) 'genres': genres,
+      if (identifiers.isNotEmpty) 'identifiers': identifiers,
+      if (_rawText('item_number') case final value?) 'item_number': value,
+      if (languages.firstOrNull case final value?) 'language': value,
+      if (physicalFormat case final value?) 'physical_format': value,
+      if (platforms.isNotEmpty) 'platforms': platforms,
+      if (publishers.firstOrNull case final value?) 'publisher': value,
+      if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
+      if (releaseRegion != null) 'release_region': releaseRegion,
+      if (_rawText('release_status') case final value?)
+        'release_status': value,
+      if (seriesTags.isNotEmpty) 'series_tags': seriesTags,
+      if (series != null) 'series_title': series,
+      if (trailers.isNotEmpty) 'trailer_urls': trailers,
+      if (_rawText('thumbnail_image_url') case final value?)
+        'thumbnail_image_url': value,
+      if (_rawText('variant_name') ?? _rawText('variant') case final value?)
+        'variant_name': value,
+    };
+  }
+
+  String? _rawText(String key) {
+    final value = rawPayload[key]?.toString().trim();
+    return value == null || value.isEmpty ? null : value;
+  }
+
+  List<String> _rawList(String key) =>
+      (rawPayload[key] as List?)?.map((value) => value.toString()).toList() ??
+      const [];
+
+  List<Map<String, dynamic>> _rawMaps(String key) => [
+        for (final entry in rawPayload[key] as List? ?? const [])
+          if (entry is Map) Map<String, dynamic>.from(entry),
+      ];
 
   GameCatalogMetadata copyWith({
     String? title,

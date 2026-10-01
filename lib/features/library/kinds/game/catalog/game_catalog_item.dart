@@ -1,65 +1,39 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 
-class GameWorkMetadata {
-  const GameWorkMetadata({
-    required this.title,
-    this.originalTitle,
-    this.synopsis,
-    this.releaseDate,
-    this.platforms = const [],
-    this.genres = const [],
-  });
-
-  final String title;
-  final String? originalTitle;
-  final String? synopsis;
-  final DateTime? releaseDate;
-  final List<String> platforms;
-  final List<String> genres;
-}
-
-class GameCatalogItem {
+/// One concrete video game edition represented by a Core Catalog Item.
+///
+/// Platform, region, edition, publisher, identifiers, and release date belong
+/// to this item. It has no nested Work or Release records.
+final class GameCatalogItem {
   const GameCatalogItem({
-    required this.id,
-    required this.work,
-    required this.releases,
+    required this.item,
+    required this.metadata,
   });
 
-  final String id;
-  final GameWorkMetadata work;
-  final List<GameRelease> releases;
+  final CatalogItemDto item;
+  final GameCatalogMetadata metadata;
 
-  GameRelease? get primaryRelease => releases.isEmpty ? null : releases.first;
-  String get title => work.title;
-  String? get displayTitle => work.title;
-  String? get localizedTitle => null;
-  String? get originalTitle => work.originalTitle;
-  String? get synopsis => work.synopsis;
-  String? get itemNumber => null;
-  String? get coverImageUrl => primaryRelease?.coverImageUrl;
-  String? get thumbnailImageUrl => primaryRelease?.coverImageUrl;
-  String? get publisher => primaryRelease?.publisher;
-  DateTime? get coverDate => work.releaseDate;
-  DateTime? get releaseDate => primaryRelease?.releaseDate ?? work.releaseDate;
-  int? get releaseYear => releaseDate?.year;
-  String? get barcode => primaryRelease?.barcode;
-  String? get variant => primaryRelease?.title;
-  String? get crossover => null;
-  String? get displayCoverUrl => coverImageUrl;
-  bool get hasMissingCoreMetadata => work.title.isEmpty;
-  List<TrailerLinkDto> get trailerUrls => const [];
-  String? get plotSummary => work.synopsis;
-  String? get plotDescription => null;
-  List<Map<String, dynamic>>? get creators => null;
-  List<String>? get characters => null;
-  List<String>? get storyArcs => null;
-  List<String> get genres => work.genres;
-  List<String> get platforms => work.platforms;
-  String? get country => null;
-  String? get language => null;
-  String? get ageRating => null;
-  String? get audienceRating => null;
-  CatalogSeriesDetailsDto? get series => null;
-  CatalogPublishingDetailsDto? get publishingDetails => null;
+  String get id => item.id;
+  String get title => item.title;
+  String? get displayTitle => item.displayTitle;
+  String? get originalTitle => item.originalTitle;
+  String? get synopsis => item.synopsis ?? metadata.synopsis;
+  String? get itemNumber => item.itemNumber;
+  String? get coverImageUrl => item.coverImageUrl;
+  String? get thumbnailImageUrl => item.thumbnailImageUrl ?? coverImageUrl;
+  String? get publisher => metadata.publishers.firstOrNull ?? item.publisher;
+  DateTime? get releaseDate => metadata.releaseDate ?? item.releaseDate;
+  int? get releaseYear => releaseDate?.year ?? item.releaseYear;
+  String? get barcode => metadata.barcode ?? item.barcode;
+  String? get edition => metadata.edition ?? item.editionTitle;
+  String? get variant => item.variant ?? edition;
+  String? get country => metadata.country;
+  String? get language => metadata.languages.firstOrNull;
+  String? get physicalFormat =>
+      metadata.physicalFormatLabel ?? metadata.physicalFormat ?? item.physicalFormatLabel;
+  List<String> get genres => metadata.genres;
+  List<String> get platforms => metadata.platforms;
+
+  CatalogItemDto toCatalogItemDto() => item.withKindMetadata(metadata);
 }

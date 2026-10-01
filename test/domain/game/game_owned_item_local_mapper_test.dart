@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/local/game_owned_item_local_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_copy_id.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:drift/native.dart';
@@ -20,11 +20,6 @@ void main() {
       ),
       createdAt: DateTime.utc(2026, 4, 1),
       isDigital: false,
-      targetRef: const CatalogEntityRef(
-        kind: CatalogMediaKind.game,
-        entityType: CatalogEntityTypeId('edition'),
-        id: 'release-1',
-      ),
       condition: 'Near Mint',
       grade: '9.5',
       purchaseDate: DateTime.utc(2026, 4, 2),
@@ -57,13 +52,13 @@ void main() {
     final row = await db.select(db.gameOwnedItemsRows).getSingle();
     final restored = GameOwnedItemLocalMapper.fromRow(row);
 
-    expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
     expect(restored.isDigital, false);
-    expect(restored.targetRef?.entityType.apiValue, 'edition');
-    expect(restored.targetRef?.id, 'release-1');
+    expect(restored.catalogRef.entityType, CatalogEntityTypeId.root);
+    expect(restored.catalogRef.id, 'game-1');
+    expect(item.toJson(), isNot(contains('target_ref')));
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);

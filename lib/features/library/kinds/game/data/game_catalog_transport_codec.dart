@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
@@ -10,12 +9,14 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
+import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 
 final class GameCatalogTransportCodec
     implements
-        CatalogKindTransportCodec<GameMedia>,
+        CatalogKindTransportCodec<GameCatalogItem>,
         CatalogSharedCachePrimaryStore {
   const GameCatalogTransportCodec();
 
@@ -23,21 +24,17 @@ final class GameCatalogTransportCodec
   CatalogMediaKind get kind => CatalogMediaKind.game;
 
   @override
-  GameMedia decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is GameMedia) return metadata;
-    return GameMedia.fromJson(catalogTransportPayloadFor(item));
-  }
+  GameCatalogItem decode(CatalogItemDto item) =>
+      GameCatalogMapper.mapMetadataItemToGame(item);
 
   @override
-  Future<void> upsert(LocalDatabase db, GameMedia item) {
-    return CatalogItemCacheRepository(db).upsert(_projection(item));
-  }
+  Future<void> upsert(LocalDatabase db, GameCatalogItem item) =>
+      CatalogItemCacheRepository(db).upsert(item.toCatalogItemDto());
 
   @override
-  CatalogDisplaySummary summarize(GameMedia item) => CatalogDisplaySummary.root(
+  CatalogDisplaySummary summarize(GameCatalogItem item) => CatalogDisplaySummary.root(
         kind: kind,
-        id: item.id.value,
+        id: item.id,
         primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
@@ -59,7 +56,7 @@ final class GameCatalogTransportCodec
       contributor: contributor,
       listName: listName,
       metadata: [
-        for (final item in await listTransport(db)) decode(item),
+        for (final item in await listTransport(db)) decode(item).metadata,
       ],
       normalizedValues: normalizedValues,
     );
@@ -94,17 +91,17 @@ final class GameCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    GameMedia item,
+    GameCatalogItem item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
-      derived: _derivedDataFromTyped(item),
+      derived: _derivedDataFromTyped(item.metadata),
       pickLists: pickLists,
       serialAuthority: serialAuthority,
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(GameMedia item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(GameCatalogMetadata item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -136,13 +133,4 @@ int? _replacementValueFromPayload(CatalogItemDto item) {
   final publishing = item.payload['publishing'];
   final nested = publishing is Map ? publishing['cover_price_cents'] : null;
   return nested is num ? nested.toInt() : null;
-}
-
-CatalogItemDto _projection(GameMedia item) {
-  final payload = Map<String, dynamic>.from(item.rawPayload);
-  payload['id'] ??= item.id.value;
-  payload['kind'] ??= 'game';
-  payload['title'] ??= item.title;
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(GameMedia.fromJson(projection.payload));
 }
