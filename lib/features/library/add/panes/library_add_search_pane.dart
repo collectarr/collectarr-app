@@ -20,6 +20,8 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.ownedCatalogRefs,
     this.coreMatchSummary,
     required this.resultPolicy,
+    required this.resultPolicyState,
+    required this.onResultPolicyOptionChanged,
     required this.onSelectResult,
     required this.onToggleResultCheck,
   });
@@ -38,6 +40,8 @@ class LibraryAddSearchPane extends StatelessWidget {
   final Set<CatalogEntityRef> ownedCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
   final LibraryAddResultPolicy resultPolicy;
+  final LibraryAddResultPolicyState resultPolicyState;
+  final void Function(String id, bool value) onResultPolicyOptionChanged;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onToggleResultCheck;
 
@@ -51,6 +55,13 @@ class LibraryAddSearchPane extends StatelessWidget {
       ),
       child: Column(
         children: [
+          if (resultPolicy.options.isNotEmpty)
+            _LibraryAddResultOptionsBar(
+              options: resultPolicy.options,
+              state: resultPolicyState,
+              accent: accent,
+              onChanged: onResultPolicyOptionChanged,
+            ),
           Expanded(
             child: _SearchResultsList(
               type: type,
@@ -76,6 +87,88 @@ class LibraryAddSearchPane extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _LibraryAddResultOptionsBar extends StatelessWidget {
+  const _LibraryAddResultOptionsBar({
+    required this.options,
+    required this.state,
+    required this.accent,
+    required this.onChanged,
+  });
+
+  final List<LibraryAddResultOption> options;
+  final LibraryAddResultPolicyState state;
+  final Color accent;
+  final void Function(String id, bool value) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border(bottom: BorderSide(color: palette.divider)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            for (final option in options)
+              _LibraryAddResultOptionChip(
+                option: option,
+                selected: state.valueFor(
+                  option.id,
+                  fallback: option.initialValue,
+                ),
+                accent: accent,
+                onSelected: (value) => onChanged(option.id, value),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryAddResultOptionChip extends StatelessWidget {
+  const _LibraryAddResultOptionChip({
+    required this.option,
+    required this.selected,
+    required this.accent,
+    required this.onSelected,
+  });
+
+  final LibraryAddResultOption option;
+  final bool selected;
+  final Color accent;
+  final ValueChanged<bool> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final selectedColor = Color.alphaBlend(
+      accent.withValues(alpha: 0.2),
+      palette.panel,
+    );
+    return FilterChip(
+      label: Text(option.label),
+      selected: selected,
+      onSelected: onSelected,
+      selectedColor: selectedColor,
+      checkmarkColor: appContrastingTextColor(selectedColor),
+      labelStyle: TextStyle(
+        color: selected
+            ? appContrastingTextColor(selectedColor)
+            : palette.textPrimary,
+        fontWeight: FontWeight.w700,
+      ),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }

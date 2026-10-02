@@ -1,56 +1,56 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 
 @immutable
 sealed class CollectionEvent {
   const CollectionEvent();
 }
 
-final class OwnedItemAdded extends CollectionEvent {
-  const OwnedItemAdded(this.ownedRef);
-  final OwnedCopyRef ownedRef;
+final class CollectionItemAdded extends CollectionEvent {
+  const CollectionItemAdded(this.collectionItemRef);
+  final CollectionItemRef collectionItemRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is OwnedItemAdded &&
+      other is CollectionItemAdded &&
           runtimeType == other.runtimeType &&
-          ownedRef == other.ownedRef;
+          collectionItemRef == other.collectionItemRef;
 
   @override
-  int get hashCode => ownedRef.hashCode;
+  int get hashCode => collectionItemRef.hashCode;
 }
 
-final class OwnedItemUpdated extends CollectionEvent {
-  const OwnedItemUpdated(this.ownedRef);
-  final OwnedCopyRef ownedRef;
+final class CollectionItemUpdated extends CollectionEvent {
+  const CollectionItemUpdated(this.collectionItemRef);
+  final CollectionItemRef collectionItemRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is OwnedItemUpdated &&
+      other is CollectionItemUpdated &&
           runtimeType == other.runtimeType &&
-          ownedRef == other.ownedRef;
+          collectionItemRef == other.collectionItemRef;
 
   @override
-  int get hashCode => ownedRef.hashCode;
+  int get hashCode => collectionItemRef.hashCode;
 }
 
-final class OwnedItemRemoved extends CollectionEvent {
-  const OwnedItemRemoved(this.ownedRef);
-  final OwnedCopyRef ownedRef;
+final class CollectionItemRemoved extends CollectionEvent {
+  const CollectionItemRemoved(this.collectionItemRef);
+  final CollectionItemRef collectionItemRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is OwnedItemRemoved &&
+      other is CollectionItemRemoved &&
           runtimeType == other.runtimeType &&
-          ownedRef == other.ownedRef;
+          collectionItemRef == other.collectionItemRef;
 
   @override
-  int get hashCode => ownedRef.hashCode;
+  int get hashCode => collectionItemRef.hashCode;
 }
 
 final class CatalogItemChanged extends CollectionEvent {

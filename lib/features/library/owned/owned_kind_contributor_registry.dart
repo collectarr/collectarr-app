@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
@@ -39,12 +39,12 @@ OwnedKindContributor ownedContributorForKind(CatalogMediaKind kind) {
   return contributor;
 }
 
-typedef LibraryOwnedSummaryReader = Future<List<OwnedCopySummary>> Function(
+typedef LibraryCollectionItemSummaryReader = Future<List<CollectionItemSummary>> Function(
   LocalDatabase database,
 );
 
-final Map<CatalogMediaKind, LibraryOwnedSummaryReader>
-    libraryOwnedSummaryReadersByKind = Map.unmodifiable({
+final Map<CatalogMediaKind, LibraryCollectionItemSummaryReader>
+    libraryCollectionItemSummaryReadersByKind = Map.unmodifiable({
   for (final entry in collectarrOwnedKindContributors.entries)
     entry.key: entry.value.listActiveSummaries,
 });

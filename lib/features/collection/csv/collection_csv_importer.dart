@@ -24,6 +24,15 @@ final class CollectionCsvImporter {
       return const [];
     }
     final parsedHeader = rows.first.toList(growable: false);
+    if (parsedHeader.any((column) {
+      final normalized = _normalizeColumn(column);
+      return normalized == 'quantity' || normalized == 'qty';
+    })) {
+      throw const FormatException(
+        'Collection CSV rows represent one physical copy; remove the '
+        'Quantity column and import one row per copy.',
+      );
+    }
     final index = _headerIndex(parsedHeader);
     final cfColumns = _customFieldColumns(parsedHeader);
     final structuralOnly = _isStructuralHeader(parsedHeader);
@@ -111,7 +120,6 @@ final class CollectionCsvImporter {
         pricePaidCents: _moneyCents(_value(index, values, 'price_paid_cents')),
         currency: _optionalValue(index, values, 'currency'),
         notes: _optionalValue(index, values, 'notes'),
-        quantity: int.tryParse(_value(index, values, 'quantity')),
         locationId: _optionalValue(index, values, 'location_id'),
         indexNumber: int.tryParse(_value(index, values, 'index_number')),
         tags: _optionalValue(index, values, 'tags'),
@@ -416,7 +424,6 @@ final class CollectionCsvImporter {
     'price_paid_cents': ['Purchase Price', 'Price Paid', 'Value'],
     'currency': ['Currency'],
     'notes': ['Notes', 'Personal Notes'],
-    'quantity': ['Quantity', 'Qty'],
     'location_id': ['Location ID', 'Location Id'],
     'index_number': ['Index', 'Index Number'],
     'rating': ['Rating'],

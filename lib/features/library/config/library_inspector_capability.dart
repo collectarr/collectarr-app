@@ -1,17 +1,17 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryPersonalDetailFieldsBuilder = List<LibraryDetailField> Function({
   required BuildContext context,
   required LibraryProjectionView item,
-  required OwnedCopySummary? ownedItem,
-  required LibraryOwnedItemDispatch? ownedItemDispatch,
+  required CollectionItemSummary? collectionItem,
+  required LibraryCollectionItemDispatch? collectionItemDispatch,
   required String? currency,
 });
 
@@ -53,7 +53,7 @@ class LibraryInspectorCapability {
     this.entityRegistry = const LibraryEntityInspectorRegistry(),
     this.mediaDetailContributionBuilder,
     this.showsDefaultPersonalSection = true,
-    this.supportsOwnedItemImages = true,
+    this.supportsCollectionItemImages = true,
     this.trackingEditor,
     this.personalDetailFieldsBuilder,
   });
@@ -61,7 +61,7 @@ class LibraryInspectorCapability {
   final LibraryEntityInspectorRegistry entityRegistry;
   final LibraryMediaDetailContributionBuilder? mediaDetailContributionBuilder;
   final bool showsDefaultPersonalSection;
-  final bool supportsOwnedItemImages;
+  final bool supportsCollectionItemImages;
   final LibraryTrackingEditorCapability? trackingEditor;
   final LibraryPersonalDetailFieldsBuilder? personalDetailFieldsBuilder;
 
@@ -76,15 +76,15 @@ class LibraryInspectorCapability {
   List<LibraryDetailField> buildPersonalDetailFields({
     required BuildContext context,
     required LibraryProjectionView item,
-    required OwnedCopySummary? ownedItem,
-    required LibraryOwnedItemDispatch? ownedItemDispatch,
+    required CollectionItemSummary? collectionItem,
+    required LibraryCollectionItemDispatch? collectionItemDispatch,
     required String? currency,
   }) {
     return personalDetailFieldsBuilder?.call(
           context: context,
           item: item,
-          ownedItem: ownedItem,
-          ownedItemDispatch: ownedItemDispatch,
+          collectionItem: collectionItem,
+          collectionItemDispatch: collectionItemDispatch,
           currency: currency,
         ) ??
         const [];

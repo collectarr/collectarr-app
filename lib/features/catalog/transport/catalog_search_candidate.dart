@@ -24,15 +24,17 @@ final class CatalogSearchCandidate {
     );
   }
 
+  /// Produces a small, transient display projection from a kind-owned flat
+  /// payload. The projection is never cached or written back as catalog data.
   factory CatalogSearchCandidate.fromItem(CatalogItemDto item) {
-    return CatalogSearchCandidate._(
+    return CatalogSearchCandidate.fromTransport(
+      item: item,
       summary: CatalogDisplaySummary(
         ref: item.catalogRef,
         kind: item.mediaKind,
         primaryLabel: item.resolvedDisplayTitle,
         imageUrl: item.displayCoverUrl,
       ),
-      kindCapability: CatalogSearchCandidateKindCapability._(item),
     );
   }
 
@@ -48,10 +50,6 @@ final class CatalogSearchCandidate {
     );
   }
 
-  factory CatalogSearchCandidate.fromJson(Map<String, dynamic> json) {
-    return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson(json));
-  }
-
   /// Decodes a Core search response at the catalog transport boundary and
   /// immediately projects it to the small candidate shape used by mixed
   /// search/import hosts. The generated catalog DTO never leaves this
@@ -59,19 +57,21 @@ final class CatalogSearchCandidate {
   factory CatalogSearchCandidate.fromApiJson({
     required Map<String, dynamic> json,
     JsonEncodable Function(JsonMap payload)? metadataDecoder,
+    CatalogDisplaySummary Function(CatalogItemDto item)? summaryBuilder,
   }) {
     var item = CatalogItemDto.fromJson(json);
     if (metadataDecoder != null) {
-      item = item.withKindMetadata(metadataDecoder(item.payload));
+      item = item.withKindData(metadataDecoder(item.payload));
     }
     return CatalogSearchCandidate.fromTransport(
       item: item,
-      summary: CatalogDisplaySummary(
-        ref: item.catalogRef,
-        kind: item.mediaKind,
-        primaryLabel: item.title,
-        imageUrl: item.displayCoverUrl,
-      ),
+      summary: summaryBuilder?.call(item) ??
+          CatalogDisplaySummary(
+            ref: item.catalogRef,
+            kind: item.mediaKind,
+            primaryLabel: item.resolvedDisplayTitle,
+            imageUrl: item.displayCoverUrl,
+          ),
     );
   }
 
@@ -97,9 +97,9 @@ final class CatalogSearchCandidateKindCapability {
     return decoder(item);
   }
 
-  CatalogSearchCandidate withKindMetadata(Object? metadata) {
+  CatalogSearchCandidate withKindData(JsonEncodable kindData) {
     return CatalogSearchCandidate.fromItem(
-      mapTransport((item) => item.withKindMetadata(metadata)),
+      mapTransport((item) => item.withKindData(kindData)),
     );
   }
 

@@ -73,14 +73,14 @@ void main() {
       child.rootScope,
       const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'series-1',
       ),
     );
 
     const targetWithoutRoot = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: CatalogEntityTypeId('owned_copy'),
+      entityType: CatalogEntityTypeId('collection_item'),
       id: 'copy-1',
     );
     expect(targetWithoutRoot.rootScope, targetWithoutRoot);

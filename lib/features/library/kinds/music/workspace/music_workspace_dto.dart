@@ -173,8 +173,8 @@ final class MusicCatalogItemWorkspaceDto
   });
 }
 
-final class MusicOwnedCopyWorkspaceDto extends MusicWorkspaceProjectionValues {
-  MusicOwnedCopyWorkspaceDto({
+final class MusicCollectionItemWorkspaceDto extends MusicWorkspaceProjectionValues {
+  MusicCollectionItemWorkspaceDto({
     required super.common,
     required super.personal,
     required super.music,

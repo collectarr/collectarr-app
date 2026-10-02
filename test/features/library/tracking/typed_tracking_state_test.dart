@@ -36,7 +36,7 @@ void main() {
             )
           : CatalogEntityRef(
               kind: mediaKind,
-              entityType: const CatalogEntityTypeId('work'),
+              entityType: CatalogEntityTypeId.catalogItem,
               id: '$kind-work',
             ),
       updatedAt: updatedAt,

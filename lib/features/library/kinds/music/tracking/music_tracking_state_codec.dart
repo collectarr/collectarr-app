@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
@@ -36,7 +36,7 @@ final class MusicTrackingStateCodec
             trackingStorageRowFromColumns(
               id: row.id,
               catalogRefJson: row.catalogRefJson,
-              ownedRefKey: row.ownedRefKey,
+              collectionItemRefKey: row.collectionItemRefKey,
               sourceType: row.sourceType,
               status: row.status,
               rating: row.rating,
@@ -65,7 +65,7 @@ final class MusicTrackingStateCodec
           MusicTrackingRowsCompanion.insert(
             id: entry.id,
             catalogRefJson: jsonEncode(typed.catalogRef.toJson()),
-            ownedRefKey: const Value(null),
+            collectionItemRefKey: const Value(null),
             sourceType: Value(typed.sourceTypeApiValue),
             status: Value(typed.statusStorageValue),
             rating: Value(typed.rating),
@@ -97,7 +97,7 @@ final class MusicTrackingStateCodec
   MusicTrackingState create({
     required String id,
     required CatalogEntityRef catalogRef,
-    OwnedCopyRef? ownedRef,
+    CollectionItemRef? collectionItemRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -111,8 +111,8 @@ final class MusicTrackingStateCodec
     DateTime? deletedAt,
   }) {
     _validateMusicCatalogItem(catalogRef);
-    if (ownedRef != null) {
-      throw StateError('Music tracking cannot be attached to an owned copy.');
+    if (collectionItemRef != null) {
+      throw StateError('Music tracking cannot be attached to a collection item.');
     }
     return MusicTrackingState(
       id: id,
@@ -158,9 +158,9 @@ final class MusicTrackingStateCodec
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
     _validateMusicCatalogItem(catalogRef);
-    final ownedRef = ownedCopyRefFromSerialized(payload['owned_ref']);
-    if (ownedRef != null) {
-      throw StateError('Music tracking cannot be attached to an owned copy.');
+    final collectionItemRef = collectionItemRefFromSerialized(payload['collection_item_ref']);
+    if (collectionItemRef != null) {
+      throw StateError('Music tracking cannot be attached to a collection item.');
     }
     return MusicTrackingState(
       id: id,
@@ -226,16 +226,16 @@ final class MusicTrackingStateCodec
       );
     }
     _validateMusicCatalogItem(entry.catalogRef);
-    if (entry.ownedRef != null) {
-      throw StateError('Music tracking cannot be attached to an owned copy.');
+    if (entry.collectionItemRef != null) {
+      throw StateError('Music tracking cannot be attached to a collection item.');
     }
     return entry;
   }
 
   TrackingStorageRow _validatedStorageRow(TrackingStorageRow row) {
     _validateMusicCatalogItem(row.catalogRef);
-    if (row.ownedRef != null) {
-      throw StateError('Music tracking cannot be attached to an owned copy.');
+    if (row.collectionItemRef != null) {
+      throw StateError('Music tracking cannot be attached to a collection item.');
     }
     return row;
   }
@@ -248,7 +248,7 @@ final class MusicTrackingStateCodec
         'Music tracking requires a concrete Music Catalog Item',
       );
     }
-    if (ref.entityType != CatalogEntityTypeId.root) {
+    if (ref.entityType != CatalogEntityTypeId.catalogItem) {
       throw StateError(
         'Music tracking requires a concrete Music Catalog Item reference',
       );

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 
 /// TV-owned season/episode progress unit.
@@ -12,7 +12,7 @@ final class TvTrackingUnit extends TrackingUnitSummary {
     this.seasonNumber,
     this.episodeNumber,
     super.trackingEntryId,
-    super.ownedRef,
+    super.collectionItemRef,
     super.deletedAt,
   });
 
@@ -36,7 +36,7 @@ final class TvTrackingUnit extends TrackingUnitSummary {
     String? id,
     CatalogEntityRef? targetRef,
     String? trackingEntryId,
-    OwnedCopyRef? ownedRef,
+    CollectionItemRef? collectionItemRef,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -45,7 +45,7 @@ final class TvTrackingUnit extends TrackingUnitSummary {
       id: id ?? this.id,
       targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedRef: ownedRef ?? this.ownedRef,
+      collectionItemRef: collectionItemRef ?? this.collectionItemRef,
       seasonNumber: seasonNumber,
       episodeNumber: episodeNumber,
       completedAt: completedAt ?? this.completedAt,

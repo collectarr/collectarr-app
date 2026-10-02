@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dial
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
@@ -45,15 +45,15 @@ class LibraryPageDialogCoordinator {
 
   final LibraryPageCoordinatorContext _page;
 
-  TransferableOwnedItem? _transferItem(LibraryProjectionItem item) {
+  TransferableCollectionItem? _transferItem(LibraryProjectionItem item) {
     final source = item.source;
-    final value = source.ownedItemDispatch;
-    final ref = source.ownedRef;
+    final value = source.collectionItemDispatch;
+    final ref = source.collectionItemRef;
     final catalogRef = source.catalogRef;
     if (value == null || ref == null || catalogRef == null) {
       return null;
     }
-    return TransferableOwnedItem(
+    return TransferableCollectionItem(
       ref: ref,
       catalogRef: catalogRef,
       value: value,
@@ -75,7 +75,8 @@ class LibraryPageDialogCoordinator {
     );
     if (added != null && _page.mounted && context.mounted) {
       _page.invalidateShelf();
-      _revealAddedItems(added.itemIds);
+      await _revealAddedItems(added.itemIds);
+      if (!_page.mounted || !context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -88,12 +89,32 @@ class LibraryPageDialogCoordinator {
     }
   }
 
-  void _revealAddedItems(List<String> itemIds) {
+  Future<void> _revealAddedItems(List<String> itemIds) async {
     if (itemIds.isEmpty) {
       return;
     }
+    final catalogItemId = itemIds.first;
+    var selectedEntryId = catalogItemId;
+    try {
+      final shelf = await _page.ref.read(shelfProvider.future);
+      for (final entry in shelf.entries) {
+        if (entry.itemId != catalogItemId || !entry.isOwned) continue;
+        final collectionItemRef = entry.collectionItemRef;
+        if (collectionItemRef != null) {
+          selectedEntryId = LibraryCatalogItemNodeRef(
+            catalogItemId: catalogItemId,
+            collectionItemRef: collectionItemRef,
+          ).id;
+        }
+        break;
+      }
+    } catch (_) {
+      // Keep the catalog ID as a useful fallback if the refreshed local shelf
+      // cannot be read immediately after adding.
+    }
+    if (!_page.mounted) return;
     _page.rebuild(() {
-      _page.selectedId = itemIds.first;
+      _page.selectedId = selectedEntryId;
       _page.selectedBucket = null;
       _page.selectedLetter = null;
       _page.linkedMetadataFilter = null;
@@ -186,8 +207,8 @@ class LibraryPageDialogCoordinator {
       currentSortAscending: _page.viewState?.sortAscending,
       currentSearchQuery:
           _page.searchQuery.isNotEmpty ? _page.searchQuery : null,
-      currentEntityType: _page.activeEntityScope == LibraryEntityScope.copy
-          ? SmartListEntityType.ownedCopy
+      currentEntityType: _page.activeEntityScope == LibraryEntityScope.collectionItem
+          ? SmartListEntityType.collectionItem
           : SmartListEntityType.catalogItem,
       customFieldDefinitions: customFieldCache.definitions,
     );
@@ -203,16 +224,16 @@ class LibraryPageDialogCoordinator {
         final viewState = _page.viewState;
         if (viewState != null) {
           final entityType = result.entityType ??
-              (_page.activeEntityScope == LibraryEntityScope.copy
-                  ? SmartListEntityType.ownedCopy
+              (_page.activeEntityScope == LibraryEntityScope.collectionItem
+                  ? SmartListEntityType.collectionItem
                   : SmartListEntityType.catalogItem);
           if (result.sortRules != null && result.sortRules!.isNotEmpty) {
             _page.viewState = viewState.withSortRules(
               _page.viewProfile.decodeSortRules(
                 result.sortRules!,
-                scope: entityType == SmartListEntityType.ownedCopy
-                    ? LibraryEntityScope.copy
-                    : LibraryEntityScope.work,
+                scope: entityType == SmartListEntityType.collectionItem
+                    ? LibraryEntityScope.collectionItem
+                    : LibraryEntityScope.catalogItem,
               ),
               _page.viewProfile,
             );
@@ -295,15 +316,15 @@ class LibraryPageDialogCoordinator {
     final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final queueRefs = await ReadingQueueRepository(db).getQueue();
-    final ownedItems = await OwnedItemsRepository(db).listActiveSummaries();
+    final collectionItems = await CollectionItemsRepository(db).listActiveSummaries();
     final trackingSummaries =
         await _page.ref.read(trackingSummariesProvider.future);
-    final queuedOwnedItems = ownedItems
+    final queuedCollectionItems = collectionItems
         .where((item) => queueRefs.contains(item.ref))
         .toList(growable: false);
     final catalogSummariesByRef =
         await CatalogDisplaySummaryRepository(db).findByRefs(
-      queuedOwnedItems
+      queuedCollectionItems
           .map((item) => item.catalogRef)
           .whereType<CatalogEntityRef>(),
     );
@@ -317,7 +338,7 @@ class LibraryPageDialogCoordinator {
       context: context,
       db: db,
       mediaKind: _page.type.kind.apiValue,
-      ownedItems: queuedOwnedItems,
+      collectionItems: queuedCollectionItems,
       trackingSummaries: trackingSummaries,
       catalogSummariesByRef: catalogSummariesByRef,
       onSelectItem: _page.selectItem,
@@ -424,13 +445,13 @@ class LibraryPageDialogCoordinator {
     final customFieldCache = await _page.ref.read(
       libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
-    final items = <TransferableOwnedItem>{
+    final items = <TransferableCollectionItem>{
       for (final item in projection.filteredItems)
         if (_transferItem(item) case final owned?) owned,
     }.toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
-    final mutations = _page.ref.read(ownedItemMutationsProvider);
+    final mutations = _page.ref.read(collectionItemMutationsProvider);
     if (!context.mounted) {
       return;
     }
@@ -467,14 +488,14 @@ class LibraryPageDialogCoordinator {
     final customFieldCache = await _page.ref.read(
       libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
-    final items = <TransferableOwnedItem>{
+    final items = <TransferableCollectionItem>{
       for (final item in projection.filteredItems)
         if (_page.selection.itemIds.contains(item.node.id))
           if (_transferItem(item) case final owned?) owned,
     }.toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
-    final mutations = _page.ref.read(ownedItemMutationsProvider);
+    final mutations = _page.ref.read(collectionItemMutationsProvider);
     if (!context.mounted) {
       return;
     }
@@ -507,33 +528,33 @@ class LibraryPageDialogCoordinator {
   ) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final context = _page.context;
-    final ownedItemsByRef = <OwnedCopyRef, OwnedCopySummary>{};
+    final collectionItemsByRef = <CollectionItemRef, CollectionItemSummary>{};
     for (final item in projection.filteredItems) {
-      final ownedItem = item.source.ownedSummary;
+      final collectionItem = item.source.collectionItemSummary;
       if (_page.selection.itemIds.contains(item.node.id) &&
-          ownedItem != null &&
-          !_page.activeLoanOwnedCopyIds.contains(ownedItem.ref)) {
-        ownedItemsByRef[ownedItem.ref] = ownedItem;
+          collectionItem != null &&
+          !_page.activeLoanCollectionItemIds.contains(collectionItem.ref)) {
+        collectionItemsByRef[collectionItem.ref] = collectionItem;
       }
     }
-    final ownedItems = ownedItemsByRef.values.toList(growable: false);
-    if (ownedItems.isEmpty || !_page.mounted) return;
+    final collectionItems = collectionItemsByRef.values.toList(growable: false);
+    if (collectionItems.isEmpty || !_page.mounted) return;
 
     final draft = await showDialog<BatchLoanDraft>(
       context: context,
       builder: (context) => BatchLoanDialog(
         accent: _page.accent,
-        itemCount: ownedItems.length,
+        itemCount: collectionItems.length,
       ),
     );
     if (draft == null || !_page.mounted || !context.mounted) return;
 
     final repo = LoanRepository(_page.ref.read(localDatabaseProvider));
-    for (final ownedItem in ownedItems) {
+    for (final collectionItem in collectionItems) {
       await repo.create(
         Loan(
           id: const Uuid().v4(),
-          ownedRef: ownedItem.ref,
+          collectionItemRef: collectionItem.ref,
           borrowerName: draft.borrowerName,
           lentDate: draft.lentDate,
           dueDate: draft.dueDate,
@@ -548,7 +569,7 @@ class LibraryPageDialogCoordinator {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Created ${ownedItems.length} loan record${ownedItems.length == 1 ? '' : 's'}.',
+            'Created ${collectionItems.length} loan record${collectionItems.length == 1 ? '' : 's'}.',
           ),
         ),
       );
@@ -585,11 +606,11 @@ class LibraryPageDialogCoordinator {
     final coordinator = _page.ref.read(collectionCommandCoordinatorProvider);
     var count = 0;
     for (var i = 0; i < items.length; i++) {
-      final ownedItem = items[i].source.ownedSummary;
-      if (ownedItem == null) continue;
-      await coordinator.updateOwnedItem(
+      final collectionItem = items[i].source.collectionItemSummary;
+      if (collectionItem == null) continue;
+      await coordinator.updateCollectionItem(
         libraryOwnedEditForKind(_page.type.kind).buildIndexUpdateCommand(
-          ownedRef: ownedItem.ref,
+          collectionItemRef: collectionItem.ref,
           indexNumber: i + 1,
         ),
       );

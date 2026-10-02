@@ -18,11 +18,8 @@ final class TvWorkspaceCatalogData
   });
 
   factory TvWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
-    final rawMetadata = item.kindMetadata;
-    final metadataPayload = item.toSyncPayload();
-    final metadata = rawMetadata is TvSeriesMetadata
-        ? rawMetadata
-        : TvSeriesMetadata.fromJson(metadataPayload);
+    final metadataPayload = item.toJson();
+    final metadata = TvSeriesMetadata.fromJson(metadataPayload);
     return TvWorkspaceCatalogData(
       ref: item.catalogRef,
       video: TvCatalogMapper.mapMetadataItemToTv(item),

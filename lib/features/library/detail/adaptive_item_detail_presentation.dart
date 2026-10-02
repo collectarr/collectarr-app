@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -14,13 +14,13 @@ Future<void> showAdaptiveItemDetail({
   required BuildContext context,
   required LibraryKindRegistration type,
   required LibraryProjectionView item,
-  required OwnedCopySummary? ownedSummary,
+  required CollectionItemSummary? collectionItemSummary,
   required Color accent,
   required VoidCallback? onAddOwned,
   required VoidCallback? onRemoveOwned,
   required VoidCallback? onAddWishlist,
   required VoidCallback? onRemoveWishlist,
-  required void Function(OwnedCopySummary? ownedItem)? onEdit,
+  required void Function(CollectionItemSummary? collectionItem)? onEdit,
   ValueChanged<String>? onFilterByValue,
 }) {
   final windowClass = AppWindowClass.of(context);
@@ -57,14 +57,14 @@ Future<void> showAdaptiveItemDetail({
                   IconButton(
                     icon: const Icon(Icons.edit_outlined),
                     tooltip: 'Edit item',
-                    onPressed: () => onEdit(ownedSummary),
+                    onPressed: () => onEdit(collectionItemSummary),
                   ),
               ],
             ),
             body: LibraryDetailPage(
               type: type,
               item: item,
-              ownedSummary: ownedSummary,
+              collectionItemSummary: collectionItemSummary,
               accent: accent,
               onAddOwned: onAddOwned,
               onRemoveOwned: onRemoveOwned,
@@ -121,7 +121,7 @@ Future<void> showAdaptiveItemDetail({
                 child: LibraryDetailPage(
                   type: type,
                   item: item,
-                  ownedSummary: ownedSummary,
+                  collectionItemSummary: collectionItemSummary,
                   accent: accent,
                   onAddOwned: onAddOwned,
                   onRemoveOwned: onRemoveOwned,

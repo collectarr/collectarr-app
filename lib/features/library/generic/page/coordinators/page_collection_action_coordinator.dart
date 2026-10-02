@@ -167,9 +167,9 @@ class LibraryPageCollectionActionCoordinator {
             _page.type,
             item,
             _page.ref.read(trackingSummariesByCatalogRefProvider),
-            ownedItem: item.source.ownedSummary,
+            collectionItem: item.source.collectionItemSummary,
           ),
-          item.source.ownedSummary,
+          item.source.collectionItemSummary,
         );
         if (active != null) {
           await _page.ref

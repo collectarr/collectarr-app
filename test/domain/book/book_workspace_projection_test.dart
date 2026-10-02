@@ -18,7 +18,7 @@ void main() {
 
     final dto = const BookWorkspaceProjector().project(
       source: source,
-      entity: const LibraryWorkRef(workId: 'book-1'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'book-1'),
     );
 
     expect(dto.common.title, 'Guards! Guards!');

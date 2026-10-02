@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 
 abstract final class MusicVocabularyIds {
@@ -64,8 +64,8 @@ abstract final class MusicVocabularies {
     );
   }
 
-  static MusicOwnedItem _replaceOwnedValue(
-    MusicOwnedItem item,
+  static MusicCollectionItem _replaceOwnedValue(
+    MusicCollectionItem item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -98,7 +98,7 @@ abstract final class MusicVocabularies {
   }
 
   static Iterable<String?> _ownedValues(
-    MusicOwnedItem item,
+    MusicCollectionItem item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

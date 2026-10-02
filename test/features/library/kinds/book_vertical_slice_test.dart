@@ -78,14 +78,14 @@ void main() {
             id: 'book_1',
             mediaKind: CatalogMediaKind.book,
           ),
-          kindMetadata: bookMeta,
+          kindData: bookMeta,
         ).asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(testOwnedItem(
+        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'book_1',
             kind: CatalogMediaKind.book,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
           ),
           condition: 'Mint',
           updatedAt: DateTime.now(),
@@ -93,8 +93,8 @@ void main() {
       );
 
       const projector = BookWorkspaceProjector();
-      const node = LibraryWorkRef(
-        workId: 'book_1',
+      const node = LibraryCatalogItemNodeRef(
+        catalogItemId: 'book_1',
       );
       final dto = projector.project(
         source: shelfEntry,

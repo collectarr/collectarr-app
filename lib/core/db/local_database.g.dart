@@ -2751,12 +2751,12 @@ class $ItemImagesCacheTable extends ItemImagesCache
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _imageTypeMeta =
       const VerificationMeta('imageType');
   @override
@@ -2792,8 +2792,15 @@ class $ItemImagesCacheTable extends ItemImagesCache
       'created_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, ownedRefKey, imageType, imageData, caption, sortOrder, createdAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        collectionItemRefKey,
+        imageType,
+        imageData,
+        caption,
+        sortOrder,
+        createdAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2810,13 +2817,13 @@ class $ItemImagesCacheTable extends ItemImagesCache
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     } else if (isInserting) {
-      context.missing(_ownedRefKeyMeta);
+      context.missing(_collectionItemRefKeyMeta);
     }
     if (data.containsKey('image_type')) {
       context.handle(_imageTypeMeta,
@@ -2853,8 +2860,9 @@ class $ItemImagesCacheTable extends ItemImagesCache
     return ItemImagesCacheData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key'])!,
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key'])!,
       imageType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}image_type'])!,
       imageData: attachedDatabase.typeMapping
@@ -2877,7 +2885,7 @@ class $ItemImagesCacheTable extends ItemImagesCache
 class ItemImagesCacheData extends DataClass
     implements Insertable<ItemImagesCacheData> {
   final String id;
-  final String ownedRefKey;
+  final String collectionItemRefKey;
   final String imageType;
   final Uint8List imageData;
   final String? caption;
@@ -2885,7 +2893,7 @@ class ItemImagesCacheData extends DataClass
   final DateTime createdAt;
   const ItemImagesCacheData(
       {required this.id,
-      required this.ownedRefKey,
+      required this.collectionItemRefKey,
       required this.imageType,
       required this.imageData,
       this.caption,
@@ -2895,7 +2903,7 @@ class ItemImagesCacheData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     map['image_type'] = Variable<String>(imageType);
     map['image_data'] = Variable<Uint8List>(imageData);
     if (!nullToAbsent || caption != null) {
@@ -2909,7 +2917,7 @@ class ItemImagesCacheData extends DataClass
   ItemImagesCacheCompanion toCompanion(bool nullToAbsent) {
     return ItemImagesCacheCompanion(
       id: Value(id),
-      ownedRefKey: Value(ownedRefKey),
+      collectionItemRefKey: Value(collectionItemRefKey),
       imageType: Value(imageType),
       imageData: Value(imageData),
       caption: caption == null && nullToAbsent
@@ -2925,7 +2933,8 @@ class ItemImagesCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ItemImagesCacheData(
       id: serializer.fromJson<String>(json['id']),
-      ownedRefKey: serializer.fromJson<String>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String>(json['collectionItemRefKey']),
       imageType: serializer.fromJson<String>(json['imageType']),
       imageData: serializer.fromJson<Uint8List>(json['imageData']),
       caption: serializer.fromJson<String?>(json['caption']),
@@ -2938,7 +2947,7 @@ class ItemImagesCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'ownedRefKey': serializer.toJson<String>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String>(collectionItemRefKey),
       'imageType': serializer.toJson<String>(imageType),
       'imageData': serializer.toJson<Uint8List>(imageData),
       'caption': serializer.toJson<String?>(caption),
@@ -2949,7 +2958,7 @@ class ItemImagesCacheData extends DataClass
 
   ItemImagesCacheData copyWith(
           {String? id,
-          String? ownedRefKey,
+          String? collectionItemRefKey,
           String? imageType,
           Uint8List? imageData,
           Value<String?> caption = const Value.absent(),
@@ -2957,7 +2966,7 @@ class ItemImagesCacheData extends DataClass
           DateTime? createdAt}) =>
       ItemImagesCacheData(
         id: id ?? this.id,
-        ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
         imageType: imageType ?? this.imageType,
         imageData: imageData ?? this.imageData,
         caption: caption.present ? caption.value : this.caption,
@@ -2967,8 +2976,9 @@ class ItemImagesCacheData extends DataClass
   ItemImagesCacheData copyWithCompanion(ItemImagesCacheCompanion data) {
     return ItemImagesCacheData(
       id: data.id.present ? data.id.value : this.id,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       imageType: data.imageType.present ? data.imageType.value : this.imageType,
       imageData: data.imageData.present ? data.imageData.value : this.imageData,
       caption: data.caption.present ? data.caption.value : this.caption,
@@ -2981,7 +2991,7 @@ class ItemImagesCacheData extends DataClass
   String toString() {
     return (StringBuffer('ItemImagesCacheData(')
           ..write('id: $id, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('imageType: $imageType, ')
           ..write('imageData: $imageData, ')
           ..write('caption: $caption, ')
@@ -2992,14 +3002,14 @@ class ItemImagesCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, ownedRefKey, imageType,
+  int get hashCode => Object.hash(id, collectionItemRefKey, imageType,
       $driftBlobEquality.hash(imageData), caption, sortOrder, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ItemImagesCacheData &&
           other.id == this.id &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.imageType == this.imageType &&
           $driftBlobEquality.equals(other.imageData, this.imageData) &&
           other.caption == this.caption &&
@@ -3009,7 +3019,7 @@ class ItemImagesCacheData extends DataClass
 
 class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
   final Value<String> id;
-  final Value<String> ownedRefKey;
+  final Value<String> collectionItemRefKey;
   final Value<String> imageType;
   final Value<Uint8List> imageData;
   final Value<String?> caption;
@@ -3018,7 +3028,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
   final Value<int> rowid;
   const ItemImagesCacheCompanion({
     this.id = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.imageType = const Value.absent(),
     this.imageData = const Value.absent(),
     this.caption = const Value.absent(),
@@ -3028,7 +3038,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
   });
   ItemImagesCacheCompanion.insert({
     required String id,
-    required String ownedRefKey,
+    required String collectionItemRefKey,
     this.imageType = const Value.absent(),
     required Uint8List imageData,
     this.caption = const Value.absent(),
@@ -3036,12 +3046,12 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
     required DateTime createdAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        ownedRefKey = Value(ownedRefKey),
+        collectionItemRefKey = Value(collectionItemRefKey),
         imageData = Value(imageData),
         createdAt = Value(createdAt);
   static Insertable<ItemImagesCacheData> custom({
     Expression<String>? id,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<String>? imageType,
     Expression<Uint8List>? imageData,
     Expression<String>? caption,
@@ -3051,7 +3061,8 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (imageType != null) 'image_type': imageType,
       if (imageData != null) 'image_data': imageData,
       if (caption != null) 'caption': caption,
@@ -3063,7 +3074,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
 
   ItemImagesCacheCompanion copyWith(
       {Value<String>? id,
-      Value<String>? ownedRefKey,
+      Value<String>? collectionItemRefKey,
       Value<String>? imageType,
       Value<Uint8List>? imageData,
       Value<String?>? caption,
@@ -3072,7 +3083,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
       Value<int>? rowid}) {
     return ItemImagesCacheCompanion(
       id: id ?? this.id,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       imageType: imageType ?? this.imageType,
       imageData: imageData ?? this.imageData,
       caption: caption ?? this.caption,
@@ -3088,8 +3099,9 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (imageType.present) {
       map['image_type'] = Variable<String>(imageType.value);
@@ -3116,7 +3128,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
   String toString() {
     return (StringBuffer('ItemImagesCacheCompanion(')
           ..write('id: $id, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('imageType: $imageType, ')
           ..write('imageData: $imageData, ')
           ..write('caption: $caption, ')
@@ -3139,12 +3151,12 @@ class $LoansCacheTable extends LoansCache
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _borrowerNameMeta =
       const VerificationMeta('borrowerName');
   @override
@@ -3175,8 +3187,15 @@ class $LoansCacheTable extends LoansCache
       'notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, ownedRefKey, borrowerName, lentDate, dueDate, returnedDate, notes];
+  List<GeneratedColumn> get $columns => [
+        id,
+        collectionItemRefKey,
+        borrowerName,
+        lentDate,
+        dueDate,
+        returnedDate,
+        notes
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -3192,13 +3211,13 @@ class $LoansCacheTable extends LoansCache
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     } else if (isInserting) {
-      context.missing(_ownedRefKeyMeta);
+      context.missing(_collectionItemRefKeyMeta);
     }
     if (data.containsKey('borrower_name')) {
       context.handle(
@@ -3239,8 +3258,9 @@ class $LoansCacheTable extends LoansCache
     return LoansCacheData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key'])!,
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key'])!,
       borrowerName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}borrower_name'])!,
       lentDate: attachedDatabase.typeMapping
@@ -3262,7 +3282,7 @@ class $LoansCacheTable extends LoansCache
 
 class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   final String id;
-  final String ownedRefKey;
+  final String collectionItemRefKey;
   final String borrowerName;
   final DateTime lentDate;
   final DateTime? dueDate;
@@ -3270,7 +3290,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   final String? notes;
   const LoansCacheData(
       {required this.id,
-      required this.ownedRefKey,
+      required this.collectionItemRefKey,
       required this.borrowerName,
       required this.lentDate,
       this.dueDate,
@@ -3280,7 +3300,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     map['borrower_name'] = Variable<String>(borrowerName);
     map['lent_date'] = Variable<DateTime>(lentDate);
     if (!nullToAbsent || dueDate != null) {
@@ -3298,7 +3318,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   LoansCacheCompanion toCompanion(bool nullToAbsent) {
     return LoansCacheCompanion(
       id: Value(id),
-      ownedRefKey: Value(ownedRefKey),
+      collectionItemRefKey: Value(collectionItemRefKey),
       borrowerName: Value(borrowerName),
       lentDate: Value(lentDate),
       dueDate: dueDate == null && nullToAbsent
@@ -3317,7 +3337,8 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LoansCacheData(
       id: serializer.fromJson<String>(json['id']),
-      ownedRefKey: serializer.fromJson<String>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String>(json['collectionItemRefKey']),
       borrowerName: serializer.fromJson<String>(json['borrowerName']),
       lentDate: serializer.fromJson<DateTime>(json['lentDate']),
       dueDate: serializer.fromJson<DateTime?>(json['dueDate']),
@@ -3330,7 +3351,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'ownedRefKey': serializer.toJson<String>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String>(collectionItemRefKey),
       'borrowerName': serializer.toJson<String>(borrowerName),
       'lentDate': serializer.toJson<DateTime>(lentDate),
       'dueDate': serializer.toJson<DateTime?>(dueDate),
@@ -3341,7 +3362,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
 
   LoansCacheData copyWith(
           {String? id,
-          String? ownedRefKey,
+          String? collectionItemRefKey,
           String? borrowerName,
           DateTime? lentDate,
           Value<DateTime?> dueDate = const Value.absent(),
@@ -3349,7 +3370,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
           Value<String?> notes = const Value.absent()}) =>
       LoansCacheData(
         id: id ?? this.id,
-        ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
         borrowerName: borrowerName ?? this.borrowerName,
         lentDate: lentDate ?? this.lentDate,
         dueDate: dueDate.present ? dueDate.value : this.dueDate,
@@ -3360,8 +3381,9 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   LoansCacheData copyWithCompanion(LoansCacheCompanion data) {
     return LoansCacheData(
       id: data.id.present ? data.id.value : this.id,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       borrowerName: data.borrowerName.present
           ? data.borrowerName.value
           : this.borrowerName,
@@ -3378,7 +3400,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   String toString() {
     return (StringBuffer('LoansCacheData(')
           ..write('id: $id, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('borrowerName: $borrowerName, ')
           ..write('lentDate: $lentDate, ')
           ..write('dueDate: $dueDate, ')
@@ -3389,14 +3411,14 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, ownedRefKey, borrowerName, lentDate, dueDate, returnedDate, notes);
+  int get hashCode => Object.hash(id, collectionItemRefKey, borrowerName,
+      lentDate, dueDate, returnedDate, notes);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LoansCacheData &&
           other.id == this.id &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.borrowerName == this.borrowerName &&
           other.lentDate == this.lentDate &&
           other.dueDate == this.dueDate &&
@@ -3406,7 +3428,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
 
 class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   final Value<String> id;
-  final Value<String> ownedRefKey;
+  final Value<String> collectionItemRefKey;
   final Value<String> borrowerName;
   final Value<DateTime> lentDate;
   final Value<DateTime?> dueDate;
@@ -3415,7 +3437,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   final Value<int> rowid;
   const LoansCacheCompanion({
     this.id = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.borrowerName = const Value.absent(),
     this.lentDate = const Value.absent(),
     this.dueDate = const Value.absent(),
@@ -3425,7 +3447,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   });
   LoansCacheCompanion.insert({
     required String id,
-    required String ownedRefKey,
+    required String collectionItemRefKey,
     required String borrowerName,
     required DateTime lentDate,
     this.dueDate = const Value.absent(),
@@ -3433,12 +3455,12 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
     this.notes = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        ownedRefKey = Value(ownedRefKey),
+        collectionItemRefKey = Value(collectionItemRefKey),
         borrowerName = Value(borrowerName),
         lentDate = Value(lentDate);
   static Insertable<LoansCacheData> custom({
     Expression<String>? id,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<String>? borrowerName,
     Expression<DateTime>? lentDate,
     Expression<DateTime>? dueDate,
@@ -3448,7 +3470,8 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (borrowerName != null) 'borrower_name': borrowerName,
       if (lentDate != null) 'lent_date': lentDate,
       if (dueDate != null) 'due_date': dueDate,
@@ -3460,7 +3483,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
 
   LoansCacheCompanion copyWith(
       {Value<String>? id,
-      Value<String>? ownedRefKey,
+      Value<String>? collectionItemRefKey,
       Value<String>? borrowerName,
       Value<DateTime>? lentDate,
       Value<DateTime?>? dueDate,
@@ -3469,7 +3492,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
       Value<int>? rowid}) {
     return LoansCacheCompanion(
       id: id ?? this.id,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       borrowerName: borrowerName ?? this.borrowerName,
       lentDate: lentDate ?? this.lentDate,
       dueDate: dueDate ?? this.dueDate,
@@ -3485,8 +3508,9 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (borrowerName.present) {
       map['borrower_name'] = Variable<String>(borrowerName.value);
@@ -3513,7 +3537,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   String toString() {
     return (StringBuffer('LoansCacheCompanion(')
           ..write('id: $id, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('borrowerName: $borrowerName, ')
           ..write('lentDate: $lentDate, ')
           ..write('dueDate: $dueDate, ')
@@ -4518,12 +4542,12 @@ class $UserFolderItemsCacheTable extends UserFolderItemsCache
   late final GeneratedColumn<String> folderId = GeneratedColumn<String>(
       'folder_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _sortOrderMeta =
       const VerificationMeta('sortOrder');
   @override
@@ -4533,7 +4557,8 @@ class $UserFolderItemsCacheTable extends UserFolderItemsCache
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
   @override
-  List<GeneratedColumn> get $columns => [folderId, ownedRefKey, sortOrder];
+  List<GeneratedColumn> get $columns =>
+      [folderId, collectionItemRefKey, sortOrder];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4551,13 +4576,13 @@ class $UserFolderItemsCacheTable extends UserFolderItemsCache
     } else if (isInserting) {
       context.missing(_folderIdMeta);
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     } else if (isInserting) {
-      context.missing(_ownedRefKeyMeta);
+      context.missing(_collectionItemRefKeyMeta);
     }
     if (data.containsKey('sort_order')) {
       context.handle(_sortOrderMeta,
@@ -4567,7 +4592,7 @@ class $UserFolderItemsCacheTable extends UserFolderItemsCache
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {folderId, ownedRefKey};
+  Set<GeneratedColumn> get $primaryKey => {folderId, collectionItemRefKey};
   @override
   UserFolderItemsCacheData map(Map<String, dynamic> data,
       {String? tablePrefix}) {
@@ -4575,8 +4600,9 @@ class $UserFolderItemsCacheTable extends UserFolderItemsCache
     return UserFolderItemsCacheData(
       folderId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}folder_id'])!,
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key'])!,
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key'])!,
       sortOrder: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
     );
@@ -4591,17 +4617,17 @@ class $UserFolderItemsCacheTable extends UserFolderItemsCache
 class UserFolderItemsCacheData extends DataClass
     implements Insertable<UserFolderItemsCacheData> {
   final String folderId;
-  final String ownedRefKey;
+  final String collectionItemRefKey;
   final int sortOrder;
   const UserFolderItemsCacheData(
       {required this.folderId,
-      required this.ownedRefKey,
+      required this.collectionItemRefKey,
       required this.sortOrder});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['folder_id'] = Variable<String>(folderId);
-    map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     map['sort_order'] = Variable<int>(sortOrder);
     return map;
   }
@@ -4609,7 +4635,7 @@ class UserFolderItemsCacheData extends DataClass
   UserFolderItemsCacheCompanion toCompanion(bool nullToAbsent) {
     return UserFolderItemsCacheCompanion(
       folderId: Value(folderId),
-      ownedRefKey: Value(ownedRefKey),
+      collectionItemRefKey: Value(collectionItemRefKey),
       sortOrder: Value(sortOrder),
     );
   }
@@ -4619,7 +4645,8 @@ class UserFolderItemsCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return UserFolderItemsCacheData(
       folderId: serializer.fromJson<String>(json['folderId']),
-      ownedRefKey: serializer.fromJson<String>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String>(json['collectionItemRefKey']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
     );
   }
@@ -4628,24 +4655,25 @@ class UserFolderItemsCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'folderId': serializer.toJson<String>(folderId),
-      'ownedRefKey': serializer.toJson<String>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String>(collectionItemRefKey),
       'sortOrder': serializer.toJson<int>(sortOrder),
     };
   }
 
   UserFolderItemsCacheData copyWith(
-          {String? folderId, String? ownedRefKey, int? sortOrder}) =>
+          {String? folderId, String? collectionItemRefKey, int? sortOrder}) =>
       UserFolderItemsCacheData(
         folderId: folderId ?? this.folderId,
-        ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
         sortOrder: sortOrder ?? this.sortOrder,
       );
   UserFolderItemsCacheData copyWithCompanion(
       UserFolderItemsCacheCompanion data) {
     return UserFolderItemsCacheData(
       folderId: data.folderId.present ? data.folderId.value : this.folderId,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
     );
   }
@@ -4654,51 +4682,52 @@ class UserFolderItemsCacheData extends DataClass
   String toString() {
     return (StringBuffer('UserFolderItemsCacheData(')
           ..write('folderId: $folderId, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sortOrder: $sortOrder')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(folderId, ownedRefKey, sortOrder);
+  int get hashCode => Object.hash(folderId, collectionItemRefKey, sortOrder);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is UserFolderItemsCacheData &&
           other.folderId == this.folderId &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.sortOrder == this.sortOrder);
 }
 
 class UserFolderItemsCacheCompanion
     extends UpdateCompanion<UserFolderItemsCacheData> {
   final Value<String> folderId;
-  final Value<String> ownedRefKey;
+  final Value<String> collectionItemRefKey;
   final Value<int> sortOrder;
   final Value<int> rowid;
   const UserFolderItemsCacheCompanion({
     this.folderId = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   UserFolderItemsCacheCompanion.insert({
     required String folderId,
-    required String ownedRefKey,
+    required String collectionItemRefKey,
     this.sortOrder = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : folderId = Value(folderId),
-        ownedRefKey = Value(ownedRefKey);
+        collectionItemRefKey = Value(collectionItemRefKey);
   static Insertable<UserFolderItemsCacheData> custom({
     Expression<String>? folderId,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<int>? sortOrder,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (folderId != null) 'folder_id': folderId,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (rowid != null) 'rowid': rowid,
     });
@@ -4706,12 +4735,12 @@ class UserFolderItemsCacheCompanion
 
   UserFolderItemsCacheCompanion copyWith(
       {Value<String>? folderId,
-      Value<String>? ownedRefKey,
+      Value<String>? collectionItemRefKey,
       Value<int>? sortOrder,
       Value<int>? rowid}) {
     return UserFolderItemsCacheCompanion(
       folderId: folderId ?? this.folderId,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       sortOrder: sortOrder ?? this.sortOrder,
       rowid: rowid ?? this.rowid,
     );
@@ -4723,8 +4752,9 @@ class UserFolderItemsCacheCompanion
     if (folderId.present) {
       map['folder_id'] = Variable<String>(folderId.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
@@ -4739,7 +4769,7 @@ class UserFolderItemsCacheCompanion
   String toString() {
     return (StringBuffer('UserFolderItemsCacheCompanion(')
           ..write('folderId: $folderId, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4753,12 +4783,12 @@ class $ReadingQueueCacheTable extends ReadingQueueCache
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $ReadingQueueCacheTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _positionMeta =
       const VerificationMeta('position');
   @override
@@ -4772,7 +4802,8 @@ class $ReadingQueueCacheTable extends ReadingQueueCache
       'added_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [ownedRefKey, position, addedAt];
+  List<GeneratedColumn> get $columns =>
+      [collectionItemRefKey, position, addedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4784,13 +4815,13 @@ class $ReadingQueueCacheTable extends ReadingQueueCache
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     } else if (isInserting) {
-      context.missing(_ownedRefKeyMeta);
+      context.missing(_collectionItemRefKeyMeta);
     }
     if (data.containsKey('position')) {
       context.handle(_positionMeta,
@@ -4808,13 +4839,14 @@ class $ReadingQueueCacheTable extends ReadingQueueCache
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {ownedRefKey};
+  Set<GeneratedColumn> get $primaryKey => {collectionItemRefKey};
   @override
   ReadingQueueCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ReadingQueueCacheData(
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key'])!,
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key'])!,
       position: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}position'])!,
       addedAt: attachedDatabase.typeMapping
@@ -4830,17 +4862,17 @@ class $ReadingQueueCacheTable extends ReadingQueueCache
 
 class ReadingQueueCacheData extends DataClass
     implements Insertable<ReadingQueueCacheData> {
-  final String ownedRefKey;
+  final String collectionItemRefKey;
   final int position;
   final DateTime addedAt;
   const ReadingQueueCacheData(
-      {required this.ownedRefKey,
+      {required this.collectionItemRefKey,
       required this.position,
       required this.addedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     map['position'] = Variable<int>(position);
     map['added_at'] = Variable<DateTime>(addedAt);
     return map;
@@ -4848,7 +4880,7 @@ class ReadingQueueCacheData extends DataClass
 
   ReadingQueueCacheCompanion toCompanion(bool nullToAbsent) {
     return ReadingQueueCacheCompanion(
-      ownedRefKey: Value(ownedRefKey),
+      collectionItemRefKey: Value(collectionItemRefKey),
       position: Value(position),
       addedAt: Value(addedAt),
     );
@@ -4858,7 +4890,8 @@ class ReadingQueueCacheData extends DataClass
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ReadingQueueCacheData(
-      ownedRefKey: serializer.fromJson<String>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String>(json['collectionItemRefKey']),
       position: serializer.fromJson<int>(json['position']),
       addedAt: serializer.fromJson<DateTime>(json['addedAt']),
     );
@@ -4867,23 +4900,24 @@ class ReadingQueueCacheData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'ownedRefKey': serializer.toJson<String>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String>(collectionItemRefKey),
       'position': serializer.toJson<int>(position),
       'addedAt': serializer.toJson<DateTime>(addedAt),
     };
   }
 
   ReadingQueueCacheData copyWith(
-          {String? ownedRefKey, int? position, DateTime? addedAt}) =>
+          {String? collectionItemRefKey, int? position, DateTime? addedAt}) =>
       ReadingQueueCacheData(
-        ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
         position: position ?? this.position,
         addedAt: addedAt ?? this.addedAt,
       );
   ReadingQueueCacheData copyWithCompanion(ReadingQueueCacheCompanion data) {
     return ReadingQueueCacheData(
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       position: data.position.present ? data.position.value : this.position,
       addedAt: data.addedAt.present ? data.addedAt.value : this.addedAt,
     );
@@ -4892,7 +4926,7 @@ class ReadingQueueCacheData extends DataClass
   @override
   String toString() {
     return (StringBuffer('ReadingQueueCacheData(')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('position: $position, ')
           ..write('addedAt: $addedAt')
           ..write(')'))
@@ -4900,44 +4934,45 @@ class ReadingQueueCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(ownedRefKey, position, addedAt);
+  int get hashCode => Object.hash(collectionItemRefKey, position, addedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ReadingQueueCacheData &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.position == this.position &&
           other.addedAt == this.addedAt);
 }
 
 class ReadingQueueCacheCompanion
     extends UpdateCompanion<ReadingQueueCacheData> {
-  final Value<String> ownedRefKey;
+  final Value<String> collectionItemRefKey;
   final Value<int> position;
   final Value<DateTime> addedAt;
   final Value<int> rowid;
   const ReadingQueueCacheCompanion({
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.position = const Value.absent(),
     this.addedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ReadingQueueCacheCompanion.insert({
-    required String ownedRefKey,
+    required String collectionItemRefKey,
     required int position,
     required DateTime addedAt,
     this.rowid = const Value.absent(),
-  })  : ownedRefKey = Value(ownedRefKey),
+  })  : collectionItemRefKey = Value(collectionItemRefKey),
         position = Value(position),
         addedAt = Value(addedAt);
   static Insertable<ReadingQueueCacheData> custom({
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<int>? position,
     Expression<DateTime>? addedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (position != null) 'position': position,
       if (addedAt != null) 'added_at': addedAt,
       if (rowid != null) 'rowid': rowid,
@@ -4945,12 +4980,12 @@ class ReadingQueueCacheCompanion
   }
 
   ReadingQueueCacheCompanion copyWith(
-      {Value<String>? ownedRefKey,
+      {Value<String>? collectionItemRefKey,
       Value<int>? position,
       Value<DateTime>? addedAt,
       Value<int>? rowid}) {
     return ReadingQueueCacheCompanion(
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       position: position ?? this.position,
       addedAt: addedAt ?? this.addedAt,
       rowid: rowid ?? this.rowid,
@@ -4960,8 +4995,9 @@ class ReadingQueueCacheCompanion
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (position.present) {
       map['position'] = Variable<int>(position.value);
@@ -4978,7 +5014,7 @@ class ReadingQueueCacheCompanion
   @override
   String toString() {
     return (StringBuffer('ReadingQueueCacheCompanion(')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('position: $position, ')
           ..write('addedAt: $addedAt, ')
           ..write('rowid: $rowid')
@@ -5791,12 +5827,12 @@ class SerialAuthorityCacheCompanion
   }
 }
 
-class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
-    with TableInfo<$AnimeOwnedItemsRowsTable, AnimeOwnedItemsRow> {
+class $AnimeCollectionItemsRowsTable extends AnimeCollectionItemsRows
+    with TableInfo<$AnimeCollectionItemsRowsTable, AnimeCollectionItemsRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $AnimeOwnedItemsRowsTable(this.attachedDatabase, [this._alias]);
+  $AnimeCollectionItemsRowsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -5822,12 +5858,6 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _targetRefJsonMeta =
-      const VerificationMeta('targetRefJson');
-  @override
-  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
-      'target_ref_json', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
   @override
@@ -5863,14 +5893,6 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
   late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
       'personal_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _quantityMeta =
-      const VerificationMeta('quantity');
-  @override
-  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
-      'quantity', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(1));
   static const VerificationMeta _indexNumberMeta =
       const VerificationMeta('indexNumber');
   @override
@@ -5995,14 +6017,12 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -6028,9 +6048,10 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'anime_owned_items_rows';
+  static const String $name = 'anime_collection_items_rows';
   @override
-  VerificationContext validateIntegrity(Insertable<AnimeOwnedItemsRow> instance,
+  VerificationContext validateIntegrity(
+      Insertable<AnimeCollectionItemsRow> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -6052,12 +6073,6 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
     if (data.containsKey('is_digital')) {
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
-    }
-    if (data.containsKey('target_ref_json')) {
-      context.handle(
-          _targetRefJsonMeta,
-          targetRefJson.isAcceptableOrUnknown(
-              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -6088,10 +6103,6 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
           _personalNotesMeta,
           personalNotes.isAcceptableOrUnknown(
               data['personal_notes']!, _personalNotesMeta));
-    }
-    if (data.containsKey('quantity')) {
-      context.handle(_quantityMeta,
-          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
     }
     if (data.containsKey('index_number')) {
       context.handle(
@@ -6203,9 +6214,10 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  AnimeOwnedItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+  AnimeCollectionItemsRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return AnimeOwnedItemsRow(
+    return AnimeCollectionItemsRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
@@ -6214,8 +6226,6 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      targetRefJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -6228,8 +6238,6 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
           .read(DriftSqlType.string, data['${effectivePrefix}currency']),
       personalNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
-      quantity: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
       indexNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
       tags: attachedDatabase.typeMapping
@@ -6274,25 +6282,23 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
   }
 
   @override
-  $AnimeOwnedItemsRowsTable createAlias(String alias) {
-    return $AnimeOwnedItemsRowsTable(attachedDatabase, alias);
+  $AnimeCollectionItemsRowsTable createAlias(String alias) {
+    return $AnimeCollectionItemsRowsTable(attachedDatabase, alias);
   }
 }
 
-class AnimeOwnedItemsRow extends DataClass
-    implements Insertable<AnimeOwnedItemsRow> {
+class AnimeCollectionItemsRow extends DataClass
+    implements Insertable<AnimeCollectionItemsRow> {
   final String id;
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final int quantity;
   final int? indexNumber;
   final String? tags;
   final DateTime updatedAt;
@@ -6313,19 +6319,17 @@ class AnimeOwnedItemsRow extends DataClass
   final String? region;
   final String? packaging;
   final String? distributor;
-  const AnimeOwnedItemsRow(
+  const AnimeCollectionItemsRow(
       {required this.id,
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
       this.pricePaidCents,
       this.currency,
       this.personalNotes,
-      required this.quantity,
       this.indexNumber,
       this.tags,
       required this.updatedAt,
@@ -6357,9 +6361,6 @@ class AnimeOwnedItemsRow extends DataClass
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || targetRefJson != null) {
-      map['target_ref_json'] = Variable<String>(targetRefJson);
-    }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
     }
@@ -6378,7 +6379,6 @@ class AnimeOwnedItemsRow extends DataClass
     if (!nullToAbsent || personalNotes != null) {
       map['personal_notes'] = Variable<String>(personalNotes);
     }
-    map['quantity'] = Variable<int>(quantity);
     if (!nullToAbsent || indexNumber != null) {
       map['index_number'] = Variable<int>(indexNumber);
     }
@@ -6438,8 +6438,8 @@ class AnimeOwnedItemsRow extends DataClass
     return map;
   }
 
-  AnimeOwnedItemsRowsCompanion toCompanion(bool nullToAbsent) {
-    return AnimeOwnedItemsRowsCompanion(
+  AnimeCollectionItemsRowsCompanion toCompanion(bool nullToAbsent) {
+    return AnimeCollectionItemsRowsCompanion(
       id: Value(id),
       itemId: Value(itemId),
       createdAt: createdAt == null && nullToAbsent
@@ -6448,9 +6448,6 @@ class AnimeOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      targetRefJson: targetRefJson == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -6468,7 +6465,6 @@ class AnimeOwnedItemsRow extends DataClass
       personalNotes: personalNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(personalNotes),
-      quantity: Value(quantity),
       indexNumber: indexNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(indexNumber),
@@ -6523,22 +6519,20 @@ class AnimeOwnedItemsRow extends DataClass
     );
   }
 
-  factory AnimeOwnedItemsRow.fromJson(Map<String, dynamic> json,
+  factory AnimeCollectionItemsRow.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return AnimeOwnedItemsRow(
+    return AnimeCollectionItemsRow(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
       pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
-      quantity: serializer.fromJson<int>(json['quantity']),
       indexNumber: serializer.fromJson<int?>(json['indexNumber']),
       tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -6569,14 +6563,12 @@ class AnimeOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
       'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
       'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
-      'quantity': serializer.toJson<int>(quantity),
       'indexNumber': serializer.toJson<int?>(indexNumber),
       'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -6600,19 +6592,17 @@ class AnimeOwnedItemsRow extends DataClass
     };
   }
 
-  AnimeOwnedItemsRow copyWith(
+  AnimeCollectionItemsRow copyWith(
           {String? id,
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
           Value<int?> pricePaidCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
-          int? quantity,
           Value<int?> indexNumber = const Value.absent(),
           Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
@@ -6633,13 +6623,11 @@ class AnimeOwnedItemsRow extends DataClass
           Value<String?> region = const Value.absent(),
           Value<String?> packaging = const Value.absent(),
           Value<String?> distributor = const Value.absent()}) =>
-      AnimeOwnedItemsRow(
+      AnimeCollectionItemsRow(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        targetRefJson:
-            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -6649,7 +6637,6 @@ class AnimeOwnedItemsRow extends DataClass
         currency: currency.present ? currency.value : this.currency,
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
-        quantity: quantity ?? this.quantity,
         indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
         tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -6677,15 +6664,13 @@ class AnimeOwnedItemsRow extends DataClass
         packaging: packaging.present ? packaging.value : this.packaging,
         distributor: distributor.present ? distributor.value : this.distributor,
       );
-  AnimeOwnedItemsRow copyWithCompanion(AnimeOwnedItemsRowsCompanion data) {
-    return AnimeOwnedItemsRow(
+  AnimeCollectionItemsRow copyWithCompanion(
+      AnimeCollectionItemsRowsCompanion data) {
+    return AnimeCollectionItemsRow(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      targetRefJson: data.targetRefJson.present
-          ? data.targetRefJson.value
-          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -6698,7 +6683,6 @@ class AnimeOwnedItemsRow extends DataClass
       personalNotes: data.personalNotes.present
           ? data.personalNotes.value
           : this.personalNotes,
-      quantity: data.quantity.present ? data.quantity.value : this.quantity,
       indexNumber:
           data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
       tags: data.tags.present ? data.tags.value : this.tags,
@@ -6740,19 +6724,17 @@ class AnimeOwnedItemsRow extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('AnimeOwnedItemsRow(')
+    return (StringBuffer('AnimeCollectionItemsRow(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -6783,14 +6765,12 @@ class AnimeOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -6815,19 +6795,17 @@ class AnimeOwnedItemsRow extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is AnimeOwnedItemsRow &&
+      (other is AnimeCollectionItemsRow &&
           other.id == this.id &&
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
           other.pricePaidCents == this.pricePaidCents &&
           other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
-          other.quantity == this.quantity &&
           other.indexNumber == this.indexNumber &&
           other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
@@ -6850,19 +6828,18 @@ class AnimeOwnedItemsRow extends DataClass
           other.distributor == this.distributor);
 }
 
-class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
+class AnimeCollectionItemsRowsCompanion
+    extends UpdateCompanion<AnimeCollectionItemsRow> {
   final Value<String> id;
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
   final Value<int?> pricePaidCents;
   final Value<String?> currency;
   final Value<String?> personalNotes;
-  final Value<int> quantity;
   final Value<int?> indexNumber;
   final Value<String?> tags;
   final Value<DateTime> updatedAt;
@@ -6884,19 +6861,17 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
   final Value<String?> packaging;
   final Value<String?> distributor;
   final Value<int> rowid;
-  const AnimeOwnedItemsRowsCompanion({
+  const AnimeCollectionItemsRowsCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -6919,19 +6894,17 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
     this.distributor = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  AnimeOwnedItemsRowsCompanion.insert({
+  AnimeCollectionItemsRowsCompanion.insert({
     required String id,
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     required DateTime updatedAt,
@@ -6956,19 +6929,17 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
   })  : id = Value(id),
         itemId = Value(itemId),
         updatedAt = Value(updatedAt);
-  static Insertable<AnimeOwnedItemsRow> custom({
+  static Insertable<AnimeCollectionItemsRow> custom({
     Expression<String>? id,
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
     Expression<int>? pricePaidCents,
     Expression<String>? currency,
     Expression<String>? personalNotes,
-    Expression<int>? quantity,
     Expression<int>? indexNumber,
     Expression<String>? tags,
     Expression<DateTime>? updatedAt,
@@ -6996,14 +6967,12 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
       if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
       if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
-      if (quantity != null) 'quantity': quantity,
       if (indexNumber != null) 'index_number': indexNumber,
       if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -7028,19 +6997,17 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
     });
   }
 
-  AnimeOwnedItemsRowsCompanion copyWith(
+  AnimeCollectionItemsRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
       Value<int?>? pricePaidCents,
       Value<String?>? currency,
       Value<String?>? personalNotes,
-      Value<int>? quantity,
       Value<int?>? indexNumber,
       Value<String?>? tags,
       Value<DateTime>? updatedAt,
@@ -7062,19 +7029,17 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
       Value<String?>? packaging,
       Value<String?>? distributor,
       Value<int>? rowid}) {
-    return AnimeOwnedItemsRowsCompanion(
+    return AnimeCollectionItemsRowsCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
-      quantity: quantity ?? this.quantity,
       indexNumber: indexNumber ?? this.indexNumber,
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -7114,9 +7079,6 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (targetRefJson.present) {
-      map['target_ref_json'] = Variable<String>(targetRefJson.value);
-    }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
     }
@@ -7134,9 +7096,6 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
     }
     if (personalNotes.present) {
       map['personal_notes'] = Variable<String>(personalNotes.value);
-    }
-    if (quantity.present) {
-      map['quantity'] = Variable<int>(quantity.value);
     }
     if (indexNumber.present) {
       map['index_number'] = Variable<int>(indexNumber.value);
@@ -7206,19 +7165,17 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
 
   @override
   String toString() {
-    return (StringBuffer('AnimeOwnedItemsRowsCompanion(')
+    return (StringBuffer('AnimeCollectionItemsRowsCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -7270,12 +7227,12 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _mediaIdMeta =
       const VerificationMeta('mediaId');
   @override
@@ -7380,7 +7337,7 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
         id,
         entryType,
         catalogRefJson,
-        ownedRefKey,
+        collectionItemRefKey,
         mediaId,
         episodeId,
         status,
@@ -7425,11 +7382,11 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('media_id')) {
       context.handle(_mediaIdMeta,
@@ -7528,8 +7485,9 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}entry_type'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       mediaId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}media_id'])!,
       episodeId: attachedDatabase.typeMapping
@@ -7576,7 +7534,7 @@ class AnimeTrackingRow extends DataClass
   final String id;
   final String entryType;
   final String catalogRefJson;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final String mediaId;
   final String? episodeId;
   final String status;
@@ -7597,7 +7555,7 @@ class AnimeTrackingRow extends DataClass
       {required this.id,
       required this.entryType,
       required this.catalogRefJson,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       required this.mediaId,
       this.episodeId,
       required this.status,
@@ -7620,8 +7578,8 @@ class AnimeTrackingRow extends DataClass
     map['id'] = Variable<String>(id);
     map['entry_type'] = Variable<String>(entryType);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     map['media_id'] = Variable<String>(mediaId);
     if (!nullToAbsent || episodeId != null) {
@@ -7671,9 +7629,9 @@ class AnimeTrackingRow extends DataClass
       id: Value(id),
       entryType: Value(entryType),
       catalogRefJson: Value(catalogRefJson),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       mediaId: Value(mediaId),
       episodeId: episodeId == null && nullToAbsent
           ? const Value.absent()
@@ -7722,7 +7680,8 @@ class AnimeTrackingRow extends DataClass
       id: serializer.fromJson<String>(json['id']),
       entryType: serializer.fromJson<String>(json['entryType']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       mediaId: serializer.fromJson<String>(json['mediaId']),
       episodeId: serializer.fromJson<String?>(json['episodeId']),
       status: serializer.fromJson<String>(json['status']),
@@ -7749,7 +7708,7 @@ class AnimeTrackingRow extends DataClass
       'id': serializer.toJson<String>(id),
       'entryType': serializer.toJson<String>(entryType),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'mediaId': serializer.toJson<String>(mediaId),
       'episodeId': serializer.toJson<String?>(episodeId),
       'status': serializer.toJson<String>(status),
@@ -7773,7 +7732,7 @@ class AnimeTrackingRow extends DataClass
           {String? id,
           String? entryType,
           String? catalogRefJson,
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           String? mediaId,
           Value<String?> episodeId = const Value.absent(),
           String? status,
@@ -7794,7 +7753,9 @@ class AnimeTrackingRow extends DataClass
         id: id ?? this.id,
         entryType: entryType ?? this.entryType,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         mediaId: mediaId ?? this.mediaId,
         episodeId: episodeId.present ? episodeId.value : this.episodeId,
         status: status ?? this.status,
@@ -7824,8 +7785,9 @@ class AnimeTrackingRow extends DataClass
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       mediaId: data.mediaId.present ? data.mediaId.value : this.mediaId,
       episodeId: data.episodeId.present ? data.episodeId.value : this.episodeId,
       status: data.status.present ? data.status.value : this.status,
@@ -7865,7 +7827,7 @@ class AnimeTrackingRow extends DataClass
           ..write('id: $id, ')
           ..write('entryType: $entryType, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('mediaId: $mediaId, ')
           ..write('episodeId: $episodeId, ')
           ..write('status: $status, ')
@@ -7891,7 +7853,7 @@ class AnimeTrackingRow extends DataClass
       id,
       entryType,
       catalogRefJson,
-      ownedRefKey,
+      collectionItemRefKey,
       mediaId,
       episodeId,
       status,
@@ -7915,7 +7877,7 @@ class AnimeTrackingRow extends DataClass
           other.id == this.id &&
           other.entryType == this.entryType &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.mediaId == this.mediaId &&
           other.episodeId == this.episodeId &&
           other.status == this.status &&
@@ -7938,7 +7900,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
   final Value<String> id;
   final Value<String> entryType;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<String> mediaId;
   final Value<String?> episodeId;
   final Value<String> status;
@@ -7960,7 +7922,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
     this.id = const Value.absent(),
     this.entryType = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.mediaId = const Value.absent(),
     this.episodeId = const Value.absent(),
     this.status = const Value.absent(),
@@ -7983,7 +7945,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
     required String id,
     this.entryType = const Value.absent(),
     required String catalogRefJson,
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     required String mediaId,
     this.episodeId = const Value.absent(),
     this.status = const Value.absent(),
@@ -8008,7 +7970,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
     Expression<String>? id,
     Expression<String>? entryType,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<String>? mediaId,
     Expression<String>? episodeId,
     Expression<String>? status,
@@ -8031,7 +7993,8 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
       if (id != null) 'id': id,
       if (entryType != null) 'entry_type': entryType,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (mediaId != null) 'media_id': mediaId,
       if (episodeId != null) 'episode_id': episodeId,
       if (status != null) 'status': status,
@@ -8057,7 +8020,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
       {Value<String>? id,
       Value<String>? entryType,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<String>? mediaId,
       Value<String?>? episodeId,
       Value<String>? status,
@@ -8079,7 +8042,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
       id: id ?? this.id,
       entryType: entryType ?? this.entryType,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       mediaId: mediaId ?? this.mediaId,
       episodeId: episodeId ?? this.episodeId,
       status: status ?? this.status,
@@ -8112,8 +8075,9 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (mediaId.present) {
       map['media_id'] = Variable<String>(mediaId.value);
@@ -8175,7 +8139,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
           ..write('id: $id, ')
           ..write('entryType: $entryType, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('mediaId: $mediaId, ')
           ..write('episodeId: $episodeId, ')
           ..write('status: $status, ')
@@ -8221,12 +8185,12 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
   late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
       'tracking_entry_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _completedAtMeta =
       const VerificationMeta('completedAt');
   @override
@@ -8262,7 +8226,7 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
         id,
         targetRefJson,
         trackingEntryId,
-        ownedRefKey,
+        collectionItemRefKey,
         completedAt,
         updatedAt,
         deletedAt,
@@ -8299,11 +8263,11 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
           trackingEntryId.isAcceptableOrUnknown(
               data['tracking_entry_id']!, _trackingEntryIdMeta));
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('completed_at')) {
       context.handle(
@@ -8350,8 +8314,9 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
           DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -8376,7 +8341,7 @@ class AnimeTrackingUnitRow extends DataClass
   final String id;
   final String targetRefJson;
   final String? trackingEntryId;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -8386,7 +8351,7 @@ class AnimeTrackingUnitRow extends DataClass
       {required this.id,
       required this.targetRefJson,
       this.trackingEntryId,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       required this.completedAt,
       required this.updatedAt,
       this.deletedAt,
@@ -8400,8 +8365,8 @@ class AnimeTrackingUnitRow extends DataClass
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     map['completed_at'] = Variable<DateTime>(completedAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -8424,9 +8389,9 @@ class AnimeTrackingUnitRow extends DataClass
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       completedAt: Value(completedAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -8448,7 +8413,8 @@ class AnimeTrackingUnitRow extends DataClass
       id: serializer.fromJson<String>(json['id']),
       targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -8463,7 +8429,7 @@ class AnimeTrackingUnitRow extends DataClass
       'id': serializer.toJson<String>(id),
       'targetRefJson': serializer.toJson<String>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'completedAt': serializer.toJson<DateTime>(completedAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -8476,7 +8442,7 @@ class AnimeTrackingUnitRow extends DataClass
           {String? id,
           String? targetRefJson,
           Value<String?> trackingEntryId = const Value.absent(),
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           DateTime? completedAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
@@ -8488,7 +8454,9 @@ class AnimeTrackingUnitRow extends DataClass
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         completedAt: completedAt ?? this.completedAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -8506,8 +8474,9 @@ class AnimeTrackingUnitRow extends DataClass
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -8527,7 +8496,7 @@ class AnimeTrackingUnitRow extends DataClass
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -8542,7 +8511,7 @@ class AnimeTrackingUnitRow extends DataClass
       id,
       targetRefJson,
       trackingEntryId,
-      ownedRefKey,
+      collectionItemRefKey,
       completedAt,
       updatedAt,
       deletedAt,
@@ -8555,7 +8524,7 @@ class AnimeTrackingUnitRow extends DataClass
           other.id == this.id &&
           other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.completedAt == this.completedAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -8568,7 +8537,7 @@ class AnimeTrackingUnitRowsCompanion
   final Value<String> id;
   final Value<String> targetRefJson;
   final Value<String?> trackingEntryId;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<DateTime> completedAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -8579,7 +8548,7 @@ class AnimeTrackingUnitRowsCompanion
     this.id = const Value.absent(),
     this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -8591,7 +8560,7 @@ class AnimeTrackingUnitRowsCompanion
     required String id,
     required String targetRefJson,
     this.trackingEntryId = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     required DateTime completedAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -8606,7 +8575,7 @@ class AnimeTrackingUnitRowsCompanion
     Expression<String>? id,
     Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<DateTime>? completedAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -8618,7 +8587,8 @@ class AnimeTrackingUnitRowsCompanion
       if (id != null) 'id': id,
       if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (completedAt != null) 'completed_at': completedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -8632,7 +8602,7 @@ class AnimeTrackingUnitRowsCompanion
       {Value<String>? id,
       Value<String>? targetRefJson,
       Value<String?>? trackingEntryId,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<DateTime>? completedAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -8643,7 +8613,7 @@ class AnimeTrackingUnitRowsCompanion
       id: id ?? this.id,
       targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -8665,8 +8635,9 @@ class AnimeTrackingUnitRowsCompanion
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
@@ -8695,7 +8666,7 @@ class AnimeTrackingUnitRowsCompanion
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -10084,12 +10055,14 @@ class AnimeCustomEpisodeRowsCompanion
   }
 }
 
-class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
-    with TableInfo<$BoardGameOwnedItemsRowsTable, BoardGameOwnedItemsRow> {
+class $BoardGameCollectionItemsRowsTable extends BoardGameCollectionItemsRows
+    with
+        TableInfo<$BoardGameCollectionItemsRowsTable,
+            BoardGameCollectionItemsRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $BoardGameOwnedItemsRowsTable(this.attachedDatabase, [this._alias]);
+  $BoardGameCollectionItemsRowsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -10150,14 +10123,6 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
   late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
       'personal_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _quantityMeta =
-      const VerificationMeta('quantity');
-  @override
-  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
-      'quantity', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(1));
   static const VerificationMeta _indexNumberMeta =
       const VerificationMeta('indexNumber');
   @override
@@ -10311,7 +10276,6 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -10339,10 +10303,10 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'board_game_owned_items_rows';
+  static const String $name = 'board_game_collection_items_rows';
   @override
   VerificationContext validateIntegrity(
-      Insertable<BoardGameOwnedItemsRow> instance,
+      Insertable<BoardGameCollectionItemsRow> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -10394,10 +10358,6 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
           _personalNotesMeta,
           personalNotes.isAcceptableOrUnknown(
               data['personal_notes']!, _personalNotesMeta));
-    }
-    if (data.containsKey('quantity')) {
-      context.handle(_quantityMeta,
-          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
     }
     if (data.containsKey('index_number')) {
       context.handle(
@@ -10527,9 +10487,10 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  BoardGameOwnedItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+  BoardGameCollectionItemsRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return BoardGameOwnedItemsRow(
+    return BoardGameCollectionItemsRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
@@ -10550,8 +10511,6 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
           .read(DriftSqlType.string, data['${effectivePrefix}currency']),
       personalNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
-      quantity: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
       indexNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
       tags: attachedDatabase.typeMapping
@@ -10601,13 +10560,13 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
   }
 
   @override
-  $BoardGameOwnedItemsRowsTable createAlias(String alias) {
-    return $BoardGameOwnedItemsRowsTable(attachedDatabase, alias);
+  $BoardGameCollectionItemsRowsTable createAlias(String alias) {
+    return $BoardGameCollectionItemsRowsTable(attachedDatabase, alias);
   }
 }
 
-class BoardGameOwnedItemsRow extends DataClass
-    implements Insertable<BoardGameOwnedItemsRow> {
+class BoardGameCollectionItemsRow extends DataClass
+    implements Insertable<BoardGameCollectionItemsRow> {
   final String id;
   final String itemId;
   final DateTime? createdAt;
@@ -10618,7 +10577,6 @@ class BoardGameOwnedItemsRow extends DataClass
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final int quantity;
   final int? indexNumber;
   final String? tags;
   final DateTime updatedAt;
@@ -10641,7 +10599,7 @@ class BoardGameOwnedItemsRow extends DataClass
   final bool hasCustomInsert;
   final bool hasPaintedMiniatures;
   final String? storageNotes;
-  const BoardGameOwnedItemsRow(
+  const BoardGameCollectionItemsRow(
       {required this.id,
       required this.itemId,
       this.createdAt,
@@ -10652,7 +10610,6 @@ class BoardGameOwnedItemsRow extends DataClass
       this.pricePaidCents,
       this.currency,
       this.personalNotes,
-      required this.quantity,
       this.indexNumber,
       this.tags,
       required this.updatedAt,
@@ -10704,7 +10661,6 @@ class BoardGameOwnedItemsRow extends DataClass
     if (!nullToAbsent || personalNotes != null) {
       map['personal_notes'] = Variable<String>(personalNotes);
     }
-    map['quantity'] = Variable<int>(quantity);
     if (!nullToAbsent || indexNumber != null) {
       map['index_number'] = Variable<int>(indexNumber);
     }
@@ -10766,8 +10722,8 @@ class BoardGameOwnedItemsRow extends DataClass
     return map;
   }
 
-  BoardGameOwnedItemsRowsCompanion toCompanion(bool nullToAbsent) {
-    return BoardGameOwnedItemsRowsCompanion(
+  BoardGameCollectionItemsRowsCompanion toCompanion(bool nullToAbsent) {
+    return BoardGameCollectionItemsRowsCompanion(
       id: Value(id),
       itemId: Value(itemId),
       createdAt: createdAt == null && nullToAbsent
@@ -10793,7 +10749,6 @@ class BoardGameOwnedItemsRow extends DataClass
       personalNotes: personalNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(personalNotes),
-      quantity: Value(quantity),
       indexNumber: indexNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(indexNumber),
@@ -10851,10 +10806,10 @@ class BoardGameOwnedItemsRow extends DataClass
     );
   }
 
-  factory BoardGameOwnedItemsRow.fromJson(Map<String, dynamic> json,
+  factory BoardGameCollectionItemsRow.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return BoardGameOwnedItemsRow(
+    return BoardGameCollectionItemsRow(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
@@ -10865,7 +10820,6 @@ class BoardGameOwnedItemsRow extends DataClass
       pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
-      quantity: serializer.fromJson<int>(json['quantity']),
       indexNumber: serializer.fromJson<int?>(json['indexNumber']),
       tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -10908,7 +10862,6 @@ class BoardGameOwnedItemsRow extends DataClass
       'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
       'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
-      'quantity': serializer.toJson<int>(quantity),
       'indexNumber': serializer.toJson<int?>(indexNumber),
       'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -10935,7 +10888,7 @@ class BoardGameOwnedItemsRow extends DataClass
     };
   }
 
-  BoardGameOwnedItemsRow copyWith(
+  BoardGameCollectionItemsRow copyWith(
           {String? id,
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
@@ -10946,7 +10899,6 @@ class BoardGameOwnedItemsRow extends DataClass
           Value<int?> pricePaidCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
-          int? quantity,
           Value<int?> indexNumber = const Value.absent(),
           Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
@@ -10969,7 +10921,7 @@ class BoardGameOwnedItemsRow extends DataClass
           bool? hasCustomInsert,
           bool? hasPaintedMiniatures,
           Value<String?> storageNotes = const Value.absent()}) =>
-      BoardGameOwnedItemsRow(
+      BoardGameCollectionItemsRow(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
@@ -10983,7 +10935,6 @@ class BoardGameOwnedItemsRow extends DataClass
         currency: currency.present ? currency.value : this.currency,
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
-        quantity: quantity ?? this.quantity,
         indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
         tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -11023,9 +10974,9 @@ class BoardGameOwnedItemsRow extends DataClass
         storageNotes:
             storageNotes.present ? storageNotes.value : this.storageNotes,
       );
-  BoardGameOwnedItemsRow copyWithCompanion(
-      BoardGameOwnedItemsRowsCompanion data) {
-    return BoardGameOwnedItemsRow(
+  BoardGameCollectionItemsRow copyWithCompanion(
+      BoardGameCollectionItemsRowsCompanion data) {
+    return BoardGameCollectionItemsRow(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -11042,7 +10993,6 @@ class BoardGameOwnedItemsRow extends DataClass
       personalNotes: data.personalNotes.present
           ? data.personalNotes.value
           : this.personalNotes,
-      quantity: data.quantity.present ? data.quantity.value : this.quantity,
       indexNumber:
           data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
       tags: data.tags.present ? data.tags.value : this.tags,
@@ -11098,7 +11048,7 @@ class BoardGameOwnedItemsRow extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('BoardGameOwnedItemsRow(')
+    return (StringBuffer('BoardGameCollectionItemsRow(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
@@ -11109,7 +11059,6 @@ class BoardGameOwnedItemsRow extends DataClass
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -11148,7 +11097,6 @@ class BoardGameOwnedItemsRow extends DataClass
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -11175,7 +11123,7 @@ class BoardGameOwnedItemsRow extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is BoardGameOwnedItemsRow &&
+      (other is BoardGameCollectionItemsRow &&
           other.id == this.id &&
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
@@ -11186,7 +11134,6 @@ class BoardGameOwnedItemsRow extends DataClass
           other.pricePaidCents == this.pricePaidCents &&
           other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
-          other.quantity == this.quantity &&
           other.indexNumber == this.indexNumber &&
           other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
@@ -11211,8 +11158,8 @@ class BoardGameOwnedItemsRow extends DataClass
           other.storageNotes == this.storageNotes);
 }
 
-class BoardGameOwnedItemsRowsCompanion
-    extends UpdateCompanion<BoardGameOwnedItemsRow> {
+class BoardGameCollectionItemsRowsCompanion
+    extends UpdateCompanion<BoardGameCollectionItemsRow> {
   final Value<String> id;
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
@@ -11223,7 +11170,6 @@ class BoardGameOwnedItemsRowsCompanion
   final Value<int?> pricePaidCents;
   final Value<String?> currency;
   final Value<String?> personalNotes;
-  final Value<int> quantity;
   final Value<int?> indexNumber;
   final Value<String?> tags;
   final Value<DateTime> updatedAt;
@@ -11247,7 +11193,7 @@ class BoardGameOwnedItemsRowsCompanion
   final Value<bool> hasPaintedMiniatures;
   final Value<String?> storageNotes;
   final Value<int> rowid;
-  const BoardGameOwnedItemsRowsCompanion({
+  const BoardGameCollectionItemsRowsCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -11258,7 +11204,6 @@ class BoardGameOwnedItemsRowsCompanion
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -11283,7 +11228,7 @@ class BoardGameOwnedItemsRowsCompanion
     this.storageNotes = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  BoardGameOwnedItemsRowsCompanion.insert({
+  BoardGameCollectionItemsRowsCompanion.insert({
     required String id,
     required String itemId,
     this.createdAt = const Value.absent(),
@@ -11294,7 +11239,6 @@ class BoardGameOwnedItemsRowsCompanion
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     required DateTime updatedAt,
@@ -11321,7 +11265,7 @@ class BoardGameOwnedItemsRowsCompanion
   })  : id = Value(id),
         itemId = Value(itemId),
         updatedAt = Value(updatedAt);
-  static Insertable<BoardGameOwnedItemsRow> custom({
+  static Insertable<BoardGameCollectionItemsRow> custom({
     Expression<String>? id,
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
@@ -11332,7 +11276,6 @@ class BoardGameOwnedItemsRowsCompanion
     Expression<int>? pricePaidCents,
     Expression<String>? currency,
     Expression<String>? personalNotes,
-    Expression<int>? quantity,
     Expression<int>? indexNumber,
     Expression<String>? tags,
     Expression<DateTime>? updatedAt,
@@ -11368,7 +11311,6 @@ class BoardGameOwnedItemsRowsCompanion
       if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
       if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
-      if (quantity != null) 'quantity': quantity,
       if (indexNumber != null) 'index_number': indexNumber,
       if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -11398,7 +11340,7 @@ class BoardGameOwnedItemsRowsCompanion
     });
   }
 
-  BoardGameOwnedItemsRowsCompanion copyWith(
+  BoardGameCollectionItemsRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
@@ -11409,7 +11351,6 @@ class BoardGameOwnedItemsRowsCompanion
       Value<int?>? pricePaidCents,
       Value<String?>? currency,
       Value<String?>? personalNotes,
-      Value<int>? quantity,
       Value<int?>? indexNumber,
       Value<String?>? tags,
       Value<DateTime>? updatedAt,
@@ -11433,7 +11374,7 @@ class BoardGameOwnedItemsRowsCompanion
       Value<bool>? hasPaintedMiniatures,
       Value<String?>? storageNotes,
       Value<int>? rowid}) {
-    return BoardGameOwnedItemsRowsCompanion(
+    return BoardGameCollectionItemsRowsCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
@@ -11444,7 +11385,6 @@ class BoardGameOwnedItemsRowsCompanion
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
-      quantity: quantity ?? this.quantity,
       indexNumber: indexNumber ?? this.indexNumber,
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -11504,9 +11444,6 @@ class BoardGameOwnedItemsRowsCompanion
     }
     if (personalNotes.present) {
       map['personal_notes'] = Variable<String>(personalNotes.value);
-    }
-    if (quantity.present) {
-      map['quantity'] = Variable<int>(quantity.value);
     }
     if (indexNumber.present) {
       map['index_number'] = Variable<int>(indexNumber.value);
@@ -11584,7 +11521,7 @@ class BoardGameOwnedItemsRowsCompanion
 
   @override
   String toString() {
-    return (StringBuffer('BoardGameOwnedItemsRowsCompanion(')
+    return (StringBuffer('BoardGameCollectionItemsRowsCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
@@ -11595,7 +11532,6 @@ class BoardGameOwnedItemsRowsCompanion
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -12125,12 +12061,12 @@ class $BoardGameTrackingRowsTable extends BoardGameTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
   @override
@@ -12198,7 +12134,7 @@ class $BoardGameTrackingRowsTable extends BoardGameTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedRefKey,
+        collectionItemRefKey,
         sourceType,
         status,
         rating,
@@ -12235,11 +12171,11 @@ class $BoardGameTrackingRowsTable extends BoardGameTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -12310,8 +12246,9 @@ class $BoardGameTrackingRowsTable extends BoardGameTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -12347,7 +12284,7 @@ class BoardGameTrackingRow extends DataClass
     implements Insertable<BoardGameTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -12362,7 +12299,7 @@ class BoardGameTrackingRow extends DataClass
   const BoardGameTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -12379,8 +12316,8 @@ class BoardGameTrackingRow extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -12420,9 +12357,9 @@ class BoardGameTrackingRow extends DataClass
     return BoardGameTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -12460,7 +12397,8 @@ class BoardGameTrackingRow extends DataClass
     return BoardGameTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -12480,7 +12418,7 @@ class BoardGameTrackingRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -12498,7 +12436,7 @@ class BoardGameTrackingRow extends DataClass
   BoardGameTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -12513,7 +12451,9 @@ class BoardGameTrackingRow extends DataClass
       BoardGameTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -12536,8 +12476,9 @@ class BoardGameTrackingRow extends DataClass
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -12565,7 +12506,7 @@ class BoardGameTrackingRow extends DataClass
     return (StringBuffer('BoardGameTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -12585,7 +12526,7 @@ class BoardGameTrackingRow extends DataClass
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedRefKey,
+      collectionItemRefKey,
       sourceType,
       status,
       rating,
@@ -12603,7 +12544,7 @@ class BoardGameTrackingRow extends DataClass
       (other is BoardGameTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -12621,7 +12562,7 @@ class BoardGameTrackingRowsCompanion
     extends UpdateCompanion<BoardGameTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -12637,7 +12578,7 @@ class BoardGameTrackingRowsCompanion
   const BoardGameTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -12654,7 +12595,7 @@ class BoardGameTrackingRowsCompanion
   BoardGameTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -12673,7 +12614,7 @@ class BoardGameTrackingRowsCompanion
   static Insertable<BoardGameTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -12690,7 +12631,8 @@ class BoardGameTrackingRowsCompanion
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -12709,7 +12651,7 @@ class BoardGameTrackingRowsCompanion
   BoardGameTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -12725,7 +12667,7 @@ class BoardGameTrackingRowsCompanion
     return BoardGameTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -12750,8 +12692,9 @@ class BoardGameTrackingRowsCompanion
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -12797,7 +12740,7 @@ class BoardGameTrackingRowsCompanion
     return (StringBuffer('BoardGameTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -12815,12 +12758,12 @@ class BoardGameTrackingRowsCompanion
   }
 }
 
-class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
-    with TableInfo<$BookOwnedItemsRowsTable, BookOwnedItemsRow> {
+class $BookCollectionItemsRowsTable extends BookCollectionItemsRows
+    with TableInfo<$BookCollectionItemsRowsTable, BookCollectionItemsRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $BookOwnedItemsRowsTable(this.attachedDatabase, [this._alias]);
+  $BookCollectionItemsRowsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -12846,12 +12789,6 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _targetRefJsonMeta =
-      const VerificationMeta('targetRefJson');
-  @override
-  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
-      'target_ref_json', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
   @override
@@ -12887,14 +12824,6 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
   late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
       'personal_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _quantityMeta =
-      const VerificationMeta('quantity');
-  @override
-  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
-      'quantity', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(1));
   static const VerificationMeta _indexNumberMeta =
       const VerificationMeta('indexNumber');
   @override
@@ -12998,14 +12927,12 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -13027,9 +12954,10 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'book_owned_items_rows';
+  static const String $name = 'book_collection_items_rows';
   @override
-  VerificationContext validateIntegrity(Insertable<BookOwnedItemsRow> instance,
+  VerificationContext validateIntegrity(
+      Insertable<BookCollectionItemsRow> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -13051,12 +12979,6 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
     if (data.containsKey('is_digital')) {
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
-    }
-    if (data.containsKey('target_ref_json')) {
-      context.handle(
-          _targetRefJsonMeta,
-          targetRefJson.isAcceptableOrUnknown(
-              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -13087,10 +13009,6 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
           _personalNotesMeta,
           personalNotes.isAcceptableOrUnknown(
               data['personal_notes']!, _personalNotesMeta));
-    }
-    if (data.containsKey('quantity')) {
-      context.handle(_quantityMeta,
-          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
     }
     if (data.containsKey('index_number')) {
       context.handle(
@@ -13184,9 +13102,9 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  BookOwnedItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+  BookCollectionItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return BookOwnedItemsRow(
+    return BookCollectionItemsRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
@@ -13195,8 +13113,6 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      targetRefJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -13209,8 +13125,6 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
           .read(DriftSqlType.string, data['${effectivePrefix}currency']),
       personalNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
-      quantity: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
       indexNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
       tags: attachedDatabase.typeMapping
@@ -13247,25 +13161,23 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
   }
 
   @override
-  $BookOwnedItemsRowsTable createAlias(String alias) {
-    return $BookOwnedItemsRowsTable(attachedDatabase, alias);
+  $BookCollectionItemsRowsTable createAlias(String alias) {
+    return $BookCollectionItemsRowsTable(attachedDatabase, alias);
   }
 }
 
-class BookOwnedItemsRow extends DataClass
-    implements Insertable<BookOwnedItemsRow> {
+class BookCollectionItemsRow extends DataClass
+    implements Insertable<BookCollectionItemsRow> {
   final String id;
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final int quantity;
   final int? indexNumber;
   final String? tags;
   final DateTime updatedAt;
@@ -13282,19 +13194,17 @@ class BookOwnedItemsRow extends DataClass
   final String? signedBy;
   final bool dustJacketPresent;
   final String? dustJacketCondition;
-  const BookOwnedItemsRow(
+  const BookCollectionItemsRow(
       {required this.id,
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
       this.pricePaidCents,
       this.currency,
       this.personalNotes,
-      required this.quantity,
       this.indexNumber,
       this.tags,
       required this.updatedAt,
@@ -13322,9 +13232,6 @@ class BookOwnedItemsRow extends DataClass
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || targetRefJson != null) {
-      map['target_ref_json'] = Variable<String>(targetRefJson);
-    }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
     }
@@ -13343,7 +13250,6 @@ class BookOwnedItemsRow extends DataClass
     if (!nullToAbsent || personalNotes != null) {
       map['personal_notes'] = Variable<String>(personalNotes);
     }
-    map['quantity'] = Variable<int>(quantity);
     if (!nullToAbsent || indexNumber != null) {
       map['index_number'] = Variable<int>(indexNumber);
     }
@@ -13391,8 +13297,8 @@ class BookOwnedItemsRow extends DataClass
     return map;
   }
 
-  BookOwnedItemsRowsCompanion toCompanion(bool nullToAbsent) {
-    return BookOwnedItemsRowsCompanion(
+  BookCollectionItemsRowsCompanion toCompanion(bool nullToAbsent) {
+    return BookCollectionItemsRowsCompanion(
       id: Value(id),
       itemId: Value(itemId),
       createdAt: createdAt == null && nullToAbsent
@@ -13401,9 +13307,6 @@ class BookOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      targetRefJson: targetRefJson == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -13421,7 +13324,6 @@ class BookOwnedItemsRow extends DataClass
       personalNotes: personalNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(personalNotes),
-      quantity: Value(quantity),
       indexNumber: indexNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(indexNumber),
@@ -13465,22 +13367,20 @@ class BookOwnedItemsRow extends DataClass
     );
   }
 
-  factory BookOwnedItemsRow.fromJson(Map<String, dynamic> json,
+  factory BookCollectionItemsRow.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return BookOwnedItemsRow(
+    return BookCollectionItemsRow(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
       pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
-      quantity: serializer.fromJson<int>(json['quantity']),
       indexNumber: serializer.fromJson<int?>(json['indexNumber']),
       tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -13508,14 +13408,12 @@ class BookOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
       'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
       'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
-      'quantity': serializer.toJson<int>(quantity),
       'indexNumber': serializer.toJson<int?>(indexNumber),
       'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -13535,19 +13433,17 @@ class BookOwnedItemsRow extends DataClass
     };
   }
 
-  BookOwnedItemsRow copyWith(
+  BookCollectionItemsRow copyWith(
           {String? id,
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
           Value<int?> pricePaidCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
-          int? quantity,
           Value<int?> indexNumber = const Value.absent(),
           Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
@@ -13564,13 +13460,11 @@ class BookOwnedItemsRow extends DataClass
           Value<String?> signedBy = const Value.absent(),
           bool? dustJacketPresent,
           Value<String?> dustJacketCondition = const Value.absent()}) =>
-      BookOwnedItemsRow(
+      BookCollectionItemsRow(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        targetRefJson:
-            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -13580,7 +13474,6 @@ class BookOwnedItemsRow extends DataClass
         currency: currency.present ? currency.value : this.currency,
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
-        quantity: quantity ?? this.quantity,
         indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
         tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -13606,15 +13499,13 @@ class BookOwnedItemsRow extends DataClass
             ? dustJacketCondition.value
             : this.dustJacketCondition,
       );
-  BookOwnedItemsRow copyWithCompanion(BookOwnedItemsRowsCompanion data) {
-    return BookOwnedItemsRow(
+  BookCollectionItemsRow copyWithCompanion(
+      BookCollectionItemsRowsCompanion data) {
+    return BookCollectionItemsRow(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      targetRefJson: data.targetRefJson.present
-          ? data.targetRefJson.value
-          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -13627,7 +13518,6 @@ class BookOwnedItemsRow extends DataClass
       personalNotes: data.personalNotes.present
           ? data.personalNotes.value
           : this.personalNotes,
-      quantity: data.quantity.present ? data.quantity.value : this.quantity,
       indexNumber:
           data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
       tags: data.tags.present ? data.tags.value : this.tags,
@@ -13665,19 +13555,17 @@ class BookOwnedItemsRow extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('BookOwnedItemsRow(')
+    return (StringBuffer('BookCollectionItemsRow(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -13704,14 +13592,12 @@ class BookOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -13732,19 +13618,17 @@ class BookOwnedItemsRow extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is BookOwnedItemsRow &&
+      (other is BookCollectionItemsRow &&
           other.id == this.id &&
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
           other.pricePaidCents == this.pricePaidCents &&
           other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
-          other.quantity == this.quantity &&
           other.indexNumber == this.indexNumber &&
           other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
@@ -13763,19 +13647,18 @@ class BookOwnedItemsRow extends DataClass
           other.dustJacketCondition == this.dustJacketCondition);
 }
 
-class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
+class BookCollectionItemsRowsCompanion
+    extends UpdateCompanion<BookCollectionItemsRow> {
   final Value<String> id;
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
   final Value<int?> pricePaidCents;
   final Value<String?> currency;
   final Value<String?> personalNotes;
-  final Value<int> quantity;
   final Value<int?> indexNumber;
   final Value<String?> tags;
   final Value<DateTime> updatedAt;
@@ -13793,19 +13676,17 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
   final Value<bool> dustJacketPresent;
   final Value<String?> dustJacketCondition;
   final Value<int> rowid;
-  const BookOwnedItemsRowsCompanion({
+  const BookCollectionItemsRowsCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -13824,19 +13705,17 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
     this.dustJacketCondition = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  BookOwnedItemsRowsCompanion.insert({
+  BookCollectionItemsRowsCompanion.insert({
     required String id,
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     required DateTime updatedAt,
@@ -13857,19 +13736,17 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
   })  : id = Value(id),
         itemId = Value(itemId),
         updatedAt = Value(updatedAt);
-  static Insertable<BookOwnedItemsRow> custom({
+  static Insertable<BookCollectionItemsRow> custom({
     Expression<String>? id,
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
     Expression<int>? pricePaidCents,
     Expression<String>? currency,
     Expression<String>? personalNotes,
-    Expression<int>? quantity,
     Expression<int>? indexNumber,
     Expression<String>? tags,
     Expression<DateTime>? updatedAt,
@@ -13893,14 +13770,12 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
       if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
       if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
-      if (quantity != null) 'quantity': quantity,
       if (indexNumber != null) 'index_number': indexNumber,
       if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -13922,19 +13797,17 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
     });
   }
 
-  BookOwnedItemsRowsCompanion copyWith(
+  BookCollectionItemsRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
       Value<int?>? pricePaidCents,
       Value<String?>? currency,
       Value<String?>? personalNotes,
-      Value<int>? quantity,
       Value<int?>? indexNumber,
       Value<String?>? tags,
       Value<DateTime>? updatedAt,
@@ -13952,19 +13825,17 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
       Value<bool>? dustJacketPresent,
       Value<String?>? dustJacketCondition,
       Value<int>? rowid}) {
-    return BookOwnedItemsRowsCompanion(
+    return BookCollectionItemsRowsCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
-      quantity: quantity ?? this.quantity,
       indexNumber: indexNumber ?? this.indexNumber,
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -14000,9 +13871,6 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (targetRefJson.present) {
-      map['target_ref_json'] = Variable<String>(targetRefJson.value);
-    }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
     }
@@ -14020,9 +13888,6 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
     }
     if (personalNotes.present) {
       map['personal_notes'] = Variable<String>(personalNotes.value);
-    }
-    if (quantity.present) {
-      map['quantity'] = Variable<int>(quantity.value);
     }
     if (indexNumber.present) {
       map['index_number'] = Variable<int>(indexNumber.value);
@@ -14081,19 +13946,17 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
 
   @override
   String toString() {
-    return (StringBuffer('BookOwnedItemsRowsCompanion(')
+    return (StringBuffer('BookCollectionItemsRowsCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -14139,12 +14002,12 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
   late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
       'tracking_entry_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _completedAtMeta =
       const VerificationMeta('completedAt');
   @override
@@ -14180,7 +14043,7 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
         id,
         targetRefJson,
         trackingEntryId,
-        ownedRefKey,
+        collectionItemRefKey,
         completedAt,
         updatedAt,
         deletedAt,
@@ -14217,11 +14080,11 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
           trackingEntryId.isAcceptableOrUnknown(
               data['tracking_entry_id']!, _trackingEntryIdMeta));
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('completed_at')) {
       context.handle(
@@ -14268,8 +14131,9 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
           DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -14294,7 +14158,7 @@ class BookTrackingUnitRow extends DataClass
   final String id;
   final String targetRefJson;
   final String? trackingEntryId;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -14304,7 +14168,7 @@ class BookTrackingUnitRow extends DataClass
       {required this.id,
       required this.targetRefJson,
       this.trackingEntryId,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       required this.completedAt,
       required this.updatedAt,
       this.deletedAt,
@@ -14318,8 +14182,8 @@ class BookTrackingUnitRow extends DataClass
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     map['completed_at'] = Variable<DateTime>(completedAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -14342,9 +14206,9 @@ class BookTrackingUnitRow extends DataClass
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       completedAt: Value(completedAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -14366,7 +14230,8 @@ class BookTrackingUnitRow extends DataClass
       id: serializer.fromJson<String>(json['id']),
       targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -14381,7 +14246,7 @@ class BookTrackingUnitRow extends DataClass
       'id': serializer.toJson<String>(id),
       'targetRefJson': serializer.toJson<String>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'completedAt': serializer.toJson<DateTime>(completedAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -14394,7 +14259,7 @@ class BookTrackingUnitRow extends DataClass
           {String? id,
           String? targetRefJson,
           Value<String?> trackingEntryId = const Value.absent(),
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           DateTime? completedAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
@@ -14406,7 +14271,9 @@ class BookTrackingUnitRow extends DataClass
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         completedAt: completedAt ?? this.completedAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -14424,8 +14291,9 @@ class BookTrackingUnitRow extends DataClass
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -14445,7 +14313,7 @@ class BookTrackingUnitRow extends DataClass
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -14460,7 +14328,7 @@ class BookTrackingUnitRow extends DataClass
       id,
       targetRefJson,
       trackingEntryId,
-      ownedRefKey,
+      collectionItemRefKey,
       completedAt,
       updatedAt,
       deletedAt,
@@ -14473,7 +14341,7 @@ class BookTrackingUnitRow extends DataClass
           other.id == this.id &&
           other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.completedAt == this.completedAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -14486,7 +14354,7 @@ class BookTrackingUnitRowsCompanion
   final Value<String> id;
   final Value<String> targetRefJson;
   final Value<String?> trackingEntryId;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<DateTime> completedAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -14497,7 +14365,7 @@ class BookTrackingUnitRowsCompanion
     this.id = const Value.absent(),
     this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -14509,7 +14377,7 @@ class BookTrackingUnitRowsCompanion
     required String id,
     required String targetRefJson,
     this.trackingEntryId = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     required DateTime completedAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -14524,7 +14392,7 @@ class BookTrackingUnitRowsCompanion
     Expression<String>? id,
     Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<DateTime>? completedAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -14536,7 +14404,8 @@ class BookTrackingUnitRowsCompanion
       if (id != null) 'id': id,
       if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (completedAt != null) 'completed_at': completedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -14550,7 +14419,7 @@ class BookTrackingUnitRowsCompanion
       {Value<String>? id,
       Value<String>? targetRefJson,
       Value<String?>? trackingEntryId,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<DateTime>? completedAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -14561,7 +14430,7 @@ class BookTrackingUnitRowsCompanion
       id: id ?? this.id,
       targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -14583,8 +14452,9 @@ class BookTrackingUnitRowsCompanion
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
@@ -14613,7 +14483,7 @@ class BookTrackingUnitRowsCompanion
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -14642,12 +14512,12 @@ class $BookTrackingRowsTable extends BookTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
   @override
@@ -14715,7 +14585,7 @@ class $BookTrackingRowsTable extends BookTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedRefKey,
+        collectionItemRefKey,
         sourceType,
         status,
         rating,
@@ -14751,11 +14621,11 @@ class $BookTrackingRowsTable extends BookTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -14826,8 +14696,9 @@ class $BookTrackingRowsTable extends BookTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -14862,7 +14733,7 @@ class $BookTrackingRowsTable extends BookTrackingRows
 class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -14877,7 +14748,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
   const BookTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -14894,8 +14765,8 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -14935,9 +14806,9 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
     return BookTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -14975,7 +14846,8 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
     return BookTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -14995,7 +14867,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -15013,7 +14885,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
   BookTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -15028,7 +14900,9 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
       BookTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -15051,8 +14925,9 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -15080,7 +14955,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
     return (StringBuffer('BookTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -15100,7 +14975,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedRefKey,
+      collectionItemRefKey,
       sourceType,
       status,
       rating,
@@ -15118,7 +14993,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
       (other is BookTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -15135,7 +15010,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
 class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -15151,7 +15026,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
   const BookTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -15168,7 +15043,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
   BookTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -15187,7 +15062,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
   static Insertable<BookTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -15204,7 +15079,8 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -15223,7 +15099,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
   BookTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -15239,7 +15115,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
     return BookTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -15264,8 +15140,9 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -15311,7 +15188,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
     return (StringBuffer('BookTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -15329,12 +15206,12 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
   }
 }
 
-class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
-    with TableInfo<$ComicOwnedItemsRowsTable, ComicOwnedItemsRow> {
+class $ComicCollectionItemsRowsTable extends ComicCollectionItemsRows
+    with TableInfo<$ComicCollectionItemsRowsTable, ComicCollectionItemsRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $ComicOwnedItemsRowsTable(this.attachedDatabase, [this._alias]);
+  $ComicCollectionItemsRowsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -15360,12 +15237,6 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _targetRefJsonMeta =
-      const VerificationMeta('targetRefJson');
-  @override
-  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
-      'target_ref_json', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
   @override
@@ -15401,14 +15272,6 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
   late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
       'personal_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _quantityMeta =
-      const VerificationMeta('quantity');
-  @override
-  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
-      'quantity', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(1));
   static const VerificationMeta _indexNumberMeta =
       const VerificationMeta('indexNumber');
   @override
@@ -15578,14 +15441,12 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -15618,9 +15479,10 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'comic_owned_items_rows';
+  static const String $name = 'comic_collection_items_rows';
   @override
-  VerificationContext validateIntegrity(Insertable<ComicOwnedItemsRow> instance,
+  VerificationContext validateIntegrity(
+      Insertable<ComicCollectionItemsRow> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -15642,12 +15504,6 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
     if (data.containsKey('is_digital')) {
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
-    }
-    if (data.containsKey('target_ref_json')) {
-      context.handle(
-          _targetRefJsonMeta,
-          targetRefJson.isAcceptableOrUnknown(
-              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -15678,10 +15534,6 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
           _personalNotesMeta,
           personalNotes.isAcceptableOrUnknown(
               data['personal_notes']!, _personalNotesMeta));
-    }
-    if (data.containsKey('quantity')) {
-      context.handle(_quantityMeta,
-          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
     }
     if (data.containsKey('index_number')) {
       context.handle(
@@ -15835,9 +15687,10 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  ComicOwnedItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+  ComicCollectionItemsRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ComicOwnedItemsRow(
+    return ComicCollectionItemsRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
@@ -15846,8 +15699,6 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      targetRefJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -15860,8 +15711,6 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
           .read(DriftSqlType.string, data['${effectivePrefix}currency']),
       personalNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
-      quantity: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
       indexNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
       tags: attachedDatabase.typeMapping
@@ -15920,25 +15769,23 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
   }
 
   @override
-  $ComicOwnedItemsRowsTable createAlias(String alias) {
-    return $ComicOwnedItemsRowsTable(attachedDatabase, alias);
+  $ComicCollectionItemsRowsTable createAlias(String alias) {
+    return $ComicCollectionItemsRowsTable(attachedDatabase, alias);
   }
 }
 
-class ComicOwnedItemsRow extends DataClass
-    implements Insertable<ComicOwnedItemsRow> {
+class ComicCollectionItemsRow extends DataClass
+    implements Insertable<ComicCollectionItemsRow> {
   final String id;
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final int quantity;
   final int? indexNumber;
   final String? tags;
   final DateTime updatedAt;
@@ -15966,19 +15813,17 @@ class ComicOwnedItemsRow extends DataClass
   final String? keySeverity;
   final int? coverPriceCents;
   final DateTime? lastBagBoardDate;
-  const ComicOwnedItemsRow(
+  const ComicCollectionItemsRow(
       {required this.id,
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
       this.pricePaidCents,
       this.currency,
       this.personalNotes,
-      required this.quantity,
       this.indexNumber,
       this.tags,
       required this.updatedAt,
@@ -16017,9 +15862,6 @@ class ComicOwnedItemsRow extends DataClass
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || targetRefJson != null) {
-      map['target_ref_json'] = Variable<String>(targetRefJson);
-    }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
     }
@@ -16038,7 +15880,6 @@ class ComicOwnedItemsRow extends DataClass
     if (!nullToAbsent || personalNotes != null) {
       map['personal_notes'] = Variable<String>(personalNotes);
     }
-    map['quantity'] = Variable<int>(quantity);
     if (!nullToAbsent || indexNumber != null) {
       map['index_number'] = Variable<int>(indexNumber);
     }
@@ -16119,8 +15960,8 @@ class ComicOwnedItemsRow extends DataClass
     return map;
   }
 
-  ComicOwnedItemsRowsCompanion toCompanion(bool nullToAbsent) {
-    return ComicOwnedItemsRowsCompanion(
+  ComicCollectionItemsRowsCompanion toCompanion(bool nullToAbsent) {
+    return ComicCollectionItemsRowsCompanion(
       id: Value(id),
       itemId: Value(itemId),
       createdAt: createdAt == null && nullToAbsent
@@ -16129,9 +15970,6 @@ class ComicOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      targetRefJson: targetRefJson == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -16149,7 +15987,6 @@ class ComicOwnedItemsRow extends DataClass
       personalNotes: personalNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(personalNotes),
-      quantity: Value(quantity),
       indexNumber: indexNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(indexNumber),
@@ -16226,22 +16063,20 @@ class ComicOwnedItemsRow extends DataClass
     );
   }
 
-  factory ComicOwnedItemsRow.fromJson(Map<String, dynamic> json,
+  factory ComicCollectionItemsRow.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ComicOwnedItemsRow(
+    return ComicCollectionItemsRow(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
       pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
-      quantity: serializer.fromJson<int>(json['quantity']),
       indexNumber: serializer.fromJson<int?>(json['indexNumber']),
       tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -16281,14 +16116,12 @@ class ComicOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
       'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
       'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
-      'quantity': serializer.toJson<int>(quantity),
       'indexNumber': serializer.toJson<int?>(indexNumber),
       'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -16319,19 +16152,17 @@ class ComicOwnedItemsRow extends DataClass
     };
   }
 
-  ComicOwnedItemsRow copyWith(
+  ComicCollectionItemsRow copyWith(
           {String? id,
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
           Value<int?> pricePaidCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
-          int? quantity,
           Value<int?> indexNumber = const Value.absent(),
           Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
@@ -16359,13 +16190,11 @@ class ComicOwnedItemsRow extends DataClass
           Value<String?> keySeverity = const Value.absent(),
           Value<int?> coverPriceCents = const Value.absent(),
           Value<DateTime?> lastBagBoardDate = const Value.absent()}) =>
-      ComicOwnedItemsRow(
+      ComicCollectionItemsRow(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        targetRefJson:
-            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -16375,7 +16204,6 @@ class ComicOwnedItemsRow extends DataClass
         currency: currency.present ? currency.value : this.currency,
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
-        quantity: quantity ?? this.quantity,
         indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
         tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -16418,15 +16246,13 @@ class ComicOwnedItemsRow extends DataClass
             ? lastBagBoardDate.value
             : this.lastBagBoardDate,
       );
-  ComicOwnedItemsRow copyWithCompanion(ComicOwnedItemsRowsCompanion data) {
-    return ComicOwnedItemsRow(
+  ComicCollectionItemsRow copyWithCompanion(
+      ComicCollectionItemsRowsCompanion data) {
+    return ComicCollectionItemsRow(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      targetRefJson: data.targetRefJson.present
-          ? data.targetRefJson.value
-          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -16439,7 +16265,6 @@ class ComicOwnedItemsRow extends DataClass
       personalNotes: data.personalNotes.present
           ? data.personalNotes.value
           : this.personalNotes,
-      quantity: data.quantity.present ? data.quantity.value : this.quantity,
       indexNumber:
           data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
       tags: data.tags.present ? data.tags.value : this.tags,
@@ -16499,19 +16324,17 @@ class ComicOwnedItemsRow extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('ComicOwnedItemsRow(')
+    return (StringBuffer('ComicCollectionItemsRow(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -16549,14 +16372,12 @@ class ComicOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -16588,19 +16409,17 @@ class ComicOwnedItemsRow extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ComicOwnedItemsRow &&
+      (other is ComicCollectionItemsRow &&
           other.id == this.id &&
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
           other.pricePaidCents == this.pricePaidCents &&
           other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
-          other.quantity == this.quantity &&
           other.indexNumber == this.indexNumber &&
           other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
@@ -16630,19 +16449,18 @@ class ComicOwnedItemsRow extends DataClass
           other.lastBagBoardDate == this.lastBagBoardDate);
 }
 
-class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
+class ComicCollectionItemsRowsCompanion
+    extends UpdateCompanion<ComicCollectionItemsRow> {
   final Value<String> id;
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
   final Value<int?> pricePaidCents;
   final Value<String?> currency;
   final Value<String?> personalNotes;
-  final Value<int> quantity;
   final Value<int?> indexNumber;
   final Value<String?> tags;
   final Value<DateTime> updatedAt;
@@ -16671,19 +16489,17 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
   final Value<int?> coverPriceCents;
   final Value<DateTime?> lastBagBoardDate;
   final Value<int> rowid;
-  const ComicOwnedItemsRowsCompanion({
+  const ComicCollectionItemsRowsCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -16713,19 +16529,17 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
     this.lastBagBoardDate = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  ComicOwnedItemsRowsCompanion.insert({
+  ComicCollectionItemsRowsCompanion.insert({
     required String id,
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     required DateTime updatedAt,
@@ -16757,19 +16571,17 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
   })  : id = Value(id),
         itemId = Value(itemId),
         updatedAt = Value(updatedAt);
-  static Insertable<ComicOwnedItemsRow> custom({
+  static Insertable<ComicCollectionItemsRow> custom({
     Expression<String>? id,
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
     Expression<int>? pricePaidCents,
     Expression<String>? currency,
     Expression<String>? personalNotes,
-    Expression<int>? quantity,
     Expression<int>? indexNumber,
     Expression<String>? tags,
     Expression<DateTime>? updatedAt,
@@ -16804,14 +16616,12 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
       if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
       if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
-      if (quantity != null) 'quantity': quantity,
       if (indexNumber != null) 'index_number': indexNumber,
       if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -16844,19 +16654,17 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
     });
   }
 
-  ComicOwnedItemsRowsCompanion copyWith(
+  ComicCollectionItemsRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
       Value<int?>? pricePaidCents,
       Value<String?>? currency,
       Value<String?>? personalNotes,
-      Value<int>? quantity,
       Value<int?>? indexNumber,
       Value<String?>? tags,
       Value<DateTime>? updatedAt,
@@ -16885,19 +16693,17 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
       Value<int?>? coverPriceCents,
       Value<DateTime?>? lastBagBoardDate,
       Value<int>? rowid}) {
-    return ComicOwnedItemsRowsCompanion(
+    return ComicCollectionItemsRowsCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
-      quantity: quantity ?? this.quantity,
       indexNumber: indexNumber ?? this.indexNumber,
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -16944,9 +16750,6 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (targetRefJson.present) {
-      map['target_ref_json'] = Variable<String>(targetRefJson.value);
-    }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
     }
@@ -16964,9 +16767,6 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
     }
     if (personalNotes.present) {
       map['personal_notes'] = Variable<String>(personalNotes.value);
-    }
-    if (quantity.present) {
-      map['quantity'] = Variable<int>(quantity.value);
     }
     if (indexNumber.present) {
       map['index_number'] = Variable<int>(indexNumber.value);
@@ -17057,19 +16857,17 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
 
   @override
   String toString() {
-    return (StringBuffer('ComicOwnedItemsRowsCompanion(')
+    return (StringBuffer('ComicCollectionItemsRowsCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -17109,12 +16907,12 @@ class $ComicReadingRowsTable extends ComicReadingRows
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $ComicReadingRowsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
   @override
   late final GeneratedColumn<int> rating = GeneratedColumn<int>(
@@ -17139,7 +16937,7 @@ class $ComicReadingRowsTable extends ComicReadingRows
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [ownedRefKey, rating, status, startedAt, finishedAt];
+      [collectionItemRefKey, rating, status, startedAt, finishedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -17150,13 +16948,13 @@ class $ComicReadingRowsTable extends ComicReadingRows
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     } else if (isInserting) {
-      context.missing(_ownedRefKeyMeta);
+      context.missing(_collectionItemRefKeyMeta);
     }
     if (data.containsKey('rating')) {
       context.handle(_ratingMeta,
@@ -17180,13 +16978,14 @@ class $ComicReadingRowsTable extends ComicReadingRows
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {ownedRefKey};
+  Set<GeneratedColumn> get $primaryKey => {collectionItemRefKey};
   @override
   ComicReadingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ComicReadingRow(
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key'])!,
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key'])!,
       rating: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}rating']),
       status: attachedDatabase.typeMapping
@@ -17205,13 +17004,13 @@ class $ComicReadingRowsTable extends ComicReadingRows
 }
 
 class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
-  final String ownedRefKey;
+  final String collectionItemRefKey;
   final int? rating;
   final String? status;
   final DateTime? startedAt;
   final DateTime? finishedAt;
   const ComicReadingRow(
-      {required this.ownedRefKey,
+      {required this.collectionItemRefKey,
       this.rating,
       this.status,
       this.startedAt,
@@ -17219,7 +17018,7 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     if (!nullToAbsent || rating != null) {
       map['rating'] = Variable<int>(rating);
     }
@@ -17237,7 +17036,7 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
 
   ComicReadingRowsCompanion toCompanion(bool nullToAbsent) {
     return ComicReadingRowsCompanion(
-      ownedRefKey: Value(ownedRefKey),
+      collectionItemRefKey: Value(collectionItemRefKey),
       rating:
           rating == null && nullToAbsent ? const Value.absent() : Value(rating),
       status:
@@ -17255,7 +17054,8 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ComicReadingRow(
-      ownedRefKey: serializer.fromJson<String>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String>(json['collectionItemRefKey']),
       rating: serializer.fromJson<int?>(json['rating']),
       status: serializer.fromJson<String?>(json['status']),
       startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
@@ -17266,7 +17066,7 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'ownedRefKey': serializer.toJson<String>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String>(collectionItemRefKey),
       'rating': serializer.toJson<int?>(rating),
       'status': serializer.toJson<String?>(status),
       'startedAt': serializer.toJson<DateTime?>(startedAt),
@@ -17275,13 +17075,13 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
   }
 
   ComicReadingRow copyWith(
-          {String? ownedRefKey,
+          {String? collectionItemRefKey,
           Value<int?> rating = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<DateTime?> startedAt = const Value.absent(),
           Value<DateTime?> finishedAt = const Value.absent()}) =>
       ComicReadingRow(
-        ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
         rating: rating.present ? rating.value : this.rating,
         status: status.present ? status.value : this.status,
         startedAt: startedAt.present ? startedAt.value : this.startedAt,
@@ -17289,8 +17089,9 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
       );
   ComicReadingRow copyWithCompanion(ComicReadingRowsCompanion data) {
     return ComicReadingRow(
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       rating: data.rating.present ? data.rating.value : this.rating,
       status: data.status.present ? data.status.value : this.status,
       startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
@@ -17302,7 +17103,7 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
   @override
   String toString() {
     return (StringBuffer('ComicReadingRow(')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('rating: $rating, ')
           ..write('status: $status, ')
           ..write('startedAt: $startedAt, ')
@@ -17313,12 +17114,12 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
 
   @override
   int get hashCode =>
-      Object.hash(ownedRefKey, rating, status, startedAt, finishedAt);
+      Object.hash(collectionItemRefKey, rating, status, startedAt, finishedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ComicReadingRow &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.rating == this.rating &&
           other.status == this.status &&
           other.startedAt == this.startedAt &&
@@ -17326,14 +17127,14 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
 }
 
 class ComicReadingRowsCompanion extends UpdateCompanion<ComicReadingRow> {
-  final Value<String> ownedRefKey;
+  final Value<String> collectionItemRefKey;
   final Value<int?> rating;
   final Value<String?> status;
   final Value<DateTime?> startedAt;
   final Value<DateTime?> finishedAt;
   final Value<int> rowid;
   const ComicReadingRowsCompanion({
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.rating = const Value.absent(),
     this.status = const Value.absent(),
     this.startedAt = const Value.absent(),
@@ -17341,15 +17142,15 @@ class ComicReadingRowsCompanion extends UpdateCompanion<ComicReadingRow> {
     this.rowid = const Value.absent(),
   });
   ComicReadingRowsCompanion.insert({
-    required String ownedRefKey,
+    required String collectionItemRefKey,
     this.rating = const Value.absent(),
     this.status = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.finishedAt = const Value.absent(),
     this.rowid = const Value.absent(),
-  }) : ownedRefKey = Value(ownedRefKey);
+  }) : collectionItemRefKey = Value(collectionItemRefKey);
   static Insertable<ComicReadingRow> custom({
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<int>? rating,
     Expression<String>? status,
     Expression<DateTime>? startedAt,
@@ -17357,7 +17158,8 @@ class ComicReadingRowsCompanion extends UpdateCompanion<ComicReadingRow> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (rating != null) 'rating': rating,
       if (status != null) 'status': status,
       if (startedAt != null) 'started_at': startedAt,
@@ -17367,14 +17169,14 @@ class ComicReadingRowsCompanion extends UpdateCompanion<ComicReadingRow> {
   }
 
   ComicReadingRowsCompanion copyWith(
-      {Value<String>? ownedRefKey,
+      {Value<String>? collectionItemRefKey,
       Value<int?>? rating,
       Value<String?>? status,
       Value<DateTime?>? startedAt,
       Value<DateTime?>? finishedAt,
       Value<int>? rowid}) {
     return ComicReadingRowsCompanion(
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       rating: rating ?? this.rating,
       status: status ?? this.status,
       startedAt: startedAt ?? this.startedAt,
@@ -17386,8 +17188,9 @@ class ComicReadingRowsCompanion extends UpdateCompanion<ComicReadingRow> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (rating.present) {
       map['rating'] = Variable<int>(rating.value);
@@ -17410,7 +17213,7 @@ class ComicReadingRowsCompanion extends UpdateCompanion<ComicReadingRow> {
   @override
   String toString() {
     return (StringBuffer('ComicReadingRowsCompanion(')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('rating: $rating, ')
           ..write('status: $status, ')
           ..write('startedAt: $startedAt, ')
@@ -17444,12 +17247,12 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
   late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
       'tracking_entry_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _completedAtMeta =
       const VerificationMeta('completedAt');
   @override
@@ -17479,7 +17282,7 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
         id,
         targetRefJson,
         trackingEntryId,
-        ownedRefKey,
+        collectionItemRefKey,
         completedAt,
         updatedAt,
         deletedAt,
@@ -17515,11 +17318,11 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
           trackingEntryId.isAcceptableOrUnknown(
               data['tracking_entry_id']!, _trackingEntryIdMeta));
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('completed_at')) {
       context.handle(
@@ -17560,8 +17363,9 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
           DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -17584,7 +17388,7 @@ class ComicTrackingUnitRow extends DataClass
   final String id;
   final String targetRefJson;
   final String? trackingEntryId;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -17593,7 +17397,7 @@ class ComicTrackingUnitRow extends DataClass
       {required this.id,
       required this.targetRefJson,
       this.trackingEntryId,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       required this.completedAt,
       required this.updatedAt,
       this.deletedAt,
@@ -17606,8 +17410,8 @@ class ComicTrackingUnitRow extends DataClass
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     map['completed_at'] = Variable<DateTime>(completedAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -17627,9 +17431,9 @@ class ComicTrackingUnitRow extends DataClass
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       completedAt: Value(completedAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -17648,7 +17452,8 @@ class ComicTrackingUnitRow extends DataClass
       id: serializer.fromJson<String>(json['id']),
       targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -17662,7 +17467,7 @@ class ComicTrackingUnitRow extends DataClass
       'id': serializer.toJson<String>(id),
       'targetRefJson': serializer.toJson<String>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'completedAt': serializer.toJson<DateTime>(completedAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -17674,7 +17479,7 @@ class ComicTrackingUnitRow extends DataClass
           {String? id,
           String? targetRefJson,
           Value<String?> trackingEntryId = const Value.absent(),
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           DateTime? completedAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
@@ -17685,7 +17490,9 @@ class ComicTrackingUnitRow extends DataClass
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         completedAt: completedAt ?? this.completedAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -17700,8 +17507,9 @@ class ComicTrackingUnitRow extends DataClass
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -17717,7 +17525,7 @@ class ComicTrackingUnitRow extends DataClass
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -17728,7 +17536,7 @@ class ComicTrackingUnitRow extends DataClass
 
   @override
   int get hashCode => Object.hash(id, targetRefJson, trackingEntryId,
-      ownedRefKey, completedAt, updatedAt, deletedAt, issueNumber);
+      collectionItemRefKey, completedAt, updatedAt, deletedAt, issueNumber);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -17736,7 +17544,7 @@ class ComicTrackingUnitRow extends DataClass
           other.id == this.id &&
           other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.completedAt == this.completedAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -17748,7 +17556,7 @@ class ComicTrackingUnitRowsCompanion
   final Value<String> id;
   final Value<String> targetRefJson;
   final Value<String?> trackingEntryId;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<DateTime> completedAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -17758,7 +17566,7 @@ class ComicTrackingUnitRowsCompanion
     this.id = const Value.absent(),
     this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -17769,7 +17577,7 @@ class ComicTrackingUnitRowsCompanion
     required String id,
     required String targetRefJson,
     this.trackingEntryId = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     required DateTime completedAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -17783,7 +17591,7 @@ class ComicTrackingUnitRowsCompanion
     Expression<String>? id,
     Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<DateTime>? completedAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -17794,7 +17602,8 @@ class ComicTrackingUnitRowsCompanion
       if (id != null) 'id': id,
       if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (completedAt != null) 'completed_at': completedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -17807,7 +17616,7 @@ class ComicTrackingUnitRowsCompanion
       {Value<String>? id,
       Value<String>? targetRefJson,
       Value<String?>? trackingEntryId,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<DateTime>? completedAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -17817,7 +17626,7 @@ class ComicTrackingUnitRowsCompanion
       id: id ?? this.id,
       targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -17838,8 +17647,9 @@ class ComicTrackingUnitRowsCompanion
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
@@ -17865,7 +17675,7 @@ class ComicTrackingUnitRowsCompanion
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -17893,12 +17703,12 @@ class $ComicTrackingRowsTable extends ComicTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
   @override
@@ -17966,7 +17776,7 @@ class $ComicTrackingRowsTable extends ComicTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedRefKey,
+        collectionItemRefKey,
         sourceType,
         status,
         rating,
@@ -18002,11 +17812,11 @@ class $ComicTrackingRowsTable extends ComicTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -18077,8 +17887,9 @@ class $ComicTrackingRowsTable extends ComicTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -18114,7 +17925,7 @@ class ComicTrackingRow extends DataClass
     implements Insertable<ComicTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -18129,7 +17940,7 @@ class ComicTrackingRow extends DataClass
   const ComicTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -18146,8 +17957,8 @@ class ComicTrackingRow extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -18187,9 +17998,9 @@ class ComicTrackingRow extends DataClass
     return ComicTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -18227,7 +18038,8 @@ class ComicTrackingRow extends DataClass
     return ComicTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -18247,7 +18059,7 @@ class ComicTrackingRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -18265,7 +18077,7 @@ class ComicTrackingRow extends DataClass
   ComicTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -18280,7 +18092,9 @@ class ComicTrackingRow extends DataClass
       ComicTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -18303,8 +18117,9 @@ class ComicTrackingRow extends DataClass
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -18332,7 +18147,7 @@ class ComicTrackingRow extends DataClass
     return (StringBuffer('ComicTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -18352,7 +18167,7 @@ class ComicTrackingRow extends DataClass
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedRefKey,
+      collectionItemRefKey,
       sourceType,
       status,
       rating,
@@ -18370,7 +18185,7 @@ class ComicTrackingRow extends DataClass
       (other is ComicTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -18387,7 +18202,7 @@ class ComicTrackingRow extends DataClass
 class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -18403,7 +18218,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
   const ComicTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -18420,7 +18235,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
   ComicTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -18439,7 +18254,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
   static Insertable<ComicTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -18456,7 +18271,8 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -18475,7 +18291,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
   ComicTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -18491,7 +18307,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
     return ComicTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -18516,8 +18332,9 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -18563,7 +18380,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
     return (StringBuffer('ComicTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -18581,12 +18398,12 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
   }
 }
 
-class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
-    with TableInfo<$GameOwnedItemsRowsTable, GameOwnedItemsRow> {
+class $GameCollectionItemsRowsTable extends GameCollectionItemsRows
+    with TableInfo<$GameCollectionItemsRowsTable, GameCollectionItemsRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $GameOwnedItemsRowsTable(this.attachedDatabase, [this._alias]);
+  $GameCollectionItemsRowsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -18647,14 +18464,6 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
   late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
       'personal_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _quantityMeta =
-      const VerificationMeta('quantity');
-  @override
-  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
-      'quantity', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(1));
   static const VerificationMeta _indexNumberMeta =
       const VerificationMeta('indexNumber');
   @override
@@ -18786,7 +18595,6 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -18811,9 +18619,10 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'game_owned_items_rows';
+  static const String $name = 'game_collection_items_rows';
   @override
-  VerificationContext validateIntegrity(Insertable<GameOwnedItemsRow> instance,
+  VerificationContext validateIntegrity(
+      Insertable<GameCollectionItemsRow> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -18865,10 +18674,6 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
           _personalNotesMeta,
           personalNotes.isAcceptableOrUnknown(
               data['personal_notes']!, _personalNotesMeta));
-    }
-    if (data.containsKey('quantity')) {
-      context.handle(_quantityMeta,
-          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
     }
     if (data.containsKey('index_number')) {
       context.handle(
@@ -18978,9 +18783,9 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  GameOwnedItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+  GameCollectionItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return GameOwnedItemsRow(
+    return GameCollectionItemsRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
@@ -19001,8 +18806,6 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
           .read(DriftSqlType.string, data['${effectivePrefix}currency']),
       personalNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
-      quantity: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
       indexNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
       tags: attachedDatabase.typeMapping
@@ -19045,13 +18848,13 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
   }
 
   @override
-  $GameOwnedItemsRowsTable createAlias(String alias) {
-    return $GameOwnedItemsRowsTable(attachedDatabase, alias);
+  $GameCollectionItemsRowsTable createAlias(String alias) {
+    return $GameCollectionItemsRowsTable(attachedDatabase, alias);
   }
 }
 
-class GameOwnedItemsRow extends DataClass
-    implements Insertable<GameOwnedItemsRow> {
+class GameCollectionItemsRow extends DataClass
+    implements Insertable<GameCollectionItemsRow> {
   final String id;
   final String itemId;
   final DateTime? createdAt;
@@ -19062,7 +18865,6 @@ class GameOwnedItemsRow extends DataClass
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final int quantity;
   final int? indexNumber;
   final String? tags;
   final DateTime updatedAt;
@@ -19082,7 +18884,7 @@ class GameOwnedItemsRow extends DataClass
   final String? priceChartingId;
   final String? coreRegion;
   final bool? valueIsLocked;
-  const GameOwnedItemsRow(
+  const GameCollectionItemsRow(
       {required this.id,
       required this.itemId,
       this.createdAt,
@@ -19093,7 +18895,6 @@ class GameOwnedItemsRow extends DataClass
       this.pricePaidCents,
       this.currency,
       this.personalNotes,
-      required this.quantity,
       this.indexNumber,
       this.tags,
       required this.updatedAt,
@@ -19142,7 +18943,6 @@ class GameOwnedItemsRow extends DataClass
     if (!nullToAbsent || personalNotes != null) {
       map['personal_notes'] = Variable<String>(personalNotes);
     }
-    map['quantity'] = Variable<int>(quantity);
     if (!nullToAbsent || indexNumber != null) {
       map['index_number'] = Variable<int>(indexNumber);
     }
@@ -19201,8 +19001,8 @@ class GameOwnedItemsRow extends DataClass
     return map;
   }
 
-  GameOwnedItemsRowsCompanion toCompanion(bool nullToAbsent) {
-    return GameOwnedItemsRowsCompanion(
+  GameCollectionItemsRowsCompanion toCompanion(bool nullToAbsent) {
+    return GameCollectionItemsRowsCompanion(
       id: Value(id),
       itemId: Value(itemId),
       createdAt: createdAt == null && nullToAbsent
@@ -19228,7 +19028,6 @@ class GameOwnedItemsRow extends DataClass
       personalNotes: personalNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(personalNotes),
-      quantity: Value(quantity),
       indexNumber: indexNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(indexNumber),
@@ -19282,10 +19081,10 @@ class GameOwnedItemsRow extends DataClass
     );
   }
 
-  factory GameOwnedItemsRow.fromJson(Map<String, dynamic> json,
+  factory GameCollectionItemsRow.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return GameOwnedItemsRow(
+    return GameCollectionItemsRow(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
@@ -19296,7 +19095,6 @@ class GameOwnedItemsRow extends DataClass
       pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
-      quantity: serializer.fromJson<int>(json['quantity']),
       indexNumber: serializer.fromJson<int?>(json['indexNumber']),
       tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -19332,7 +19130,6 @@ class GameOwnedItemsRow extends DataClass
       'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
       'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
-      'quantity': serializer.toJson<int>(quantity),
       'indexNumber': serializer.toJson<int?>(indexNumber),
       'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -19355,7 +19152,7 @@ class GameOwnedItemsRow extends DataClass
     };
   }
 
-  GameOwnedItemsRow copyWith(
+  GameCollectionItemsRow copyWith(
           {String? id,
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
@@ -19366,7 +19163,6 @@ class GameOwnedItemsRow extends DataClass
           Value<int?> pricePaidCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
-          int? quantity,
           Value<int?> indexNumber = const Value.absent(),
           Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
@@ -19386,7 +19182,7 @@ class GameOwnedItemsRow extends DataClass
           Value<String?> priceChartingId = const Value.absent(),
           Value<String?> coreRegion = const Value.absent(),
           Value<bool?> valueIsLocked = const Value.absent()}) =>
-      GameOwnedItemsRow(
+      GameCollectionItemsRow(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
@@ -19400,7 +19196,6 @@ class GameOwnedItemsRow extends DataClass
         currency: currency.present ? currency.value : this.currency,
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
-        quantity: quantity ?? this.quantity,
         indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
         tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -19431,8 +19226,9 @@ class GameOwnedItemsRow extends DataClass
         valueIsLocked:
             valueIsLocked.present ? valueIsLocked.value : this.valueIsLocked,
       );
-  GameOwnedItemsRow copyWithCompanion(GameOwnedItemsRowsCompanion data) {
-    return GameOwnedItemsRow(
+  GameCollectionItemsRow copyWithCompanion(
+      GameCollectionItemsRowsCompanion data) {
+    return GameCollectionItemsRow(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -19449,7 +19245,6 @@ class GameOwnedItemsRow extends DataClass
       personalNotes: data.personalNotes.present
           ? data.personalNotes.value
           : this.personalNotes,
-      quantity: data.quantity.present ? data.quantity.value : this.quantity,
       indexNumber:
           data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
       tags: data.tags.present ? data.tags.value : this.tags,
@@ -19493,7 +19288,7 @@ class GameOwnedItemsRow extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('GameOwnedItemsRow(')
+    return (StringBuffer('GameCollectionItemsRow(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
@@ -19504,7 +19299,6 @@ class GameOwnedItemsRow extends DataClass
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -19540,7 +19334,6 @@ class GameOwnedItemsRow extends DataClass
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -19564,7 +19357,7 @@ class GameOwnedItemsRow extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is GameOwnedItemsRow &&
+      (other is GameCollectionItemsRow &&
           other.id == this.id &&
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
@@ -19575,7 +19368,6 @@ class GameOwnedItemsRow extends DataClass
           other.pricePaidCents == this.pricePaidCents &&
           other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
-          other.quantity == this.quantity &&
           other.indexNumber == this.indexNumber &&
           other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
@@ -19597,7 +19389,8 @@ class GameOwnedItemsRow extends DataClass
           other.valueIsLocked == this.valueIsLocked);
 }
 
-class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
+class GameCollectionItemsRowsCompanion
+    extends UpdateCompanion<GameCollectionItemsRow> {
   final Value<String> id;
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
@@ -19608,7 +19401,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
   final Value<int?> pricePaidCents;
   final Value<String?> currency;
   final Value<String?> personalNotes;
-  final Value<int> quantity;
   final Value<int?> indexNumber;
   final Value<String?> tags;
   final Value<DateTime> updatedAt;
@@ -19629,7 +19421,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
   final Value<String?> coreRegion;
   final Value<bool?> valueIsLocked;
   final Value<int> rowid;
-  const GameOwnedItemsRowsCompanion({
+  const GameCollectionItemsRowsCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -19640,7 +19432,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -19662,7 +19453,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     this.valueIsLocked = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  GameOwnedItemsRowsCompanion.insert({
+  GameCollectionItemsRowsCompanion.insert({
     required String id,
     required String itemId,
     this.createdAt = const Value.absent(),
@@ -19673,7 +19464,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     required DateTime updatedAt,
@@ -19697,7 +19487,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
   })  : id = Value(id),
         itemId = Value(itemId),
         updatedAt = Value(updatedAt);
-  static Insertable<GameOwnedItemsRow> custom({
+  static Insertable<GameCollectionItemsRow> custom({
     Expression<String>? id,
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
@@ -19708,7 +19498,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     Expression<int>? pricePaidCents,
     Expression<String>? currency,
     Expression<String>? personalNotes,
-    Expression<int>? quantity,
     Expression<int>? indexNumber,
     Expression<String>? tags,
     Expression<DateTime>? updatedAt,
@@ -19741,7 +19530,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
       if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
       if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
-      if (quantity != null) 'quantity': quantity,
       if (indexNumber != null) 'index_number': indexNumber,
       if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -19765,7 +19553,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     });
   }
 
-  GameOwnedItemsRowsCompanion copyWith(
+  GameCollectionItemsRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
@@ -19776,7 +19564,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
       Value<int?>? pricePaidCents,
       Value<String?>? currency,
       Value<String?>? personalNotes,
-      Value<int>? quantity,
       Value<int?>? indexNumber,
       Value<String?>? tags,
       Value<DateTime>? updatedAt,
@@ -19797,7 +19584,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
       Value<String?>? coreRegion,
       Value<bool?>? valueIsLocked,
       Value<int>? rowid}) {
-    return GameOwnedItemsRowsCompanion(
+    return GameCollectionItemsRowsCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
@@ -19808,7 +19595,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
-      quantity: quantity ?? this.quantity,
       indexNumber: indexNumber ?? this.indexNumber,
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -19864,9 +19650,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     }
     if (personalNotes.present) {
       map['personal_notes'] = Variable<String>(personalNotes.value);
-    }
-    if (quantity.present) {
-      map['quantity'] = Variable<int>(quantity.value);
     }
     if (indexNumber.present) {
       map['index_number'] = Variable<int>(indexNumber.value);
@@ -19933,7 +19716,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
 
   @override
   String toString() {
-    return (StringBuffer('GameOwnedItemsRowsCompanion(')
+    return (StringBuffer('GameCollectionItemsRowsCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
@@ -19944,7 +19727,6 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -19987,12 +19769,12 @@ class $GameTrackingRowsTable extends GameTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
   @override
@@ -20060,7 +19842,7 @@ class $GameTrackingRowsTable extends GameTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedRefKey,
+        collectionItemRefKey,
         sourceType,
         status,
         rating,
@@ -20096,11 +19878,11 @@ class $GameTrackingRowsTable extends GameTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -20171,8 +19953,9 @@ class $GameTrackingRowsTable extends GameTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -20207,7 +19990,7 @@ class $GameTrackingRowsTable extends GameTrackingRows
 class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -20222,7 +20005,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
   const GameTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -20239,8 +20022,8 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -20280,9 +20063,9 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
     return GameTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -20320,7 +20103,8 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
     return GameTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -20340,7 +20124,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -20358,7 +20142,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
   GameTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -20373,7 +20157,9 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
       GameTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -20396,8 +20182,9 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -20425,7 +20212,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
     return (StringBuffer('GameTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -20445,7 +20232,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedRefKey,
+      collectionItemRefKey,
       sourceType,
       status,
       rating,
@@ -20463,7 +20250,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
       (other is GameTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -20480,7 +20267,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
 class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -20496,7 +20283,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
   const GameTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -20513,7 +20300,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
   GameTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -20532,7 +20319,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
   static Insertable<GameTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -20549,7 +20336,8 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -20568,7 +20356,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
   GameTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -20584,7 +20372,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
     return GameTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -20609,8 +20397,9 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -20656,7 +20445,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
     return (StringBuffer('GameTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -20674,12 +20463,12 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
   }
 }
 
-class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
-    with TableInfo<$MangaOwnedItemsRowsTable, MangaOwnedItemsRow> {
+class $MangaCollectionItemsRowsTable extends MangaCollectionItemsRows
+    with TableInfo<$MangaCollectionItemsRowsTable, MangaCollectionItemsRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $MangaOwnedItemsRowsTable(this.attachedDatabase, [this._alias]);
+  $MangaCollectionItemsRowsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -20705,12 +20494,6 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _targetRefJsonMeta =
-      const VerificationMeta('targetRefJson');
-  @override
-  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
-      'target_ref_json', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
   @override
@@ -20746,14 +20529,6 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
   late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
       'personal_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _quantityMeta =
-      const VerificationMeta('quantity');
-  @override
-  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
-      'quantity', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(1));
   static const VerificationMeta _indexNumberMeta =
       const VerificationMeta('indexNumber');
   @override
@@ -20947,14 +20722,12 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -20989,9 +20762,10 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'manga_owned_items_rows';
+  static const String $name = 'manga_collection_items_rows';
   @override
-  VerificationContext validateIntegrity(Insertable<MangaOwnedItemsRow> instance,
+  VerificationContext validateIntegrity(
+      Insertable<MangaCollectionItemsRow> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -21013,12 +20787,6 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
     if (data.containsKey('is_digital')) {
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
-    }
-    if (data.containsKey('target_ref_json')) {
-      context.handle(
-          _targetRefJsonMeta,
-          targetRefJson.isAcceptableOrUnknown(
-              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -21049,10 +20817,6 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
           _personalNotesMeta,
           personalNotes.isAcceptableOrUnknown(
               data['personal_notes']!, _personalNotesMeta));
-    }
-    if (data.containsKey('quantity')) {
-      context.handle(_quantityMeta,
-          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
     }
     if (data.containsKey('index_number')) {
       context.handle(
@@ -21220,9 +20984,10 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  MangaOwnedItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+  MangaCollectionItemsRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return MangaOwnedItemsRow(
+    return MangaCollectionItemsRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
@@ -21231,8 +20996,6 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      targetRefJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -21245,8 +21008,6 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
           .read(DriftSqlType.string, data['${effectivePrefix}currency']),
       personalNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
-      quantity: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
       indexNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
       tags: attachedDatabase.typeMapping
@@ -21310,25 +21071,23 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
   }
 
   @override
-  $MangaOwnedItemsRowsTable createAlias(String alias) {
-    return $MangaOwnedItemsRowsTable(attachedDatabase, alias);
+  $MangaCollectionItemsRowsTable createAlias(String alias) {
+    return $MangaCollectionItemsRowsTable(attachedDatabase, alias);
   }
 }
 
-class MangaOwnedItemsRow extends DataClass
-    implements Insertable<MangaOwnedItemsRow> {
+class MangaCollectionItemsRow extends DataClass
+    implements Insertable<MangaCollectionItemsRow> {
   final String id;
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final int quantity;
   final int? indexNumber;
   final String? tags;
   final DateTime updatedAt;
@@ -21358,19 +21117,17 @@ class MangaOwnedItemsRow extends DataClass
   final bool insertsPresent;
   final String? printing;
   final String? localizedEdition;
-  const MangaOwnedItemsRow(
+  const MangaCollectionItemsRow(
       {required this.id,
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
       this.pricePaidCents,
       this.currency,
       this.personalNotes,
-      required this.quantity,
       this.indexNumber,
       this.tags,
       required this.updatedAt,
@@ -21411,9 +21168,6 @@ class MangaOwnedItemsRow extends DataClass
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || targetRefJson != null) {
-      map['target_ref_json'] = Variable<String>(targetRefJson);
-    }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
     }
@@ -21432,7 +21186,6 @@ class MangaOwnedItemsRow extends DataClass
     if (!nullToAbsent || personalNotes != null) {
       map['personal_notes'] = Variable<String>(personalNotes);
     }
-    map['quantity'] = Variable<int>(quantity);
     if (!nullToAbsent || indexNumber != null) {
       map['index_number'] = Variable<int>(indexNumber);
     }
@@ -21513,8 +21266,8 @@ class MangaOwnedItemsRow extends DataClass
     return map;
   }
 
-  MangaOwnedItemsRowsCompanion toCompanion(bool nullToAbsent) {
-    return MangaOwnedItemsRowsCompanion(
+  MangaCollectionItemsRowsCompanion toCompanion(bool nullToAbsent) {
+    return MangaCollectionItemsRowsCompanion(
       id: Value(id),
       itemId: Value(itemId),
       createdAt: createdAt == null && nullToAbsent
@@ -21523,9 +21276,6 @@ class MangaOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      targetRefJson: targetRefJson == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -21543,7 +21293,6 @@ class MangaOwnedItemsRow extends DataClass
       personalNotes: personalNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(personalNotes),
-      quantity: Value(quantity),
       indexNumber: indexNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(indexNumber),
@@ -21620,22 +21369,20 @@ class MangaOwnedItemsRow extends DataClass
     );
   }
 
-  factory MangaOwnedItemsRow.fromJson(Map<String, dynamic> json,
+  factory MangaCollectionItemsRow.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return MangaOwnedItemsRow(
+    return MangaCollectionItemsRow(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
       pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
-      quantity: serializer.fromJson<int>(json['quantity']),
       indexNumber: serializer.fromJson<int?>(json['indexNumber']),
       tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -21678,14 +21425,12 @@ class MangaOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
       'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
       'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
-      'quantity': serializer.toJson<int>(quantity),
       'indexNumber': serializer.toJson<int?>(indexNumber),
       'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -21718,19 +21463,17 @@ class MangaOwnedItemsRow extends DataClass
     };
   }
 
-  MangaOwnedItemsRow copyWith(
+  MangaCollectionItemsRow copyWith(
           {String? id,
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
           Value<int?> pricePaidCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
-          int? quantity,
           Value<int?> indexNumber = const Value.absent(),
           Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
@@ -21760,13 +21503,11 @@ class MangaOwnedItemsRow extends DataClass
           bool? insertsPresent,
           Value<String?> printing = const Value.absent(),
           Value<String?> localizedEdition = const Value.absent()}) =>
-      MangaOwnedItemsRow(
+      MangaCollectionItemsRow(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        targetRefJson:
-            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -21776,7 +21517,6 @@ class MangaOwnedItemsRow extends DataClass
         currency: currency.present ? currency.value : this.currency,
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
-        quantity: quantity ?? this.quantity,
         indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
         tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -21823,15 +21563,13 @@ class MangaOwnedItemsRow extends DataClass
             ? localizedEdition.value
             : this.localizedEdition,
       );
-  MangaOwnedItemsRow copyWithCompanion(MangaOwnedItemsRowsCompanion data) {
-    return MangaOwnedItemsRow(
+  MangaCollectionItemsRow copyWithCompanion(
+      MangaCollectionItemsRowsCompanion data) {
+    return MangaCollectionItemsRow(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      targetRefJson: data.targetRefJson.present
-          ? data.targetRefJson.value
-          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -21844,7 +21582,6 @@ class MangaOwnedItemsRow extends DataClass
       personalNotes: data.personalNotes.present
           ? data.personalNotes.value
           : this.personalNotes,
-      quantity: data.quantity.present ? data.quantity.value : this.quantity,
       indexNumber:
           data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
       tags: data.tags.present ? data.tags.value : this.tags,
@@ -21914,19 +21651,17 @@ class MangaOwnedItemsRow extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('MangaOwnedItemsRow(')
+    return (StringBuffer('MangaCollectionItemsRow(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -21966,14 +21701,12 @@ class MangaOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -22007,19 +21740,17 @@ class MangaOwnedItemsRow extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is MangaOwnedItemsRow &&
+      (other is MangaCollectionItemsRow &&
           other.id == this.id &&
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
           other.pricePaidCents == this.pricePaidCents &&
           other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
-          other.quantity == this.quantity &&
           other.indexNumber == this.indexNumber &&
           other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
@@ -22051,19 +21782,18 @@ class MangaOwnedItemsRow extends DataClass
           other.localizedEdition == this.localizedEdition);
 }
 
-class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
+class MangaCollectionItemsRowsCompanion
+    extends UpdateCompanion<MangaCollectionItemsRow> {
   final Value<String> id;
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
   final Value<int?> pricePaidCents;
   final Value<String?> currency;
   final Value<String?> personalNotes;
-  final Value<int> quantity;
   final Value<int?> indexNumber;
   final Value<String?> tags;
   final Value<DateTime> updatedAt;
@@ -22094,19 +21824,17 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
   final Value<String?> printing;
   final Value<String?> localizedEdition;
   final Value<int> rowid;
-  const MangaOwnedItemsRowsCompanion({
+  const MangaCollectionItemsRowsCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -22138,19 +21866,17 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
     this.localizedEdition = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  MangaOwnedItemsRowsCompanion.insert({
+  MangaCollectionItemsRowsCompanion.insert({
     required String id,
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     required DateTime updatedAt,
@@ -22184,19 +21910,17 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
   })  : id = Value(id),
         itemId = Value(itemId),
         updatedAt = Value(updatedAt);
-  static Insertable<MangaOwnedItemsRow> custom({
+  static Insertable<MangaCollectionItemsRow> custom({
     Expression<String>? id,
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
     Expression<int>? pricePaidCents,
     Expression<String>? currency,
     Expression<String>? personalNotes,
-    Expression<int>? quantity,
     Expression<int>? indexNumber,
     Expression<String>? tags,
     Expression<DateTime>? updatedAt,
@@ -22233,14 +21957,12 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
       if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
       if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
-      if (quantity != null) 'quantity': quantity,
       if (indexNumber != null) 'index_number': indexNumber,
       if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -22277,19 +21999,17 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
     });
   }
 
-  MangaOwnedItemsRowsCompanion copyWith(
+  MangaCollectionItemsRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
       Value<int?>? pricePaidCents,
       Value<String?>? currency,
       Value<String?>? personalNotes,
-      Value<int>? quantity,
       Value<int?>? indexNumber,
       Value<String?>? tags,
       Value<DateTime>? updatedAt,
@@ -22320,19 +22040,17 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
       Value<String?>? printing,
       Value<String?>? localizedEdition,
       Value<int>? rowid}) {
-    return MangaOwnedItemsRowsCompanion(
+    return MangaCollectionItemsRowsCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
-      quantity: quantity ?? this.quantity,
       indexNumber: indexNumber ?? this.indexNumber,
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -22381,9 +22099,6 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (targetRefJson.present) {
-      map['target_ref_json'] = Variable<String>(targetRefJson.value);
-    }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
     }
@@ -22401,9 +22116,6 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
     }
     if (personalNotes.present) {
       map['personal_notes'] = Variable<String>(personalNotes.value);
-    }
-    if (quantity.present) {
-      map['quantity'] = Variable<int>(quantity.value);
     }
     if (indexNumber.present) {
       map['index_number'] = Variable<int>(indexNumber.value);
@@ -22502,19 +22214,17 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
 
   @override
   String toString() {
-    return (StringBuffer('MangaOwnedItemsRowsCompanion(')
+    return (StringBuffer('MangaCollectionItemsRowsCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -22573,12 +22283,12 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
   late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
       'tracking_entry_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _completedAtMeta =
       const VerificationMeta('completedAt');
   @override
@@ -22614,7 +22324,7 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
         id,
         targetRefJson,
         trackingEntryId,
-        ownedRefKey,
+        collectionItemRefKey,
         completedAt,
         updatedAt,
         deletedAt,
@@ -22651,11 +22361,11 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
           trackingEntryId.isAcceptableOrUnknown(
               data['tracking_entry_id']!, _trackingEntryIdMeta));
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('completed_at')) {
       context.handle(
@@ -22702,8 +22412,9 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
           DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -22728,7 +22439,7 @@ class MangaTrackingUnitRow extends DataClass
   final String id;
   final String targetRefJson;
   final String? trackingEntryId;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -22738,7 +22449,7 @@ class MangaTrackingUnitRow extends DataClass
       {required this.id,
       required this.targetRefJson,
       this.trackingEntryId,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       required this.completedAt,
       required this.updatedAt,
       this.deletedAt,
@@ -22752,8 +22463,8 @@ class MangaTrackingUnitRow extends DataClass
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     map['completed_at'] = Variable<DateTime>(completedAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -22776,9 +22487,9 @@ class MangaTrackingUnitRow extends DataClass
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       completedAt: Value(completedAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -22800,7 +22511,8 @@ class MangaTrackingUnitRow extends DataClass
       id: serializer.fromJson<String>(json['id']),
       targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -22815,7 +22527,7 @@ class MangaTrackingUnitRow extends DataClass
       'id': serializer.toJson<String>(id),
       'targetRefJson': serializer.toJson<String>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'completedAt': serializer.toJson<DateTime>(completedAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -22828,7 +22540,7 @@ class MangaTrackingUnitRow extends DataClass
           {String? id,
           String? targetRefJson,
           Value<String?> trackingEntryId = const Value.absent(),
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           DateTime? completedAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
@@ -22840,7 +22552,9 @@ class MangaTrackingUnitRow extends DataClass
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         completedAt: completedAt ?? this.completedAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -22858,8 +22572,9 @@ class MangaTrackingUnitRow extends DataClass
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -22879,7 +22594,7 @@ class MangaTrackingUnitRow extends DataClass
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -22894,7 +22609,7 @@ class MangaTrackingUnitRow extends DataClass
       id,
       targetRefJson,
       trackingEntryId,
-      ownedRefKey,
+      collectionItemRefKey,
       completedAt,
       updatedAt,
       deletedAt,
@@ -22907,7 +22622,7 @@ class MangaTrackingUnitRow extends DataClass
           other.id == this.id &&
           other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.completedAt == this.completedAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -22920,7 +22635,7 @@ class MangaTrackingUnitRowsCompanion
   final Value<String> id;
   final Value<String> targetRefJson;
   final Value<String?> trackingEntryId;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<DateTime> completedAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -22931,7 +22646,7 @@ class MangaTrackingUnitRowsCompanion
     this.id = const Value.absent(),
     this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -22943,7 +22658,7 @@ class MangaTrackingUnitRowsCompanion
     required String id,
     required String targetRefJson,
     this.trackingEntryId = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     required DateTime completedAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -22958,7 +22673,7 @@ class MangaTrackingUnitRowsCompanion
     Expression<String>? id,
     Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<DateTime>? completedAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -22970,7 +22685,8 @@ class MangaTrackingUnitRowsCompanion
       if (id != null) 'id': id,
       if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (completedAt != null) 'completed_at': completedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -22984,7 +22700,7 @@ class MangaTrackingUnitRowsCompanion
       {Value<String>? id,
       Value<String>? targetRefJson,
       Value<String?>? trackingEntryId,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<DateTime>? completedAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -22995,7 +22711,7 @@ class MangaTrackingUnitRowsCompanion
       id: id ?? this.id,
       targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -23017,8 +22733,9 @@ class MangaTrackingUnitRowsCompanion
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
@@ -23047,7 +22764,7 @@ class MangaTrackingUnitRowsCompanion
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -23076,12 +22793,12 @@ class $MangaTrackingRowsTable extends MangaTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
   @override
@@ -23149,7 +22866,7 @@ class $MangaTrackingRowsTable extends MangaTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedRefKey,
+        collectionItemRefKey,
         sourceType,
         status,
         rating,
@@ -23185,11 +22902,11 @@ class $MangaTrackingRowsTable extends MangaTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -23260,8 +22977,9 @@ class $MangaTrackingRowsTable extends MangaTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -23297,7 +23015,7 @@ class MangaTrackingRow extends DataClass
     implements Insertable<MangaTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -23312,7 +23030,7 @@ class MangaTrackingRow extends DataClass
   const MangaTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -23329,8 +23047,8 @@ class MangaTrackingRow extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -23370,9 +23088,9 @@ class MangaTrackingRow extends DataClass
     return MangaTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -23410,7 +23128,8 @@ class MangaTrackingRow extends DataClass
     return MangaTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -23430,7 +23149,7 @@ class MangaTrackingRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -23448,7 +23167,7 @@ class MangaTrackingRow extends DataClass
   MangaTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -23463,7 +23182,9 @@ class MangaTrackingRow extends DataClass
       MangaTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -23486,8 +23207,9 @@ class MangaTrackingRow extends DataClass
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -23515,7 +23237,7 @@ class MangaTrackingRow extends DataClass
     return (StringBuffer('MangaTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -23535,7 +23257,7 @@ class MangaTrackingRow extends DataClass
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedRefKey,
+      collectionItemRefKey,
       sourceType,
       status,
       rating,
@@ -23553,7 +23275,7 @@ class MangaTrackingRow extends DataClass
       (other is MangaTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -23570,7 +23292,7 @@ class MangaTrackingRow extends DataClass
 class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -23586,7 +23308,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
   const MangaTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -23603,7 +23325,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
   MangaTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -23622,7 +23344,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
   static Insertable<MangaTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -23639,7 +23361,8 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -23658,7 +23381,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
   MangaTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -23674,7 +23397,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
     return MangaTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -23699,8 +23422,9 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -23746,7 +23470,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
     return (StringBuffer('MangaTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -23764,12 +23488,12 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
   }
 }
 
-class $MovieOwnedItemsRowsTable extends MovieOwnedItemsRows
-    with TableInfo<$MovieOwnedItemsRowsTable, MovieOwnedItemsRow> {
+class $MovieCollectionItemsRowsTable extends MovieCollectionItemsRows
+    with TableInfo<$MovieCollectionItemsRowsTable, MovieCollectionItemsRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $MovieOwnedItemsRowsTable(this.attachedDatabase, [this._alias]);
+  $MovieCollectionItemsRowsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -23830,14 +23554,6 @@ class $MovieOwnedItemsRowsTable extends MovieOwnedItemsRows
   late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
       'personal_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _quantityMeta =
-      const VerificationMeta('quantity');
-  @override
-  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
-      'quantity', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(1));
   static const VerificationMeta _indexNumberMeta =
       const VerificationMeta('indexNumber');
   @override
@@ -23968,7 +23684,6 @@ class $MovieOwnedItemsRowsTable extends MovieOwnedItemsRows
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -23994,9 +23709,10 @@ class $MovieOwnedItemsRowsTable extends MovieOwnedItemsRows
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'movie_owned_items_rows';
+  static const String $name = 'movie_collection_items_rows';
   @override
-  VerificationContext validateIntegrity(Insertable<MovieOwnedItemsRow> instance,
+  VerificationContext validateIntegrity(
+      Insertable<MovieCollectionItemsRow> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -24048,10 +23764,6 @@ class $MovieOwnedItemsRowsTable extends MovieOwnedItemsRows
           _personalNotesMeta,
           personalNotes.isAcceptableOrUnknown(
               data['personal_notes']!, _personalNotesMeta));
-    }
-    if (data.containsKey('quantity')) {
-      context.handle(_quantityMeta,
-          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
     }
     if (data.containsKey('index_number')) {
       context.handle(
@@ -24163,9 +23875,10 @@ class $MovieOwnedItemsRowsTable extends MovieOwnedItemsRows
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  MovieOwnedItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+  MovieCollectionItemsRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return MovieOwnedItemsRow(
+    return MovieCollectionItemsRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
@@ -24186,8 +23899,6 @@ class $MovieOwnedItemsRowsTable extends MovieOwnedItemsRows
           .read(DriftSqlType.string, data['${effectivePrefix}currency']),
       personalNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
-      quantity: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
       indexNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
       tags: attachedDatabase.typeMapping
@@ -24232,13 +23943,13 @@ class $MovieOwnedItemsRowsTable extends MovieOwnedItemsRows
   }
 
   @override
-  $MovieOwnedItemsRowsTable createAlias(String alias) {
-    return $MovieOwnedItemsRowsTable(attachedDatabase, alias);
+  $MovieCollectionItemsRowsTable createAlias(String alias) {
+    return $MovieCollectionItemsRowsTable(attachedDatabase, alias);
   }
 }
 
-class MovieOwnedItemsRow extends DataClass
-    implements Insertable<MovieOwnedItemsRow> {
+class MovieCollectionItemsRow extends DataClass
+    implements Insertable<MovieCollectionItemsRow> {
   final String id;
   final String itemId;
   final DateTime? createdAt;
@@ -24249,7 +23960,6 @@ class MovieOwnedItemsRow extends DataClass
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final int quantity;
   final int? indexNumber;
   final String? tags;
   final DateTime updatedAt;
@@ -24270,7 +23980,7 @@ class MovieOwnedItemsRow extends DataClass
   final String? region;
   final String? packaging;
   final String? distributor;
-  const MovieOwnedItemsRow(
+  const MovieCollectionItemsRow(
       {required this.id,
       required this.itemId,
       this.createdAt,
@@ -24281,7 +23991,6 @@ class MovieOwnedItemsRow extends DataClass
       this.pricePaidCents,
       this.currency,
       this.personalNotes,
-      required this.quantity,
       this.indexNumber,
       this.tags,
       required this.updatedAt,
@@ -24331,7 +24040,6 @@ class MovieOwnedItemsRow extends DataClass
     if (!nullToAbsent || personalNotes != null) {
       map['personal_notes'] = Variable<String>(personalNotes);
     }
-    map['quantity'] = Variable<int>(quantity);
     if (!nullToAbsent || indexNumber != null) {
       map['index_number'] = Variable<int>(indexNumber);
     }
@@ -24391,8 +24099,8 @@ class MovieOwnedItemsRow extends DataClass
     return map;
   }
 
-  MovieOwnedItemsRowsCompanion toCompanion(bool nullToAbsent) {
-    return MovieOwnedItemsRowsCompanion(
+  MovieCollectionItemsRowsCompanion toCompanion(bool nullToAbsent) {
+    return MovieCollectionItemsRowsCompanion(
       id: Value(id),
       itemId: Value(itemId),
       createdAt: createdAt == null && nullToAbsent
@@ -24418,7 +24126,6 @@ class MovieOwnedItemsRow extends DataClass
       personalNotes: personalNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(personalNotes),
-      quantity: Value(quantity),
       indexNumber: indexNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(indexNumber),
@@ -24473,10 +24180,10 @@ class MovieOwnedItemsRow extends DataClass
     );
   }
 
-  factory MovieOwnedItemsRow.fromJson(Map<String, dynamic> json,
+  factory MovieCollectionItemsRow.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return MovieOwnedItemsRow(
+    return MovieCollectionItemsRow(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
@@ -24487,7 +24194,6 @@ class MovieOwnedItemsRow extends DataClass
       pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
-      quantity: serializer.fromJson<int>(json['quantity']),
       indexNumber: serializer.fromJson<int?>(json['indexNumber']),
       tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -24524,7 +24230,6 @@ class MovieOwnedItemsRow extends DataClass
       'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
       'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
-      'quantity': serializer.toJson<int>(quantity),
       'indexNumber': serializer.toJson<int?>(indexNumber),
       'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -24548,7 +24253,7 @@ class MovieOwnedItemsRow extends DataClass
     };
   }
 
-  MovieOwnedItemsRow copyWith(
+  MovieCollectionItemsRow copyWith(
           {String? id,
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
@@ -24559,7 +24264,6 @@ class MovieOwnedItemsRow extends DataClass
           Value<int?> pricePaidCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
-          int? quantity,
           Value<int?> indexNumber = const Value.absent(),
           Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
@@ -24580,7 +24284,7 @@ class MovieOwnedItemsRow extends DataClass
           Value<String?> region = const Value.absent(),
           Value<String?> packaging = const Value.absent(),
           Value<String?> distributor = const Value.absent()}) =>
-      MovieOwnedItemsRow(
+      MovieCollectionItemsRow(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
@@ -24594,7 +24298,6 @@ class MovieOwnedItemsRow extends DataClass
         currency: currency.present ? currency.value : this.currency,
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
-        quantity: quantity ?? this.quantity,
         indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
         tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -24622,8 +24325,9 @@ class MovieOwnedItemsRow extends DataClass
         packaging: packaging.present ? packaging.value : this.packaging,
         distributor: distributor.present ? distributor.value : this.distributor,
       );
-  MovieOwnedItemsRow copyWithCompanion(MovieOwnedItemsRowsCompanion data) {
-    return MovieOwnedItemsRow(
+  MovieCollectionItemsRow copyWithCompanion(
+      MovieCollectionItemsRowsCompanion data) {
+    return MovieCollectionItemsRow(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -24640,7 +24344,6 @@ class MovieOwnedItemsRow extends DataClass
       personalNotes: data.personalNotes.present
           ? data.personalNotes.value
           : this.personalNotes,
-      quantity: data.quantity.present ? data.quantity.value : this.quantity,
       indexNumber:
           data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
       tags: data.tags.present ? data.tags.value : this.tags,
@@ -24682,7 +24385,7 @@ class MovieOwnedItemsRow extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('MovieOwnedItemsRow(')
+    return (StringBuffer('MovieCollectionItemsRow(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
@@ -24693,7 +24396,6 @@ class MovieOwnedItemsRow extends DataClass
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -24730,7 +24432,6 @@ class MovieOwnedItemsRow extends DataClass
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -24755,7 +24456,7 @@ class MovieOwnedItemsRow extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is MovieOwnedItemsRow &&
+      (other is MovieCollectionItemsRow &&
           other.id == this.id &&
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
@@ -24766,7 +24467,6 @@ class MovieOwnedItemsRow extends DataClass
           other.pricePaidCents == this.pricePaidCents &&
           other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
-          other.quantity == this.quantity &&
           other.indexNumber == this.indexNumber &&
           other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
@@ -24789,7 +24489,8 @@ class MovieOwnedItemsRow extends DataClass
           other.distributor == this.distributor);
 }
 
-class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
+class MovieCollectionItemsRowsCompanion
+    extends UpdateCompanion<MovieCollectionItemsRow> {
   final Value<String> id;
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
@@ -24800,7 +24501,6 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
   final Value<int?> pricePaidCents;
   final Value<String?> currency;
   final Value<String?> personalNotes;
-  final Value<int> quantity;
   final Value<int?> indexNumber;
   final Value<String?> tags;
   final Value<DateTime> updatedAt;
@@ -24822,7 +24522,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
   final Value<String?> packaging;
   final Value<String?> distributor;
   final Value<int> rowid;
-  const MovieOwnedItemsRowsCompanion({
+  const MovieCollectionItemsRowsCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -24833,7 +24533,6 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -24856,7 +24555,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
     this.distributor = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  MovieOwnedItemsRowsCompanion.insert({
+  MovieCollectionItemsRowsCompanion.insert({
     required String id,
     required String itemId,
     this.createdAt = const Value.absent(),
@@ -24867,7 +24566,6 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     required DateTime updatedAt,
@@ -24892,7 +24590,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
   })  : id = Value(id),
         itemId = Value(itemId),
         updatedAt = Value(updatedAt);
-  static Insertable<MovieOwnedItemsRow> custom({
+  static Insertable<MovieCollectionItemsRow> custom({
     Expression<String>? id,
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
@@ -24903,7 +24601,6 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
     Expression<int>? pricePaidCents,
     Expression<String>? currency,
     Expression<String>? personalNotes,
-    Expression<int>? quantity,
     Expression<int>? indexNumber,
     Expression<String>? tags,
     Expression<DateTime>? updatedAt,
@@ -24937,7 +24634,6 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
       if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
       if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
-      if (quantity != null) 'quantity': quantity,
       if (indexNumber != null) 'index_number': indexNumber,
       if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -24962,7 +24658,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
     });
   }
 
-  MovieOwnedItemsRowsCompanion copyWith(
+  MovieCollectionItemsRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
@@ -24973,7 +24669,6 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
       Value<int?>? pricePaidCents,
       Value<String?>? currency,
       Value<String?>? personalNotes,
-      Value<int>? quantity,
       Value<int?>? indexNumber,
       Value<String?>? tags,
       Value<DateTime>? updatedAt,
@@ -24995,7 +24690,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
       Value<String?>? packaging,
       Value<String?>? distributor,
       Value<int>? rowid}) {
-    return MovieOwnedItemsRowsCompanion(
+    return MovieCollectionItemsRowsCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
@@ -25006,7 +24701,6 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
-      quantity: quantity ?? this.quantity,
       indexNumber: indexNumber ?? this.indexNumber,
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -25063,9 +24757,6 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
     }
     if (personalNotes.present) {
       map['personal_notes'] = Variable<String>(personalNotes.value);
-    }
-    if (quantity.present) {
-      map['quantity'] = Variable<int>(quantity.value);
     }
     if (indexNumber.present) {
       map['index_number'] = Variable<int>(indexNumber.value);
@@ -25135,7 +24826,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
 
   @override
   String toString() {
-    return (StringBuffer('MovieOwnedItemsRowsCompanion(')
+    return (StringBuffer('MovieCollectionItemsRowsCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
@@ -25146,7 +24837,6 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -25190,12 +24880,12 @@ class $MovieTrackingRowsTable extends MovieTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
   @override
@@ -25263,7 +24953,7 @@ class $MovieTrackingRowsTable extends MovieTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedRefKey,
+        collectionItemRefKey,
         sourceType,
         status,
         rating,
@@ -25299,11 +24989,11 @@ class $MovieTrackingRowsTable extends MovieTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -25374,8 +25064,9 @@ class $MovieTrackingRowsTable extends MovieTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -25411,7 +25102,7 @@ class MovieTrackingRow extends DataClass
     implements Insertable<MovieTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -25426,7 +25117,7 @@ class MovieTrackingRow extends DataClass
   const MovieTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -25443,8 +25134,8 @@ class MovieTrackingRow extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -25484,9 +25175,9 @@ class MovieTrackingRow extends DataClass
     return MovieTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -25524,7 +25215,8 @@ class MovieTrackingRow extends DataClass
     return MovieTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -25544,7 +25236,7 @@ class MovieTrackingRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -25562,7 +25254,7 @@ class MovieTrackingRow extends DataClass
   MovieTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -25577,7 +25269,9 @@ class MovieTrackingRow extends DataClass
       MovieTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -25600,8 +25294,9 @@ class MovieTrackingRow extends DataClass
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -25629,7 +25324,7 @@ class MovieTrackingRow extends DataClass
     return (StringBuffer('MovieTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -25649,7 +25344,7 @@ class MovieTrackingRow extends DataClass
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedRefKey,
+      collectionItemRefKey,
       sourceType,
       status,
       rating,
@@ -25667,7 +25362,7 @@ class MovieTrackingRow extends DataClass
       (other is MovieTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -25684,7 +25379,7 @@ class MovieTrackingRow extends DataClass
 class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -25700,7 +25395,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
   const MovieTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -25717,7 +25412,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
   MovieTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -25736,7 +25431,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
   static Insertable<MovieTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -25753,7 +25448,8 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -25772,7 +25468,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
   MovieTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -25788,7 +25484,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
     return MovieTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -25813,8 +25509,9 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -25860,7 +25557,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
     return (StringBuffer('MovieTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -26313,12 +26010,12 @@ class MusicAlbumImagesRowsCompanion
   }
 }
 
-class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
-    with TableInfo<$MusicOwnedItemsRowsTable, MusicOwnedItemsRow> {
+class $MusicCollectionItemsRowsTable extends MusicCollectionItemsRows
+    with TableInfo<$MusicCollectionItemsRowsTable, MusicCollectionItemsRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $MusicOwnedItemsRowsTable(this.attachedDatabase, [this._alias]);
+  $MusicCollectionItemsRowsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -26379,14 +26076,6 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
   late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
       'personal_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _quantityMeta =
-      const VerificationMeta('quantity');
-  @override
-  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
-      'quantity', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(1));
   static const VerificationMeta _indexNumberMeta =
       const VerificationMeta('indexNumber');
   @override
@@ -26494,7 +26183,6 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -26516,9 +26204,10 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'music_owned_items_rows';
+  static const String $name = 'music_collection_items_rows';
   @override
-  VerificationContext validateIntegrity(Insertable<MusicOwnedItemsRow> instance,
+  VerificationContext validateIntegrity(
+      Insertable<MusicCollectionItemsRow> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -26570,10 +26259,6 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
           _personalNotesMeta,
           personalNotes.isAcceptableOrUnknown(
               data['personal_notes']!, _personalNotesMeta));
-    }
-    if (data.containsKey('quantity')) {
-      context.handle(_quantityMeta,
-          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
     }
     if (data.containsKey('index_number')) {
       context.handle(
@@ -26667,9 +26352,10 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  MusicOwnedItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+  MusicCollectionItemsRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return MusicOwnedItemsRow(
+    return MusicCollectionItemsRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
@@ -26690,8 +26376,6 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
           .read(DriftSqlType.string, data['${effectivePrefix}currency']),
       personalNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
-      quantity: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
       indexNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
       tags: attachedDatabase.typeMapping
@@ -26728,13 +26412,13 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
   }
 
   @override
-  $MusicOwnedItemsRowsTable createAlias(String alias) {
-    return $MusicOwnedItemsRowsTable(attachedDatabase, alias);
+  $MusicCollectionItemsRowsTable createAlias(String alias) {
+    return $MusicCollectionItemsRowsTable(attachedDatabase, alias);
   }
 }
 
-class MusicOwnedItemsRow extends DataClass
-    implements Insertable<MusicOwnedItemsRow> {
+class MusicCollectionItemsRow extends DataClass
+    implements Insertable<MusicCollectionItemsRow> {
   final String id;
   final String itemId;
   final DateTime? createdAt;
@@ -26745,7 +26429,6 @@ class MusicOwnedItemsRow extends DataClass
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final int quantity;
   final int? indexNumber;
   final String? tags;
   final DateTime updatedAt;
@@ -26762,7 +26445,7 @@ class MusicOwnedItemsRow extends DataClass
   final String? signedBy;
   final DateTime? lastCleanedDate;
   final String mediumDetailsJson;
-  const MusicOwnedItemsRow(
+  const MusicCollectionItemsRow(
       {required this.id,
       required this.itemId,
       this.createdAt,
@@ -26773,7 +26456,6 @@ class MusicOwnedItemsRow extends DataClass
       this.pricePaidCents,
       this.currency,
       this.personalNotes,
-      required this.quantity,
       this.indexNumber,
       this.tags,
       required this.updatedAt,
@@ -26819,7 +26501,6 @@ class MusicOwnedItemsRow extends DataClass
     if (!nullToAbsent || personalNotes != null) {
       map['personal_notes'] = Variable<String>(personalNotes);
     }
-    map['quantity'] = Variable<int>(quantity);
     if (!nullToAbsent || indexNumber != null) {
       map['index_number'] = Variable<int>(indexNumber);
     }
@@ -26867,8 +26548,8 @@ class MusicOwnedItemsRow extends DataClass
     return map;
   }
 
-  MusicOwnedItemsRowsCompanion toCompanion(bool nullToAbsent) {
-    return MusicOwnedItemsRowsCompanion(
+  MusicCollectionItemsRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicCollectionItemsRowsCompanion(
       id: Value(id),
       itemId: Value(itemId),
       createdAt: createdAt == null && nullToAbsent
@@ -26894,7 +26575,6 @@ class MusicOwnedItemsRow extends DataClass
       personalNotes: personalNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(personalNotes),
-      quantity: Value(quantity),
       indexNumber: indexNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(indexNumber),
@@ -26938,10 +26618,10 @@ class MusicOwnedItemsRow extends DataClass
     );
   }
 
-  factory MusicOwnedItemsRow.fromJson(Map<String, dynamic> json,
+  factory MusicCollectionItemsRow.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return MusicOwnedItemsRow(
+    return MusicCollectionItemsRow(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
@@ -26952,7 +26632,6 @@ class MusicOwnedItemsRow extends DataClass
       pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
-      quantity: serializer.fromJson<int>(json['quantity']),
       indexNumber: serializer.fromJson<int?>(json['indexNumber']),
       tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -26985,7 +26664,6 @@ class MusicOwnedItemsRow extends DataClass
       'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
       'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
-      'quantity': serializer.toJson<int>(quantity),
       'indexNumber': serializer.toJson<int?>(indexNumber),
       'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -27005,7 +26683,7 @@ class MusicOwnedItemsRow extends DataClass
     };
   }
 
-  MusicOwnedItemsRow copyWith(
+  MusicCollectionItemsRow copyWith(
           {String? id,
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
@@ -27016,7 +26694,6 @@ class MusicOwnedItemsRow extends DataClass
           Value<int?> pricePaidCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
-          int? quantity,
           Value<int?> indexNumber = const Value.absent(),
           Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
@@ -27033,7 +26710,7 @@ class MusicOwnedItemsRow extends DataClass
           Value<String?> signedBy = const Value.absent(),
           Value<DateTime?> lastCleanedDate = const Value.absent(),
           String? mediumDetailsJson}) =>
-      MusicOwnedItemsRow(
+      MusicCollectionItemsRow(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
@@ -27047,7 +26724,6 @@ class MusicOwnedItemsRow extends DataClass
         currency: currency.present ? currency.value : this.currency,
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
-        quantity: quantity ?? this.quantity,
         indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
         tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -27073,8 +26749,9 @@ class MusicOwnedItemsRow extends DataClass
             : this.lastCleanedDate,
         mediumDetailsJson: mediumDetailsJson ?? this.mediumDetailsJson,
       );
-  MusicOwnedItemsRow copyWithCompanion(MusicOwnedItemsRowsCompanion data) {
-    return MusicOwnedItemsRow(
+  MusicCollectionItemsRow copyWithCompanion(
+      MusicCollectionItemsRowsCompanion data) {
+    return MusicCollectionItemsRow(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -27091,7 +26768,6 @@ class MusicOwnedItemsRow extends DataClass
       personalNotes: data.personalNotes.present
           ? data.personalNotes.value
           : this.personalNotes,
-      quantity: data.quantity.present ? data.quantity.value : this.quantity,
       indexNumber:
           data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
       tags: data.tags.present ? data.tags.value : this.tags,
@@ -27129,7 +26805,7 @@ class MusicOwnedItemsRow extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('MusicOwnedItemsRow(')
+    return (StringBuffer('MusicCollectionItemsRow(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
@@ -27140,7 +26816,6 @@ class MusicOwnedItemsRow extends DataClass
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -27173,7 +26848,6 @@ class MusicOwnedItemsRow extends DataClass
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -27194,7 +26868,7 @@ class MusicOwnedItemsRow extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is MusicOwnedItemsRow &&
+      (other is MusicCollectionItemsRow &&
           other.id == this.id &&
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
@@ -27205,7 +26879,6 @@ class MusicOwnedItemsRow extends DataClass
           other.pricePaidCents == this.pricePaidCents &&
           other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
-          other.quantity == this.quantity &&
           other.indexNumber == this.indexNumber &&
           other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
@@ -27224,7 +26897,8 @@ class MusicOwnedItemsRow extends DataClass
           other.mediumDetailsJson == this.mediumDetailsJson);
 }
 
-class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
+class MusicCollectionItemsRowsCompanion
+    extends UpdateCompanion<MusicCollectionItemsRow> {
   final Value<String> id;
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
@@ -27235,7 +26909,6 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
   final Value<int?> pricePaidCents;
   final Value<String?> currency;
   final Value<String?> personalNotes;
-  final Value<int> quantity;
   final Value<int?> indexNumber;
   final Value<String?> tags;
   final Value<DateTime> updatedAt;
@@ -27253,7 +26926,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
   final Value<DateTime?> lastCleanedDate;
   final Value<String> mediumDetailsJson;
   final Value<int> rowid;
-  const MusicOwnedItemsRowsCompanion({
+  const MusicCollectionItemsRowsCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -27264,7 +26937,6 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -27283,7 +26955,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     this.mediumDetailsJson = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  MusicOwnedItemsRowsCompanion.insert({
+  MusicCollectionItemsRowsCompanion.insert({
     required String id,
     required String itemId,
     this.createdAt = const Value.absent(),
@@ -27294,7 +26966,6 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     required DateTime updatedAt,
@@ -27315,7 +26986,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
   })  : id = Value(id),
         itemId = Value(itemId),
         updatedAt = Value(updatedAt);
-  static Insertable<MusicOwnedItemsRow> custom({
+  static Insertable<MusicCollectionItemsRow> custom({
     Expression<String>? id,
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
@@ -27326,7 +26997,6 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     Expression<int>? pricePaidCents,
     Expression<String>? currency,
     Expression<String>? personalNotes,
-    Expression<int>? quantity,
     Expression<int>? indexNumber,
     Expression<String>? tags,
     Expression<DateTime>? updatedAt,
@@ -27356,7 +27026,6 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
       if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
-      if (quantity != null) 'quantity': quantity,
       if (indexNumber != null) 'index_number': indexNumber,
       if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -27377,7 +27046,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     });
   }
 
-  MusicOwnedItemsRowsCompanion copyWith(
+  MusicCollectionItemsRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
@@ -27388,7 +27057,6 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       Value<int?>? pricePaidCents,
       Value<String?>? currency,
       Value<String?>? personalNotes,
-      Value<int>? quantity,
       Value<int?>? indexNumber,
       Value<String?>? tags,
       Value<DateTime>? updatedAt,
@@ -27406,7 +27074,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       Value<DateTime?>? lastCleanedDate,
       Value<String>? mediumDetailsJson,
       Value<int>? rowid}) {
-    return MusicOwnedItemsRowsCompanion(
+    return MusicCollectionItemsRowsCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
@@ -27417,7 +27085,6 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
-      quantity: quantity ?? this.quantity,
       indexNumber: indexNumber ?? this.indexNumber,
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -27470,9 +27137,6 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     }
     if (personalNotes.present) {
       map['personal_notes'] = Variable<String>(personalNotes.value);
-    }
-    if (quantity.present) {
-      map['quantity'] = Variable<int>(quantity.value);
     }
     if (indexNumber.present) {
       map['index_number'] = Variable<int>(indexNumber.value);
@@ -27530,7 +27194,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
 
   @override
   String toString() {
-    return (StringBuffer('MusicOwnedItemsRowsCompanion(')
+    return (StringBuffer('MusicCollectionItemsRowsCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
@@ -27541,7 +27205,6 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -27581,12 +27244,12 @@ class $MusicTrackingRowsTable extends MusicTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
   @override
@@ -27654,7 +27317,7 @@ class $MusicTrackingRowsTable extends MusicTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedRefKey,
+        collectionItemRefKey,
         sourceType,
         status,
         rating,
@@ -27690,11 +27353,11 @@ class $MusicTrackingRowsTable extends MusicTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -27765,8 +27428,9 @@ class $MusicTrackingRowsTable extends MusicTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -27802,7 +27466,7 @@ class MusicTrackingRow extends DataClass
     implements Insertable<MusicTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -27817,7 +27481,7 @@ class MusicTrackingRow extends DataClass
   const MusicTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -27834,8 +27498,8 @@ class MusicTrackingRow extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -27875,9 +27539,9 @@ class MusicTrackingRow extends DataClass
     return MusicTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -27915,7 +27579,8 @@ class MusicTrackingRow extends DataClass
     return MusicTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -27935,7 +27600,7 @@ class MusicTrackingRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -27953,7 +27618,7 @@ class MusicTrackingRow extends DataClass
   MusicTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -27968,7 +27633,9 @@ class MusicTrackingRow extends DataClass
       MusicTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -27991,8 +27658,9 @@ class MusicTrackingRow extends DataClass
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -28020,7 +27688,7 @@ class MusicTrackingRow extends DataClass
     return (StringBuffer('MusicTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -28040,7 +27708,7 @@ class MusicTrackingRow extends DataClass
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedRefKey,
+      collectionItemRefKey,
       sourceType,
       status,
       rating,
@@ -28058,7 +27726,7 @@ class MusicTrackingRow extends DataClass
       (other is MusicTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -28075,7 +27743,7 @@ class MusicTrackingRow extends DataClass
 class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -28091,7 +27759,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
   const MusicTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -28108,7 +27776,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
   MusicTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -28127,7 +27795,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
   static Insertable<MusicTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -28144,7 +27812,8 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -28163,7 +27832,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
   MusicTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -28179,7 +27848,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
     return MusicTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -28204,8 +27873,9 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -28251,7 +27921,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
     return (StringBuffer('MusicTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -28286,11 +27956,11 @@ class $MusicListenEventsRowsTable extends MusicListenEventsRows
   late final GeneratedColumn<String> catalogItemId = GeneratedColumn<String>(
       'catalog_item_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedCopyIdMeta =
-      const VerificationMeta('ownedCopyId');
+  static const VerificationMeta _collectionItemIdMeta =
+      const VerificationMeta('collectionItemId');
   @override
-  late final GeneratedColumn<String> ownedCopyId = GeneratedColumn<String>(
-      'owned_copy_id', aliasedName, true,
+  late final GeneratedColumn<String> collectionItemId = GeneratedColumn<String>(
+      'collection_item_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _listenedAtMeta =
       const VerificationMeta('listenedAt');
@@ -28343,7 +28013,7 @@ class $MusicListenEventsRowsTable extends MusicListenEventsRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogItemId,
-        ownedCopyId,
+        collectionItemId,
         listenedAt,
         startedAt,
         finishedAt,
@@ -28377,11 +28047,11 @@ class $MusicListenEventsRowsTable extends MusicListenEventsRows
     } else if (isInserting) {
       context.missing(_catalogItemIdMeta);
     }
-    if (data.containsKey('owned_copy_id')) {
+    if (data.containsKey('collection_item_id')) {
       context.handle(
-          _ownedCopyIdMeta,
-          ownedCopyId.isAcceptableOrUnknown(
-              data['owned_copy_id']!, _ownedCopyIdMeta));
+          _collectionItemIdMeta,
+          collectionItemId.isAcceptableOrUnknown(
+              data['collection_item_id']!, _collectionItemIdMeta));
     }
     if (data.containsKey('listened_at')) {
       context.handle(
@@ -28438,8 +28108,8 @@ class $MusicListenEventsRowsTable extends MusicListenEventsRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogItemId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_item_id'])!,
-      ownedCopyId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_copy_id']),
+      collectionItemId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}collection_item_id']),
       listenedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}listened_at'])!,
       startedAt: attachedDatabase.typeMapping
@@ -28469,7 +28139,7 @@ class MusicListenEventsRow extends DataClass
     implements Insertable<MusicListenEventsRow> {
   final String id;
   final String catalogItemId;
-  final String? ownedCopyId;
+  final String? collectionItemId;
   final DateTime listenedAt;
   final DateTime? startedAt;
   final DateTime? finishedAt;
@@ -28481,7 +28151,7 @@ class MusicListenEventsRow extends DataClass
   const MusicListenEventsRow(
       {required this.id,
       required this.catalogItemId,
-      this.ownedCopyId,
+      this.collectionItemId,
       required this.listenedAt,
       this.startedAt,
       this.finishedAt,
@@ -28495,8 +28165,8 @@ class MusicListenEventsRow extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_item_id'] = Variable<String>(catalogItemId);
-    if (!nullToAbsent || ownedCopyId != null) {
-      map['owned_copy_id'] = Variable<String>(ownedCopyId);
+    if (!nullToAbsent || collectionItemId != null) {
+      map['collection_item_id'] = Variable<String>(collectionItemId);
     }
     map['listened_at'] = Variable<DateTime>(listenedAt);
     if (!nullToAbsent || startedAt != null) {
@@ -28523,9 +28193,9 @@ class MusicListenEventsRow extends DataClass
     return MusicListenEventsRowsCompanion(
       id: Value(id),
       catalogItemId: Value(catalogItemId),
-      ownedCopyId: ownedCopyId == null && nullToAbsent
+      collectionItemId: collectionItemId == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedCopyId),
+          : Value(collectionItemId),
       listenedAt: Value(listenedAt),
       startedAt: startedAt == null && nullToAbsent
           ? const Value.absent()
@@ -28552,7 +28222,7 @@ class MusicListenEventsRow extends DataClass
     return MusicListenEventsRow(
       id: serializer.fromJson<String>(json['id']),
       catalogItemId: serializer.fromJson<String>(json['catalogItemId']),
-      ownedCopyId: serializer.fromJson<String?>(json['ownedCopyId']),
+      collectionItemId: serializer.fromJson<String?>(json['collectionItemId']),
       listenedAt: serializer.fromJson<DateTime>(json['listenedAt']),
       startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
       finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
@@ -28569,7 +28239,7 @@ class MusicListenEventsRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogItemId': serializer.toJson<String>(catalogItemId),
-      'ownedCopyId': serializer.toJson<String?>(ownedCopyId),
+      'collectionItemId': serializer.toJson<String?>(collectionItemId),
       'listenedAt': serializer.toJson<DateTime>(listenedAt),
       'startedAt': serializer.toJson<DateTime?>(startedAt),
       'finishedAt': serializer.toJson<DateTime?>(finishedAt),
@@ -28584,7 +28254,7 @@ class MusicListenEventsRow extends DataClass
   MusicListenEventsRow copyWith(
           {String? id,
           String? catalogItemId,
-          Value<String?> ownedCopyId = const Value.absent(),
+          Value<String?> collectionItemId = const Value.absent(),
           DateTime? listenedAt,
           Value<DateTime?> startedAt = const Value.absent(),
           Value<DateTime?> finishedAt = const Value.absent(),
@@ -28596,7 +28266,9 @@ class MusicListenEventsRow extends DataClass
       MusicListenEventsRow(
         id: id ?? this.id,
         catalogItemId: catalogItemId ?? this.catalogItemId,
-        ownedCopyId: ownedCopyId.present ? ownedCopyId.value : this.ownedCopyId,
+        collectionItemId: collectionItemId.present
+            ? collectionItemId.value
+            : this.collectionItemId,
         listenedAt: listenedAt ?? this.listenedAt,
         startedAt: startedAt.present ? startedAt.value : this.startedAt,
         finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
@@ -28612,8 +28284,9 @@ class MusicListenEventsRow extends DataClass
       catalogItemId: data.catalogItemId.present
           ? data.catalogItemId.value
           : this.catalogItemId,
-      ownedCopyId:
-          data.ownedCopyId.present ? data.ownedCopyId.value : this.ownedCopyId,
+      collectionItemId: data.collectionItemId.present
+          ? data.collectionItemId.value
+          : this.collectionItemId,
       listenedAt:
           data.listenedAt.present ? data.listenedAt.value : this.listenedAt,
       startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
@@ -28632,7 +28305,7 @@ class MusicListenEventsRow extends DataClass
     return (StringBuffer('MusicListenEventsRow(')
           ..write('id: $id, ')
           ..write('catalogItemId: $catalogItemId, ')
-          ..write('ownedCopyId: $ownedCopyId, ')
+          ..write('collectionItemId: $collectionItemId, ')
           ..write('listenedAt: $listenedAt, ')
           ..write('startedAt: $startedAt, ')
           ..write('finishedAt: $finishedAt, ')
@@ -28646,15 +28319,25 @@ class MusicListenEventsRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, catalogItemId, ownedCopyId, listenedAt,
-      startedAt, finishedAt, location, notes, createdAt, updatedAt, deletedAt);
+  int get hashCode => Object.hash(
+      id,
+      catalogItemId,
+      collectionItemId,
+      listenedAt,
+      startedAt,
+      finishedAt,
+      location,
+      notes,
+      createdAt,
+      updatedAt,
+      deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MusicListenEventsRow &&
           other.id == this.id &&
           other.catalogItemId == this.catalogItemId &&
-          other.ownedCopyId == this.ownedCopyId &&
+          other.collectionItemId == this.collectionItemId &&
           other.listenedAt == this.listenedAt &&
           other.startedAt == this.startedAt &&
           other.finishedAt == this.finishedAt &&
@@ -28669,7 +28352,7 @@ class MusicListenEventsRowsCompanion
     extends UpdateCompanion<MusicListenEventsRow> {
   final Value<String> id;
   final Value<String> catalogItemId;
-  final Value<String?> ownedCopyId;
+  final Value<String?> collectionItemId;
   final Value<DateTime> listenedAt;
   final Value<DateTime?> startedAt;
   final Value<DateTime?> finishedAt;
@@ -28682,7 +28365,7 @@ class MusicListenEventsRowsCompanion
   const MusicListenEventsRowsCompanion({
     this.id = const Value.absent(),
     this.catalogItemId = const Value.absent(),
-    this.ownedCopyId = const Value.absent(),
+    this.collectionItemId = const Value.absent(),
     this.listenedAt = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.finishedAt = const Value.absent(),
@@ -28696,7 +28379,7 @@ class MusicListenEventsRowsCompanion
   MusicListenEventsRowsCompanion.insert({
     required String id,
     required String catalogItemId,
-    this.ownedCopyId = const Value.absent(),
+    this.collectionItemId = const Value.absent(),
     required DateTime listenedAt,
     this.startedAt = const Value.absent(),
     this.finishedAt = const Value.absent(),
@@ -28714,7 +28397,7 @@ class MusicListenEventsRowsCompanion
   static Insertable<MusicListenEventsRow> custom({
     Expression<String>? id,
     Expression<String>? catalogItemId,
-    Expression<String>? ownedCopyId,
+    Expression<String>? collectionItemId,
     Expression<DateTime>? listenedAt,
     Expression<DateTime>? startedAt,
     Expression<DateTime>? finishedAt,
@@ -28728,7 +28411,7 @@ class MusicListenEventsRowsCompanion
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogItemId != null) 'catalog_item_id': catalogItemId,
-      if (ownedCopyId != null) 'owned_copy_id': ownedCopyId,
+      if (collectionItemId != null) 'collection_item_id': collectionItemId,
       if (listenedAt != null) 'listened_at': listenedAt,
       if (startedAt != null) 'started_at': startedAt,
       if (finishedAt != null) 'finished_at': finishedAt,
@@ -28744,7 +28427,7 @@ class MusicListenEventsRowsCompanion
   MusicListenEventsRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogItemId,
-      Value<String?>? ownedCopyId,
+      Value<String?>? collectionItemId,
       Value<DateTime>? listenedAt,
       Value<DateTime?>? startedAt,
       Value<DateTime?>? finishedAt,
@@ -28757,7 +28440,7 @@ class MusicListenEventsRowsCompanion
     return MusicListenEventsRowsCompanion(
       id: id ?? this.id,
       catalogItemId: catalogItemId ?? this.catalogItemId,
-      ownedCopyId: ownedCopyId ?? this.ownedCopyId,
+      collectionItemId: collectionItemId ?? this.collectionItemId,
       listenedAt: listenedAt ?? this.listenedAt,
       startedAt: startedAt ?? this.startedAt,
       finishedAt: finishedAt ?? this.finishedAt,
@@ -28779,8 +28462,8 @@ class MusicListenEventsRowsCompanion
     if (catalogItemId.present) {
       map['catalog_item_id'] = Variable<String>(catalogItemId.value);
     }
-    if (ownedCopyId.present) {
-      map['owned_copy_id'] = Variable<String>(ownedCopyId.value);
+    if (collectionItemId.present) {
+      map['collection_item_id'] = Variable<String>(collectionItemId.value);
     }
     if (listenedAt.present) {
       map['listened_at'] = Variable<DateTime>(listenedAt.value);
@@ -28817,7 +28500,7 @@ class MusicListenEventsRowsCompanion
     return (StringBuffer('MusicListenEventsRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogItemId: $catalogItemId, ')
-          ..write('ownedCopyId: $ownedCopyId, ')
+          ..write('collectionItemId: $collectionItemId, ')
           ..write('listenedAt: $listenedAt, ')
           ..write('startedAt: $startedAt, ')
           ..write('finishedAt: $finishedAt, ')
@@ -28832,12 +28515,12 @@ class MusicListenEventsRowsCompanion
   }
 }
 
-class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
-    with TableInfo<$TvOwnedItemsRowsTable, TvOwnedItemsRow> {
+class $TvCollectionItemsRowsTable extends TvCollectionItemsRows
+    with TableInfo<$TvCollectionItemsRowsTable, TvCollectionItemsRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $TvOwnedItemsRowsTable(this.attachedDatabase, [this._alias]);
+  $TvCollectionItemsRowsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -28863,12 +28546,6 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _targetRefJsonMeta =
-      const VerificationMeta('targetRefJson');
-  @override
-  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
-      'target_ref_json', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
   @override
@@ -28904,14 +28581,6 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
   late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
       'personal_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _quantityMeta =
-      const VerificationMeta('quantity');
-  @override
-  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
-      'quantity', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(1));
   static const VerificationMeta _indexNumberMeta =
       const VerificationMeta('indexNumber');
   @override
@@ -29036,14 +28705,12 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -29069,9 +28736,10 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'tv_owned_items_rows';
+  static const String $name = 'tv_collection_items_rows';
   @override
-  VerificationContext validateIntegrity(Insertable<TvOwnedItemsRow> instance,
+  VerificationContext validateIntegrity(
+      Insertable<TvCollectionItemsRow> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -29093,12 +28761,6 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
     if (data.containsKey('is_digital')) {
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
-    }
-    if (data.containsKey('target_ref_json')) {
-      context.handle(
-          _targetRefJsonMeta,
-          targetRefJson.isAcceptableOrUnknown(
-              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -29129,10 +28791,6 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
           _personalNotesMeta,
           personalNotes.isAcceptableOrUnknown(
               data['personal_notes']!, _personalNotesMeta));
-    }
-    if (data.containsKey('quantity')) {
-      context.handle(_quantityMeta,
-          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
     }
     if (data.containsKey('index_number')) {
       context.handle(
@@ -29244,9 +28902,9 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  TvOwnedItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+  TvCollectionItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TvOwnedItemsRow(
+    return TvCollectionItemsRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
@@ -29255,8 +28913,6 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      targetRefJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -29269,8 +28925,6 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
           .read(DriftSqlType.string, data['${effectivePrefix}currency']),
       personalNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
-      quantity: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
       indexNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
       tags: attachedDatabase.typeMapping
@@ -29315,24 +28969,23 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
   }
 
   @override
-  $TvOwnedItemsRowsTable createAlias(String alias) {
-    return $TvOwnedItemsRowsTable(attachedDatabase, alias);
+  $TvCollectionItemsRowsTable createAlias(String alias) {
+    return $TvCollectionItemsRowsTable(attachedDatabase, alias);
   }
 }
 
-class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
+class TvCollectionItemsRow extends DataClass
+    implements Insertable<TvCollectionItemsRow> {
   final String id;
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final int quantity;
   final int? indexNumber;
   final String? tags;
   final DateTime updatedAt;
@@ -29353,19 +29006,17 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
   final String? region;
   final String? packaging;
   final String? distributor;
-  const TvOwnedItemsRow(
+  const TvCollectionItemsRow(
       {required this.id,
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
       this.pricePaidCents,
       this.currency,
       this.personalNotes,
-      required this.quantity,
       this.indexNumber,
       this.tags,
       required this.updatedAt,
@@ -29397,9 +29048,6 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || targetRefJson != null) {
-      map['target_ref_json'] = Variable<String>(targetRefJson);
-    }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
     }
@@ -29418,7 +29066,6 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
     if (!nullToAbsent || personalNotes != null) {
       map['personal_notes'] = Variable<String>(personalNotes);
     }
-    map['quantity'] = Variable<int>(quantity);
     if (!nullToAbsent || indexNumber != null) {
       map['index_number'] = Variable<int>(indexNumber);
     }
@@ -29478,8 +29125,8 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
     return map;
   }
 
-  TvOwnedItemsRowsCompanion toCompanion(bool nullToAbsent) {
-    return TvOwnedItemsRowsCompanion(
+  TvCollectionItemsRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvCollectionItemsRowsCompanion(
       id: Value(id),
       itemId: Value(itemId),
       createdAt: createdAt == null && nullToAbsent
@@ -29488,9 +29135,6 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      targetRefJson: targetRefJson == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -29508,7 +29152,6 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
       personalNotes: personalNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(personalNotes),
-      quantity: Value(quantity),
       indexNumber: indexNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(indexNumber),
@@ -29563,22 +29206,20 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
     );
   }
 
-  factory TvOwnedItemsRow.fromJson(Map<String, dynamic> json,
+  factory TvCollectionItemsRow.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TvOwnedItemsRow(
+    return TvCollectionItemsRow(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
       pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
-      quantity: serializer.fromJson<int>(json['quantity']),
       indexNumber: serializer.fromJson<int?>(json['indexNumber']),
       tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -29609,14 +29250,12 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
       'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
       'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
-      'quantity': serializer.toJson<int>(quantity),
       'indexNumber': serializer.toJson<int?>(indexNumber),
       'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -29640,19 +29279,17 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
     };
   }
 
-  TvOwnedItemsRow copyWith(
+  TvCollectionItemsRow copyWith(
           {String? id,
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
           Value<int?> pricePaidCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
-          int? quantity,
           Value<int?> indexNumber = const Value.absent(),
           Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
@@ -29673,13 +29310,11 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
           Value<String?> region = const Value.absent(),
           Value<String?> packaging = const Value.absent(),
           Value<String?> distributor = const Value.absent()}) =>
-      TvOwnedItemsRow(
+      TvCollectionItemsRow(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        targetRefJson:
-            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -29689,7 +29324,6 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
         currency: currency.present ? currency.value : this.currency,
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
-        quantity: quantity ?? this.quantity,
         indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
         tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -29717,15 +29351,12 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
         packaging: packaging.present ? packaging.value : this.packaging,
         distributor: distributor.present ? distributor.value : this.distributor,
       );
-  TvOwnedItemsRow copyWithCompanion(TvOwnedItemsRowsCompanion data) {
-    return TvOwnedItemsRow(
+  TvCollectionItemsRow copyWithCompanion(TvCollectionItemsRowsCompanion data) {
+    return TvCollectionItemsRow(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      targetRefJson: data.targetRefJson.present
-          ? data.targetRefJson.value
-          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -29738,7 +29369,6 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
       personalNotes: data.personalNotes.present
           ? data.personalNotes.value
           : this.personalNotes,
-      quantity: data.quantity.present ? data.quantity.value : this.quantity,
       indexNumber:
           data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
       tags: data.tags.present ? data.tags.value : this.tags,
@@ -29780,19 +29410,17 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
 
   @override
   String toString() {
-    return (StringBuffer('TvOwnedItemsRow(')
+    return (StringBuffer('TvCollectionItemsRow(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -29823,14 +29451,12 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
         itemId,
         createdAt,
         isDigital,
-        targetRefJson,
         condition,
         grade,
         purchaseDate,
         pricePaidCents,
         currency,
         personalNotes,
-        quantity,
         indexNumber,
         tags,
         updatedAt,
@@ -29855,19 +29481,17 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is TvOwnedItemsRow &&
+      (other is TvCollectionItemsRow &&
           other.id == this.id &&
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
           other.pricePaidCents == this.pricePaidCents &&
           other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
-          other.quantity == this.quantity &&
           other.indexNumber == this.indexNumber &&
           other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
@@ -29890,19 +29514,18 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
           other.distributor == this.distributor);
 }
 
-class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
+class TvCollectionItemsRowsCompanion
+    extends UpdateCompanion<TvCollectionItemsRow> {
   final Value<String> id;
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
   final Value<int?> pricePaidCents;
   final Value<String?> currency;
   final Value<String?> personalNotes;
-  final Value<int> quantity;
   final Value<int?> indexNumber;
   final Value<String?> tags;
   final Value<DateTime> updatedAt;
@@ -29924,19 +29547,17 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
   final Value<String?> packaging;
   final Value<String?> distributor;
   final Value<int> rowid;
-  const TvOwnedItemsRowsCompanion({
+  const TvCollectionItemsRowsCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -29959,19 +29580,17 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
     this.distributor = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  TvOwnedItemsRowsCompanion.insert({
+  TvCollectionItemsRowsCompanion.insert({
     required String id,
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
-    this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.tags = const Value.absent(),
     required DateTime updatedAt,
@@ -29996,19 +29615,17 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
   })  : id = Value(id),
         itemId = Value(itemId),
         updatedAt = Value(updatedAt);
-  static Insertable<TvOwnedItemsRow> custom({
+  static Insertable<TvCollectionItemsRow> custom({
     Expression<String>? id,
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
     Expression<int>? pricePaidCents,
     Expression<String>? currency,
     Expression<String>? personalNotes,
-    Expression<int>? quantity,
     Expression<int>? indexNumber,
     Expression<String>? tags,
     Expression<DateTime>? updatedAt,
@@ -30036,14 +29653,12 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
       if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
       if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
-      if (quantity != null) 'quantity': quantity,
       if (indexNumber != null) 'index_number': indexNumber,
       if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -30068,19 +29683,17 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
     });
   }
 
-  TvOwnedItemsRowsCompanion copyWith(
+  TvCollectionItemsRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
       Value<int?>? pricePaidCents,
       Value<String?>? currency,
       Value<String?>? personalNotes,
-      Value<int>? quantity,
       Value<int?>? indexNumber,
       Value<String?>? tags,
       Value<DateTime>? updatedAt,
@@ -30102,19 +29715,17 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
       Value<String?>? packaging,
       Value<String?>? distributor,
       Value<int>? rowid}) {
-    return TvOwnedItemsRowsCompanion(
+    return TvCollectionItemsRowsCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
-      quantity: quantity ?? this.quantity,
       indexNumber: indexNumber ?? this.indexNumber,
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -30154,9 +29765,6 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (targetRefJson.present) {
-      map['target_ref_json'] = Variable<String>(targetRefJson.value);
-    }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
     }
@@ -30174,9 +29782,6 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
     }
     if (personalNotes.present) {
       map['personal_notes'] = Variable<String>(personalNotes.value);
-    }
-    if (quantity.present) {
-      map['quantity'] = Variable<int>(quantity.value);
     }
     if (indexNumber.present) {
       map['index_number'] = Variable<int>(indexNumber.value);
@@ -30246,19 +29851,17 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
 
   @override
   String toString() {
-    return (StringBuffer('TvOwnedItemsRowsCompanion(')
+    return (StringBuffer('TvCollectionItemsRowsCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
-          ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
@@ -32334,12 +31937,12 @@ class $TvTrackingRowsTable extends TvTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
   @override
@@ -32427,7 +32030,7 @@ class $TvTrackingRowsTable extends TvTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedRefKey,
+        collectionItemRefKey,
         sourceType,
         status,
         rating,
@@ -32466,11 +32069,11 @@ class $TvTrackingRowsTable extends TvTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -32559,8 +32162,9 @@ class $TvTrackingRowsTable extends TvTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -32601,7 +32205,7 @@ class $TvTrackingRowsTable extends TvTrackingRows
 class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -32619,7 +32223,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   const TvTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -32639,8 +32243,8 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -32687,9 +32291,9 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
     return TvTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -32734,7 +32338,8 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
     return TvTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -32758,7 +32363,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -32779,7 +32384,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   TvTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -32797,7 +32402,9 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
       TvTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -32825,8 +32432,9 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -32863,7 +32471,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
     return (StringBuffer('TvTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -32886,7 +32494,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedRefKey,
+      collectionItemRefKey,
       sourceType,
       status,
       rating,
@@ -32907,7 +32515,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
       (other is TvTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -32927,7 +32535,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
 class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -32946,7 +32554,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   const TvTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -32966,7 +32574,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   TvTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -32988,7 +32596,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   static Insertable<TvTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -33008,7 +32616,8 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -33031,7 +32640,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   TvTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -33050,7 +32659,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
     return TvTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -33078,8 +32687,9 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -33134,7 +32744,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
     return (StringBuffer('TvTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -33178,12 +32788,12 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
   late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
       'tracking_entry_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ownedRefKeyMeta =
-      const VerificationMeta('ownedRefKey');
+  static const VerificationMeta _collectionItemRefKeyMeta =
+      const VerificationMeta('collectionItemRefKey');
   @override
-  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
-      'owned_ref_key', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> collectionItemRefKey =
+      GeneratedColumn<String>('collection_item_ref_key', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _completedAtMeta =
       const VerificationMeta('completedAt');
   @override
@@ -33219,7 +32829,7 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
         id,
         targetRefJson,
         trackingEntryId,
-        ownedRefKey,
+        collectionItemRefKey,
         completedAt,
         updatedAt,
         deletedAt,
@@ -33255,11 +32865,11 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
           trackingEntryId.isAcceptableOrUnknown(
               data['tracking_entry_id']!, _trackingEntryIdMeta));
     }
-    if (data.containsKey('owned_ref_key')) {
+    if (data.containsKey('collection_item_ref_key')) {
       context.handle(
-          _ownedRefKeyMeta,
-          ownedRefKey.isAcceptableOrUnknown(
-              data['owned_ref_key']!, _ownedRefKeyMeta));
+          _collectionItemRefKeyMeta,
+          collectionItemRefKey.isAcceptableOrUnknown(
+              data['collection_item_ref_key']!, _collectionItemRefKeyMeta));
     }
     if (data.containsKey('completed_at')) {
       context.handle(
@@ -33306,8 +32916,9 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
           DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
-      ownedRefKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
+      collectionItemRefKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}collection_item_ref_key']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -33332,7 +32943,7 @@ class TvTrackingUnitRow extends DataClass
   final String id;
   final String targetRefJson;
   final String? trackingEntryId;
-  final String? ownedRefKey;
+  final String? collectionItemRefKey;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -33342,7 +32953,7 @@ class TvTrackingUnitRow extends DataClass
       {required this.id,
       required this.targetRefJson,
       this.trackingEntryId,
-      this.ownedRefKey,
+      this.collectionItemRefKey,
       required this.completedAt,
       required this.updatedAt,
       this.deletedAt,
@@ -33356,8 +32967,8 @@ class TvTrackingUnitRow extends DataClass
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
-    if (!nullToAbsent || ownedRefKey != null) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey);
+    if (!nullToAbsent || collectionItemRefKey != null) {
+      map['collection_item_ref_key'] = Variable<String>(collectionItemRefKey);
     }
     map['completed_at'] = Variable<DateTime>(completedAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -33380,9 +32991,9 @@ class TvTrackingUnitRow extends DataClass
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
-      ownedRefKey: ownedRefKey == null && nullToAbsent
+      collectionItemRefKey: collectionItemRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedRefKey),
+          : Value(collectionItemRefKey),
       completedAt: Value(completedAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -33404,7 +33015,8 @@ class TvTrackingUnitRow extends DataClass
       id: serializer.fromJson<String>(json['id']),
       targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
-      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
+      collectionItemRefKey:
+          serializer.fromJson<String?>(json['collectionItemRefKey']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -33419,7 +33031,7 @@ class TvTrackingUnitRow extends DataClass
       'id': serializer.toJson<String>(id),
       'targetRefJson': serializer.toJson<String>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
-      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
+      'collectionItemRefKey': serializer.toJson<String?>(collectionItemRefKey),
       'completedAt': serializer.toJson<DateTime>(completedAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -33432,7 +33044,7 @@ class TvTrackingUnitRow extends DataClass
           {String? id,
           String? targetRefJson,
           Value<String?> trackingEntryId = const Value.absent(),
-          Value<String?> ownedRefKey = const Value.absent(),
+          Value<String?> collectionItemRefKey = const Value.absent(),
           DateTime? completedAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
@@ -33444,7 +33056,9 @@ class TvTrackingUnitRow extends DataClass
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
-        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
+        collectionItemRefKey: collectionItemRefKey.present
+            ? collectionItemRefKey.value
+            : this.collectionItemRefKey,
         completedAt: completedAt ?? this.completedAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -33462,8 +33076,9 @@ class TvTrackingUnitRow extends DataClass
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
-      ownedRefKey:
-          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
+      collectionItemRefKey: data.collectionItemRefKey.present
+          ? data.collectionItemRefKey.value
+          : this.collectionItemRefKey,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -33483,7 +33098,7 @@ class TvTrackingUnitRow extends DataClass
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -33498,7 +33113,7 @@ class TvTrackingUnitRow extends DataClass
       id,
       targetRefJson,
       trackingEntryId,
-      ownedRefKey,
+      collectionItemRefKey,
       completedAt,
       updatedAt,
       deletedAt,
@@ -33511,7 +33126,7 @@ class TvTrackingUnitRow extends DataClass
           other.id == this.id &&
           other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
-          other.ownedRefKey == this.ownedRefKey &&
+          other.collectionItemRefKey == this.collectionItemRefKey &&
           other.completedAt == this.completedAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -33523,7 +33138,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
   final Value<String> id;
   final Value<String> targetRefJson;
   final Value<String?> trackingEntryId;
-  final Value<String?> ownedRefKey;
+  final Value<String?> collectionItemRefKey;
   final Value<DateTime> completedAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -33534,7 +33149,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
     this.id = const Value.absent(),
     this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -33546,7 +33161,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
     required String id,
     required String targetRefJson,
     this.trackingEntryId = const Value.absent(),
-    this.ownedRefKey = const Value.absent(),
+    this.collectionItemRefKey = const Value.absent(),
     required DateTime completedAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -33561,7 +33176,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
     Expression<String>? id,
     Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
-    Expression<String>? ownedRefKey,
+    Expression<String>? collectionItemRefKey,
     Expression<DateTime>? completedAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -33573,7 +33188,8 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
       if (id != null) 'id': id,
       if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
-      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
+      if (collectionItemRefKey != null)
+        'collection_item_ref_key': collectionItemRefKey,
       if (completedAt != null) 'completed_at': completedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -33587,7 +33203,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
       {Value<String>? id,
       Value<String>? targetRefJson,
       Value<String?>? trackingEntryId,
-      Value<String?>? ownedRefKey,
+      Value<String?>? collectionItemRefKey,
       Value<DateTime>? completedAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -33598,7 +33214,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
       id: id ?? this.id,
       targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
+      collectionItemRefKey: collectionItemRefKey ?? this.collectionItemRefKey,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -33620,8 +33236,9 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
     }
-    if (ownedRefKey.present) {
-      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
+    if (collectionItemRefKey.present) {
+      map['collection_item_ref_key'] =
+          Variable<String>(collectionItemRefKey.value);
     }
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
@@ -33650,7 +33267,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedRefKey: $ownedRefKey, ')
+          ..write('collectionItemRefKey: $collectionItemRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -33694,8 +33311,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $PickListValuesCacheTable(this);
   late final $SerialAuthorityCacheTable serialAuthorityCache =
       $SerialAuthorityCacheTable(this);
-  late final $AnimeOwnedItemsRowsTable animeOwnedItemsRows =
-      $AnimeOwnedItemsRowsTable(this);
+  late final $AnimeCollectionItemsRowsTable animeCollectionItemsRows =
+      $AnimeCollectionItemsRowsTable(this);
   late final $AnimeTrackingRowsTable animeTrackingRows =
       $AnimeTrackingRowsTable(this);
   late final $AnimeTrackingUnitRowsTable animeTrackingUnitRows =
@@ -33704,50 +33321,50 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $AnimeWatchSessionRowsTable(this);
   late final $AnimeCustomEpisodeRowsTable animeCustomEpisodeRows =
       $AnimeCustomEpisodeRowsTable(this);
-  late final $BoardGameOwnedItemsRowsTable boardGameOwnedItemsRows =
-      $BoardGameOwnedItemsRowsTable(this);
+  late final $BoardGameCollectionItemsRowsTable boardGameCollectionItemsRows =
+      $BoardGameCollectionItemsRowsTable(this);
   late final $BoardGamePlaySessionsRowsTable boardGamePlaySessionsRows =
       $BoardGamePlaySessionsRowsTable(this);
   late final $BoardGameTrackingRowsTable boardGameTrackingRows =
       $BoardGameTrackingRowsTable(this);
-  late final $BookOwnedItemsRowsTable bookOwnedItemsRows =
-      $BookOwnedItemsRowsTable(this);
+  late final $BookCollectionItemsRowsTable bookCollectionItemsRows =
+      $BookCollectionItemsRowsTable(this);
   late final $BookTrackingUnitRowsTable bookTrackingUnitRows =
       $BookTrackingUnitRowsTable(this);
   late final $BookTrackingRowsTable bookTrackingRows =
       $BookTrackingRowsTable(this);
-  late final $ComicOwnedItemsRowsTable comicOwnedItemsRows =
-      $ComicOwnedItemsRowsTable(this);
+  late final $ComicCollectionItemsRowsTable comicCollectionItemsRows =
+      $ComicCollectionItemsRowsTable(this);
   late final $ComicReadingRowsTable comicReadingRows =
       $ComicReadingRowsTable(this);
   late final $ComicTrackingUnitRowsTable comicTrackingUnitRows =
       $ComicTrackingUnitRowsTable(this);
   late final $ComicTrackingRowsTable comicTrackingRows =
       $ComicTrackingRowsTable(this);
-  late final $GameOwnedItemsRowsTable gameOwnedItemsRows =
-      $GameOwnedItemsRowsTable(this);
+  late final $GameCollectionItemsRowsTable gameCollectionItemsRows =
+      $GameCollectionItemsRowsTable(this);
   late final $GameTrackingRowsTable gameTrackingRows =
       $GameTrackingRowsTable(this);
-  late final $MangaOwnedItemsRowsTable mangaOwnedItemsRows =
-      $MangaOwnedItemsRowsTable(this);
+  late final $MangaCollectionItemsRowsTable mangaCollectionItemsRows =
+      $MangaCollectionItemsRowsTable(this);
   late final $MangaTrackingUnitRowsTable mangaTrackingUnitRows =
       $MangaTrackingUnitRowsTable(this);
   late final $MangaTrackingRowsTable mangaTrackingRows =
       $MangaTrackingRowsTable(this);
-  late final $MovieOwnedItemsRowsTable movieOwnedItemsRows =
-      $MovieOwnedItemsRowsTable(this);
+  late final $MovieCollectionItemsRowsTable movieCollectionItemsRows =
+      $MovieCollectionItemsRowsTable(this);
   late final $MovieTrackingRowsTable movieTrackingRows =
       $MovieTrackingRowsTable(this);
   late final $MusicAlbumImagesRowsTable musicAlbumImagesRows =
       $MusicAlbumImagesRowsTable(this);
-  late final $MusicOwnedItemsRowsTable musicOwnedItemsRows =
-      $MusicOwnedItemsRowsTable(this);
+  late final $MusicCollectionItemsRowsTable musicCollectionItemsRows =
+      $MusicCollectionItemsRowsTable(this);
   late final $MusicTrackingRowsTable musicTrackingRows =
       $MusicTrackingRowsTable(this);
   late final $MusicListenEventsRowsTable musicListenEventsRows =
       $MusicListenEventsRowsTable(this);
-  late final $TvOwnedItemsRowsTable tvOwnedItemsRows =
-      $TvOwnedItemsRowsTable(this);
+  late final $TvCollectionItemsRowsTable tvCollectionItemsRows =
+      $TvCollectionItemsRowsTable(this);
   late final $TvWatchSessionRowsTable tvWatchSessionRows =
       $TvWatchSessionRowsTable(this);
   late final $TvEpisodeProgressRowsTable tvEpisodeProgressRows =
@@ -33778,33 +33395,33 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         readingQueueCache,
         pickListValuesCache,
         serialAuthorityCache,
-        animeOwnedItemsRows,
+        animeCollectionItemsRows,
         animeTrackingRows,
         animeTrackingUnitRows,
         animeWatchSessionRows,
         animeCustomEpisodeRows,
-        boardGameOwnedItemsRows,
+        boardGameCollectionItemsRows,
         boardGamePlaySessionsRows,
         boardGameTrackingRows,
-        bookOwnedItemsRows,
+        bookCollectionItemsRows,
         bookTrackingUnitRows,
         bookTrackingRows,
-        comicOwnedItemsRows,
+        comicCollectionItemsRows,
         comicReadingRows,
         comicTrackingUnitRows,
         comicTrackingRows,
-        gameOwnedItemsRows,
+        gameCollectionItemsRows,
         gameTrackingRows,
-        mangaOwnedItemsRows,
+        mangaCollectionItemsRows,
         mangaTrackingUnitRows,
         mangaTrackingRows,
-        movieOwnedItemsRows,
+        movieCollectionItemsRows,
         movieTrackingRows,
         musicAlbumImagesRows,
-        musicOwnedItemsRows,
+        musicCollectionItemsRows,
         musicTrackingRows,
         musicListenEventsRows,
-        tvOwnedItemsRows,
+        tvCollectionItemsRows,
         tvWatchSessionRows,
         tvEpisodeProgressRows,
         tvCustomEpisodeRows,
@@ -35257,7 +34874,7 @@ typedef $$CustomFieldValuesCacheTableProcessedTableManager
 typedef $$ItemImagesCacheTableCreateCompanionBuilder = ItemImagesCacheCompanion
     Function({
   required String id,
-  required String ownedRefKey,
+  required String collectionItemRefKey,
   Value<String> imageType,
   required Uint8List imageData,
   Value<String?> caption,
@@ -35268,7 +34885,7 @@ typedef $$ItemImagesCacheTableCreateCompanionBuilder = ItemImagesCacheCompanion
 typedef $$ItemImagesCacheTableUpdateCompanionBuilder = ItemImagesCacheCompanion
     Function({
   Value<String> id,
-  Value<String> ownedRefKey,
+  Value<String> collectionItemRefKey,
   Value<String> imageType,
   Value<Uint8List> imageData,
   Value<String?> caption,
@@ -35289,8 +34906,9 @@ class $$ItemImagesCacheTableFilterComposer
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get imageType => $composableBuilder(
       column: $table.imageType, builder: (column) => ColumnFilters(column));
@@ -35320,8 +34938,9 @@ class $$ItemImagesCacheTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get imageType => $composableBuilder(
       column: $table.imageType, builder: (column) => ColumnOrderings(column));
@@ -35351,8 +34970,8 @@ class $$ItemImagesCacheTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get imageType =>
       $composableBuilder(column: $table.imageType, builder: (column) => column);
@@ -35399,7 +35018,7 @@ class $$ItemImagesCacheTableTableManager extends RootTableManager<
               $$ItemImagesCacheTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> ownedRefKey = const Value.absent(),
+            Value<String> collectionItemRefKey = const Value.absent(),
             Value<String> imageType = const Value.absent(),
             Value<Uint8List> imageData = const Value.absent(),
             Value<String?> caption = const Value.absent(),
@@ -35409,7 +35028,7 @@ class $$ItemImagesCacheTableTableManager extends RootTableManager<
           }) =>
               ItemImagesCacheCompanion(
             id: id,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             imageType: imageType,
             imageData: imageData,
             caption: caption,
@@ -35419,7 +35038,7 @@ class $$ItemImagesCacheTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String ownedRefKey,
+            required String collectionItemRefKey,
             Value<String> imageType = const Value.absent(),
             required Uint8List imageData,
             Value<String?> caption = const Value.absent(),
@@ -35429,7 +35048,7 @@ class $$ItemImagesCacheTableTableManager extends RootTableManager<
           }) =>
               ItemImagesCacheCompanion.insert(
             id: id,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             imageType: imageType,
             imageData: imageData,
             caption: caption,
@@ -35462,7 +35081,7 @@ typedef $$ItemImagesCacheTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function()>;
 typedef $$LoansCacheTableCreateCompanionBuilder = LoansCacheCompanion Function({
   required String id,
-  required String ownedRefKey,
+  required String collectionItemRefKey,
   required String borrowerName,
   required DateTime lentDate,
   Value<DateTime?> dueDate,
@@ -35472,7 +35091,7 @@ typedef $$LoansCacheTableCreateCompanionBuilder = LoansCacheCompanion Function({
 });
 typedef $$LoansCacheTableUpdateCompanionBuilder = LoansCacheCompanion Function({
   Value<String> id,
-  Value<String> ownedRefKey,
+  Value<String> collectionItemRefKey,
   Value<String> borrowerName,
   Value<DateTime> lentDate,
   Value<DateTime?> dueDate,
@@ -35493,8 +35112,9 @@ class $$LoansCacheTableFilterComposer
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get borrowerName => $composableBuilder(
       column: $table.borrowerName, builder: (column) => ColumnFilters(column));
@@ -35524,8 +35144,9 @@ class $$LoansCacheTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get borrowerName => $composableBuilder(
       column: $table.borrowerName,
@@ -35557,8 +35178,8 @@ class $$LoansCacheTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get borrowerName => $composableBuilder(
       column: $table.borrowerName, builder: (column) => column);
@@ -35603,7 +35224,7 @@ class $$LoansCacheTableTableManager extends RootTableManager<
               $$LoansCacheTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> ownedRefKey = const Value.absent(),
+            Value<String> collectionItemRefKey = const Value.absent(),
             Value<String> borrowerName = const Value.absent(),
             Value<DateTime> lentDate = const Value.absent(),
             Value<DateTime?> dueDate = const Value.absent(),
@@ -35613,7 +35234,7 @@ class $$LoansCacheTableTableManager extends RootTableManager<
           }) =>
               LoansCacheCompanion(
             id: id,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             borrowerName: borrowerName,
             lentDate: lentDate,
             dueDate: dueDate,
@@ -35623,7 +35244,7 @@ class $$LoansCacheTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String ownedRefKey,
+            required String collectionItemRefKey,
             required String borrowerName,
             required DateTime lentDate,
             Value<DateTime?> dueDate = const Value.absent(),
@@ -35633,7 +35254,7 @@ class $$LoansCacheTableTableManager extends RootTableManager<
           }) =>
               LoansCacheCompanion.insert(
             id: id,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             borrowerName: borrowerName,
             lentDate: lentDate,
             dueDate: dueDate,
@@ -36208,14 +35829,14 @@ typedef $$UserFoldersCacheTableProcessedTableManager = ProcessedTableManager<
 typedef $$UserFolderItemsCacheTableCreateCompanionBuilder
     = UserFolderItemsCacheCompanion Function({
   required String folderId,
-  required String ownedRefKey,
+  required String collectionItemRefKey,
   Value<int> sortOrder,
   Value<int> rowid,
 });
 typedef $$UserFolderItemsCacheTableUpdateCompanionBuilder
     = UserFolderItemsCacheCompanion Function({
   Value<String> folderId,
-  Value<String> ownedRefKey,
+  Value<String> collectionItemRefKey,
   Value<int> sortOrder,
   Value<int> rowid,
 });
@@ -36232,8 +35853,9 @@ class $$UserFolderItemsCacheTableFilterComposer
   ColumnFilters<String> get folderId => $composableBuilder(
       column: $table.folderId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnFilters(column));
@@ -36251,8 +35873,9 @@ class $$UserFolderItemsCacheTableOrderingComposer
   ColumnOrderings<String> get folderId => $composableBuilder(
       column: $table.folderId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
@@ -36270,8 +35893,8 @@ class $$UserFolderItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get folderId =>
       $composableBuilder(column: $table.folderId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
@@ -36308,25 +35931,25 @@ class $$UserFolderItemsCacheTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> folderId = const Value.absent(),
-            Value<String> ownedRefKey = const Value.absent(),
+            Value<String> collectionItemRefKey = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               UserFolderItemsCacheCompanion(
             folderId: folderId,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sortOrder: sortOrder,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String folderId,
-            required String ownedRefKey,
+            required String collectionItemRefKey,
             Value<int> sortOrder = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               UserFolderItemsCacheCompanion.insert(
             folderId: folderId,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sortOrder: sortOrder,
             rowid: rowid,
           ),
@@ -36356,14 +35979,14 @@ typedef $$UserFolderItemsCacheTableProcessedTableManager
         PrefetchHooks Function()>;
 typedef $$ReadingQueueCacheTableCreateCompanionBuilder
     = ReadingQueueCacheCompanion Function({
-  required String ownedRefKey,
+  required String collectionItemRefKey,
   required int position,
   required DateTime addedAt,
   Value<int> rowid,
 });
 typedef $$ReadingQueueCacheTableUpdateCompanionBuilder
     = ReadingQueueCacheCompanion Function({
-  Value<String> ownedRefKey,
+  Value<String> collectionItemRefKey,
   Value<int> position,
   Value<DateTime> addedAt,
   Value<int> rowid,
@@ -36378,8 +36001,9 @@ class $$ReadingQueueCacheTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get position => $composableBuilder(
       column: $table.position, builder: (column) => ColumnFilters(column));
@@ -36397,8 +36021,9 @@ class $$ReadingQueueCacheTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get position => $composableBuilder(
       column: $table.position, builder: (column) => ColumnOrderings(column));
@@ -36416,8 +36041,8 @@ class $$ReadingQueueCacheTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<int> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
@@ -36455,25 +36080,25 @@ class $$ReadingQueueCacheTableTableManager extends RootTableManager<
               $$ReadingQueueCacheTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
-            Value<String> ownedRefKey = const Value.absent(),
+            Value<String> collectionItemRefKey = const Value.absent(),
             Value<int> position = const Value.absent(),
             Value<DateTime> addedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ReadingQueueCacheCompanion(
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             position: position,
             addedAt: addedAt,
             rowid: rowid,
           ),
           createCompanionCallback: ({
-            required String ownedRefKey,
+            required String collectionItemRefKey,
             required int position,
             required DateTime addedAt,
             Value<int> rowid = const Value.absent(),
           }) =>
               ReadingQueueCacheCompanion.insert(
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             position: position,
             addedAt: addedAt,
             rowid: rowid,
@@ -36923,20 +36548,18 @@ typedef $$SerialAuthorityCacheTableProcessedTableManager
         ),
         SerialAuthorityCacheData,
         PrefetchHooks Function()>;
-typedef $$AnimeOwnedItemsRowsTableCreateCompanionBuilder
-    = AnimeOwnedItemsRowsCompanion Function({
+typedef $$AnimeCollectionItemsRowsTableCreateCompanionBuilder
+    = AnimeCollectionItemsRowsCompanion Function({
   required String id,
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   required DateTime updatedAt,
@@ -36959,20 +36582,18 @@ typedef $$AnimeOwnedItemsRowsTableCreateCompanionBuilder
   Value<String?> distributor,
   Value<int> rowid,
 });
-typedef $$AnimeOwnedItemsRowsTableUpdateCompanionBuilder
-    = AnimeOwnedItemsRowsCompanion Function({
+typedef $$AnimeCollectionItemsRowsTableUpdateCompanionBuilder
+    = AnimeCollectionItemsRowsCompanion Function({
   Value<String> id,
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   Value<DateTime> updatedAt,
@@ -36996,9 +36617,9 @@ typedef $$AnimeOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
-class $$AnimeOwnedItemsRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $AnimeOwnedItemsRowsTable> {
-  $$AnimeOwnedItemsRowsTableFilterComposer({
+class $$AnimeCollectionItemsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $AnimeCollectionItemsRowsTable> {
+  $$AnimeCollectionItemsRowsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -37016,9 +36637,6 @@ class $$AnimeOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -37038,9 +36656,6 @@ class $$AnimeOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnFilters(column));
@@ -37107,9 +36722,9 @@ class $$AnimeOwnedItemsRowsTableFilterComposer
       column: $table.distributor, builder: (column) => ColumnFilters(column));
 }
 
-class $$AnimeOwnedItemsRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $AnimeOwnedItemsRowsTable> {
-  $$AnimeOwnedItemsRowsTableOrderingComposer({
+class $$AnimeCollectionItemsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $AnimeCollectionItemsRowsTable> {
+  $$AnimeCollectionItemsRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -37127,10 +36742,6 @@ class $$AnimeOwnedItemsRowsTableOrderingComposer
 
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnOrderings(column));
@@ -37152,9 +36763,6 @@ class $$AnimeOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
@@ -37222,9 +36830,9 @@ class $$AnimeOwnedItemsRowsTableOrderingComposer
       column: $table.distributor, builder: (column) => ColumnOrderings(column));
 }
 
-class $$AnimeOwnedItemsRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $AnimeOwnedItemsRowsTable> {
-  $$AnimeOwnedItemsRowsTableAnnotationComposer({
+class $$AnimeCollectionItemsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $AnimeCollectionItemsRowsTable> {
+  $$AnimeCollectionItemsRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -37243,9 +36851,6 @@ class $$AnimeOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => column);
-
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
 
@@ -37263,9 +36868,6 @@ class $$AnimeOwnedItemsRowsTableAnnotationComposer
 
   GeneratedColumn<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => column);
-
-  GeneratedColumn<int> get quantity =>
-      $composableBuilder(column: $table.quantity, builder: (column) => column);
 
   GeneratedColumn<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => column);
@@ -37328,48 +36930,47 @@ class $$AnimeOwnedItemsRowsTableAnnotationComposer
       column: $table.distributor, builder: (column) => column);
 }
 
-class $$AnimeOwnedItemsRowsTableTableManager extends RootTableManager<
+class $$AnimeCollectionItemsRowsTableTableManager extends RootTableManager<
     _$LocalDatabase,
-    $AnimeOwnedItemsRowsTable,
-    AnimeOwnedItemsRow,
-    $$AnimeOwnedItemsRowsTableFilterComposer,
-    $$AnimeOwnedItemsRowsTableOrderingComposer,
-    $$AnimeOwnedItemsRowsTableAnnotationComposer,
-    $$AnimeOwnedItemsRowsTableCreateCompanionBuilder,
-    $$AnimeOwnedItemsRowsTableUpdateCompanionBuilder,
+    $AnimeCollectionItemsRowsTable,
+    AnimeCollectionItemsRow,
+    $$AnimeCollectionItemsRowsTableFilterComposer,
+    $$AnimeCollectionItemsRowsTableOrderingComposer,
+    $$AnimeCollectionItemsRowsTableAnnotationComposer,
+    $$AnimeCollectionItemsRowsTableCreateCompanionBuilder,
+    $$AnimeCollectionItemsRowsTableUpdateCompanionBuilder,
     (
-      AnimeOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $AnimeOwnedItemsRowsTable,
-          AnimeOwnedItemsRow>
+      AnimeCollectionItemsRow,
+      BaseReferences<_$LocalDatabase, $AnimeCollectionItemsRowsTable,
+          AnimeCollectionItemsRow>
     ),
-    AnimeOwnedItemsRow,
+    AnimeCollectionItemsRow,
     PrefetchHooks Function()> {
-  $$AnimeOwnedItemsRowsTableTableManager(
-      _$LocalDatabase db, $AnimeOwnedItemsRowsTable table)
+  $$AnimeCollectionItemsRowsTableTableManager(
+      _$LocalDatabase db, $AnimeCollectionItemsRowsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$AnimeOwnedItemsRowsTableFilterComposer($db: db, $table: table),
+              $$AnimeCollectionItemsRowsTableFilterComposer(
+                  $db: db, $table: table),
           createOrderingComposer: () =>
-              $$AnimeOwnedItemsRowsTableOrderingComposer(
+              $$AnimeCollectionItemsRowsTableOrderingComposer(
                   $db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$AnimeOwnedItemsRowsTableAnnotationComposer(
+              $$AnimeCollectionItemsRowsTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -37392,19 +36993,17 @@ class $$AnimeOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> distributor = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              AnimeOwnedItemsRowsCompanion(
+              AnimeCollectionItemsRowsCompanion(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -37432,14 +37031,12 @@ class $$AnimeOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
@@ -37462,19 +37059,17 @@ class $$AnimeOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> distributor = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              AnimeOwnedItemsRowsCompanion.insert(
+              AnimeCollectionItemsRowsCompanion.insert(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -37504,28 +37099,29 @@ class $$AnimeOwnedItemsRowsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$AnimeOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
-    _$LocalDatabase,
-    $AnimeOwnedItemsRowsTable,
-    AnimeOwnedItemsRow,
-    $$AnimeOwnedItemsRowsTableFilterComposer,
-    $$AnimeOwnedItemsRowsTableOrderingComposer,
-    $$AnimeOwnedItemsRowsTableAnnotationComposer,
-    $$AnimeOwnedItemsRowsTableCreateCompanionBuilder,
-    $$AnimeOwnedItemsRowsTableUpdateCompanionBuilder,
-    (
-      AnimeOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $AnimeOwnedItemsRowsTable,
-          AnimeOwnedItemsRow>
-    ),
-    AnimeOwnedItemsRow,
-    PrefetchHooks Function()>;
+typedef $$AnimeCollectionItemsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $AnimeCollectionItemsRowsTable,
+        AnimeCollectionItemsRow,
+        $$AnimeCollectionItemsRowsTableFilterComposer,
+        $$AnimeCollectionItemsRowsTableOrderingComposer,
+        $$AnimeCollectionItemsRowsTableAnnotationComposer,
+        $$AnimeCollectionItemsRowsTableCreateCompanionBuilder,
+        $$AnimeCollectionItemsRowsTableUpdateCompanionBuilder,
+        (
+          AnimeCollectionItemsRow,
+          BaseReferences<_$LocalDatabase, $AnimeCollectionItemsRowsTable,
+              AnimeCollectionItemsRow>
+        ),
+        AnimeCollectionItemsRow,
+        PrefetchHooks Function()>;
 typedef $$AnimeTrackingRowsTableCreateCompanionBuilder
     = AnimeTrackingRowsCompanion Function({
   required String id,
   Value<String> entryType,
   required String catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   required String mediaId,
   Value<String?> episodeId,
   Value<String> status,
@@ -37549,7 +37145,7 @@ typedef $$AnimeTrackingRowsTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> entryType,
   Value<String> catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String> mediaId,
   Value<String?> episodeId,
   Value<String> status,
@@ -37588,8 +37184,9 @@ class $$AnimeTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get mediaId => $composableBuilder(
       column: $table.mediaId, builder: (column) => ColumnFilters(column));
@@ -37662,8 +37259,9 @@ class $$AnimeTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get mediaId => $composableBuilder(
       column: $table.mediaId, builder: (column) => ColumnOrderings(column));
@@ -37738,8 +37336,8 @@ class $$AnimeTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get mediaId =>
       $composableBuilder(column: $table.mediaId, builder: (column) => column);
@@ -37821,7 +37419,7 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> entryType = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String> mediaId = const Value.absent(),
             Value<String?> episodeId = const Value.absent(),
             Value<String> status = const Value.absent(),
@@ -37844,7 +37442,7 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
             id: id,
             entryType: entryType,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             mediaId: mediaId,
             episodeId: episodeId,
             status: status,
@@ -37867,7 +37465,7 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
             required String id,
             Value<String> entryType = const Value.absent(),
             required String catalogRefJson,
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             required String mediaId,
             Value<String?> episodeId = const Value.absent(),
             Value<String> status = const Value.absent(),
@@ -37890,7 +37488,7 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
             id: id,
             entryType: entryType,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             mediaId: mediaId,
             episodeId: episodeId,
             status: status,
@@ -37936,7 +37534,7 @@ typedef $$AnimeTrackingUnitRowsTableCreateCompanionBuilder
   required String id,
   required String targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   required DateTime completedAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -37949,7 +37547,7 @@ typedef $$AnimeTrackingUnitRowsTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<DateTime> completedAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -37977,8 +37575,9 @@ class $$AnimeTrackingUnitRowsTableFilterComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
@@ -38016,8 +37615,9 @@ class $$AnimeTrackingUnitRowsTableOrderingComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
@@ -38055,8 +37655,8 @@ class $$AnimeTrackingUnitRowsTableAnnotationComposer
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
@@ -38108,7 +37708,7 @@ class $$AnimeTrackingUnitRowsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<DateTime> completedAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -38120,7 +37720,7 @@ class $$AnimeTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -38132,7 +37732,7 @@ class $$AnimeTrackingUnitRowsTableTableManager extends RootTableManager<
             required String id,
             required String targetRefJson,
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             required DateTime completedAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -38144,7 +37744,7 @@ class $$AnimeTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -38805,8 +38405,8 @@ typedef $$AnimeCustomEpisodeRowsTableProcessedTableManager
         ),
         AnimeCustomEpisodeRow,
         PrefetchHooks Function()>;
-typedef $$BoardGameOwnedItemsRowsTableCreateCompanionBuilder
-    = BoardGameOwnedItemsRowsCompanion Function({
+typedef $$BoardGameCollectionItemsRowsTableCreateCompanionBuilder
+    = BoardGameCollectionItemsRowsCompanion Function({
   required String id,
   required String itemId,
   Value<DateTime?> createdAt,
@@ -38817,7 +38417,6 @@ typedef $$BoardGameOwnedItemsRowsTableCreateCompanionBuilder
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   required DateTime updatedAt,
@@ -38842,8 +38441,8 @@ typedef $$BoardGameOwnedItemsRowsTableCreateCompanionBuilder
   Value<String?> storageNotes,
   Value<int> rowid,
 });
-typedef $$BoardGameOwnedItemsRowsTableUpdateCompanionBuilder
-    = BoardGameOwnedItemsRowsCompanion Function({
+typedef $$BoardGameCollectionItemsRowsTableUpdateCompanionBuilder
+    = BoardGameCollectionItemsRowsCompanion Function({
   Value<String> id,
   Value<String> itemId,
   Value<DateTime?> createdAt,
@@ -38854,7 +38453,6 @@ typedef $$BoardGameOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   Value<DateTime> updatedAt,
@@ -38880,9 +38478,9 @@ typedef $$BoardGameOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
-class $$BoardGameOwnedItemsRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $BoardGameOwnedItemsRowsTable> {
-  $$BoardGameOwnedItemsRowsTableFilterComposer({
+class $$BoardGameCollectionItemsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BoardGameCollectionItemsRowsTable> {
+  $$BoardGameCollectionItemsRowsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -38919,9 +38517,6 @@ class $$BoardGameOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnFilters(column));
@@ -38999,9 +38594,9 @@ class $$BoardGameOwnedItemsRowsTableFilterComposer
       column: $table.storageNotes, builder: (column) => ColumnFilters(column));
 }
 
-class $$BoardGameOwnedItemsRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $BoardGameOwnedItemsRowsTable> {
-  $$BoardGameOwnedItemsRowsTableOrderingComposer({
+class $$BoardGameCollectionItemsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BoardGameCollectionItemsRowsTable> {
+  $$BoardGameCollectionItemsRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -39040,9 +38635,6 @@ class $$BoardGameOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
@@ -39123,9 +38715,9 @@ class $$BoardGameOwnedItemsRowsTableOrderingComposer
       builder: (column) => ColumnOrderings(column));
 }
 
-class $$BoardGameOwnedItemsRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $BoardGameOwnedItemsRowsTable> {
-  $$BoardGameOwnedItemsRowsTableAnnotationComposer({
+class $$BoardGameCollectionItemsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BoardGameCollectionItemsRowsTable> {
+  $$BoardGameCollectionItemsRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -39161,9 +38753,6 @@ class $$BoardGameOwnedItemsRowsTableAnnotationComposer
 
   GeneratedColumn<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => column);
-
-  GeneratedColumn<int> get quantity =>
-      $composableBuilder(column: $table.quantity, builder: (column) => column);
 
   GeneratedColumn<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => column);
@@ -39232,35 +38821,35 @@ class $$BoardGameOwnedItemsRowsTableAnnotationComposer
       column: $table.storageNotes, builder: (column) => column);
 }
 
-class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
+class $$BoardGameCollectionItemsRowsTableTableManager extends RootTableManager<
     _$LocalDatabase,
-    $BoardGameOwnedItemsRowsTable,
-    BoardGameOwnedItemsRow,
-    $$BoardGameOwnedItemsRowsTableFilterComposer,
-    $$BoardGameOwnedItemsRowsTableOrderingComposer,
-    $$BoardGameOwnedItemsRowsTableAnnotationComposer,
-    $$BoardGameOwnedItemsRowsTableCreateCompanionBuilder,
-    $$BoardGameOwnedItemsRowsTableUpdateCompanionBuilder,
+    $BoardGameCollectionItemsRowsTable,
+    BoardGameCollectionItemsRow,
+    $$BoardGameCollectionItemsRowsTableFilterComposer,
+    $$BoardGameCollectionItemsRowsTableOrderingComposer,
+    $$BoardGameCollectionItemsRowsTableAnnotationComposer,
+    $$BoardGameCollectionItemsRowsTableCreateCompanionBuilder,
+    $$BoardGameCollectionItemsRowsTableUpdateCompanionBuilder,
     (
-      BoardGameOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $BoardGameOwnedItemsRowsTable,
-          BoardGameOwnedItemsRow>
+      BoardGameCollectionItemsRow,
+      BaseReferences<_$LocalDatabase, $BoardGameCollectionItemsRowsTable,
+          BoardGameCollectionItemsRow>
     ),
-    BoardGameOwnedItemsRow,
+    BoardGameCollectionItemsRow,
     PrefetchHooks Function()> {
-  $$BoardGameOwnedItemsRowsTableTableManager(
-      _$LocalDatabase db, $BoardGameOwnedItemsRowsTable table)
+  $$BoardGameCollectionItemsRowsTableTableManager(
+      _$LocalDatabase db, $BoardGameCollectionItemsRowsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$BoardGameOwnedItemsRowsTableFilterComposer(
+              $$BoardGameCollectionItemsRowsTableFilterComposer(
                   $db: db, $table: table),
           createOrderingComposer: () =>
-              $$BoardGameOwnedItemsRowsTableOrderingComposer(
+              $$BoardGameCollectionItemsRowsTableOrderingComposer(
                   $db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$BoardGameOwnedItemsRowsTableAnnotationComposer(
+              $$BoardGameCollectionItemsRowsTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
@@ -39273,7 +38862,6 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -39298,7 +38886,7 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> storageNotes = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              BoardGameOwnedItemsRowsCompanion(
+              BoardGameCollectionItemsRowsCompanion(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
@@ -39309,7 +38897,6 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -39345,7 +38932,6 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
@@ -39370,7 +38956,7 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> storageNotes = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              BoardGameOwnedItemsRowsCompanion.insert(
+              BoardGameCollectionItemsRowsCompanion.insert(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
@@ -39381,7 +38967,6 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -39413,22 +38998,22 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$BoardGameOwnedItemsRowsTableProcessedTableManager
+typedef $$BoardGameCollectionItemsRowsTableProcessedTableManager
     = ProcessedTableManager<
         _$LocalDatabase,
-        $BoardGameOwnedItemsRowsTable,
-        BoardGameOwnedItemsRow,
-        $$BoardGameOwnedItemsRowsTableFilterComposer,
-        $$BoardGameOwnedItemsRowsTableOrderingComposer,
-        $$BoardGameOwnedItemsRowsTableAnnotationComposer,
-        $$BoardGameOwnedItemsRowsTableCreateCompanionBuilder,
-        $$BoardGameOwnedItemsRowsTableUpdateCompanionBuilder,
+        $BoardGameCollectionItemsRowsTable,
+        BoardGameCollectionItemsRow,
+        $$BoardGameCollectionItemsRowsTableFilterComposer,
+        $$BoardGameCollectionItemsRowsTableOrderingComposer,
+        $$BoardGameCollectionItemsRowsTableAnnotationComposer,
+        $$BoardGameCollectionItemsRowsTableCreateCompanionBuilder,
+        $$BoardGameCollectionItemsRowsTableUpdateCompanionBuilder,
         (
-          BoardGameOwnedItemsRow,
-          BaseReferences<_$LocalDatabase, $BoardGameOwnedItemsRowsTable,
-              BoardGameOwnedItemsRow>
+          BoardGameCollectionItemsRow,
+          BaseReferences<_$LocalDatabase, $BoardGameCollectionItemsRowsTable,
+              BoardGameCollectionItemsRow>
         ),
-        BoardGameOwnedItemsRow,
+        BoardGameCollectionItemsRow,
         PrefetchHooks Function()>;
 typedef $$BoardGamePlaySessionsRowsTableCreateCompanionBuilder
     = BoardGamePlaySessionsRowsCompanion Function({
@@ -39676,7 +39261,7 @@ typedef $$BoardGameTrackingRowsTableCreateCompanionBuilder
     = BoardGameTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -39694,7 +39279,7 @@ typedef $$BoardGameTrackingRowsTableUpdateCompanionBuilder
     = BoardGameTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -39725,8 +39310,9 @@ class $$BoardGameTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -39780,8 +39366,9 @@ class $$BoardGameTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -39835,8 +39422,8 @@ class $$BoardGameTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -39905,7 +39492,7 @@ class $$BoardGameTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -39922,7 +39509,7 @@ class $$BoardGameTrackingRowsTableTableManager extends RootTableManager<
               BoardGameTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -39939,7 +39526,7 @@ class $$BoardGameTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -39956,7 +39543,7 @@ class $$BoardGameTrackingRowsTableTableManager extends RootTableManager<
               BoardGameTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -39994,20 +39581,18 @@ typedef $$BoardGameTrackingRowsTableProcessedTableManager
         ),
         BoardGameTrackingRow,
         PrefetchHooks Function()>;
-typedef $$BookOwnedItemsRowsTableCreateCompanionBuilder
-    = BookOwnedItemsRowsCompanion Function({
+typedef $$BookCollectionItemsRowsTableCreateCompanionBuilder
+    = BookCollectionItemsRowsCompanion Function({
   required String id,
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   required DateTime updatedAt,
@@ -40026,20 +39611,18 @@ typedef $$BookOwnedItemsRowsTableCreateCompanionBuilder
   Value<String?> dustJacketCondition,
   Value<int> rowid,
 });
-typedef $$BookOwnedItemsRowsTableUpdateCompanionBuilder
-    = BookOwnedItemsRowsCompanion Function({
+typedef $$BookCollectionItemsRowsTableUpdateCompanionBuilder
+    = BookCollectionItemsRowsCompanion Function({
   Value<String> id,
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   Value<DateTime> updatedAt,
@@ -40059,9 +39642,9 @@ typedef $$BookOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
-class $$BookOwnedItemsRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $BookOwnedItemsRowsTable> {
-  $$BookOwnedItemsRowsTableFilterComposer({
+class $$BookCollectionItemsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BookCollectionItemsRowsTable> {
+  $$BookCollectionItemsRowsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -40079,9 +39662,6 @@ class $$BookOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -40101,9 +39681,6 @@ class $$BookOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnFilters(column));
@@ -40159,9 +39736,9 @@ class $$BookOwnedItemsRowsTableFilterComposer
       builder: (column) => ColumnFilters(column));
 }
 
-class $$BookOwnedItemsRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $BookOwnedItemsRowsTable> {
-  $$BookOwnedItemsRowsTableOrderingComposer({
+class $$BookCollectionItemsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BookCollectionItemsRowsTable> {
+  $$BookCollectionItemsRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -40179,10 +39756,6 @@ class $$BookOwnedItemsRowsTableOrderingComposer
 
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnOrderings(column));
@@ -40204,9 +39777,6 @@ class $$BookOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
@@ -40263,9 +39833,9 @@ class $$BookOwnedItemsRowsTableOrderingComposer
       builder: (column) => ColumnOrderings(column));
 }
 
-class $$BookOwnedItemsRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $BookOwnedItemsRowsTable> {
-  $$BookOwnedItemsRowsTableAnnotationComposer({
+class $$BookCollectionItemsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BookCollectionItemsRowsTable> {
+  $$BookCollectionItemsRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -40284,9 +39854,6 @@ class $$BookOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => column);
-
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
 
@@ -40304,9 +39871,6 @@ class $$BookOwnedItemsRowsTableAnnotationComposer
 
   GeneratedColumn<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => column);
-
-  GeneratedColumn<int> get quantity =>
-      $composableBuilder(column: $table.quantity, builder: (column) => column);
 
   GeneratedColumn<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => column);
@@ -40357,47 +39921,47 @@ class $$BookOwnedItemsRowsTableAnnotationComposer
       column: $table.dustJacketCondition, builder: (column) => column);
 }
 
-class $$BookOwnedItemsRowsTableTableManager extends RootTableManager<
+class $$BookCollectionItemsRowsTableTableManager extends RootTableManager<
     _$LocalDatabase,
-    $BookOwnedItemsRowsTable,
-    BookOwnedItemsRow,
-    $$BookOwnedItemsRowsTableFilterComposer,
-    $$BookOwnedItemsRowsTableOrderingComposer,
-    $$BookOwnedItemsRowsTableAnnotationComposer,
-    $$BookOwnedItemsRowsTableCreateCompanionBuilder,
-    $$BookOwnedItemsRowsTableUpdateCompanionBuilder,
+    $BookCollectionItemsRowsTable,
+    BookCollectionItemsRow,
+    $$BookCollectionItemsRowsTableFilterComposer,
+    $$BookCollectionItemsRowsTableOrderingComposer,
+    $$BookCollectionItemsRowsTableAnnotationComposer,
+    $$BookCollectionItemsRowsTableCreateCompanionBuilder,
+    $$BookCollectionItemsRowsTableUpdateCompanionBuilder,
     (
-      BookOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $BookOwnedItemsRowsTable,
-          BookOwnedItemsRow>
+      BookCollectionItemsRow,
+      BaseReferences<_$LocalDatabase, $BookCollectionItemsRowsTable,
+          BookCollectionItemsRow>
     ),
-    BookOwnedItemsRow,
+    BookCollectionItemsRow,
     PrefetchHooks Function()> {
-  $$BookOwnedItemsRowsTableTableManager(
-      _$LocalDatabase db, $BookOwnedItemsRowsTable table)
+  $$BookCollectionItemsRowsTableTableManager(
+      _$LocalDatabase db, $BookCollectionItemsRowsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$BookOwnedItemsRowsTableFilterComposer($db: db, $table: table),
+              $$BookCollectionItemsRowsTableFilterComposer(
+                  $db: db, $table: table),
           createOrderingComposer: () =>
-              $$BookOwnedItemsRowsTableOrderingComposer($db: db, $table: table),
+              $$BookCollectionItemsRowsTableOrderingComposer(
+                  $db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$BookOwnedItemsRowsTableAnnotationComposer(
+              $$BookCollectionItemsRowsTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -40416,19 +39980,17 @@ class $$BookOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> dustJacketCondition = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              BookOwnedItemsRowsCompanion(
+              BookCollectionItemsRowsCompanion(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -40452,14 +40014,12 @@ class $$BookOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
@@ -40478,19 +40038,17 @@ class $$BookOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> dustJacketCondition = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              BookOwnedItemsRowsCompanion.insert(
+              BookCollectionItemsRowsCompanion.insert(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -40516,28 +40074,29 @@ class $$BookOwnedItemsRowsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$BookOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
-    _$LocalDatabase,
-    $BookOwnedItemsRowsTable,
-    BookOwnedItemsRow,
-    $$BookOwnedItemsRowsTableFilterComposer,
-    $$BookOwnedItemsRowsTableOrderingComposer,
-    $$BookOwnedItemsRowsTableAnnotationComposer,
-    $$BookOwnedItemsRowsTableCreateCompanionBuilder,
-    $$BookOwnedItemsRowsTableUpdateCompanionBuilder,
-    (
-      BookOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $BookOwnedItemsRowsTable,
-          BookOwnedItemsRow>
-    ),
-    BookOwnedItemsRow,
-    PrefetchHooks Function()>;
+typedef $$BookCollectionItemsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $BookCollectionItemsRowsTable,
+        BookCollectionItemsRow,
+        $$BookCollectionItemsRowsTableFilterComposer,
+        $$BookCollectionItemsRowsTableOrderingComposer,
+        $$BookCollectionItemsRowsTableAnnotationComposer,
+        $$BookCollectionItemsRowsTableCreateCompanionBuilder,
+        $$BookCollectionItemsRowsTableUpdateCompanionBuilder,
+        (
+          BookCollectionItemsRow,
+          BaseReferences<_$LocalDatabase, $BookCollectionItemsRowsTable,
+              BookCollectionItemsRow>
+        ),
+        BookCollectionItemsRow,
+        PrefetchHooks Function()>;
 typedef $$BookTrackingUnitRowsTableCreateCompanionBuilder
     = BookTrackingUnitRowsCompanion Function({
   required String id,
   required String targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   required DateTime completedAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -40550,7 +40109,7 @@ typedef $$BookTrackingUnitRowsTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<DateTime> completedAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -40578,8 +40137,9 @@ class $$BookTrackingUnitRowsTableFilterComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
@@ -40617,8 +40177,9 @@ class $$BookTrackingUnitRowsTableOrderingComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
@@ -40656,8 +40217,8 @@ class $$BookTrackingUnitRowsTableAnnotationComposer
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
@@ -40708,7 +40269,7 @@ class $$BookTrackingUnitRowsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<DateTime> completedAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -40720,7 +40281,7 @@ class $$BookTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -40732,7 +40293,7 @@ class $$BookTrackingUnitRowsTableTableManager extends RootTableManager<
             required String id,
             required String targetRefJson,
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             required DateTime completedAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -40744,7 +40305,7 @@ class $$BookTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -40780,7 +40341,7 @@ typedef $$BookTrackingRowsTableCreateCompanionBuilder
     = BookTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -40798,7 +40359,7 @@ typedef $$BookTrackingRowsTableUpdateCompanionBuilder
     = BookTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -40829,8 +40390,9 @@ class $$BookTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -40884,8 +40446,9 @@ class $$BookTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -40939,8 +40502,8 @@ class $$BookTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -41005,7 +40568,7 @@ class $$BookTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -41022,7 +40585,7 @@ class $$BookTrackingRowsTableTableManager extends RootTableManager<
               BookTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -41039,7 +40602,7 @@ class $$BookTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -41056,7 +40619,7 @@ class $$BookTrackingRowsTableTableManager extends RootTableManager<
               BookTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -41092,20 +40655,18 @@ typedef $$BookTrackingRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     BookTrackingRow,
     PrefetchHooks Function()>;
-typedef $$ComicOwnedItemsRowsTableCreateCompanionBuilder
-    = ComicOwnedItemsRowsCompanion Function({
+typedef $$ComicCollectionItemsRowsTableCreateCompanionBuilder
+    = ComicCollectionItemsRowsCompanion Function({
   required String id,
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   required DateTime updatedAt,
@@ -41135,20 +40696,18 @@ typedef $$ComicOwnedItemsRowsTableCreateCompanionBuilder
   Value<DateTime?> lastBagBoardDate,
   Value<int> rowid,
 });
-typedef $$ComicOwnedItemsRowsTableUpdateCompanionBuilder
-    = ComicOwnedItemsRowsCompanion Function({
+typedef $$ComicCollectionItemsRowsTableUpdateCompanionBuilder
+    = ComicCollectionItemsRowsCompanion Function({
   Value<String> id,
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   Value<DateTime> updatedAt,
@@ -41179,9 +40738,9 @@ typedef $$ComicOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
-class $$ComicOwnedItemsRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $ComicOwnedItemsRowsTable> {
-  $$ComicOwnedItemsRowsTableFilterComposer({
+class $$ComicCollectionItemsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $ComicCollectionItemsRowsTable> {
+  $$ComicCollectionItemsRowsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -41199,9 +40758,6 @@ class $$ComicOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -41221,9 +40777,6 @@ class $$ComicOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnFilters(column));
@@ -41314,9 +40867,9 @@ class $$ComicOwnedItemsRowsTableFilterComposer
       builder: (column) => ColumnFilters(column));
 }
 
-class $$ComicOwnedItemsRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $ComicOwnedItemsRowsTable> {
-  $$ComicOwnedItemsRowsTableOrderingComposer({
+class $$ComicCollectionItemsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $ComicCollectionItemsRowsTable> {
+  $$ComicCollectionItemsRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -41334,10 +40887,6 @@ class $$ComicOwnedItemsRowsTableOrderingComposer
 
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnOrderings(column));
@@ -41359,9 +40908,6 @@ class $$ComicOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
@@ -41454,9 +41000,9 @@ class $$ComicOwnedItemsRowsTableOrderingComposer
       builder: (column) => ColumnOrderings(column));
 }
 
-class $$ComicOwnedItemsRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $ComicOwnedItemsRowsTable> {
-  $$ComicOwnedItemsRowsTableAnnotationComposer({
+class $$ComicCollectionItemsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $ComicCollectionItemsRowsTable> {
+  $$ComicCollectionItemsRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -41475,9 +41021,6 @@ class $$ComicOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => column);
-
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
 
@@ -41495,9 +41038,6 @@ class $$ComicOwnedItemsRowsTableAnnotationComposer
 
   GeneratedColumn<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => column);
-
-  GeneratedColumn<int> get quantity =>
-      $composableBuilder(column: $table.quantity, builder: (column) => column);
 
   GeneratedColumn<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => column);
@@ -41581,48 +41121,47 @@ class $$ComicOwnedItemsRowsTableAnnotationComposer
       column: $table.lastBagBoardDate, builder: (column) => column);
 }
 
-class $$ComicOwnedItemsRowsTableTableManager extends RootTableManager<
+class $$ComicCollectionItemsRowsTableTableManager extends RootTableManager<
     _$LocalDatabase,
-    $ComicOwnedItemsRowsTable,
-    ComicOwnedItemsRow,
-    $$ComicOwnedItemsRowsTableFilterComposer,
-    $$ComicOwnedItemsRowsTableOrderingComposer,
-    $$ComicOwnedItemsRowsTableAnnotationComposer,
-    $$ComicOwnedItemsRowsTableCreateCompanionBuilder,
-    $$ComicOwnedItemsRowsTableUpdateCompanionBuilder,
+    $ComicCollectionItemsRowsTable,
+    ComicCollectionItemsRow,
+    $$ComicCollectionItemsRowsTableFilterComposer,
+    $$ComicCollectionItemsRowsTableOrderingComposer,
+    $$ComicCollectionItemsRowsTableAnnotationComposer,
+    $$ComicCollectionItemsRowsTableCreateCompanionBuilder,
+    $$ComicCollectionItemsRowsTableUpdateCompanionBuilder,
     (
-      ComicOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $ComicOwnedItemsRowsTable,
-          ComicOwnedItemsRow>
+      ComicCollectionItemsRow,
+      BaseReferences<_$LocalDatabase, $ComicCollectionItemsRowsTable,
+          ComicCollectionItemsRow>
     ),
-    ComicOwnedItemsRow,
+    ComicCollectionItemsRow,
     PrefetchHooks Function()> {
-  $$ComicOwnedItemsRowsTableTableManager(
-      _$LocalDatabase db, $ComicOwnedItemsRowsTable table)
+  $$ComicCollectionItemsRowsTableTableManager(
+      _$LocalDatabase db, $ComicCollectionItemsRowsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$ComicOwnedItemsRowsTableFilterComposer($db: db, $table: table),
+              $$ComicCollectionItemsRowsTableFilterComposer(
+                  $db: db, $table: table),
           createOrderingComposer: () =>
-              $$ComicOwnedItemsRowsTableOrderingComposer(
+              $$ComicCollectionItemsRowsTableOrderingComposer(
                   $db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$ComicOwnedItemsRowsTableAnnotationComposer(
+              $$ComicCollectionItemsRowsTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -41652,19 +41191,17 @@ class $$ComicOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<DateTime?> lastBagBoardDate = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              ComicOwnedItemsRowsCompanion(
+              ComicCollectionItemsRowsCompanion(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -41699,14 +41236,12 @@ class $$ComicOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
@@ -41736,19 +41271,17 @@ class $$ComicOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<DateTime?> lastBagBoardDate = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              ComicOwnedItemsRowsCompanion.insert(
+              ComicCollectionItemsRowsCompanion.insert(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -41785,25 +41318,26 @@ class $$ComicOwnedItemsRowsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$ComicOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
-    _$LocalDatabase,
-    $ComicOwnedItemsRowsTable,
-    ComicOwnedItemsRow,
-    $$ComicOwnedItemsRowsTableFilterComposer,
-    $$ComicOwnedItemsRowsTableOrderingComposer,
-    $$ComicOwnedItemsRowsTableAnnotationComposer,
-    $$ComicOwnedItemsRowsTableCreateCompanionBuilder,
-    $$ComicOwnedItemsRowsTableUpdateCompanionBuilder,
-    (
-      ComicOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $ComicOwnedItemsRowsTable,
-          ComicOwnedItemsRow>
-    ),
-    ComicOwnedItemsRow,
-    PrefetchHooks Function()>;
+typedef $$ComicCollectionItemsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $ComicCollectionItemsRowsTable,
+        ComicCollectionItemsRow,
+        $$ComicCollectionItemsRowsTableFilterComposer,
+        $$ComicCollectionItemsRowsTableOrderingComposer,
+        $$ComicCollectionItemsRowsTableAnnotationComposer,
+        $$ComicCollectionItemsRowsTableCreateCompanionBuilder,
+        $$ComicCollectionItemsRowsTableUpdateCompanionBuilder,
+        (
+          ComicCollectionItemsRow,
+          BaseReferences<_$LocalDatabase, $ComicCollectionItemsRowsTable,
+              ComicCollectionItemsRow>
+        ),
+        ComicCollectionItemsRow,
+        PrefetchHooks Function()>;
 typedef $$ComicReadingRowsTableCreateCompanionBuilder
     = ComicReadingRowsCompanion Function({
-  required String ownedRefKey,
+  required String collectionItemRefKey,
   Value<int?> rating,
   Value<String?> status,
   Value<DateTime?> startedAt,
@@ -41812,7 +41346,7 @@ typedef $$ComicReadingRowsTableCreateCompanionBuilder
 });
 typedef $$ComicReadingRowsTableUpdateCompanionBuilder
     = ComicReadingRowsCompanion Function({
-  Value<String> ownedRefKey,
+  Value<String> collectionItemRefKey,
   Value<int?> rating,
   Value<String?> status,
   Value<DateTime?> startedAt,
@@ -41829,8 +41363,9 @@ class $$ComicReadingRowsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get rating => $composableBuilder(
       column: $table.rating, builder: (column) => ColumnFilters(column));
@@ -41854,8 +41389,9 @@ class $$ComicReadingRowsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get rating => $composableBuilder(
       column: $table.rating, builder: (column) => ColumnOrderings(column));
@@ -41879,8 +41415,8 @@ class $$ComicReadingRowsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<int> get rating =>
       $composableBuilder(column: $table.rating, builder: (column) => column);
@@ -41922,7 +41458,7 @@ class $$ComicReadingRowsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$ComicReadingRowsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<String> ownedRefKey = const Value.absent(),
+            Value<String> collectionItemRefKey = const Value.absent(),
             Value<int?> rating = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<DateTime?> startedAt = const Value.absent(),
@@ -41930,7 +41466,7 @@ class $$ComicReadingRowsTableTableManager extends RootTableManager<
             Value<int> rowid = const Value.absent(),
           }) =>
               ComicReadingRowsCompanion(
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             rating: rating,
             status: status,
             startedAt: startedAt,
@@ -41938,7 +41474,7 @@ class $$ComicReadingRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           createCompanionCallback: ({
-            required String ownedRefKey,
+            required String collectionItemRefKey,
             Value<int?> rating = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<DateTime?> startedAt = const Value.absent(),
@@ -41946,7 +41482,7 @@ class $$ComicReadingRowsTableTableManager extends RootTableManager<
             Value<int> rowid = const Value.absent(),
           }) =>
               ComicReadingRowsCompanion.insert(
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             rating: rating,
             status: status,
             startedAt: startedAt,
@@ -41980,7 +41516,7 @@ typedef $$ComicTrackingUnitRowsTableCreateCompanionBuilder
   required String id,
   required String targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   required DateTime completedAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -41992,7 +41528,7 @@ typedef $$ComicTrackingUnitRowsTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<DateTime> completedAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -42019,8 +41555,9 @@ class $$ComicTrackingUnitRowsTableFilterComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
@@ -42055,8 +41592,9 @@ class $$ComicTrackingUnitRowsTableOrderingComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
@@ -42089,8 +41627,8 @@ class $$ComicTrackingUnitRowsTableAnnotationComposer
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
@@ -42139,7 +41677,7 @@ class $$ComicTrackingUnitRowsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<DateTime> completedAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -42150,7 +41688,7 @@ class $$ComicTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -42161,7 +41699,7 @@ class $$ComicTrackingUnitRowsTableTableManager extends RootTableManager<
             required String id,
             required String targetRefJson,
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             required DateTime completedAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -42172,7 +41710,7 @@ class $$ComicTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -42207,7 +41745,7 @@ typedef $$ComicTrackingRowsTableCreateCompanionBuilder
     = ComicTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -42225,7 +41763,7 @@ typedef $$ComicTrackingRowsTableUpdateCompanionBuilder
     = ComicTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -42256,8 +41794,9 @@ class $$ComicTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -42311,8 +41850,9 @@ class $$ComicTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -42366,8 +41906,8 @@ class $$ComicTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -42433,7 +41973,7 @@ class $$ComicTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -42450,7 +41990,7 @@ class $$ComicTrackingRowsTableTableManager extends RootTableManager<
               ComicTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -42467,7 +42007,7 @@ class $$ComicTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -42484,7 +42024,7 @@ class $$ComicTrackingRowsTableTableManager extends RootTableManager<
               ComicTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -42520,8 +42060,8 @@ typedef $$ComicTrackingRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     ComicTrackingRow,
     PrefetchHooks Function()>;
-typedef $$GameOwnedItemsRowsTableCreateCompanionBuilder
-    = GameOwnedItemsRowsCompanion Function({
+typedef $$GameCollectionItemsRowsTableCreateCompanionBuilder
+    = GameCollectionItemsRowsCompanion Function({
   required String id,
   required String itemId,
   Value<DateTime?> createdAt,
@@ -42532,7 +42072,6 @@ typedef $$GameOwnedItemsRowsTableCreateCompanionBuilder
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   required DateTime updatedAt,
@@ -42554,8 +42093,8 @@ typedef $$GameOwnedItemsRowsTableCreateCompanionBuilder
   Value<bool?> valueIsLocked,
   Value<int> rowid,
 });
-typedef $$GameOwnedItemsRowsTableUpdateCompanionBuilder
-    = GameOwnedItemsRowsCompanion Function({
+typedef $$GameCollectionItemsRowsTableUpdateCompanionBuilder
+    = GameCollectionItemsRowsCompanion Function({
   Value<String> id,
   Value<String> itemId,
   Value<DateTime?> createdAt,
@@ -42566,7 +42105,6 @@ typedef $$GameOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   Value<DateTime> updatedAt,
@@ -42589,9 +42127,9 @@ typedef $$GameOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
-class $$GameOwnedItemsRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $GameOwnedItemsRowsTable> {
-  $$GameOwnedItemsRowsTableFilterComposer({
+class $$GameCollectionItemsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $GameCollectionItemsRowsTable> {
+  $$GameCollectionItemsRowsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -42628,9 +42166,6 @@ class $$GameOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnFilters(column));
@@ -42694,9 +42229,9 @@ class $$GameOwnedItemsRowsTableFilterComposer
       column: $table.valueIsLocked, builder: (column) => ColumnFilters(column));
 }
 
-class $$GameOwnedItemsRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $GameOwnedItemsRowsTable> {
-  $$GameOwnedItemsRowsTableOrderingComposer({
+class $$GameCollectionItemsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $GameCollectionItemsRowsTable> {
+  $$GameCollectionItemsRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -42735,9 +42270,6 @@ class $$GameOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
@@ -42804,9 +42336,9 @@ class $$GameOwnedItemsRowsTableOrderingComposer
       builder: (column) => ColumnOrderings(column));
 }
 
-class $$GameOwnedItemsRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $GameOwnedItemsRowsTable> {
-  $$GameOwnedItemsRowsTableAnnotationComposer({
+class $$GameCollectionItemsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $GameCollectionItemsRowsTable> {
+  $$GameCollectionItemsRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -42842,9 +42374,6 @@ class $$GameOwnedItemsRowsTableAnnotationComposer
 
   GeneratedColumn<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => column);
-
-  GeneratedColumn<int> get quantity =>
-      $composableBuilder(column: $table.quantity, builder: (column) => column);
 
   GeneratedColumn<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => column);
@@ -42904,33 +42433,35 @@ class $$GameOwnedItemsRowsTableAnnotationComposer
       column: $table.valueIsLocked, builder: (column) => column);
 }
 
-class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
+class $$GameCollectionItemsRowsTableTableManager extends RootTableManager<
     _$LocalDatabase,
-    $GameOwnedItemsRowsTable,
-    GameOwnedItemsRow,
-    $$GameOwnedItemsRowsTableFilterComposer,
-    $$GameOwnedItemsRowsTableOrderingComposer,
-    $$GameOwnedItemsRowsTableAnnotationComposer,
-    $$GameOwnedItemsRowsTableCreateCompanionBuilder,
-    $$GameOwnedItemsRowsTableUpdateCompanionBuilder,
+    $GameCollectionItemsRowsTable,
+    GameCollectionItemsRow,
+    $$GameCollectionItemsRowsTableFilterComposer,
+    $$GameCollectionItemsRowsTableOrderingComposer,
+    $$GameCollectionItemsRowsTableAnnotationComposer,
+    $$GameCollectionItemsRowsTableCreateCompanionBuilder,
+    $$GameCollectionItemsRowsTableUpdateCompanionBuilder,
     (
-      GameOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $GameOwnedItemsRowsTable,
-          GameOwnedItemsRow>
+      GameCollectionItemsRow,
+      BaseReferences<_$LocalDatabase, $GameCollectionItemsRowsTable,
+          GameCollectionItemsRow>
     ),
-    GameOwnedItemsRow,
+    GameCollectionItemsRow,
     PrefetchHooks Function()> {
-  $$GameOwnedItemsRowsTableTableManager(
-      _$LocalDatabase db, $GameOwnedItemsRowsTable table)
+  $$GameCollectionItemsRowsTableTableManager(
+      _$LocalDatabase db, $GameCollectionItemsRowsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$GameOwnedItemsRowsTableFilterComposer($db: db, $table: table),
+              $$GameCollectionItemsRowsTableFilterComposer(
+                  $db: db, $table: table),
           createOrderingComposer: () =>
-              $$GameOwnedItemsRowsTableOrderingComposer($db: db, $table: table),
+              $$GameCollectionItemsRowsTableOrderingComposer(
+                  $db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$GameOwnedItemsRowsTableAnnotationComposer(
+              $$GameCollectionItemsRowsTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
@@ -42943,7 +42474,6 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -42965,7 +42495,7 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<bool?> valueIsLocked = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              GameOwnedItemsRowsCompanion(
+              GameCollectionItemsRowsCompanion(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
@@ -42976,7 +42506,6 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -43009,7 +42538,6 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
@@ -43031,7 +42559,7 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<bool?> valueIsLocked = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              GameOwnedItemsRowsCompanion.insert(
+              GameCollectionItemsRowsCompanion.insert(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
@@ -43042,7 +42570,6 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -43071,27 +42598,28 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$GameOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
-    _$LocalDatabase,
-    $GameOwnedItemsRowsTable,
-    GameOwnedItemsRow,
-    $$GameOwnedItemsRowsTableFilterComposer,
-    $$GameOwnedItemsRowsTableOrderingComposer,
-    $$GameOwnedItemsRowsTableAnnotationComposer,
-    $$GameOwnedItemsRowsTableCreateCompanionBuilder,
-    $$GameOwnedItemsRowsTableUpdateCompanionBuilder,
-    (
-      GameOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $GameOwnedItemsRowsTable,
-          GameOwnedItemsRow>
-    ),
-    GameOwnedItemsRow,
-    PrefetchHooks Function()>;
+typedef $$GameCollectionItemsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $GameCollectionItemsRowsTable,
+        GameCollectionItemsRow,
+        $$GameCollectionItemsRowsTableFilterComposer,
+        $$GameCollectionItemsRowsTableOrderingComposer,
+        $$GameCollectionItemsRowsTableAnnotationComposer,
+        $$GameCollectionItemsRowsTableCreateCompanionBuilder,
+        $$GameCollectionItemsRowsTableUpdateCompanionBuilder,
+        (
+          GameCollectionItemsRow,
+          BaseReferences<_$LocalDatabase, $GameCollectionItemsRowsTable,
+              GameCollectionItemsRow>
+        ),
+        GameCollectionItemsRow,
+        PrefetchHooks Function()>;
 typedef $$GameTrackingRowsTableCreateCompanionBuilder
     = GameTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -43109,7 +42637,7 @@ typedef $$GameTrackingRowsTableUpdateCompanionBuilder
     = GameTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -43140,8 +42668,9 @@ class $$GameTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -43195,8 +42724,9 @@ class $$GameTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -43250,8 +42780,8 @@ class $$GameTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -43316,7 +42846,7 @@ class $$GameTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -43333,7 +42863,7 @@ class $$GameTrackingRowsTableTableManager extends RootTableManager<
               GameTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -43350,7 +42880,7 @@ class $$GameTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -43367,7 +42897,7 @@ class $$GameTrackingRowsTableTableManager extends RootTableManager<
               GameTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -43403,20 +42933,18 @@ typedef $$GameTrackingRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     GameTrackingRow,
     PrefetchHooks Function()>;
-typedef $$MangaOwnedItemsRowsTableCreateCompanionBuilder
-    = MangaOwnedItemsRowsCompanion Function({
+typedef $$MangaCollectionItemsRowsTableCreateCompanionBuilder
+    = MangaCollectionItemsRowsCompanion Function({
   required String id,
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   required DateTime updatedAt,
@@ -43448,20 +42976,18 @@ typedef $$MangaOwnedItemsRowsTableCreateCompanionBuilder
   Value<String?> localizedEdition,
   Value<int> rowid,
 });
-typedef $$MangaOwnedItemsRowsTableUpdateCompanionBuilder
-    = MangaOwnedItemsRowsCompanion Function({
+typedef $$MangaCollectionItemsRowsTableUpdateCompanionBuilder
+    = MangaCollectionItemsRowsCompanion Function({
   Value<String> id,
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   Value<DateTime> updatedAt,
@@ -43494,9 +43020,9 @@ typedef $$MangaOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
-class $$MangaOwnedItemsRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $MangaOwnedItemsRowsTable> {
-  $$MangaOwnedItemsRowsTableFilterComposer({
+class $$MangaCollectionItemsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MangaCollectionItemsRowsTable> {
+  $$MangaCollectionItemsRowsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -43514,9 +43040,6 @@ class $$MangaOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -43536,9 +43059,6 @@ class $$MangaOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnFilters(column));
@@ -43640,9 +43160,9 @@ class $$MangaOwnedItemsRowsTableFilterComposer
       builder: (column) => ColumnFilters(column));
 }
 
-class $$MangaOwnedItemsRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $MangaOwnedItemsRowsTable> {
-  $$MangaOwnedItemsRowsTableOrderingComposer({
+class $$MangaCollectionItemsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MangaCollectionItemsRowsTable> {
+  $$MangaCollectionItemsRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -43660,10 +43180,6 @@ class $$MangaOwnedItemsRowsTableOrderingComposer
 
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnOrderings(column));
@@ -43685,9 +43201,6 @@ class $$MangaOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
@@ -43791,9 +43304,9 @@ class $$MangaOwnedItemsRowsTableOrderingComposer
       builder: (column) => ColumnOrderings(column));
 }
 
-class $$MangaOwnedItemsRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $MangaOwnedItemsRowsTable> {
-  $$MangaOwnedItemsRowsTableAnnotationComposer({
+class $$MangaCollectionItemsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MangaCollectionItemsRowsTable> {
+  $$MangaCollectionItemsRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -43812,9 +43325,6 @@ class $$MangaOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => column);
-
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
 
@@ -43832,9 +43342,6 @@ class $$MangaOwnedItemsRowsTableAnnotationComposer
 
   GeneratedColumn<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => column);
-
-  GeneratedColumn<int> get quantity =>
-      $composableBuilder(column: $table.quantity, builder: (column) => column);
 
   GeneratedColumn<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => column);
@@ -43924,48 +43431,47 @@ class $$MangaOwnedItemsRowsTableAnnotationComposer
       column: $table.localizedEdition, builder: (column) => column);
 }
 
-class $$MangaOwnedItemsRowsTableTableManager extends RootTableManager<
+class $$MangaCollectionItemsRowsTableTableManager extends RootTableManager<
     _$LocalDatabase,
-    $MangaOwnedItemsRowsTable,
-    MangaOwnedItemsRow,
-    $$MangaOwnedItemsRowsTableFilterComposer,
-    $$MangaOwnedItemsRowsTableOrderingComposer,
-    $$MangaOwnedItemsRowsTableAnnotationComposer,
-    $$MangaOwnedItemsRowsTableCreateCompanionBuilder,
-    $$MangaOwnedItemsRowsTableUpdateCompanionBuilder,
+    $MangaCollectionItemsRowsTable,
+    MangaCollectionItemsRow,
+    $$MangaCollectionItemsRowsTableFilterComposer,
+    $$MangaCollectionItemsRowsTableOrderingComposer,
+    $$MangaCollectionItemsRowsTableAnnotationComposer,
+    $$MangaCollectionItemsRowsTableCreateCompanionBuilder,
+    $$MangaCollectionItemsRowsTableUpdateCompanionBuilder,
     (
-      MangaOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $MangaOwnedItemsRowsTable,
-          MangaOwnedItemsRow>
+      MangaCollectionItemsRow,
+      BaseReferences<_$LocalDatabase, $MangaCollectionItemsRowsTable,
+          MangaCollectionItemsRow>
     ),
-    MangaOwnedItemsRow,
+    MangaCollectionItemsRow,
     PrefetchHooks Function()> {
-  $$MangaOwnedItemsRowsTableTableManager(
-      _$LocalDatabase db, $MangaOwnedItemsRowsTable table)
+  $$MangaCollectionItemsRowsTableTableManager(
+      _$LocalDatabase db, $MangaCollectionItemsRowsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$MangaOwnedItemsRowsTableFilterComposer($db: db, $table: table),
+              $$MangaCollectionItemsRowsTableFilterComposer(
+                  $db: db, $table: table),
           createOrderingComposer: () =>
-              $$MangaOwnedItemsRowsTableOrderingComposer(
+              $$MangaCollectionItemsRowsTableOrderingComposer(
                   $db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$MangaOwnedItemsRowsTableAnnotationComposer(
+              $$MangaCollectionItemsRowsTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -43997,19 +43503,17 @@ class $$MangaOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> localizedEdition = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              MangaOwnedItemsRowsCompanion(
+              MangaCollectionItemsRowsCompanion(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -44046,14 +43550,12 @@ class $$MangaOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
@@ -44085,19 +43587,17 @@ class $$MangaOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> localizedEdition = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              MangaOwnedItemsRowsCompanion.insert(
+              MangaCollectionItemsRowsCompanion.insert(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -44136,28 +43636,29 @@ class $$MangaOwnedItemsRowsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$MangaOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
-    _$LocalDatabase,
-    $MangaOwnedItemsRowsTable,
-    MangaOwnedItemsRow,
-    $$MangaOwnedItemsRowsTableFilterComposer,
-    $$MangaOwnedItemsRowsTableOrderingComposer,
-    $$MangaOwnedItemsRowsTableAnnotationComposer,
-    $$MangaOwnedItemsRowsTableCreateCompanionBuilder,
-    $$MangaOwnedItemsRowsTableUpdateCompanionBuilder,
-    (
-      MangaOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $MangaOwnedItemsRowsTable,
-          MangaOwnedItemsRow>
-    ),
-    MangaOwnedItemsRow,
-    PrefetchHooks Function()>;
+typedef $$MangaCollectionItemsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MangaCollectionItemsRowsTable,
+        MangaCollectionItemsRow,
+        $$MangaCollectionItemsRowsTableFilterComposer,
+        $$MangaCollectionItemsRowsTableOrderingComposer,
+        $$MangaCollectionItemsRowsTableAnnotationComposer,
+        $$MangaCollectionItemsRowsTableCreateCompanionBuilder,
+        $$MangaCollectionItemsRowsTableUpdateCompanionBuilder,
+        (
+          MangaCollectionItemsRow,
+          BaseReferences<_$LocalDatabase, $MangaCollectionItemsRowsTable,
+              MangaCollectionItemsRow>
+        ),
+        MangaCollectionItemsRow,
+        PrefetchHooks Function()>;
 typedef $$MangaTrackingUnitRowsTableCreateCompanionBuilder
     = MangaTrackingUnitRowsCompanion Function({
   required String id,
   required String targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   required DateTime completedAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -44170,7 +43671,7 @@ typedef $$MangaTrackingUnitRowsTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<DateTime> completedAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -44198,8 +43699,9 @@ class $$MangaTrackingUnitRowsTableFilterComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
@@ -44237,8 +43739,9 @@ class $$MangaTrackingUnitRowsTableOrderingComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
@@ -44276,8 +43779,8 @@ class $$MangaTrackingUnitRowsTableAnnotationComposer
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
@@ -44329,7 +43832,7 @@ class $$MangaTrackingUnitRowsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<DateTime> completedAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -44341,7 +43844,7 @@ class $$MangaTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -44353,7 +43856,7 @@ class $$MangaTrackingUnitRowsTableTableManager extends RootTableManager<
             required String id,
             required String targetRefJson,
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             required DateTime completedAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -44365,7 +43868,7 @@ class $$MangaTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -44401,7 +43904,7 @@ typedef $$MangaTrackingRowsTableCreateCompanionBuilder
     = MangaTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -44419,7 +43922,7 @@ typedef $$MangaTrackingRowsTableUpdateCompanionBuilder
     = MangaTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -44450,8 +43953,9 @@ class $$MangaTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -44505,8 +44009,9 @@ class $$MangaTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -44560,8 +44065,8 @@ class $$MangaTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -44627,7 +44132,7 @@ class $$MangaTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -44644,7 +44149,7 @@ class $$MangaTrackingRowsTableTableManager extends RootTableManager<
               MangaTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -44661,7 +44166,7 @@ class $$MangaTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -44678,7 +44183,7 @@ class $$MangaTrackingRowsTableTableManager extends RootTableManager<
               MangaTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -44714,8 +44219,8 @@ typedef $$MangaTrackingRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     MangaTrackingRow,
     PrefetchHooks Function()>;
-typedef $$MovieOwnedItemsRowsTableCreateCompanionBuilder
-    = MovieOwnedItemsRowsCompanion Function({
+typedef $$MovieCollectionItemsRowsTableCreateCompanionBuilder
+    = MovieCollectionItemsRowsCompanion Function({
   required String id,
   required String itemId,
   Value<DateTime?> createdAt,
@@ -44726,7 +44231,6 @@ typedef $$MovieOwnedItemsRowsTableCreateCompanionBuilder
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   required DateTime updatedAt,
@@ -44749,8 +44253,8 @@ typedef $$MovieOwnedItemsRowsTableCreateCompanionBuilder
   Value<String?> distributor,
   Value<int> rowid,
 });
-typedef $$MovieOwnedItemsRowsTableUpdateCompanionBuilder
-    = MovieOwnedItemsRowsCompanion Function({
+typedef $$MovieCollectionItemsRowsTableUpdateCompanionBuilder
+    = MovieCollectionItemsRowsCompanion Function({
   Value<String> id,
   Value<String> itemId,
   Value<DateTime?> createdAt,
@@ -44761,7 +44265,6 @@ typedef $$MovieOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   Value<DateTime> updatedAt,
@@ -44785,9 +44288,9 @@ typedef $$MovieOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
-class $$MovieOwnedItemsRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $MovieOwnedItemsRowsTable> {
-  $$MovieOwnedItemsRowsTableFilterComposer({
+class $$MovieCollectionItemsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MovieCollectionItemsRowsTable> {
+  $$MovieCollectionItemsRowsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -44824,9 +44327,6 @@ class $$MovieOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnFilters(column));
@@ -44893,9 +44393,9 @@ class $$MovieOwnedItemsRowsTableFilterComposer
       column: $table.distributor, builder: (column) => ColumnFilters(column));
 }
 
-class $$MovieOwnedItemsRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $MovieOwnedItemsRowsTable> {
-  $$MovieOwnedItemsRowsTableOrderingComposer({
+class $$MovieCollectionItemsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MovieCollectionItemsRowsTable> {
+  $$MovieCollectionItemsRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -44934,9 +44434,6 @@ class $$MovieOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
@@ -45004,9 +44501,9 @@ class $$MovieOwnedItemsRowsTableOrderingComposer
       column: $table.distributor, builder: (column) => ColumnOrderings(column));
 }
 
-class $$MovieOwnedItemsRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $MovieOwnedItemsRowsTable> {
-  $$MovieOwnedItemsRowsTableAnnotationComposer({
+class $$MovieCollectionItemsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MovieCollectionItemsRowsTable> {
+  $$MovieCollectionItemsRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -45042,9 +44539,6 @@ class $$MovieOwnedItemsRowsTableAnnotationComposer
 
   GeneratedColumn<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => column);
-
-  GeneratedColumn<int> get quantity =>
-      $composableBuilder(column: $table.quantity, builder: (column) => column);
 
   GeneratedColumn<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => column);
@@ -45107,34 +44601,35 @@ class $$MovieOwnedItemsRowsTableAnnotationComposer
       column: $table.distributor, builder: (column) => column);
 }
 
-class $$MovieOwnedItemsRowsTableTableManager extends RootTableManager<
+class $$MovieCollectionItemsRowsTableTableManager extends RootTableManager<
     _$LocalDatabase,
-    $MovieOwnedItemsRowsTable,
-    MovieOwnedItemsRow,
-    $$MovieOwnedItemsRowsTableFilterComposer,
-    $$MovieOwnedItemsRowsTableOrderingComposer,
-    $$MovieOwnedItemsRowsTableAnnotationComposer,
-    $$MovieOwnedItemsRowsTableCreateCompanionBuilder,
-    $$MovieOwnedItemsRowsTableUpdateCompanionBuilder,
+    $MovieCollectionItemsRowsTable,
+    MovieCollectionItemsRow,
+    $$MovieCollectionItemsRowsTableFilterComposer,
+    $$MovieCollectionItemsRowsTableOrderingComposer,
+    $$MovieCollectionItemsRowsTableAnnotationComposer,
+    $$MovieCollectionItemsRowsTableCreateCompanionBuilder,
+    $$MovieCollectionItemsRowsTableUpdateCompanionBuilder,
     (
-      MovieOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $MovieOwnedItemsRowsTable,
-          MovieOwnedItemsRow>
+      MovieCollectionItemsRow,
+      BaseReferences<_$LocalDatabase, $MovieCollectionItemsRowsTable,
+          MovieCollectionItemsRow>
     ),
-    MovieOwnedItemsRow,
+    MovieCollectionItemsRow,
     PrefetchHooks Function()> {
-  $$MovieOwnedItemsRowsTableTableManager(
-      _$LocalDatabase db, $MovieOwnedItemsRowsTable table)
+  $$MovieCollectionItemsRowsTableTableManager(
+      _$LocalDatabase db, $MovieCollectionItemsRowsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$MovieOwnedItemsRowsTableFilterComposer($db: db, $table: table),
+              $$MovieCollectionItemsRowsTableFilterComposer(
+                  $db: db, $table: table),
           createOrderingComposer: () =>
-              $$MovieOwnedItemsRowsTableOrderingComposer(
+              $$MovieCollectionItemsRowsTableOrderingComposer(
                   $db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$MovieOwnedItemsRowsTableAnnotationComposer(
+              $$MovieCollectionItemsRowsTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
@@ -45147,7 +44642,6 @@ class $$MovieOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -45170,7 +44664,7 @@ class $$MovieOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> distributor = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              MovieOwnedItemsRowsCompanion(
+              MovieCollectionItemsRowsCompanion(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
@@ -45181,7 +44675,6 @@ class $$MovieOwnedItemsRowsTableTableManager extends RootTableManager<
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -45215,7 +44708,6 @@ class $$MovieOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
@@ -45238,7 +44730,7 @@ class $$MovieOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> distributor = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              MovieOwnedItemsRowsCompanion.insert(
+              MovieCollectionItemsRowsCompanion.insert(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
@@ -45249,7 +44741,6 @@ class $$MovieOwnedItemsRowsTableTableManager extends RootTableManager<
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -45279,27 +44770,28 @@ class $$MovieOwnedItemsRowsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$MovieOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
-    _$LocalDatabase,
-    $MovieOwnedItemsRowsTable,
-    MovieOwnedItemsRow,
-    $$MovieOwnedItemsRowsTableFilterComposer,
-    $$MovieOwnedItemsRowsTableOrderingComposer,
-    $$MovieOwnedItemsRowsTableAnnotationComposer,
-    $$MovieOwnedItemsRowsTableCreateCompanionBuilder,
-    $$MovieOwnedItemsRowsTableUpdateCompanionBuilder,
-    (
-      MovieOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $MovieOwnedItemsRowsTable,
-          MovieOwnedItemsRow>
-    ),
-    MovieOwnedItemsRow,
-    PrefetchHooks Function()>;
+typedef $$MovieCollectionItemsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MovieCollectionItemsRowsTable,
+        MovieCollectionItemsRow,
+        $$MovieCollectionItemsRowsTableFilterComposer,
+        $$MovieCollectionItemsRowsTableOrderingComposer,
+        $$MovieCollectionItemsRowsTableAnnotationComposer,
+        $$MovieCollectionItemsRowsTableCreateCompanionBuilder,
+        $$MovieCollectionItemsRowsTableUpdateCompanionBuilder,
+        (
+          MovieCollectionItemsRow,
+          BaseReferences<_$LocalDatabase, $MovieCollectionItemsRowsTable,
+              MovieCollectionItemsRow>
+        ),
+        MovieCollectionItemsRow,
+        PrefetchHooks Function()>;
 typedef $$MovieTrackingRowsTableCreateCompanionBuilder
     = MovieTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -45317,7 +44809,7 @@ typedef $$MovieTrackingRowsTableUpdateCompanionBuilder
     = MovieTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -45348,8 +44840,9 @@ class $$MovieTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -45403,8 +44896,9 @@ class $$MovieTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -45458,8 +44952,8 @@ class $$MovieTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -45525,7 +45019,7 @@ class $$MovieTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -45542,7 +45036,7 @@ class $$MovieTrackingRowsTableTableManager extends RootTableManager<
               MovieTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -45559,7 +45053,7 @@ class $$MovieTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -45576,7 +45070,7 @@ class $$MovieTrackingRowsTableTableManager extends RootTableManager<
               MovieTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -45836,8 +45330,8 @@ typedef $$MusicAlbumImagesRowsTableProcessedTableManager
         ),
         MusicAlbumImagesRow,
         PrefetchHooks Function()>;
-typedef $$MusicOwnedItemsRowsTableCreateCompanionBuilder
-    = MusicOwnedItemsRowsCompanion Function({
+typedef $$MusicCollectionItemsRowsTableCreateCompanionBuilder
+    = MusicCollectionItemsRowsCompanion Function({
   required String id,
   required String itemId,
   Value<DateTime?> createdAt,
@@ -45848,7 +45342,6 @@ typedef $$MusicOwnedItemsRowsTableCreateCompanionBuilder
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   required DateTime updatedAt,
@@ -45867,8 +45360,8 @@ typedef $$MusicOwnedItemsRowsTableCreateCompanionBuilder
   Value<String> mediumDetailsJson,
   Value<int> rowid,
 });
-typedef $$MusicOwnedItemsRowsTableUpdateCompanionBuilder
-    = MusicOwnedItemsRowsCompanion Function({
+typedef $$MusicCollectionItemsRowsTableUpdateCompanionBuilder
+    = MusicCollectionItemsRowsCompanion Function({
   Value<String> id,
   Value<String> itemId,
   Value<DateTime?> createdAt,
@@ -45879,7 +45372,6 @@ typedef $$MusicOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   Value<DateTime> updatedAt,
@@ -45899,9 +45391,9 @@ typedef $$MusicOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
-class $$MusicOwnedItemsRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $MusicOwnedItemsRowsTable> {
-  $$MusicOwnedItemsRowsTableFilterComposer({
+class $$MusicCollectionItemsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicCollectionItemsRowsTable> {
+  $$MusicCollectionItemsRowsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -45938,9 +45430,6 @@ class $$MusicOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnFilters(column));
@@ -45996,9 +45485,9 @@ class $$MusicOwnedItemsRowsTableFilterComposer
       builder: (column) => ColumnFilters(column));
 }
 
-class $$MusicOwnedItemsRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $MusicOwnedItemsRowsTable> {
-  $$MusicOwnedItemsRowsTableOrderingComposer({
+class $$MusicCollectionItemsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicCollectionItemsRowsTable> {
+  $$MusicCollectionItemsRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -46037,9 +45526,6 @@ class $$MusicOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
@@ -46096,9 +45582,9 @@ class $$MusicOwnedItemsRowsTableOrderingComposer
       builder: (column) => ColumnOrderings(column));
 }
 
-class $$MusicOwnedItemsRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $MusicOwnedItemsRowsTable> {
-  $$MusicOwnedItemsRowsTableAnnotationComposer({
+class $$MusicCollectionItemsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicCollectionItemsRowsTable> {
+  $$MusicCollectionItemsRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -46134,9 +45620,6 @@ class $$MusicOwnedItemsRowsTableAnnotationComposer
 
   GeneratedColumn<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => column);
-
-  GeneratedColumn<int> get quantity =>
-      $composableBuilder(column: $table.quantity, builder: (column) => column);
 
   GeneratedColumn<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => column);
@@ -46187,34 +45670,35 @@ class $$MusicOwnedItemsRowsTableAnnotationComposer
       column: $table.mediumDetailsJson, builder: (column) => column);
 }
 
-class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
+class $$MusicCollectionItemsRowsTableTableManager extends RootTableManager<
     _$LocalDatabase,
-    $MusicOwnedItemsRowsTable,
-    MusicOwnedItemsRow,
-    $$MusicOwnedItemsRowsTableFilterComposer,
-    $$MusicOwnedItemsRowsTableOrderingComposer,
-    $$MusicOwnedItemsRowsTableAnnotationComposer,
-    $$MusicOwnedItemsRowsTableCreateCompanionBuilder,
-    $$MusicOwnedItemsRowsTableUpdateCompanionBuilder,
+    $MusicCollectionItemsRowsTable,
+    MusicCollectionItemsRow,
+    $$MusicCollectionItemsRowsTableFilterComposer,
+    $$MusicCollectionItemsRowsTableOrderingComposer,
+    $$MusicCollectionItemsRowsTableAnnotationComposer,
+    $$MusicCollectionItemsRowsTableCreateCompanionBuilder,
+    $$MusicCollectionItemsRowsTableUpdateCompanionBuilder,
     (
-      MusicOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $MusicOwnedItemsRowsTable,
-          MusicOwnedItemsRow>
+      MusicCollectionItemsRow,
+      BaseReferences<_$LocalDatabase, $MusicCollectionItemsRowsTable,
+          MusicCollectionItemsRow>
     ),
-    MusicOwnedItemsRow,
+    MusicCollectionItemsRow,
     PrefetchHooks Function()> {
-  $$MusicOwnedItemsRowsTableTableManager(
-      _$LocalDatabase db, $MusicOwnedItemsRowsTable table)
+  $$MusicCollectionItemsRowsTableTableManager(
+      _$LocalDatabase db, $MusicCollectionItemsRowsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$MusicOwnedItemsRowsTableFilterComposer($db: db, $table: table),
+              $$MusicCollectionItemsRowsTableFilterComposer(
+                  $db: db, $table: table),
           createOrderingComposer: () =>
-              $$MusicOwnedItemsRowsTableOrderingComposer(
+              $$MusicCollectionItemsRowsTableOrderingComposer(
                   $db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$MusicOwnedItemsRowsTableAnnotationComposer(
+              $$MusicCollectionItemsRowsTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
@@ -46227,7 +45711,6 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -46246,7 +45729,7 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> mediumDetailsJson = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              MusicOwnedItemsRowsCompanion(
+              MusicCollectionItemsRowsCompanion(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
@@ -46257,7 +45740,6 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -46287,7 +45769,6 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
@@ -46306,7 +45787,7 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> mediumDetailsJson = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              MusicOwnedItemsRowsCompanion.insert(
+              MusicCollectionItemsRowsCompanion.insert(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
@@ -46317,7 +45798,6 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -46343,27 +45823,28 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$MusicOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
-    _$LocalDatabase,
-    $MusicOwnedItemsRowsTable,
-    MusicOwnedItemsRow,
-    $$MusicOwnedItemsRowsTableFilterComposer,
-    $$MusicOwnedItemsRowsTableOrderingComposer,
-    $$MusicOwnedItemsRowsTableAnnotationComposer,
-    $$MusicOwnedItemsRowsTableCreateCompanionBuilder,
-    $$MusicOwnedItemsRowsTableUpdateCompanionBuilder,
-    (
-      MusicOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $MusicOwnedItemsRowsTable,
-          MusicOwnedItemsRow>
-    ),
-    MusicOwnedItemsRow,
-    PrefetchHooks Function()>;
+typedef $$MusicCollectionItemsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MusicCollectionItemsRowsTable,
+        MusicCollectionItemsRow,
+        $$MusicCollectionItemsRowsTableFilterComposer,
+        $$MusicCollectionItemsRowsTableOrderingComposer,
+        $$MusicCollectionItemsRowsTableAnnotationComposer,
+        $$MusicCollectionItemsRowsTableCreateCompanionBuilder,
+        $$MusicCollectionItemsRowsTableUpdateCompanionBuilder,
+        (
+          MusicCollectionItemsRow,
+          BaseReferences<_$LocalDatabase, $MusicCollectionItemsRowsTable,
+              MusicCollectionItemsRow>
+        ),
+        MusicCollectionItemsRow,
+        PrefetchHooks Function()>;
 typedef $$MusicTrackingRowsTableCreateCompanionBuilder
     = MusicTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -46381,7 +45862,7 @@ typedef $$MusicTrackingRowsTableUpdateCompanionBuilder
     = MusicTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -46412,8 +45893,9 @@ class $$MusicTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -46467,8 +45949,9 @@ class $$MusicTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -46522,8 +46005,8 @@ class $$MusicTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -46589,7 +46072,7 @@ class $$MusicTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -46606,7 +46089,7 @@ class $$MusicTrackingRowsTableTableManager extends RootTableManager<
               MusicTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -46623,7 +46106,7 @@ class $$MusicTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -46640,7 +46123,7 @@ class $$MusicTrackingRowsTableTableManager extends RootTableManager<
               MusicTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -46680,7 +46163,7 @@ typedef $$MusicListenEventsRowsTableCreateCompanionBuilder
     = MusicListenEventsRowsCompanion Function({
   required String id,
   required String catalogItemId,
-  Value<String?> ownedCopyId,
+  Value<String?> collectionItemId,
   required DateTime listenedAt,
   Value<DateTime?> startedAt,
   Value<DateTime?> finishedAt,
@@ -46695,7 +46178,7 @@ typedef $$MusicListenEventsRowsTableUpdateCompanionBuilder
     = MusicListenEventsRowsCompanion Function({
   Value<String> id,
   Value<String> catalogItemId,
-  Value<String?> ownedCopyId,
+  Value<String?> collectionItemId,
   Value<DateTime> listenedAt,
   Value<DateTime?> startedAt,
   Value<DateTime?> finishedAt,
@@ -46722,8 +46205,9 @@ class $$MusicListenEventsRowsTableFilterComposer
   ColumnFilters<String> get catalogItemId => $composableBuilder(
       column: $table.catalogItemId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedCopyId => $composableBuilder(
-      column: $table.ownedCopyId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemId => $composableBuilder(
+      column: $table.collectionItemId,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get listenedAt => $composableBuilder(
       column: $table.listenedAt, builder: (column) => ColumnFilters(column));
@@ -46766,8 +46250,9 @@ class $$MusicListenEventsRowsTableOrderingComposer
       column: $table.catalogItemId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedCopyId => $composableBuilder(
-      column: $table.ownedCopyId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemId => $composableBuilder(
+      column: $table.collectionItemId,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get listenedAt => $composableBuilder(
       column: $table.listenedAt, builder: (column) => ColumnOrderings(column));
@@ -46809,8 +46294,8 @@ class $$MusicListenEventsRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogItemId => $composableBuilder(
       column: $table.catalogItemId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedCopyId => $composableBuilder(
-      column: $table.ownedCopyId, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemId => $composableBuilder(
+      column: $table.collectionItemId, builder: (column) => column);
 
   GeneratedColumn<DateTime> get listenedAt => $composableBuilder(
       column: $table.listenedAt, builder: (column) => column);
@@ -46870,7 +46355,7 @@ class $$MusicListenEventsRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogItemId = const Value.absent(),
-            Value<String?> ownedCopyId = const Value.absent(),
+            Value<String?> collectionItemId = const Value.absent(),
             Value<DateTime> listenedAt = const Value.absent(),
             Value<DateTime?> startedAt = const Value.absent(),
             Value<DateTime?> finishedAt = const Value.absent(),
@@ -46884,7 +46369,7 @@ class $$MusicListenEventsRowsTableTableManager extends RootTableManager<
               MusicListenEventsRowsCompanion(
             id: id,
             catalogItemId: catalogItemId,
-            ownedCopyId: ownedCopyId,
+            collectionItemId: collectionItemId,
             listenedAt: listenedAt,
             startedAt: startedAt,
             finishedAt: finishedAt,
@@ -46898,7 +46383,7 @@ class $$MusicListenEventsRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogItemId,
-            Value<String?> ownedCopyId = const Value.absent(),
+            Value<String?> collectionItemId = const Value.absent(),
             required DateTime listenedAt,
             Value<DateTime?> startedAt = const Value.absent(),
             Value<DateTime?> finishedAt = const Value.absent(),
@@ -46912,7 +46397,7 @@ class $$MusicListenEventsRowsTableTableManager extends RootTableManager<
               MusicListenEventsRowsCompanion.insert(
             id: id,
             catalogItemId: catalogItemId,
-            ownedCopyId: ownedCopyId,
+            collectionItemId: collectionItemId,
             listenedAt: listenedAt,
             startedAt: startedAt,
             finishedAt: finishedAt,
@@ -46947,20 +46432,18 @@ typedef $$MusicListenEventsRowsTableProcessedTableManager
         ),
         MusicListenEventsRow,
         PrefetchHooks Function()>;
-typedef $$TvOwnedItemsRowsTableCreateCompanionBuilder
-    = TvOwnedItemsRowsCompanion Function({
+typedef $$TvCollectionItemsRowsTableCreateCompanionBuilder
+    = TvCollectionItemsRowsCompanion Function({
   required String id,
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   required DateTime updatedAt,
@@ -46983,20 +46466,18 @@ typedef $$TvOwnedItemsRowsTableCreateCompanionBuilder
   Value<String?> distributor,
   Value<int> rowid,
 });
-typedef $$TvOwnedItemsRowsTableUpdateCompanionBuilder
-    = TvOwnedItemsRowsCompanion Function({
+typedef $$TvCollectionItemsRowsTableUpdateCompanionBuilder
+    = TvCollectionItemsRowsCompanion Function({
   Value<String> id,
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
-  Value<int> quantity,
   Value<int?> indexNumber,
   Value<String?> tags,
   Value<DateTime> updatedAt,
@@ -47020,9 +46501,9 @@ typedef $$TvOwnedItemsRowsTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
-class $$TvOwnedItemsRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $TvOwnedItemsRowsTable> {
-  $$TvOwnedItemsRowsTableFilterComposer({
+class $$TvCollectionItemsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvCollectionItemsRowsTable> {
+  $$TvCollectionItemsRowsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -47040,9 +46521,6 @@ class $$TvOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -47062,9 +46540,6 @@ class $$TvOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnFilters(column));
@@ -47131,9 +46606,9 @@ class $$TvOwnedItemsRowsTableFilterComposer
       column: $table.distributor, builder: (column) => ColumnFilters(column));
 }
 
-class $$TvOwnedItemsRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $TvOwnedItemsRowsTable> {
-  $$TvOwnedItemsRowsTableOrderingComposer({
+class $$TvCollectionItemsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvCollectionItemsRowsTable> {
+  $$TvCollectionItemsRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -47151,10 +46626,6 @@ class $$TvOwnedItemsRowsTableOrderingComposer
 
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnOrderings(column));
@@ -47176,9 +46647,6 @@ class $$TvOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
@@ -47246,9 +46714,9 @@ class $$TvOwnedItemsRowsTableOrderingComposer
       column: $table.distributor, builder: (column) => ColumnOrderings(column));
 }
 
-class $$TvOwnedItemsRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $TvOwnedItemsRowsTable> {
-  $$TvOwnedItemsRowsTableAnnotationComposer({
+class $$TvCollectionItemsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvCollectionItemsRowsTable> {
+  $$TvCollectionItemsRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -47267,9 +46735,6 @@ class $$TvOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => column);
-
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
 
@@ -47287,9 +46752,6 @@ class $$TvOwnedItemsRowsTableAnnotationComposer
 
   GeneratedColumn<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => column);
-
-  GeneratedColumn<int> get quantity =>
-      $composableBuilder(column: $table.quantity, builder: (column) => column);
 
   GeneratedColumn<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => column);
@@ -47352,45 +46814,47 @@ class $$TvOwnedItemsRowsTableAnnotationComposer
       column: $table.distributor, builder: (column) => column);
 }
 
-class $$TvOwnedItemsRowsTableTableManager extends RootTableManager<
+class $$TvCollectionItemsRowsTableTableManager extends RootTableManager<
     _$LocalDatabase,
-    $TvOwnedItemsRowsTable,
-    TvOwnedItemsRow,
-    $$TvOwnedItemsRowsTableFilterComposer,
-    $$TvOwnedItemsRowsTableOrderingComposer,
-    $$TvOwnedItemsRowsTableAnnotationComposer,
-    $$TvOwnedItemsRowsTableCreateCompanionBuilder,
-    $$TvOwnedItemsRowsTableUpdateCompanionBuilder,
+    $TvCollectionItemsRowsTable,
+    TvCollectionItemsRow,
+    $$TvCollectionItemsRowsTableFilterComposer,
+    $$TvCollectionItemsRowsTableOrderingComposer,
+    $$TvCollectionItemsRowsTableAnnotationComposer,
+    $$TvCollectionItemsRowsTableCreateCompanionBuilder,
+    $$TvCollectionItemsRowsTableUpdateCompanionBuilder,
     (
-      TvOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $TvOwnedItemsRowsTable, TvOwnedItemsRow>
+      TvCollectionItemsRow,
+      BaseReferences<_$LocalDatabase, $TvCollectionItemsRowsTable,
+          TvCollectionItemsRow>
     ),
-    TvOwnedItemsRow,
+    TvCollectionItemsRow,
     PrefetchHooks Function()> {
-  $$TvOwnedItemsRowsTableTableManager(
-      _$LocalDatabase db, $TvOwnedItemsRowsTable table)
+  $$TvCollectionItemsRowsTableTableManager(
+      _$LocalDatabase db, $TvCollectionItemsRowsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$TvOwnedItemsRowsTableFilterComposer($db: db, $table: table),
+              $$TvCollectionItemsRowsTableFilterComposer(
+                  $db: db, $table: table),
           createOrderingComposer: () =>
-              $$TvOwnedItemsRowsTableOrderingComposer($db: db, $table: table),
+              $$TvCollectionItemsRowsTableOrderingComposer(
+                  $db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$TvOwnedItemsRowsTableAnnotationComposer($db: db, $table: table),
+              $$TvCollectionItemsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -47413,19 +46877,17 @@ class $$TvOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> distributor = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              TvOwnedItemsRowsCompanion(
+              TvCollectionItemsRowsCompanion(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -47453,14 +46915,12 @@ class $$TvOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
@@ -47483,19 +46943,17 @@ class $$TvOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> distributor = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              TvOwnedItemsRowsCompanion.insert(
+              TvCollectionItemsRowsCompanion.insert(
             id: id,
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
-            quantity: quantity,
             indexNumber: indexNumber,
             tags: tags,
             updatedAt: updatedAt,
@@ -47525,21 +46983,23 @@ class $$TvOwnedItemsRowsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$TvOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
-    _$LocalDatabase,
-    $TvOwnedItemsRowsTable,
-    TvOwnedItemsRow,
-    $$TvOwnedItemsRowsTableFilterComposer,
-    $$TvOwnedItemsRowsTableOrderingComposer,
-    $$TvOwnedItemsRowsTableAnnotationComposer,
-    $$TvOwnedItemsRowsTableCreateCompanionBuilder,
-    $$TvOwnedItemsRowsTableUpdateCompanionBuilder,
-    (
-      TvOwnedItemsRow,
-      BaseReferences<_$LocalDatabase, $TvOwnedItemsRowsTable, TvOwnedItemsRow>
-    ),
-    TvOwnedItemsRow,
-    PrefetchHooks Function()>;
+typedef $$TvCollectionItemsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $TvCollectionItemsRowsTable,
+        TvCollectionItemsRow,
+        $$TvCollectionItemsRowsTableFilterComposer,
+        $$TvCollectionItemsRowsTableOrderingComposer,
+        $$TvCollectionItemsRowsTableAnnotationComposer,
+        $$TvCollectionItemsRowsTableCreateCompanionBuilder,
+        $$TvCollectionItemsRowsTableUpdateCompanionBuilder,
+        (
+          TvCollectionItemsRow,
+          BaseReferences<_$LocalDatabase, $TvCollectionItemsRowsTable,
+              TvCollectionItemsRow>
+        ),
+        TvCollectionItemsRow,
+        PrefetchHooks Function()>;
 typedef $$TvWatchSessionRowsTableCreateCompanionBuilder
     = TvWatchSessionRowsCompanion Function({
   required String id,
@@ -48474,7 +47934,7 @@ typedef $$TvTrackingRowsTableCreateCompanionBuilder = TvTrackingRowsCompanion
     Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -48495,7 +47955,7 @@ typedef $$TvTrackingRowsTableUpdateCompanionBuilder = TvTrackingRowsCompanion
     Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -48529,8 +47989,9 @@ class $$TvTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -48594,8 +48055,9 @@ class $$TvTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -48661,8 +48123,8 @@ class $$TvTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -48736,7 +48198,7 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -48756,7 +48218,7 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
               TvTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -48776,7 +48238,7 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -48796,7 +48258,7 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
               TvTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -48840,7 +48302,7 @@ typedef $$TvTrackingUnitRowsTableCreateCompanionBuilder
   required String id,
   required String targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   required DateTime completedAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -48853,7 +48315,7 @@ typedef $$TvTrackingUnitRowsTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedRefKey,
+  Value<String?> collectionItemRefKey,
   Value<DateTime> completedAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -48881,8 +48343,9 @@ class $$TvTrackingUnitRowsTableFilterComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
@@ -48920,8 +48383,9 @@ class $$TvTrackingUnitRowsTableOrderingComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
@@ -48959,8 +48423,8 @@ class $$TvTrackingUnitRowsTableAnnotationComposer
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
-      column: $table.ownedRefKey, builder: (column) => column);
+  GeneratedColumn<String> get collectionItemRefKey => $composableBuilder(
+      column: $table.collectionItemRefKey, builder: (column) => column);
 
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
@@ -49010,7 +48474,7 @@ class $$TvTrackingUnitRowsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             Value<DateTime> completedAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -49022,7 +48486,7 @@ class $$TvTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -49034,7 +48498,7 @@ class $$TvTrackingUnitRowsTableTableManager extends RootTableManager<
             required String id,
             required String targetRefJson,
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedRefKey = const Value.absent(),
+            Value<String?> collectionItemRefKey = const Value.absent(),
             required DateTime completedAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -49046,7 +48510,7 @@ class $$TvTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedRefKey: ownedRefKey,
+            collectionItemRefKey: collectionItemRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -49119,8 +48583,9 @@ class $LocalDatabaseManager {
       $$PickListValuesCacheTableTableManager(_db, _db.pickListValuesCache);
   $$SerialAuthorityCacheTableTableManager get serialAuthorityCache =>
       $$SerialAuthorityCacheTableTableManager(_db, _db.serialAuthorityCache);
-  $$AnimeOwnedItemsRowsTableTableManager get animeOwnedItemsRows =>
-      $$AnimeOwnedItemsRowsTableTableManager(_db, _db.animeOwnedItemsRows);
+  $$AnimeCollectionItemsRowsTableTableManager get animeCollectionItemsRows =>
+      $$AnimeCollectionItemsRowsTableTableManager(
+          _db, _db.animeCollectionItemsRows);
   $$AnimeTrackingRowsTableTableManager get animeTrackingRows =>
       $$AnimeTrackingRowsTableTableManager(_db, _db.animeTrackingRows);
   $$AnimeTrackingUnitRowsTableTableManager get animeTrackingUnitRows =>
@@ -49130,52 +48595,59 @@ class $LocalDatabaseManager {
   $$AnimeCustomEpisodeRowsTableTableManager get animeCustomEpisodeRows =>
       $$AnimeCustomEpisodeRowsTableTableManager(
           _db, _db.animeCustomEpisodeRows);
-  $$BoardGameOwnedItemsRowsTableTableManager get boardGameOwnedItemsRows =>
-      $$BoardGameOwnedItemsRowsTableTableManager(
-          _db, _db.boardGameOwnedItemsRows);
+  $$BoardGameCollectionItemsRowsTableTableManager
+      get boardGameCollectionItemsRows =>
+          $$BoardGameCollectionItemsRowsTableTableManager(
+              _db, _db.boardGameCollectionItemsRows);
   $$BoardGamePlaySessionsRowsTableTableManager get boardGamePlaySessionsRows =>
       $$BoardGamePlaySessionsRowsTableTableManager(
           _db, _db.boardGamePlaySessionsRows);
   $$BoardGameTrackingRowsTableTableManager get boardGameTrackingRows =>
       $$BoardGameTrackingRowsTableTableManager(_db, _db.boardGameTrackingRows);
-  $$BookOwnedItemsRowsTableTableManager get bookOwnedItemsRows =>
-      $$BookOwnedItemsRowsTableTableManager(_db, _db.bookOwnedItemsRows);
+  $$BookCollectionItemsRowsTableTableManager get bookCollectionItemsRows =>
+      $$BookCollectionItemsRowsTableTableManager(
+          _db, _db.bookCollectionItemsRows);
   $$BookTrackingUnitRowsTableTableManager get bookTrackingUnitRows =>
       $$BookTrackingUnitRowsTableTableManager(_db, _db.bookTrackingUnitRows);
   $$BookTrackingRowsTableTableManager get bookTrackingRows =>
       $$BookTrackingRowsTableTableManager(_db, _db.bookTrackingRows);
-  $$ComicOwnedItemsRowsTableTableManager get comicOwnedItemsRows =>
-      $$ComicOwnedItemsRowsTableTableManager(_db, _db.comicOwnedItemsRows);
+  $$ComicCollectionItemsRowsTableTableManager get comicCollectionItemsRows =>
+      $$ComicCollectionItemsRowsTableTableManager(
+          _db, _db.comicCollectionItemsRows);
   $$ComicReadingRowsTableTableManager get comicReadingRows =>
       $$ComicReadingRowsTableTableManager(_db, _db.comicReadingRows);
   $$ComicTrackingUnitRowsTableTableManager get comicTrackingUnitRows =>
       $$ComicTrackingUnitRowsTableTableManager(_db, _db.comicTrackingUnitRows);
   $$ComicTrackingRowsTableTableManager get comicTrackingRows =>
       $$ComicTrackingRowsTableTableManager(_db, _db.comicTrackingRows);
-  $$GameOwnedItemsRowsTableTableManager get gameOwnedItemsRows =>
-      $$GameOwnedItemsRowsTableTableManager(_db, _db.gameOwnedItemsRows);
+  $$GameCollectionItemsRowsTableTableManager get gameCollectionItemsRows =>
+      $$GameCollectionItemsRowsTableTableManager(
+          _db, _db.gameCollectionItemsRows);
   $$GameTrackingRowsTableTableManager get gameTrackingRows =>
       $$GameTrackingRowsTableTableManager(_db, _db.gameTrackingRows);
-  $$MangaOwnedItemsRowsTableTableManager get mangaOwnedItemsRows =>
-      $$MangaOwnedItemsRowsTableTableManager(_db, _db.mangaOwnedItemsRows);
+  $$MangaCollectionItemsRowsTableTableManager get mangaCollectionItemsRows =>
+      $$MangaCollectionItemsRowsTableTableManager(
+          _db, _db.mangaCollectionItemsRows);
   $$MangaTrackingUnitRowsTableTableManager get mangaTrackingUnitRows =>
       $$MangaTrackingUnitRowsTableTableManager(_db, _db.mangaTrackingUnitRows);
   $$MangaTrackingRowsTableTableManager get mangaTrackingRows =>
       $$MangaTrackingRowsTableTableManager(_db, _db.mangaTrackingRows);
-  $$MovieOwnedItemsRowsTableTableManager get movieOwnedItemsRows =>
-      $$MovieOwnedItemsRowsTableTableManager(_db, _db.movieOwnedItemsRows);
+  $$MovieCollectionItemsRowsTableTableManager get movieCollectionItemsRows =>
+      $$MovieCollectionItemsRowsTableTableManager(
+          _db, _db.movieCollectionItemsRows);
   $$MovieTrackingRowsTableTableManager get movieTrackingRows =>
       $$MovieTrackingRowsTableTableManager(_db, _db.movieTrackingRows);
   $$MusicAlbumImagesRowsTableTableManager get musicAlbumImagesRows =>
       $$MusicAlbumImagesRowsTableTableManager(_db, _db.musicAlbumImagesRows);
-  $$MusicOwnedItemsRowsTableTableManager get musicOwnedItemsRows =>
-      $$MusicOwnedItemsRowsTableTableManager(_db, _db.musicOwnedItemsRows);
+  $$MusicCollectionItemsRowsTableTableManager get musicCollectionItemsRows =>
+      $$MusicCollectionItemsRowsTableTableManager(
+          _db, _db.musicCollectionItemsRows);
   $$MusicTrackingRowsTableTableManager get musicTrackingRows =>
       $$MusicTrackingRowsTableTableManager(_db, _db.musicTrackingRows);
   $$MusicListenEventsRowsTableTableManager get musicListenEventsRows =>
       $$MusicListenEventsRowsTableTableManager(_db, _db.musicListenEventsRows);
-  $$TvOwnedItemsRowsTableTableManager get tvOwnedItemsRows =>
-      $$TvOwnedItemsRowsTableTableManager(_db, _db.tvOwnedItemsRows);
+  $$TvCollectionItemsRowsTableTableManager get tvCollectionItemsRows =>
+      $$TvCollectionItemsRowsTableTableManager(_db, _db.tvCollectionItemsRows);
   $$TvWatchSessionRowsTableTableManager get tvWatchSessionRows =>
       $$TvWatchSessionRowsTableTableManager(_db, _db.tvWatchSessionRows);
   $$TvEpisodeProgressRowsTableTableManager get tvEpisodeProgressRows =>

@@ -1,9 +1,10 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:drift/drift.dart';
@@ -11,16 +12,16 @@ import 'package:drift/drift.dart';
 final class BoardGameLocalMapper {
   const BoardGameLocalMapper._();
 
-  static BoardGameOwnedItemsRowsCompanion toOwnedItemRow(
-    BoardGameOwnedItem item,
+  static BoardGameCollectionItemsRowsCompanion toCollectionItemRow(
+    BoardGameCollectionItem item,
   ) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.boardgame) {
-      throw StateError('Cannot persist an invalid BoardGameOwnedItem');
+      throw StateError('Cannot persist an invalid BoardGameCollectionItem');
     }
 
     final details = item.details;
-    return BoardGameOwnedItemsRowsCompanion.insert(
+    return BoardGameCollectionItemsRowsCompanion.insert(
       id: item.id.value,
       itemId: item.itemId,
       createdAt: Value(item.createdAt),
@@ -31,7 +32,6 @@ final class BoardGameLocalMapper {
       pricePaidCents: Value(item.pricePaidCents),
       currency: Value(item.currency),
       personalNotes: Value(item.personalNotes),
-      quantity: Value(item.quantity),
       indexNumber: Value(item.indexNumber),
       tags: Value(item.tags),
       updatedAt: item.updatedAt,
@@ -57,14 +57,14 @@ final class BoardGameLocalMapper {
     );
   }
 
-  static BoardGameOwnedItem fromOwnedItemRow(BoardGameOwnedItemsRow row) {
+  static BoardGameCollectionItem fromCollectionItemRow(BoardGameCollectionItemsRow row) {
     final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.boardgame,
-      entityType: CatalogEntityTypeId.root,
+      entityType: CatalogEntityTypeId.catalogItem,
       id: row.itemId,
     );
-    return BoardGameOwnedItem(
-      id: BoardGameOwnedCopyId(row.id),
+    return BoardGameCollectionItem(
+      id: CollectionItemId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
@@ -74,7 +74,6 @@ final class BoardGameLocalMapper {
       pricePaidCents: row.pricePaidCents,
       currency: row.currency,
       personalNotes: row.personalNotes,
-      quantity: row.quantity,
       indexNumber: row.indexNumber,
       tags: row.tags,
       updatedAt: row.updatedAt,

@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_entity_
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-/// Projects a concrete Game Catalog Item and its App-owned copy state.
+/// Projects a concrete Game Catalog Item and its App-collection item state.
 final class GameWorkspaceProjector
     implements LibraryEntityWorkspaceProjector<GameWorkspaceDto> {
   const GameWorkspaceProjector({this.expectedScope});

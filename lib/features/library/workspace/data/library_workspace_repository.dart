@@ -47,7 +47,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     for (final source in shelfEntries) {
       final catalogRef = source.catalogRef;
       if (catalogRef?.mediaKind == query.kind) {
-        final node = LibraryWorkRef(workId: catalogRef!.id);
+        final node = LibraryCatalogItemNodeRef(catalogItemId: catalogRef!.id);
         items.add(workspace.project(source: source, node: node));
       }
     }

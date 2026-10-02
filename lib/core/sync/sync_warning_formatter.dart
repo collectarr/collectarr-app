@@ -52,7 +52,7 @@ class SyncWarningFormatter {
 
   static String _entityLabel(String entityType, int count) {
     final label = switch (entityType) {
-      'owned_copy' => count == 1 ? 'owned copy' : 'owned copies',
+      'collection_item' => count == 1 ? 'collection item' : 'collection items',
       'wishlist_item' => count == 1 ? 'wishlist item' : 'wishlist items',
       'note' => count == 1 ? 'note' : 'notes',
       _ => _fallbackEntityLabel(entityType, count),

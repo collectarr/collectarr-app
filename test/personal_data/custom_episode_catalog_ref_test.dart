@@ -8,7 +8,7 @@ void main() {
   test('TV custom episode sync payload uses the TV-owned catalog ref', () {
     final ref = CatalogEntityRef(
       kind: CatalogMediaKind.tv,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.catalogItem,
       id: 'series-1',
     );
     final episode = TvCustomEpisode(

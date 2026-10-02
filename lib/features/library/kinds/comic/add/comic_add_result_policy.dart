@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 
 const comicAddHideOwnedOptionId = 'comic.hide-owned';
 const comicAddHideVariantsOptionId = 'comic.hide-variants';
-const comicAddCompactIssuesOptionId = 'comic.compact-issues';
 
 final comicAddResultPolicy = LibraryAddResultPolicy(
   options: const [
@@ -16,11 +15,6 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
     LibraryAddResultOption(
       id: comicAddHideVariantsOptionId,
       label: 'Hide variants',
-      initialValue: false,
-    ),
-    LibraryAddResultOption(
-      id: comicAddCompactIssuesOptionId,
-      label: 'Compact issues',
       initialValue: false,
     ),
   ],
@@ -38,7 +32,8 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
 );
 
 bool _comicItemIsVariant(CatalogSearchCandidate item) {
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  return metadata is ComicCatalogItem && metadata.variant?.trim().isNotEmpty == true;
+  final metadata = item.kindCapability.mapTransport(
+      (transport) => ComicCatalogItem.fromJson(transport.kindData));
+  return metadata is ComicCatalogItem &&
+      metadata.variant?.trim().isNotEmpty == true;
 }

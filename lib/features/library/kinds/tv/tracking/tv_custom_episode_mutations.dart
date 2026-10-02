@@ -109,7 +109,7 @@ final class TvCustomEpisodeMutations {
       payload: {
         'catalog_ref': {
           'kind': 'tv',
-          'entity_type': 'work',
+          'entity_type': 'catalog_item',
           'id': episode.seriesId.value,
         },
         'season_number': episode.seasonNumber,

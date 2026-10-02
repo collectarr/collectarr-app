@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_collection_item_projection.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -11,10 +11,10 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -40,7 +40,7 @@ class MovieEditDraft
         LibraryCopyEditSessionDefaults
     implements MovieEditDraftContract {
   MovieEditDraft({
-    this.ownedItem,
+    this.collectionItem,
     required this.featuresController,
     required this.boxSetNameController,
     required this.regionController,
@@ -56,7 +56,7 @@ class MovieEditDraft
     required this.movieEdit,
   });
 
-  final MovieOwnedItem? ownedItem;
+  final MovieCollectionItem? collectionItem;
 
   @override
   final TextEditingController featuresController;
@@ -98,7 +98,7 @@ class MovieEditDraft
 
   @override
   void initializePersonalState(PersonalStateDraft personal) {
-    final item = ownedItem;
+    final item = collectionItem;
     if (item == null) return;
     personal.ownerLabelController.text = item.ownerLabel ?? '';
     personal.conditionController.text = item.condition ?? '';
@@ -109,7 +109,6 @@ class MovieEditDraft
         ? ''
         : (item.pricePaidCents! / 100).toStringAsFixed(2);
     personal.currencyController.text = item.currency ?? '';
-    personal.quantityController.text = item.quantity.toString();
     personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
     personal.notesController.text = item.personalNotes ?? '';
     personal.tagsController.text = item.tags ?? '';
@@ -127,12 +126,11 @@ class MovieEditDraft
   }
 
   @override
-  MovieOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedCopyRef ownedRef,
+  MovieCollectionItemUpdatePayload buildOwnedUpdatePayload({
+    required CollectionItemRef collectionItemRef,
     required PersonalStateDraft personal,
   }) {
-    return MovieOwnedItemUpdatePayload(
-      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+    return MovieCollectionItemUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -389,11 +387,11 @@ class MovieEditDraft
 
 LibraryEditSessionBundle createMovieEditDraft({
   required CatalogSearchCandidate item,
-  LibraryOwnedItemDispatch? ownedItemDispatch,
+  LibraryCollectionItemDispatch? collectionItemDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = MovieOwnedItemProjection.fromDispatch(ownedItemDispatch);
+  final owned = MovieCollectionItemProjection.fromDispatch(collectionItemDispatch);
   final video = owned?.details;
   final metadata = item.kindCapability.mapTransport(
       (transport) => MovieCatalogMetadata.fromJson(transport.kindData));
@@ -436,7 +434,7 @@ LibraryEditSessionBundle createMovieEditDraft({
   movieEdit.initializeMovieEditors();
 
   final draft = MovieEditDraft(
-    ownedItem: owned,
+    collectionItem: owned,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
     regionController: textControllers.create(text: video?.region ?? ''),

@@ -14,7 +14,7 @@ void main() {
       itemId: 'comic-1',
       kind: 'comic',
       title: 'Batman',
-      ownedItem: testOwnedItem(
+      collectionItem: testCollectionItem(
         id: 'owned-1',
         itemId: 'comic-1',
         locationId: 'loc-1',
@@ -27,7 +27,7 @@ void main() {
       ),
       locationPath: 'Office › Shelf 2 › Short Box 1',
     );
-    const node = LibraryWorkRef(workId: 'comic-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
     final dto = const GenericWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -39,7 +39,7 @@ void main() {
     );
 
     expect(projection.source.locationPath, 'Office › Shelf 2 › Short Box 1');
-    expect(projection.source.ownedSummary?.notes, 'Newsstand copy');
+    expect(projection.source.collectionItemSummary?.notes, 'Newsstand copy');
   });
 
   test('library projection exposes bundle and release reference labels', () {
@@ -47,14 +47,14 @@ void main() {
       itemId: 'comic-2',
       kind: 'comic',
       title: 'Batman',
-      ownedItem: testOwnedItem(
+      collectionItem: testCollectionItem(
         id: 'owned-2',
         itemId: 'comic-2',
         bundleReleaseId: 'bundle-2',
         updatedAt: DateTime.utc(2026, 5, 23),
       ),
     );
-    const node1 = LibraryWorkRef(workId: 'comic-2');
+    const node1 = LibraryCatalogItemNodeRef(catalogItemId: 'comic-2');
     final dto1 = const GenericWorkspaceProjector().project(
       source: source1,
       entity: node1,
@@ -86,7 +86,7 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 23),
       ),
     );
-    const node2 = LibraryWorkRef(workId: 'comic-3');
+    const node2 = LibraryCatalogItemNodeRef(catalogItemId: 'comic-3');
     final dto2 = const GenericWorkspaceProjector().project(
       source: source2,
       entity: node2,

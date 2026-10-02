@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
@@ -81,8 +81,8 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => MangaOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
+    value: (item) => MangaCollectionItemProjection.fromDispatch(
+      item.source.collectionItemDispatch,
     )?.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
@@ -105,8 +105,8 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => MangaOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
+    value: (item) => MangaCollectionItemProjection.fromDispatch(
+      item.source.collectionItemDispatch,
     )?.condition,
   ),
   LibraryFilterDefinition<Object?>(

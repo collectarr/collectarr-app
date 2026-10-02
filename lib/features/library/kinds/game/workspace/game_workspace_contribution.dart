@@ -3,18 +3,18 @@ import '../config/game_kind_capabilities.dart';
 
 final gameKindWorkspace = TypedLibraryKindWorkspace<GameWorkspaceDto>(
   entityWorkspaces: {
-    LibraryEntityScope.work: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
-      scope: LibraryEntityScope.work,
+    LibraryEntityScope.catalogItem: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
+      scope: LibraryEntityScope.catalogItem,
       fields: gameCatalogItemWorkspaceSchema.toRegistry(),
       projector: const GameWorkspaceProjector(
-        expectedScope: LibraryEntityScope.work,
+        expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
-      scope: LibraryEntityScope.copy,
+    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
+      scope: LibraryEntityScope.collectionItem,
       fields: gameCopyWorkspaceSchema.toRegistry(),
       projector: const GameWorkspaceProjector(
-        expectedScope: LibraryEntityScope.copy,
+        expectedScope: LibraryEntityScope.collectionItem,
       ),
     ),
   },

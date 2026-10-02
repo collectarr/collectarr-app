@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
@@ -12,14 +13,14 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_un
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
 
-final tvDevSeedContributor = TypedDevSeedKindContributor<TvOwnedItem>(
+final tvDevSeedContributor = TypedDevSeedKindContributor<TvCollectionItem>(
   kind: CatalogMediaKind.tv,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -37,11 +38,11 @@ final tvDevSeedContributor = TypedDevSeedKindContributor<TvOwnedItem>(
   validateCatalog: validateTvSeedCatalog,
   validateCatalogGraph: validateTvSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: tvSeedOwnedItems,
-  ownedSummaryTyped: TvOwnedItemProjection.toSummary,
+  collectionItemsTyped: tvSeedCollectionItems,
+  collectionItemSummaryTyped: TvCollectionItemProjection.toSummary,
   validateOwnedTyped: validateTvSeedOwned,
   seedOwnedTyped: (db, now) =>
-      TvOwnedRepository(db).upsertAll(tvSeedOwnedItems(now)),
+      TvOwnedRepository(db).upsertAll(tvSeedCollectionItems(now)),
   trackingRecords: tvSeedTrackingStates,
   trackingUnits: tvSeedTrackingUnits,
   watchSessions: tvSeedWatchSessions,
@@ -138,7 +139,7 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateTvSeedOwned(TvOwnedItem item) {
+List<String> validateTvSeedOwned(TvCollectionItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
@@ -214,7 +215,7 @@ Iterable<TvTrackingUnit> tvSeedTrackingUnits(
           id: 'seed-unit-tv-${item.id}-$episodeId',
           targetRef: CatalogEntityRef(
             kind: item.mediaKind,
-            entityType: CatalogEntityTypeId.root,
+            entityType: CatalogEntityTypeId.catalogItem,
             id: item.id,
           ),
           seasonNumber: seasonNumber,
@@ -1017,10 +1018,10 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
     ];
 
-List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
+List<TvCollectionItem> tvSeedCollectionItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.tv, 15))
-        TvOwnedItem(
-          id: TvOwnedCopyId('seed-owned-$itemId'),
+        TvCollectionItem(
+          id: CollectionItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.tv, itemId),
           createdAt: now.subtract(const Duration(days: 280)),
           updatedAt: now,
@@ -1038,7 +1039,6 @@ List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
           pricePaidCents: 4999,
           currency: 'USD',
           personalNotes: 'Complete box set in pristine condition.',
-          quantity: 1,
           purchaseStore: 'Amazon',
           collectionStatus: 'collected',
         ),
@@ -1059,7 +1059,7 @@ List<TrackingStorageRecord> tvSeedTrackingStates(DateTime now) => [
               '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
             },
           ),
-          ownedRef: seedOwnedRef(
+          collectionItemRef: seedCollectionItemRef(
             CatalogMediaKind.tv,
             'seed-owned-seed-tv-${seedOrdinal2(i)}',
           ),

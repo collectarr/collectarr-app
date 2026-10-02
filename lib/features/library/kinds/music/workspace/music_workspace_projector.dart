@@ -16,7 +16,7 @@ final class MusicCatalogItemWorkspaceProjector
     LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
-    requireEntityScope(entity, LibraryEntityScope.work);
+    requireEntityScope(entity, LibraryEntityScope.catalogItem);
     final catalog = _catalogFor(source);
     return MusicCatalogItemWorkspaceDto(
       common: _musicCommonProjection(source, entity, catalog),
@@ -30,20 +30,20 @@ final class MusicCatalogItemWorkspaceProjector
   }
 }
 
-final class MusicOwnedCopyWorkspaceProjector
+final class MusicCollectionItemWorkspaceProjector
     implements LibraryEntityWorkspaceProjector<MusicWorkspaceProjection> {
-  const MusicOwnedCopyWorkspaceProjector();
+  const MusicCollectionItemWorkspaceProjector();
 
   @override
-  MusicOwnedCopyWorkspaceDto project({
+  MusicCollectionItemWorkspaceDto project({
     required LibraryWorkspaceSource source,
     required LibraryEntityRef entity,
     LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
-    requireEntityScope(entity, LibraryEntityScope.copy);
+    requireEntityScope(entity, LibraryEntityScope.collectionItem);
     final catalog = _catalogFor(source);
-    return MusicOwnedCopyWorkspaceDto(
+    return MusicCollectionItemWorkspaceDto(
       common: _musicCommonProjection(source, entity, catalog),
       personal: PersonalCopyProjection.fromShelf(
         source,

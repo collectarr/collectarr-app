@@ -15,10 +15,8 @@ const _editContexts = <LibraryEditPresentationContext>[
     hasWishlistContext: true,
     isDigitalFormat: false,
     hasPhysicalFormats: true,
-    hasOwnedTargetOptions: true,
-    hasAdditionalTargetOptions: true,
     hasCustomFields: true,
-    scope: LibraryEntityScope.work,
+    scope: LibraryEntityScope.catalogItem,
   ),
   LibraryEditPresentationContext(
     isOwned: false,
@@ -27,10 +25,8 @@ const _editContexts = <LibraryEditPresentationContext>[
     hasWishlistContext: false,
     isDigitalFormat: true,
     hasPhysicalFormats: false,
-    hasOwnedTargetOptions: false,
-    hasAdditionalTargetOptions: false,
     hasCustomFields: false,
-    scope: LibraryEntityScope.work,
+    scope: LibraryEntityScope.catalogItem,
   ),
   LibraryEditPresentationContext(
     isOwned: false,
@@ -39,10 +35,8 @@ const _editContexts = <LibraryEditPresentationContext>[
     hasWishlistContext: false,
     isDigitalFormat: false,
     hasPhysicalFormats: true,
-    hasOwnedTargetOptions: false,
-    hasAdditionalTargetOptions: false,
     hasCustomFields: true,
-    scope: LibraryEntityScope.work,
+    scope: LibraryEntityScope.catalogItem,
   ),
 ];
 

@@ -98,7 +98,7 @@ void main() {
       ).asShelfCatalogItem),
       locationPath: 'Office > Shelf 2 > Short Box 1',
     );
-    const node = LibraryWorkRef(workId: 'comic-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
     final dto = const ComicWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -136,13 +136,13 @@ void main() {
       itemId: 'comic-1',
       kind: 'comic',
       title: 'Batman',
-      ownedItem: testOwnedItem(
+      collectionItem: testCollectionItem(
         id: 'owned-1',
         itemId: 'comic-1',
         tags: 'Signed, Slabbed, Variant',
       ),
     );
-    const node = LibraryWorkRef(workId: 'comic-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
     final dto = const ComicWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -207,13 +207,13 @@ void main() {
       itemId: 'comic-1',
       kind: 'comic',
       title: 'Batman',
-      ownedItem: testOwnedItem(
+      collectionItem: testCollectionItem(
         id: 'owned-1',
         itemId: 'comic-1',
         tags: 'Signed, Variant',
       ),
     );
-    const node1 = LibraryWorkRef(workId: 'comic-1');
+    const node1 = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
     final dto1 = const ComicWorkspaceProjector().project(
       source: source1,
       entity: node1,
@@ -228,13 +228,13 @@ void main() {
       itemId: 'comic-2',
       kind: 'comic',
       title: 'Robin',
-      ownedItem: testOwnedItem(
+      collectionItem: testCollectionItem(
         id: 'owned-2',
         itemId: 'comic-2',
         tags: 'variant, Sketched',
       ),
     );
-    const node2 = LibraryWorkRef(workId: 'comic-2');
+    const node2 = LibraryCatalogItemNodeRef(catalogItemId: 'comic-2');
     final dto2 = const ComicWorkspaceProjector().project(
       source: source2,
       entity: node2,

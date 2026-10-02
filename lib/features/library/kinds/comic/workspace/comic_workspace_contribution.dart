@@ -3,18 +3,18 @@ import '../config/comic_kind_capabilities.dart';
 
 final comicKindWorkspace = TypedLibraryKindWorkspace<ComicWorkspaceDto>(
   entityWorkspaces: {
-    LibraryEntityScope.work: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
-      scope: LibraryEntityScope.work,
+    LibraryEntityScope.catalogItem: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
+      scope: LibraryEntityScope.catalogItem,
       fields: comicCatalogItemWorkspaceSchema.toRegistry(),
       projector: const ComicWorkspaceProjector(
-        expectedScope: LibraryEntityScope.work,
+        expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
-      scope: LibraryEntityScope.copy,
+    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
+      scope: LibraryEntityScope.collectionItem,
       fields: comicCopyWorkspaceSchema.toRegistry(),
       projector: const ComicWorkspaceProjector(
-        expectedScope: LibraryEntityScope.copy,
+        expectedScope: LibraryEntityScope.collectionItem,
       ),
     ),
   },

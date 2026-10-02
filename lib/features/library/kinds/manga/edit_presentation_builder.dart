@@ -75,7 +75,6 @@ class MangaLibraryEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const MangaLibraryEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
@@ -84,8 +83,6 @@ class MangaLibraryEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _mangaCombinedTabs,
           trackedTabs: _mangaCombinedTabs,
           catalogTabs: _mangaCombinedTabs,

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -22,7 +22,7 @@ typedef DevSeedCatalogBarcodeValidator = void Function(
 typedef DevSeedCatalogGraphValidator = List<String> Function(
   CatalogItemDto item,
 );
-typedef DevSeedOwnedSummaryFactory = List<OwnedCopySummary> Function(
+typedef DevSeedCollectionItemSummaryFactory = List<CollectionItemSummary> Function(
   DateTime now,
 );
 typedef DevSeedOwnedQualityValidator = List<String> Function(DateTime now);
@@ -78,14 +78,14 @@ final class DevSeedCatalogDefaults {
 /// kind repositories and tracking models.
 abstract interface class DevSeedKindContributor {
   CatalogMediaKind get kind;
-  bool get trackingRequiresOwnedRef;
+  bool get trackingRequiresCollectionItemRef;
   DevSeedCatalogDefaults get catalogDefaults;
   DevSeedCatalogFactory get catalogItems;
   DevSeedItemEnricher get enrichItem;
   DevSeedCatalogQualityValidator get validateCatalog;
   DevSeedCatalogGraphValidator get validateCatalogGraph;
   DevSeedCatalogBarcodeValidator get validateBarcode;
-  DevSeedOwnedSummaryFactory get ownedSummaries;
+  DevSeedCollectionItemSummaryFactory get ownedSummaries;
   DevSeedOwnedQualityValidator get validateOwned;
   DevSeedOwnedSeeder get seedOwned;
   DevSeedTrackingFactory get trackingRecords;
@@ -100,7 +100,7 @@ abstract interface class DevSeedKindContributor {
 /// exposes the small [DevSeedKindContributor] interface. The only erased
 /// boundary is this adapter; the seed declarations and validators remain
 /// concrete and cannot accidentally validate the wrong Owned model.
-final class TypedDevSeedKindContributor<TOwned extends Object>
+final class TypedDevSeedKindContributor<TCollectionItem extends Object>
     implements DevSeedKindContributor {
   const TypedDevSeedKindContributor({
     required this.kind,
@@ -110,12 +110,12 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
     required this.validateCatalog,
     required this.validateCatalogGraph,
     required this.validateBarcode,
-    required this.ownedItemsTyped,
-    required this.ownedSummaryTyped,
+    required this.collectionItemsTyped,
+    required this.collectionItemSummaryTyped,
     required this.validateOwnedTyped,
     required this.seedOwnedTyped,
     required this.trackingRecords,
-    this.trackingRequiresOwnedRef = true,
+    this.trackingRequiresCollectionItemRef = true,
     this.trackingUnits,
     this.watchSessions,
     this.seedDatabase,
@@ -124,7 +124,7 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
   @override
   final CatalogMediaKind kind;
   @override
-  final bool trackingRequiresOwnedRef;
+  final bool trackingRequiresCollectionItemRef;
   @override
   final DevSeedCatalogDefaults catalogDefaults;
   @override
@@ -137,9 +137,10 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
   final DevSeedCatalogGraphValidator validateCatalogGraph;
   @override
   final DevSeedCatalogBarcodeValidator validateBarcode;
-  final List<TOwned> Function(DateTime now) ownedItemsTyped;
-  final OwnedCopySummary Function(TOwned item) ownedSummaryTyped;
-  final List<String> Function(TOwned item) validateOwnedTyped;
+  final List<TCollectionItem> Function(DateTime now) collectionItemsTyped;
+  final CollectionItemSummary Function(TCollectionItem item)
+      collectionItemSummaryTyped;
+  final List<String> Function(TCollectionItem item) validateOwnedTyped;
   final DevSeedOwnedSeeder seedOwnedTyped;
   @override
   final DevSeedTrackingFactory trackingRecords;
@@ -151,8 +152,8 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
   final DevSeedDatabaseSeeder? seedDatabase;
 
   @override
-  DevSeedOwnedSummaryFactory get ownedSummaries => (now) {
-        return ownedItemsTyped(now).map(ownedSummaryTyped).toList(
+  DevSeedCollectionItemSummaryFactory get ownedSummaries => (now) {
+        return collectionItemsTyped(now).map(collectionItemSummaryTyped).toList(
               growable: false,
             );
       };
@@ -160,7 +161,7 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
   @override
   DevSeedOwnedQualityValidator get validateOwned => (now) {
         final issues = <String>[];
-        for (final item in ownedItemsTyped(now)) {
+        for (final item in collectionItemsTyped(now)) {
           issues.addAll(validateOwnedTyped(item));
         }
         return issues;

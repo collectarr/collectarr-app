@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -188,7 +188,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _controller = LibraryAddSessionController(
       kind: widget.type.kind,
       type: widget.type,
-      ownedMutations: ref.read(ownedItemMutationsProvider),
+      ownedMutations: ref.read(collectionItemMutationsProvider),
       wishlistMutations: ref.read(wishlistMutationsProvider),
       trackingMutations: ref.read(trackingMutationsProvider),
       api: ref.read(apiClientProvider),
@@ -493,7 +493,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       ref.read(localDatabaseProvider),
     ).listDefinitions(
       mediaKind: widget.type.kind.apiValue,
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetScope: CustomFieldTargetScope.collectionItem,
     );
     if (!mounted) return;
     setState(() => _manualCustomFieldDefinitions = definitions);
@@ -570,7 +570,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (target != LibraryAddTarget.owned && hasOwnedOnlyDetails) {
       showAppToast(
         context,
-        'Custom fields and personal images are saved with an owned copy. '
+        'Custom fields and personal images are saved with a collection item. '
         'Choose Add to Collection or clear those fields first.',
         tone: AppToastTone.error,
       );
@@ -601,7 +601,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               _manualDraft.personalNotesController.text,
             ) ??
             current.personalNotes,
-        quantity: current.quantity,
         tags: _textOrNull(_manualDraft.tagsController.text) ??
             _controller.state.defaultTags ??
             current.tags,
@@ -614,11 +613,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (!mounted) return null;
     final success = await _controller.submitSelectedItem(
       candidate,
-      onOwnedCopyCreated: target == LibraryAddTarget.owned
-          ? (ownedRef) async {
+      onCollectionItemCreated: target == LibraryAddTarget.owned
+          ? (collectionItemRef) async {
               try {
                 await _persistManualOwnedDetails(
-                  ownedRef: ownedRef,
+                  collectionItemRef: collectionItemRef,
                   catalogRef: candidate.reference,
                 );
               } catch (error) {
@@ -659,8 +658,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               case final imageData?)
             ItemImage(
               id: edit.id,
-              ownedRef: existingById[edit.id]?.ownedRef ??
-                  OwnedCopyRef.fromKey(
+              collectionItemRef: existingById[edit.id]?.collectionItemRef ??
+                  CollectionItemRef.fromKey(
                     '${widget.type.kind.apiValue}:draft:draft',
                   ),
               imageData: imageData,
@@ -674,7 +673,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   Future<void> _persistManualOwnedDetails({
-    required OwnedCopyRef ownedRef,
+    required CollectionItemRef collectionItemRef,
     required CatalogEntityRef catalogRef,
   }) async {
     final now = DateTime.now().toUtc();
@@ -691,8 +690,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       values.add(
         CustomFieldValue(
           id: const Uuid().v4(),
-          targetId: ownedRef.key,
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetId: collectionItemRef.key,
+          targetScope: CustomFieldTargetScope.collectionItem,
           catalogRef: catalogRef,
           fieldDefinitionId: definition.id,
           value: value,
@@ -706,7 +705,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
     final imageRepository = ItemImageRepository(db);
     for (final image in _manualDraft.itemImages) {
-      await imageRepository.add(image.copyWith(ownedRef: ownedRef));
+      await imageRepository.add(image.copyWith(collectionItemRef: collectionItemRef));
     }
   }
 

@@ -11,25 +11,25 @@ TransferableField mangaTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(MangaOwnedItem item) read,
-  required MangaOwnedItem Function(MangaOwnedItem item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.copy,
+  required String? Function(MangaCollectionItem item) read,
+  required MangaCollectionItem Function(MangaCollectionItem item, String? value) write,
+  LibraryEntityScope scope = LibraryEntityScope.collectionItem,
 }) {
-  return TransferableField.typed<MangaOwnedItem>(
+  return TransferableField.typed<MangaCollectionItem>(
     key: key,
     label: label,
     icon: icon,
     type: type,
     scope: scope,
-    decode: (value) => value as MangaOwnedItem,
+    decode: (value) => value as MangaCollectionItem,
     read: read,
     write: write,
   );
 }
 
 final mangaUniversalTransferableFields =
-    TransferableField.universalForTyped<MangaOwnedItem>(
-  decode: (value) => value as MangaOwnedItem,
+    TransferableField.universalForTyped<MangaCollectionItem>(
+  decode: (value) => value as MangaCollectionItem,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,
@@ -51,10 +51,6 @@ final mangaUniversalTransferableFields =
   readSellPriceCents: (item) => item.sellPriceCents?.toString(),
   writeSellPriceCents: (item, value) => item.copyWith(
     sellPriceCents: value == null ? null : int.tryParse(value),
-  ),
-  readQuantity: (item) => item.quantity.toString(),
-  writeQuantity: (item, value) => item.copyWith(
-    quantity: value == null ? 1 : int.tryParse(value) ?? 1,
   ),
   readIndexNumber: (item) => item.indexNumber?.toString(),
   writeIndexNumber: (item, value) => item.copyWith(
@@ -116,7 +112,7 @@ final mangaTransferableFields = <TransferableField>[
     label: 'Dust jacket',
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
-    scope: LibraryEntityScope.copy,
+    scope: LibraryEntityScope.collectionItem,
     read: (item) => item.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
@@ -129,7 +125,7 @@ final mangaTransferableFields = <TransferableField>[
     label: 'Obi strip',
     icon: Icons.bookmark_border,
     type: TransferableFieldType.boolean,
-    scope: LibraryEntityScope.copy,
+    scope: LibraryEntityScope.collectionItem,
     read: (item) => item.details.obiStripPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(

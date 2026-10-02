@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
@@ -25,7 +25,7 @@ void main() {
 
     final dto = const BoardGameWorkspaceProjector().project(
       source: source,
-      entity: const LibraryWorkRef(workId: 'boardgame-1'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'boardgame-1'),
     );
 
     expect(dto.title, 'Catan');
@@ -49,7 +49,7 @@ void main() {
           'max_players': 4,
         },
       ).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
+      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
         id: 'owned-1',
         itemId: 'boardgame-1',
         kind: 'boardgame',
@@ -58,7 +58,7 @@ void main() {
     const projector = BoardGameWorkspaceProjector();
     final catalogDto = projector.project(
       source: source,
-      entity: const LibraryWorkRef(workId: 'boardgame-1'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'boardgame-1'),
     );
 
     expect(catalogDto.boardgame.title, 'Catan — Deluxe Edition');
@@ -72,13 +72,11 @@ void main() {
 
     final copyDto = projector.project(
       source: source,
-      entity: const LibraryCopyRef(
-        workId: 'boardgame-1',
-        releaseId: 'boardgame-1',
-        ownedRef: OwnedCopyRef(
+      entity: const LibraryCollectionItemNodeRef(
+        catalogItemId: 'boardgame-1',
+        collectionItemRef: CollectionItemRef(
           kind: CatalogMediaKind.boardgame,
-          itemId: 'boardgame-1',
-          id: OwnedCopyId('owned-1'),
+          id: CollectionItemId('owned-1'),
         ),
       ),
     );
@@ -105,12 +103,12 @@ void main() {
     final item =
         libraryKindWorkspaceForKind(CatalogMediaKind.boardgame).project(
       source: source,
-      node: const LibraryWorkRef(workId: 'boardgame-1'),
+      node: const LibraryCatalogItemNodeRef(catalogItemId: 'boardgame-1'),
     );
     final inspector = LibraryInspectorRequest(
       type: const BoardgameRegistration(),
       item: item,
-      ownedItem: null,
+      collectionItem: null,
       accent: Colors.amber,
     );
 

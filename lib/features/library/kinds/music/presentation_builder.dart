@@ -198,7 +198,7 @@ class MusicLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.workId),
+          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (artist != null)

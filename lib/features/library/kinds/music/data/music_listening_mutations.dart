@@ -25,7 +25,7 @@ final class MusicListeningMutations {
     final deleted = MusicListenEvent(
       id: event.id,
       catalogRef: event.catalogRef,
-      ownedRef: event.ownedRef,
+      collectionItemRef: event.collectionItemRef,
       listenedAt: event.listenedAt,
       startedAt: event.startedAt,
       finishedAt: event.finishedAt,

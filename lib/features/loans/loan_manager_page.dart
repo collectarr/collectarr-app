@@ -1,13 +1,14 @@
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/barcode/barcode_batch_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -31,8 +32,10 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   var _filter = _LoanFilter.active;
   var _loading = true;
   List<Loan> _loans = const [];
-  Map<OwnedCopyRef, OwnedCopySummary> _ownedByRef = const {};
-  Map<CatalogEntityRef, List<OwnedCopySummary>> _ownedByCatalogRef = const {};
+  Map<CollectionItemRef, CollectionItemSummary> _ownedByRef = const {};
+  Map<CollectionItemRef, CatalogDisplaySummary> _catalogByOwnedRef = const {};
+  Map<CatalogEntityRef, List<CollectionItemSummary>> _ownedByCatalogRef =
+      const {};
 
   @override
   void initState() {
@@ -53,13 +56,14 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     });
     final db = ref.read(localDatabaseProvider);
     final loansRepo = LoanRepository(db);
-    final ownedRepo = OwnedItemsRepository(db);
+    final ownedRepo = CollectionItemsRepository(db);
     final locationRepo = LocationRepository(db);
 
     final loans = await loansRepo.getAllLoans();
-    final ownedItems = await ownedRepo.listActiveSummaries();
-    final catalogRefs =
-        ownedItems.map((item) => item.catalogRef).whereType<CatalogEntityRef>();
+    final collectionItems = await ownedRepo.listActiveSummaries();
+    final catalogRefs = collectionItems
+        .map((item) => item.catalogRef)
+        .whereType<CatalogEntityRef>();
     final catalogByRef =
         await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
     final locations = await locationRepo.getAll();
@@ -68,25 +72,19 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
         location.id: location.fullPath(locations),
     };
     final summaries = [
-      for (final item in ownedItems)
+      for (final item in collectionItems)
         item.copyWith(
-          title: item.catalogRef == null
-              ? item.title
-              : catalogByRef[item.catalogRef!]?.primaryLabel ?? item.title,
-          imageUrl: item.catalogRef == null
-              ? null
-              : catalogByRef[item.catalogRef!]?.imageUrl,
           locationLabel: item.locationLabel == null
               ? null
               : locationLabelsById[item.locationLabel!],
         ),
     ];
-    final ownedByCatalogRef = <CatalogEntityRef, List<OwnedCopySummary>>{};
+    final ownedByCatalogRef = <CatalogEntityRef, List<CollectionItemSummary>>{};
     for (final item in summaries) {
       final catalogRef = item.catalogRef;
       if (catalogRef != null) {
         ownedByCatalogRef
-            .putIfAbsent(catalogRef, () => <OwnedCopySummary>[])
+            .putIfAbsent(catalogRef, () => <CollectionItemSummary>[])
             .add(item);
       }
     }
@@ -97,6 +95,11 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       _loans = loans;
       _ownedByRef = {
         for (final item in summaries) item.ref: item,
+      };
+      _catalogByOwnedRef = {
+        for (final item in summaries)
+          if (item.catalogRef case final catalogRef?)
+            if (catalogByRef[catalogRef] case final summary?) item.ref: summary,
       };
       _ownedByCatalogRef = ownedByCatalogRef;
       _loading = false;
@@ -121,11 +124,11 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       if (query.isEmpty) {
         return true;
       }
-      final owned = _ownedByRef[loan.ownedRef];
-      final title = owned?.title ?? '';
+      final owned = _ownedByRef[loan.collectionItemRef];
+      final title = owned == null ? '' : _catalogTitleFor(owned);
       return loan.borrowerName.toLowerCase().contains(query) ||
           (loan.notes ?? '').toLowerCase().contains(query) ||
-          loan.ownedRef.id.value.toLowerCase().contains(query) ||
+          loan.collectionItemRef.id.value.toLowerCase().contains(query) ||
           title.toLowerCase().contains(query);
     }).toList(growable: false);
     filtered.sort((a, b) {
@@ -157,30 +160,31 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     });
   }
 
-  Future<OwnedCopySummary?> _resolveOwnedItemFromBarcode(String barcode) async {
+  Future<CollectionItemSummary?> _resolveCollectionItemFromBarcode(
+      String barcode) async {
     final catalog = await CatalogLookupRepository(
       ref.read(localDatabaseProvider),
     ).resolve(CatalogLookupQuery(value: barcode));
     if (catalog == null) {
       return null;
     }
-    final ownedItems = _ownedByCatalogRef[catalog.ref] ?? const [];
-    if (ownedItems.isEmpty) {
+    final collectionItems = _ownedByCatalogRef[catalog.ref] ?? const [];
+    if (collectionItems.isEmpty) {
       return null;
     }
-    if (ownedItems.length == 1) {
-      return ownedItems.single;
+    if (collectionItems.length == 1) {
+      return collectionItems.single;
     }
-    return _pickOwnedItem(ownedItems, catalog.title);
+    return _pickCollectionItem(collectionItems, catalog.title);
   }
 
-  Future<OwnedCopySummary?> _pickOwnedItem(
-      List<OwnedCopySummary> ownedItems, String title) async {
-    return showDialog<OwnedCopySummary>(
+  Future<CollectionItemSummary?> _pickCollectionItem(
+      List<CollectionItemSummary> collectionItems, String title) async {
+    return showDialog<CollectionItemSummary>(
       context: context,
-      builder: (context) => _OwnedItemPickerDialog(
+      builder: (context) => _CollectionItemPickerDialog(
         title: title,
-        ownedItems: ownedItems,
+        collectionItems: collectionItems,
       ),
     );
   }
@@ -192,16 +196,16 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
           tone: AppToastTone.info);
       return;
     }
-    final ownedItem = await _resolveOwnedItemFromBarcode(barcode);
+    final collectionItem = await _resolveCollectionItemFromBarcode(barcode);
     if (!mounted) {
       return;
     }
-    if (ownedItem == null) {
-      showAppToast(context, 'No owned item found for barcode $barcode.',
+    if (collectionItem == null) {
+      showAppToast(context, 'No collection item found for barcode $barcode.',
           tone: AppToastTone.error);
       return;
     }
-    await _createLoan(ownedItem);
+    await _createLoan(collectionItem);
   }
 
   Future<void> _returnByBarcode() async {
@@ -211,17 +215,18 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
           tone: AppToastTone.info);
       return;
     }
-    final ownedItem = await _resolveOwnedItemFromBarcode(barcode);
+    final collectionItem = await _resolveCollectionItemFromBarcode(barcode);
     if (!mounted) {
       return;
     }
-    if (ownedItem == null) {
-      showAppToast(context, 'No owned item found for barcode $barcode.',
+    if (collectionItem == null) {
+      showAppToast(context, 'No collection item found for barcode $barcode.',
           tone: AppToastTone.error);
       return;
     }
     final activeLoans = _loans
-        .where((loan) => loan.ownedRef == ownedItem.ref && loan.isActive)
+        .where((loan) =>
+            loan.collectionItemRef == collectionItem.ref && loan.isActive)
         .toList();
     if (activeLoans.isEmpty) {
       showAppToast(context, 'No active loan found for that item.',
@@ -230,7 +235,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     }
     final loan = activeLoans.length == 1
         ? activeLoans.single
-        : await _pickLoan(activeLoans, ownedItem.title);
+        : await _pickLoan(activeLoans, _catalogTitleFor(collectionItem));
     if (loan == null || !mounted) {
       return;
     }
@@ -248,8 +253,8 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     );
   }
 
-  Future<void> _createLoan(OwnedCopySummary ownedItem) async {
-    final catalogTitle = ownedItem.title;
+  Future<void> _createLoan(CollectionItemSummary collectionItem) async {
+    final catalogTitle = _catalogTitleFor(collectionItem);
     final draft = await showDialog<_LoanDraft>(
       context: context,
       builder: (context) => _LoanCreateDialog(
@@ -264,7 +269,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     await repo.create(
       Loan(
         id: DateTime.now().microsecondsSinceEpoch.toString(),
-        ownedRef: ownedItem.ref,
+        collectionItemRef: collectionItem.ref,
         borrowerName: draft.borrowerName,
         lentDate: draft.lentDate,
         dueDate: draft.dueDate,
@@ -360,9 +365,13 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   }
 
   String _loanTitle(Loan loan) {
-    final owned = _ownedByRef[loan.ownedRef];
-    return owned?.title ?? 'Unknown item';
+    final owned = _ownedByRef[loan.collectionItemRef];
+    return owned == null ? 'Unknown item' : _catalogTitleFor(owned);
   }
+
+  String _catalogTitleFor(CollectionItemSummary item) =>
+      _catalogByOwnedRef[item.ref]?.primaryLabel ??
+      'Catalog item ${item.ref.id.value}';
 }
 
 class _LoanSummaryRow extends StatelessWidget {
@@ -721,14 +730,14 @@ class _LoanRow extends StatelessWidget {
   }
 }
 
-class _OwnedItemPickerDialog extends StatelessWidget {
-  const _OwnedItemPickerDialog({
+class _CollectionItemPickerDialog extends StatelessWidget {
+  const _CollectionItemPickerDialog({
     required this.title,
-    required this.ownedItems,
+    required this.collectionItems,
   });
 
   final String title;
-  final List<OwnedCopySummary> ownedItems;
+  final List<CollectionItemSummary> collectionItems;
 
   @override
   Widget build(BuildContext context) {
@@ -738,10 +747,10 @@ class _OwnedItemPickerDialog extends StatelessWidget {
         width: 520,
         child: ListView.separated(
           shrinkWrap: true,
-          itemCount: ownedItems.length,
+          itemCount: collectionItems.length,
           separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
-            final item = ownedItems[index];
+            final item = collectionItems[index];
             return ListTile(
               title: Text(item.ownerLabel ?? 'Copy ${item.ref.id.value}'),
               subtitle: Text([

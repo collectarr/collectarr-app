@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_merge_service.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -93,11 +94,11 @@ void main() {
           ),
         );
     await ComicOwnedRepository(db).upsert(
-      ComicOwnedItem(
-        id: ComicOwnedCopyId('owned-1'),
+      ComicCollectionItem(
+        id: CollectionItemId('owned-1'),
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: const CatalogEntityTypeId('owned_copy'),
+          entityType: const CatalogEntityTypeId('collection_item'),
           id: 'item-1',
         ),
         condition: 'Near Mint',
@@ -152,11 +153,11 @@ void main() {
 
   test('owned value merge dispatches to the typed kind repository', () async {
     await ComicOwnedRepository(db).upsert(
-      ComicOwnedItem(
-        id: const ComicOwnedCopyId('owned-merge-1'),
+      ComicCollectionItem(
+        id: const CollectionItemId('owned-merge-1'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('owned_copy'),
+          entityType: CatalogEntityTypeId('collection_item'),
           id: 'item-merge-1',
         ),
         condition: 'Near Mint',
@@ -180,7 +181,7 @@ void main() {
 
     expect(
       (await ComicOwnedRepository(db)
-              .findById(const ComicOwnedCopyId('owned-merge-1')))
+              .findById(const CollectionItemId('owned-merge-1')))
           ?.condition,
       'Fine',
     );

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
@@ -113,29 +112,6 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   List<ItemImage> get comicItemImages => draft.itemImages;
-
-  @override
-  LibraryEditPresentationState get comicEditPresentation =>
-      comicKindEditCapabilities.presentationCapability.presentation.builder
-          .build(
-        context: LibraryEditPresentationContext(
-          isOwned: draft.isOwned,
-          isTrackingOnly: draft.isTrackingOnly,
-          hasTrackingContext: draft.hasTrackingContext,
-          hasWishlistContext: draft.hasWishlistContext,
-          isDigitalFormat: (_comicDraft
-                      ?.comicEdit.physicalFormatLabelController.text
-                      .trim()
-                      .toLowerCase() ??
-                  '') ==
-              'digital',
-          hasPhysicalFormats: true,
-          hasOwnedTargetOptions: false,
-          hasAdditionalTargetOptions: false,
-          hasCustomFields: draft.customFieldDefinitions.isNotEmpty,
-          scope: scope,
-        ),
-      );
 
   @override
   List<EditableComicCreator> get comicCreators =>
@@ -386,42 +362,12 @@ class ComicEditHostAdapter implements ComicEditHost {
   }
 
   @override
-  String? get comicSelectedBundleReleaseId =>
-      draft.personal.selectedOwnedTargetRef?.entityType.apiValue ==
-              'bundle_release'
-          ? draft.personal.selectedOwnedTargetRef?.id
-          : null;
-
-  @override
-  set comicSelectedBundleReleaseId(String? value) {
-    final id = value?.trim();
-    draft.personal.selectedOwnedTargetRef = id == null || id.isEmpty
-        ? null
-        : CatalogEntityRef(
-            kind: draft.type.kind,
-            entityType: const CatalogEntityTypeId('bundle_release'),
-            id: id,
-            rootId: draft.kindItem.reference.id,
-          );
-    markDirty();
-  }
-
-  @override
   bool get comicShowPhysicalOwnedFields =>
       draft.isOwned &&
       (_comicDraft?.comicEdit.physicalFormatLabelController.text
               .trim()
               .toLowerCase() !=
           'digital');
-
-  @override
-  String get comicSelectedOwnedAnchorType =>
-      switch (draft.personal.selectedOwnedTargetRef?.entityType.apiValue) {
-        'edition' => 'edition',
-        'release' => 'variant',
-        'bundle_release' => 'bundle_release',
-        _ => 'item',
-      };
 
   @override
   List<ItemImageEdit> get comicItemImageEdits => draft.itemImageEdits;
@@ -662,38 +608,10 @@ class ComicEditHostAdapter implements ComicEditHost {
   }
 
   @override
-  Widget buildComicOwnershipAnchorSelectionField() {
-    return const SizedBox.shrink();
-  }
-
-  @override
-  Widget buildComicEditionSelectionField() {
-    return const SizedBox.shrink();
-  }
-
-  @override
-  Widget buildComicVariantSelectionField() {
-    return const SizedBox.shrink();
-  }
-
-  @override
-  Widget buildComicBundleReleaseSelectionField({
-    Key? fieldKey,
-    required String label,
-    required String? selectedBundleReleaseId,
-    required ValueChanged<String?> onChanged,
-  }) {
-    return const SizedBox.shrink();
-  }
-
-  @override
   TextEditingController get comicIndexNumberController =>
       draft.personal.indexNumberController;
 
   @override
-  TextEditingController get comicQuantityController =>
-      draft.personal.quantityController;
-
   @override
   String? get comicCollectionStatus => draft.personal.collectionStatus;
 

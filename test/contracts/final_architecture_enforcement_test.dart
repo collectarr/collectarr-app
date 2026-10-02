@@ -97,9 +97,9 @@ void main() {
 
   test('every kind has strict Work/Release/Copy architecture contributors', () {
     const scopes = <LibraryEntityScope>[
-      LibraryEntityScope.work,
+      LibraryEntityScope.catalogItem,
       LibraryEntityScope.release,
-      LibraryEntityScope.copy,
+      LibraryEntityScope.collectionItem,
     ];
 
     for (final LibraryKindRegistration registration
@@ -171,8 +171,8 @@ void main() {
       final source = File(path).readAsStringSync();
       expect(source, isNot(contains('CatalogMediaKind.music')), reason: path);
       expect(source, isNot(contains('CatalogMediaKind.game')), reason: path);
-      expect(source, isNot(contains('MusicOwnedItem')), reason: path);
-      expect(source, isNot(contains('GameOwnedItem')), reason: path);
+      expect(source, isNot(contains('MusicCollectionItem')), reason: path);
+      expect(source, isNot(contains('GameCollectionItem')), reason: path);
       expect(source, isNot(contains('MusicTracking')), reason: path);
     }
   });
@@ -184,7 +184,7 @@ void main() {
         .where((file) => file.path.endsWith('_kind_configuration.dart'));
     for (final file in configurationFiles) {
       final source = file.readAsStringSync();
-      expect(source, isNot(contains('TransferOwnedItem')), reason: file.path);
+      expect(source, isNot(contains('TransferCollectionItem')), reason: file.path);
       expect(source, isNot(contains('HierarchyContractDiagnosticLabel')),
           reason: file.path);
     }

@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,11 +21,11 @@ void main() {
 
   test('round trips complete Anime copies and filters deleted copies',
       () async {
-    final item = AnimeOwnedItem(
-      id: const AnimeOwnedCopyId('owned-1'),
+    final item = AnimeCollectionItem(
+      id: const CollectionItemId('owned-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'anime-1',
       ),
       condition: 'Very Good',

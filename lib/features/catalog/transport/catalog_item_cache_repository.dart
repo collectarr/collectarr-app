@@ -8,7 +8,7 @@ import 'package:drift/drift.dart';
 /// Stores Core Catalog Items as complete, kind-owned flat payloads.
 ///
 /// This cache is the local transport source for catalog reads. Personal
-/// Owned Copies and activity live in their separate App-owned tables.
+/// Collection Items and activity live in their separate App-owned tables.
 final class CatalogItemCacheRepository {
   static const _maxIdsPerQuery = 400;
 
@@ -22,12 +22,7 @@ final class CatalogItemCacheRepository {
           CatalogItemsCacheCompanion.insert(
             catalogKind: item.mediaKind.apiValue,
             itemId: item.id,
-            payloadJson: jsonEncode({
-              'kind': item.mediaKind.apiValue,
-              'id': item.id,
-              'common': envelope.common.toJson(),
-              'payload': envelope.payload,
-            }),
+            payloadJson: jsonEncode(envelope.toJson()),
             fetchedAt: DateTime.now().toUtc(),
           ),
         );
@@ -44,12 +39,7 @@ final class CatalogItemCacheRepository {
           CatalogItemsCacheCompanion.insert(
             catalogKind: item.mediaKind.apiValue,
             itemId: item.id,
-            payloadJson: jsonEncode({
-              'kind': item.mediaKind.apiValue,
-              'id': item.id,
-              'common': envelope.common.toJson(),
-              'payload': envelope.payload,
-            }),
+            payloadJson: jsonEncode(envelope.toJson()),
             fetchedAt: DateTime.now().toUtc(),
           ),
           mode: InsertMode.insertOrReplace,

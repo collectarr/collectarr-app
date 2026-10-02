@@ -47,14 +47,14 @@ void main() {
           id: 'tv-expanse',
           mediaKind: CatalogMediaKind.tv,
         ),
-        kindMetadata: metadata,
+        kindData: metadata,
       ).asShelfCatalogItem),
-      ownedSummary: null,
+      collectionItemSummary: null,
     );
 
     final dto = const TvWorkspaceProjector().project(
       source: source,
-      entity: const LibraryWorkRef(workId: 'tv-expanse'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'tv-expanse'),
     );
 
     expect(dto, isA<TvWorkspaceDto>());

@@ -76,10 +76,9 @@ void main() {
         releaseDate: DateTime.utc(1990, 11, 1),
         barcode: '9784592132043',
       )).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
+      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
         id: 'owned-1',
         itemId: 'manga-1',
-        quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
     );
@@ -98,7 +97,7 @@ void main() {
       '9784592132043',
     ]);
     expect(
-      projection.ownedCellsBeforeQuantity(entry, clzFriendly: false),
+      projection.ownedCellsBeforeLocation(entry, clzFriendly: false),
       isEmpty,
     );
     expect(

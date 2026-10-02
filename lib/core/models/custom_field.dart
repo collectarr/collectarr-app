@@ -45,7 +45,7 @@ enum CustomFieldTargetScope {
   issue('issue'),
   episode('episode'),
   track('track'),
-  ownedCopy('ownedCopy'),
+  collectionItem('collectionItem'),
   trackingRecord('trackingEntry'),
   media('media'),
   all('all');

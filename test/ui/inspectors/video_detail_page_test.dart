@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -22,7 +22,7 @@ import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
-  OwnedCopySummary movieOwnedSummary({
+  CollectionItemSummary movieCollectionItemSummary({
     required String id,
     required String itemId,
   }) {
@@ -32,10 +32,10 @@ void main() {
       id: 'edition-4k',
       rootId: itemId,
     );
-    return OwnedCopySummary(
-      ref: OwnedCopyRef(
+    return CollectionItemSummary(
+      ref: CollectionItemRef(
         kind: CatalogMediaKind.movie,
-        id: OwnedCopyId(id),
+        id: CollectionItemId(id),
       ),
       title: 'Spirited Away',
       catalogRef: targetRef,
@@ -74,19 +74,19 @@ void main() {
           ),
         ],
       ).asShelfCatalogItem),
-      ownedSummary: movieOwnedSummary(
+      collectionItemSummary: movieCollectionItemSummary(
         id: 'owned-1',
         itemId: 'movie-1',
       ),
     );
-    const node1 = LibraryWorkRef(workId: 'movie-1');
+    const node1 = LibraryCatalogItemNodeRef(catalogItemId: 'movie-1');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)
         .project(source: source1, node: node1);
 
     final request = LibraryDetailPageRequest(
       type: type,
       item: item,
-      ownedSummary: null,
+      collectionItemSummary: null,
       accent: Colors.orange,
       onAddOwned: () {},
       onRemoveOwned: () {},
@@ -138,7 +138,7 @@ void main() {
         overrides: [
           collectionProvider.overrideWith(
             (ref) async => [
-              movieOwnedSummary(
+              movieCollectionItemSummary(
                 id: 'owned-1',
                 itemId: 'movie-1',
               ),
@@ -212,14 +212,14 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 25, 10),
       ),
     );
-    const node2 = LibraryWorkRef(workId: 'movie-1');
+    const node2 = LibraryCatalogItemNodeRef(catalogItemId: 'movie-1');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)
         .project(source: source2, node: node2);
 
     final request = LibraryDetailPageRequest(
       type: type,
       item: item,
-      ownedSummary: null,
+      collectionItemSummary: null,
       accent: Colors.orange,
       onAddOwned: () {},
       onRemoveOwned: () {},
@@ -270,7 +270,7 @@ void main() {
       ProviderScope(
         overrides: [
           collectionProvider.overrideWith(
-            (ref) async => const <OwnedCopySummary>[],
+            (ref) async => const <CollectionItemSummary>[],
           ),
           wishlistProvider.overrideWith(
             (ref) async => [
@@ -317,14 +317,14 @@ void main() {
         displayTitle: 'Castle in the Sky',
       ).asShelfCatalogItem),
     );
-    const node3 = LibraryWorkRef(workId: 'movie-2');
+    const node3 = LibraryCatalogItemNodeRef(catalogItemId: 'movie-2');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)
         .project(source: source3, node: node3);
 
     final request = LibraryDetailPageRequest(
       type: type,
       item: item,
-      ownedSummary: null,
+      collectionItemSummary: null,
       accent: Colors.orange,
       onAddOwned: () {},
       onRemoveOwned: () {},
@@ -375,7 +375,7 @@ void main() {
       ProviderScope(
         overrides: [
           collectionProvider.overrideWith(
-            (ref) async => const <OwnedCopySummary>[],
+            (ref) async => const <CollectionItemSummary>[],
           ),
           wishlistProvider.overrideWith((ref) async => const <WishlistItem>[]),
           watchSessionsProvider.overrideWith(

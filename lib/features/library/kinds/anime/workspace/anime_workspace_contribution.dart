@@ -3,25 +3,18 @@ import '../config/anime_kind_capabilities.dart';
 
 final animeKindWorkspace = TypedLibraryKindWorkspace<AnimeWorkspaceDto>(
   entityWorkspaces: {
-    LibraryEntityScope.work: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
-      scope: LibraryEntityScope.work,
+    LibraryEntityScope.catalogItem: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
+      scope: LibraryEntityScope.catalogItem,
       fields: animeWorkWorkspaceSchema.toRegistry(),
       projector: const AnimeWorkspaceProjector(
-        expectedScope: LibraryEntityScope.work,
+        expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.release: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
-      scope: LibraryEntityScope.release,
-      fields: animeReleaseWorkspaceSchema.toRegistry(),
-      projector: const AnimeWorkspaceProjector(
-        expectedScope: LibraryEntityScope.release,
-      ),
-    ),
-    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
-      scope: LibraryEntityScope.copy,
+    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
+      scope: LibraryEntityScope.collectionItem,
       fields: animeCopyWorkspaceSchema.toRegistry(),
       projector: const AnimeWorkspaceProjector(
-        expectedScope: LibraryEntityScope.copy,
+        expectedScope: LibraryEntityScope.collectionItem,
       ),
     ),
   },

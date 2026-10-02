@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
@@ -73,31 +73,29 @@ void main() {
       for (final kind in allActiveKinds) {
         final validDraft = _validDetailsFor(kind);
 
-        final itemRef = await coordinator.addOwnedItem(
-          typedAddOwnedItemCommand(
+        final itemRef = await coordinator.addCollectionItem(
+          typedAddCollectionItemCommand(
             catalogRef: _testCatalogRef(kind, 'test-${kind.apiValue}-1'),
             common: const LibraryAddCommonDraft(),
             details: validDraft,
-            targetRef: _testTargetRef(kind, 'test-${kind.apiValue}-1'),
           ),
         );
 
         final defaultDetails =
             ownedDetailsFixtureForTest(kind).defaultDetails();
         final storedPayload =
-            await OwnedItemsRepository(db).payloadByRef(itemRef);
+            await CollectionItemsRepository(db).payloadByRef(itemRef);
         expect(storedPayload, isNotNull);
         expect(storedPayload, isNotEmpty);
         expect(defaultDetails, isNot(isA<TestOwnedDetails>()));
 
         final mismatchedDetails = _mismatchedDetailsFor(kind);
         expect(
-          () => coordinator.addOwnedItem(
-            typedAddOwnedItemCommand(
+          () => coordinator.addCollectionItem(
+            typedAddCollectionItemCommand(
               catalogRef: _testCatalogRef(kind, 'test-${kind.apiValue}-bad'),
               common: const LibraryAddCommonDraft(),
               details: mismatchedDetails,
-              targetRef: _testTargetRef(kind, 'test-${kind.apiValue}-bad'),
             ),
           ),
           throwsA(isA<StateError>()),
@@ -118,8 +116,8 @@ void main() {
       final coordinator = container.read(collectionCommandCoordinatorProvider);
 
       for (final kind in allActiveKinds) {
-        final initialRef = await coordinator.addOwnedItem(
-          typedAddOwnedItemCommand(
+        final initialRef = await coordinator.addCollectionItem(
+          typedAddCollectionItemCommand(
             catalogRef: _testCatalogRef(
               kind,
               'clear-test-${kind.apiValue}',
@@ -128,13 +126,12 @@ void main() {
             details: libraryAddForKind(kind)
                 .createInitialDraft()
                 .toOwnedDetailsDraft(),
-            targetRef: _testTargetRef(kind, 'clear-test-${kind.apiValue}'),
           ),
         );
 
-        final updated = await coordinator.updateOwnedItem(
+        final updated = await coordinator.updateCollectionItem(
           libraryOwnedEditForKind(kind).buildDetailsResetCommand(
-            ownedRef: OwnedCopyRef(kind: kind, id: initialRef.id),
+            collectionItemRef: CollectionItemRef(kind: kind, id: initialRef.id),
           ),
         );
 
@@ -142,7 +139,7 @@ void main() {
             ownedDetailsFixtureForTest(kind).defaultDetails();
 
         final updatedPayload =
-            await OwnedItemsRepository(db).payloadByRef(updated);
+            await CollectionItemsRepository(db).payloadByRef(updated);
         expect(updatedPayload, isNotNull);
         expect(updatedPayload, isNotEmpty);
         expect(defaultDetails, isNot(isA<TestOwnedDetails>()));
@@ -204,18 +201,8 @@ void main() {
 CatalogEntityRef _testCatalogRef(CatalogMediaKind kind, String id) {
   return CatalogEntityRef(
     kind: kind,
-    entityType: const CatalogEntityTypeId('owned_copy'),
+    entityType: CatalogEntityTypeId.catalogItem,
     id: id,
-  );
-}
-
-CatalogEntityRef? _testTargetRef(CatalogMediaKind kind, String rootId) {
-  if (kind != CatalogMediaKind.music) return null;
-  return CatalogEntityRef(
-    kind: kind,
-    entityType: const CatalogEntityTypeId('release'),
-    id: '$rootId-release',
-    rootId: rootId,
   );
 }
 

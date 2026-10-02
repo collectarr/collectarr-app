@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/calendar/calendar_ics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,7 +17,7 @@ void main() {
           title: 'Absolute Batman',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.comic,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
             id: 'comic-1',
           ),
         ),
@@ -41,7 +41,7 @@ void main() {
           eventId: 'owned-finished:movie-9',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.movie,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
             id: 'movie-9',
           ),
         ),
@@ -65,9 +65,9 @@ void main() {
           date: DateTime(2026, 7, 1),
           title: 'Saga, Vol. 1; Deluxe',
           subtitle: 'Loaned to Bob',
-          ownedRef: const OwnedCopyRef(
+          collectionItemRef: const CollectionItemRef(
             kind: CatalogMediaKind.comic,
-            id: OwnedCopyId('owned-3'),
+            id: CollectionItemId('owned-3'),
           ),
         ),
       ],
@@ -87,7 +87,7 @@ void main() {
           title: 'A',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.comic,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
             id: 'a',
           ),
         ),
@@ -97,7 +97,7 @@ void main() {
           title: 'B',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.comic,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
             id: 'b',
           ),
         ),
@@ -119,7 +119,7 @@ void main() {
           title: longTitle,
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.comic,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
             id: 'long',
           ),
         ),

@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
-/// Complete Movie-owned copy state.
-class MovieOwnedItemsRows extends Table {
+/// Complete Movie-collection item state.
+class MovieCollectionItemsRows extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
   DateTimeColumn get createdAt => dateTime().nullable()();
@@ -12,7 +12,6 @@ class MovieOwnedItemsRows extends Table {
   IntColumn get pricePaidCents => integer().nullable()();
   TextColumn get currency => text().nullable()();
   TextColumn get personalNotes => text().nullable()();
-  IntColumn get quantity => integer().withDefault(const Constant(1))();
   IntColumn get indexNumber => integer().nullable()();
   TextColumn get tags => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
@@ -41,7 +40,7 @@ class MovieOwnedItemsRows extends Table {
 class MovieTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get catalogRefJson => text()();
-  TextColumn get ownedRefKey => text().nullable()();
+  TextColumn get collectionItemRefKey => text().nullable()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
   IntColumn get rating => integer().nullable()();

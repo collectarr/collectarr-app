@@ -6,7 +6,7 @@ part of '../generic_library_page.dart';
 
 typedef _PreparedPageEditTarget = ({
   LibraryProjectionItem item,
-  OwnedCopySummary? owned,
+  CollectionItemSummary? owned,
   WishlistItem? wishlist,
   TrackingSummary? activeTrackingSummary,
   CatalogSearchCandidate catalogItem,
@@ -29,8 +29,8 @@ class LibraryPageEditCoordinator {
       request: LibraryDetailPageRequest(
         type: _s.widget.type,
         item: item,
-        ownedSummary: item.source.ownedSummary,
-        ownedItemDispatch: item.source.ownedItemDispatch,
+        collectionItemSummary: item.source.collectionItemSummary,
+        collectionItemDispatch: item.source.collectionItemDispatch,
         accent: _s.widget.accent,
         onAddOwned: () => _s._collectionActionCoordinator.runCollectionAction(
           (actions) => actions.addOwned(item),
@@ -62,7 +62,7 @@ class LibraryPageEditCoordinator {
 
   Future<void> showEditDialog(
     LibraryProjectionItem item,
-    OwnedCopySummary? ownedItemOverride, {
+    CollectionItemSummary? collectionItemOverride, {
     bool openMetadataCompareOnOpen = false,
     LibraryEntityScope? scope,
   }) async {
@@ -100,7 +100,7 @@ class LibraryPageEditCoordinator {
 
     Future<_PreparedPageEditTarget?> prepareTarget(
       LibraryProjectionItem target, {
-      OwnedCopySummary? ownedOverride,
+      CollectionItemSummary? ownedOverride,
       bool compareOnOpen = false,
       LibraryEntityScope? scopeOverride,
     }) async {
@@ -131,7 +131,7 @@ class LibraryPageEditCoordinator {
           _s.widget.type,
           target,
           trackingSummaries,
-          ownedItem: owned,
+          collectionItem: owned,
         ),
         owned,
       );
@@ -153,8 +153,8 @@ class LibraryPageEditCoordinator {
         type: _s.widget.type,
         item: catalogItem,
         node: target.node,
-        ownedItem: owned,
-        ownedItemDispatch: target.source.ownedItemDispatch,
+        collectionItem: owned,
+        collectionItemDispatch: target.source.collectionItemDispatch,
         scope: scopeOverride ?? target.node.scope,
         wishlistItem: wishlist,
         trackingSummary: activeTrackingSummary,
@@ -173,13 +173,13 @@ class LibraryPageEditCoordinator {
       final definitionsFuture = customFieldRepo.listDefinitions(
         mediaKind: _s.widget.type.kind.apiValue,
         targetScope: owned != null
-            ? CustomFieldTargetScope.ownedCopy
+            ? CustomFieldTargetScope.collectionItem
             : target.node.scope == LibraryEntityScope.release
                 ? CustomFieldTargetScope.release
                 : CustomFieldTargetScope.media,
       );
       final customFieldScope = owned != null
-          ? CustomFieldTargetScope.ownedCopy
+          ? CustomFieldTargetScope.collectionItem
           : target.node.scope == LibraryEntityScope.release
               ? CustomFieldTargetScope.release
               : null;
@@ -196,7 +196,7 @@ class LibraryPageEditCoordinator {
                 )
               : Future.value(const <CustomFieldValue>[]);
       final imagesFuture = owned != null
-          ? itemImageRepo.listForOwnedRef(owned.ref)
+          ? itemImageRepo.listForCollectionItemRef(owned.ref)
           : Future.value(const <ItemImage>[]);
       final definitions = await definitionsFuture;
       final customFieldValues = await customFieldValuesFuture;
@@ -243,7 +243,7 @@ class LibraryPageEditCoordinator {
       try {
         initialTarget = await prepareTarget(
           item,
-          ownedOverride: ownedItemOverride,
+          ownedOverride: collectionItemOverride,
           compareOnOpen: openMetadataCompareOnOpen,
           scopeOverride: scope,
         );
@@ -309,7 +309,7 @@ class LibraryPageEditCoordinator {
   Future<void> _persistEditResult(
     LibraryEditSelection result, {
     required LibraryEntityRef node,
-    required OwnedCopySummary? owned,
+    required CollectionItemSummary? owned,
     required WishlistItem? wishlist,
     required TrackingSummary? activeTrackingSummary,
     required CatalogSearchCandidate catalogItem,
@@ -331,9 +331,9 @@ class LibraryPageEditCoordinator {
           'Owned edit result did not contain a kind-owned update payload.',
         );
       }
-      await coordinator.updateOwnedItem(
-        UpdateOwnedItemCommand(
-          ownedRef: owned.ref,
+      await coordinator.updateCollectionItem(
+        UpdateCollectionItemCommand(
+          collectionItemRef: owned.ref,
           payload: payload,
         ),
         syncTracking: false,
@@ -366,7 +366,7 @@ class LibraryPageEditCoordinator {
         await _persistCustomFieldEdits(
           result.customFieldEdits,
           targetId: owned.ref.key,
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
           catalogRef: owned.catalogRef ?? catalogItem.reference,
           repository: customFieldRepo,
         );
@@ -378,7 +378,7 @@ class LibraryPageEditCoordinator {
         } else if (edit.imageData != null) {
           await itemImageRepo.add(ItemImage(
             id: edit.id,
-            ownedRef: owned.ref,
+            collectionItemRef: owned.ref,
             imageType: edit.imageType,
             imageData: edit.imageData!,
             caption: edit.caption,

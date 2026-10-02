@@ -243,7 +243,7 @@ final class _LibraryCoreCorrectionReviewDialogState
             '${value.entityType} / ${value.entityId}',
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          if (request.node?.scope == LibraryEntityScope.copy) ...[
+          if (request.node?.scope == LibraryEntityScope.collectionItem) ...[
             const SizedBox(height: 8),
             const Chip(
               avatar: Icon(Icons.subdirectory_arrow_right, size: 16),

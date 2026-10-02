@@ -16,11 +16,11 @@ decisions are recorded in [music-catalog-field-inventory.md](../architecture/mus
   contained disc and track data. There is no Music Release Group model or
   separate Release workspace scope.
 - Copy-specific condition, purchase details, location, notes, personal images,
-  and per-copy storage placement remain in Owned Copy data. Listening events
+  and per-copy storage placement remain in Collection Item data. Listening events
   target the Catalog Item and can optionally name the copy used.
 - Matrix numbers on catalog discs are shared pressing data; observed matrix
   runouts and storage placement on an individual physical copy remain personal
-  Owned Copy details.
+  Collection Item details.
 
 ## Remaining naming and cutover work
 

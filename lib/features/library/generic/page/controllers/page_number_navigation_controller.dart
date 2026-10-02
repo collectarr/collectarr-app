@@ -89,7 +89,7 @@ abstract final class LibraryPageNumberNavigationControllerOps {
           state.widget.type, state._activeGroupMode)) {
         return false;
       }
-      if (item.node.scope != LibraryEntityScope.work) {
+      if (item.node.scope != LibraryEntityScope.catalogItem) {
         return false;
       }
       return true;

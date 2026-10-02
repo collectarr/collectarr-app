@@ -47,12 +47,12 @@ void main() {
         allOf(greaterThanOrEqualTo(9), lessThanOrEqualTo(10)),
         reason: kind.apiValue,
       );
-      final importedOwnedTransport = projection.ownedItemImportTransport(
+      final importedOwnedTransport = projection.collectionItemImportTransport(
         CollectionCsvOwnedImport(
           id: 'owned-${kind.apiValue}',
           catalogRef: CatalogEntityRef(
             kind: kind,
-            entityType: const CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
             id: 'catalog-${kind.apiValue}',
           ),
           now: DateTime.utc(2026, 1, 1),

@@ -1,6 +1,6 @@
 import 'catalog_entity_ref.dart';
 import 'catalog_item_ref.dart';
-import 'owned_copy_projection.dart';
+import 'collection_item_projection.dart';
 
 /// Validates a structural catalog target before it crosses a persistence or
 /// feature boundary. The target's entity semantics remain owned by its kind.
@@ -17,43 +17,35 @@ void requireKnownCatalogRef(
   }
 }
 
-/// Validates an owned-copy reference before it is persisted by a global
+/// Validates a personal collection entry before it is persisted by a global
 /// feature. A bare string id is never a valid cross-kind target.
-void requireKnownOwnedRef(
-  OwnedCopyRef ref, [
-  String name = 'ownedRef',
+void requireKnownCollectionItemRef(
+  CollectionItemRef ref, [
+  String name = 'collectionItemRef',
 ]) {
-  if (ref.kind.isUnknown ||
-      ref.itemId.trim().isEmpty ||
-      ref.id.value.trim().isEmpty) {
+  if (ref.kind.isUnknown || ref.id.value.trim().isEmpty) {
     throw ArgumentError.value(
       ref,
       name,
-      'Expected a known owned reference with a kind, item ID, and copy ID.',
+      'Expected a known collection item with a kind and ID.',
     );
   }
 }
 
-/// Ensures an owned copy and its optional catalog target belong to the same
+/// Ensures a collection item and its optional catalog target belong to the same
 /// kind before a global feature stores both references together.
-void requireMatchingOwnedCatalogKinds(
+void requireMatchingCatalogAndCollectionItemKinds(
   CatalogEntityRef catalogRef,
-  OwnedCopyRef ownedRef, {
+  CollectionItemRef collectionItemRef, {
   String catalogName = 'catalogRef',
-  String ownedName = 'ownedRef',
+  String collectionItemName = 'collectionItemRef',
 }) {
   requireKnownCatalogRef(catalogRef, catalogName);
-  requireKnownOwnedRef(ownedRef, ownedName);
-  if (catalogRef.kind != ownedRef.kind) {
+  requireKnownCollectionItemRef(collectionItemRef, collectionItemName);
+  if (catalogRef.kind != collectionItemRef.kind) {
     throw ArgumentError(
-      'The $ownedName kind (${ownedRef.kind.apiValue}) must match '
+      'The $collectionItemName kind (${collectionItemRef.kind.apiValue}) must match '
       'the $catalogName kind (${catalogRef.kind.apiValue}).',
-    );
-  }
-  if (catalogRef.rootScope.id != ownedRef.itemId) {
-    throw ArgumentError(
-      'The $ownedName item ID (${ownedRef.itemId}) must match the root '
-      'Catalog Item ID (${catalogRef.rootScope.id}).',
     );
   }
 }

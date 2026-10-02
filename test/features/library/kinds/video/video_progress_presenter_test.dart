@@ -11,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 CatalogEntityRef _ref() {
   return const CatalogEntityRef(
     kind: CatalogMediaKind.tv,
-    entityType: CatalogEntityTypeId('work'),
+    entityType: CatalogEntityTypeId.catalogItem,
     id: 'series-1',
   );
 }

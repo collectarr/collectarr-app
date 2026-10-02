@@ -109,7 +109,6 @@ final class CollectionImportPersonalValues {
     this.pricePaidCents,
     this.currency,
     this.notes,
-    this.quantity,
     this.locationId,
     this.indexNumber,
     this.tags,
@@ -123,7 +122,6 @@ final class CollectionImportPersonalValues {
   final int? pricePaidCents;
   final String? currency;
   final String? notes;
-  final int? quantity;
   final String? locationId;
   final int? indexNumber;
   final String? tags;
@@ -137,7 +135,6 @@ final class CollectionImportPersonalValues {
       pricePaidCents == null &&
       currency == null &&
       notes == null &&
-      quantity == null &&
       locationId == null &&
       indexNumber == null &&
       tags == null &&

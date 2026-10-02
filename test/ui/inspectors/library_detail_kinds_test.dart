@@ -35,7 +35,7 @@ void main() {
           publisher: 'Marvel Comics',
         ).asShelfCatalogItem),
       );
-      const node = LibraryWorkRef(workId: 'comic-1');
+      const node = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
       final dto = const ComicWorkspaceProjector().project(
         source: source,
         entity: node,
@@ -53,7 +53,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: comicItem,
-              ownedSummary: null,
+              collectionItemSummary: null,
               accent: Colors.red,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -88,7 +88,7 @@ void main() {
           genres: ['Electronic', 'House'],
         ).asShelfCatalogItem),
       );
-      const node = LibraryWorkRef(workId: 'music-1');
+      const node = LibraryCatalogItemNodeRef(catalogItemId: 'music-1');
       final dto = const MusicCatalogItemWorkspaceProjector().project(
         source: source,
         entity: node,
@@ -106,7 +106,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: musicItem,
-              ownedSummary: null,
+              collectionItemSummary: null,
               accent: Colors.cyan,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -139,7 +139,7 @@ void main() {
           genres: ['Action', 'Adventure'],
         ).asShelfCatalogItem),
       );
-      const node = LibraryWorkRef(workId: 'game-1');
+      const node = LibraryCatalogItemNodeRef(catalogItemId: 'game-1');
       final dto = const GameWorkspaceProjector().project(
         source: source,
         entity: node,
@@ -157,7 +157,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: gameItem,
-              ownedSummary: null,
+              collectionItemSummary: null,
               accent: Colors.green,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -195,7 +195,7 @@ void main() {
           ],
         ).asShelfCatalogItem),
       );
-      const node = LibraryWorkRef(workId: 'book-1');
+      const node = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
       final dto = const BookWorkspaceProjector().project(
         source: source,
         entity: node,
@@ -213,7 +213,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: bookItem,
-              ownedSummary: null,
+              collectionItemSummary: null,
               accent: Colors.amber,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -231,7 +231,7 @@ void main() {
     });
   });
 
-  group('detail page - no owned item', () {
+  group('detail page - no collection item', () {
     testWidgets('renders catalog-only view without owned fields', (
       tester,
     ) async {
@@ -247,7 +247,7 @@ void main() {
           publisher: 'Image Comics',
         ).asShelfCatalogItem),
       );
-      const node = LibraryWorkRef(workId: 'comic-1');
+      const node = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
       final dto = const ComicWorkspaceProjector().project(
         source: source,
         entity: node,
@@ -265,7 +265,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: comicItem,
-              ownedSummary: null,
+              collectionItemSummary: null,
               accent: Colors.purple,
               onAddOwned: () {},
               onRemoveOwned: () {},

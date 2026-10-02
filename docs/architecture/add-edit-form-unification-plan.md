@@ -10,7 +10,7 @@ All nine kinds have typed manual Add schemas and kind-owned form values, field s
 and create/update adapters. Each dedicated catalog Edit schema imports the same
 kind field-spec module as its Add schema. Add and Edit share the input control
 builder for fields whose behavior matches; their section/tab layout and submit
-lifecycle stay separate. Music uses one Catalog Item form and one Owned Copy
+lifecycle stay separate. Music uses one Catalog Item form and one Collection Item
 form; it has no Release Group or Release edit scope.
 
 User proposals remain available. They contain source-neutral, kind-owned
@@ -32,7 +32,7 @@ this flow.
 2. **Classify fields — complete.** The per-kind inventory records Add/Edit IDs and owners. Typed field specs separate catalog scopes from personal data; Work and Release IDs are distinct when their values differ.
 3. **Pilot with Movie — complete.** Movie Add and dedicated Work/Release Edit use typed values and shared field specs with kind-owned create/update adapters.
 4. **Extract small shared widgets — complete.** `LibraryFieldSpecControlBuilder` renders common field controls for Add and Edit. Inline Add selects and Edit pick-list dialogs remain separate where their interactions differ.
-5. **Expand by kind — complete.** All nine kinds use shared kind-owned field specs in manual Add and dedicated catalog Edit. Music has one flat Catalog Item form and a separate Owned Copy form.
+5. **Expand by kind — complete.** All nine kinds use shared kind-owned field specs in manual Add and dedicated catalog Edit. Music has one flat Catalog Item form and a separate Collection Item form.
 6. **Remove migrated paths — complete.** Superseded controller-backed catalog form drafts and duplicate Add field definitions were removed. Active Core-candidate correction sessions, nested kind editors, and personal ownership/tracking flows remain because they have separate targets and behavior; no compatibility aliases were retained.
 
 ## Completion criteria

@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -104,12 +105,12 @@ void main() {
         localizedPublisher: 'VIZ Media',
       );
 
-      final owned = testOwnedItem(
+      final owned = testCollectionItem(
         id: 'owned_1',
         catalogRef: const CatalogEntityRef(
           id: 'manga_1',
           kind: CatalogMediaKind.manga,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
         ),
         condition: 'Near Mint',
         updatedAt: DateTime.now(),
@@ -122,17 +123,17 @@ void main() {
             id: 'manga_1',
             mediaKind: CatalogMediaKind.manga,
           ),
-          kindMetadata: mangaMeta,
+          kindData: mangaMeta,
         ).asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(owned),
-        ownedItemDispatch: testMangaOwnedItemDispatchFrom(
-          MangaOwnedItem.fromJson(owned.toJson()),
+        collectionItemSummary: testCollectionItemSummary(owned),
+        collectionItemDispatch: testMangaCollectionItemDispatchFrom(
+          MangaCollectionItem.fromJson(owned.toJson()),
         ),
       );
 
       const projector = MangaWorkspaceProjector();
-      const node = LibraryWorkRef(
-        workId: 'manga_1',
+      const node = LibraryCatalogItemNodeRef(
+        catalogItemId: 'manga_1',
       );
       final dto = projector.project(
         source: shelfEntry,
@@ -180,9 +181,11 @@ void main() {
         CatalogItemDto.raw(
           id: 'manga-1',
           mediaKind: CatalogMediaKind.manga,
-          common: const CatalogCommonDto(title: 'Frieren'),
-          payload: const {'publisher': 'Shogakukan'},
-          kindMetadata: MangaMetadata.fromJson(const {
+          kindData: const {
+            'title': 'Frieren',
+            'publisher': 'Shogakukan',
+          },
+          kindData: MangaMetadata.fromJson(const {
             'id': 'manga-1',
             'title': 'Frieren',
             'original_publisher': 'Shogakukan',
@@ -192,13 +195,13 @@ void main() {
 
       final bundle = createMangaEditDraft(
         item: metaItem,
-        ownedItemDispatch: testMangaOwnedItemDispatchFrom(
-          MangaOwnedItem(
-            id: const MangaOwnedCopyId('owned_1'),
+        collectionItemDispatch: testMangaCollectionItemDispatchFrom(
+          MangaCollectionItem(
+            id: const CollectionItemId('owned_1'),
             catalogRef: const CatalogEntityRef(
               id: 'manga_1',
               kind: CatalogMediaKind.manga,
-              entityType: CatalogEntityTypeId('work'),
+              entityType: CatalogEntityTypeId.catalogItem,
             ),
             updatedAt: DateTime.now(),
             details: const MangaOwnedDetails(

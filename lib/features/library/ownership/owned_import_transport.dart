@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 
 /// Schema-v1 Owned payload waiting to cross into kind-owned persistence.
 ///
@@ -14,7 +14,7 @@ final class OwnedImportTransport {
     required this.payload,
   });
 
-  final OwnedCopyRef ref;
+  final CollectionItemRef ref;
   final CatalogEntityRef catalogRef;
   final JsonMap payload;
 }

@@ -16,7 +16,7 @@ Widget buildMusicWorkInspectorHero(
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    ownedItem: request.ownedItem,
+    collectionItem: request.collectionItem,
     ownedCopies: request.ownedCopies,
     accent: request.accent,
   );
@@ -29,7 +29,7 @@ Widget buildMusicAlbumInspectorHero(
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    ownedItem: request.ownedItem,
+    collectionItem: request.collectionItem,
     ownedCopies: request.ownedCopies,
     accent: request.accent,
   );
@@ -42,9 +42,9 @@ Widget buildMusicCopyInspectorHero(
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    ownedItem: request.ownedItem,
+    collectionItem: request.collectionItem,
     ownedCopies: [
-      if (request.ownedItem != null) request.ownedItem!,
+      if (request.collectionItem != null) request.collectionItem!,
     ],
     accent: request.accent,
   );

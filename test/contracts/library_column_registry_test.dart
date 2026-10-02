@@ -8,7 +8,7 @@ void main() {
     final fields = bookKindWorkspace.fields.fields;
     expect(fields, isNotEmpty);
     expect(
-        fields.every((field) => field.entityScope == LibraryEntityScope.work),
+        fields.every((field) => field.entityScope == LibraryEntityScope.catalogItem),
         isTrue);
     expect(fields.any((field) => field.id.value == 'book.title'), isTrue);
     expect(bookCatalogItemWorkspaceFieldDefinitions, isNotEmpty);

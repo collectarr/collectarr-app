@@ -22,7 +22,7 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
       ref: ref ??
           CatalogEntityRef(
             kind: CatalogMediaKind.music,
-            entityType: CatalogEntityTypeId.root,
+            entityType: CatalogEntityTypeId.catalogItem,
             id: music.id.value,
           ),
       music: music,

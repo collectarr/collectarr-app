@@ -1,14 +1,14 @@
 import '../book_module_dependencies.dart';
-import '../ownership/book_transfer_owned_item.dart';
+import '../ownership/book_transfer_collection_item.dart';
 
 final bookKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.work,
+      scope: LibraryEntityScope.catalogItem,
       builder: buildBookLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.copy,
+      scope: LibraryEntityScope.collectionItem,
       builder: buildBookLibraryEditDialog,
     ),
   ]),
@@ -19,8 +19,8 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
   ),
   coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: BookVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
-    BookOwnedItem item => item.grade,
+  ownedCollectionValueReader: (collectionItem) => switch (collectionItem?.value) {
+    BookCollectionItem item => item.grade,
     _ => null,
   },
   defaultCondition: 'Near Mint',
@@ -29,17 +29,17 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
   ownedDigitalFlagResolver: resolveBookOwnedDigitalFlag,
   ownedFormatHintResolver: resolveBookOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-      BookOwnedItemUpdatePayload.partial(
+      BookCollectionItemUpdatePayload.partial(
     indexNumber: Patch.set(indexNumber),
   ),
   ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-      BookOwnedItemUpdatePayload.partial(
+      BookCollectionItemUpdatePayload.partial(
     condition: Patch.set(condition),
     grade: Patch.set(collectionValue),
   ),
   ownedBulkUpdatePayloadBuilder:
       (_, condition, collectionValue, locationId, tags) =>
-          BookOwnedItemUpdatePayload.partial(
+          BookCollectionItemUpdatePayload.partial(
     condition:
         condition == null ? const Patch.unchanged() : Patch.set(condition),
     grade: collectionValue == null
@@ -59,7 +59,7 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
     locationChanged,
     locationId,
   ) =>
-      BookOwnedItemUpdatePayload.partial(
+      BookCollectionItemUpdatePayload.partial(
     purchaseDate: Patch.set(purchaseDate),
     pricePaidCents: Patch.set(pricePaidCents),
     currency: Patch.set(currency),
@@ -69,8 +69,8 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
   ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = bookTransferOwnedItem(updated);
-    return BookOwnedItemUpdatePayload.partial(
+    final typed = bookTransferCollectionItem(updated);
+    return BookCollectionItemUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
       personalNotes: Patch.set(typed.personalNotes),
@@ -81,7 +81,6 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
       purchaseStore: Patch.set(typed.purchaseStore),
       pricePaidCents: Patch.set(typed.pricePaidCents),
       sellPriceCents: Patch.set(typed.sellPriceCents),
-      quantity: Patch.set(typed.quantity),
       indexNumber: Patch.set(typed.indexNumber),
       purchaseDate: Patch.set(typed.purchaseDate),
       soldAt: Patch.set(typed.soldAt),
@@ -93,5 +92,5 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
     );
   },
   ownedDetailsResetPayloadBuilder: () =>
-      BookOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+      BookCollectionItemUpdatePayload.partial(details: const Patch.clear()),
 );

@@ -19,20 +19,19 @@ CatalogSearchCandidate? buildMovieManualCandidate(
   final releaseDateParts = _releaseDateParts(values);
   final directors = _split(values.directors);
   final characters = _split(values.characters);
-  final common = CatalogCommonDto(
-    title: title.trim(),
-    sortKey: _text(values.sortTitle),
-    synopsis: _text(values.workDescription),
-    coverImageUrl: _text(values.coverImageUrl),
-    releaseDate: releaseDateParts?.asDateTime,
-    releaseDateParts: releaseDateParts,
-    releaseYear: releaseDateParts?.year,
-  );
   final item = CatalogItemDto.raw(
     id: id,
     mediaKind: CatalogMediaKind.movie,
-    common: common,
-    payload: {
+    kindData: {
+      'title': title.trim(),
+      if (_text(values.sortTitle) case final value?) 'sort_title': value,
+      if (_text(values.workDescription) case final value?) 'synopsis': value,
+      if (_text(values.coverImageUrl) case final value?)
+        'cover_image_url': value,
+      if (releaseDateParts != null) ...{
+        'release_date': releaseDateParts.isoString,
+        'release_date_parts': releaseDateParts.toJson(),
+      },
       if (releaseTitle != null) 'edition_title': releaseTitle,
       if (_text(values.subtitle) case final value?) 'subtitle': value,
       if (_text(values.originalLanguage) case final value?)

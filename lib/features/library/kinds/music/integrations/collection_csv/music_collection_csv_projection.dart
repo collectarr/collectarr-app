@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
@@ -145,37 +145,37 @@ final class MusicCollectionCsvProjection
   @override
   String? ownedCollectionValue(LibraryWorkspaceSource entry) {
     final owned =
-        MusicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MusicOwnedItem ? owned.grade : null;
+        MusicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is MusicCollectionItem ? owned.grade : null;
   }
 
   @override
   String? ownedCondition(LibraryWorkspaceSource entry) {
     final owned =
-        MusicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MusicOwnedItem ? owned.condition : null;
+        MusicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is MusicCollectionItem ? owned.condition : null;
   }
 
   @override
   int? ownedIndexNumber(LibraryWorkspaceSource entry) {
     final owned =
-        MusicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MusicOwnedItem ? owned.indexNumber : null;
+        MusicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is MusicCollectionItem ? owned.indexNumber : null;
   }
 
   @override
   String? ownedTags(LibraryWorkspaceSource entry) {
     final owned =
-        MusicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MusicOwnedItem ? owned.tags : null;
+        MusicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is MusicCollectionItem ? owned.tags : null;
   }
 
   @override
-  List<String> ownedCellsBeforeQuantity(
+  List<String> ownedCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
-    return clzFriendly ? const [''] : const [];
+    return const [];
   }
 
   @override
@@ -184,9 +184,7 @@ final class MusicCollectionCsvProjection
     required bool clzFriendly,
   }) {
     return List<String>.filled(
-      clzFriendly
-          ? collectionCsvV1OwnedCellCount - 1
-          : collectionCsvV1OwnedCellCount,
+      collectionCsvV1OwnedCellCount,
       '',
     );
   }

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:drift/native.dart';
@@ -19,7 +19,7 @@ void main() {
 
   tearDown(() => db.close());
 
-  test('persists history against one Catalog Item and optional owned copy',
+  test('persists history against one Catalog Item and optional collection item',
       () async {
     final album = _musicRef('album-1');
     final older = MusicListenEvent(
@@ -30,10 +30,9 @@ void main() {
     final newer = MusicListenEvent(
       id: 'listen-newer',
       catalogRef: album,
-      ownedRef: const OwnedCopyRef(
+      collectionItemRef: const CollectionItemRef(
         kind: CatalogMediaKind.music,
-        itemId: 'album-1',
-        id: OwnedCopyId('owned-1'),
+        id: CollectionItemId('owned-1'),
       ),
       listenedAt: DateTime.utc(2026, 8, 2),
       notes: 'First pressing',
@@ -44,7 +43,7 @@ void main() {
     final events = await repository.listForCatalogItem(album);
     expect(events.map((event) => event.id), ['listen-newer', 'listen-older']);
     expect(events.first.catalogRef, album);
-    expect(events.first.ownedRef?.key, 'music:owned-1');
+    expect(events.first.collectionItemRef?.key, 'music:owned-1');
     expect(events.first.notes, 'First pressing');
     expect(
       MusicListeningStats.fromSessions(events).lastListened?.toUtc(),

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
@@ -9,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/manga/edit/owned/manga_own
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
@@ -151,13 +152,13 @@ MangaEditDraft _createDraft(MangaOwnedDetails details) {
   final item = _mangaItem();
   return createMangaEditDraft(
     item: item,
-    ownedItemDispatch: testMangaOwnedItemDispatchFrom(
-      MangaOwnedItem(
-        id: const MangaOwnedCopyId('owned-1'),
+    collectionItemDispatch: testMangaCollectionItemDispatchFrom(
+      MangaCollectionItem(
+        id: const CollectionItemId('owned-1'),
         catalogRef: const CatalogEntityRef(
           id: 'manga-1',
           kind: CatalogMediaKind.manga,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
         ),
         updatedAt: DateTime(2026),
         details: details,
@@ -173,7 +174,7 @@ CatalogSearchCandidate _mangaItem() => CatalogSearchCandidate.fromItem(
           id: 'manga-1',
           mediaKind: CatalogMediaKind.manga,
         ),
-        kindMetadata: const MangaMetadata(title: 'Frieren'),
+        kindData: const MangaMetadata(title: 'Frieren'),
       ),
     );
 

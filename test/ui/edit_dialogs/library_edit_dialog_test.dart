@@ -5,7 +5,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 
 import '../../helpers/test_constants.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
@@ -98,7 +98,7 @@ void main() {
         ),
       ],
     ));
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-1',
       itemId: 'movie-1',
       kind: 'movie',
@@ -107,14 +107,13 @@ void main() {
       condition: 'Good',
       pricePaidCents: 999,
       currency: 'USD',
-      quantity: 1,
       locationId: 'loc-a',
       updatedAt: DateTime.utc(2026, 5, 15),
     );
     final trackingRecord = MovieTrackingState(
       id: 'tracking-1',
       catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-      ownedRef: OwnedCopyRef.fromKey('movie:owned-1'),
+      collectionItemRef: CollectionItemRef.fromKey('movie:owned-1'),
       sourceType: 'physical',
       status: 'In progress',
       rating: 9,
@@ -136,8 +135,8 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: testOwnedSummary(ownedItem),
-                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
+                      collectionItem: testCollectionItemSummary(collectionItem),
+                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
                       trackingSummary:
                           trackingSummaryFromRecord(trackingRecord),
                       accent: Colors.red,
@@ -241,10 +240,9 @@ void main() {
         ),
       ],
     ));
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-edition-1',
       itemId: 'movie-edition-1',
-      quantity: 1,
       updatedAt: DateTime.utc(2026, 5, 24),
     );
     LibraryEditSelection? selection;
@@ -262,8 +260,8 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: testOwnedSummary(ownedItem),
-                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
+                      collectionItem: testCollectionItemSummary(collectionItem),
+                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
@@ -344,7 +342,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: null,
+                      collectionItem: null,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
@@ -409,7 +407,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: null,
+                      collectionItem: null,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
@@ -517,7 +515,7 @@ void main() {
         characters: const ['Wirt', 'Greg'],
       ),
     );
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-comic-1',
       itemId: 'comic-1',
       locationId: 'comic-box-a',
@@ -535,7 +533,6 @@ void main() {
       gradingCompany: 'CGC',
       certificationNumber: '12345',
       ownerLabel: 'Andrei',
-      quantity: 1,
     );
     LibraryEditSelection? selection;
 
@@ -552,8 +549,8 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: testOwnedSummary(ownedItem),
-                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
+                      collectionItem: testCollectionItemSummary(collectionItem),
+                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
                       accent: Colors.deepOrange,
                     ),
                   );
@@ -586,7 +583,7 @@ void main() {
     expect(find.text('Country'), findsNothing);
     expect(find.text('Collection Status'), findsOneWidget);
     expect(find.text('Index'), findsOneWidget);
-    expect(find.text('Quantity'), findsOneWidget);
+    expect(find.text('Quantity'), findsNothing);
     expect(find.text('Location'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Creators', skipOffstage: false).last);
@@ -642,7 +639,7 @@ void main() {
     expect(find.byTooltip('Pick Series'), findsOneWidget);
     expect(find.byTooltip('Pick Format'), findsOneWidget);
     expect(find.byTooltip('Pick Publisher'), findsOneWidget);
-    expect(find.text('Quantity'), findsOneWidget);
+    expect(find.text('Quantity'), findsNothing);
     expect(find.text('Cover price'), findsNothing);
     expect(find.text('Added date'), findsNothing);
     expect(find.text('Modified date'), findsNothing);
@@ -757,7 +754,7 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: null,
+                      collectionItem: null,
                       accent: Colors.orange,
                     ),
                   );
@@ -785,7 +782,8 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection!.kindItem.summary.primaryLabel, 'The Fellowship of the Ring');
+    expect(
+        selection!.kindItem.summary.primaryLabel, 'The Fellowship of the Ring');
   });
 
   testWidgets(
@@ -837,11 +835,10 @@ void main() {
         ],
       ),
     );
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-book-preserve-1',
       itemId: 'book-preserve-1',
       kind: 'book',
-      quantity: 1,
       signedBy: 'Isaac Asimov',
       ownerLabel: 'Andrei',
       purchaseStore: 'Vintage Store',
@@ -874,8 +871,8 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: testOwnedSummary(ownedItem),
-                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
+                      collectionItem: testCollectionItemSummary(collectionItem),
+                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
                       trackingSummary:
                           trackingSummaryFromRecord(trackingRecord),
                       accent: Colors.orange,
@@ -897,7 +894,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     final bookPayload =
-        selection?.ownedUpdatePayload as BookOwnedItemUpdatePayload?;
+        selection?.ownedUpdatePayload as BookCollectionItemUpdatePayload?;
     expect(bookPayload?.details.valueOrNull()?.signedBy, 'Isaac Asimov');
 
     final savedItem = selection?.kindItem.kindCapability
@@ -969,7 +966,7 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: null,
+                      collectionItem: null,
                       accent: Colors.orange,
                     ),
                   );
@@ -1067,7 +1064,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: null,
+                      collectionItem: null,
                       trackingSummary:
                           trackingSummaryFromRecord(trackingRecord),
                       accent: Colors.teal,
@@ -1132,10 +1129,9 @@ void main() {
         ),
       ],
     ));
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-bundle-1',
       itemId: 'movie-bundle-1',
-      quantity: 1,
       updatedAt: DateTime.utc(2026, 5, 20),
     );
     LibraryEditSelection? selection;
@@ -1153,8 +1149,8 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: testOwnedSummary(ownedItem),
-                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
+                      collectionItem: testCollectionItemSummary(collectionItem),
+                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
                       accent: Colors.blue,
                       wishlistTargetOptions: [
                         CatalogTargetOption(
@@ -1215,7 +1211,7 @@ void main() {
         title: 'Alien',
       ),
     );
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-bundle-existing-1',
       itemId: 'movie-bundle-existing-1',
       targetRef: const CatalogEntityRef(
@@ -1242,8 +1238,8 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: testOwnedSummary(ownedItem),
-                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
+                      collectionItem: testCollectionItemSummary(collectionItem),
+                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
                       accent: Colors.orange,
                     ),
                   );
@@ -1303,7 +1299,7 @@ void main() {
         physicalFormatLabel: 'Digital',
       ),
     );
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-digital-1',
       itemId: 'movie-digital-1',
       kind: 'movie',
@@ -1327,8 +1323,8 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: testOwnedSummary(ownedItem),
-                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
+                      collectionItem: testCollectionItemSummary(collectionItem),
+                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
                       accent: Colors.teal,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
@@ -1414,14 +1410,14 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: null,
+                      collectionItem: null,
                       wishlistItem: wishlistItem,
                       accent: Colors.purple,
                       wishlistTargetOptions: [
                         CatalogTargetOption(
                           ref: CatalogEntityRef(
                             kind: CatalogMediaKind.movie,
-                            entityType: CatalogEntityTypeId('work'),
+                            entityType: CatalogEntityTypeId.catalogItem,
                             id: 'movie-wishlist-1',
                           ),
                           label: 'Item / Work',
@@ -1538,11 +1534,10 @@ void main() {
         },
       ),
     );
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-music-1',
       itemId: 'music-1',
       kind: 'music',
-      quantity: 1,
       updatedAt: DateTime.utc(2026, 5, 23),
       locationId: 'loc-music',
     );
@@ -1561,8 +1556,8 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: testOwnedSummary(ownedItem),
-                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
+                      collectionItem: testCollectionItemSummary(collectionItem),
+                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
                       accent: Colors.cyan,
                       physicalFormats: musicPhysicalMediaFormats,
                     ),
@@ -1642,7 +1637,7 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: null,
+                      collectionItem: null,
                       accent: Colors.red,
                     ),
                   );
@@ -1724,7 +1719,7 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: null,
+                      collectionItem: null,
                       accent: Colors.red,
                       scope: LibraryEntityScope.release,
                       editPrimaryRelease: true,
@@ -1792,7 +1787,7 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      ownedItem: null,
+                      collectionItem: null,
                       accent: Colors.brown,
                       scope: LibraryEntityScope.release,
                       editPrimaryRelease: true,
@@ -1851,9 +1846,9 @@ void main() {
                           ),
                         ),
                       ),
-                      ownedItem: null,
+                      collectionItem: null,
                       accent: Colors.deepOrange,
-                      scope: LibraryEntityScope.work,
+                      scope: LibraryEntityScope.catalogItem,
                     ),
                   );
                 },

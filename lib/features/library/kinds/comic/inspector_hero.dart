@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
@@ -45,43 +45,43 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final item = request.item;
     final dto = item.dto;
     final comic = dto is ComicWorkspaceDto ? dto.comic : null;
-    final ownedItem =
-        ComicOwnedItemProjection.fromDispatch(request.ownedItemDispatch);
+    final collectionItem =
+        ComicCollectionItemProjection.fromDispatch(request.collectionItemDispatch);
     final surface = palette.surface;
     final border =
         palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);
     final ink = palette.textPrimary;
     final muted = palette.textMuted;
-    final ownedSummary = request.ownedItem;
-    final ownedRef = resolveLibraryOwnedCopyRef(item, ownedSummary);
-    final localFront = ownedRef == null
+    final collectionItemSummary = request.collectionItem;
+    final collectionItemRef = resolveLibraryCollectionItemRef(item, collectionItemSummary);
+    final localFront = collectionItemRef == null
         ? null
         : ref
             .watch(
               localItemImageProvider((
-                ownedRef: ownedRef,
+                collectionItemRef: collectionItemRef,
                 imageType: 'front_cover',
               )),
             )
             .value;
-    final localBack = ownedRef == null
+    final localBack = collectionItemRef == null
         ? null
         : ref
             .watch(
               localItemImageProvider((
-                ownedRef: ownedRef,
+                collectionItemRef: collectionItemRef,
                 imageType: 'back_cover',
               )),
             )
             .value;
-    final db = ownedRef == null ? null : ref.watch(localDatabaseProvider);
+    final db = collectionItemRef == null ? null : ref.watch(localDatabaseProvider);
     final adapter = dto is ComicWorkspaceDto ? dto : null;
     final comicDto = dto is ComicWorkspaceDto ? dto : null;
     final referenceLabel = (adapter?.itemNumber?.trim().isNotEmpty == true
             ? '#${adapter!.itemNumber!.trim()}'
             : null) ??
         adapter?.referenceFormatLabel ??
-        libraryOwnedReferenceLabel(ownedSummary,
+        libraryCollectionItemReferenceLabel(collectionItemSummary,
             mediaType: (item.source.catalogData?.kind ?? request.type.kind)
                 .apiValue) ??
         request.type.identity.singularLabel.toUpperCase();
@@ -114,7 +114,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
       if (adapter?.variant?.trim().isNotEmpty == true) adapter!.variant!.trim(),
     ];
     final subtitleLabel = subtitleParts.join(' • ');
-    final isOwned = item.source.isOwned || ownedItem != null;
+    final isOwned = item.source.isOwned || collectionItem != null;
     final statusLabel = isOwned
         ? 'Owned'
         : item.source.isWishlisted
@@ -122,22 +122,22 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             : 'Not owned';
     final synopsis = comic?.synopsis?.trim();
     const String? plotDescription = null;
-    final comicDetails = ownedItem?.details;
+    final comicDetails = collectionItem?.details;
     final slabLabel = librarySlabMarkerLabel(
       comicDetails?.rawOrSlabbed,
       comicDetails?.gradingCompany,
     );
-    final slabGrade = ownedItem?.grade?.trim();
+    final slabGrade = collectionItem?.grade?.trim();
     final showSlabOverlay =
         comicDetails?.rawOrSlabbed?.trim().toLowerCase() == 'slabbed' &&
             slabLabel != null &&
             slabGrade != null &&
             slabGrade.isNotEmpty;
-    final currentValue = ownedItem?.marketValueCents != null
-        ? formatMoney(ownedItem!.marketValueCents, ownedItem.currency)
+    final currentValue = collectionItem?.marketValueCents != null
+        ? formatMoney(collectionItem!.marketValueCents, collectionItem.currency)
         : null;
     final gradeValueLabel = [
-      if (ownedItem?.grade?.trim().isNotEmpty == true) ownedItem!.grade!.trim(),
+      if (collectionItem?.grade?.trim().isNotEmpty == true) collectionItem!.grade!.trim(),
       if (currentValue != null) currentValue,
     ].join('  •  ');
     final keyReason = comicDetails?.keyReason?.trim().isNotEmpty == true
@@ -149,7 +149,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
       if (seriesLabel != null) seriesLabel,
       if (referenceLabel.trim().isNotEmpty) referenceLabel,
       if (editionLabel.trim().isNotEmpty) editionLabel,
-      if (ownedItem?.grade?.trim().isNotEmpty == true) ownedItem!.grade!.trim(),
+      if (collectionItem?.grade?.trim().isNotEmpty == true) collectionItem!.grade!.trim(),
     ].join(' ');
 
     return LayoutBuilder(
@@ -190,26 +190,26 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                           ? null
                           : (dto.imageUrl ?? comic?.coverImageUrl),
                       localBytes: back ? localBack : localFront,
-                      ownedRef: back ? null : ownedRef,
+                      collectionItemRef: back ? null : collectionItemRef,
                       accentColor: request.accent,
                       fit: BoxFit.cover,
                       enableHoverCue: true,
                       enableSecondaryControl: false,
                       onMissingSecondaryPressed:
-                          back || ownedRef == null || db == null
+                          back || collectionItemRef == null || db == null
                               ? null
                               : () async {
                                   final savedType =
-                                      await pickAndStoreOwnedItemImage(
+                                      await pickAndStoreCollectionItemImage(
                                     context: context,
                                     db: db,
-                                    ownedRef: ownedRef,
+                                    collectionItemRef: collectionItemRef,
                                     imageType: 'back_cover',
                                   );
                                   if (savedType == 'back_cover') {
                                     ref.invalidate(
                                       localItemImageProvider((
-                                        ownedRef: ownedRef,
+                                        collectionItemRef: collectionItemRef,
                                         imageType: 'back_cover',
                                       )),
                                     );

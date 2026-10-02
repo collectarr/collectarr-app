@@ -18,7 +18,7 @@ void main() {
       publisher: 'Nintendo',
     );
 
-    final owned = testOwnedItem(
+    final owned = testCollectionItem(
       id: 'owned-game-10',
       itemId: 'game-10',
       kind: 'game',
@@ -32,21 +32,21 @@ void main() {
     final shelf = LibraryWorkspaceSource(
       itemId: 'game-10',
       catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(owned),
-      ownedItemDispatch: testGameOwnedItemDispatchFrom(
-        GameOwnedItem.fromJson(owned.toJson()),
+      collectionItemSummary: testCollectionItemSummary(owned),
+      collectionItemDispatch: testGameCollectionItemDispatchFrom(
+        GameCollectionItem.fromJson(owned.toJson()),
       ),
     );
 
     final workspaceDto = const GameWorkspaceProjector().project(
       source: shelf,
-      entity: const LibraryWorkRef(workId: 'game-10'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'game-10'),
     );
 
     final ctx = LibraryProjectionContext<GameWorkspaceDto>(
       source: shelf,
       dto: workspaceDto,
-      node: const LibraryWorkRef(workId: 'game-10'),
+      node: const LibraryCatalogItemNodeRef(catalogItemId: 'game-10'),
     );
 
     expect(GameCopyWorkspaceFields.completeness.getValue(ctx), 'CIB');

@@ -25,7 +25,7 @@ void main() {
     });
 
     test('findGroupDefinition resolves stored canonical group ID', () {
-      final comicFields = comicWorkspace.fieldsForScope(LibraryEntityScope.work);
+      final comicFields = comicWorkspace.fieldsForScope(LibraryEntityScope.catalogItem);
       final comicPublisherDef = comicFields.findGroupDefinition(
         comicFields.decodeGroupId('group.comic.publisher'),
       );

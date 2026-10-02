@@ -81,7 +81,6 @@ class BoardGameLibraryEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const BoardGameLibraryEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
@@ -90,8 +89,6 @@ class BoardGameLibraryEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _boardGameTabs,
           trackedTabs: _boardGameTabs,
           catalogTabs: _boardGameTabs,
@@ -176,7 +173,6 @@ class BoardGameLibraryCombinedEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const BoardGameLibraryCombinedEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
@@ -185,8 +181,6 @@ class BoardGameLibraryCombinedEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _boardGameCombinedTabs,
           trackedTabs: _boardGameCombinedTabs,
           catalogTabs: _boardGameCombinedTabs,

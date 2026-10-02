@@ -6,6 +6,6 @@ CatalogSearchCandidate boardGameCatalogTransportFromCoreItem(
 ) {
   return item.kindCapability.mapTransport((transport) {
     final metadata = BoardGameMetadata.fromJson(transport.payload);
-    return item.kindCapability.withKindMetadata(metadata);
+    return item.kindCapability.withKindData(metadata);
   });
 }

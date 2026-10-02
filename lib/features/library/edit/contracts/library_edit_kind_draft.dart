@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/library/config/collection_item_update_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
@@ -24,14 +24,14 @@ abstract interface class LibraryCatalogItemEditSession {
   void setExternalLinks(List<TrailerLinkDto> links);
 }
 
-/// Kind-owned personal edit operations for one Owned Copy.
+/// Kind-owned personal edit operations for one Collection Item.
 abstract interface class LibraryCopyEditSession {
   JsonEncodable toDetailsDraft();
 
   void initializePersonalState(PersonalStateDraft personal);
 
-  OwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedCopyRef ownedRef,
+  CollectionItemUpdatePayload buildOwnedUpdatePayload({
+    required CollectionItemRef collectionItemRef,
     required PersonalStateDraft personal,
   });
 }

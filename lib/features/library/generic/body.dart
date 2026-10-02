@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -216,7 +216,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<LibraryProjectionItem> onRemoveOwned;
   final ValueChanged<LibraryProjectionItem> onAddWishlist;
   final ValueChanged<LibraryProjectionItem> onRemoveWishlist;
-  final void Function(LibraryProjectionItem item, OwnedCopySummary? ownedItem)
+  final void Function(LibraryProjectionItem item, CollectionItemSummary? collectionItem)
       onEditItem;
   final Widget? workspaceOverride;
   final LibraryItemContextMenuCallback? onItemContextMenu;
@@ -350,8 +350,8 @@ class LibraryBody extends StatelessWidget {
           type: type,
           projection: projection,
           item: selected,
-          ownedItem: null,
-          ownedItemDispatch: selected?.source.ownedItemDispatch,
+          collectionItem: null,
+          collectionItemDispatch: selected?.source.collectionItemDispatch,
           detailsLayout: viewState.detailsLayout,
           densityPreset: viewState.densityPreset,
           accent: accent,

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
@@ -15,7 +15,7 @@ final class LibraryEntityActionSet {
   const LibraryEntityActionSet({
     this.addCopy = false,
     this.openDetails = false,
-    this.selectOwnedItem = false,
+    this.selectCollectionItem = false,
     this.toggleOwned = false,
     this.toggleWishlist = false,
     this.edit = false,
@@ -29,7 +29,7 @@ final class LibraryEntityActionSet {
   static const work = LibraryEntityActionSet(
     addCopy: true,
     openDetails: true,
-    selectOwnedItem: true,
+    selectCollectionItem: true,
     toggleOwned: true,
     toggleWishlist: true,
     edit: true,
@@ -40,7 +40,7 @@ final class LibraryEntityActionSet {
   static const release = LibraryEntityActionSet(
     addCopy: true,
     openDetails: true,
-    selectOwnedItem: true,
+    selectCollectionItem: true,
     toggleOwned: true,
     toggleWishlist: true,
     edit: true,
@@ -50,7 +50,7 @@ final class LibraryEntityActionSet {
 
   static const copy = LibraryEntityActionSet(
     openDetails: true,
-    selectOwnedItem: true,
+    selectCollectionItem: true,
     toggleOwned: true,
     edit: true,
     duplicate: true,
@@ -61,7 +61,7 @@ final class LibraryEntityActionSet {
 
   final bool addCopy;
   final bool openDetails;
-  final bool selectOwnedItem;
+  final bool selectCollectionItem;
   final bool toggleOwned;
   final bool toggleWishlist;
   final bool edit;
@@ -81,11 +81,11 @@ final class LibraryEntityActionContext {
     required this.buildContext,
     required this.projection,
     required this.item,
-    required this.ownedItem,
+    required this.collectionItem,
     required this.ownedCopies,
     required this.onAddCopy,
     required this.onOpenDetails,
-    required this.onSelectOwnedItem,
+    required this.onSelectCollectionItem,
     required this.onToggleOwned,
     required this.onToggleWishlist,
     required this.onEdit,
@@ -101,11 +101,11 @@ final class LibraryEntityActionContext {
   final BuildContext buildContext;
   final LibraryProjection projection;
   final LibraryProjectionView item;
-  final OwnedCopySummary? ownedItem;
-  final List<OwnedCopySummary> ownedCopies;
+  final CollectionItemSummary? collectionItem;
+  final List<CollectionItemSummary> ownedCopies;
   final VoidCallback? onAddCopy;
   final VoidCallback? onOpenDetails;
-  final ValueChanged<OwnedCopyRef>? onSelectOwnedItem;
+  final ValueChanged<CollectionItemRef>? onSelectCollectionItem;
   final VoidCallback? onToggleOwned;
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
@@ -148,9 +148,9 @@ final class LibraryEntityActionCapability {
 
   LibraryEntityActionSet actionSetForScope(LibraryEntityScope scope) =>
       switch (scope) {
-        LibraryEntityScope.work => work,
+        LibraryEntityScope.catalogItem => work,
         LibraryEntityScope.release => release,
-        LibraryEntityScope.copy => copy,
+        LibraryEntityScope.collectionItem => copy,
       };
 
   List<LibraryEntitySemanticActionDefinition> semanticActionsForScope(
@@ -162,16 +162,16 @@ final class LibraryEntityActionCapability {
     return LibraryEntityActionRegistry(
       contributors: [
         LibraryEntityActionContributor(
-          scope: LibraryEntityScope.work,
-          actions: _buildActions(LibraryEntityScope.work, work, context),
+          scope: LibraryEntityScope.catalogItem,
+          actions: _buildActions(LibraryEntityScope.catalogItem, work, context),
         ),
         LibraryEntityActionContributor(
           scope: LibraryEntityScope.release,
           actions: _buildActions(LibraryEntityScope.release, release, context),
         ),
         LibraryEntityActionContributor(
-          scope: LibraryEntityScope.copy,
-          actions: _buildActions(LibraryEntityScope.copy, copy, context),
+          scope: LibraryEntityScope.collectionItem,
+          actions: _buildActions(LibraryEntityScope.collectionItem, copy, context),
         ),
       ],
     );
@@ -186,8 +186,8 @@ final class LibraryEntityActionCapability {
     return LibraryItemActions(
       onAddCopy: actionSet.addCopy ? context.onAddCopy : null,
       onOpenDetails: actionSet.openDetails ? context.onOpenDetails : null,
-      onSelectOwnedItem:
-          actionSet.selectOwnedItem ? context.onSelectOwnedItem : null,
+      onSelectCollectionItem:
+          actionSet.selectCollectionItem ? context.onSelectCollectionItem : null,
       onToggleOwned: actionSet.toggleOwned ? context.onToggleOwned : null,
       onToggleWishlist:
           actionSet.toggleWishlist ? context.onToggleWishlist : null,

@@ -8,12 +8,10 @@ void main() {
     final item = CatalogItemDto.raw(
       id: 'manga-1',
       mediaKind: CatalogMediaKind.manga,
-      common: CatalogCommonDto(
-        title: 'Vagabond',
-        sortKey: 'Vagabond',
-        releaseDate: DateTime.utc(1998, 9, 3),
-      ),
-      payload: const {
+      kindData: const {
+        'title': 'Vagabond',
+        'sort_title': 'Vagabond',
+        'release_date': '1998-09-03T00:00:00.000Z',
         'sort_title': 'Vagabond',
         'description': 'A wandering swordsman searches for meaning.',
         'first_publication_date': '1998-09-03T00:00:00Z',

@@ -24,13 +24,13 @@ class TransferFieldResult {
 
 /// Shows the Transfer Field Data dialog.
 ///
-/// [items] should be the currently visible (filtered) owned items.
+/// [items] should be the currently visible (filtered) collection items.
 Future<TransferFieldResult?> showTransferFieldDataDialog({
   required BuildContext context,
   required LocalDatabase db,
   required LibraryKindRegistration type,
-  required List<TransferableOwnedItem> items,
-  required OwnedItemMutations mutations,
+  required List<TransferableCollectionItem> items,
+  required CollectionItemMutations mutations,
   required List<CustomFieldDefinition> customFieldDefinitions,
 }) {
   return showDialog<TransferFieldResult>(
@@ -57,8 +57,8 @@ class _TransferFieldDataDialog extends StatefulWidget {
 
   final LocalDatabase db;
   final LibraryKindRegistration type;
-  final List<TransferableOwnedItem> items;
-  final OwnedItemMutations mutations;
+  final List<TransferableCollectionItem> items;
+  final CollectionItemMutations mutations;
   final List<CustomFieldDefinition> customFieldDefinitions;
 
   @override
@@ -200,7 +200,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
         await cfRepo.upsertValue(CustomFieldValue(
           id: existing?.id ?? const Uuid().v4(),
           targetId: item.ref.key,
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
           catalogRef: item.catalogRef,
           fieldDefinitionId: tgt.customFieldId!,
           value: newTargetValue,
@@ -212,9 +212,9 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
         if (_mode == TransferMode.move && !src.isCustomField) {
           updated = src.writeTo(updated, null);
         }
-        await widget.mutations.updateOwnedItem(
+        await widget.mutations.updateCollectionItem(
           libraryOwnedEditForKind(widget.type.kind).buildTransferUpdateCommand(
-            ownedRef: item.ref,
+            collectionItemRef: item.ref,
             updated: updated,
           ),
         );
@@ -232,7 +232,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
             await cfRepo.upsertValue(CustomFieldValue(
               id: existing.id,
               targetId: item.ref.key,
-              targetScope: CustomFieldTargetScope.ownedCopy,
+              targetScope: CustomFieldTargetScope.collectionItem,
               catalogRef: item.catalogRef,
               fieldDefinitionId: src.customFieldId!,
               value: null,
@@ -241,10 +241,10 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           }
         } else {
           final updated = src.writeTo(item.value, null);
-          await widget.mutations.updateOwnedItem(
+          await widget.mutations.updateCollectionItem(
             libraryOwnedEditForKind(widget.type.kind)
                 .buildTransferUpdateCommand(
-              ownedRef: item.ref,
+              collectionItemRef: item.ref,
               updated: updated,
             ),
           );

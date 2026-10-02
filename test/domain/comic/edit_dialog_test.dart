@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_state.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -130,12 +130,11 @@ void main() {
         ],
       ),
     );
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-1',
       itemId: 'comic-1',
       editionId: 'edition-1',
       variantId: 'variant-1',
-      quantity: 1,
       currency: 'USD',
       pricePaidCents: 499,
       personalNotes: 'Old personal note',
@@ -146,7 +145,7 @@ void main() {
     final trackingRecord = ComicTrackingState(
       id: 'tracking-1',
       catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-      ownedRef: OwnedCopyRef.fromKey('comic:owned-1'),
+      collectionItemRef: CollectionItemRef.fromKey('comic:owned-1'),
       sourceType: 'physical',
       status: 'Reading',
       rating: 7,
@@ -163,7 +162,7 @@ void main() {
     final customValue = CustomFieldValue(
       id: 'cfv-1',
       targetId: 'comic:owned-1',
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetScope: CustomFieldTargetScope.collectionItem,
       fieldDefinitionId: 'cf-1',
       value: 'First print',
       updatedAt: DateTime.utc(2026, 5, 30),
@@ -171,7 +170,7 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: type,
       item: CatalogSearchCandidate.fromItem(item),
-      ownedItem: testOwnedSummary(ownedItem),
+      collectionItem: testCollectionItemSummary(collectionItem),
       trackingSummary: trackingSummaryFromRecord(trackingRecord),
       accent: Colors.red,
       customFieldDefinitions: [customField],
@@ -344,18 +343,17 @@ void main() {
         itemNumber: '1',
       ),
     );
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-restore-order',
       itemId: 'comic-restore-order',
       editionId: 'edition-restore-order',
       variantId: 'variant-restore-order',
-      quantity: 1,
       updatedAt: DateTime.utc(2026, 5, 30),
     );
     final request = LibraryEditDialogRequest(
       type: type,
       item: CatalogSearchCandidate.fromItem(item),
-      ownedItem: testOwnedSummary(ownedItem),
+      collectionItem: testCollectionItemSummary(collectionItem),
       accent: Colors.red,
     );
 
@@ -430,12 +428,11 @@ void main() {
         itemNumber: '2',
       ),
     );
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-2',
       itemId: 'comic-2',
       editionId: 'edition-2',
       variantId: 'variant-2',
-      quantity: 1,
       updatedAt: DateTime.utc(2026, 5, 30),
     );
     final customField = CustomFieldDefinition(
@@ -448,7 +445,7 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: type,
       item: CatalogSearchCandidate.fromItem(item),
-      ownedItem: testOwnedSummary(ownedItem),
+      collectionItem: testCollectionItemSummary(collectionItem),
       accent: Colors.red,
       customFieldDefinitions: [customField],
     );

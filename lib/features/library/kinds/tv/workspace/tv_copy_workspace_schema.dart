@@ -1,8 +1,8 @@
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
@@ -15,10 +15,10 @@ abstract final class TvCopyWorkspaceFields {
     label: 'Condition',
     getValue: (context) {
       final owned =
-          TvOwnedItemProjection.fromDispatch(context.source.ownedItemDispatch);
-      return owned is TvOwnedItem ? owned.condition : null;
+          TvCollectionItemProjection.fromDispatch(context.source.collectionItemDispatch);
+      return owned is TvCollectionItem ? owned.condition : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final location =
@@ -26,14 +26,14 @@ abstract final class TvCopyWorkspaceFields {
     id: TvFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final pricePaid = LibraryFieldDefinition<TvKind, TvWorkspaceDto, int?>(
     id: TvFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final status = LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
@@ -42,21 +42,21 @@ abstract final class TvCopyWorkspaceFields {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final rating = LibraryFieldDefinition<TvKind, TvWorkspaceDto, int?>(
     id: TvFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final wishlist = LibraryFieldDefinition<TvKind, TvWorkspaceDto, bool>(
     id: TvFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final updatedAt =
@@ -64,7 +64,7 @@ abstract final class TvCopyWorkspaceFields {
     id: TvFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final addedAt =
@@ -72,7 +72,7 @@ abstract final class TvCopyWorkspaceFields {
     id: TvFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final watchStatus =
@@ -80,7 +80,7 @@ abstract final class TvCopyWorkspaceFields {
     id: TvFieldIds.watchStatus,
     label: 'Watch Status',
     getValue: (context) => context.dto.personal.trackingStatus,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 }
 
@@ -106,7 +106,7 @@ final tvCopyWorkspaceGroupDefinitions = [
 final tvCopyWorkspaceSortDefinitions = [
   LibrarySortDefinition<TvKind, TvWorkspaceDto>(
     id: TvSortIds.status,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
     compare: (left, right) {
       int rank(LibraryProjectionContext<TvWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;
@@ -200,7 +200,7 @@ final tvCopyWorkspaceColumnDefinitions = [
 final tvCopyWorkspaceSchema =
     LibraryEntityWorkspaceSchema<TvKind, TvWorkspaceDto>(
   kindNamespace: 'tv',
-  entityScope: LibraryEntityScope.copy,
+  entityScope: LibraryEntityScope.collectionItem,
   fields: tvCopyWorkspaceFieldDefinitions,
   columns: tvCopyWorkspaceColumnDefinitions,
   sorts: tvCopyWorkspaceSortDefinitions,

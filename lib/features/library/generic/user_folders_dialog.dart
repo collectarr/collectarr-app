@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -28,7 +28,7 @@ class _UserFoldersDialog extends StatefulWidget {
 
 class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   List<UserFolder> _folders = [];
-  Map<String, List<OwnedCopyRef>> _folderOwnedRefs = {};
+  Map<String, List<CollectionItemRef>> _folderCollectionItemRefs = {};
   bool _loading = true;
 
   @override
@@ -40,14 +40,14 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   Future<void> _load() async {
     final repo = UserFolderRepository(widget.db);
     final folders = await repo.getAll();
-    final ownedRefs = <String, List<OwnedCopyRef>>{};
+    final collectionItemRefs = <String, List<CollectionItemRef>>{};
     for (final folder in folders) {
-      ownedRefs[folder.id] = await repo.getOwnedRefsInFolder(folder.id);
+      collectionItemRefs[folder.id] = await repo.getCollectionItemRefsInFolder(folder.id);
     }
     if (mounted) {
       setState(() {
         _folders = folders;
-        _folderOwnedRefs = ownedRefs;
+        _folderCollectionItemRefs = collectionItemRefs;
         _loading = false;
       });
     }
@@ -181,7 +181,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
                         Divider(height: 1, color: palette.divider),
                     itemBuilder: (context, i) {
                       final folder = _folders[i];
-                      final count = _folderOwnedRefs[folder.id]?.length ?? 0;
+                      final count = _folderCollectionItemRefs[folder.id]?.length ?? 0;
                       return ListTile(
                         leading: Icon(
                           _iconForFolder(folder.iconName),

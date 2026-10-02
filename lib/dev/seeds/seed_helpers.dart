@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
@@ -41,35 +41,29 @@ CatalogEntityRef seedCatalogRef(CatalogMediaKind kind, String itemId) {
   }
   return CatalogEntityRef(
     kind: kind,
-    entityType: CatalogEntityTypeId.root,
+    entityType: CatalogEntityTypeId.catalogItem,
     id: itemId,
   );
 }
 
-OwnedCopyRef seedOwnedRef(CatalogMediaKind kind, String itemId) {
-  final catalogItemId = itemId.replaceFirst('seed-owned-', '');
-  return OwnedCopyRef(
+CollectionItemRef seedCollectionItemRef(CatalogMediaKind kind, String id) {
+  return CollectionItemRef(
     kind: kind,
-    itemId: catalogItemId,
-    id: OwnedCopyId(itemId),
+    id: CollectionItemId(id),
   );
 }
 
-/// Rebuilds a transport fixture while preserving its common catalog fields.
+/// Rebuilds a transport fixture while preserving its kind-owned fields.
 /// Kind seeders use this only to add their own Core graph fields.
 CatalogItemDto withSeedPayload(
   CatalogItemDto item,
   Map<String, dynamic> additions,
 ) {
-  // Keep the additions in the raw kind payload. Reconstructing through the
-  // envelope parser would classify `editions` as the generic common field
-  // and drop kind-specific keys such as work_id, edition_title, or players.
   return CatalogItemDto.raw(
     id: item.id,
     mediaKind: item.mediaKind,
-    common: item.common,
-    payload: {
-      ...item.payload,
+    kindData: {
+      ...item.kindData,
       ...additions,
     },
   );
@@ -101,7 +95,7 @@ CatalogItemDto enrichSeedItem(
   CatalogItemDto item, {
   required DevSeedCatalogDefaults defaults,
 }) {
-  final payload = Map<String, dynamic>.from(item.toSyncPayload());
+  final payload = Map<String, dynamic>.from(item.toJson());
   payload.putIfAbsent('id', () => item.id);
 
   _normalizeNestedPayload(payload, 'video', const <String>[
@@ -431,13 +425,10 @@ void seedValidateStandardBarcode(
   seedValidateBarcode(issues, prefix, barcode);
 }
 
-void validateSeedOwnedQuality(Iterable<OwnedCopySummary> items) {
+void validateSeedOwnedQuality(Iterable<CollectionItemSummary> items) {
   final issues = <String>[];
   for (final item in items) {
     final prefix = '${item.ref.kind.apiValue}/${item.ref.id.value}';
-    if (item.title.trim().isEmpty) {
-      issues.add('$prefix: title is required');
-    }
     final catalogRef = item.catalogRef;
     if (catalogRef == null) {
       issues.add('$prefix: catalog_ref is required');
@@ -449,9 +440,6 @@ void validateSeedOwnedQuality(Iterable<OwnedCopySummary> items) {
     }
     if (!item.hasNotes || item.notes?.trim().isNotEmpty != true) {
       issues.add('$prefix: personal_notes is required');
-    }
-    if (item.quantity < 1) {
-      issues.add('$prefix: quantity must be at least 1');
     }
     if (item.purchaseDate == null) {
       issues.add('$prefix: purchase_date is required');

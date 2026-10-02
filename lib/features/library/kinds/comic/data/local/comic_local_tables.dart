@@ -1,20 +1,18 @@
 import 'package:drift/drift.dart';
 
-/// Complete Comic-owned copy state. Generic owned storage is retained only
+/// Complete Comic-collection item state. Generic owned storage is retained only
 /// as the kind-owned local persistence surface.
-class ComicOwnedItemsRows extends Table {
+class ComicCollectionItemsRows extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
   DateTimeColumn get createdAt => dateTime().nullable()();
   BoolColumn get isDigital => boolean().nullable()();
-  TextColumn get targetRefJson => text().nullable()();
   TextColumn get condition => text().nullable()();
   TextColumn get grade => text().nullable()();
   DateTimeColumn get purchaseDate => dateTime().nullable()();
   IntColumn get pricePaidCents => integer().nullable()();
   TextColumn get currency => text().nullable()();
   TextColumn get personalNotes => text().nullable()();
-  IntColumn get quantity => integer().withDefault(const Constant(1))();
   IntColumn get indexNumber => integer().nullable()();
   TextColumn get tags => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
@@ -48,21 +46,21 @@ class ComicOwnedItemsRows extends Table {
 }
 
 class ComicReadingRows extends Table {
-  TextColumn get ownedRefKey => text()();
+  TextColumn get collectionItemRefKey => text()();
   IntColumn get rating => integer().nullable()();
   TextColumn get status => text().nullable()();
   DateTimeColumn get startedAt => dateTime().nullable()();
   DateTimeColumn get finishedAt => dateTime().nullable()();
 
   @override
-  Set<Column> get primaryKey => {ownedRefKey};
+  Set<Column> get primaryKey => {collectionItemRefKey};
 }
 
 class ComicTrackingUnitRows extends Table {
   TextColumn get id => text()();
   TextColumn get targetRefJson => text()();
   TextColumn get trackingEntryId => text().nullable()();
-  TextColumn get ownedRefKey => text().nullable()();
+  TextColumn get collectionItemRefKey => text().nullable()();
   DateTimeColumn get completedAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
@@ -75,7 +73,7 @@ class ComicTrackingUnitRows extends Table {
 class ComicTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get catalogRefJson => text()();
-  TextColumn get ownedRefKey => text().nullable()();
+  TextColumn get collectionItemRefKey => text().nullable()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
   IntColumn get rating => integer().nullable()();

@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 enum SmartListEntityType {
   catalogItem('catalog_item'),
-  ownedCopy('owned_copy');
+  collectionItem('collection_item');
 
   const SmartListEntityType(this.apiValue);
 

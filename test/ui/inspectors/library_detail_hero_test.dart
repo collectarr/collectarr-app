@@ -32,7 +32,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'front-only-1',
-            ownedRefKey: 'book:owned-1',
+            collectionItemRefKey: 'book:owned-1',
             imageType: const Value('front_cover'),
             imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -40,7 +40,7 @@ void main() {
         );
 
     final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
-    final owned = testOwnedItem(
+    final owned = testCollectionItem(
       id: 'owned-1',
       itemId: 'book-1',
       updatedAt: DateTime.utc(2026, 5, 23),
@@ -52,9 +52,9 @@ void main() {
         kind: 'book',
         title: 'The Fellowship of the Ring',
       ).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(owned),
+      collectionItemSummary: testCollectionItemSummary(owned),
     );
-    const node = LibraryWorkRef(workId: 'book-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
     final dto = const BookWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -73,7 +73,7 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              ownedItem: testOwnedCopySummary(owned),
+              collectionItem: testCollectionItemSummary(owned),
               accent: Colors.orange,
             ),
           ),
@@ -97,7 +97,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'front-1',
-            ownedRefKey: 'book:owned-1',
+            collectionItemRefKey: 'book:owned-1',
             imageType: const Value('front_cover'),
             imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -106,7 +106,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'back-1',
-            ownedRefKey: 'book:owned-1',
+            collectionItemRefKey: 'book:owned-1',
             imageType: const Value('back_cover'),
             imageData: base64Decode(base64Encode(const [4, 5, 6, 7])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -114,7 +114,7 @@ void main() {
         );
 
     final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
-    final owned = testOwnedItem(
+    final owned = testCollectionItem(
       id: 'owned-1',
       itemId: 'book-1',
       updatedAt: DateTime.utc(2026, 5, 23),
@@ -126,9 +126,9 @@ void main() {
         kind: 'book',
         title: 'The Two Towers',
       ).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(owned),
+      collectionItemSummary: testCollectionItemSummary(owned),
     );
-    const node = LibraryWorkRef(workId: 'book-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
     final dto = const BookWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -147,7 +147,7 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              ownedItem: testOwnedCopySummary(owned),
+              collectionItem: testCollectionItemSummary(owned),
               accent: Colors.orange,
             ),
           ),
@@ -180,7 +180,7 @@ void main() {
         ],
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'book-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
     final dto = const BookWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -193,7 +193,7 @@ void main() {
     final inspectorRequest = LibraryInspectorRequest(
       type: type,
       item: bookItem,
-      ownedItem: null,
+      collectionItem: null,
       accent: Colors.orange,
     );
 
@@ -223,7 +223,7 @@ void main() {
     tester,
   ) async {
     final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
-    final owned1 = testOwnedItem(
+    final owned1 = testCollectionItem(
       id: 'owned-1',
       itemId: 'book-1',
       pricePaidCents: 1299,
@@ -231,7 +231,7 @@ void main() {
       currency: 'USD',
       updatedAt: DateTime.utc(2026, 5, 23),
     );
-    final owned2 = testOwnedItem(
+    final owned2 = testCollectionItem(
       id: 'owned-2',
       itemId: 'book-1',
       pricePaidCents: 999,
@@ -246,9 +246,9 @@ void main() {
         kind: 'book',
         title: 'The Hobbit',
       ).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(owned1),
+      collectionItemSummary: testCollectionItemSummary(owned1),
     );
-    const node = LibraryWorkRef(workId: 'book-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
     final dto = const BookWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -266,10 +266,10 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              ownedItem: testOwnedCopySummary(owned1),
+              collectionItem: testCollectionItemSummary(owned1),
               ownedCopies: [
-                testOwnedCopySummary(owned1),
-                testOwnedCopySummary(owned2),
+                testCollectionItemSummary(owned1),
+                testCollectionItemSummary(owned2),
               ],
               accent: Colors.orange,
             ),

@@ -46,7 +46,7 @@ void main() {
         ],
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'series-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'series-1');
     final dto =
         const TvWorkspaceProjector().project(source: source, entity: node);
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
@@ -61,7 +61,7 @@ void main() {
                 LibraryInspectorRequest(
                   type: type,
                   item: item,
-                  ownedItem: null,
+                  collectionItem: null,
                   accent: Colors.teal,
                 ),
               );

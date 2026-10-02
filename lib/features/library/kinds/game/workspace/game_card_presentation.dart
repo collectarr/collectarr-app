@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
@@ -42,8 +42,8 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionView item) {
       ? gameCatalog.metadata?.ageRating?.trim()
       : null;
   final owned =
-      GameOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch);
-  final completion = owned is GameOwnedItem
+      GameCollectionItemProjection.fromDispatch(item.source.collectionItemDispatch);
+  final completion = owned is GameCollectionItem
       ? owned.collectionStatus?.trim() ?? (item.source.isOwned ? 'Owned' : null)
       : (item.source.isOwned ? 'Owned' : null);
 

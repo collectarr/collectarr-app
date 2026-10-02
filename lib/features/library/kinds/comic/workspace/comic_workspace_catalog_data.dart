@@ -13,12 +13,9 @@ final class ComicWorkspaceCatalogData
   });
 
   factory ComicWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
-    final rawMetadata = item.kindMetadata;
     return ComicWorkspaceCatalogData(
       ref: item.catalogRef,
-      comic: rawMetadata is ComicCatalogItem
-          ? rawMetadata
-          : ComicCatalogItem.fromJson(item.payload),
+      comic: ComicCatalogItem.fromJson(item.payload),
     );
   }
 

@@ -70,7 +70,7 @@ void main() {
         id: 'chapter-1',
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.manga,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'manga-1',
         ),
         volumeNumber: 3,
@@ -122,7 +122,7 @@ void main() {
         seriesId: TvSeriesId('tv-1'),
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.tv,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'tv-1',
         ),
         seasonNumber: 1,
@@ -134,7 +134,7 @@ void main() {
         id: 'anime-session-1',
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.anime,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'anime-1',
         ),
         seasonNumber: 1,
@@ -150,7 +150,7 @@ void main() {
       await repository.listActiveByCatalogRefs([
         const CatalogEntityRef(
           kind: CatalogMediaKind.tv,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'tv-1',
         ),
       ]),
@@ -160,7 +160,7 @@ void main() {
       (await repository.listActiveByCatalogRefs([
         const CatalogEntityRef(
           kind: CatalogMediaKind.anime,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'anime-1',
         ),
       ]))
@@ -186,7 +186,7 @@ void main() {
           id: 'untyped-unit',
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.unknown,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
             id: 'item-1',
           ),
           completedAt: DateTime.utc(2026, 9, 5),

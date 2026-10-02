@@ -23,11 +23,8 @@ final class MangaCatalogTransportCodec
   CatalogMediaKind get kind => CatalogMediaKind.manga;
 
   @override
-  MangaMedia decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is MangaMedia) return metadata;
-    return MangaMedia.fromJson(catalogTransportPayloadFor(item));
-  }
+  MangaMedia decode(CatalogItemDto item) =>
+      MangaMedia.fromJson(catalogTransportPayloadFor(item));
 
   @override
   Future<void> upsert(LocalDatabase db, MangaMedia item) {
@@ -145,5 +142,5 @@ CatalogItemDto _projection(MangaMedia item) {
   payload['kind'] ??= 'manga';
   payload['title'] ??= item.title;
   final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(MangaMedia.fromJson(projection.payload));
+  return projection.withKindData(MangaMedia.fromJson(projection.payload));
 }

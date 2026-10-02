@@ -428,46 +428,9 @@ extension ComicEditTabBuilders on ComicEditHost {
   }
 
   Widget buildComicMainTab() {
-    final editPresentation = comicEditPresentation;
     return EditTabShell(
       children: [
         _ownedComicMainOverviewCard(),
-        if (editPresentation.showsOwnershipReferenceSection)
-          EditSection(
-            title: editPresentation.ownershipReferenceTitle,
-            accent: comicAccent,
-            child: Column(
-              children: [
-                buildComicOwnershipAnchorSelectionField(),
-                if (comicSelectedOwnedAnchorType == 'edition' ||
-                    comicSelectedOwnedAnchorType == 'variant') ...[
-                  const SizedBox(height: 10),
-                  LibraryEditResponsiveRow(children: [
-                    buildComicEditionSelectionField(),
-                    if (comicSelectedOwnedAnchorType == 'variant')
-                      buildComicVariantSelectionField(),
-                  ]),
-                ],
-                if (comicSelectedOwnedAnchorType == 'bundle_release') ...[
-                  const SizedBox(height: 10),
-                  buildComicBundleReleaseSelectionField(
-                    fieldKey: const Key('library-edit-owned-bundle-field'),
-                    label: editPresentation.ownedBundleLabel,
-                    selectedBundleReleaseId: comicSelectedBundleReleaseId,
-                    onChanged: (value) {
-                      comicMutateState(() {
-                        final normalized = value?.trim();
-                        comicSelectedBundleReleaseId =
-                            normalized == null || normalized.isEmpty
-                                ? null
-                                : normalized;
-                      });
-                    },
-                  ),
-                ],
-              ],
-            ),
-          ),
         EditSection(
           title: 'Storage & Notes',
           accent: comicAccent,
@@ -484,11 +447,6 @@ extension ComicEditTabBuilders on ComicEditHost {
                   LibraryEditTextField(
                     controller: comicIndexNumberController,
                     label: 'Index',
-                    validator: optionalIntValidator,
-                  ),
-                  LibraryEditTextField(
-                    controller: comicQuantityController,
-                    label: 'Quantity',
                     validator: optionalIntValidator,
                   ),
                   LibraryEditTextField(

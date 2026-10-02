@@ -129,21 +129,10 @@ final class BookCatalogTransportCodec
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final items = await listTransport(db);
-    return [
-      for (final item in items)
-        CatalogDisplaySummary.root(
-          kind: kind,
-          id: item.id,
-          primaryLabel: item.resolvedDisplayTitle,
-          imageUrl: item.displayCoverUrl,
-        ),
-    ];
+    return [for (final item in items) summarize(decode(item))];
   }
 
   BookCatalogMetadata _catalogMetadata(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is BookCatalogMetadata) return metadata;
-    if (metadata is BookCatalogItem) return metadata.catalogMetadata;
     return BookCatalogMetadata.fromJson(catalogTransportPayloadFor(item));
   }
 }
@@ -178,12 +167,15 @@ CatalogItemDto _projection(BookCatalogItem item) {
   return CatalogItemDto.raw(
     id: item.id,
     mediaKind: CatalogMediaKind.book,
-    common: CatalogCommonDto(
-      title: item.title,
-      coverImageUrl: item.coverImageUrl ?? item.displayCoverUrl,
-      thumbnailImageUrl: item.thumbnailImageUrl,
-      releaseDate: item.releaseDate,
-    ),
-    payload: payload,
+    kindData: {
+      ...payload,
+      'title': item.title,
+      if (item.coverImageUrl ?? item.displayCoverUrl case final cover?)
+        'cover_image_url': cover,
+      if (item.thumbnailImageUrl case final thumbnail?)
+        'thumbnail_image_url': thumbnail,
+      if (item.releaseDate case final date?)
+        'release_date': date.toIso8601String(),
+    },
   );
 }

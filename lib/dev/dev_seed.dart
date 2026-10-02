@@ -1,6 +1,6 @@
 /// Development seed data for the local database.
 ///
-/// Populates the shared Catalog Item cache and all kind-owned copies,
+/// Populates the shared Catalog Item cache and all kind-collection items,
 /// kind-owned tracking entries, PickListValues, SerialAuthority, and
 /// CustomFieldDefinitions/Values with rich entries for every library kind.
 ///
@@ -11,7 +11,7 @@ library;
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -26,7 +26,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_rep
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
@@ -84,7 +84,7 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
 
 /// Minimum rows expected in each kind-owned physical-copy details table.
 ///
-/// Every kind is measured from its complete kind-owned copy table.
+/// Every kind is measured from its complete kind-collection item table.
 const devSeedTypedOwnedMinimumCounts = <String, int>{
   'comic.owned': 15,
   'manga.owned': 15,
@@ -416,8 +416,8 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
 /// the totals green while disconnecting one catalog kind from its copy data.
 Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
   final issues = <String>[];
-  final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
-  final ownedById = <String, OwnedCopySummary>{
+  final ownedRows = await CollectionItemsRepository(db).listActiveSummaries();
+  final ownedById = <String, CollectionItemSummary>{
     for (final row in ownedRows) row.ref.id.value: row,
   };
   final expectedByKind = <String, Set<String>>{};
@@ -462,25 +462,25 @@ Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
     }
   }
 
-  final comicRows = await db.select(db.comicOwnedItemsRows).get();
-  checkTypedRows('comic_owned_items', 'comic', comicRows.map((row) => row.id));
-  final mangaRows = await db.select(db.mangaOwnedItemsRows).get();
-  checkTypedRows('manga_owned_items', 'manga', mangaRows.map((row) => row.id));
-  final bookRows = await db.select(db.bookOwnedItemsRows).get();
-  checkTypedRows('book_owned_items', 'book', bookRows.map((row) => row.id));
-  final gameRows = await db.select(db.gameOwnedItemsRows).get();
-  checkTypedRows('game_owned_items', 'game', gameRows.map((row) => row.id));
-  final boardGameRows = await db.select(db.boardGameOwnedItemsRows).get();
+  final comicRows = await db.select(db.comicCollectionItemsRows).get();
+  checkTypedRows('comic_collection_items', 'comic', comicRows.map((row) => row.id));
+  final mangaRows = await db.select(db.mangaCollectionItemsRows).get();
+  checkTypedRows('manga_collection_items', 'manga', mangaRows.map((row) => row.id));
+  final bookRows = await db.select(db.bookCollectionItemsRows).get();
+  checkTypedRows('book_collection_items', 'book', bookRows.map((row) => row.id));
+  final gameRows = await db.select(db.gameCollectionItemsRows).get();
+  checkTypedRows('game_collection_items', 'game', gameRows.map((row) => row.id));
+  final boardGameRows = await db.select(db.boardGameCollectionItemsRows).get();
   checkTypedRows(
-      'boardgame_owned_items', 'boardgame', boardGameRows.map((row) => row.id));
-  final movieRows = await db.select(db.movieOwnedItemsRows).get();
-  checkTypedRows('movie_owned_items', 'movie', movieRows.map((row) => row.id));
-  final tvRows = await db.select(db.tvOwnedItemsRows).get();
-  checkTypedRows('tv_owned_items', 'tv', tvRows.map((row) => row.id));
-  final animeRows = await db.select(db.animeOwnedItemsRows).get();
-  checkTypedRows('anime_owned_items', 'anime', animeRows.map((row) => row.id));
-  final musicRows = await db.select(db.musicOwnedItemsRows).get();
-  checkTypedRows('music_owned_items', 'music', musicRows.map((row) => row.id));
+      'boardgame_collection_items', 'boardgame', boardGameRows.map((row) => row.id));
+  final movieRows = await db.select(db.movieCollectionItemsRows).get();
+  checkTypedRows('movie_collection_items', 'movie', movieRows.map((row) => row.id));
+  final tvRows = await db.select(db.tvCollectionItemsRows).get();
+  checkTypedRows('tv_collection_items', 'tv', tvRows.map((row) => row.id));
+  final animeRows = await db.select(db.animeCollectionItemsRows).get();
+  checkTypedRows('anime_collection_items', 'anime', animeRows.map((row) => row.id));
+  final musicRows = await db.select(db.musicCollectionItemsRows).get();
+  checkTypedRows('music_collection_items', 'music', musicRows.map((row) => row.id));
 
   return issues;
 }
@@ -488,16 +488,16 @@ Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
 /// Counts kind-owned ownership rows written by the development seed.
 Future<Map<String, int>> devSeedTypedOwnedCounts(LocalDatabase db) async {
   return {
-    'comic.owned': (await db.select(db.comicOwnedItemsRows).get()).length,
-    'manga.owned': (await db.select(db.mangaOwnedItemsRows).get()).length,
-    'book.owned': (await db.select(db.bookOwnedItemsRows).get()).length,
-    'game.owned': (await db.select(db.gameOwnedItemsRows).get()).length,
+    'comic.owned': (await db.select(db.comicCollectionItemsRows).get()).length,
+    'manga.owned': (await db.select(db.mangaCollectionItemsRows).get()).length,
+    'book.owned': (await db.select(db.bookCollectionItemsRows).get()).length,
+    'game.owned': (await db.select(db.gameCollectionItemsRows).get()).length,
     'boardgame.owned':
-        (await db.select(db.boardGameOwnedItemsRows).get()).length,
-    'movie.owned': (await db.select(db.movieOwnedItemsRows).get()).length,
-    'tv.owned': (await db.select(db.tvOwnedItemsRows).get()).length,
-    'anime.owned': (await db.select(db.animeOwnedItemsRows).get()).length,
-    'music.owned': (await db.select(db.musicOwnedItemsRows).get()).length,
+        (await db.select(db.boardGameCollectionItemsRows).get()).length,
+    'movie.owned': (await db.select(db.movieCollectionItemsRows).get()).length,
+    'tv.owned': (await db.select(db.tvCollectionItemsRows).get()).length,
+    'anime.owned': (await db.select(db.animeCollectionItemsRows).get()).length,
+    'music.owned': (await db.select(db.musicCollectionItemsRows).get()).length,
   };
 }
 
@@ -623,7 +623,7 @@ final class DevSeedVerificationReport {
 Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     LocalDatabase db) async {
   final catalogRows = await CatalogSnapshotRepository(db).findAll();
-  final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
+  final ownedRows = await CollectionItemsRepository(db).listActiveSummaries();
   final trackingRows = await TrackingStorageRepository(
     db,
     codecs: libraryTrackingStorageCodecs,
@@ -636,9 +636,9 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   final vocabularyCounts = await devSeedVocabularyCounts(db);
   final auxiliaryCounts = await devSeedAuxiliaryCounts(db);
   final issues = <String>[];
-  final trackingRequiresOwnedRef = {
+  final trackingRequiresCollectionItemRef = {
     for (final contributor in collectarrDevSeedContributors)
-      if (contributor.trackingRequiresOwnedRef) contributor.kind,
+      if (contributor.trackingRequiresCollectionItemRef) contributor.kind,
   };
 
   void require(bool condition, String message) {
@@ -754,13 +754,13 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     );
   }
   for (final row in seededTrackingRows) {
-    final ownedRef = row.ownedRef;
+    final collectionItemRef = row.collectionItemRef;
     require(
-      !trackingRequiresOwnedRef.contains(
+      !trackingRequiresCollectionItemRef.contains(
             row.catalogRef.kind,
           ) ||
-          ownedRef != null && ownedById.containsKey(ownedRef.id.value),
-      'tracking ${row.id} references missing owned item',
+          collectionItemRef != null && ownedById.containsKey(collectionItemRef.id.value),
+      'tracking ${row.id} references missing collection item',
     );
     require(
       row.statusStorageValue != null &&
@@ -928,7 +928,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   final seedImages = imageRows
       .where(
         (row) =>
-            ownedById.values.any((owned) => owned.ref.key == row.ownedRefKey),
+            ownedById.values.any((owned) => owned.ref.key == row.collectionItemRefKey),
       )
       .toList(growable: false);
   for (final entry in devSeedAuxiliaryMinimumCounts.entries.where(
@@ -948,7 +948,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     customFieldValues
         .where((row) => row.targetId.startsWith('seed-'))
         .every((row) => ownedKeys.contains(row.targetId)),
-    'a seed custom-field value targets a missing owned item',
+    'a seed custom-field value targets a missing collection item',
   );
 
   if (issues.isNotEmpty) {
@@ -1031,15 +1031,15 @@ void validateDevSeedContributorCoverage({
       }
     }
 
-    final ownedItems = contributor.ownedSummaries(effectiveNow);
-    if (ownedItems.length != expectedCount) {
+    final collectionItems = contributor.ownedSummaries(effectiveNow);
+    if (collectionItems.length != expectedCount) {
       issues.add(
-        '${kind.apiValue}: expected $expectedCount source Owned items, '
-        'found ${ownedItems.length}',
+        '${kind.apiValue}: expected $expectedCount source Collection items, '
+        'found ${collectionItems.length}',
       );
     }
     final ownedIds = <String>{};
-    for (final item in ownedItems) {
+    for (final item in collectionItems) {
       final id = item.ref.id.value;
       if (!ownedIds.add(id)) {
         issues.add('${kind.apiValue}: duplicate source Owned id $id');
@@ -1085,11 +1085,11 @@ void validateDevSeedContributorCoverage({
           '${item.catalogRef.mediaKind.apiValue}',
         );
       }
-      final ownedRef = item.ownedRef;
-      if (ownedRef != null && ownedRef.kind != kind) {
+      final collectionItemRef = item.collectionItemRef;
+      if (collectionItemRef != null && collectionItemRef.kind != kind) {
         issues.add(
           '${kind.apiValue}: source tracking ${item.id} emits Owned kind '
-          '${ownedRef.kind.apiValue}',
+          '${collectionItemRef.kind.apiValue}',
         );
       }
     }
@@ -1150,7 +1150,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   // --- Owned summaries ---
   // The central seed runner only carries the deliberately small structural
   // projection. Complete Owned aggregates stay inside each kind contributor.
-  final ownedSummaries = <OwnedCopySummary>[
+  final ownedSummaries = <CollectionItemSummary>[
     for (final contributor in collectarrDevSeedContributors)
       ...contributor.ownedSummaries(now),
   ];
@@ -1177,9 +1177,9 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     catalogItems: allItems,
     ownedSummaries: ownedSummaries,
     trackingRecords: trackingRecords,
-    trackingRequiresOwnedRef: {
+    trackingRequiresCollectionItemRef: {
       for (final contributor in collectarrDevSeedContributors)
-        if (contributor.trackingRequiresOwnedRef) contributor.kind,
+        if (contributor.trackingRequiresCollectionItemRef) contributor.kind,
     },
   );
   validateSeedCatalogQuality(
@@ -1267,7 +1267,7 @@ void _validateSeedTrackingUnits(
       );
     }
     if (unit.targetRef.kind.apiValue != catalog.kind ||
-        unit.targetRef.entityType != CatalogEntityTypeId.root) {
+        unit.targetRef.entityType != CatalogEntityTypeId.catalogItem) {
       throw StateError(
         'Seed tracking unit ${unit.id} has invalid catalog reference '
         '${unit.targetRef.toJson()}',
@@ -1284,9 +1284,9 @@ void _validateSeedTrackingUnits(
 
 void _validateSeedFixtures({
   required List<CatalogItemDto> catalogItems,
-  required List<OwnedCopySummary> ownedSummaries,
+  required List<CollectionItemSummary> ownedSummaries,
   required List<TrackingStorageRecord> trackingRecords,
-  required Set<CatalogMediaKind> trackingRequiresOwnedRef,
+  required Set<CatalogMediaKind> trackingRequiresCollectionItemRef,
 }) {
   final catalogById = <String, CatalogItemDto>{};
   for (final item in catalogItems) {
@@ -1322,7 +1322,7 @@ void _validateSeedFixtures({
   }
 
   final ownedCatalogIds = <String>{};
-  final ownedById = <String, OwnedCopySummary>{};
+  final ownedById = <String, CollectionItemSummary>{};
   for (final item in ownedSummaries) {
     final ref = item.ref;
     final catalogRef = item.catalogRef;
@@ -1374,8 +1374,8 @@ void _validateSeedFixtures({
     if (!trackingIds.add(entry.id)) {
       throw StateError('Duplicate tracking seed id: ${entry.id}');
     }
-    if (entry.ownedRef == null &&
-        trackingRequiresOwnedRef.contains(entry.catalogRef.kind)) {
+    if (entry.collectionItemRef == null &&
+        trackingRequiresCollectionItemRef.contains(entry.catalogRef.kind)) {
       throw StateError(
         'Tracking seed ${entry.id} must reference its owned seed item',
       );
@@ -1399,24 +1399,24 @@ void _validateSeedFixtures({
         'match catalog ${catalog.id} kind ${catalog.kind}',
       );
     }
-    if (entry.ownedRef case final ownedRef?) {
-      final ownedId = ownedRef.id.value;
+    if (entry.collectionItemRef case final collectionItemRef?) {
+      final ownedId = collectionItemRef.id.value;
       final owned = ownedById[ownedId];
       if (owned == null) {
         throw StateError(
-          'Tracking seed ${entry.id} references missing owned item $ownedId',
+          'Tracking seed ${entry.id} references missing collection item $ownedId',
         );
       }
       if (owned.catalogRef?.id != trackingCatalogRef.id) {
         throw StateError(
-          'Tracking seed ${entry.id} links owned item $ownedId to '
+          'Tracking seed ${entry.id} links collection item $ownedId to '
           'catalog ${trackingCatalogRef.id}, but it belongs to '
           '${owned.catalogRef?.id}',
         );
       }
-      if (ownedRef.kind != entry.catalogRef.kind) {
+      if (collectionItemRef.kind != entry.catalogRef.kind) {
         throw StateError(
-          'Tracking seed ${entry.id} kind ${ownedRef.kind} does not match '
+          'Tracking seed ${entry.id} kind ${collectionItemRef.kind} does not match '
           'catalog kind ${entry.catalogRef.kind}',
         );
       }
@@ -1437,14 +1437,14 @@ void _validateSeedFixtures({
 
 Future<void> _seedItemImages(
   ItemImagesCacheRepository repo,
-  List<OwnedCopySummary> ownedSummaries,
+  List<CollectionItemSummary> ownedSummaries,
 ) async {
   for (var i = 0; i < ownedSummaries.length; i++) {
-    final ownedRef = ownedSummaries[i].ref;
-    final ownedId = ownedRef.id.value;
+    final collectionItemRef = ownedSummaries[i].ref;
+    final ownedId = collectionItemRef.id.value;
     await repo.upsert(
       id: 'seed-img-front-$ownedId',
-      ownedRef: ownedRef,
+      collectionItemRef: collectionItemRef,
       imageType: 'front_cover',
       imageData: seedTinyPngBytes,
       caption: 'Seed front cover',
@@ -1453,7 +1453,7 @@ Future<void> _seedItemImages(
     if (i.isEven) {
       await repo.upsert(
         id: 'seed-img-back-$ownedId',
-        ownedRef: ownedRef,
+        collectionItemRef: collectionItemRef,
         imageType: 'back_cover',
         imageData: seedTinyPngBytes,
         caption: 'Seed back cover',
@@ -1463,7 +1463,7 @@ Future<void> _seedItemImages(
     if (i % 3 == 0) {
       await repo.upsert(
         id: 'seed-img-extra-$ownedId',
-        ownedRef: ownedRef,
+        collectionItemRef: collectionItemRef,
         imageType: 'detail_photo',
         imageData: seedTinyPngBytes,
         caption: 'Seed extra image',

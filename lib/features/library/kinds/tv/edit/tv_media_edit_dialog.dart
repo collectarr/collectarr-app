@@ -33,10 +33,7 @@ class _TvMediaEditDialogState extends State<_TvMediaEditDialog> {
     super.initState();
     final transport = widget.request.kindItem.kindCapability
         .mapTransport((transport) => transport);
-    final canonical = transport.kindMetadata;
-    _series = canonical is TvSeries
-        ? canonical
-        : TvSeries.fromJson(transport.payload);
+    _series = TvSeries.fromJson(transport.payload);
     _draft = tvSeriesFormValuesFrom(_series);
   }
 
@@ -70,7 +67,7 @@ class _TvMediaEditDialogState extends State<_TvMediaEditDialog> {
           );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
-              transport.withKindMetadata(updated),
+              transport.withKindData(updated),
             ),
           );
           Navigator.of(context).pop(

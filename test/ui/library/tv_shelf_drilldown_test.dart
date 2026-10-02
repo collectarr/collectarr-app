@@ -28,7 +28,7 @@ void main() {
         releaseDate: DateTime.utc(1998, 4, 3),
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'series-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'series-1');
     final dto =
         const GenericWorkspaceProjector().project(source: source, entity: node);
     final tvItem = LibraryProjectionItem(source: source, node: node, dto: dto);

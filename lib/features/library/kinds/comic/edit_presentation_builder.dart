@@ -139,7 +139,6 @@ class ComicLibraryCombinedEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const ComicLibraryCombinedEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
@@ -148,8 +147,6 @@ class ComicLibraryCombinedEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _comicOwnedTabs,
           trackedTabs: _comicCombinedTabs,
           catalogTabs: _comicCombinedTabs,
@@ -161,7 +158,6 @@ class ComicLibraryCatalogItemEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const ComicLibraryCatalogItemEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
@@ -170,8 +166,6 @@ class ComicLibraryCatalogItemEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _comicMediaTabs,
           trackedTabs: _comicMediaTabs,
           catalogTabs: _comicMediaTabs,

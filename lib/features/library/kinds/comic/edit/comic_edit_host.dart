@@ -13,8 +13,6 @@ abstract class ComicEditHost {
   LibraryKindRegistration get comicLibraryType;
   ComicCatalogItem get comicCatalogItem;
   List<ItemImage> get comicItemImages;
-  LibraryEditPresentationState get comicEditPresentation;
-
   List<EditableComicCreator> get comicCreators;
   List<EditableComicCharacter> get comicCharacters;
   List<Map<String, TextEditingController>> get comicLinks;
@@ -65,7 +63,6 @@ abstract class ComicEditHost {
   TextEditingController get comicCoverController;
   TextEditingController get comicThumbnailController;
   TextEditingController get comicIndexNumberController;
-  TextEditingController get comicQuantityController;
   String? get comicCollectionStatus;
   set comicCollectionStatus(String? value);
   String? get comicSelectedLocationId;
@@ -81,10 +78,7 @@ abstract class ComicEditHost {
   set comicFinishedAt(DateTime? value);
   DateTime? get comicSoldAt;
   set comicSoldAt(DateTime? value);
-  String? get comicSelectedBundleReleaseId;
-  set comicSelectedBundleReleaseId(String? value);
   bool get comicShowPhysicalOwnedFields;
-  String get comicSelectedOwnedAnchorType;
   List<ItemImageEdit> get comicItemImageEdits;
   set comicItemImageEdits(List<ItemImageEdit> value);
 
@@ -114,16 +108,6 @@ abstract class ComicEditHost {
   Widget buildComicCollectionStatusPickField(
       {String label = 'Collection Status'});
   Widget buildComicLocationPickerField({String label = 'Location'});
-
-  Widget buildComicOwnershipAnchorSelectionField();
-  Widget buildComicEditionSelectionField();
-  Widget buildComicVariantSelectionField();
-  Widget buildComicBundleReleaseSelectionField({
-    Key? fieldKey,
-    required String label,
-    required String? selectedBundleReleaseId,
-    required ValueChanged<String?> onChanged,
-  });
 
   Widget buildComicFlexRow(
     List<Widget> children, {

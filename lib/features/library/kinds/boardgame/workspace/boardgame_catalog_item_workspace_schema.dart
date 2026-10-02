@@ -12,35 +12,35 @@ abstract final class BoardGameCatalogItemWorkspaceFields {
     id: BoardGameFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final publisher = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final releaseDate = dateField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final barcode = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final designer = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.designer,
     label: 'Designer',
     getValue: (dto) => dto.metadata.designers.firstOrNull ?? dto.publisher,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final cover =
@@ -48,28 +48,28 @@ abstract final class BoardGameCatalogItemWorkspaceFields {
     id: BoardGameFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final minPlayers = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.minPlayers,
     label: 'Min Players',
     getValue: (dto) => dto.metadata.minPlayers,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final maxPlayers = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.maxPlayers,
     label: 'Max Players',
     getValue: (dto) => dto.metadata.maxPlayers,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final bestPlayers = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.bestPlayers,
     label: 'Best Players',
     getValue: (dto) => dto.metadata.bestPlayers,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final recommendedPlayers =
@@ -77,7 +77,7 @@ abstract final class BoardGameCatalogItemWorkspaceFields {
     id: BoardGameFieldIds.recommendedPlayers,
     label: 'Recommended Players',
     getValue: (dto) => dto.metadata.recommendedPlayers,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final minPlaytimeMinutes =
@@ -85,7 +85,7 @@ abstract final class BoardGameCatalogItemWorkspaceFields {
     id: BoardGameFieldIds.minPlaytimeMinutes,
     label: 'Min Playtime (m)',
     getValue: (dto) => dto.metadata.minPlaytimeMinutes,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final maxPlaytimeMinutes =
@@ -93,7 +93,7 @@ abstract final class BoardGameCatalogItemWorkspaceFields {
     id: BoardGameFieldIds.maxPlaytimeMinutes,
     label: 'Max Playtime (m)',
     getValue: (dto) => dto.metadata.maxPlaytimeMinutes,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final complexityWeight =
@@ -101,28 +101,28 @@ abstract final class BoardGameCatalogItemWorkspaceFields {
     id: BoardGameFieldIds.complexityWeight,
     label: 'Complexity / Weight',
     getValue: (dto) => dto.metadata.complexityWeight,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final bggRating = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.bggRating,
     label: 'BGG Rating',
     getValue: (dto) => dto.metadata.bggRating,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final bggRank = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.bggRank,
     label: 'BGG Rank',
     getValue: (dto) => dto.metadata.bggRank,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final expansionFor = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.expansionFor,
     label: 'Expansion For',
     getValue: (dto) => dto.metadata.expansionFor,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 
@@ -271,7 +271,7 @@ final boardgameCatalogItemWorkspaceColumnDefinitions = [
 final boardgameCatalogItemWorkspaceSchema =
     LibraryEntityWorkspaceSchema<BoardGameKind, BoardGameWorkspaceDto>(
   kindNamespace: 'boardgame',
-  entityScope: LibraryEntityScope.work,
+  entityScope: LibraryEntityScope.catalogItem,
   fields: boardgameCatalogItemWorkspaceFieldDefinitions,
   columns: boardgameCatalogItemWorkspaceColumnDefinitions,
   sorts: boardgameCatalogItemWorkspaceSortDefinitions,

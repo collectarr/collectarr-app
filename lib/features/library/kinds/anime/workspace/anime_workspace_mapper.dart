@@ -9,8 +9,8 @@ final class AnimeWorkspaceMapper {
   const AnimeWorkspaceMapper._();
 
   static AnimeMedia fromCatalogItem(CatalogItemDto item) {
-    final basePayload = Map<String, dynamic>.from(item.toSyncPayload());
-    final metadata = item.kindMetadata;
+    final basePayload = Map<String, dynamic>.from(item.toJson());
+    final metadata = AnimeMetadata.fromJson(basePayload);
     final payload = <String, dynamic>{
       ...basePayload,
       'id': item.id,
@@ -18,24 +18,18 @@ final class AnimeWorkspaceMapper {
       'title': item.title,
       if (basePayload['description'] == null && item.synopsis != null)
         'description': item.synopsis,
-      if (metadata is AnimeMetadata) ...{
-        if (basePayload['anime_type'] == null)
-          'anime_type': metadata.format.label,
-        if (basePayload['original_air_date'] == null &&
-            metadata.startDate != null)
-          'original_air_date': metadata.startDate!.toIso8601String(),
-        if (basePayload['end_date'] == null && metadata.endDate != null)
-          'end_date': metadata.endDate!.toIso8601String(),
-        if (basePayload['original_language'] == null)
-          'original_language': metadata.language,
-        if (basePayload['episode_count'] == null &&
-            metadata.episodeCount != null)
-          'episode_count': metadata.episodeCount,
-        if (basePayload['status'] == null) 'status': metadata.airingStatus.name,
-        if (basePayload['contributions'] == null &&
-            metadata.creators.isNotEmpty)
-          'contributions': metadata.creators,
-      },
+      if (basePayload['anime_type'] == null) 'anime_type': metadata.format.label,
+      if (basePayload['original_air_date'] == null && metadata.startDate != null)
+        'original_air_date': metadata.startDate!.toIso8601String(),
+      if (basePayload['end_date'] == null && metadata.endDate != null)
+        'end_date': metadata.endDate!.toIso8601String(),
+      if (basePayload['original_language'] == null)
+        'original_language': metadata.language,
+      if (basePayload['episode_count'] == null && metadata.episodeCount != null)
+        'episode_count': metadata.episodeCount,
+      if (basePayload['status'] == null) 'status': metadata.airingStatus.name,
+      if (basePayload['contributions'] == null && metadata.creators.isNotEmpty)
+        'contributions': metadata.creators,
       'releases': item.editions.isNotEmpty
           ? [
               for (final edition in item.editions)

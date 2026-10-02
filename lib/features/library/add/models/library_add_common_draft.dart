@@ -8,7 +8,6 @@ class LibraryAddCommonDraft {
     this.pricePaidCents,
     this.currency,
     this.personalNotes,
-    this.quantity = 1,
     this.tags,
     this.locationId,
     this.purchaseStore,
@@ -21,7 +20,6 @@ class LibraryAddCommonDraft {
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final int quantity;
   final String? tags;
   final String? locationId;
   final String? purchaseStore;
@@ -34,7 +32,6 @@ class LibraryAddCommonDraft {
     int? pricePaidCents,
     String? currency,
     String? personalNotes,
-    int? quantity,
     String? tags,
     String? locationId,
     String? purchaseStore,
@@ -47,7 +44,6 @@ class LibraryAddCommonDraft {
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
-      quantity: quantity ?? this.quantity,
       tags: tags ?? this.tags,
       locationId: locationId ?? this.locationId,
       purchaseStore: purchaseStore ?? this.purchaseStore,

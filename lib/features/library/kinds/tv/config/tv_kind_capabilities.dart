@@ -120,12 +120,12 @@ final tvKindInspector = LibraryInspectorCapability(
   entityRegistry: LibraryEntityInspectorRegistry(
     contributors: [
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
+        scope: LibraryEntityScope.catalogItem,
         heroBuilder: buildTvCatalogItemInspectorHero,
         sectionsBuilder: buildTvCatalogItemInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
+        scope: LibraryEntityScope.collectionItem,
         heroBuilder: buildTvCopyInspectorHero,
         sectionsBuilder: buildTvCopyInspectorSections,
       ),

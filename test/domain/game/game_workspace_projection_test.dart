@@ -19,7 +19,7 @@ void main() {
 
     final dto = const GameWorkspaceProjector().project(
       source: source,
-      entity: const LibraryWorkRef(workId: 'game-1'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'game-1'),
     );
 
     expect(dto.title, 'Example Game');

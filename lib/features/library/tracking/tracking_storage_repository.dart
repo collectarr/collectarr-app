@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
@@ -31,7 +31,7 @@ class TrackingStorageRepository {
   TrackingStorageRecord create({
     required String id,
     required CatalogEntityRef catalogRef,
-    OwnedCopyRef? ownedRef,
+    CollectionItemRef? collectionItemRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -44,11 +44,11 @@ class TrackingStorageRepository {
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    _validateTargetRefs(catalogRef, ownedRef);
+    _validateTargetRefs(catalogRef, collectionItemRef);
     return _codecForKind(catalogRef.mediaKind).create(
       id: id,
       catalogRef: catalogRef,
-      ownedRef: ownedRef,
+      collectionItemRef: collectionItemRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -127,7 +127,7 @@ class TrackingStorageRepository {
   Future<TrackingStorageSyncRecord> upsertMutation({
     required String id,
     required CatalogEntityRef catalogRef,
-    OwnedCopyRef? ownedRef,
+    CollectionItemRef? collectionItemRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -140,7 +140,7 @@ class TrackingStorageRepository {
     TrackingKindPatch? kindPatch,
     required DateTime updatedAt,
   }) async {
-    _validateTargetRefs(catalogRef, ownedRef);
+    _validateTargetRefs(catalogRef, collectionItemRef);
     if (kindPatch != null && kindPatch.kind != catalogRef.mediaKind) {
       throw ArgumentError.value(
         kindPatch.kind,
@@ -151,14 +151,14 @@ class TrackingStorageRepository {
     final codec = _codecForKind(catalogRef.mediaKind);
     final existing = await _findActiveEntry(
       catalogRef: catalogRef,
-      ownedRef: ownedRef,
+      collectionItemRef: collectionItemRef,
     );
     final entryId = existing?.id ?? id;
     final entry = existing == null
         ? codec.create(
             id: entryId,
             catalogRef: catalogRef,
-            ownedRef: ownedRef,
+            collectionItemRef: collectionItemRef,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -174,7 +174,7 @@ class TrackingStorageRepository {
             .copyWith(
               id: entryId,
               catalogRef: catalogRef,
-              ownedRef: ownedRef ?? existing.ownedRef,
+              collectionItemRef: collectionItemRef ?? existing.collectionItemRef,
               sourceType: sourceType ?? existing.sourceType,
               status: status ?? existing.status ?? MediaTrackingStatus.planned,
               rating: rating ?? existing.rating,
@@ -239,7 +239,7 @@ class TrackingStorageRepository {
   }
 
   Future<void> upsertStorageRecord(TrackingStorageRecord entry) async {
-    _validateTargetRefs(entry.catalogRef, entry.ownedRef);
+    _validateTargetRefs(entry.catalogRef, entry.collectionItemRef);
     final codec = _codecForKind(entry.catalogRef.mediaKind);
     await _db.transaction(() => codec.upsertToStorage(_db, entry));
   }
@@ -248,7 +248,7 @@ class TrackingStorageRepository {
     if (entries.isEmpty) return;
     await _db.transaction(() async {
       for (final entry in entries) {
-        _validateTargetRefs(entry.catalogRef, entry.ownedRef);
+        _validateTargetRefs(entry.catalogRef, entry.collectionItemRef);
         await _codecForKind(entry.catalogRef.mediaKind)
             .upsertToStorage(_db, entry);
       }
@@ -257,7 +257,7 @@ class TrackingStorageRepository {
 
   Future<TrackingStorageRecord?> _findActiveEntry({
     required CatalogEntityRef catalogRef,
-    required OwnedCopyRef? ownedRef,
+    required CollectionItemRef? collectionItemRef,
   }) async {
     final trackingTopology =
         libraryTrackingTopologyForKind(catalogRef.mediaKind);
@@ -266,14 +266,14 @@ class TrackingStorageRepository {
             ? await findActiveStorageRecordsByCatalogRefs([catalogRef])
             : await findActiveStorageRecordsByCatalogRoots([catalogRef]);
     for (final entry in entries) {
-      if (entry.ownedRef == ownedRef) return entry;
+      if (entry.collectionItemRef == collectionItemRef) return entry;
     }
     // A catalog-level lifecycle is distinct from an Owned lifecycle. Never
     // fall back to an arbitrary row for a different target; doing so can
-    // silently mutate the first copy when a work has multiple owned items.
-    if (ownedRef != null) return null;
+    // silently mutate the first copy when a work has multiple collection items.
+    if (collectionItemRef != null) return null;
     for (final entry in entries) {
-      if (entry.ownedRef == null) return entry;
+      if (entry.collectionItemRef == null) return entry;
     }
     return null;
   }
@@ -310,7 +310,7 @@ class TrackingStorageRepository {
           updatedAt: input.updatedAt,
           deletedAt: input.deletedAt,
         );
-        _validateTargetRefs(entry.catalogRef, entry.ownedRef);
+        _validateTargetRefs(entry.catalogRef, entry.collectionItemRef);
         await codec.upsertToStorage(_db, entry);
       }
     });
@@ -375,13 +375,13 @@ class TrackingStorageRepository {
       final existingEntries =
           await findActiveStorageRecordsByCatalogRoots([input.catalogRef]);
       final existing = existingEntries
-          .where((entry) => entry.ownedRef == input.ownedRef)
+          .where((entry) => entry.collectionItemRef == input.collectionItemRef)
           .firstOrNull;
       final entry = existing == null
           ? create(
               id: input.entryId,
               catalogRef: input.catalogRef,
-              ownedRef: input.ownedRef,
+              collectionItemRef: input.collectionItemRef,
               status: mediaTrackingStatusFromValue(input.status) ??
                   MediaTrackingStatus.planned,
               rating: input.rating,
@@ -392,7 +392,7 @@ class TrackingStorageRepository {
           : existing.copyWith(
               id: input.entryId,
               catalogRef: input.catalogRef,
-              ownedRef: input.ownedRef,
+              collectionItemRef: input.collectionItemRef,
               status:
                   mediaTrackingStatusFromValue(input.status) ?? existing.status,
               rating: input.rating ?? existing.rating,
@@ -460,11 +460,11 @@ class TrackingStorageRepository {
 
   void _validateTargetRefs(
     CatalogEntityRef catalogRef,
-    OwnedCopyRef? ownedRef,
+    CollectionItemRef? collectionItemRef,
   ) {
     requireKnownCatalogRef(catalogRef, 'catalogRef');
-    if (ownedRef != null) {
-      requireMatchingOwnedCatalogKinds(catalogRef, ownedRef);
+    if (collectionItemRef != null) {
+      requireMatchingCatalogAndCollectionItemKinds(catalogRef, collectionItemRef);
     }
   }
 }

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -15,13 +15,9 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 final class LibraryAddSubmissionItem {
   const LibraryAddSubmissionItem({
     required this.candidate,
-    required this.targetRef,
-    required this.wishlistRef,
   });
 
   final CatalogSearchCandidate candidate;
-  final CatalogEntityRef targetRef;
-  final CatalogEntityRef wishlistRef;
 }
 
 final class LibraryAddSubmissionRequest {
@@ -37,7 +33,7 @@ final class LibraryAddSubmissionRequest {
     required this.trackingMutations,
     this.catalog,
     this.upsertCatalogItems = true,
-    this.onOwnedCopyCreated,
+    this.onCollectionItemCreated,
   });
 
   final List<LibraryAddSubmissionItem> items;
@@ -47,11 +43,12 @@ final class LibraryAddSubmissionRequest {
   final LibraryAddKindDraft kindDraft;
   final LibraryAddTrackingDraft trackingDraft;
   final CatalogTransportRepository? catalog;
-  final OwnedItemMutations ownedMutations;
+  final CollectionItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
   final bool upsertCatalogItems;
-  final FutureOr<void> Function(OwnedCopyRef ownedRef)? onOwnedCopyCreated;
+  final FutureOr<void> Function(CollectionItemRef collectionItemRef)?
+      onCollectionItemCreated;
 }
 
 final class LibraryAddSubmissionResult {
@@ -89,16 +86,15 @@ final class LibraryAddSubmissionService {
             item.candidate,
             request.commonDraft,
             request.kindDraft,
-            targetRef: item.targetRef,
             tracking: request.trackingDraft,
           );
-          final owned = await request.ownedMutations.addOwnedItem(command);
-          await request.onOwnedCopyCreated?.call(owned);
+          final owned = await request.ownedMutations.addCollectionItem(command);
+          await request.onCollectionItemCreated?.call(owned);
           final tracking = command.tracking;
           if (tracking != null) {
             await request.trackingMutations.syncOwnedTrackingState(
               owned,
-              targetRef: command.targetRef,
+              targetRef: command.catalogRef,
               status: tracking.status,
               rating: tracking.rating,
               startedAt: tracking.startedAt,
@@ -107,11 +103,12 @@ final class LibraryAddSubmissionService {
             );
           }
         case LibraryAddTarget.wishlist:
-          await request.wishlistMutations.addToWishlist(item.wishlistRef);
+          await request.wishlistMutations
+              .addToWishlist(item.candidate.reference.toCatalogItemRef());
         case LibraryAddTarget.track:
           await request.trackingMutations.upsertTrackingState(
             TrackingTarget.catalog(item.candidate.reference),
-            targetRef: item.targetRef,
+            targetRef: item.candidate.reference,
           );
       }
     }

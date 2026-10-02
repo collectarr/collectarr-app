@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import '../helpers/tracking_state_test_helpers.dart';
@@ -92,7 +92,7 @@ void main() {
   });
 
   test('seed quality guard rejects owned details under the wrong kind', () {
-    final movie = movieSeedOwnedItems(DateTime.utc(2024, 1, 1)).first;
+    final movie = movieSeedCollectionItems(DateTime.utc(2024, 1, 1)).first;
     final mismatched = movie.copyWith(
       catalogRef: seedCatalogRef(CatalogMediaKind.comic, 'seed-comic-01'),
     );
@@ -102,10 +102,9 @@ void main() {
         )
         .first
         .copyWith(
-          ref: OwnedCopyRef(
+          ref: CollectionItemRef(
             kind: CatalogMediaKind.movie,
-            itemId: mismatched.itemId,
-            id: OwnedCopyId(mismatched.id.value),
+            id: CollectionItemId(mismatched.id.value),
           ),
           catalogRef: mismatched.catalogRef,
         );
@@ -401,7 +400,7 @@ void main() {
             (row.payload['tracks'] as List?)?.isNotEmpty == true),
         isTrue);
 
-    final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
+    final ownedRows = await CollectionItemsRepository(db).listActiveSummaries();
     for (final entry in expectedCatalogCounts.entries) {
       final kindOwned = ownedRows
           .where(
@@ -420,7 +419,7 @@ void main() {
         isTrue);
     expect(ownedRows.map((row) => row.ref.id.value).toSet(),
         hasLength(expectedSeedTotal));
-    final comicOwnedRows = await db.select(db.comicOwnedItemsRows).get();
+    final comicOwnedRows = await db.select(db.comicCollectionItemsRows).get();
     final comicReadingRows = await db.select(db.comicReadingRows).get();
     expect(comicOwnedRows, hasLength(15));
     expect(comicReadingRows, hasLength(15));
@@ -434,7 +433,7 @@ void main() {
     expect(comicOwnedRows.every((row) => row.itemId.startsWith('seed-comic-')),
         isTrue);
 
-    final movieOwnedRows = await db.select(db.movieOwnedItemsRows).get();
+    final movieOwnedRows = await db.select(db.movieCollectionItemsRows).get();
     expect(movieOwnedRows, hasLength(15));
     expect(
       movieOwnedRows.every(
@@ -448,7 +447,7 @@ void main() {
       reason: 'Movie seed copies must retain complete typed ownership data',
     );
 
-    final animeOwnedRows = await db.select(db.animeOwnedItemsRows).get();
+    final animeOwnedRows = await db.select(db.animeCollectionItemsRows).get();
     expect(animeOwnedRows, hasLength(15));
     expect(
       animeOwnedRows.every(
@@ -462,7 +461,7 @@ void main() {
       reason: 'Anime seed copies must retain complete typed ownership data',
     );
 
-    final tvOwnedRows = await db.select(db.tvOwnedItemsRows).get();
+    final tvOwnedRows = await db.select(db.tvCollectionItemsRows).get();
     expect(tvOwnedRows, hasLength(15));
     expect(
       tvOwnedRows.every(
@@ -476,7 +475,7 @@ void main() {
       reason: 'TV seed copies must retain complete typed ownership data',
     );
 
-    final musicOwnedRows = await db.select(db.musicOwnedItemsRows).get();
+    final musicOwnedRows = await db.select(db.musicCollectionItemsRows).get();
     expect(musicOwnedRows, hasLength(15));
     expect(
       musicOwnedRows.every(
@@ -490,7 +489,7 @@ void main() {
       reason: 'Music seed copies must retain complete typed ownership data',
     );
 
-    final gameOwnedRows = await db.select(db.gameOwnedItemsRows).get();
+    final gameOwnedRows = await db.select(db.gameCollectionItemsRows).get();
     expect(gameOwnedRows, hasLength(15));
     expect(
       gameOwnedRows.every(
@@ -506,7 +505,7 @@ void main() {
     );
 
     final boardGameOwnedRows =
-        await db.select(db.boardGameOwnedItemsRows).get();
+        await db.select(db.boardGameCollectionItemsRows).get();
     expect(boardGameOwnedRows, hasLength(15));
     expect(
       boardGameOwnedRows.every(
@@ -523,7 +522,7 @@ void main() {
     expect(boardGameOwnedRows.any((row) => row.hasCustomInsert), isTrue);
     expect(boardGameOwnedRows.any((row) => row.hasPaintedMiniatures), isTrue);
 
-    final bookOwnedRows = await db.select(db.bookOwnedItemsRows).get();
+    final bookOwnedRows = await db.select(db.bookCollectionItemsRows).get();
     expect(bookOwnedRows, hasLength(15));
     expect(
       bookOwnedRows.every(
@@ -537,7 +536,7 @@ void main() {
       reason: 'Book seed copies must retain complete typed ownership data',
     );
 
-    final mangaOwnedRows = await db.select(db.mangaOwnedItemsRows).get();
+    final mangaOwnedRows = await db.select(db.mangaCollectionItemsRows).get();
     expect(mangaOwnedRows, hasLength(15));
     expect(
       mangaOwnedRows.every(
@@ -565,15 +564,15 @@ void main() {
       expect(kindTracking, hasLength(entry.value),
           reason: 'Unexpected ${entry.key} tracking seed count');
     }
-    final ownedRefs = ownedRows.map((row) => row.ref.key).toSet();
+    final collectionItemRefs = ownedRows.map((row) => row.ref.key).toSet();
     expect(trackingRows.map((row) => row.id).toSet(),
         hasLength(expectedSeedTotal));
     expect(
       trackingRows.every((row) {
         if (row.catalogRef.kind == CatalogMediaKind.music) {
-          return row.ownedRef == null;
+          return row.collectionItemRef == null;
         }
-        return row.ownedRef != null && ownedRefs.contains(row.ownedRef!.key);
+        return row.collectionItemRef != null && collectionItemRefs.contains(row.collectionItemRef!.key);
       }),
       isTrue,
     );
@@ -633,7 +632,7 @@ void main() {
       customValues
           .every((value) => customFieldOwnedIds.contains(value.targetId)),
       isTrue,
-      reason: 'Seed custom-field values must target an existing owned item',
+      reason: 'Seed custom-field values must target an existing collection item',
     );
 
     final tvOwned = ownedRows
@@ -754,8 +753,8 @@ Future<int> _countImages(
 ) async {
   final rows = await db.select(db.itemImagesCache).get();
   return rows.where((row) {
-    final ownedRef = ownedCopyRefFromSerialized(row.ownedRefKey);
-    return ownedRef?.id.value.startsWith(ownedPrefix) == true &&
+    final collectionItemRef = collectionItemRefFromSerialized(row.collectionItemRefKey);
+    return collectionItemRef?.id.value.startsWith(ownedPrefix) == true &&
         row.imageType == imageType;
   }).length;
 }

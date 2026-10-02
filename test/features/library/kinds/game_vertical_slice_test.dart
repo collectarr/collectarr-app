@@ -124,14 +124,14 @@ void main() {
             id: 'game_1',
             mediaKind: CatalogMediaKind.game,
           ),
-          kindMetadata: gameMeta,
+          kindData: gameMeta,
         ).asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(testOwnedItem(
+        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'game_1',
             kind: CatalogMediaKind.game,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
           ),
           condition: 'CIB',
           updatedAt: DateTime.now(),
@@ -139,8 +139,8 @@ void main() {
       );
 
       const projector = GameWorkspaceProjector();
-      const node = LibraryWorkRef(
-        workId: 'game_1',
+      const node = LibraryCatalogItemNodeRef(
+        catalogItemId: 'game_1',
       );
       final dto = projector.project(
         source: shelfEntry,

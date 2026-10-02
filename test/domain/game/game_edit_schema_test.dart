@@ -134,7 +134,7 @@ GameEditDraft _createDraft(GameCatalogMetadata metadata) {
           id: 'game-1',
           mediaKind: CatalogMediaKind.game,
         ),
-        kindMetadata: metadata,
+        kindData: metadata,
       ),
     ),
     textControllers: TextControllerGroup(),

@@ -22,7 +22,7 @@ void main() {
         barcode: '1234567890',
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'movie-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector().project(
       source: source,
       entity: node,

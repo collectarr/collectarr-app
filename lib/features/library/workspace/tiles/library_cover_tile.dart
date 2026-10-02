@@ -17,7 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 LibraryCollectionStatusScope resolveLibraryCollectionStatusScope(
   LibraryProjectionView item,
 ) {
-  if (item.source.ownedSummary?.soldAt != null) {
+  if (item.source.collectionItemSummary?.soldAt != null) {
     return LibraryCollectionStatusScope.sold;
   }
   if (item.source.isOwned) return LibraryCollectionStatusScope.inCollection;
@@ -96,7 +96,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final showEditButton = _hovered && widget.onEditTap != null;
     final scopeBadge = _scopeBadge(context, item);
     final auxiliaryBadges = _auxiliaryBadges(item);
-    final strongSelection = selected && item.node is! LibraryWorkRef;
+    final strongSelection = selected && item.node is! LibraryCatalogItemNodeRef;
     final selectedBorderWidth =
         (widget.coverSize * 0.032).clamp(3.0, 6.0).toDouble();
     final activeBorderWidth =
@@ -195,7 +195,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                           title: dto.primaryLabel,
                           itemNumber: presentation.itemNumber,
                           imageUrl: dto.imageUrl,
-                          ownedRef: item.source.ownedRef,
+                          collectionItemRef: item.source.collectionItemRef,
                           targetCacheWidth: targetCacheWidth,
                           fallbackAspectRatio: widget.fallbackCoverAspectRatio,
                           accentColor: widget.accentColor,

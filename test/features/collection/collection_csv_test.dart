@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_v1_schema.dart';
@@ -33,7 +33,7 @@ void main() {
           releaseDate: DateTime.utc(1963, 3, 1),
           barcode: '071486024576',
         )).asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(testOwnedItem(
+        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Near Mint',
@@ -42,7 +42,6 @@ void main() {
           pricePaidCents: 1299,
           currency: 'USD',
           personalNotes: 'Signed copy',
-          quantity: 2,
           locationId: 'loc-short-box-6',
           indexNumber: 1310,
           coverPriceCents: 399,
@@ -57,8 +56,8 @@ void main() {
           tags: 'spider,key',
           updatedAt: DateTime.utc(2026, 5, 12),
         )),
-        ownedItemDispatch:
-            testComicOwnedItemDispatchFrom(testComicOwnedItemFrom(testOwnedItem(
+        collectionItemDispatch:
+            testComicCollectionItemDispatchFrom(testComicCollectionItemFrom(testCollectionItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Near Mint',
@@ -77,7 +76,7 @@ void main() {
         trackingSummary: TrackingSummary(
           id: 'tracking-1',
           catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-          ownedRef: OwnedCopyRef.fromKey('comic:owned-1'),
+          collectionItemRef: CollectionItemRef.fromKey('comic:owned-1'),
           status: MediaTrackingStatus.completed,
           rating: 5,
           updatedAt: DateTime.utc(2026, 5, 12),
@@ -112,7 +111,6 @@ void main() {
     expect(rows.single.kindOwnedCells.first, '9.8');
     expect(rows.single.personal.pricePaidCents, 1299);
     expect(rows.single.personal.notes, 'Signed copy');
-    expect(rows.single.personal.quantity, 2);
     expect(rows.single.personal.locationId, 'Office › Shelf A › Short Box 6');
     expect(rows.single.personal.indexNumber, 1310);
     expect(rows.single.kindOwnedCells, [
@@ -158,7 +156,7 @@ void main() {
             kind: 'book',
             title: 'Test Book',
           )).asShelfCatalogItem),
-          ownedSummary: testOwnedSummary(testOwnedItem(
+          collectionItemSummary: testCollectionItemSummary(testCollectionItem(
             id: 'owned-1',
             itemId: 'book-1',
             kind: 'book',
@@ -172,7 +170,7 @@ void main() {
           CustomFieldValue(
             id: 'val-1',
             targetId: 'book:owned-1',
-            targetScope: CustomFieldTargetScope.ownedCopy,
+            targetScope: CustomFieldTargetScope.collectionItem,
             fieldDefinitionId: 'cf-1',
             value: 'Purchase',
             updatedAt: DateTime.utc(2026, 5, 12),
@@ -180,7 +178,7 @@ void main() {
           CustomFieldValue(
             id: 'val-2',
             targetId: 'book:owned-1',
-            targetScope: CustomFieldTargetScope.ownedCopy,
+            targetScope: CustomFieldTargetScope.collectionItem,
             fieldDefinitionId: 'cf-2',
             value: '["Hardcover","Digital"]',
             updatedAt: DateTime.utc(2026, 5, 12),
@@ -207,7 +205,7 @@ void main() {
       catalogData: testWorkspaceCatalogData(testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'book-1', kind: 'book', title: 'Example Book'),
       ).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
+      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
         id: 'owned-1',
         itemId: 'book-1',
         rating: 3,
@@ -219,7 +217,7 @@ void main() {
       trackingSummary: TrackingSummary(
         id: 'tracking-1',
         catalogRef: testCatalogRef('book-1', kind: 'book'),
-        ownedRef: OwnedCopyRef.fromKey('book:owned-1'),
+        collectionItemRef: CollectionItemRef.fromKey('book:owned-1'),
         status: MediaTrackingStatus.inProgress,
         rating: 8,
         startedAt: DateTime.utc(2026, 1, 3),
@@ -253,14 +251,13 @@ void main() {
           barcode: '75960604716152011',
           variant: 'Regular Cover',
         )).asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(testOwnedItem(
+        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Very Fine',
           grade: '7.5',
           pricePaidCents: 900,
           currency: 'USD',
-          quantity: 1,
           locationId: 'loc-box-6',
           updatedAt: DateTime.utc(2026, 5, 12),
         )),
@@ -295,10 +292,9 @@ void main() {
           physicalFormat: '4k-uhd',
           physicalFormatLabel: '4K UHD',
         )).asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(testOwnedItem(
+        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
           id: 'owned-1',
           itemId: 'movie-1',
-          quantity: 1,
           updatedAt: DateTime.utc(2026, 5, 15),
         )),
       ),
@@ -509,7 +505,7 @@ void main() {
     values[CollectionCsvV1Schema.header.indexOf('catalog_ref')] = jsonEncode(
       const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'comic-1',
       ).toJson(),
     );
@@ -634,7 +630,7 @@ void main() {
         CustomFieldValue(
           id: 'v1',
           targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
           fieldDefinitionId: 'def-1',
           value: 'Shelf A',
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -642,7 +638,7 @@ void main() {
         CustomFieldValue(
           id: 'v2',
           targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
           fieldDefinitionId: 'def-2',
           value: '9',
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -661,10 +657,9 @@ void main() {
             kind: 'comic',
             title: 'Test',
           )).asShelfCatalogItem),
-          ownedSummary: testOwnedSummary(testOwnedItem(
+          collectionItemSummary: testCollectionItemSummary(testCollectionItem(
             id: 'owned-1',
             itemId: 'comic-1',
-            quantity: 1,
             updatedAt: DateTime.utc(2026, 1, 1),
           )),
         ),
@@ -707,7 +702,7 @@ void main() {
         CustomFieldValue(
           id: 'v1',
           targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
           fieldDefinitionId: 'def-1',
           value: 'Special note, with comma',
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -726,10 +721,9 @@ void main() {
             kind: 'comic',
             title: 'Test',
           )).asShelfCatalogItem),
-          ownedSummary: testOwnedSummary(testOwnedItem(
+          collectionItemSummary: testCollectionItemSummary(testCollectionItem(
             id: 'owned-1',
             itemId: 'comic-1',
-            quantity: 1,
             updatedAt: DateTime.utc(2026, 1, 1),
           )),
         ),

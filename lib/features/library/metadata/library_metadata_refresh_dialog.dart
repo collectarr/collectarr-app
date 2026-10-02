@@ -258,7 +258,7 @@ class _LibraryMetadataRefreshDialogState
         return;
       }
       _updateRow(
-        entry.node.workId,
+        entry.node.catalogItemId,
         (row) => row.copyWith(
           status: _RefreshRowStatus.running,
           message: 'Searching Core...',
@@ -272,7 +272,7 @@ class _LibraryMetadataRefreshDialogState
           input: _inputForEntry(entry),
         );
         _updateRow(
-          entry.node.workId,
+          entry.node.catalogItemId,
           (row) => row.copyWith(
             status: results.isEmpty
                 ? _RefreshRowStatus.missing
@@ -284,7 +284,7 @@ class _LibraryMetadataRefreshDialogState
         );
       } catch (error) {
         _updateRow(
-          entry.node.workId,
+          entry.node.catalogItemId,
           (row) => row.copyWith(
             status: _RefreshRowStatus.failed,
             message: _shortError(
@@ -307,7 +307,7 @@ class _LibraryMetadataRefreshDialogState
     setState(() {
       _rows = [
         for (final row in _rows)
-          row.entry.node.workId == entryId ? update(row) : row,
+          row.entry.node.catalogItemId == entryId ? update(row) : row,
       ];
     });
   }
@@ -628,7 +628,7 @@ List<LibraryProjectionView> _dedupe(Iterable<LibraryProjectionView> values) {
   final seen = <String>{};
   final result = <LibraryProjectionView>[];
   for (final value in values) {
-    if (seen.add(value.node.workId)) {
+    if (seen.add(value.node.catalogItemId)) {
       result.add(value);
     }
   }

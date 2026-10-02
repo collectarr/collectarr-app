@@ -30,7 +30,7 @@ void main() {
         publisher: 'Marvel Comics',
         barcode: '759606083060141',
       ).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
+      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
         id: 'owned-1',
         itemId: 'comic-1',
         grade: '9.4',
@@ -41,7 +41,7 @@ void main() {
       wishlistItem: testWishlistItem(id: 'wish-1', itemId: 'comic-1'),
       locationPath: 'Box 6',
     );
-    const node = LibraryWorkRef(workId: 'comic-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
     final dto = const ComicWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -92,17 +92,17 @@ void main() {
         ),
         ref: const CatalogEntityRef(
           kind: CatalogMediaKind.music,
-          entityType: CatalogEntityTypeId.root,
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'music-1',
         ),
       ),
-      ownedSummary: testOwnedSummary(testOwnedItem(
+      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
         id: 'owned-m1',
         itemId: 'music-1',
         personalNotes: 'Japanese pressing',
       )),
     );
-    const node = LibraryWorkRef(workId: 'music-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'music-1');
     final dto = const MusicCatalogItemWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -151,10 +151,10 @@ void main() {
         kind: 'movie',
         title: 'Dune',
       ).asShelfCatalogItem),
-      ownedSummary:
-          testOwnedSummary(testOwnedItem(id: 'om1', itemId: 'movie-1')),
+      collectionItemSummary:
+          testCollectionItemSummary(testCollectionItem(id: 'om1', itemId: 'movie-1')),
     );
-    const nodeMovie = LibraryWorkRef(workId: 'movie-1');
+    const nodeMovie = LibraryCatalogItemNodeRef(catalogItemId: 'movie-1');
     final dtoMovie = const MovieWorkspaceProjector().project(
       source: sourceMovie,
       entity: nodeMovie,
@@ -172,10 +172,10 @@ void main() {
         kind: 'game',
         title: 'Mario Kart 8 Deluxe',
       ).asShelfCatalogItem),
-      ownedSummary:
-          testOwnedSummary(testOwnedItem(id: 'og1', itemId: 'game-1')),
+      collectionItemSummary:
+          testCollectionItemSummary(testCollectionItem(id: 'og1', itemId: 'game-1')),
     );
-    const nodeGame = LibraryWorkRef(workId: 'game-1');
+    const nodeGame = LibraryCatalogItemNodeRef(catalogItemId: 'game-1');
     final dtoGame = const GameWorkspaceProjector().project(
       source: sourceGame,
       entity: nodeGame,

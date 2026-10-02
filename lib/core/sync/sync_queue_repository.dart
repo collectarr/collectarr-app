@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:drift/drift.dart';
@@ -151,15 +152,17 @@ class SyncQueueRepository {
     final payload = Map<String, dynamic>.from(source);
     final rawReference = payload['catalog_ref'];
     if (rawReference is Map) {
-      payload['catalog_ref'] = CatalogItemRef.fromJson(
-        Map<String, Object?>.from(rawReference),
-      ).toJson();
+      final referenceJson = Map<String, Object?>.from(rawReference);
+      final catalogItemRef = referenceJson.containsKey('entity_type')
+          ? CatalogEntityRef.fromJson(referenceJson).toCatalogItemRef()
+          : CatalogItemRef.fromJson(referenceJson);
+      payload['catalog_ref'] = catalogItemRef.toJson();
     } else if (rawReference != null) {
       throw const FormatException(
         'Sync Catalog Item reference must be a JSON object.',
       );
     }
-    if (entityType == 'owned_copy' && payload.containsKey('target_ref')) {
+    if (entityType == 'collection_item' && payload.containsKey('target_ref')) {
       payload.remove('target_ref');
     } else if (payload.containsKey('target_ref')) {
       throw FormatException(
@@ -182,7 +185,7 @@ class SyncQueueRepository {
     }
     if (action == 'delete' && entityType != 'music_listen_event') return;
     final required = switch (entityType) {
-      'owned_copy' ||
+      'collection_item' ||
       'wishlist_item' ||
       'tracking_entry' ||
       'tracking_unit' ||

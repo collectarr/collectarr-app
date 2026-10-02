@@ -1,52 +1,53 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/local/music_owned_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:drift/drift.dart';
 
 /// Persistence for the complete Music-owned graph.
 final class MusicOwnedRepository
-    implements ReadRepository<MusicOwnedCopyId, MusicOwnedItem> {
+    implements ReadRepository<CollectionItemId, MusicCollectionItem> {
   const MusicOwnedRepository(this._db);
 
   final LocalDatabase _db;
 
   @override
-  Future<MusicOwnedItem?> findById(MusicOwnedCopyId id) async {
-    final row = await (_db.select(_db.musicOwnedItemsRows)
+  Future<MusicCollectionItem?> findById(CollectionItemId id) async {
+    final row = await (_db.select(_db.musicCollectionItemsRows)
           ..where((table) => table.id.equals(id.value)))
         .getSingleOrNull();
-    return row == null ? null : MusicOwnedLocalMapper.fromOwnedItemRow(row);
+    return row == null ? null : MusicOwnedLocalMapper.fromCollectionItemRow(row);
   }
 
-  Future<List<MusicOwnedItem>> listActive() async {
-    final rows = await (_db.select(_db.musicOwnedItemsRows)
+  Future<List<MusicCollectionItem>> listActive() async {
+    final rows = await (_db.select(_db.musicCollectionItemsRows)
           ..where((table) => table.deletedAt.isNull())
           ..orderBy([(table) => OrderingTerm.desc(table.updatedAt)]))
         .get();
     return [
-      for (final row in rows) MusicOwnedLocalMapper.fromOwnedItemRow(row),
+      for (final row in rows) MusicOwnedLocalMapper.fromCollectionItemRow(row),
     ];
   }
 
   /// Loads active copies for one concrete Catalog Item.
-  Future<List<MusicOwnedItem>> listByCatalogRef(
+  Future<List<MusicCollectionItem>> listByCatalogRef(
     CatalogEntityRef catalogRef, {
     bool includeDeleted = false,
   }) async {
     if (catalogRef.mediaKind != CatalogMediaKind.music ||
         !catalogRef.isKnown ||
-        catalogRef.entityType != CatalogEntityTypeId.root) {
+        catalogRef.entityType != CatalogEntityTypeId.catalogItem) {
       throw ArgumentError.value(
         catalogRef,
         'catalogRef',
-        'Music owned copies require a concrete Catalog Item reference',
+        'Music collection items require a concrete Catalog Item reference',
       );
     }
-    final rows = await (_db.select(_db.musicOwnedItemsRows)
+    final rows = await (_db.select(_db.musicCollectionItemsRows)
           ..where(
             (table) =>
                 table.itemId.equals(catalogRef.id) &
@@ -57,7 +58,7 @@ final class MusicOwnedRepository
           ..orderBy([(table) => OrderingTerm.desc(table.updatedAt)]))
         .get();
     final items = [
-      for (final row in rows) MusicOwnedLocalMapper.fromOwnedItemRow(row)
+      for (final row in rows) MusicOwnedLocalMapper.fromCollectionItemRow(row)
     ];
     return [
       for (final item in items)
@@ -65,14 +66,14 @@ final class MusicOwnedRepository
     ];
   }
 
-  Future<void> upsert(MusicOwnedItem item) {
+  Future<void> upsert(MusicCollectionItem item) {
     item.validateCatalogItemOwnership();
     return _db
-        .into(_db.musicOwnedItemsRows)
-        .insertOnConflictUpdate(MusicOwnedLocalMapper.toOwnedItemRow(item));
+        .into(_db.musicCollectionItemsRows)
+        .insertOnConflictUpdate(MusicOwnedLocalMapper.toCollectionItemRow(item));
   }
 
-  Future<void> upsertAll(Iterable<MusicOwnedItem> items) async {
+  Future<void> upsertAll(Iterable<MusicCollectionItem> items) async {
     final values = items.toList(growable: false);
     if (values.isEmpty) return;
     for (final item in values) {
@@ -80,9 +81,9 @@ final class MusicOwnedRepository
     }
     await _db.batch((batch) {
       batch.insertAll(
-        _db.musicOwnedItemsRows,
+        _db.musicCollectionItemsRows,
         values
-            .map(MusicOwnedLocalMapper.toOwnedItemRow)
+            .map(MusicOwnedLocalMapper.toCollectionItemRow)
             .toList(growable: false),
         mode: InsertMode.insertOrReplace,
       );
@@ -104,7 +105,7 @@ final class MusicOwnedRepository
       );
       if (copies.isEmpty) return;
       final now = DateTime.now().toUtc();
-      final updated = <MusicOwnedItem>[];
+      final updated = <MusicCollectionItem>[];
       for (final copy in copies) {
         final media = <MusicOwnedMediumDetails>[];
         final occupiedIndexes = <int>{};
@@ -147,7 +148,7 @@ final class MusicOwnedRepository
     });
   }
 
-  Future<void> markDeleted(MusicOwnedItem item, DateTime deletedAt) {
+  Future<void> markDeleted(MusicCollectionItem item, DateTime deletedAt) {
     return upsert(item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt));
   }
 }

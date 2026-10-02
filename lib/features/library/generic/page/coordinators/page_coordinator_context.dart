@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -25,7 +25,7 @@ typedef LibraryPageRebuild = void Function([VoidCallback? fn]);
 
 typedef LibraryPageEditDialogLauncher = Future<void> Function(
   LibraryProjectionItem item,
-  OwnedCopySummary? ownedItemOverride,
+  CollectionItemSummary? collectionItemOverride,
 );
 
 typedef LibraryPageCompareMetadataWithServer = Future<void> Function(
@@ -86,7 +86,7 @@ class LibraryPageCoordinatorContext {
     required List<LibrarySidebarScopeSnapshot> Function() getScopeHistory,
     required void Function(List<LibrarySidebarScopeSnapshot> value)
         setScopeHistory,
-    required Set<OwnedCopyRef> Function() getActiveLoanOwnedCopyIds,
+    required Set<CollectionItemRef> Function() getActiveLoanCollectionItemIds,
     required Set<String> Function() getPinnedSortFavoriteIds,
     required void Function(Set<String> value) setPinnedSortFavoriteIds,
     required Set<String> Function() getPinnedColumnFavoriteKeys,
@@ -154,7 +154,7 @@ class LibraryPageCoordinatorContext {
         _setActiveSmartListName = setActiveSmartListName,
         _getScopeHistory = getScopeHistory,
         _setScopeHistory = setScopeHistory,
-        _getActiveLoanOwnedCopyIds = getActiveLoanOwnedCopyIds,
+        _getActiveLoanCollectionItemIds = getActiveLoanCollectionItemIds,
         _getPinnedSortFavoriteIds = getPinnedSortFavoriteIds,
         _setPinnedSortFavoriteIds = setPinnedSortFavoriteIds,
         _getPinnedColumnFavoriteKeys = getPinnedColumnFavoriteKeys,
@@ -216,7 +216,7 @@ class LibraryPageCoordinatorContext {
   final void Function(String? value) _setActiveSmartListName;
   final List<LibrarySidebarScopeSnapshot> Function() _getScopeHistory;
   final void Function(List<LibrarySidebarScopeSnapshot> value) _setScopeHistory;
-  final Set<OwnedCopyRef> Function() _getActiveLoanOwnedCopyIds;
+  final Set<CollectionItemRef> Function() _getActiveLoanCollectionItemIds;
   final Set<String> Function() _getPinnedSortFavoriteIds;
   final void Function(Set<String> value) _setPinnedSortFavoriteIds;
   final Set<String> Function() _getPinnedColumnFavoriteKeys;
@@ -265,7 +265,7 @@ class LibraryPageCoordinatorContext {
   LibraryWorkspaceViewState? get viewState => _getViewState();
   set viewState(LibraryWorkspaceViewState? value) => _setViewState(value);
 
-  LibraryEntityScope get activeEntityScope => LibraryEntityScope.work;
+  LibraryEntityScope get activeEntityScope => LibraryEntityScope.catalogItem;
 
   LibrarySelectionState get selection => _getSelection();
   set selection(LibrarySelectionState value) => _setSelection(value);
@@ -314,7 +314,7 @@ class LibraryPageCoordinatorContext {
   set scopeHistory(List<LibrarySidebarScopeSnapshot> value) =>
       _setScopeHistory(value);
 
-  Set<OwnedCopyRef> get activeLoanOwnedCopyIds => _getActiveLoanOwnedCopyIds();
+  Set<CollectionItemRef> get activeLoanCollectionItemIds => _getActiveLoanCollectionItemIds();
 
   Set<String> get pinnedSortFavoriteIds => _getPinnedSortFavoriteIds();
   set pinnedSortFavoriteIds(Set<String> value) =>

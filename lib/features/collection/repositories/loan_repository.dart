@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
@@ -8,10 +8,10 @@ class LoanRepository {
   const LoanRepository(this._db);
   final LocalDatabase _db;
 
-  Future<List<Loan>> getLoansForItem(OwnedCopyRef ownedRef) async {
-    requireKnownOwnedRef(ownedRef);
+  Future<List<Loan>> getLoansForItem(CollectionItemRef collectionItemRef) async {
+    requireKnownCollectionItemRef(collectionItemRef);
     final rows = await (_db.select(_db.loansCache)
-          ..where((t) => t.ownedRefKey.equals(ownedRef.key))
+          ..where((t) => t.collectionItemRefKey.equals(collectionItemRef.key))
           ..orderBy([(t) => OrderingTerm.desc(t.lentDate)]))
         .get();
     return rows.map(_fromRow).toList();
@@ -33,11 +33,11 @@ class LoanRepository {
   }
 
   Future<void> create(Loan loan) async {
-    requireKnownOwnedRef(loan.ownedRef);
+    requireKnownCollectionItemRef(loan.collectionItemRef);
     await _db.into(_db.loansCache).insert(
           LoansCacheCompanion.insert(
             id: loan.id,
-            ownedRefKey: loan.ownedRef.key,
+            collectionItemRefKey: loan.collectionItemRef.key,
             borrowerName: loan.borrowerName,
             lentDate: loan.lentDate,
             dueDate: Value(loan.dueDate),
@@ -59,7 +59,7 @@ class LoanRepository {
   Loan _fromRow(LoansCacheData row) {
     return Loan(
       id: row.id,
-      ownedRef: OwnedCopyRef.fromKey(row.ownedRefKey),
+      collectionItemRef: CollectionItemRef.fromKey(row.collectionItemRefKey),
       borrowerName: row.borrowerName,
       lentDate: row.lentDate,
       dueDate: row.dueDate,

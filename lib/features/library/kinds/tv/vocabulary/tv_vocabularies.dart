@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 
 abstract final class TvVocabularyIds {
@@ -62,8 +62,8 @@ abstract final class TvVocabularies {
     );
   }
 
-  static TvOwnedItem _replaceOwnedValue(
-    TvOwnedItem item,
+  static TvCollectionItem _replaceOwnedValue(
+    TvCollectionItem item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -101,7 +101,7 @@ abstract final class TvVocabularies {
   }
 
   static Iterable<String?> _ownedValues(
-    TvOwnedItem item,
+    TvCollectionItem item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

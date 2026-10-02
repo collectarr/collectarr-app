@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -17,7 +17,7 @@ final class TrackingSummary {
     required this.status,
     required this.updatedAt,
     this.progress = const TrackingProgressSnapshot(),
-    this.ownedRef,
+    this.collectionItemRef,
     this.sourceType,
     this.rating,
     this.startedAt,
@@ -29,7 +29,7 @@ final class TrackingSummary {
   final String id;
   final CatalogEntityRef catalogRef;
   final MediaTrackingStatus status;
-  final OwnedCopyRef? ownedRef;
+  final CollectionItemRef? collectionItemRef;
   final TrackingSourceType? sourceType;
   final int? rating;
   final DateTime? startedAt;

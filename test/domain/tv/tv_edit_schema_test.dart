@@ -110,7 +110,7 @@ void main() {
         id: 'series-1',
         mediaKind: CatalogMediaKind.tv,
       ),
-      kindMetadata: const TvSeriesMetadata(title: 'The Expanse'),
+      kindData: const TvSeriesMetadata(title: 'The Expanse'),
     );
     final editor = TvReleaseMediaEditController(
       item: item,

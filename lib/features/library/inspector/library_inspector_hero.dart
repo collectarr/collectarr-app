@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -9,14 +9,14 @@ class InspectorHero extends StatelessWidget {
     super.key,
     required this.type,
     required this.item,
-    required this.ownedItem,
+    required this.collectionItem,
     required this.accent,
     this.contextLabel,
   });
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final OwnedCopySummary? ownedItem;
+  final CollectionItemSummary? collectionItem;
   final Color accent;
   final String? contextLabel;
 
@@ -25,7 +25,7 @@ class InspectorHero extends StatelessWidget {
     return LibraryDetailHero(
       type: type,
       item: item,
-      ownedItem: ownedItem,
+      collectionItem: collectionItem,
       accent: accent,
     );
   }

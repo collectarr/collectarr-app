@@ -39,7 +39,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
       return _buildWithSeasons(context, seasons);
     }
     final seasonsAsync = ref.watch(
-      tvSeasonsByCatalogItemIdProvider(titleItem.node.workId),
+      tvSeasonsByCatalogItemIdProvider(titleItem.node.catalogItemId),
     );
     return seasonsAsync.when(
       loading: () => _TvShelfDrilldownShell(
@@ -80,7 +80,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
             node: titleItem.node,
             dto: projector.project(
               source: titleItem.source,
-              entity: LibraryWorkRef(workId: titleItem.node.workId),
+              entity: LibraryCatalogItemNodeRef(catalogItemId: titleItem.node.catalogItemId),
             ),
             customFieldBadges: titleItem.customFieldBadges,
           ),

@@ -52,7 +52,7 @@ class CustomFieldValuesCache extends Table {
 
 class ItemImagesCache extends Table {
   TextColumn get id => text()();
-  TextColumn get ownedRefKey => text()();
+  TextColumn get collectionItemRefKey => text()();
   TextColumn get imageType =>
       text().withDefault(const Constant('front_cover'))();
   BlobColumn get imageData => blob()();
@@ -125,7 +125,7 @@ class UserMetadataOverridesCache extends Table {
 
 class LoansCache extends Table {
   TextColumn get id => text()();
-  TextColumn get ownedRefKey => text()();
+  TextColumn get collectionItemRefKey => text()();
   TextColumn get borrowerName => text()();
   DateTimeColumn get lentDate => dateTime()();
   DateTimeColumn get dueDate => dateTime().nullable()();
@@ -172,20 +172,20 @@ class UserFoldersCache extends Table {
 
 class UserFolderItemsCache extends Table {
   TextColumn get folderId => text()();
-  TextColumn get ownedRefKey => text()();
+  TextColumn get collectionItemRefKey => text()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 
   @override
-  Set<Column> get primaryKey => {folderId, ownedRefKey};
+  Set<Column> get primaryKey => {folderId, collectionItemRefKey};
 }
 
 class ReadingQueueCache extends Table {
-  TextColumn get ownedRefKey => text()();
+  TextColumn get collectionItemRefKey => text()();
   IntColumn get position => integer()();
   DateTimeColumn get addedAt => dateTime()();
 
   @override
-  Set<Column> get primaryKey => {ownedRefKey};
+  Set<Column> get primaryKey => {collectionItemRefKey};
 }
 
 class PickListValuesCache extends Table {

@@ -1,23 +1,24 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('round trips owned copy grading and reading details', () async {
+  test('round trips collection item grading and reading details', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final updatedAt = DateTime.utc(2026, 9, 30);
-    final input = ComicOwnedItem(
-      id: const ComicOwnedCopyId('owned-comic-1'),
+    final input = ComicCollectionItem(
+      id: const CollectionItemId('owned-comic-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityTypeId.root,
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'comic-1',
       ),
       condition: 'Very Fine',
@@ -37,15 +38,15 @@ void main() {
       ),
     );
 
-    await db.into(db.comicOwnedItemsRows).insert(
-          ComicLocalMapper.toOwnedItemRow(input),
+    await db.into(db.comicCollectionItemsRows).insert(
+          ComicLocalMapper.toCollectionItemRow(input),
         );
     await db.into(db.comicReadingRows).insert(
           ComicLocalMapper.toReadingRow(input),
         );
-    final ownedRow = await db.select(db.comicOwnedItemsRows).getSingle();
+    final ownedRow = await db.select(db.comicCollectionItemsRows).getSingle();
     final readingRow = await db.select(db.comicReadingRows).getSingle();
-    final restored = ComicLocalMapper.fromOwnedItemRow(
+    final restored = ComicLocalMapper.fromCollectionItemRow(
       ownedRow,
       reading: ComicLocalMapper.fromReadingRow(readingRow),
     );

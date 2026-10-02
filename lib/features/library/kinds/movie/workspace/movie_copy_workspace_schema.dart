@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
@@ -14,11 +14,11 @@ abstract final class MovieCopyWorkspaceFields {
     id: MovieFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = MovieOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return owned is MovieOwnedItem ? owned.condition : null;
+      final owned = MovieCollectionItemProjection.fromDispatch(
+          context.source.collectionItemDispatch);
+      return owned is MovieCollectionItem ? owned.condition : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final location =
@@ -26,7 +26,7 @@ abstract final class MovieCopyWorkspaceFields {
     id: MovieFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final pricePaid =
@@ -34,7 +34,7 @@ abstract final class MovieCopyWorkspaceFields {
     id: MovieFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final status =
@@ -44,7 +44,7 @@ abstract final class MovieCopyWorkspaceFields {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final rating =
@@ -52,7 +52,7 @@ abstract final class MovieCopyWorkspaceFields {
     id: MovieFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final wishlist =
@@ -60,7 +60,7 @@ abstract final class MovieCopyWorkspaceFields {
     id: MovieFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final updatedAt =
@@ -68,7 +68,7 @@ abstract final class MovieCopyWorkspaceFields {
     id: MovieFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final addedAt =
@@ -76,7 +76,7 @@ abstract final class MovieCopyWorkspaceFields {
     id: MovieFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final watchStatus =
@@ -84,7 +84,7 @@ abstract final class MovieCopyWorkspaceFields {
     id: MovieFieldIds.watchStatus,
     label: 'Watch Status',
     getValue: (context) => context.dto.personal.trackingStatus,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 }
 
@@ -112,7 +112,7 @@ final movieCopyWorkspaceGroupDefinitions = [
 final movieCopyWorkspaceSortDefinitions = [
   LibrarySortDefinition<MovieKind, MovieWorkspaceDto>(
     id: MovieSortIds.status,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
     compare: (left, right) {
       int rank(LibraryProjectionContext<MovieWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;
@@ -206,7 +206,7 @@ final movieCopyWorkspaceColumnDefinitions = [
 final movieCopyWorkspaceSchema =
     LibraryEntityWorkspaceSchema<MovieKind, MovieWorkspaceDto>(
   kindNamespace: 'movie',
-  entityScope: LibraryEntityScope.copy,
+  entityScope: LibraryEntityScope.collectionItem,
   fields: movieCopyWorkspaceFieldDefinitions,
   columns: movieCopyWorkspaceColumnDefinitions,
   sorts: movieCopyWorkspaceSortDefinitions,

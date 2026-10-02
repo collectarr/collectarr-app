@@ -29,15 +29,15 @@ String _extractSyncPayloadBody(String content) {
 
 void main() {
   test('ref-based models no longer accept itemId in constructors', () {
-    final ownedItem = _read(
-      'lib/features/library/kinds/comic/domain/comic_owned_item.dart',
+    final collectionItem = _read(
+      'lib/features/library/kinds/comic/domain/comic_collection_item.dart',
     );
     final wishlistItem = _read('lib/core/models/wishlist_item.dart');
     final trackingRecord = _read(
       'lib/features/library/tracking/tracking_storage_record.dart',
     );
 
-    expect(ownedItem, isNot(contains('String? itemId,')));
+    expect(collectionItem, isNot(contains('String? itemId,')));
     expect(wishlistItem, isNot(contains('String? itemId,')));
     expect(trackingRecord, isNot(contains('String? itemId,')));
   });

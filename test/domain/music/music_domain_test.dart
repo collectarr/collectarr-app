@@ -123,7 +123,7 @@ void main() {
     expect(musicKindAdd.createInitialDraft(), isA<MusicAddDraft>());
     expect(
       musicKindEditCapabilities.presentationCapability.editRegistry
-          .builderForScope(LibraryEntityScope.work),
+          .builderForScope(LibraryEntityScope.catalogItem),
       isNotNull,
     );
     expect(

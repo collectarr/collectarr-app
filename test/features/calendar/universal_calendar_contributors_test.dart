@@ -2,22 +2,22 @@ import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/calendar/universal_calendar_contributors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('projects owned lifecycle and loan events without kind semantics', () {
-    final owned = OwnedCopySummary(
-      ref: const OwnedCopyRef(
+    final owned = CollectionItemSummary(
+      ref: const CollectionItemRef(
         kind: CatalogMediaKind.book,
-        id: OwnedCopyId('owned-1'),
+        id: CollectionItemId('owned-1'),
       ),
       title: 'book-1',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'book-1',
       ),
       purchaseDate: DateTime.utc(2026, 1, 1),
@@ -26,9 +26,9 @@ void main() {
     );
     final loan = Loan(
       id: 'loan-1',
-      ownedRef: const OwnedCopyRef(
+      collectionItemRef: const CollectionItemRef(
         kind: CatalogMediaKind.book,
-        id: OwnedCopyId('owned-1'),
+        id: CollectionItemId('owned-1'),
       ),
       borrowerName: 'Reader',
       lentDate: DateTime.utc(2026, 1, 4),
@@ -37,12 +37,12 @@ void main() {
     );
 
     final context = UniversalCalendarContext(
-      ownedItems: [owned],
+      collectionItems: [owned],
       loans: [loan],
       titleForRef: (ref) => ref.id == 'book-1' ? 'Seed Book' : 'Unknown item',
     );
     final events = [
-      ...const OwnedItemCalendarContributor().contribute(context),
+      ...const CollectionItemCalendarContributor().contribute(context),
       ...const LoanCalendarContributor().contribute(context),
     ];
 
@@ -64,14 +64,14 @@ void main() {
       id: 'watch-1',
       targetRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'book-1',
       ),
       watchedAt: DateTime.utc(2026, 1, 5),
       updatedAt: DateTime.utc(2026, 1, 5),
     );
     final context = UniversalCalendarContext(
-      ownedItems: const [],
+      collectionItems: const [],
       loans: const [],
       watchSessions: [session],
       titleForRef: (_) => 'Seed Book',
@@ -87,45 +87,45 @@ void main() {
   });
 
   test('keeps equal owned ids distinct by media kind', () {
-    final book = OwnedCopySummary(
-      ref: const OwnedCopyRef(
+    final book = CollectionItemSummary(
+      ref: const CollectionItemRef(
         kind: CatalogMediaKind.book,
-        id: OwnedCopyId('shared-id'),
+        id: CollectionItemId('shared-id'),
       ),
       title: 'Book copy',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'book-1',
       ),
       updatedAt: DateTime.utc(2026, 1, 3),
     );
-    final comic = OwnedCopySummary(
-      ref: const OwnedCopyRef(
+    final comic = CollectionItemSummary(
+      ref: const CollectionItemRef(
         kind: CatalogMediaKind.comic,
-        id: OwnedCopyId('shared-id'),
+        id: CollectionItemId('shared-id'),
       ),
       title: 'Comic copy',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'comic-1',
       ),
       updatedAt: DateTime.utc(2026, 1, 3),
     );
     final context = UniversalCalendarContext(
-      ownedItems: [book, comic],
+      collectionItems: [book, comic],
       loans: [
         Loan(
           id: 'book-loan',
-          ownedRef: book.ref,
+          collectionItemRef: book.ref,
           borrowerName: 'Reader',
           lentDate: DateTime.utc(2026, 1, 4),
           dueDate: DateTime.utc(2026, 1, 10),
         ),
         Loan(
           id: 'comic-loan',
-          ownedRef: comic.ref,
+          collectionItemRef: comic.ref,
           borrowerName: 'Collector',
           lentDate: DateTime.utc(2026, 1, 4),
           dueDate: DateTime.utc(2026, 1, 11),
@@ -143,7 +143,7 @@ void main() {
 
   test('does not duplicate a watch handled by a kind contributor', () {
     final context = UniversalCalendarContext(
-      ownedItems: const [],
+      collectionItems: const [],
       loans: const [],
       watchSessions: [
         WatchSession(

@@ -1,23 +1,23 @@
 import '../music_module_dependencies.dart';
-import '../ownership/music_transfer_owned_item.dart';
+import '../ownership/music_transfer_collection_item.dart';
 
 final musicKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.work,
+      scope: LibraryEntityScope.catalogItem,
       builder: buildMusicAlbumLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.copy,
-      builder: buildMusicOwnedCopyLibraryEditDialog,
+      scope: LibraryEntityScope.collectionItem,
+      builder: buildMusicCollectionItemLibraryEditDialog,
     ),
   ]),
   vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
   presentation: musicTypedEditPresentation,
   coreCorrectionTargetResolver: resolveMusicCatalogItemCoreCorrectionTarget,
   conditions: MusicVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
-    MusicOwnedItem item => item.grade,
+  ownedCollectionValueReader: (collectionItem) => switch (collectionItem?.value) {
+    MusicCollectionItem item => item.grade,
     _ => null,
   },
   defaultCondition: 'Near Mint',
@@ -25,17 +25,17 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
   ownedDigitalFlagResolver: resolveMusicOwnedDigitalFlag,
   ownedFormatHintResolver: resolveMusicOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-      MusicOwnedItemUpdatePayload.partial(
+      MusicCollectionItemUpdatePayload.partial(
     indexNumber: Patch.set(indexNumber),
   ),
   ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-      MusicOwnedItemUpdatePayload.partial(
+      MusicCollectionItemUpdatePayload.partial(
     condition: Patch.set(condition),
     grade: Patch.set(collectionValue),
   ),
   ownedBulkUpdatePayloadBuilder:
       (_, condition, collectionValue, locationId, tags) =>
-          MusicOwnedItemUpdatePayload.partial(
+          MusicCollectionItemUpdatePayload.partial(
     condition:
         condition == null ? const Patch.unchanged() : Patch.set(condition),
     grade: collectionValue == null
@@ -55,7 +55,7 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
     locationChanged,
     locationId,
   ) =>
-      MusicOwnedItemUpdatePayload.partial(
+      MusicCollectionItemUpdatePayload.partial(
     purchaseDate: Patch.set(purchaseDate),
     pricePaidCents: Patch.set(pricePaidCents),
     currency: Patch.set(currency),
@@ -65,8 +65,8 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
   ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = musicTransferOwnedItem(updated);
-    return MusicOwnedItemUpdatePayload.partial(
+    final typed = musicTransferCollectionItem(updated);
+    return MusicCollectionItemUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
       personalNotes: Patch.set(typed.personalNotes),
@@ -77,7 +77,6 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
       purchaseStore: Patch.set(typed.purchaseStore),
       pricePaidCents: Patch.set(typed.pricePaidCents),
       sellPriceCents: Patch.set(typed.sellPriceCents),
-      quantity: Patch.set(typed.quantity),
       indexNumber: Patch.set(typed.indexNumber),
       purchaseDate: Patch.set(typed.purchaseDate),
       soldAt: Patch.set(typed.soldAt),
@@ -89,7 +88,7 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
     );
   },
   ownedDetailsResetPayloadBuilder: () =>
-      MusicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+      MusicCollectionItemUpdatePayload.partial(details: const Patch.clear()),
 );
 
 LibraryCoreCorrectionTarget resolveMusicCatalogItemCoreCorrectionTarget({

@@ -33,26 +33,27 @@ abstract interface class LibraryEntityWorkspaceProjector<
 ///
 /// Workspace projections are often rebuilt from cached shelf data. A stale
 /// release/copy node must not silently fall back to the source's primary
-/// release or another owned item.
+/// release or another collection item.
 void requireEntityBelongsToSource(
   LibraryWorkspaceSource source,
   LibraryEntityRef entity,
 ) {
-  final expectedWorkId = source.catalogRef?.rootScope.id ?? source.itemId;
-  if (entity.workId != expectedWorkId) {
+  final expectedCatalogItemId =
+      source.catalogRef?.rootScope.id ?? source.itemId;
+  if (entity.catalogItemId != expectedCatalogItemId) {
     throw StateError(
-      'Library entity "${entity.id}" belongs to work "${entity.workId}", '
-      'but the workspace source belongs to "$expectedWorkId"',
+      'Library entity "${entity.id}" belongs to Catalog Item "${entity.catalogItemId}", '
+      'but the workspace source belongs to "$expectedCatalogItemId"',
     );
   }
 
-  if (entity case LibraryCopyRef(:final ownedRef)) {
-    final sourceOwnedRef = source.ownedSummary?.ref;
-    if (sourceOwnedRef != ownedRef) {
+  if (entity case LibraryCollectionItemNodeRef(:final collectionItemRef)) {
+    final sourceCollectionItemRef = source.collectionItemSummary?.ref;
+    if (sourceCollectionItemRef != collectionItemRef) {
       throw StateError(
-        'Library copy "${entity.id}" refers to owned item "${ownedRef.key}", '
+        'Library copy "${entity.id}" refers to collection item "${collectionItemRef.key}", '
         'but the workspace source contains '
-        '"${sourceOwnedRef?.key ?? 'no owned item'}"',
+        '"${sourceCollectionItemRef?.key ?? 'no collection item'}"',
       );
     }
   }

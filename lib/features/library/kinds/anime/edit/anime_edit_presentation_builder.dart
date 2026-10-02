@@ -116,7 +116,6 @@ class AnimeLibraryEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const AnimeLibraryEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
@@ -125,8 +124,6 @@ class AnimeLibraryEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Release / copy reference',
-          ownedBundleLabel: 'Owned release bundle',
           ownedTabs: _animeOwnedTabs,
           trackedTabs: _animeTrackedTabs,
           catalogTabs: _animeCatalogTabs,

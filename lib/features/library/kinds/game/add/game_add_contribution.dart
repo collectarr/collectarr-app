@@ -11,7 +11,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   manualCandidateBuilder: buildGameManualCandidate,
   manualProposalBuilder: buildGameManualProposalData,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      GameOwnedItemCreatePayload(
+      GameCollectionItemCreatePayload(
     catalogRef: item.reference,
     details: details as GameOwnedDetailsDraft,
     condition: common.condition,
@@ -20,7 +20,6 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,
     personalNotes: common.personalNotes,
-    quantity: common.quantity,
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
@@ -62,9 +61,8 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  GameCatalogMetadata.fromJson(transport.kindData));
               return metadata is GameCatalogMetadata
                   ? [metadata.platform, ...metadata.platforms]
                   : const <Object?>[];
@@ -75,9 +73,8 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  GameCatalogMetadata.fromJson(transport.kindData));
               return metadata is GameCatalogMetadata
                   ? [
                       item.gameCatalogFields.releaseYear,

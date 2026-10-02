@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -13,12 +13,12 @@ import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
+import 'package:collectarr_app/features/library/config/collection_item_mutation_result.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
 import 'package:uuid/uuid.dart';
 
@@ -27,7 +27,7 @@ String _defaultIdGenerator() => const Uuid().v4();
 
 final class CollectionImportOrchestrator {
   CollectionImportOrchestrator({
-    required this.ownedItems,
+    required this.collectionItems,
     required this.wishlist,
     required this.catalogTransport,
     required this.catalogSummaries,
@@ -41,7 +41,7 @@ final class CollectionImportOrchestrator {
           for (final profile in csvProfiles) profile.kind: profile,
         };
 
-  final OwnedItemsRepository ownedItems;
+  final CollectionItemsRepository collectionItems;
   final WishlistItemsCacheRepository wishlist;
   final CatalogTransportRepository catalogTransport;
   final CatalogDisplaySummaryRepository catalogSummaries;
@@ -93,13 +93,13 @@ final class CollectionImportOrchestrator {
         item.catalogRef: item,
     };
     final existingOwned = _ownedSummariesByTarget(
-      await ownedItems.listActiveSummaries(),
+      await collectionItems.listActiveSummaries(),
       rowRefs,
       includeRootScope: false,
     );
     final activeWishlistRefs = existingWishlist.keys.toSet();
-    final ownedItemRefs = <OwnedCopyRef>[];
-    final ownedWrites = <Future<OwnedItemMutationResult> Function()>[];
+    final collectionItemRefs = <CollectionItemRef>[];
+    final ownedWrites = <Future<CollectionItemMutationResult> Function()>[];
     final trackingImports = <TrackingStorageImport>[];
     final wishlistDeletes = <WishlistItem>[];
     final wishlistUpserts = <WishlistItem>[];
@@ -119,29 +119,29 @@ final class CollectionImportOrchestrator {
 
       final existingWishlistItem = existingWishlist[wishlistRef];
       if (row.isOwned) {
-        final existingOwnedSummary = existingOwned[rowRef];
-        final existingOwnedPayload = existingOwnedSummary == null
+        final existingCollectionItemSummary = existingOwned[rowRef];
+        final existingOwnedPayload = existingCollectionItemSummary == null
             ? null
-            : await ownedItems.payloadByRef(existingOwnedSummary.ref);
-        final ownedImport = _ownedItemImportFromCsvRow(
+            : await collectionItems.payloadByRef(existingCollectionItemSummary.ref);
+        final ownedImport = _collectionItemImportFromCsvRow(
           row,
           now,
-          existingSummary: existingOwnedSummary,
+          existingSummary: existingCollectionItemSummary,
           existingPayload: existingOwnedPayload,
           catalogKind: catalogKind,
         );
-        final ownedRef = ownedImport.ref;
+        final collectionItemRef = ownedImport.ref;
         ownedWrites.add(
-          () => ownedItems.replaceFromTransport(ownedImport.transport),
+          () => collectionItems.replaceFromTransport(ownedImport.transport),
         );
-        ownedItemRefs.add(ownedRef);
+        collectionItemRefs.add(collectionItemRef);
 
         if (!row.tracking.isEmpty) {
           trackingImports.add(
             TrackingStorageImport(
               entryId: idGenerator(),
               catalogRef: ownedImport.transport.catalogRef,
-              ownedRef: ownedRef,
+              collectionItemRef: collectionItemRef,
               now: now,
               rating: row.tracking.rating,
               status: row.tracking.status,
@@ -202,7 +202,7 @@ final class CollectionImportOrchestrator {
         for (final write in ownedWrites) {
           final persisted = await write();
           syncChanges.add(
-            ownedItems.syncChangeForMutation(
+            collectionItems.syncChangeForMutation(
               persisted,
               action: 'upsert',
               changedAt: now,
@@ -235,7 +235,7 @@ final class CollectionImportOrchestrator {
         }
       },
       eventsToEmit: [
-        for (final item in ownedItemRefs) OwnedItemAdded(item),
+        for (final item in collectionItemRefs) CollectionItemAdded(item),
         for (final _ in trackingImports) const TrackingChanged(),
         for (final item in wishlistUpserts) WishlistChanged(item.catalogRef),
         for (final item in wishlistDeletes) WishlistChanged(item.catalogRef),
@@ -330,7 +330,7 @@ final class CollectionImportOrchestrator {
     final uniqueRefs =
         uniqueRows.map(_catalogRefForRow).whereType<CatalogEntityRef>().toSet();
     final existingOwnedMap = _ownedSummariesByTarget(
-      await ownedItems.listActiveSummaries(),
+      await collectionItems.listActiveSummaries(),
       uniqueRefs,
       includeRootScope: true,
     );
@@ -412,10 +412,10 @@ final class CollectionImportOrchestrator {
     );
   }
 
-  _OwnedImport _ownedItemImportFromCsvRow(
+  _OwnedImport _collectionItemImportFromCsvRow(
     CollectionImportRow row,
     DateTime now, {
-    OwnedCopySummary? existingSummary,
+    CollectionItemSummary? existingSummary,
     JsonMap? existingPayload,
     CatalogMediaKind? catalogKind,
   }) {
@@ -430,15 +430,14 @@ final class CollectionImportOrchestrator {
     final personal = row.personal;
     final projection = _profileForKind(kind);
     if (projection != null) {
-      final ownedRef = existingSummary?.ref ??
-          OwnedCopyRef(
+      final collectionItemRef = existingSummary?.ref ??
+          CollectionItemRef(
             kind: kind,
-            itemId: catalogRef.rootScope.id,
-            id: OwnedCopyId(idGenerator()),
+            id: CollectionItemId(idGenerator()),
           );
-      final transport = projection.ownedItemImportTransport(
+      final transport = projection.collectionItemImportTransport(
         CollectionCsvOwnedImport(
-          id: ownedRef.id.value,
+          id: collectionItemRef.id.value,
           catalogRef: catalogRef,
           now: now,
           existingPayload: existingPayload,
@@ -447,7 +446,6 @@ final class CollectionImportOrchestrator {
           pricePaidCents: personal.pricePaidCents,
           currency: personal.currency,
           personalNotes: personal.notes,
-          quantity: personal.quantity ?? 1,
           locationId: personal.locationId,
           indexNumber: personal.indexNumber,
           tags: personal.tags,
@@ -458,7 +456,7 @@ final class CollectionImportOrchestrator {
         ),
       );
       return (
-        ref: ownedRef,
+        ref: collectionItemRef,
         transport: transport,
       );
     }
@@ -468,12 +466,12 @@ final class CollectionImportOrchestrator {
   CollectionCsvKindProfile? _profileForKind(CatalogMediaKind kind) =>
       _csvProfiles[kind];
 
-  Map<CatalogEntityRef, OwnedCopySummary> _ownedSummariesByTarget(
-      Iterable<OwnedCopySummary> summaries, Iterable<CatalogEntityRef> targets,
+  Map<CatalogEntityRef, CollectionItemSummary> _ownedSummariesByTarget(
+      Iterable<CollectionItemSummary> summaries, Iterable<CatalogEntityRef> targets,
       {required bool includeRootScope}) {
     final targetSet = targets.toSet();
     final targetRoots = {for (final target in targetSet) target.rootScope};
-    final result = <CatalogEntityRef, OwnedCopySummary>{};
+    final result = <CatalogEntityRef, CollectionItemSummary>{};
     for (final summary in summaries) {
       final catalogRef = summary.catalogRef;
       if (catalogRef == null ||
@@ -491,7 +489,7 @@ final class CollectionImportOrchestrator {
 }
 
 typedef _OwnedImport = ({
-  OwnedCopyRef ref,
+  CollectionItemRef ref,
   OwnedImportTransport transport,
 });
 

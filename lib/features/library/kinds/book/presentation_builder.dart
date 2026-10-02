@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_fields.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/hierarchy/ui/hierarchy_children_section.dart';
@@ -214,7 +214,7 @@ class BookLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.workId),
+          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (series?.seriesTitle != null)
@@ -333,7 +333,7 @@ class BookLibraryMediaPresentationBuilder
     if (showVolumeHierarchy) {
       sections.add(
         HierarchyChildrenSection(
-          itemId: item.node.workId,
+          itemId: item.node.catalogItemId,
           kind: CatalogMediaKind.book,
         ),
       );
@@ -439,8 +439,8 @@ class BookLibraryMediaPresentationBuilder
 
     final source = item.source;
     final typedOwned =
-        BookOwnedItemProjection.fromDispatch(source.ownedItemDispatch);
-    final owned = typedOwned is BookOwnedItem ? typedOwned : null;
+        BookCollectionItemProjection.fromDispatch(source.collectionItemDispatch);
+    final owned = typedOwned is BookCollectionItem ? typedOwned : null;
     final rating = source.trackingSummary?.rating;
     final personalFacts = <LibraryDetailField>[
       if (owned?.condition?.trim().isNotEmpty == true)
@@ -464,10 +464,10 @@ class BookLibraryMediaPresentationBuilder
       if (source.pricePaidCents != null)
         LibraryDetailField(
             label: 'Price Paid', value: source.pricePaidCents!.toString()),
-      if (source.ownedSummary?.notes?.trim().isNotEmpty == true)
+      if (source.collectionItemSummary?.notes?.trim().isNotEmpty == true)
         LibraryDetailField(
           label: 'Notes',
-          value: source.ownedSummary!.notes!.trim(),
+          value: source.collectionItemSummary!.notes!.trim(),
         ),
       if (owned?.tags?.trim().isNotEmpty == true)
         LibraryDetailField(

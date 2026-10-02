@@ -1,16 +1,16 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_copy_id.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_collection_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dart';
 
-final gameOwnedContributor = TypedOwnedKindContributor<GameOwnedItem>(
+final gameOwnedContributor = TypedOwnedKindContributor<GameCollectionItem>(
   kind: CatalogMediaKind.game,
   findById: (database, id) =>
-      GameOwnedRepository(database).findById(GameOwnedCopyId(id)),
+      GameOwnedRepository(database).findById(CollectionItemId(id)),
   upsert: (database, item) => GameOwnedRepository(database).upsert(item),
   listActive: (database) => GameOwnedRepository(database).listActive(),
   createItem: ({
@@ -22,10 +22,10 @@ final gameOwnedContributor = TypedOwnedKindContributor<GameOwnedItem>(
     required ownerUserId,
     required ownerLabel,
   }) {
-    if (payload is! GameOwnedItemCreatePayload) {
+    if (payload is! GameCollectionItemCreatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
-    return payload.toOwnedItem(
+    return payload.toCollectionItem(
       resolvedCatalogRef: resolvedCatalogRef,
       id: id,
       createdAt: createdAt,
@@ -41,7 +41,7 @@ final gameOwnedContributor = TypedOwnedKindContributor<GameOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (payload is! GameOwnedItemUpdatePayload) {
+    if (payload is! GameCollectionItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {
@@ -55,9 +55,9 @@ final gameOwnedContributor = TypedOwnedKindContributor<GameOwnedItem>(
     );
   },
   toJson: (item) => item.toJson().cast<String, Object?>(),
-  fromJson: GameOwnedItem.fromJson,
-  summary: GameOwnedItemProjection.toSummary,
-  createPayload: GameOwnedItemCreatePayload.fromTypedItem,
+  fromJson: GameCollectionItem.fromJson,
+  summary: GameCollectionItemProjection.toSummary,
+  createPayload: GameCollectionItemCreatePayload.fromTypedItem,
   itemId: (item) => item.id.value,
   markDeleted: (item, deletedAt) =>
       item.copyWith(deletedAt: deletedAt, updatedAt: deletedAt),

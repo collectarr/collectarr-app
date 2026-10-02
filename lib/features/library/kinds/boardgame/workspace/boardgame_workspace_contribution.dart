@@ -3,18 +3,18 @@ import '../config/boardgame_kind_capabilities.dart';
 
 final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
   entityWorkspaces: {
-    LibraryEntityScope.work: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
-      scope: LibraryEntityScope.work,
+    LibraryEntityScope.catalogItem: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
+      scope: LibraryEntityScope.catalogItem,
       fields: boardgameCatalogItemWorkspaceSchema.toRegistry(),
       projector: const BoardGameWorkspaceProjector(
-        expectedScope: LibraryEntityScope.work,
+        expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
-      scope: LibraryEntityScope.copy,
+    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
+      scope: LibraryEntityScope.collectionItem,
       fields: boardgameCopyWorkspaceSchema.toRegistry(),
       projector: const BoardGameWorkspaceProjector(
-        expectedScope: LibraryEntityScope.copy,
+        expectedScope: LibraryEntityScope.collectionItem,
       ),
     ),
   },

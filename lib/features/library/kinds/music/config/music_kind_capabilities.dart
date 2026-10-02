@@ -103,7 +103,7 @@ final musicKindActions = const LibraryEntityActionCapability(
   semanticActions: {
     // Listening history belongs to the concrete catalog item, matching the
     // Music tracking topology and listening-event storage.
-    LibraryEntityScope.work: [
+    LibraryEntityScope.catalogItem: [
       LibraryEntitySemanticActionDefinition(
         id: 'music.log_listen',
         label: 'Log listen',
@@ -118,12 +118,12 @@ final musicKindInspector = LibraryInspectorCapability(
   entityRegistry: LibraryEntityInspectorRegistry(
     contributors: [
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
+        scope: LibraryEntityScope.catalogItem,
         heroBuilder: buildMusicWorkInspectorHero,
         sectionsBuilder: buildMusicWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
+        scope: LibraryEntityScope.collectionItem,
         heroBuilder: buildMusicCopyInspectorHero,
         sectionsBuilder: buildMusicCopyInspectorSections,
       ),

@@ -1,24 +1,25 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:drift/drift.dart';
 
-/// Maps Movie-owned copy state to its local Drift row.
+/// Maps Movie-collection item state to its local Drift row.
 final class MovieOwnedLocalMapper {
   const MovieOwnedLocalMapper._();
 
-  static MovieOwnedItemsRowsCompanion toRow(MovieOwnedItem item) {
+  static MovieCollectionItemsRowsCompanion toRow(MovieCollectionItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.movie) {
-      throw StateError('Cannot persist an invalid MovieOwnedItem');
+      throw StateError('Cannot persist an invalid MovieCollectionItem');
     }
 
     final details = item.details;
-    return MovieOwnedItemsRowsCompanion.insert(
+    return MovieCollectionItemsRowsCompanion.insert(
       id: item.id.value,
       itemId: item.itemId,
       createdAt: Value(item.createdAt),
@@ -29,7 +30,6 @@ final class MovieOwnedLocalMapper {
       pricePaidCents: Value(item.pricePaidCents),
       currency: Value(item.currency),
       personalNotes: Value(item.personalNotes),
-      quantity: Value(item.quantity),
       indexNumber: Value(item.indexNumber),
       tags: Value(item.tags),
       updatedAt: item.updatedAt,
@@ -53,12 +53,12 @@ final class MovieOwnedLocalMapper {
     );
   }
 
-  static MovieOwnedItem fromRow(MovieOwnedItemsRow row) {
-    return MovieOwnedItem(
-      id: MovieOwnedCopyId(row.id),
+  static MovieCollectionItem fromRow(MovieCollectionItemsRow row) {
+    return MovieCollectionItem(
+      id: CollectionItemId(row.id),
       catalogRef: CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: row.itemId,
       ),
       createdAt: row.createdAt,
@@ -69,7 +69,6 @@ final class MovieOwnedLocalMapper {
       pricePaidCents: row.pricePaidCents,
       currency: row.currency,
       personalNotes: row.personalNotes,
-      quantity: row.quantity,
       indexNumber: row.indexNumber,
       tags: row.tags,
       updatedAt: row.updatedAt,

@@ -78,29 +78,3 @@ class Money {
   @override
   String toString() => format();
 }
-
-@immutable
-class OwnedCopyId {
-  const OwnedCopyId(this.value);
-
-  final String value;
-
-  static OwnedCopyId? fromRaw(String? raw) {
-    final trimmed = raw?.trim();
-    if (trimmed == null || trimmed.isEmpty) return null;
-    return OwnedCopyId(trimmed);
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is OwnedCopyId &&
-          runtimeType == other.runtimeType &&
-          value == other.value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
-}

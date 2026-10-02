@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
@@ -17,7 +17,7 @@ final class TrackingUnitStorageRow {
     required this.id,
     required this.targetRef,
     required this.trackingEntryId,
-    required this.ownedRef,
+    required this.collectionItemRef,
     required this.completedAt,
     required this.updatedAt,
     required this.deletedAt,
@@ -26,7 +26,7 @@ final class TrackingUnitStorageRow {
   final String id;
   final CatalogEntityRef targetRef;
   final String? trackingEntryId;
-  final OwnedCopyRef? ownedRef;
+  final CollectionItemRef? collectionItemRef;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -100,9 +100,9 @@ TrackingUnitStorageRow trackingUnitStorageRowFromSyncPayload({
     Map<String, Object?>.from(rawTargetRef),
   );
   requireKnownCatalogRef(targetRef, 'trackingUnit.targetRef');
-  final ownedRef = ownedCopyRefFromSerialized(payload['owned_ref']);
-  if (ownedRef != null) {
-    requireMatchingOwnedCatalogKinds(targetRef, ownedRef);
+  final collectionItemRef = collectionItemRefFromSerialized(payload['collection_item_ref']);
+  if (collectionItemRef != null) {
+    requireMatchingCatalogAndCollectionItemKinds(targetRef, collectionItemRef);
   }
   final completedAtValue = payload['completed_at'];
   if (completedAtValue is! String) {
@@ -118,7 +118,7 @@ TrackingUnitStorageRow trackingUnitStorageRowFromSyncPayload({
     id: id,
     targetRef: targetRef,
     trackingEntryId: trackingEntryId as String?,
-    ownedRef: ownedRef,
+    collectionItemRef: collectionItemRef,
     completedAt: DateTime.parse(completedAtValue),
     updatedAt: updatedAt,
     deletedAt: deletedAt,
@@ -147,7 +147,7 @@ TrackingUnitStorageRow trackingUnitStorageRowFromColumns({
   required String id,
   required String targetRefJson,
   required String? trackingEntryId,
-  required String? ownedRefKey,
+  required String? collectionItemRefKey,
   required DateTime completedAt,
   required DateTime updatedAt,
   required DateTime? deletedAt,
@@ -161,15 +161,15 @@ TrackingUnitStorageRow trackingUnitStorageRowFromColumns({
     Map<String, Object?>.from(decoded),
   );
   requireKnownCatalogRef(targetRef, 'trackingUnit.targetRef');
-  final ownedRef = ownedCopyRefFromSerialized(ownedRefKey);
-  if (ownedRef != null) {
-    requireMatchingOwnedCatalogKinds(targetRef, ownedRef);
+  final collectionItemRef = collectionItemRefFromSerialized(collectionItemRefKey);
+  if (collectionItemRef != null) {
+    requireMatchingCatalogAndCollectionItemKinds(targetRef, collectionItemRef);
   }
   return TrackingUnitStorageRow(
     id: id,
     targetRef: targetRef,
     trackingEntryId: trackingEntryId,
-    ownedRef: ownedRef,
+    collectionItemRef: collectionItemRef,
     completedAt: completedAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/catalog_replacement_value_repository.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -42,7 +42,7 @@ class InsuranceValueRepository {
 
   Future<InsuranceValueSummary> getSummary(
       {CatalogMediaKind? mediaKind}) async {
-    final ownedRows = await OwnedItemsRepository(_db).listActiveSummaries();
+    final ownedRows = await CollectionItemsRepository(_db).listActiveSummaries();
     final filteredRows = mediaKind == null
         ? ownedRows
         : ownedRows.where((row) => row.ref.kind == mediaKind).toList();

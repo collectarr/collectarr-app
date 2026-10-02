@@ -23,7 +23,7 @@ CatalogSearchCandidate? buildBoardgameManualCandidate(
     CatalogItemDto(
       identity:
           LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.boardgame),
-      kindMetadata: metadata,
+      kindData: metadata,
     ),
   );
 }
@@ -39,8 +39,6 @@ Map<String, Object?>? buildBoardgameManualProposalData(
   final candidate = buildBoardgameManualCandidate(draft, title: title);
   if (candidate == null) return null;
   return candidate.kindCapability.mapTransport(
-    (item) => Map<String, Object?>.from(
-      (item.kindMetadata as BoardGameMetadata).toJson(),
-    ),
+    (item) => Map<String, Object?>.from(item.kindData),
   );
 }

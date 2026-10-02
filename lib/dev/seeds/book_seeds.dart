@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -9,12 +10,12 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 
-final bookDevSeedContributor = TypedDevSeedKindContributor<BookOwnedItem>(
+final bookDevSeedContributor = TypedDevSeedKindContributor<BookCollectionItem>(
   kind: CatalogMediaKind.book,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -32,11 +33,11 @@ final bookDevSeedContributor = TypedDevSeedKindContributor<BookOwnedItem>(
   validateCatalog: validateBookSeedCatalog,
   validateCatalogGraph: validateBookSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: bookSeedOwnedItems,
-  ownedSummaryTyped: BookOwnedItemProjection.toSummary,
+  collectionItemsTyped: bookSeedCollectionItems,
+  collectionItemSummaryTyped: BookCollectionItemProjection.toSummary,
   validateOwnedTyped: validateBookSeedOwned,
   seedOwnedTyped: (db, now) =>
-      BookOwnedRepository(db).upsertAll(bookSeedOwnedItems(now)),
+      BookOwnedRepository(db).upsertAll(bookSeedCollectionItems(now)),
   trackingRecords: bookSeedTrackingStates,
   trackingUnits: bookSeedTrackingUnits,
 );
@@ -89,7 +90,7 @@ List<String> validateBookSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateBookSeedOwned(BookOwnedItem item) {
+List<String> validateBookSeedOwned(BookCollectionItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
@@ -112,7 +113,7 @@ Iterable<BookTrackingUnit> bookSeedTrackingUnits(
       id: 'seed-unit-book-${item.id}',
       targetRef: CatalogEntityRef(
         kind: item.mediaKind,
-        entityType: CatalogEntityTypeId.root,
+        entityType: CatalogEntityTypeId.catalogItem,
         id: item.id,
       ),
       volumeNumber: volumeNumber,
@@ -763,10 +764,10 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
     ];
 
-List<BookOwnedItem> bookSeedOwnedItems(DateTime now) => [
+List<BookCollectionItem> bookSeedCollectionItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.book, 15))
-        BookOwnedItem(
-          id: BookOwnedCopyId('seed-owned-$itemId'),
+        BookCollectionItem(
+          id: CollectionItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.book, itemId),
           createdAt: now.subtract(const Duration(days: 300)),
           updatedAt: now,
@@ -781,7 +782,6 @@ List<BookOwnedItem> bookSeedOwnedItems(DateTime now) => [
           pricePaidCents: 2499,
           currency: 'USD',
           personalNotes: 'Deluxe physical copy on library shelf.',
-          quantity: 1,
           purchaseStore: 'Barnes & Noble',
           collectionStatus: 'collected',
         ),
@@ -795,7 +795,7 @@ List<TrackingStorageRecord> bookSeedTrackingStates(DateTime now) => [
             CatalogMediaKind.book,
             'seed-book-${seedOrdinal2(i)}',
           ),
-          ownedRef: seedOwnedRef(
+          collectionItemRef: seedCollectionItemRef(
             CatalogMediaKind.book,
             'seed-owned-seed-book-${seedOrdinal2(i)}',
           ),

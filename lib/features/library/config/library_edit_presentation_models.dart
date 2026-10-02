@@ -11,10 +11,8 @@ class LibraryEditPresentationContext {
     required this.hasWishlistContext,
     required this.isDigitalFormat,
     required this.hasPhysicalFormats,
-    required this.hasOwnedTargetOptions,
-    required this.hasAdditionalTargetOptions,
     required this.hasCustomFields,
-    this.scope = LibraryEntityScope.work,
+    this.scope = LibraryEntityScope.catalogItem,
   });
 
   final bool isOwned;
@@ -23,8 +21,6 @@ class LibraryEditPresentationContext {
   final bool hasWishlistContext;
   final bool isDigitalFormat;
   final bool hasPhysicalFormats;
-  final bool hasOwnedTargetOptions;
-  final bool hasAdditionalTargetOptions;
   final bool hasCustomFields;
   final LibraryEntityScope scope;
 }
@@ -50,26 +46,20 @@ class LibraryEditTabSpec {
 
 class LibraryEditPresentationState {
   const LibraryEditPresentationState({
-    required this.showsOwnershipReferenceSection,
     required this.usesOwnedMainArtworkLayout,
     required this.usesDetailsTab,
     required this.usesArtworkCoverTab,
     required this.usesArtworkPhotosTab,
     required this.trackingSectionTitle,
     this.trackingSectionHint,
-    required this.ownershipReferenceTitle,
-    required this.ownedBundleLabel,
   });
 
-  final bool showsOwnershipReferenceSection;
   final bool usesOwnedMainArtworkLayout;
   final bool usesDetailsTab;
   final bool usesArtworkCoverTab;
   final bool usesArtworkPhotosTab;
   final String trackingSectionTitle;
   final String? trackingSectionHint;
-  final String ownershipReferenceTitle;
-  final String ownedBundleLabel;
 }
 
 abstract class LibraryEditPresentationBuilder {
@@ -121,9 +111,10 @@ class LibraryEditPresentation {
 
   LibraryEditPresentationBuilder builderForScope(LibraryEntityScope scope) {
     return switch (scope) {
-      LibraryEntityScope.work => workBuilder ?? builder,
+      LibraryEntityScope.catalogItem => workBuilder ?? builder,
       LibraryEntityScope.release => releaseBuilder ?? builder,
-      LibraryEntityScope.copy => copyBuilder ?? releaseBuilder ?? builder,
+      LibraryEntityScope.collectionItem =>
+        copyBuilder ?? releaseBuilder ?? builder,
     };
   }
 }

@@ -118,7 +118,6 @@ class _IntegrationExportDialog extends StatelessWidget {
             'title': entry.title,
             'owned': entry.isOwned,
             'wishlist': entry.isWishlisted,
-            if (entry.isOwned) 'quantity': entry.quantity,
           },
         )
         .toList();
@@ -156,15 +155,15 @@ class _IntegrationExportDialog extends StatelessWidget {
     for (final entry in shelfState.entries) {
       final projection = libraryKindWorkspaceForKind(registration.kind).project(
         source: entry,
-        node: LibraryWorkRef(
-          workId: entry.catalogRef?.id ?? entry.itemId,
+        node: LibraryCatalogItemNodeRef(
+          catalogItemId: entry.catalogRef?.id ?? entry.itemId,
         ),
       );
       final card = libraryCardPresentationForEntry(
         LibraryProjectionItem(
           source: entry,
-          node: LibraryWorkRef(
-            workId: entry.catalogRef?.id ?? entry.itemId,
+          node: LibraryCatalogItemNodeRef(
+            catalogItemId: entry.catalogRef?.id ?? entry.itemId,
           ),
           dto: projection.dto,
         ),

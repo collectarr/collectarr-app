@@ -35,7 +35,7 @@ void main() {
       DateTime? releaseDate,
     }) {
       final owned = isOwned
-          ? testOwnedItem(
+          ? testCollectionItem(
               id: 'owned-$id',
               updatedAt: DateTime.utc(2026, 1, 1),
               pricePaidCents: pricePaidCents,
@@ -44,7 +44,7 @@ void main() {
               coverPriceCents: coverPriceCents,
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
-                entityType: const CatalogEntityTypeId('owned_copy'),
+                entityType: const CatalogEntityTypeId('collection_item'),
                 id: id,
               ),
             )
@@ -81,16 +81,16 @@ void main() {
         itemId: id,
         catalogData: testWorkspaceCatalogData(
             testCatalogItemWithKindMetadata(catalog).asShelfCatalogItem),
-        ownedSummary: owned == null ? null : testOwnedSummary(owned),
-        ownedItemDispatch: owned == null
+        collectionItemSummary: owned == null ? null : testCollectionItemSummary(owned),
+        collectionItemDispatch: owned == null
             ? null
-            : testComicOwnedItemDispatchFrom(testComicOwnedItemFrom(owned)),
+            : testComicCollectionItemDispatchFrom(testComicCollectionItemFrom(owned)),
         wishlistItem: wishlist,
       );
 
-      final node = LibraryWorkRef(workId: id);
+      final node = LibraryCatalogItemNodeRef(catalogItemId: id);
       final dto =
-          comicKindWorkspace.projectorForScope(LibraryEntityScope.work).project(
+          comicKindWorkspace.projectorForScope(LibraryEntityScope.catalogItem).project(
                 source: shelf,
                 entity: node,
               );

@@ -60,7 +60,7 @@ void main() {
       kindDraftsByCatalogRef: {
         CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'comic-1',
         ): ComicAddDraft(grade: '9.2'),
       },
@@ -80,7 +80,7 @@ void main() {
     expect(ownedRows.single.tags, 'favorite,dc');
     expect(trackingRows.single.catalogRef.id, 'comic-1');
     expect(trackingRows.single.statusStorageValue, 'Completed');
-    expect(syncRows.map((row) => row.entityType), contains('owned_item'));
+    expect(syncRows.map((row) => row.entityType), contains('collection_item'));
     expect(syncRows.map((row) => row.entityType), contains('tracking_entry'));
     expect(
       syncRows.map((row) => row.entityType),
@@ -124,7 +124,7 @@ void main() {
     );
   });
 
-  test('adds digital owned items without physical-only defaults', () async {
+  test('adds digital collection items without physical-only defaults', () async {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
 
@@ -213,7 +213,7 @@ void main() {
 
 Future<void> addLibraryItemsToTarget({
   required CatalogTransportRepository catalog,
-  required OwnedItemMutations ownedMutations,
+  required CollectionItemMutations ownedMutations,
   required WishlistMutations wishlistMutations,
   required TrackingMutations trackingMutations,
   required Iterable<CatalogSearchCandidate> items,
@@ -254,8 +254,8 @@ class _WorkflowFixture {
 
   CatalogTransportRepository get catalog => CatalogTransportRepository(db);
 
-  OwnedItemMutations get ownedMutations => container.read(
-        ownedItemMutationsProvider,
+  CollectionItemMutations get ownedMutations => container.read(
+        collectionItemMutationsProvider,
       );
 
   WishlistMutations get wishlistMutations => container.read(

@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:flutter/material.dart';
 
-final EditSchema<MusicOwnedItem, MusicOwnedEditDraft> musicOwnedEditSchema =
+final EditSchema<MusicCollectionItem, MusicOwnedEditDraft> musicOwnedEditSchema =
     EditSchema(
   title: (_) => 'Edit music copy',
   tabs: [

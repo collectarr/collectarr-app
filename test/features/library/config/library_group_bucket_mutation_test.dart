@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_owned_copy_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_collection_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_collection_item_workspace_fields.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -38,7 +38,7 @@ CatalogImportTransport _mutateGroup(
     mode.endsWith('.publisher') &&
             (kind == CatalogMediaKind.book || kind == CatalogMediaKind.movie)
         ? LibraryEntityScope.release
-        : LibraryEntityScope.work,
+        : LibraryEntityScope.catalogItem,
   );
   final definition = fields.findGroupDefinition(
     fields.decodeGroupId(mode),
@@ -202,19 +202,19 @@ void main() {
   });
 
   test('builds an owned condition update and clears empty replacements', () {
-    final item = testMusicOwnedItemFrom(
-      testOwnedItem(
+    final item = testMusicCollectionItemFrom(
+      testCollectionItem(
         id: 'owned-music-1',
         itemId: 'music-1',
         kind: 'music',
         condition: 'Very Good',
       ),
     );
-    final mutator = MusicOwnedCopyWorkspaceFields.conditionBucketValueMutator();
-    final dispatch = OpaqueLibraryOwnedItemDispatch(
-      ref: OwnedCopyRef(
+    final mutator = MusicCollectionItemWorkspaceFields.conditionBucketValueMutator();
+    final dispatch = OpaqueLibraryCollectionItemDispatch(
+      ref: CollectionItemRef(
         kind: CatalogMediaKind.music,
-        id: OwnedCopyId(item.id.value),
+        id: CollectionItemId(item.id.value),
       ),
       kind: CatalogMediaKind.music,
       value: item,
@@ -222,14 +222,14 @@ void main() {
 
     final update = mutator(dispatch, 'Very Good', replacement: 'Mint');
     expect(update, isNotNull);
-    expect(update!.ownedRef.id.value, 'owned-music-1');
-    final payload = update.payload as MusicOwnedItemUpdatePayload;
+    expect(update!.collectionItemRef.id.value, 'owned-music-1');
+    final payload = update.payload as MusicCollectionItemUpdatePayload;
     expect(payload.condition, isA<SetValue<String?>>());
     expect((payload.condition as SetValue<String?>).value, 'Mint');
 
     final clear = mutator(dispatch, 'Very Good', replacement: '   ');
     expect(clear, isNotNull);
-    final clearPayload = clear!.payload as MusicOwnedItemUpdatePayload;
+    final clearPayload = clear!.payload as MusicCollectionItemUpdatePayload;
     expect(clearPayload.condition, isA<ClearValue<String?>>());
   });
 }

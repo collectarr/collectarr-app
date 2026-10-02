@@ -96,10 +96,9 @@ void main() {
         catalogData.music,
         ref: catalogData.ref,
       ),
-      ownedSummary: testOwnedSummary(testOwnedItem(
+      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
         id: 'owned-1',
         itemId: 'music-1',
-        quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
     );

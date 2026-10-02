@@ -52,7 +52,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'ComicKeyReason',
     'ComicMedia',
     'ComicRelease',
-    'ComicOwnedItem',
+    'ComicCollectionItem',
     // Movie & Video
     'MovieCatalogMetadata',
     'MovieWorkspaceDto',
@@ -164,10 +164,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'parent_id',
     'targetId',
     'target_id',
-    'ownedRef',
-    'owned_ref',
-    'ownedRefKey',
-    'owned_ref_key',
+    'collectionItemRef',
+    'collection_item_ref',
+    'collectionItemRefKey',
+    'collection_item_ref_key',
     'trackingEntryId',
     'tracking_entry_id',
     'source',
@@ -697,7 +697,7 @@ bool _isStructuralProjectionFile(String relativePath) {
     'lib/core/models/catalog_display_summary.dart',
     'lib/core/models/catalog_search_hit.dart',
     'lib/core/models/calendar_event.dart',
-    'lib/core/models/owned_item_projection.dart',
+    'lib/core/models/collection_item_projection.dart',
   }.contains(relativePath);
 }
 

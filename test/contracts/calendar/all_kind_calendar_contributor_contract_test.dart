@@ -19,7 +19,7 @@ void main() {
       title: (event) => event.title,
       kindReference: (event) =>
           event.catalogRef?.kind.apiValue ??
-          event.ownedRef?.kind.apiValue ??
+          event.collectionItemRef?.kind.apiValue ??
           '',
       startsAt: (event) => event.date,
       endsAt: (event) => event.date,

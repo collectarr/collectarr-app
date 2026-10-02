@@ -10,11 +10,9 @@ final class TvWorkspaceMapper {
   const TvWorkspaceMapper._();
 
   static TvSeries fromCatalogItem(CatalogItemDto item) {
-    final metadataPayload = item.toSyncPayload();
+    final metadataPayload = item.toJson();
     final basePayload = Map<String, dynamic>.from(metadataPayload);
-    final metadata = item.kindMetadata is TvSeriesMetadata
-        ? item.kindMetadata as TvSeriesMetadata
-        : TvSeriesMetadata.fromJson(metadataPayload);
+    final metadata = TvSeriesMetadata.fromJson(metadataPayload);
 
     final payload = <String, dynamic>{
       ...basePayload,

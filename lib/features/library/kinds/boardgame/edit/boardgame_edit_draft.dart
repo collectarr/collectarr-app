@@ -1,18 +1,18 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_collection_item_projection.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -36,7 +36,7 @@ class BoardGameEditDraft
         LibraryCopyEditSessionDefaults
     implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
   BoardGameEditDraft({
-    this.ownedItem,
+    this.collectionItem,
     this.editionLanguage,
     this.editionRegion,
     this.componentCondition,
@@ -91,7 +91,7 @@ class BoardGameEditDraft
     required this.releaseDateController,
   });
 
-  final BoardGameOwnedItem? ownedItem;
+  final BoardGameCollectionItem? collectionItem;
 
   String? editionLanguage;
   String? editionRegion;
@@ -161,7 +161,7 @@ class BoardGameEditDraft
 
   @override
   void initializePersonalState(PersonalStateDraft personal) {
-    final item = ownedItem;
+    final item = collectionItem;
     if (item == null) return;
     personal.ownerLabelController.text = item.ownerLabel ?? '';
     personal.conditionController.text = item.condition ?? '';
@@ -172,7 +172,6 @@ class BoardGameEditDraft
         ? ''
         : (item.pricePaidCents! / 100).toStringAsFixed(2);
     personal.currencyController.text = item.currency ?? '';
-    personal.quantityController.text = item.quantity.toString();
     personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
     personal.notesController.text = item.personalNotes ?? '';
     personal.tagsController.text = item.tags ?? '';
@@ -190,12 +189,11 @@ class BoardGameEditDraft
   }
 
   @override
-  BoardgameOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedCopyRef ownedRef,
+  BoardgameCollectionItemUpdatePayload buildOwnedUpdatePayload({
+    required CollectionItemRef collectionItemRef,
     required PersonalStateDraft personal,
   }) {
-    return BoardgameOwnedItemUpdatePayload(
-      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+    return BoardgameCollectionItemUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -730,11 +728,11 @@ Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
 
 LibraryEditSessionBundle createBoardGameEditDraft({
   required CatalogSearchCandidate item,
-  LibraryOwnedItemDispatch? ownedItemDispatch,
+  LibraryCollectionItemDispatch? collectionItemDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = BoardGameOwnedItemProjection.fromDispatch(ownedItemDispatch);
+  final owned = BoardGameCollectionItemProjection.fromDispatch(collectionItemDispatch);
   final bg = owned?.details;
   final meta = item.kindCapability.mapTransport(
               (transport) => BoardGameMetadata.fromJson(transport.kindData))
@@ -744,7 +742,7 @@ LibraryEditSessionBundle createBoardGameEditDraft({
           as BoardGameMetadata
       : null;
   final draft = BoardGameEditDraft(
-    ownedItem: owned,
+    collectionItem: owned,
     editionLanguage: bg?.editionLanguage,
     editionRegion: bg?.editionRegion,
     componentCondition: bg?.componentCondition,

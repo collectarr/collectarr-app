@@ -33,7 +33,7 @@ void main() {
         expect(libraryPresentationForKind(registration.kind), isNotNull);
         expect(libraryViewProfileForKind(registration.kind), isNotNull);
         expect(workspace.fields, isNotNull);
-        expect(workspace.projectorForScope(LibraryEntityScope.work), isNotNull);
+        expect(workspace.projectorForScope(LibraryEntityScope.catalogItem), isNotNull);
         expect(libraryAddForKind(registration.kind), isNotNull);
       }
     });
@@ -113,7 +113,7 @@ void main() {
       expect(
         () => LibraryFieldRegistry<LibraryWorkspaceDto>(
           kindNamespace: 'comic', // Mismatched namespace for book columns
-          entityScope: LibraryEntityScope.work,
+          entityScope: LibraryEntityScope.catalogItem,
           columns: bookKindWorkspace.fields.columns,
           sorts: bookKindWorkspace.fields.sorts,
           groups: bookKindWorkspace.fields.groups,

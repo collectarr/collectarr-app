@@ -23,11 +23,8 @@ final class MovieCatalogTransportCodec
   CatalogMediaKind get kind => CatalogMediaKind.movie;
 
   @override
-  MovieCatalogMetadata decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is MovieCatalogMetadata) return metadata;
-    return MovieCatalogMetadata.fromJson(catalogTransportPayloadFor(item));
-  }
+  MovieCatalogMetadata decode(CatalogItemDto item) =>
+      MovieCatalogMetadata.fromJson(catalogTransportPayloadFor(item));
 
   @override
   Future<void> upsert(LocalDatabase db, MovieCatalogMetadata item) {
@@ -133,15 +130,7 @@ final class MovieCatalogTransportCodec
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final items = await listTransport(db);
-    return [
-      for (final item in items)
-        CatalogDisplaySummary.root(
-          kind: kind,
-          id: item.id,
-          primaryLabel: item.resolvedDisplayTitle,
-          imageUrl: item.displayCoverUrl,
-        ),
-    ];
+    return [for (final item in items) summarize(decode(item))];
   }
 }
 

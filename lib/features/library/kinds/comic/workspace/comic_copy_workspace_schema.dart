@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -14,7 +14,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.condition,
     label: 'Condition',
     getValue: (context) => _owned(context)?.condition,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final location =
@@ -22,7 +22,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final pricePaid =
@@ -30,7 +30,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => _owned(context)?.pricePaidCents,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final status =
@@ -40,7 +40,7 @@ abstract final class ComicCopyWorkspaceFields {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final rating =
@@ -48,7 +48,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.rating,
     label: 'Rating',
     getValue: (context) => _owned(context)?.reading.rating,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final wishlist =
@@ -56,7 +56,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final updatedAt =
@@ -64,7 +64,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final addedAt =
@@ -72,7 +72,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final grade =
@@ -80,7 +80,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.grade,
     label: 'Grade',
     getValue: (context) => _owned(context)?.grade,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final keyComic =
@@ -88,7 +88,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.keyComic,
     label: 'Key Comic',
     getValue: (context) => _ownedDetails(context)?.keyComic == true,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final keyReason =
@@ -96,7 +96,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.keyReason,
     label: 'Key Reason',
     getValue: (context) => _ownedDetails(context)?.keyReason,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final keyCategory =
@@ -104,7 +104,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.keyCategory,
     label: 'Key Category',
     getValue: (context) => _ownedDetails(context)?.keyCategory,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final keySeverity =
@@ -112,7 +112,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.keySeverity,
     label: 'Key Severity',
     getValue: (context) => _ownedDetails(context)?.keySeverity,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final rawOrSlabbed =
@@ -120,7 +120,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.rawOrSlabbed,
     label: 'Raw / Slabbed',
     getValue: (context) => _ownedDetails(context)?.rawOrSlabbed,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final gradingCompany =
@@ -128,7 +128,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.gradingCompany,
     label: 'Grading Company',
     getValue: (context) => _ownedDetails(context)?.gradingCompany,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final graderNotes =
@@ -136,7 +136,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.graderNotes,
     label: 'Grader Notes',
     getValue: (context) => _ownedDetails(context)?.graderNotes,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final signedBy =
@@ -144,7 +144,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.signedBy,
     label: 'Signed By',
     getValue: (context) => _ownedDetails(context)?.signedBy,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final labelType =
@@ -152,7 +152,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.labelType,
     label: 'Label Type',
     getValue: (context) => _ownedDetails(context)?.labelType,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final customLabel =
@@ -160,7 +160,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.customLabel,
     label: 'Custom Label',
     getValue: (context) => _ownedDetails(context)?.customLabel,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final pageQuality =
@@ -168,7 +168,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.pageQuality,
     label: 'Page Quality',
     getValue: (context) => _ownedDetails(context)?.pageQuality,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final certificationNumber =
@@ -176,7 +176,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.certificationNumber,
     label: 'Certification Number',
     getValue: (context) => _ownedDetails(context)?.certificationNumber,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final coverPrice =
@@ -184,7 +184,7 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.coverPrice,
     label: 'Cover Price',
     getValue: (context) => _ownedDetails(context)?.coverPriceCents,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final lastBagBoardDate =
@@ -192,12 +192,12 @@ abstract final class ComicCopyWorkspaceFields {
     id: ComicFieldIds.lastBagBoardDate,
     label: 'Last Bag & Board Date',
     getValue: (context) => _ownedDetails(context)?.lastBagBoardDate,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 }
 
-ComicOwnedItem? _owned(LibraryProjectionContext<ComicWorkspaceDto> context) =>
-    context.dto.ownedItem;
+ComicCollectionItem? _owned(LibraryProjectionContext<ComicWorkspaceDto> context) =>
+    context.dto.collectionItem;
 
 ComicOwnedDetails? _ownedDetails(
   LibraryProjectionContext<ComicWorkspaceDto> context,
@@ -240,7 +240,7 @@ final comicCopyWorkspaceGroupDefinitions = [
 final comicCopyWorkspaceSortDefinitions = [
   LibrarySortDefinition<ComicKind, ComicWorkspaceDto>(
     id: ComicSortIds.status,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
     compare: (left, right) {
       int rank(LibraryProjectionContext<ComicWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;
@@ -357,7 +357,7 @@ final comicCopyWorkspaceColumnDefinitions = [
 final comicCopyWorkspaceSchema =
     LibraryEntityWorkspaceSchema<ComicKind, ComicWorkspaceDto>(
   kindNamespace: 'comic',
-  entityScope: LibraryEntityScope.copy,
+  entityScope: LibraryEntityScope.collectionItem,
   fields: comicCopyWorkspaceFieldDefinitions,
   columns: comicCopyWorkspaceColumnDefinitions,
   sorts: comicCopyWorkspaceSortDefinitions,

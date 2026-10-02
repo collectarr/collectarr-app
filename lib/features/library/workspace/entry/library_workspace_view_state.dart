@@ -180,7 +180,7 @@ class LibraryWorkspaceViewProfile {
   }) {
     return _decodeSortRules(
       libraryKindWorkspaceForKind(registrationResolver().kind).fieldsForScope(
-        scope ?? LibraryEntityScope.work,
+        scope ?? LibraryEntityScope.catalogItem,
       ),
       rules,
     );

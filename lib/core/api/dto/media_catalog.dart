@@ -9,7 +9,7 @@ enum MetadataFieldScope {
   episode('episode'),
   media('media'),
   track('track'),
-  ownedCopy('owned_copy'),
+  collectionItem('collection_item'),
   trackingRecord('tracking_entry'),
   ageRating('age_rating'),
   category('category'),

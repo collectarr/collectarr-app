@@ -87,12 +87,12 @@
       "symbol": "titleExtension"
     },
     {
-      "path": "lib/core/models/owned_item_projection.dart",
+      "path": "lib/core/models/collection_item_projection.dart",
       "surface": "member-access",
       "symbol": "notes"
     },
     {
-      "path": "lib/core/models/owned_item_projection.dart",
+      "path": "lib/core/models/collection_item_projection.dart",
       "surface": "member-access",
       "symbol": "ownerLabel"
     },
@@ -642,7 +642,7 @@
       "symbol": "sellPriceCents"
     },
     {
-      "path": "lib/features/library/config/owned_item_create_payload.dart",
+      "path": "lib/features/library/config/collection_item_create_payload.dart",
       "surface": "member-declaration",
       "symbol": "isDigital"
     },

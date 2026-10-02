@@ -10,7 +10,7 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
   manualCandidateBuilder: buildBoardgameManualCandidate,
   manualProposalBuilder: buildBoardgameManualProposalData,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      BoardgameOwnedItemCreatePayload(
+      BoardgameCollectionItemCreatePayload(
     catalogRef: item.reference,
     details: details as BoardgameOwnedDetailsDraft,
     condition: common.condition,
@@ -19,7 +19,6 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,
     personalNotes: common.personalNotes,
-    quantity: common.quantity,
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
@@ -61,9 +60,8 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BoardGameMetadata.fromJson(transport.kindData));
               return metadata is BoardGameMetadata
                   ? [...metadata.designers, ...metadata.artists]
                   : const <Object?>[];
@@ -74,9 +72,8 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BoardGameMetadata.fromJson(transport.kindData));
               return metadata is BoardGameMetadata
                   ? [...metadata.publishers, metadata.publisher]
                   : const <Object?>[];
@@ -87,9 +84,8 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BoardGameMetadata.fromJson(transport.kindData));
               return metadata is BoardGameMetadata
                   ? [metadata.yearPublished]
                   : const <Object?>[];

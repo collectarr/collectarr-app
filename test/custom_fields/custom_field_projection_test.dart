@@ -53,15 +53,14 @@ void main() {
               kind: 'comic',
               title: 'Batman',
             ).asShelfCatalogItem),
-            ownedSummary: testOwnedSummary(testOwnedItem(
+            collectionItemSummary: testCollectionItemSummary(testCollectionItem(
               id: 'owned-1',
               itemId: 'comic-1',
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
-                entityType: const CatalogEntityTypeId('work'),
+                entityType: CatalogEntityTypeId.catalogItem,
                 id: 'comic-1',
               ),
-              quantity: 1,
               updatedAt: DateTime.utc(2026, 1, 1),
             )),
           ),
@@ -72,15 +71,14 @@ void main() {
               kind: 'comic',
               title: 'Superman',
             ).asShelfCatalogItem),
-            ownedSummary: testOwnedSummary(testOwnedItem(
+            collectionItemSummary: testCollectionItemSummary(testCollectionItem(
               id: 'owned-2',
               itemId: 'comic-2',
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
-                entityType: const CatalogEntityTypeId('work'),
+                entityType: CatalogEntityTypeId.catalogItem,
                 id: 'comic-2',
               ),
-              quantity: 1,
               updatedAt: DateTime.utc(2026, 1, 1),
             )),
           ),
@@ -221,10 +219,9 @@ void main() {
               kind: 'comic',
               title: 'Batman',
             ).asShelfCatalogItem),
-            ownedSummary: testOwnedSummary(testOwnedItem(
+            collectionItemSummary: testCollectionItemSummary(testCollectionItem(
               id: 'owned-1',
               itemId: 'comic-1',
-              quantity: 1,
               updatedAt: DateTime.utc(2026, 1, 1),
             )),
           ),

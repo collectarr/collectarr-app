@@ -1,19 +1,17 @@
 import 'package:drift/drift.dart';
 
-/// Complete Anime-owned copy state.
-class AnimeOwnedItemsRows extends Table {
+/// Complete Anime-collection item state.
+class AnimeCollectionItemsRows extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
   DateTimeColumn get createdAt => dateTime().nullable()();
   BoolColumn get isDigital => boolean().nullable()();
-  TextColumn get targetRefJson => text().nullable()();
   TextColumn get condition => text().nullable()();
   TextColumn get grade => text().nullable()();
   DateTimeColumn get purchaseDate => dateTime().nullable()();
   IntColumn get pricePaidCents => integer().nullable()();
   TextColumn get currency => text().nullable()();
   TextColumn get personalNotes => text().nullable()();
-  IntColumn get quantity => integer().withDefault(const Constant(1))();
   IntColumn get indexNumber => integer().nullable()();
   TextColumn get tags => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
@@ -43,7 +41,7 @@ class AnimeTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get entryType => text().withDefault(const Constant('native'))();
   TextColumn get catalogRefJson => text()();
-  TextColumn get ownedRefKey => text().nullable()();
+  TextColumn get collectionItemRefKey => text().nullable()();
   TextColumn get mediaId => text()();
   TextColumn get episodeId => text().nullable()();
   TextColumn get status => text().withDefault(const Constant(''))();
@@ -70,7 +68,7 @@ class AnimeTrackingUnitRows extends Table {
   TextColumn get id => text()();
   TextColumn get targetRefJson => text()();
   TextColumn get trackingEntryId => text().nullable()();
-  TextColumn get ownedRefKey => text().nullable()();
+  TextColumn get collectionItemRefKey => text().nullable()();
   DateTimeColumn get completedAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();

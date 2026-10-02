@@ -11,7 +11,7 @@ import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -1058,7 +1058,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('comic add search results prominently mark owned items', (
+  testWidgets('comic add search results prominently mark collection items', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1100, 760);
@@ -1079,17 +1079,17 @@ void main() {
             (ref) => {
               const CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
-                entityType: CatalogEntityTypeId('work'),
+                entityType: CatalogEntityTypeId.catalogItem,
                 id: 'comic-423',
-              ): const OwnedCopySummary(
-                ref: OwnedCopyRef(
+              ): const CollectionItemSummary(
+                ref: CollectionItemRef(
                   kind: CatalogMediaKind.comic,
-                  id: OwnedCopyId('owned-comic-423'),
+                  id: CollectionItemId('owned-comic-423'),
                 ),
                 title: 'comic-423',
                 catalogRef: CatalogEntityRef(
                   kind: CatalogMediaKind.comic,
-                  entityType: CatalogEntityTypeId('work'),
+                  entityType: CatalogEntityTypeId.catalogItem,
                   id: 'comic-423',
                 ),
               ),
@@ -1147,17 +1147,17 @@ void main() {
             (ref) => {
               const CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
-                entityType: CatalogEntityTypeId('work'),
+                entityType: CatalogEntityTypeId.catalogItem,
                 id: 'comic-423',
-              ): const OwnedCopySummary(
-                ref: OwnedCopyRef(
+              ): const CollectionItemSummary(
+                ref: CollectionItemRef(
                   kind: CatalogMediaKind.comic,
-                  id: OwnedCopyId('owned-comic-423'),
+                  id: CollectionItemId('owned-comic-423'),
                 ),
                 title: 'comic-423',
                 catalogRef: CatalogEntityRef(
                   kind: CatalogMediaKind.comic,
-                  entityType: CatalogEntityTypeId('work'),
+                  entityType: CatalogEntityTypeId.catalogItem,
                   id: 'comic-423',
                 ),
               ),
@@ -1509,82 +1509,6 @@ class _FakeLibraryAddApiClient extends ApiClient {
     ],
   };
 
-  static final _typedMetadataFixtures =
-      <String, TypedMetadataResponse Function()>{
-    'comic:comic-423': () => ComicWorkDto.fromJson({
-          'id': 'comic-423',
-          'kind': 'comic',
-          'title': 'Batman',
-          'item_number': '423',
-          'publisher': 'DC',
-          'release_year': 1988,
-          'editions': const [
-            {
-              'id': 'edition-comic-423-collector',
-              'title': 'Collector Edition',
-              'physical_format_label': 'Sketch Cover',
-              'variants': [
-                {
-                  'id': 'variant-comic-423-a',
-                  'name': 'Any',
-                  'is_primary': true,
-                },
-                {
-                  'id': 'variant-comic-423-c',
-                  'name': 'Sketch Cover',
-                  'is_primary': false,
-                },
-              ],
-            },
-          ],
-        }),
-    'music:music-core-1': () => RawTypedMetadataResponse.fromJson({
-          'id': 'music-core-1',
-          'kind': 'music',
-          'title': 'Random Access Memories',
-          'publisher': 'Columbia',
-          'release_year': 2013,
-          'track_count': 2,
-          'tracks': [
-            {
-              'id': 'music-core-1-track-1',
-              'media_id': 'music-core-1-media-1',
-              'position': '1',
-              'title': 'Give Life Back to Music',
-            },
-            {
-              'id': 'music-core-1-track-2',
-              'media_id': 'music-core-1-media-1',
-              'position': '2',
-              'title': 'The Game of Love',
-            },
-          ],
-          'media': [
-            {
-              'id': 'music-core-1-media-1',
-              'release_id': 'music-core-1',
-              'media_number': 1,
-              'title': 'Disc 1',
-              'track_count': 2,
-              'tracks': [
-                {
-                  'id': 'music-core-1-track-1',
-                  'media_id': 'music-core-1-media-1',
-                  'position': '1',
-                  'title': 'Give Life Back to Music',
-                },
-                {
-                  'id': 'music-core-1-track-2',
-                  'media_id': 'music-core-1-media-1',
-                  'position': '2',
-                  'title': 'The Game of Love',
-                },
-              ],
-            },
-          ],
-        }),
-  };
-
   @override
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
     return fallbackMediaCatalog;
@@ -1603,16 +1527,6 @@ class _FakeLibraryAddApiClient extends ApiClient {
         _searchFixtures['${query.kind}||${query.series ?? ''}'] ??
         _searchFixtures['${query.kind}|${query.query}|'] ??
         const [];
-  }
-
-  @override
-  Future<TypedMetadataResponse> getTypedMetadataItem({
-    required CatalogMediaKind kind,
-    required String id,
-  }) async {
-    final fixture = _typedMetadataFixtures['${kind.apiValue}:$id'];
-    if (fixture != null) return fixture();
-    throw StateError('Unknown typed metadata item $kind:$id');
   }
 
   @override
@@ -1669,7 +1583,6 @@ class _FakeLibraryAddApiClient extends ApiClient {
           {
             'item_id': 'comic-423',
             'role': 'main',
-            'quantity': 1,
             'is_primary': true,
             'kind': 'comic',
             'title': 'Batman',
@@ -1682,7 +1595,6 @@ class _FakeLibraryAddApiClient extends ApiClient {
           {
             'item_id': 'detective-590',
             'role': 'bonus',
-            'quantity': 1,
             'is_primary': false,
             'kind': 'comic',
             'title': 'Detective Comics',

@@ -35,4 +35,4 @@ Each capability/layer is marked as:
 
 1. **Explicit Kind Independence**: All 9 kinds are fully isolated. Zero borrowed drafts, zero generic drafts/details fallbacks in production specs.
 2. **Strict Field Scoping**: Every field defined in the kind registries explicitly specifies its `LibraryFieldScope` (`copy`, `release`, or `media`), enforced by contract tests.
-3. **Dedicated Ownership Types & Codecs**: All 9 kinds serialize and deserialize through their own dedicated codecs and typed `OwnedItemDetails` models.
+3. **Dedicated Ownership Types & Codecs**: All 9 kinds serialize and deserialize through their own dedicated codecs and typed `CollectionItemDetails` models.

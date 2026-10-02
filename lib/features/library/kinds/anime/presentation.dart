@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_fields.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -244,7 +244,7 @@ class AnimeLibraryMediaPresentationBuilder
 
   @override
   bool canOpenKindDrilldown(LibraryProjectionView item) {
-    return item.node.scope == LibraryEntityScope.work &&
+    return item.node.scope == LibraryEntityScope.catalogItem &&
         item.source.mediaKind == CatalogMediaKind.anime;
   }
 
@@ -271,7 +271,7 @@ class AnimeLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.workId),
+          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (seriesTitle != null)
@@ -280,13 +280,13 @@ class AnimeLibraryMediaPresentationBuilder
             value: seriesTitle,
             onTap: tapFor(seriesTitle),
           ),
-        if (item.node.scope != LibraryEntityScope.work && variant != null)
+        if (item.node.scope != LibraryEntityScope.catalogItem && variant != null)
           LibraryDetailField(
             label: 'Format / Edition',
             value: variant,
             onTap: tapFor(variant),
           ),
-        if (item.node.scope != LibraryEntityScope.work && barcode != null)
+        if (item.node.scope != LibraryEntityScope.catalogItem && barcode != null)
           LibraryDetailField(label: 'UPC / Barcode', value: barcode),
       ],
       contextFacts: [
@@ -429,8 +429,8 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => AnimeOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
+    value: (item) => AnimeCollectionItemProjection.fromDispatch(
+      item.source.collectionItemDispatch,
     )?.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
@@ -453,8 +453,8 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => AnimeOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
+    value: (item) => AnimeCollectionItemProjection.fromDispatch(
+      item.source.collectionItemDispatch,
     )?.condition,
   ),
   LibraryFilterDefinition<Object?>(

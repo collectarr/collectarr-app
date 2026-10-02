@@ -1,16 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_collection_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dart';
 
-final boardGameOwnedContributor = TypedOwnedKindContributor<BoardGameOwnedItem>(
+final boardGameOwnedContributor = TypedOwnedKindContributor<BoardGameCollectionItem>(
   kind: CatalogMediaKind.boardgame,
   findById: (database, id) =>
-      BoardGameOwnedRepository(database).findById(BoardGameOwnedCopyId(id)),
+      BoardGameOwnedRepository(database).findById(CollectionItemId(id)),
   upsert: (database, item) => BoardGameOwnedRepository(database).upsert(item),
   listActive: (database) => BoardGameOwnedRepository(database).listActive(),
   createItem: ({
@@ -22,10 +23,10 @@ final boardGameOwnedContributor = TypedOwnedKindContributor<BoardGameOwnedItem>(
     required ownerUserId,
     required ownerLabel,
   }) {
-    if (payload is! BoardgameOwnedItemCreatePayload) {
+    if (payload is! BoardgameCollectionItemCreatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
-    return payload.toOwnedItem(
+    return payload.toCollectionItem(
       resolvedCatalogRef: resolvedCatalogRef,
       id: id,
       createdAt: createdAt,
@@ -41,7 +42,7 @@ final boardGameOwnedContributor = TypedOwnedKindContributor<BoardGameOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (payload is! BoardgameOwnedItemUpdatePayload) {
+    if (payload is! BoardgameCollectionItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {
@@ -55,9 +56,9 @@ final boardGameOwnedContributor = TypedOwnedKindContributor<BoardGameOwnedItem>(
     );
   },
   toJson: (item) => item.toJson().cast<String, Object?>(),
-  fromJson: BoardGameOwnedItem.fromJson,
-  summary: BoardGameOwnedItemProjection.toSummary,
-  createPayload: BoardgameOwnedItemCreatePayload.fromTypedItem,
+  fromJson: BoardGameCollectionItem.fromJson,
+  summary: BoardGameCollectionItemProjection.toSummary,
+  createPayload: BoardgameCollectionItemCreatePayload.fromTypedItem,
   itemId: (item) => item.id.value,
   markDeleted: (item, deletedAt) =>
       item.copyWith(deletedAt: deletedAt, updatedAt: deletedAt),

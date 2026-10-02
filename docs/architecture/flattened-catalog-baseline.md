@@ -1,10 +1,15 @@
 # Catalog Item v1 Cutover
 
-The intended library model is one Catalog Item for each concrete collectible
-edition, version, issue variant, or release, with zero or more App-owned copies.
-Kind-owned children such as Music tracks or TV episodes remain nested under the
-catalog item. App proposals use the same catalog fields as manual Add/Edit and
-do not contain provider identities or personal copy data.
+The library has two record types: a Core Catalog Item for canonical metadata
+and an App collection item for one physical copy. Every collection item has its
+own ID, refers to a Catalog Item, and holds its personal fields directly. It is
+not a copy child nested under the catalog item. Duplicating an entry creates
+another collection item with independent personal fields and a new ID, usually
+pointing to the same Catalog Item. There is no quantity aggregation. Catalog metadata stays
+in the kind-owned Core contract, while personal fields stay in App. Kind-owned
+children such as Music tracks or TV episodes remain nested under the Catalog
+Item. App proposals use the same catalog fields as manual Add/Edit and do not
+contain provider identities or personal data.
 
 The App cutover is in progress. The Add manual dialog now reuses the Edit dialog
 shell, and Core exposes typed Catalog Item routes for all nine kinds. App's

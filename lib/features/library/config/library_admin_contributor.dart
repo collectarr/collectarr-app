@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
@@ -384,7 +384,7 @@ List<LibraryAdminCorrectionField> adminCorrectionFieldsForKind({
         ownership.writeTarget != MetadataWriteTarget.coreCanonicalRelation) {
       continue;
     }
-    if (ownership.scope == MetadataFieldScope.ownedCopy ||
+    if (ownership.scope == MetadataFieldScope.collectionItem ||
         ownership.scope == MetadataFieldScope.trackingRecord) {
       continue;
     }

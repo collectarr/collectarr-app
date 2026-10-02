@@ -1,19 +1,17 @@
 import 'package:drift/drift.dart';
 
-/// Complete TV-owned copy state.
-class TvOwnedItemsRows extends Table {
+/// Complete TV-collection item state.
+class TvCollectionItemsRows extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
   DateTimeColumn get createdAt => dateTime().nullable()();
   BoolColumn get isDigital => boolean().nullable()();
-  TextColumn get targetRefJson => text().nullable()();
   TextColumn get condition => text().nullable()();
   TextColumn get grade => text().nullable()();
   DateTimeColumn get purchaseDate => dateTime().nullable()();
   IntColumn get pricePaidCents => integer().nullable()();
   TextColumn get currency => text().nullable()();
   TextColumn get personalNotes => text().nullable()();
-  IntColumn get quantity => integer().withDefault(const Constant(1))();
   IntColumn get indexNumber => integer().nullable()();
   TextColumn get tags => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
@@ -104,7 +102,7 @@ class TvCustomEpisodeRows extends Table {
 class TvTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get catalogRefJson => text()();
-  TextColumn get ownedRefKey => text().nullable()();
+  TextColumn get collectionItemRefKey => text().nullable()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
   IntColumn get rating => integer().nullable()();
@@ -129,7 +127,7 @@ class TvTrackingUnitRows extends Table {
   TextColumn get id => text()();
   TextColumn get targetRefJson => text()();
   TextColumn get trackingEntryId => text().nullable()();
-  TextColumn get ownedRefKey => text().nullable()();
+  TextColumn get collectionItemRefKey => text().nullable()();
   DateTimeColumn get completedAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();

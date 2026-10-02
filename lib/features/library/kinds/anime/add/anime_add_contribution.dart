@@ -10,7 +10,7 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
   manualCandidateBuilder: buildAnimeManualCandidate,
   manualProposalBuilder: buildAnimeManualProposalData,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      AnimeOwnedItemCreatePayload(
+      AnimeCollectionItemCreatePayload(
     catalogRef: item.reference,
     details: details as AnimeOwnedDetailsDraft,
     condition: common.condition,
@@ -19,7 +19,6 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,
     personalNotes: common.personalNotes,
-    quantity: common.quantity,
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
@@ -66,9 +65,8 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => AnimeMetadata.fromJson(transport.kindData));
               return metadata is AnimeMetadata
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
@@ -79,9 +77,8 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => AnimeMetadata.fromJson(transport.kindData));
               return metadata is AnimeMetadata
                   ? [...metadata.studios, ...metadata.producers]
                   : const <Object?>[];
@@ -92,9 +89,8 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => AnimeMetadata.fromJson(transport.kindData));
               return metadata is AnimeMetadata
                   ? [metadata.seasonYear, metadata.startDate?.year]
                   : const <Object?>[];

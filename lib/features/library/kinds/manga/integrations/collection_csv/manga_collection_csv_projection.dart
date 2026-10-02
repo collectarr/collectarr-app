@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_collection_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
@@ -139,37 +139,37 @@ final class MangaCollectionCsvProjection
   @override
   String? ownedCollectionValue(LibraryWorkspaceSource entry) {
     final owned =
-        MangaOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MangaOwnedItem ? owned.grade : null;
+        MangaCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is MangaCollectionItem ? owned.grade : null;
   }
 
   @override
   String? ownedCondition(LibraryWorkspaceSource entry) {
     final owned =
-        MangaOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MangaOwnedItem ? owned.condition : null;
+        MangaCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is MangaCollectionItem ? owned.condition : null;
   }
 
   @override
   int? ownedIndexNumber(LibraryWorkspaceSource entry) {
     final owned =
-        MangaOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MangaOwnedItem ? owned.indexNumber : null;
+        MangaCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is MangaCollectionItem ? owned.indexNumber : null;
   }
 
   @override
   String? ownedTags(LibraryWorkspaceSource entry) {
     final owned =
-        MangaOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MangaOwnedItem ? owned.tags : null;
+        MangaCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is MangaCollectionItem ? owned.tags : null;
   }
 
   @override
-  List<String> ownedCellsBeforeQuantity(
+  List<String> ownedCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
-    return clzFriendly ? const [''] : const [];
+    return const [];
   }
 
   @override
@@ -178,9 +178,7 @@ final class MangaCollectionCsvProjection
     required bool clzFriendly,
   }) {
     return List<String>.filled(
-      clzFriendly
-          ? collectionCsvV1OwnedCellCount - 1
-          : collectionCsvV1OwnedCellCount,
+      collectionCsvV1OwnedCellCount,
       '',
     );
   }

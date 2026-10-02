@@ -13,11 +13,11 @@ that the nine-kind Catalog Item cutover is complete.
 - App maps one Music Catalog Item to its root workspace row. The Music Release
   Group model, serializer, dialog, workspace schema, preference codec, and
   Release projection have been removed. The Music scope selector is not shown.
-- App-owned copies target the concrete Music Catalog Item. Copy condition,
+- App-collection items target the concrete Music Catalog Item. Copy condition,
   location, purchase data, notes, personal images, per-copy storage placement,
   and listening activity stay in App-owned storage and Sync.
 - Listening events target one Music Catalog Item and may optionally identify
-  the Owned Copy used.
+  the Collection Item used.
 
 ## Remaining boundaries
 
@@ -39,12 +39,12 @@ that the nine-kind Catalog Item cutover is complete.
 - App's final schema is a fresh Drift v1 baseline. Old Work/Release databases
   and backups are unsupported; do not add compatibility decoding or upgrade
   paths.
-- Personal Sync carries Owned Copies and personal activity only. Core Catalog
+- Personal Sync carries Collection Items and personal activity only. Core Catalog
   Item data never enters Sync.
 
 ## Verification policy
 
 Do not report the coordinated nine-kind cutover complete until every active
-Add/Edit, persistence, workspace, Owned Copy, backup, export, and Sync path uses
-Catalog Item and Owned Copy references, and the old graph has no reachable
+Add/Edit, persistence, workspace, Collection Item, backup, export, and Sync path uses
+Catalog Item and Collection Item references, and the old graph has no reachable
 consumer.

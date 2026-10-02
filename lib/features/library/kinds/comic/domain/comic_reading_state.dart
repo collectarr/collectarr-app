@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-/// Comic-specific reading progress kept separate from owned-copy state.
+/// Comic-specific reading progress kept separate from collection-item state.
 @immutable
 final class ComicReadingState {
   const ComicReadingState({

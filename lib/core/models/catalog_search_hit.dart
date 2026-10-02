@@ -32,7 +32,7 @@ final class CatalogSearchHit {
       ref: CatalogEntityRef(
         kind: kind,
         entityType: json['entity_type'] == null
-            ? CatalogEntityTypeId.root
+            ? CatalogEntityTypeId.catalogItem
             : CatalogEntityTypeId.fromApiValue(
                 json['entity_type']?.toString(),
               ),

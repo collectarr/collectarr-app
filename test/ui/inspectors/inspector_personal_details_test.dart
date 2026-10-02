@@ -44,7 +44,7 @@ void main() {
           ),
         );
     await MovieOwnedRepository(db).upsert(
-      testMovieOwnedItemFrom(testOwnedItem(
+      testMovieCollectionItemFrom(testCollectionItem(
         id: 'owned-1',
         itemId: 'movie-1',
         kind: 'movie',
@@ -53,7 +53,7 @@ void main() {
       )),
     );
 
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-1',
       itemId: 'movie-1',
       kind: 'movie',
@@ -67,7 +67,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorPersonalDetailsEditor(
-              ownedItem: testOwnedSummary(ownedItem),
+              collectionItem: testCollectionItemSummary(collectionItem),
               accent: Colors.orange,
             ),
           ),

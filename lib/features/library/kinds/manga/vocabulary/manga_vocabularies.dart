@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 
 abstract final class MangaVocabularyIds {
@@ -59,8 +59,8 @@ abstract final class MangaVocabularies {
     );
   }
 
-  static MangaOwnedItem _replaceOwnedValue(
-    MangaOwnedItem item,
+  static MangaCollectionItem _replaceOwnedValue(
+    MangaCollectionItem item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -105,7 +105,7 @@ abstract final class MangaVocabularies {
       };
 
   static Iterable<String?> _ownedValues(
-    MangaOwnedItem item,
+    MangaCollectionItem item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

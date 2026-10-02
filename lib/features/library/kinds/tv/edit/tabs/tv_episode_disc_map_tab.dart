@@ -33,7 +33,7 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
       tvCustomEpisodesByCatalogRefProvider(
         CatalogEntityRef(
           kind: type.kind,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: item.id,
         ),
       ),

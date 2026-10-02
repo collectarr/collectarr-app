@@ -83,14 +83,14 @@ void main() {
             id: 'bg_1',
             mediaKind: CatalogMediaKind.boardgame,
           ),
-          kindMetadata: bgMeta,
+          kindData: bgMeta,
         ).asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(testOwnedItem(
+        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'bg_1',
             kind: CatalogMediaKind.boardgame,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
           ),
           condition: 'Mint',
           updatedAt: DateTime.now(),
@@ -98,8 +98,8 @@ void main() {
       );
 
       const projector = BoardGameWorkspaceProjector();
-      const node = LibraryWorkRef(
-        workId: 'bg_1',
+      const node = LibraryCatalogItemNodeRef(
+        catalogItemId: 'bg_1',
       );
       final dto = projector.project(
         source: shelfEntry,

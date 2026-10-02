@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +10,6 @@ class PersonalStateDraft {
     required this.purchaseDateController,
     required this.priceController,
     required this.currencyController,
-    required this.quantityController,
     required this.indexNumberController,
     required this.notesController,
     required this.purchaseStoreController,
@@ -25,7 +23,6 @@ class PersonalStateDraft {
     required this.tagOptions,
     required this.availableLocations,
     required this.selectedLocationId,
-    required this.selectedOwnedTargetRef,
     required this.selectedWishlistCatalogRef,
     required this.locationChanged,
     required this.soldAt,
@@ -38,7 +35,6 @@ class PersonalStateDraft {
   final TextEditingController purchaseDateController;
   final TextEditingController priceController;
   final TextEditingController currencyController;
-  final TextEditingController quantityController;
   final TextEditingController indexNumberController;
   final TextEditingController notesController;
   final TextEditingController purchaseStoreController;
@@ -53,12 +49,6 @@ class PersonalStateDraft {
   List<String> tagOptions;
   List<StorageLocation> availableLocations;
   String? selectedLocationId;
-
-  /// Exact catalog target selected for this Owned copy.
-  ///
-  /// A null value means the root work/media target. The generic edit host
-  /// transports this opaque reference and never interprets entity types.
-  CatalogEntityRef? selectedOwnedTargetRef;
 
   CatalogItemRef? selectedWishlistCatalogRef;
 

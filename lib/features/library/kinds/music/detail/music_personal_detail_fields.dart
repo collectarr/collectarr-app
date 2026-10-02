@@ -1,20 +1,20 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
 import 'package:flutter/material.dart';
 
 List<LibraryDetailField> buildMusicPersonalDetailFields({
   required BuildContext context,
   required LibraryProjectionView item,
-  required OwnedCopySummary? ownedItem,
-  required LibraryOwnedItemDispatch? ownedItemDispatch,
+  required CollectionItemSummary? collectionItem,
+  required LibraryCollectionItemDispatch? collectionItemDispatch,
   required String? currency,
 }) {
   final details =
-      MusicOwnedItemProjection.fromDispatch(ownedItemDispatch)?.details;
+      MusicCollectionItemProjection.fromDispatch(collectionItemDispatch)?.details;
   if (details == null) {
     return const [];
   }

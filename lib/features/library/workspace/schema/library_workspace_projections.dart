@@ -30,7 +30,7 @@ class WorkspaceCommonProjection {
       releaseDate: overrideReleaseDate ??
           release?.releaseDate ??
           source.catalogData?.releaseDate,
-      currency: source.ownedSummary?.currency,
+      currency: source.collectionItemSummary?.currency,
       coverImageUrl: overrideCoverImageUrl ??
           source.catalogSummary?.imageUrl ??
           source.catalogData?.coverImageUrl,
@@ -76,12 +76,12 @@ class PersonalCopyProjection {
       locationPath: source.locationPath,
       trackingStatus: mediaTrackingStatusToStorageValue(tracking?.status),
       rating: tracking?.rating,
-      pricePaidCents: source.ownedSummary?.pricePaidCents,
+      pricePaidCents: source.collectionItemSummary?.pricePaidCents,
       addedAt: source.addedAt,
       updatedAt: source.updatedAt,
       tags: null,
       collectionStatus: null,
-      notes: source.ownedSummary?.notes,
+      notes: source.collectionItemSummary?.notes,
     );
   }
 

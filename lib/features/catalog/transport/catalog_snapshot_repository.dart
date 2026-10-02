@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
@@ -51,16 +52,27 @@ final class CatalogSnapshotRepository {
     Iterable<CatalogEntityRef> refs,
   ) async {
     final items = await findByRefs(refs);
-    return items.map(
-      (ref, item) => MapEntry(ref, CatalogSearchCandidate.fromItem(item)),
-    );
+    if (items.isEmpty) return const {};
+    final summaries =
+        await CatalogDisplaySummaryRepository(_db).findByRefs(items.keys);
+    return items.map((ref, item) {
+      final summary = summaries[ref];
+      return MapEntry(
+        ref,
+        summary == null
+            ? CatalogSearchCandidate.fromItem(item)
+            : CatalogSearchCandidate.fromTransport(
+                item: item,
+                summary: summary,
+              ),
+      );
+    });
   }
 
   Future<CatalogSearchCandidate?> findCandidateByRef(
     CatalogEntityRef ref,
   ) async {
-    final item = await findByRef(ref);
-    return item == null ? null : CatalogSearchCandidate.fromItem(item);
+    return (await findCandidatesByRefs([ref]))[ref];
   }
 
   /// Reads complete schema-v1 transport without promoting it to a search

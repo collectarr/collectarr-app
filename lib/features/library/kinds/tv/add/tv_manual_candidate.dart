@@ -25,16 +25,18 @@ CatalogSearchCandidate? buildTvManualCandidate(
     CatalogItemDto.raw(
       id: 'manual-tv-${DateTime.now().microsecondsSinceEpoch}',
       mediaKind: CatalogMediaKind.tv,
-      common: CatalogCommonDto(
-        title: title.trim(),
-        sortKey: _nullable(values.sortKey),
-        originalTitle: _nullable(values.originalTitle),
-        synopsis: _nullable(values.synopsis),
-        coverImageUrl: _nullable(values.coverImageUrl),
-        releaseDate: releaseDateParts?.asDateTime,
-        releaseDateParts: releaseDateParts,
-      ),
-      payload: {
+      kindData: {
+        'title': title.trim(),
+        if (_nullable(values.sortKey) case final value?) 'sort_key': value,
+        if (_nullable(values.originalTitle) case final value?)
+          'original_title': value,
+        if (_nullable(values.synopsis) case final value?) 'synopsis': value,
+        if (_nullable(values.coverImageUrl) case final value?)
+          'cover_image_url': value,
+        if (releaseDateParts != null) ...{
+          'release_date': releaseDateParts.isoString,
+          'release_date_parts': releaseDateParts.toJson(),
+        },
         if (_nullable(values.editionTitle) case final value?)
           'edition_title': value,
         if (_nullable(values.physicalFormat) case final value?)

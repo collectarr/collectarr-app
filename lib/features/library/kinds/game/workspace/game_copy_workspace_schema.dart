@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
@@ -14,11 +14,11 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = GameOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return owned is GameOwnedItem ? owned.condition : null;
+      final owned = GameCollectionItemProjection.fromDispatch(
+          context.source.collectionItemDispatch);
+      return owned is GameCollectionItem ? owned.condition : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final location =
@@ -26,7 +26,7 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final pricePaid =
@@ -34,7 +34,7 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final status =
@@ -44,7 +44,7 @@ abstract final class GameCopyWorkspaceFields {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final rating =
@@ -52,7 +52,7 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final wishlist =
@@ -60,7 +60,7 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final updatedAt =
@@ -68,7 +68,7 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final addedAt =
@@ -76,7 +76,7 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final completionStatus =
@@ -84,11 +84,11 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.completionStatus,
     label: 'Completion',
     getValue: (context) {
-      final owned = GameOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return owned is GameOwnedItem ? owned.collectionStatus : null;
+      final owned = GameCollectionItemProjection.fromDispatch(
+          context.source.collectionItemDispatch);
+      return owned is GameCollectionItem ? owned.collectionStatus : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final completeness =
@@ -96,11 +96,11 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.completeness,
     label: 'Completeness',
     getValue: (context) {
-      final owned = GameOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return owned is GameOwnedItem ? owned.details.completeness : null;
+      final owned = GameCollectionItemProjection.fromDispatch(
+          context.source.collectionItemDispatch);
+      return owned is GameCollectionItem ? owned.details.completeness : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final hasBox =
@@ -108,11 +108,11 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.hasBox,
     label: 'Has Box',
     getValue: (context) {
-      final owned = GameOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return owned is GameOwnedItem ? owned.details.hasBox : null;
+      final owned = GameCollectionItemProjection.fromDispatch(
+          context.source.collectionItemDispatch);
+      return owned is GameCollectionItem ? owned.details.hasBox : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final hasManual =
@@ -120,11 +120,11 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.hasManual,
     label: 'Has Manual',
     getValue: (context) {
-      final owned = GameOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return owned is GameOwnedItem ? owned.details.hasManual : null;
+      final owned = GameCollectionItemProjection.fromDispatch(
+          context.source.collectionItemDispatch);
+      return owned is GameCollectionItem ? owned.details.hasManual : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final priceChartingId =
@@ -132,11 +132,11 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.priceChartingId,
     label: 'PriceCharting ID',
     getValue: (context) {
-      final owned = GameOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return owned is GameOwnedItem ? owned.details.priceChartingId : null;
+      final owned = GameCollectionItemProjection.fromDispatch(
+          context.source.collectionItemDispatch);
+      return owned is GameCollectionItem ? owned.details.priceChartingId : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final coreRegion =
@@ -144,12 +144,12 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.coreRegion,
     label: 'Region',
     getValue: (context) {
-      final owned = GameOwnedItemProjection.fromDispatch(
-        context.source.ownedItemDispatch,
+      final owned = GameCollectionItemProjection.fromDispatch(
+        context.source.collectionItemDispatch,
       );
-      return owned is GameOwnedItem ? owned.details.coreRegion : null;
+      return owned is GameCollectionItem ? owned.details.coreRegion : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final valueLocked =
@@ -157,11 +157,11 @@ abstract final class GameCopyWorkspaceFields {
     id: GameFieldIds.valueLocked,
     label: 'Value Locked',
     getValue: (context) {
-      final owned = GameOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return owned is GameOwnedItem ? owned.details.valueIsLocked : null;
+      final owned = GameCollectionItemProjection.fromDispatch(
+          context.source.collectionItemDispatch);
+      return owned is GameCollectionItem ? owned.details.valueIsLocked : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 }
 
@@ -204,7 +204,7 @@ final gameCopyWorkspaceGroupDefinitions = [
 final gameCopyWorkspaceSortDefinitions = [
   LibrarySortDefinition<GameKind, GameWorkspaceDto>(
     id: GameSortIds.status,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
     compare: (left, right) {
       int rank(LibraryProjectionContext<GameWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;
@@ -298,7 +298,7 @@ final gameCopyWorkspaceColumnDefinitions = [
 final gameCopyWorkspaceSchema =
     LibraryEntityWorkspaceSchema<GameKind, GameWorkspaceDto>(
   kindNamespace: 'game',
-  entityScope: LibraryEntityScope.copy,
+  entityScope: LibraryEntityScope.collectionItem,
   fields: gameCopyWorkspaceFieldDefinitions,
   columns: gameCopyWorkspaceColumnDefinitions,
   sorts: gameCopyWorkspaceSortDefinitions,

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter/material.dart';
 
@@ -85,8 +85,6 @@ class TransferableField {
     required T Function(T value, String? nextValue) writePricePaidCents,
     required String? Function(T value) readSellPriceCents,
     required T Function(T value, String? nextValue) writeSellPriceCents,
-    required String? Function(T value) readQuantity,
-    required T Function(T value, String? nextValue) writeQuantity,
     required String? Function(T value) readIndexNumber,
     required T Function(T value, String? nextValue) writeIndexNumber,
     required String? Function(T value) readPurchaseDate,
@@ -110,7 +108,7 @@ class TransferableField {
         decode: decode,
         read: read,
         write: write,
-        scope: LibraryEntityScope.copy,
+        scope: LibraryEntityScope.collectionItem,
       );
     }
 
@@ -188,14 +186,6 @@ class TransferableField {
         write: writeSellPriceCents,
       ),
       field(
-        key: 'quantity',
-        label: 'Quantity',
-        icon: Icons.numbers,
-        type: TransferableFieldType.integer,
-        read: readQuantity,
-        write: writeQuantity,
-      ),
-      field(
         key: 'indexNumber',
         label: 'Index number',
         icon: Icons.tag,
@@ -240,7 +230,7 @@ class TransferableField {
       label: def.name,
       icon: Icons.text_fields,
       type: TransferableFieldType.text,
-      scope: LibraryEntityScope.copy,
+      scope: LibraryEntityScope.collectionItem,
       customFieldId: def.id,
       read: (item) => null,
       write: (item, value) => item,
@@ -252,7 +242,7 @@ class TransferableField {
     List<CustomFieldDefinition> definitions, {
     Iterable<String>? fieldKeys,
     List<TransferableField>? availableFields,
-    LibraryEntityScope scope = LibraryEntityScope.copy,
+    LibraryEntityScope scope = LibraryEntityScope.collectionItem,
   }) {
     final pool = availableFields ?? const <TransferableField>[];
     final map = {for (final field in pool) field.key: field};
@@ -265,21 +255,21 @@ class TransferableField {
     return [
       ...resolved,
       for (final def in definitions)
-        if (scope == LibraryEntityScope.copy)
+        if (scope == LibraryEntityScope.collectionItem)
           TransferableField.customField(def),
     ];
   }
 }
 
 /// Opaque typed item carried by the transfer host after kind dispatch.
-final class TransferableOwnedItem {
-  const TransferableOwnedItem({
+final class TransferableCollectionItem {
+  const TransferableCollectionItem({
     required this.ref,
     required this.catalogRef,
     required this.value,
   });
 
-  final OwnedCopyRef ref;
+  final CollectionItemRef ref;
   final CatalogEntityRef catalogRef;
   final Object value;
 }

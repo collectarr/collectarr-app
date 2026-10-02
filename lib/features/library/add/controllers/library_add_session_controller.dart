@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -77,7 +77,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   @override
   final CatalogMediaKind kind;
   final LibraryKindRegistration? _registration;
-  final OwnedItemMutations ownedMutations;
+  final CollectionItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
 
@@ -100,24 +100,17 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   @override
   set state(LibraryAddSessionState newState) => value = newState;
 
-  CatalogEntityRef _selectedWishlistRef(CatalogSearchCandidate item) =>
-      item.reference;
-
-  CatalogEntityRef _selectedTargetRef(CatalogSearchCandidate item) =>
-      item.reference;
-
   LibraryAddSubmissionRequest _submissionRequest(
     List<CatalogSearchCandidate> candidates, {
     bool upsertCatalogItems = true,
-    FutureOr<void> Function(OwnedCopyRef ownedRef)? onOwnedCopyCreated,
+    FutureOr<void> Function(CollectionItemRef collectionItemRef)?
+        onCollectionItemCreated,
   }) {
     return LibraryAddSubmissionRequest(
       items: [
         for (final candidate in candidates)
           LibraryAddSubmissionItem(
             candidate: candidate,
-            targetRef: _selectedTargetRef(candidate),
-            wishlistRef: _selectedWishlistRef(candidate),
           ),
       ],
       kind: kind,
@@ -130,7 +123,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       wishlistMutations: wishlistMutations,
       trackingMutations: trackingMutations,
       upsertCatalogItems: upsertCatalogItems,
-      onOwnedCopyCreated: onOwnedCopyCreated,
+      onCollectionItemCreated: onCollectionItemCreated,
     );
   }
 
@@ -395,7 +388,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
 
   Future<bool> submitSelectedItem(
     CatalogSearchCandidate item, {
-    FutureOr<void> Function(OwnedCopyRef ownedRef)? onOwnedCopyCreated,
+    FutureOr<void> Function(CollectionItemRef collectionItemRef)?
+        onCollectionItemCreated,
   }) async {
     if (state.isAdding || state.submitState.isLoading) return false;
     clearSubmissionError();
@@ -407,7 +401,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       final result = await submissionService.submit(
         _submissionRequest(
           [item],
-          onOwnedCopyCreated: onOwnedCopyCreated,
+          onCollectionItemCreated: onCollectionItemCreated,
         ),
       );
       if (result.submittedCount == 0) {

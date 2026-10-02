@@ -12,21 +12,21 @@ abstract final class ComicCatalogItemWorkspaceFields {
     id: ComicFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final series = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.series,
     label: 'Series',
     getValue: (dto) => dto.seriesTitle,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final issueNumber = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.issueNumber,
     label: 'Issue Number',
     getValue: (dto) => dto.itemNumber,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final cover =
@@ -34,70 +34,70 @@ abstract final class ComicCatalogItemWorkspaceFields {
     id: ComicFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final writer = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.writer,
     label: 'Writer',
     getValue: (dto) => dto.writer,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final artist = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.artist,
     label: 'Artist',
     getValue: (dto) => dto.artist,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final coverArtist = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.coverArtist,
     label: 'Cover Artist',
     getValue: (dto) => dto.coverArtist,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final imprint = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.imprint,
     label: 'Imprint',
     getValue: (dto) => dto.imprint,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final pageCount = numberField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.pageCount,
     label: 'Page Count',
     getValue: (dto) => dto.pageCount,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final publisher = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final releaseDate = dateField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final barcode = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final variant = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.variant,
     label: 'Variant',
     getValue: (dto) => dto.variant,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 
@@ -236,7 +236,7 @@ final comicCatalogItemWorkspaceColumnDefinitions = [
 final comicCatalogItemWorkspaceSchema =
     LibraryEntityWorkspaceSchema<ComicKind, ComicWorkspaceDto>(
   kindNamespace: 'comic',
-  entityScope: LibraryEntityScope.work,
+  entityScope: LibraryEntityScope.catalogItem,
   fields: comicCatalogItemWorkspaceFieldDefinitions,
   columns: comicCatalogItemWorkspaceColumnDefinitions,
   sorts: comicCatalogItemWorkspaceSortDefinitions,

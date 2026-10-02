@@ -1,16 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_collection_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dart';
 
-final bookOwnedContributor = TypedOwnedKindContributor<BookOwnedItem>(
+final bookOwnedContributor = TypedOwnedKindContributor<BookCollectionItem>(
   kind: CatalogMediaKind.book,
   findById: (database, id) =>
-      BookOwnedRepository(database).findById(BookOwnedCopyId(id)),
+      BookOwnedRepository(database).findById(CollectionItemId(id)),
   upsert: (database, item) => BookOwnedRepository(database).upsert(item),
   listActive: (database) => BookOwnedRepository(database).listActive(),
   createItem: ({
@@ -22,10 +23,10 @@ final bookOwnedContributor = TypedOwnedKindContributor<BookOwnedItem>(
     required ownerUserId,
     required ownerLabel,
   }) {
-    if (payload is! BookOwnedItemCreatePayload) {
+    if (payload is! BookCollectionItemCreatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
-    return payload.toOwnedItem(
+    return payload.toCollectionItem(
       resolvedCatalogRef: resolvedCatalogRef,
       id: id,
       createdAt: createdAt,
@@ -41,7 +42,7 @@ final bookOwnedContributor = TypedOwnedKindContributor<BookOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (payload is! BookOwnedItemUpdatePayload) {
+    if (payload is! BookCollectionItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {
@@ -55,9 +56,9 @@ final bookOwnedContributor = TypedOwnedKindContributor<BookOwnedItem>(
     );
   },
   toJson: (item) => item.toJson().cast<String, Object?>(),
-  fromJson: BookOwnedItem.fromJson,
-  summary: BookOwnedItemProjection.toSummary,
-  createPayload: BookOwnedItemCreatePayload.fromTypedItem,
+  fromJson: BookCollectionItem.fromJson,
+  summary: BookCollectionItemProjection.toSummary,
+  createPayload: BookCollectionItemCreatePayload.fromTypedItem,
   itemId: (item) => item.id.value,
   markDeleted: (item, deletedAt) =>
       item.copyWith(deletedAt: deletedAt, updatedAt: deletedAt),

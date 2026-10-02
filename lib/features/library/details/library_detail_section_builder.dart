@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
@@ -17,14 +17,14 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required LibraryKindRegistration type,
   required LibraryProjectionView item,
   required Color accent,
-  OwnedCopySummary? ownedSummary,
+  CollectionItemSummary? collectionItemSummary,
   TrackingSummary? trackingSummary,
-  required List<OwnedCopySummary> ownedCopies,
+  required List<CollectionItemSummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {
   final activeBundleReleaseId = libraryCatalogTargetForKind(type.kind)
       .parts(
-        ownedSummary?.targetRef,
+        collectionItemSummary?.catalogRef,
       )
       .groupId;
 
@@ -41,7 +41,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
         ),
       ],
     ),
-    if (ownedSummary != null || trackingSummary != null)
+    if (collectionItemSummary != null || trackingSummary != null)
       LibraryDetailSectionSpec(
         slot: LibraryDetailSectionSlot.personal,
         title: 'Personal status',
@@ -49,8 +49,8 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
           LibraryDetailPersonalSection(
             type: type,
             item: item,
-            ownedItemDispatch: item.source.ownedItemDispatch,
-            ownedSummary: ownedSummary,
+            collectionItemDispatch: item.source.collectionItemDispatch,
+            collectionItemSummary: collectionItemSummary,
             ownedCopies: ownedCopies,
             trackingSummary: trackingSummary,
             accent: accent,
@@ -75,7 +75,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
           )
         else
           ItemBundleReleaseBrowserSection(
-            itemId: item.node.workId,
+            itemId: item.node.catalogItemId,
             accent: accent,
           ),
       ],

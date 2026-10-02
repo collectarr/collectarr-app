@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
@@ -62,7 +62,7 @@ final class AnimeTrackingStateCodec
           trackingStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
-            ownedRefKey: row.ownedRefKey,
+            collectionItemRefKey: row.collectionItemRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -103,7 +103,7 @@ final class AnimeTrackingStateCodec
   AnimeTrackingState create({
     required String id,
     required CatalogEntityRef catalogRef,
-    OwnedCopyRef? ownedRef,
+    CollectionItemRef? collectionItemRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -127,7 +127,7 @@ final class AnimeTrackingStateCodec
       id: id,
       catalogRef: catalogRef,
       coordinates: AnimeTrackingCoordinates(),
-      ownedRef: ownedRef,
+      collectionItemRef: collectionItemRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -183,7 +183,7 @@ final class AnimeTrackingStateCodec
             id: entry.id,
             entryType: const Value('entry'),
             catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
-            ownedRefKey: Value(entry.ownedRef?.key),
+            collectionItemRefKey: Value(entry.collectionItemRef?.key),
             mediaId: entry.catalogRef.rootId ?? entry.catalogRef.id,
             episodeId: Value(
               entry.catalogRef.entityType ==
@@ -257,7 +257,7 @@ final class AnimeTrackingStateCodec
         episodeNumber: _number(payload['episode_number']),
         episodeRatings: _decodeEpisodeRatingsValue(payload['episode_ratings']),
       ),
-      ownedRef: ownedCopyRefFromSerialized(payload['owned_ref']),
+      collectionItemRef: collectionItemRefFromSerialized(payload['collection_item_ref']),
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -283,7 +283,7 @@ final class AnimeTrackingStateCodec
     return AnimeTrackingState(
       id: row.id,
       catalogRef: row.catalogRef,
-      ownedRef: row.ownedRef,
+      collectionItemRef: row.collectionItemRef,
       sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,

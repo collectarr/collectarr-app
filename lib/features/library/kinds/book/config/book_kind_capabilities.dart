@@ -88,19 +88,19 @@ final bookKindInspector = LibraryInspectorCapability(
   entityRegistry: LibraryEntityInspectorRegistry(
     contributors: [
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
+        scope: LibraryEntityScope.catalogItem,
         heroBuilder: buildBookWorkInspectorHero,
         sectionsBuilder: buildBookWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
+        scope: LibraryEntityScope.collectionItem,
         heroBuilder: buildBookCopyInspectorHero,
         sectionsBuilder: buildBookCopyInspectorSections,
       ),
     ],
   ),
   showsDefaultPersonalSection: true,
-  supportsOwnedItemImages: false,
+  supportsCollectionItemImages: false,
 );
 
 final bookKindLinkedMetadata =

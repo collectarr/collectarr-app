@@ -16,7 +16,7 @@ void main() {
       for (final registration in collectarrKindRegistrationsList) {
         expect(
           libraryKindWorkspaceForKind(registration.kind)
-              .projectorForScope(LibraryEntityScope.work),
+              .projectorForScope(LibraryEntityScope.catalogItem),
           isNotNull,
         );
       }
@@ -46,9 +46,9 @@ void main() {
 
     test('every active kind has work, release, and copy edit builders', () {
       const requiredScopes = <LibraryEntityScope>[
-        LibraryEntityScope.work,
+        LibraryEntityScope.catalogItem,
         LibraryEntityScope.release,
-        LibraryEntityScope.copy,
+        LibraryEntityScope.collectionItem,
       ];
 
       for (final registration in collectarrKindRegistrationsList) {
@@ -93,7 +93,7 @@ void main() {
       );
       expect(
         collectarrKindEntityActions[CatalogMediaKind.comic]!
-            .semanticActions[LibraryEntityScope.work]!
+            .semanticActions[LibraryEntityScope.catalogItem]!
             .map((action) => action.id),
         contains('comic.missing_issues'),
       );
@@ -155,7 +155,7 @@ void main() {
       expect(
         () => LibraryFieldRegistry<ComicWorkspaceDto>(
           kindNamespace: 'comic',
-          entityScope: LibraryEntityScope.work,
+          entityScope: LibraryEntityScope.catalogItem,
           columns: [
             comicCatalogItemWorkspaceColumnDefinitions.first,
             comicCatalogItemWorkspaceColumnDefinitions.first,

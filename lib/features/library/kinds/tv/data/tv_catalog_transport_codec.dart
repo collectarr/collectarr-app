@@ -23,13 +23,8 @@ final class TvCatalogTransportCodec
   CatalogMediaKind get kind => CatalogMediaKind.tv;
 
   @override
-  TvSeries decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is TvSeries) return metadata;
-    return TvSeries.fromJson(
-      catalogPayloadWithoutSnapshotVersion(item.toSyncPayload()),
-    );
-  }
+  TvSeries decode(CatalogItemDto item) =>
+      TvSeries.fromJson(catalogTransportPayloadFor(item));
 
   @override
   Future<void> upsert(LocalDatabase db, TvSeries item) =>
@@ -144,14 +139,6 @@ CatalogItemDto _projection(TvSeries item) {
   return CatalogItemDto.raw(
     id: item.id,
     mediaKind: CatalogMediaKind.tv,
-    common: CatalogCommonDto(
-      title: item.title,
-      originalTitle: item.rawPayload['original_title']?.toString(),
-      synopsis: item.description,
-      coverImageUrl: item.coverImageUrl,
-      thumbnailImageUrl: item.thumbnailImageUrl,
-      releaseDate: item.originalAirDate,
-    ),
-    kindMetadata: item,
+    kindData: item.toJson(),
   );
 }

@@ -220,7 +220,7 @@ class _CollectionShareDialog extends StatelessWidget {
 <h1>$escapedTitle</h1>
 <p class="count">${items.length} items</p>
 <table>
-<thead><tr><th>#</th><th>Title</th><th>Kind</th><th>Reference</th><th>Owned</th><th>Wishlist</th><th>Quantity</th><th>Location</th></tr></thead>
+<thead><tr><th>#</th><th>Title</th><th>Kind</th><th>Reference</th><th>Owned</th><th>Wishlist</th><th>Location</th></tr></thead>
 <tbody>
 ${rows.toString()}</tbody>
 </table>
@@ -261,7 +261,6 @@ ${rows.toString()}</tbody>
     'Reference',
     'Owned',
     'Wishlist',
-    'Quantity',
     'Location',
   ];
 
@@ -273,7 +272,6 @@ ${rows.toString()}</tbody>
       ref == null ? item.node.id : _referenceLabel(ref),
       item.source.isOwned.toString(),
       item.source.isWishlisted.toString(),
-      item.source.quantity.toString(),
       item.source.locationPath ?? '',
     ];
   }
@@ -286,7 +284,6 @@ ${rows.toString()}</tbody>
       'reference': ref?.toJson() ?? item.node.id,
       'owned': item.source.isOwned,
       'wishlist': item.source.isWishlisted,
-      'quantity': item.source.quantity,
       if (item.source.locationPath case final location?) 'location': location,
     };
   }

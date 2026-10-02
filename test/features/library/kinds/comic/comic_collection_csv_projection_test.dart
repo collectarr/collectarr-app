@@ -48,7 +48,7 @@ void main() {
 
   test('projects Comic catalog and owned cells at the CSV boundary', () {
     final projection = const ComicCollectionCsvProjection();
-    final owned = testOwnedItem(
+    final owned = testCollectionItem(
       id: 'owned-1',
       itemId: 'comic-1',
       coverPriceCents: 399,
@@ -72,9 +72,9 @@ void main() {
         releaseDate: DateTime.utc(1963, 3, 1),
         barcode: '071486024576',
       )).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(owned),
-      ownedItemDispatch: testComicOwnedItemDispatchFrom(
-        testComicOwnedItemFrom(owned),
+      collectionItemSummary: testCollectionItemSummary(owned),
+      collectionItemDispatch: testComicCollectionItemDispatchFrom(
+        testComicCollectionItemFrom(owned),
       ),
     );
 
@@ -92,7 +92,7 @@ void main() {
       '071486024576',
     ]);
     expect(
-      projection.ownedCellsBeforeQuantity(entry, clzFriendly: false),
+      projection.ownedCellsBeforeLocation(entry, clzFriendly: false),
       isEmpty,
     );
     expect(
@@ -100,7 +100,7 @@ void main() {
       ['399', 'Raw', '', '', '', '', '', 'true', ''],
     );
     expect(
-      projection.ownedCellsBeforeQuantity(entry, clzFriendly: true),
+      projection.ownedCellsBeforeLocation(entry, clzFriendly: true),
       ['3.99'],
     );
     expect(

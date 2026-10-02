@@ -124,12 +124,13 @@ Primary fields:
 
 ### 3. Copy scope
 
-Represents the user's owned or wished instance.
+Represents one physical copy in the user's collection. Each physical copy is a
+separate entry with its own ID and personal fields, linked independently to a
+Catalog Item.
 
 Primary fields:
 
 - condition / grade
-- quantity
 - price paid / purchase date
 - storage location
 - personal notes / loans / photos

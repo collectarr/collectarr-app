@@ -9,12 +9,12 @@ void main() {
     test('LibraryWorkspaceSource delegates personal collection fields cleanly',
         () {
       final now = DateTime.now();
-      final owned = testOwnedItem(
+      final owned = testCollectionItem(
         id: 'owned_1',
         catalogRef: const CatalogEntityRef(
           id: 'cat_1',
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
         ),
         condition: 'Near Mint',
         grade: '9.8',
@@ -26,14 +26,13 @@ void main() {
         personalNotes: 'First printing signed by author',
         tags: 'signed, key',
         ownerLabel: 'Alice',
-        quantity: 2,
         createdAt: now,
         updatedAt: now,
       );
 
       final entry = LibraryWorkspaceSource(
         itemId: 'cat_1',
-        ownedSummary: testOwnedCopySummary(owned),
+        collectionItemSummary: testCollectionItemSummary(owned),
         locationPath: 'Box A / Row 1',
       );
 
@@ -46,7 +45,6 @@ void main() {
       expect(entry.purchaseDate, now);
       expect(entry.personalNotes, 'First printing signed by author');
       expect(entry.ownerLabel, 'Alice');
-      expect(entry.quantity, 2);
       expect(entry.locationPath, 'Box A / Row 1');
     });
 
@@ -58,7 +56,7 @@ void main() {
         catalogRef: const CatalogEntityRef(
           id: 'cat_2',
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
         ),
         notes: 'Looking for 4K edition',
         createdAt: now,
@@ -73,10 +71,9 @@ void main() {
 
       expect(entry.isOwned, isFalse);
       expect(entry.isWishlisted, isTrue);
-      expect(entry.ownedSummary, isNull);
+      expect(entry.collectionItemSummary, isNull);
       expect(entry.pricePaidCents, isNull);
       expect(entry.ownerLabel, 'Bob');
-      expect(entry.quantity, 0);
       expect(entry.hasNotes, isTrue);
     });
   });

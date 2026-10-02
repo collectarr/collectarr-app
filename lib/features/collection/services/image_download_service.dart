@@ -1,7 +1,7 @@
 import 'dart:developer' as developer;
 import 'dart:typed_data';
 
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:uuid/uuid.dart';
@@ -24,12 +24,12 @@ class ImageDownloadService {
 
   final ItemImagesCacheRepository imagesRepo;
 
-  /// Download the cover image at [url] and store it locally for [ownedRef].
+  /// Download the cover image at [url] and store it locally for [collectionItemRef].
   ///
   /// Skips silently if the URL is null/empty or if the download fails.
   /// Returns the stored bytes, or null on failure.
   Future<Uint8List?> downloadAndStoreCover({
-    required OwnedCopyRef ownedRef,
+    required CollectionItemRef collectionItemRef,
     required String? coverImageUrl,
     String imageType = 'front_cover',
   }) async {
@@ -38,7 +38,7 @@ class ImageDownloadService {
     }
     // Skip if image already cached locally for this item+type.
     final existing = await imagesRepo.primaryImageForItem(
-      ownedRef,
+      collectionItemRef,
       imageType: imageType,
     );
     if (existing != null) {
@@ -57,8 +57,8 @@ class ImageDownloadService {
         return null;
       }
       await imagesRepo.upsert(
-        id: _uuid.v5(Namespace.url.value, '${ownedRef.key}:$imageType'),
-        ownedRef: ownedRef,
+        id: _uuid.v5(Namespace.url.value, '${collectionItemRef.key}:$imageType'),
+        collectionItemRef: collectionItemRef,
         imageType: imageType,
         imageData: bytes,
       );
@@ -76,20 +76,20 @@ class ImageDownloadService {
 
   /// Download cover images for a batch of items.
   ///
-  /// Returns a map of ownedItemId → image bytes for successful downloads.
+  /// Returns a map of collectionItemId → image bytes for successful downloads.
   Future<Map<String, Uint8List>> downloadCoversForItems(
-    Map<OwnedCopyRef, String?> ownedRefToCoverUrl, {
+    Map<CollectionItemRef, String?> collectionItemRefToCoverUrl, {
     String imageType = 'front_cover',
     int concurrency = 4,
   }) async {
-    final entries = ownedRefToCoverUrl.entries.toList();
+    final entries = collectionItemRefToCoverUrl.entries.toList();
     final results = <String, Uint8List>{};
     for (var i = 0; i < entries.length; i += concurrency) {
       final chunk = entries.skip(i).take(concurrency);
       final downloaded = await Future.wait(
         chunk.map(
           (entry) => downloadAndStoreCover(
-            ownedRef: entry.key,
+            collectionItemRef: entry.key,
             coverImageUrl: entry.value,
             imageType: imageType,
           ),

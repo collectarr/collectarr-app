@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,15 +14,14 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = GameOwnedRepository(db);
-    final item = GameOwnedItem(
-      id: const GameOwnedCopyId('owned-game-1'),
+    final item = GameCollectionItem(
+      id: const CollectionItemId('owned-game-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.game,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'game-1',
       ),
       condition: 'Mint',
-      quantity: 1,
       updatedAt: DateTime.utc(2026, 9, 1),
       details: const GameOwnedDetails(
         completeness: 'Complete',
@@ -55,11 +55,11 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = GameOwnedRepository(db);
-    final item = GameOwnedItem(
-      id: const GameOwnedCopyId('owned-game-invalid'),
+    final item = GameCollectionItem(
+      id: const CollectionItemId('owned-game-invalid'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'book-1',
       ),
       updatedAt: DateTime.utc(2026, 9, 1),

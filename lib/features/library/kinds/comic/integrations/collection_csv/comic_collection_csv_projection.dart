@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
@@ -135,28 +135,28 @@ final class ComicCollectionCsvProjection
 
   @override
   String? ownedCollectionValue(LibraryWorkspaceSource entry) =>
-      ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch)?.grade;
+      ComicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch)?.grade;
 
   @override
   String? ownedCondition(LibraryWorkspaceSource entry) =>
-      ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch)?.condition;
+      ComicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch)?.condition;
 
   @override
   int? ownedIndexNumber(LibraryWorkspaceSource entry) =>
-      ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch)
+      ComicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch)
           ?.indexNumber;
 
   @override
   String? ownedTags(LibraryWorkspaceSource entry) =>
-      ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch)?.tags;
+      ComicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch)?.tags;
 
   @override
-  List<String> ownedCellsBeforeQuantity(
+  List<String> ownedCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     final owned =
-        ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
+        ComicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
     final details = owned?.details;
     if (!clzFriendly) return const [];
     return [_formatMoney(details?.coverPriceCents, clzFriendly: true)];
@@ -168,7 +168,7 @@ final class ComicCollectionCsvProjection
     required bool clzFriendly,
   }) {
     final owned =
-        ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
+        ComicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
     final details = owned?.details;
     return [
       if (!clzFriendly)

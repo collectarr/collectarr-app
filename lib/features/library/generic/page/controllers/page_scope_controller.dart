@@ -269,9 +269,9 @@ abstract final class _LibraryScopeControllerOps {
       }
       if (state._session.preferences.viewState != null) {
         final workspaceScope =
-            smartList.entityType == SmartListEntityType.ownedCopy
-                ? LibraryEntityScope.copy
-                : LibraryEntityScope.work;
+            smartList.entityType == SmartListEntityType.collectionItem
+                ? LibraryEntityScope.collectionItem
+                : LibraryEntityScope.catalogItem;
         if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
           state._session.preferences.viewState =
               state._session.preferences.viewState!.withSortRules(

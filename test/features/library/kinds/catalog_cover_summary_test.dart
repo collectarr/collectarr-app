@@ -98,11 +98,11 @@ void main() {
       final item = CatalogItemDto.raw(
         id: 'cover-${testCase.kind.apiValue}',
         mediaKind: testCase.kind,
-        common: const CatalogCommonDto(
-          title: 'Cover fixture',
-          coverImageUrl: anilistCover,
-          thumbnailImageUrl: anilistCover,
-        ),
+        kindData: const {
+          'title': 'Cover fixture',
+          'cover_image_url': anilistCover,
+          'thumbnail_image_url': anilistCover,
+        },
       );
 
       expect(

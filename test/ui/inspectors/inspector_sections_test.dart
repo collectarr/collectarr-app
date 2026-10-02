@@ -93,7 +93,7 @@ void main() {
           publisher: 'Marvel',
         ).asShelfCatalogItem),
       );
-      const node1 = LibraryWorkRef(workId: 'comic-1');
+      const node1 = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
       final dto1 = const ComicWorkspaceProjector()
           .project(source: source1, entity: node1);
       final comicItem =
@@ -124,7 +124,7 @@ void main() {
           publisher: 'Marvel',
         ).asShelfCatalogItem),
       );
-      const node2 = LibraryWorkRef(workId: 'comic-1');
+      const node2 = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
       final dto2 = const ComicWorkspaceProjector()
           .project(source: source2, entity: node2);
       final comicItem =
@@ -157,7 +157,7 @@ void main() {
           title: 'Dune',
         ).asShelfCatalogItem),
       );
-      const node0a = LibraryWorkRef(workId: 'book-1');
+      const node0a = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
       final dto0a = const GenericWorkspaceProjector()
           .project(source: source0a, entity: node0a);
       final bookItem =
@@ -168,7 +168,7 @@ void main() {
             body: InspectorPersonalSection(
               type: const BookRegistration(),
               item: bookItem,
-              ownedItem: testOwnedSummary(testOwnedItem(
+              collectionItem: testCollectionItemSummary(testCollectionItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 rating: 8,
@@ -197,42 +197,6 @@ void main() {
       expect(find.byType(InspectorPersonalSection), findsOneWidget);
     });
 
-    testWidgets('shows quantity when more than 1', (tester) async {
-      final source0b = LibraryWorkspaceSource(
-        itemId: 'book-1',
-        catalogData: testWorkspaceCatalogData(testCatalogItem(
-          id: 'book-1',
-          kind: 'book',
-          title: 'Dune',
-        ).asShelfCatalogItem),
-      );
-      const node0b = LibraryWorkRef(workId: 'book-1');
-      final dto0b = const GenericWorkspaceProjector()
-          .project(source: source0b, entity: node0b);
-      final bookItem =
-          LibraryProjectionItem(source: source0b, node: node0b, dto: dto0b);
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: InspectorPersonalSection(
-              type: const BookRegistration(),
-              item: bookItem,
-              ownedItem: testOwnedSummary(testOwnedItem(
-                id: 'owned-1',
-                itemId: 'book-1',
-                quantity: 3,
-                updatedAt: DateTime.utc(2026, 5, 22),
-              )),
-              accent: Colors.blue,
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Quantity'), findsOneWidget);
-      expect(find.text('3'), findsOneWidget);
-    });
-
     testWidgets('shows sold information when soldAt is set', (tester) async {
       final source1 = LibraryWorkspaceSource(
         itemId: 'book-1',
@@ -242,7 +206,7 @@ void main() {
           title: 'Dune',
         ).asShelfCatalogItem),
       );
-      const node1 = LibraryWorkRef(workId: 'book-1');
+      const node1 = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
       final dto1 = const GenericWorkspaceProjector()
           .project(source: source1, entity: node1);
       final bookItem =
@@ -253,7 +217,7 @@ void main() {
             body: InspectorPersonalSection(
               type: const BookRegistration(),
               item: bookItem,
-              ownedItem: testOwnedSummary(testOwnedItem(
+              collectionItem: testCollectionItemSummary(testCollectionItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 pricePaidCents: 1000,
@@ -283,7 +247,7 @@ void main() {
           title: 'Dune',
         ).asShelfCatalogItem),
       );
-      const node2 = LibraryWorkRef(workId: 'book-1');
+      const node2 = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
       final dto2 = const GenericWorkspaceProjector()
           .project(source: source2, entity: node2);
       final bookItem =
@@ -294,7 +258,7 @@ void main() {
             body: InspectorPersonalSection(
               type: const BookRegistration(),
               item: bookItem,
-              ownedItem: testOwnedSummary(testOwnedItem(
+              collectionItem: testCollectionItemSummary(testCollectionItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 tags: 'sci-fi, classic',

@@ -47,7 +47,7 @@ void main() {
     final shelf = LibraryWorkspaceSource(
       itemId: 'comic-2',
       catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
+      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
         id: 'owned-comic-2',
         itemId: 'comic-2',
         kind: 'comic',
@@ -63,7 +63,7 @@ void main() {
 
     final dto = const ComicWorkspaceProjector().project(
       source: shelf,
-      entity: const LibraryWorkRef(workId: 'comic-2'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'comic-2'),
     );
 
     expect(dto.title, 'The Last Ronin');
@@ -81,7 +81,7 @@ void main() {
       publisher: 'Marvel Comics',
     );
 
-    final owned = testOwnedItem(
+    final owned = testCollectionItem(
       id: 'owned-comic-key-1',
       itemId: 'comic-key-1',
       kind: 'comic',
@@ -103,21 +103,21 @@ void main() {
     final shelf = LibraryWorkspaceSource(
       itemId: 'comic-key-1',
       catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(owned),
-      ownedItemDispatch: testComicOwnedItemDispatchFrom(
-        testComicOwnedItemFrom(owned),
+      collectionItemSummary: testCollectionItemSummary(owned),
+      collectionItemDispatch: testComicCollectionItemDispatchFrom(
+        testComicCollectionItemFrom(owned),
       ),
     );
 
     final workspaceDto = const ComicWorkspaceProjector().project(
       source: shelf,
-      entity: const LibraryWorkRef(workId: 'comic-key-1'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'comic-key-1'),
     );
 
     final ctx = LibraryProjectionContext<ComicWorkspaceDto>(
       source: shelf,
       dto: workspaceDto,
-      node: const LibraryWorkRef(workId: 'comic-key-1'),
+      node: const LibraryCatalogItemNodeRef(catalogItemId: 'comic-key-1'),
     );
 
     expect(ComicCopyWorkspaceFields.rawOrSlabbed.getValue(ctx), 'Slabbed');

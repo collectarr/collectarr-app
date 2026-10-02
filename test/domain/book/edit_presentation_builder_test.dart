@@ -20,8 +20,6 @@ void main() {
       hasWishlistContext: false,
       isDigitalFormat: false,
       hasPhysicalFormats: false,
-      hasOwnedTargetOptions: true,
-      hasAdditionalTargetOptions: false,
       hasCustomFields: true,
       scope: scope,
     );
@@ -29,7 +27,7 @@ void main() {
 
   test('uses separate builders for media and release', () {
     final mediaTabs = mediaBuilder.buildTabs(
-      context: contextFor(LibraryEntityScope.work),
+      context: contextFor(LibraryEntityScope.catalogItem),
     );
     final releaseTabs = releaseBuilder.buildTabs(
       context: contextFor(LibraryEntityScope.release),
@@ -57,8 +55,10 @@ void main() {
 
   test('maps read history to different builders through scope selection', () {
     expect(
-      presentation.builderForScope(LibraryEntityScope.work).buildTabSectionIds(
-            context: contextFor(LibraryEntityScope.work),
+      presentation
+          .builderForScope(LibraryEntityScope.catalogItem)
+          .buildTabSectionIds(
+            context: contextFor(LibraryEntityScope.catalogItem),
             tabId: 'read_history',
           ),
       ['book_read_history'],

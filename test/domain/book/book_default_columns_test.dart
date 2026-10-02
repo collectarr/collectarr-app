@@ -26,7 +26,7 @@ void main() {
     );
     expect(
       workspace
-          .fieldsForScope(LibraryEntityScope.copy)
+          .fieldsForScope(LibraryEntityScope.collectionItem)
           .defaultVisibleColumns
           .map((column) => column.value),
       containsAll(<String>{

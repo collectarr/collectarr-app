@@ -17,9 +17,9 @@ final class LibraryEntityVocabulary {
   final LibraryEntityLabel copy;
 
   LibraryEntityLabel forScope(LibraryEntityScope scope) => switch (scope) {
-        LibraryEntityScope.work => work,
+        LibraryEntityScope.catalogItem => work,
         LibraryEntityScope.release => release,
-        LibraryEntityScope.copy => copy,
+        LibraryEntityScope.collectionItem => copy,
       };
 }
 

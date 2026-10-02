@@ -8,10 +8,10 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
-import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
+import 'package:collectarr_app/features/collection/mutations/collection_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
@@ -41,7 +41,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late LocalDatabase db;
-  late OwnedItemMutations ownedMutations;
+  late CollectionItemMutations ownedMutations;
   late WishlistMutations wishlistMutations;
   late TrackingMutations trackingMutations;
   late LibraryAddSessionController controller;
@@ -52,8 +52,8 @@ void main() {
       database: db,
       events: CollectionEventBus(),
     );
-    ownedMutations = OwnedItemMutations(
-      ownedItems: OwnedItemsRepository(db),
+    ownedMutations = CollectionItemMutations(
+      collectionItems: CollectionItemsRepository(db),
       wishlist: WishlistItemsCacheRepository(db),
       catalogSummaries: CatalogDisplaySummaryRepository(db),
       syncQueue: SyncQueueRepository(db),
@@ -79,7 +79,7 @@ void main() {
         db,
         codecs: libraryWatchSessionCodecs,
       ),
-      ownedItems: OwnedItemsRepository(db),
+      collectionItems: CollectionItemsRepository(db),
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,
     );
@@ -148,7 +148,7 @@ void main() {
     });
 
     test(
-        'submits selected item to owned items using capability command building',
+        'submits selected item to collection items using capability command building',
         () async {
       final item = testCatalogItemWithKindMetadata(
         testCatalogItem(
@@ -303,7 +303,7 @@ void main() {
   });
 
   group('Kind-Specific Add Draft to Command Capability Tests', () {
-    test('ComicAddDraft produces valid AddOwnedItemCommand', () {
+    test('ComicAddDraft produces valid AddCollectionItemCommand', () {
       final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'c1', kind: 'comic', title: 'Comic 1'),
       );
@@ -327,7 +327,7 @@ void main() {
       expect(details.signedBy, 'Stan Lee');
     });
 
-    test('MovieAddDraft produces valid AddOwnedItemCommand', () {
+    test('MovieAddDraft produces valid AddCollectionItemCommand', () {
       final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'v1', kind: 'movie', title: 'Video 1'),
       );
@@ -350,11 +350,11 @@ void main() {
       expect(details.region, 'Region A');
     });
 
-    test('GameAddDraft produces valid AddOwnedItemCommand', () {
+    test('GameAddDraft produces valid AddCollectionItemCommand', () {
       final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'g1', kind: 'game', title: 'Game 1'),
       );
-      const common = LibraryAddCommonDraft(quantity: 2);
+      const common = LibraryAddCommonDraft();
       const draft = GameAddDraft(completeness: 'CIB', hasBox: true);
 
       final cap = libraryAddForKind(CatalogMediaKind.game);
@@ -373,7 +373,7 @@ void main() {
       expect(details.hasBox, true);
     });
 
-    test('MusicAddDraft produces valid AddOwnedItemCommand', () {
+    test('MusicAddDraft produces valid AddCollectionItemCommand', () {
       final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'm1', kind: 'music', title: 'Music 1'),
       );

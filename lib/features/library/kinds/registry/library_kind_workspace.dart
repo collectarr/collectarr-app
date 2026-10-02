@@ -67,7 +67,7 @@ abstract interface class LibraryKindWorkspace {
     LibraryEntityScope scope,
   );
 
-  /// Resolves a v1 Catalog Item or Owned Copy field schema.
+  /// Resolves a v1 Catalog Item or Collection Item field schema.
   ///
   /// This is the migration boundary for callers that already store the v1
   /// entity type while the generic workspace still indexes schemas by its
@@ -184,7 +184,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     // A kind may omit a structural scope it does not expose. Catalog Items
     // that are already concrete editions, such as Music albums, have no
     // separate Release workspace.
-    final missing = const [LibraryEntityScope.work, LibraryEntityScope.copy]
+    final missing = const [LibraryEntityScope.catalogItem, LibraryEntityScope.collectionItem]
         .where((scope) => !entityWorkspaces.containsKey(scope))
         .toList(growable: false);
     if (missing.isNotEmpty) {
@@ -242,7 +242,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields =>
-      workspaceForScope(LibraryEntityScope.work).fields;
+      workspaceForScope(LibraryEntityScope.catalogItem).fields;
 
   final CatalogEntityRef Function(
     LibraryEntityRef node,
@@ -270,8 +270,8 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     String entityType,
   ) =>
       switch (entityType) {
-        'catalog_item' => fieldsForScope(LibraryEntityScope.work),
-        'owned_copy' => fieldsForScope(LibraryEntityScope.copy),
+        'catalog_item' => fieldsForScope(LibraryEntityScope.catalogItem),
+        'collection_item' => fieldsForScope(LibraryEntityScope.collectionItem),
         _ => throw FormatException(
             'Unsupported workspace entity type: $entityType.',
           ),
@@ -377,7 +377,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   LibraryFieldRegistry<TDto> _fieldsForOptionalNode(LibraryEntityRef? node) =>
       node == null
-          ? _typedFieldsForScope(LibraryEntityScope.work)
+          ? _typedFieldsForScope(LibraryEntityScope.catalogItem)
           : _typedFieldsForNode(node);
 
   @override

@@ -240,7 +240,7 @@ final class _MusicAlbumEditDialogState
           Navigator.of(context).pop(
             LibraryEditSelection(
               kindItem: candidate,
-              scope: LibraryEntityScope.work,
+              scope: LibraryEntityScope.catalogItem,
               customFieldEdits: Map.unmodifiable(_customFieldEdits),
               tracking: _draft.trackingSelection(
                 widget.request.kindItem.reference.rootScope,

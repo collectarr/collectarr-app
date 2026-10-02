@@ -67,10 +67,9 @@ void main() {
         physicalFormat: '4k-uhd',
         physicalFormatLabel: '4K UHD',
       )).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
+      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
         id: 'owned-1',
         itemId: 'movie-1',
-        quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
     );
@@ -89,7 +88,7 @@ void main() {
       '883929087129',
     ]);
     expect(
-      projection.ownedCellsBeforeQuantity(entry, clzFriendly: false),
+      projection.ownedCellsBeforeLocation(entry, clzFriendly: false),
       isEmpty,
     );
     expect(
@@ -97,7 +96,7 @@ void main() {
       hasLength(9),
     );
     expect(
-      projection.ownedCellsBeforeQuantity(entry, clzFriendly: true),
+      projection.ownedCellsBeforeLocation(entry, clzFriendly: true),
       [''],
     );
     expect(

@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -64,7 +64,7 @@ class LibraryPageBucketCoordinator {
     final workspace = libraryKindWorkspaceForKind(registration.kind);
 
     final catalogUpdates = <CatalogEntityRef, CatalogImportTransport>{};
-    final ownedUpdates = <OwnedCopyRef, UpdateOwnedItemCommand>{};
+    final ownedUpdates = <CollectionItemRef, UpdateCollectionItemCommand>{};
     final catalogRefs = [
       for (final item in projection.allItems)
         if (item.source.catalogRef case final ref?) ref.rootScope,
@@ -100,15 +100,15 @@ class LibraryPageBucketCoordinator {
         }
       }
 
-      final ownedItemDispatch = item.source.ownedItemDispatch;
-      if (ownedItemDispatch != null) {
+      final collectionItemDispatch = item.source.collectionItemDispatch;
+      if (collectionItemDispatch != null) {
         final ownedUpdate = groupDefinition.ownedBucketValueMutator?.call(
-          ownedItemDispatch,
+          collectionItemDispatch,
           currentLabel,
           replacement: replacement,
         );
         if (ownedUpdate != null) {
-          ownedUpdates.putIfAbsent(ownedUpdate.ownedRef, () => ownedUpdate);
+          ownedUpdates.putIfAbsent(ownedUpdate.collectionItemRef, () => ownedUpdate);
         }
       }
     }
@@ -117,14 +117,14 @@ class LibraryPageBucketCoordinator {
       return 0;
     }
     final catalogMutations = _page.ref.read(catalogTransportMutationsProvider);
-    final ownedMutations = _page.ref.read(ownedItemMutationsProvider);
+    final ownedMutations = _page.ref.read(collectionItemMutationsProvider);
     if (catalogUpdates.isNotEmpty) {
       await catalogMutations.upsertTransports(
         catalogUpdates.values,
       );
     }
     for (final update in ownedUpdates.values) {
-      await ownedMutations.updateOwnedItem(update);
+      await ownedMutations.updateCollectionItem(update);
     }
     if (!_page.mounted) {
       return catalogUpdates.length + ownedUpdates.length;

@@ -55,7 +55,7 @@ void main() {
   test('comic edit capability exposes its dialog builder', () {
     expect(
       comicKindEditCapabilities.presentationCapability.editRegistry
-          .builderForScope(LibraryEntityScope.work),
+          .builderForScope(LibraryEntityScope.catalogItem),
       isNotNull,
     );
   });

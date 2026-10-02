@@ -31,9 +31,11 @@ final class GameCatalogItem {
   String? get country => metadata.country;
   String? get language => metadata.languages.firstOrNull;
   String? get physicalFormat =>
-      metadata.physicalFormatLabel ?? metadata.physicalFormat ?? item.physicalFormatLabel;
+      metadata.physicalFormatLabel ??
+      metadata.physicalFormat ??
+      item.physicalFormatLabel;
   List<String> get genres => metadata.genres;
   List<String> get platforms => metadata.platforms;
 
-  CatalogItemDto toCatalogItemDto() => item.withKindMetadata(metadata);
+  CatalogItemDto toCatalogItemDto() => item.withKindData(metadata);
 }

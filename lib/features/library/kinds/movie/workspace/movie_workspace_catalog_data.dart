@@ -16,13 +16,10 @@ final class MovieWorkspaceCatalogData
   }) : _transport = transport;
 
   factory MovieWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
-    final rawMetadata = item.kindMetadata;
     return MovieWorkspaceCatalogData(
       ref: item.catalogRef,
       movie: MovieCatalogMapper.mapMetadataItemToMovie(item),
-      metadata: rawMetadata is MovieCatalogMetadata
-          ? rawMetadata
-          : MovieCatalogMetadata.fromJson(item.toSyncPayload()),
+      metadata: MovieCatalogMetadata.fromJson(item.payload),
       transport: item,
     );
   }

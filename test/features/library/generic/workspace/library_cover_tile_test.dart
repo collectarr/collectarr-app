@@ -22,14 +22,14 @@ void main() {
         title: 'Superman, Vol. 4',
         itemNumber: '8A',
       ).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
+      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
         id: 'owned-1',
         itemId: 'comic-1',
         collectionStatus: 'for_sale',
       )),
       wishlistItem: testWishlistItem(id: 'wish-1', itemId: 'comic-1'),
     );
-    const node = LibraryWorkRef(workId: 'comic-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
     final dto = const GenericWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -77,7 +77,7 @@ void main() {
         displayTitle: 'Spirited Away',
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'movie-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -121,7 +121,7 @@ void main() {
         title: 'Spirited Away',
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'movie-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -179,7 +179,7 @@ void main() {
         title: 'Spirited Away',
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'movie-hover-badges-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'movie-hover-badges-1');
     final dto = const GenericWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -236,7 +236,7 @@ void main() {
         title: 'Lupus Dei',
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'music-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'music-1');
     final dto = const GenericWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -280,7 +280,7 @@ void main() {
         title: 'Bible of the Beast',
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'music-2');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'music-2');
     final dto = const GenericWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -328,7 +328,7 @@ void main() {
         title: 'Gods of War',
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'music-3');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'music-3');
     final dto = const GenericWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -381,7 +381,7 @@ void main() {
         title: 'Interstellar',
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'movie-3');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'movie-3');
     final dto = const GenericWorkspaceProjector().project(
       source: source,
       entity: node,

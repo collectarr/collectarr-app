@@ -51,14 +51,14 @@ Future<void> runMusicLogListenAction(
     if (shouldSave != true || !action.buildContext.mounted) return;
 
     final now = DateTime.now().toUtc();
-    final ownedRef = action.ownedItem?.ref;
+    final collectionItemRef = action.collectionItem?.ref;
     final container = ProviderScope.containerOf(action.buildContext);
     await container.read(musicListeningMutationsProvider).upsert(
           MusicListenEvent(
             id: 'listen-${now.microsecondsSinceEpoch}',
             catalogRef: catalogRef,
-            ownedRef:
-                ownedRef?.kind == CatalogMediaKind.music ? ownedRef : null,
+            collectionItemRef:
+                collectionItemRef?.kind == CatalogMediaKind.music ? collectionItemRef : null,
             listenedAt: now,
             notes: notesController.text.trim().isEmpty
                 ? null

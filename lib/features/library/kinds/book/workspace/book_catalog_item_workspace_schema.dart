@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_entity_
 final bookCatalogItemWorkspaceSchema =
     LibraryEntityWorkspaceSchema<BookKind, BookWorkspaceDto>(
   kindNamespace: 'book',
-  entityScope: LibraryEntityScope.work,
+  entityScope: LibraryEntityScope.catalogItem,
   fields: [
     ...bookCatalogItemWorkspaceFieldDefinitions,
     ...bookCatalogItemDetailsWorkspaceFieldDefinitions,

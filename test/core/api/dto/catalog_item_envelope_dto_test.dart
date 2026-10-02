@@ -1,52 +1,54 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('splits flat catalog JSON into common fields and kind payload', () {
-    final envelope = CatalogItemEnvelopeDto.fromJson({
+  test('keeps every catalog field in the kind-owned payload', () {
+    final item = CatalogItemDto.fromJson({
       'id': 'book-1',
       'kind': 'book',
       'title': 'A book',
       'release_year': 2024,
       'authors': ['Author'],
     });
+    final envelope = item.toEnvelope();
 
     expect(envelope.kind, CatalogMediaKind.book);
-    expect(envelope.common.title, 'A book');
-    expect(envelope.common.releaseYear, 2024);
-    expect(envelope.kindPayload, {
-      'authors': ['Author']
+    expect(envelope.ref,
+        const CatalogItemRef(kind: CatalogMediaKind.book, id: 'book-1'));
+    expect(envelope.kindData, {
+      'title': 'A book',
+      'release_year': 2024,
+      'authors': ['Author'],
     });
   });
 
   test('round trips the nested envelope shape', () {
     final envelope = CatalogItemEnvelopeDto.fromJson({
-      'ref': {'kind': 'music', 'entity_type': 'work', 'id': 'music-1'},
+      'id': 'music-1',
       'kind': 'music',
-      'common': {'title': 'Album'},
-      'payload': {'tracks': <dynamic>[]},
+      'kind_data': {'title': 'Album', 'tracks': <dynamic>[]},
     });
 
     expect(envelope.toJson(), {
-      'ref': {'kind': 'music', 'entity_type': 'work', 'id': 'music-1'},
+      'id': 'music-1',
       'kind': 'music',
-      'common': {'title': 'Album'},
-      'payload': {'tracks': <dynamic>[]},
+      'kind_data': {'title': 'Album', 'tracks': <dynamic>[]},
     });
   });
 
   test('decodes the payload through the catalog codec registry', () {
-    final envelope = CatalogItemEnvelopeDto.fromJson({
+    final item = CatalogItemDto.fromJson({
       'id': 'book-1',
       'kind': 'book',
       'title': 'A book',
       'authors': ['Author'],
     });
+    final envelope = item.toEnvelope();
 
-    final item = envelope.decodeCatalogItem();
+    final decodedItem = envelope.decodeCatalogItem();
 
-    expect(item.mediaKind, CatalogMediaKind.book);
-    expect(item.title, 'A book');
+    expect(decodedItem.mediaKind, CatalogMediaKind.book);
+    expect(decodedItem.title, 'A book');
   });
 }

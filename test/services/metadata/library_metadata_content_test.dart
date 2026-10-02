@@ -26,7 +26,7 @@ void main() {
         publisher: 'Virgin',
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'music-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'music-1');
     final dto = const MusicCatalogItemWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -69,7 +69,7 @@ void main() {
         music: const {'discs': <Map<String, Object?>>[]},
       ).asShelfCatalogItem),
     );
-    const nodeMusic = LibraryWorkRef(workId: 'music-1');
+    const nodeMusic = LibraryCatalogItemNodeRef(catalogItemId: 'music-1');
     final dtoMusic = const MusicCatalogItemWorkspaceProjector().project(
       source: sourceMusic,
       entity: nodeMusic,
@@ -89,7 +89,7 @@ void main() {
         synopsis: 'Rebellion rises.',
       ).asShelfCatalogItem),
     );
-    const nodeMovie = LibraryWorkRef(workId: 'movie-1');
+    const nodeMovie = LibraryCatalogItemNodeRef(catalogItemId: 'movie-1');
     final dtoMovie = const GenericWorkspaceProjector().project(
       source: sourceMovie,
       entity: nodeMovie,
@@ -148,11 +148,11 @@ void main() {
         coverImageUrl: 'https://example.com/hyperion.jpg',
         barcode: '9780553283686',
       ).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
+      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
         id: 'owned-b1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: CatalogEntityTypeId('owned_copy'),
+          entityType: CatalogEntityTypeId('collection_item'),
           id: 'book-1',
         ),
         updatedAt: DateTime(2026, 1, 1),
@@ -161,7 +161,7 @@ void main() {
         personalNotes: 'Personal note',
       )),
     );
-    const node = LibraryWorkRef(workId: 'book-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
     final dto = const BookWorkspaceProjector().project(
       source: source,
       entity: node,

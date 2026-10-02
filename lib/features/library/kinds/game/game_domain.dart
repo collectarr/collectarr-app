@@ -1,7 +1,6 @@
-export 'package:collectarr_app/features/library/kinds/game/domain/game_owned_copy_id.dart';
-export 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+export 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
 export 'package:collectarr_app/features/library/kinds/game/data/local/game_local_tables.dart';
-export 'package:collectarr_app/features/library/kinds/game/data/local/game_owned_item_local_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/game/data/local/game_collection_item_local_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';

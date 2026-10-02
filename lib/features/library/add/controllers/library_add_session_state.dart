@@ -64,14 +64,14 @@ final class LibraryAddSessionState {
     LibraryAddResultPolicy policy, {
     required bool Function(CatalogSearchCandidate item) isOwnedCatalogItem,
   }) {
-    final ownedRefs = <CatalogEntityRef>{
+    final collectionItemRefs = <CatalogEntityRef>{
       for (final item in search.results)
         if (isOwnedCatalogItem(item)) item.reference,
     };
     return policy.filterCoreResults(
       items: search.results,
       state: selection.resultPolicyState,
-      ownedCatalogRefs: ownedRefs,
+      ownedCatalogRefs: collectionItemRefs,
     );
   }
 

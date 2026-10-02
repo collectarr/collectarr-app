@@ -111,7 +111,7 @@ final class AnimeRepository
       ...media.toJson(),
       'id': media.id.value,
       'kind': CatalogMediaKind.anime.apiValue,
-    }).withKindMetadata(media);
+    }).withKindData(media);
     await CatalogItemCacheRepository(_db).upsert(item);
   }
 

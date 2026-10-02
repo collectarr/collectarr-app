@@ -36,7 +36,7 @@ void main() {
       ownedCatalogRefs: {
         CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'comic-owned',
         ),
       },

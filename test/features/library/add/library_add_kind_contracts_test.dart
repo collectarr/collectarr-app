@@ -83,7 +83,6 @@ void main() {
           personalNotes: 'Collection note',
           purchaseStore: 'Typed Store',
           collectionStatus: 'Complete',
-          quantity: 2,
         );
         final typedDraft = switch (kind) {
           CatalogMediaKind.anime => AnimeAddDraft(grade: '9.8'),

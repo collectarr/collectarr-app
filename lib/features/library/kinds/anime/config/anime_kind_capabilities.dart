@@ -1,7 +1,6 @@
 import '../anime_module_dependencies.dart';
 import 'anime_kind_configuration.dart';
 import '../add/anime_add_contribution.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 
 final animeKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
@@ -55,11 +54,6 @@ final animeKindTrackingProfile = animeTrackingProfile;
 
 final animeKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final animeKindReleaseCapability =
-    const AnimeReleaseProjectionCapability<LibraryWorkspaceDto>();
-
-final animeKindReleaseDetailSource = const AnimeReleaseDetailSource();
-
 final animeKindCatalogTarget = const AnimeCatalogTargetCapability();
 
 final LibraryRelationCapability? animeKindRelations = null;
@@ -98,7 +92,7 @@ final animeKindHierarchy = const LibraryHierarchyCapability(
 );
 
 final animeKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Series', plural: 'Series'),
+  work: LibraryEntityLabel(singular: 'Catalog Item', plural: 'Catalog Items'),
   release: LibraryEntityLabel(singular: 'Release', plural: 'Releases'),
   copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
 );
@@ -112,7 +106,7 @@ final animeKindTrackingTopology = const LibraryTrackingTopology(
 
 final animeKindActions = const LibraryEntityActionCapability(
   work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
+  release: LibraryEntityActionSet(),
   copy: LibraryEntityActionSet.copy,
 );
 
@@ -120,17 +114,12 @@ final animeKindInspector = LibraryInspectorCapability(
   entityRegistry: LibraryEntityInspectorRegistry(
     contributors: [
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
+        scope: LibraryEntityScope.catalogItem,
         heroBuilder: buildAnimeWorkInspectorHero,
         sectionsBuilder: buildAnimeWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildAnimeReleaseInspectorHero,
-        sectionsBuilder: buildAnimeReleaseInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
+        scope: LibraryEntityScope.collectionItem,
         heroBuilder: buildAnimeCopyInspectorHero,
         sectionsBuilder: buildAnimeCopyInspectorSections,
       ),

@@ -1,26 +1,22 @@
 import '../anime_module_dependencies.dart';
-import '../ownership/anime_transfer_owned_item.dart';
+import '../ownership/anime_transfer_collection_item.dart';
 
 final animeKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.work,
+      scope: LibraryEntityScope.catalogItem,
       builder: buildAnimeLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.release,
-      builder: buildAnimeReleaseLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.copy,
-      builder: buildAnimeMediaLibraryEditDialog,
+      scope: LibraryEntityScope.collectionItem,
+      builder: buildAnimeLibraryEditDialog,
     ),
   ]),
   presentation: animeLibraryEditPresentation,
   coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: AnimeVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
-    AnimeOwnedItem item => item.grade,
+  ownedCollectionValueReader: (collectionItem) => switch (collectionItem?.value) {
+    AnimeCollectionItem item => item.grade,
     _ => null,
   },
   defaultCondition: 'Near Mint',
@@ -30,17 +26,17 @@ final animeKindEditCapabilities = LibraryEditCapabilitySet(
   ownedDigitalFlagResolver: resolveAnimeOwnedDigitalFlag,
   ownedFormatHintResolver: resolveAnimeOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-      AnimeOwnedItemUpdatePayload.partial(
+      AnimeCollectionItemUpdatePayload.partial(
     indexNumber: Patch.set(indexNumber),
   ),
   ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-      AnimeOwnedItemUpdatePayload.partial(
+      AnimeCollectionItemUpdatePayload.partial(
     condition: Patch.set(condition),
     grade: Patch.set(collectionValue),
   ),
   ownedBulkUpdatePayloadBuilder:
       (_, condition, collectionValue, locationId, tags) =>
-          AnimeOwnedItemUpdatePayload.partial(
+          AnimeCollectionItemUpdatePayload.partial(
     condition:
         condition == null ? const Patch.unchanged() : Patch.set(condition),
     grade: collectionValue == null
@@ -60,7 +56,7 @@ final animeKindEditCapabilities = LibraryEditCapabilitySet(
     locationChanged,
     locationId,
   ) =>
-      AnimeOwnedItemUpdatePayload.partial(
+      AnimeCollectionItemUpdatePayload.partial(
     purchaseDate: Patch.set(purchaseDate),
     pricePaidCents: Patch.set(pricePaidCents),
     currency: Patch.set(currency),
@@ -70,8 +66,8 @@ final animeKindEditCapabilities = LibraryEditCapabilitySet(
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
   ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = animeTransferOwnedItem(updated);
-    return AnimeOwnedItemUpdatePayload.partial(
+    final typed = animeTransferCollectionItem(updated);
+    return AnimeCollectionItemUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
       personalNotes: Patch.set(typed.personalNotes),
@@ -82,7 +78,6 @@ final animeKindEditCapabilities = LibraryEditCapabilitySet(
       purchaseStore: Patch.set(typed.purchaseStore),
       pricePaidCents: Patch.set(typed.pricePaidCents),
       sellPriceCents: Patch.set(typed.sellPriceCents),
-      quantity: Patch.set(typed.quantity),
       indexNumber: Patch.set(typed.indexNumber),
       purchaseDate: Patch.set(typed.purchaseDate),
       soldAt: Patch.set(typed.soldAt),
@@ -94,5 +89,5 @@ final animeKindEditCapabilities = LibraryEditCapabilitySet(
     );
   },
   ownedDetailsResetPayloadBuilder: () =>
-      AnimeOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+      AnimeCollectionItemUpdatePayload.partial(details: const Patch.clear()),
 );

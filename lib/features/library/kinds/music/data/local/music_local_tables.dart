@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 /// User-managed front/back covers and reference images for a catalog album.
 class MusicAlbumImagesRows extends Table {
   TextColumn get id => text()();
@@ -15,8 +16,8 @@ class MusicAlbumImagesRows extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-/// Complete Music-owned copy state.
-class MusicOwnedItemsRows extends Table {
+/// Complete Music-collection item state.
+class MusicCollectionItemsRows extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
   DateTimeColumn get createdAt => dateTime().nullable()();
@@ -27,7 +28,6 @@ class MusicOwnedItemsRows extends Table {
   IntColumn get pricePaidCents => integer().nullable()();
   TextColumn get currency => text().nullable()();
   TextColumn get personalNotes => text().nullable()();
-  IntColumn get quantity => integer().withDefault(const Constant(1))();
   IntColumn get indexNumber => integer().nullable()();
   TextColumn get tags => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
@@ -53,7 +53,7 @@ class MusicOwnedItemsRows extends Table {
 class MusicTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get catalogRefJson => text()();
-  TextColumn get ownedRefKey => text().nullable()();
+  TextColumn get collectionItemRefKey => text().nullable()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
   IntColumn get rating => integer().nullable()();
@@ -75,7 +75,7 @@ class MusicTrackingRows extends Table {
 class MusicListenEventsRows extends Table {
   TextColumn get id => text()();
   TextColumn get catalogItemId => text()();
-  TextColumn get ownedCopyId => text().nullable()();
+  TextColumn get collectionItemId => text().nullable()();
   DateTimeColumn get listenedAt => dateTime()();
   DateTimeColumn get startedAt => dateTime().nullable()();
   DateTimeColumn get finishedAt => dateTime().nullable()();

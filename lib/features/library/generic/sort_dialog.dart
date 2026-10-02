@@ -15,7 +15,7 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
   required List<LibrarySortRule> currentRules,
   bool Function(String column)? defaultAscendingForColumn,
   List<String>? availableColumns,
-  LibraryEntityScope scope = LibraryEntityScope.work,
+  LibraryEntityScope scope = LibraryEntityScope.catalogItem,
 }) {
   return showDialog<List<LibrarySortRule>>(
     context: context,

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
@@ -37,7 +37,7 @@ void main() {
       }),
     ]);
     await ComicOwnedRepository(db).upsert(
-      testComicOwnedItemFrom(testOwnedItem(
+      testComicCollectionItemFrom(testCollectionItem(
         id: 'owned-1',
         itemId: 'comic-1',
         kind: 'comic',
@@ -50,9 +50,9 @@ void main() {
     await loanRepo.create(
       Loan(
         id: 'loan-1',
-        ownedRef: const OwnedCopyRef(
+        collectionItemRef: const CollectionItemRef(
           kind: CatalogMediaKind.comic,
-          id: OwnedCopyId('owned-1'),
+          id: CollectionItemId('owned-1'),
         ),
         borrowerName: 'Alice',
         lentDate: DateTime.utc(2026, 5, 1),
@@ -94,7 +94,7 @@ void main() {
       }),
     ]);
     await ComicOwnedRepository(db).upsert(
-      testComicOwnedItemFrom(testOwnedItem(
+      testComicCollectionItemFrom(testCollectionItem(
         id: 'owned-2',
         itemId: 'comic-2',
         kind: 'comic',
@@ -107,9 +107,9 @@ void main() {
     await loanRepo.create(
       Loan(
         id: 'loan-2',
-        ownedRef: const OwnedCopyRef(
+        collectionItemRef: const CollectionItemRef(
           kind: CatalogMediaKind.comic,
-          id: OwnedCopyId('owned-2'),
+          id: CollectionItemId('owned-2'),
         ),
         borrowerName: 'Bob',
         lentDate: DateTime.utc(2020, 1, 1),

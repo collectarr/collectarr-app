@@ -88,14 +88,14 @@ void main() {
             id: 'movie_1',
             mediaKind: CatalogMediaKind.movie,
           ),
-          kindMetadata: movieMeta,
+          kindData: movieMeta,
         ).asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(testOwnedItem(
+        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'movie_1',
             kind: CatalogMediaKind.movie,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
           ),
           condition: 'Mint',
           updatedAt: DateTime.now(),
@@ -103,8 +103,8 @@ void main() {
       );
 
       const projector = MovieWorkspaceProjector();
-      const node = LibraryWorkRef(
-        workId: 'movie_1',
+      const node = LibraryCatalogItemNodeRef(
+        catalogItemId: 'movie_1',
       );
       final dto = projector.project(
         source: shelfEntry,

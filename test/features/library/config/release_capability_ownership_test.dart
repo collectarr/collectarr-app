@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/anime/release/anime_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
@@ -14,10 +13,14 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   group('Release Capability Ownership Contract Tests', () {
-    test('anime registers a concrete release capability', () {
+    test('Anime and Manga use Catalog Items without Release scopes', () {
       expect(
-        animeKindReleaseCapability,
-        isA<AnimeReleaseProjectionCapability>(),
+        libraryReleaseCapabilityForKind(CatalogMediaKind.anime),
+        isNull,
+      );
+      expect(
+        libraryReleaseCapabilityForKind(CatalogMediaKind.manga),
+        isNull,
       );
     });
 
@@ -26,7 +29,9 @@ void main() {
         final kind = registration.kind;
         if (kind == CatalogMediaKind.music ||
             kind == CatalogMediaKind.movie ||
-            kind == CatalogMediaKind.tv) {
+            kind == CatalogMediaKind.tv ||
+            kind == CatalogMediaKind.anime ||
+            kind == CatalogMediaKind.manga) {
           continue;
         }
         expect(
@@ -39,6 +44,8 @@ void main() {
 
     test('flat catalog kinds do not register a release scope', () {
       for (final kind in [
+        CatalogMediaKind.anime,
+        CatalogMediaKind.manga,
         CatalogMediaKind.music,
         CatalogMediaKind.movie,
         CatalogMediaKind.tv,
@@ -118,14 +125,14 @@ void main() {
       expect(
         libraryBrowserNavigationPolicy.shouldOpenReleaseFolderOnOpen(
           browserMode: LibraryWorkspaceBrowserMode.work,
-          browseScope: LibraryEntityScope.work,
+          browseScope: LibraryEntityScope.catalogItem,
         ),
         isTrue,
       );
       expect(
         libraryBrowserNavigationPolicy.shouldOpenReleaseFolderOnOpen(
           browserMode: LibraryWorkspaceBrowserMode.work,
-          browseScope: LibraryEntityScope.work,
+          browseScope: LibraryEntityScope.catalogItem,
         ),
         isTrue,
       );

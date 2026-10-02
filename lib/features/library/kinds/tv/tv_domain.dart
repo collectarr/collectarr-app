@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_collection_item_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
 
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
@@ -37,7 +37,7 @@ export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_
 // ---------------------------------------------------------------------------
 final class TvPersonalOverlay {
   const TvPersonalOverlay({
-    this.ownedItem,
+    this.collectionItem,
     this.trackingSummary,
     this.wishlistItem,
     this.locationPath,
@@ -51,8 +51,8 @@ final class TvPersonalOverlay {
 
   factory TvPersonalOverlay.fromShelf(LibraryWorkspaceSource source) {
     return TvPersonalOverlay(
-      ownedItem: TvOwnedItemProjection.fromDispatch(
-        source.ownedItemDispatch,
+      collectionItem: TvCollectionItemProjection.fromDispatch(
+        source.collectionItemDispatch,
       ),
       trackingSummary: source.trackingSummary,
       wishlistItem: source.wishlistItem,
@@ -63,7 +63,7 @@ final class TvPersonalOverlay {
     );
   }
 
-  final TvOwnedItem? ownedItem;
+  final TvCollectionItem? collectionItem;
   final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final String? locationPath;
@@ -74,7 +74,7 @@ final class TvPersonalOverlay {
   final bool? isTrackedOverride;
   final bool? isWishlistedOverride;
 
-  bool get isOwned => isOwnedOverride ?? ownedItem != null;
+  bool get isOwned => isOwnedOverride ?? collectionItem != null;
   bool get isTracked => isTrackedOverride ?? trackingSummary != null;
   bool get isWishlisted => isWishlistedOverride ?? wishlistItem != null;
 }

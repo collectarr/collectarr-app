@@ -47,7 +47,7 @@ final class BoardGameCatalogItem {
   List<String> get contributors =>
       _strings(metadata.rawPayload['contributors']);
 
-  CatalogItemDto toCatalogItemDto() => item.withKindMetadata(metadata);
+  CatalogItemDto toCatalogItemDto() => item.withKindData(metadata);
 }
 
 String? _text(Object? value) {

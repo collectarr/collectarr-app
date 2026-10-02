@@ -1,6 +1,6 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/features/collection/mutations/collection_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 
 final class CollectionCommandCoordinator {
@@ -9,19 +9,19 @@ final class CollectionCommandCoordinator {
     required this.trackingMutations,
   });
 
-  final OwnedItemMutations ownedMutations;
+  final CollectionItemMutations ownedMutations;
   final TrackingMutations trackingMutations;
 
-  Future<OwnedCopyRef> addOwnedItem(
-    AddOwnedItemCommand command, {
+  Future<CollectionItemRef> addCollectionItem(
+    AddCollectionItemCommand command, {
     bool syncTracking = true,
   }) async {
-    final item = await ownedMutations.addOwnedItem(command);
+    final item = await ownedMutations.addCollectionItem(command);
     if (syncTracking) {
       final tracking = command.tracking;
       await trackingMutations.syncOwnedTrackingState(
         item,
-        targetRef: command.targetRef,
+        targetRef: command.catalogRef,
         status: tracking?.status,
         rating: tracking?.rating,
         startedAt: tracking?.startedAt,
@@ -32,11 +32,11 @@ final class CollectionCommandCoordinator {
     return item;
   }
 
-  Future<OwnedCopyRef> updateOwnedItem(
-    OwnedItemUpdateRequest command, {
+  Future<CollectionItemRef> updateCollectionItem(
+    CollectionItemUpdateRequest command, {
     bool syncTracking = true,
   }) async {
-    final item = await ownedMutations.updateOwnedItem(command);
+    final item = await ownedMutations.updateCollectionItem(command);
     if (syncTracking) {
       await trackingMutations.syncOwnedTrackingState(item);
     }

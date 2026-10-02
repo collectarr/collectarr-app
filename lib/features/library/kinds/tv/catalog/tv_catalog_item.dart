@@ -125,7 +125,7 @@ final class TvCatalogMapper {
   const TvCatalogMapper._();
 
   static TvCatalogItem mapDtoToTv(CatalogItemDto dto) {
-    final payload = dto.toSyncPayload();
+    final payload = dto.toJson();
     final videoPayload = (payload['video'] as Map?) ?? payload;
 
     final runtimeMinutes = videoPayload['runtime_minutes'] is num
@@ -227,18 +227,11 @@ final class TvCatalogMapper {
   }
 
   static TvCatalogItem mapMetadataItemToTv(CatalogItemDto item) {
-    return mapDtoToTv(CatalogItemDto.fromJson(item.toSyncPayload()));
+    return mapDtoToTv(CatalogItemDto.fromJson(item.toJson()));
   }
 
   static TvCatalogItem fromTvMetadataItem(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is! TvSeriesMetadata) {
-      throw ArgumentError.value(
-        metadata,
-        'item.kindMetadata',
-        'Expected TvSeriesMetadata',
-      );
-    }
+    final metadata = TvSeriesMetadata.fromJson(item.payload);
     return TvCatalogItem(
       id: item.id,
       work: TvCatalogWorkMetadata(

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -8,8 +9,8 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
@@ -60,7 +61,7 @@ String boardgameSeedCoverUrl(String title) {
 }
 
 final boardgameDevSeedContributor =
-    TypedDevSeedKindContributor<BoardGameOwnedItem>(
+    TypedDevSeedKindContributor<BoardGameCollectionItem>(
   kind: CatalogMediaKind.boardgame,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
@@ -78,11 +79,11 @@ final boardgameDevSeedContributor =
   validateCatalog: validateBoardgameSeedCatalog,
   validateCatalogGraph: validateBoardgameSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: boardgameSeedOwnedItems,
-  ownedSummaryTyped: BoardGameOwnedItemProjection.toSummary,
+  collectionItemsTyped: boardgameSeedCollectionItems,
+  collectionItemSummaryTyped: BoardGameCollectionItemProjection.toSummary,
   validateOwnedTyped: validateBoardgameSeedOwned,
   seedOwnedTyped: (db, now) =>
-      BoardGameOwnedRepository(db).upsertAll(boardgameSeedOwnedItems(now)),
+      BoardGameOwnedRepository(db).upsertAll(boardgameSeedCollectionItems(now)),
   trackingRecords: boardgameSeedTrackingStates,
   seedDatabase: seedBoardgameDatabase,
 );
@@ -162,7 +163,7 @@ List<String> validateBoardgameSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateBoardgameSeedOwned(BoardGameOwnedItem item) {
+List<String> validateBoardgameSeedOwned(BoardGameCollectionItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
@@ -535,12 +536,12 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
     ];
 
-List<BoardGameOwnedItem> boardgameSeedOwnedItems(DateTime now) => [
+List<BoardGameCollectionItem> boardgameSeedCollectionItems(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        BoardGameOwnedItem(
+        BoardGameCollectionItem(
           // Keep a deterministic first ID so repeated seed runs remain
           // idempotent.
-          id: BoardGameOwnedCopyId(
+          id: CollectionItemId(
             i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
           ),
           catalogRef: seedCatalogRef(
@@ -569,7 +570,6 @@ List<BoardGameOwnedItem> boardgameSeedOwnedItems(DateTime now) => [
           personalNotes: i == 1
               ? 'All characters unlocked.'
               : 'Complete retail copy with rulebook and components.',
-          quantity: 1,
           purchaseStore: i.isEven ? 'Local Game Store' : 'Miniature Market',
           collectionStatus: 'collected',
         ),
@@ -586,7 +586,7 @@ List<TrackingStorageRecord> boardgameSeedTrackingStates(DateTime now) => [
             CatalogMediaKind.boardgame,
             'seed-boardgame-${seedOrdinal2(i)}',
           ),
-          ownedRef: seedOwnedRef(
+          collectionItemRef: seedCollectionItemRef(
             CatalogMediaKind.boardgame,
             i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
           ),

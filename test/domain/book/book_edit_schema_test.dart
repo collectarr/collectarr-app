@@ -70,7 +70,7 @@ CatalogSearchCandidate _bookItem([
         id: 'book-1',
         mediaKind: CatalogMediaKind.book,
       ),
-      kindMetadata: metadata,
+      kindData: metadata,
     ),
   );
 }

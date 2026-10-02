@@ -111,15 +111,14 @@ final Map<CatalogMediaKind, WorkProjectionCapability<LibraryWorkspaceDto>>
 final Map<CatalogMediaKind, ReleaseProjectionCapability<LibraryWorkspaceDto>?>
     collectarrKindReleaseCapabilities = Map.unmodifiable(
   <CatalogMediaKind, ReleaseProjectionCapability<LibraryWorkspaceDto>?>{
-    CatalogMediaKind.anime: animeKindReleaseCapability,
+    CatalogMediaKind.anime: null,
     CatalogMediaKind.boardgame: boardGameKindReleaseCapability
         as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
     CatalogMediaKind.book: bookKindReleaseCapability
         as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
     CatalogMediaKind.comic: null,
     CatalogMediaKind.game: null,
-    CatalogMediaKind.manga: mangaKindReleaseCapability
-        as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
+    CatalogMediaKind.manga: null,
     CatalogMediaKind.movie: null,
     CatalogMediaKind.music: musicKindReleaseCapability
         as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
@@ -130,15 +129,14 @@ final Map<CatalogMediaKind, ReleaseProjectionCapability<LibraryWorkspaceDto>?>
 final Map<CatalogMediaKind, LibraryReleaseDetailSource?>
     collectarrKindReleaseDetailSources = Map.unmodifiable(
   <CatalogMediaKind, LibraryReleaseDetailSource?>{
-    CatalogMediaKind.anime: animeKindReleaseDetailSource,
+    CatalogMediaKind.anime: null,
     CatalogMediaKind.boardgame:
         boardGameKindReleaseDetailSource as LibraryReleaseDetailSource?,
     CatalogMediaKind.book:
         bookKindReleaseDetailSource as LibraryReleaseDetailSource?,
     CatalogMediaKind.comic: null,
     CatalogMediaKind.game: null,
-    CatalogMediaKind.manga:
-        mangaKindReleaseDetailSource as LibraryReleaseDetailSource?,
+    CatalogMediaKind.manga: null,
     CatalogMediaKind.movie: null,
     CatalogMediaKind.tv: null,
   },

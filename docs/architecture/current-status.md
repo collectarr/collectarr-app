@@ -20,7 +20,7 @@ Movie manual Add now renders one Catalog Item field section and creates a flat
 Movie candidate from the pinned kind contract. It no longer fabricates a
 MovieMedia parent with a nested MovieRelease solely to submit a manual item.
 Movie's catalog target capability resolves directly to its Catalog Item, and
-Movie Owned Copies no longer store a nested Edition/Release target.
+Movie Collection Items no longer store a nested Edition/Release target.
 
 ## Core catalog state
 
@@ -46,18 +46,20 @@ flat Catalog Item and no longer calls Core's old Comic Work endpoint to expand
 issue and variant children. Comic's App model and editor now represent the
 concrete issue or edition directly; its nested release editor, release
 workspace, target selection, and release inspector have been removed. Comic
-workspace and edit registration still use the shared host's transitional root
-`work` scope, but Comic no longer has a separate release scope. Game's obsolete direct
+workspace and edit registration use the shared host's `catalog_item` scope.
+The registered collection-entry scope is `collection_item`. Workspace nodes
+now distinguish `LibraryCatalogItemNodeRef` from
+`LibraryCollectionItemNodeRef`; the legacy `LibraryReleaseRef` and some
+release-specific edit adapters still remain. Game's obsolete direct
 Work/Release API client and mapper have been removed. Its local catalog
 model, Add proposal, transport codec, and workspace now project one concrete
 Game Catalog Item; no Game Release model or Release workspace remains. The
-shared library host still names its generic root scope `work`, so removing that
-cross-kind scope terminology remains part of the broader cutover.
+generic reference types remain a separate part of the active cutover.
 
 ## App persistence and workspace
 
 The supported Drift schema version is `1`, with no upgrade chain. The current
-registered table set retains App-owned copy, tracking, and session tables for
+registered table set retains App-collection item, tracking, and session tables for
 TV alongside Music-owned image, copy, tracking, and listening tables. TV
 catalog items and their contained seasons, episodes, and physical contents now
 use the shared Catalog Item cache. Music has no Release
@@ -72,9 +74,9 @@ physical copy, so Quantity is derived from the number of copies rather than
 entered as a field. Index remains an optional collection-order number.
 
 Movie's active workspace now projects one concrete Movie Catalog Item and its
-Owned Copies, with no Release workspace or drilldown. Catalog Item and Owned
+Collection Items, with no Release workspace or drilldown. Catalog Item and Owned
 Copy actions now use the shared Edit dialog and separate presentation tabs;
-Movie no longer routes Owned Copy editing through the old Media edit dialog.
+Movie no longer routes Collection Item editing through the old Media edit dialog.
 Movie catalog metadata and manual Add now describe one concrete edition per
 Catalog Item; disc rows are contained directly by that item, with no nested
 Release or Edition metadata.
@@ -86,89 +88,115 @@ Release model.
 Movie calendar dates and local barcode/title lookup now read the shared flat
 Catalog Item cache instead of querying the old MovieMedia/MovieRelease tables.
 
-App-owned state remains separate from Core catalog facts. Owned items,
+App-owned state remains separate from Core catalog facts. Collection items,
 wishlist, tracking, listening sessions, loans, locations, custom fields,
 images, pick lists, and personal sync remain App/Sync responsibilities. The
 flattened cutover must preserve those features while moving their references to
-Catalog Item or Owned Copy identities.
+Catalog Item or Collection Item identities.
+
+Each `CollectionItemRef` identifies one user-owned physical item. Duplicating
+one creates another collection row with its own personal fields; there is no
+quantity field. The generic `CollectionItemSummary` no longer carries a copy of
+the catalog title, subtitle, or cover. Mixed hosts obtain display labels and
+images from the kind-produced `CatalogDisplaySummary`, while full metadata
+remains in that kind's Catalog Item data.
 
 Catalog transport now writes every Core item into a shared Drift cache keyed
-by `(kind, item_id)`. Snapshot reads and batched reference hydration use this
-flat cache. Anime, Board Game, Book, Comic, Game, Manga, Movie, Music, and TV
+by `(kind, item_id)`. Each cache payload has only `id`, `kind`, and
+`kind_data`; title, synopsis, dates, covers, and every other catalog field stay
+in that owning kind payload. It does not serialize a generic `ref` or Work
+entity type. The v1 decoder rejects older envelope aliases rather than
+converting them. No shared `common` catalog model or cache section exists.
+Core cross-kind Search and barcode results use the same envelope, with each
+search projection filtered against that kind's catalog schema. Mixed-kind
+labels and covers are transient projections produced by kind codecs and are
+never written back as catalog data.
+Snapshot reads and batched
+reference hydration use this flat cache. Anime, Board Game,
+Book, Comic, Game, Manga, Movie, Music, and TV
 use it as their only active catalog store. TV's typed workspace and Edit
 adapters no longer register a separate Release projection, inspector, or edit
 dialog, and the TV detail panel no longer browses sibling releases. The shared
-host still represents the TV Catalog Item through its transitional `work`
-scope; typed workspace and form internals remain to be flattened. TV manual
-Add emits one flat Catalog Item; Core common fields and kind-owned fields are
-decoded together, and an edition release date is no longer misrepresented as
-a series first-air date. Book, Game, and Manga
-catalog facts no longer have per-kind media or release tables; their owned-copy
+host represents the TV Catalog Item through the `catalog_item` scope; the
+legacy release node and kind edit adapters remain to be removed. TV manual
+Add emits one flat Catalog Item; every field, including title, synopsis,
+cover, and edition date, is decoded as TV-owned data, and an edition release
+date is no longer misrepresented as a series first-air date. Book, Game, and Manga
+catalog facts no longer have per-kind media or release tables; their collection-item
 and tracking data stays in App-owned tables while the broader personal-data
 cutover proceeds. Game's flat workspace combines edition title, platform,
 region, publisher, release date, format, barcode, and catalog number on the
-Catalog Item. Game Owned Copies persist only a reference to that Catalog Item;
+Catalog Item. Game Collection Items persist only a reference to that Catalog Item;
 they do not store a nested target. Manga's title/number lookup, calendar, series hierarchy, and
 Shelf grouping now read the shared cache; chapters remain contained beneath
 each volume Catalog Item. Board Game now maps one flat Catalog Item per
 edition. Its Add form has one Catalog Item section, its workspace has no Release
-projection, and its owned copies no longer store a nested target reference.
+projection, and its collection items no longer store a nested target reference.
 The old `BoardGameMedia`, `BoardGameEdition`, release schema, and split edit
 dialogs have been removed. Add lookup, calendar dates, pick-list counts, and
-offline reads use the shared cache, while owned copies and play sessions remain
-in App-owned tables. The generic host still represents the Catalog Item
-through its transitional `work` scope. Anime's media,
-episode, and release tables are removed; the shared cache now holds each Anime
-Catalog Item with its contained episode and release data. Owned copies,
+offline reads use the shared cache, while collection items and play sessions remain
+in App-owned tables. The generic host represents the Catalog Item through its
+`catalog_item` scope. Anime's media, episode, and release
+tables are removed; the shared cache now holds each Anime Catalog Item with
+its root details and contained episode data. Anime edition fields are stored
+directly on the Catalog Item. Anime and Manga now combine their former Release
+workspace fields into the root Catalog Item schema, with no active Release
+projection or editor. Anime manual Add no longer emits nested editions, and
+Manga manual Add stores volume edition details directly on its Catalog Item.
+Collection items,
 tracking, watch sessions, custom episodes, and tracking-unit state remain in
 their App-owned tables. Comic's media and release tables are also removed;
 Comic catalog lookups, summaries, and offline reads use the shared cache while
-owned copies, reading progress, and tracking stay in App-owned tables. Its
+collection items, reading progress, and tracking stay in App-owned tables. Its
 former `ComicMedia`/`ComicRelease` model split and related edit/workspace
 projections are removed; the Comic domain root is now named `ComicCatalogItem`
 and carries the direct issue/edition fields.
-Book calendar events now read each concrete item's release date from this cache
-instead of loading a `BookMedia` row from the old per-kind table. The Book
-barcode/ISBN lookup also reads root identifiers and contained printing ISBNs
-from the cache. The active flat Book projection retains printings as contained
-Catalog Item data and no longer fabricates a Release when the root response has
-no nested editions. The Book workspace now exposes one combined Catalog Item
-field and column schema; it no longer registers a separate Release workspace or
-fetches nested volumes for browsing. Book Add selects the Catalog Item directly
-without a nested Edition choice. The generic workspace registry still maps
-that root through its transitional `work` scope. Book's Edit adapters still
-contain legacy `BookMedia` and `BookRelease` models. Book Owned Copy editing
-now routes through the shared Book edit dialog so it can edit App-owned copy
-state rather than opening the old `BookMedia` catalog form. The separate Book
-Release edit adapter has been removed from the active edit registry and its
-dialog implementation deleted. The `BookMedia` catalog model and older
-BookRelease schema helpers still remain in the codebase and need to be removed
-as the flat Book form and printing editor replace them. Owned-copy and tracking
-state continue to use separate App-owned tables. The Book field ledger remains
-provisional until its Edit-form capture is available.
+Book calendar events and barcode/ISBN lookup read the shared Catalog Item cache;
+printings remain contained by their parent item. The Book workspace and Add/Edit
+forms operate on one `BookCatalogItem` root, with no BookMedia/BookRelease model
+or separate Release workspace in the active Book code. Field-spec builder names
+now describe Catalog Item identity, publication history, and edition fields
+instead of implying Work/Release nodes. Owned-copy and tracking state remain in
+App-owned tables. The Book field ledger remains provisional until its Edit-form
+capture is available. The generic host uses the `catalog_item` scope for this root.
 
-Music-owned copies created through Add target the concrete Music Catalog Item
+Music-collection items created through Add target the concrete Music Catalog Item
 directly and persist only that `catalog_ref`; they do not carry a redundant
 `target_ref` alias. The Music workspace's scope selector is hidden because this
 kind has no child Release scope. Movie's root workspace also hides the selector.
+Anime, Book, Manga, TV, and Comic collection rows also persist only their
+Catalog Item reference. Their former `target_ref` duplicate has been removed
+from the domain models, local tables, and edit payloads; episode and chapter
+tracking still retains its own real catalog targets.
+Add and duplicate commands now create a distinct Collection Item ID for each
+physical copy and accept only its concrete Catalog Item reference. Duplicating
+an entry copies its personal values into a new row, so copies can be edited
+independently without a quantity field or a release-level anchor.
 Board Game, Book, Game, Manga, Music, Movie, and TV catalog lookups, summaries,
 and offline root reads use the flat Catalog Item cache. The remaining App
 cutover covers Music image ownership and remaining Work/Release domain and Edit
 paths, including legacy Book and Manga adapters. Game and Board Game no longer
-have per-kind Release domain or Edit adapters, though their Catalog Item roots
-still pass through the shared transitional `work` scope.
+have per-kind Release domain or Edit adapters; their Catalog Item roots use the
+shared `catalog_item` scope.
 Music lifecycle tracking records also target the Catalog Item and use the
 existing personal Sync contract. Listening history targets the same Catalog
-Item, may optionally identify the owned copy used, and now round-trips through
+Item, may optionally identify the collection item used, and now round-trips through
 the personal Sync queue as `music_listen_event` records. Local event storage,
 edit UI, and workspace statistics use that item identity.
+The Sync v1 wire contract identifies Catalog Items and one-copy collection
+entries independently with `{kind, id}` references. The collection entry's
+`catalog_ref` points to its shared Core metadata. The App queue canonicalizes
+current kind-owned payloads at enqueue time, while Sync apply still adapts
+Catalog Item references into the generic workspace node wrappers. Replacing
+those wrappers with direct Catalog Item and Collection Item refs is part of the
+active workspace and personal-data cutover.
 
-Smart List criteria now identify `catalog_item` or `owned_copy` directly with
+Smart List criteria now identify `catalog_item` or `collection_item` directly with
 an `entity_type` field. Sort tokens use the same target identity, and criteria
 using the former `entity_scope` field are rejected rather than decoded through
-a compatibility path. The active generic workspace still maps these target
-types onto its transitional Work/Copy presentation scopes until that host is
-flattened.
+a compatibility path. The active generic workspace now uses explicit
+`catalog_item` and `collection_item` scopes, while its internal node types and
+some kind edit adapters still retain the earlier hierarchy.
 
 ## Contracts and field confidence
 

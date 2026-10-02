@@ -15,7 +15,7 @@ class ComicLibraryEditDialog extends StatelessWidget {
       draft: LibraryEditShellState.fromRequest(request),
       onPrevious: request.onPrevious,
       onNext: request.onNext,
-      scope: request.scope ?? LibraryEntityScope.work,
+      scope: request.scope ?? LibraryEntityScope.catalogItem,
     );
   }
 }

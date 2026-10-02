@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
@@ -11,15 +12,15 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session.dart';
 
-final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeOwnedItem>(
+final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeCollectionItem>(
   kind: CatalogMediaKind.anime,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -37,11 +38,11 @@ final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeOwnedItem>(
   validateCatalog: validateAnimeSeedCatalog,
   validateCatalogGraph: validateAnimeSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: animeSeedOwnedItems,
-  ownedSummaryTyped: AnimeOwnedItemProjection.toSummary,
+  collectionItemsTyped: animeSeedCollectionItems,
+  collectionItemSummaryTyped: AnimeCollectionItemProjection.toSummary,
   validateOwnedTyped: validateAnimeSeedOwned,
   seedOwnedTyped: (db, now) =>
-      AnimeOwnedRepository(db).upsertAll(animeSeedOwnedItems(now)),
+      AnimeOwnedRepository(db).upsertAll(animeSeedCollectionItems(now)),
   trackingRecords: animeSeedTrackingStates,
   trackingUnits: animeSeedTrackingUnits,
   watchSessions: animeSeedWatchSessions,
@@ -107,7 +108,7 @@ List<String> validateAnimeSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateAnimeSeedOwned(AnimeOwnedItem item) {
+List<String> validateAnimeSeedOwned(AnimeCollectionItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
@@ -177,7 +178,7 @@ Iterable<AnimeTrackingUnit> animeSeedTrackingUnits(
         id: 'seed-unit-anime-${item.id}-$episodeId',
         targetRef: CatalogEntityRef(
           kind: item.mediaKind,
-          entityType: CatalogEntityTypeId.root,
+          entityType: CatalogEntityTypeId.catalogItem,
           id: item.id,
         ),
         seasonNumber: 1,
@@ -876,10 +877,10 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
     ];
 
-List<AnimeOwnedItem> animeSeedOwnedItems(DateTime now) => [
+List<AnimeCollectionItem> animeSeedCollectionItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.anime, 15))
-        AnimeOwnedItem(
-          id: AnimeOwnedCopyId('seed-owned-$itemId'),
+        AnimeCollectionItem(
+          id: CollectionItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.anime, itemId),
           createdAt: now.subtract(const Duration(days: 180)),
           updatedAt: now,
@@ -898,7 +899,6 @@ List<AnimeOwnedItem> animeSeedOwnedItems(DateTime now) => [
           currency: 'USD',
           personalNotes:
               'Import Japanese/English collector\'s edition with artbook.',
-          quantity: 1,
           purchaseStore: 'RightStuf / Crunchyroll Store',
           collectionStatus: 'collected',
         ),
@@ -919,7 +919,7 @@ List<TrackingStorageRecord> animeSeedTrackingStates(DateTime now) => [
               '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
             },
           ),
-          ownedRef: seedOwnedRef(
+          collectionItemRef: seedCollectionItemRef(
             CatalogMediaKind.anime,
             'seed-owned-seed-anime-${seedOrdinal2(i)}',
           ),

@@ -112,10 +112,10 @@ final class CollectionCsvExporter {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
-    final customFields = entry.ownedRef == null
+    final customFields = entry.collectionItemRef == null
         ? List<String>.filled(customFieldDefinitions.length, '')
         : _customFieldCells(
-            entry.ownedRef!.key,
+            entry.collectionItemRef!.key,
             customFieldDefinitions,
             customFieldValuesByItem,
           );
@@ -124,7 +124,6 @@ final class CollectionCsvExporter {
       entry.mediaKind.apiValue,
       entry.title,
       _status(entry),
-      entry.quantity.toString(),
       _locationCell(entry),
       entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
       ...customFields,
@@ -159,15 +158,15 @@ final class CollectionCsvExporter {
     return cells;
   }
 
-  List<String> _kindOwnedCellsBeforeQuantity(
+  List<String> _kindOwnedCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     final projection = _profileForKind(entry.mediaKind);
     if (projection == null) {
-      return clzFriendly ? const [''] : const [];
+      return const [];
     }
-    final cells = projection.ownedCellsBeforeQuantity(
+    final cells = projection.ownedCellsBeforeLocation(
       entry,
       clzFriendly: clzFriendly,
     );
@@ -200,14 +199,9 @@ final class CollectionCsvExporter {
   }) {
     final projection = _profileForKind(entry.mediaKind);
     if (projection == null) {
-      return List<String>.filled(
-        clzFriendly
-            ? collectionCsvV1OwnedCellCount - 1
-            : collectionCsvV1OwnedCellCount,
-        '',
-      );
+      return List<String>.filled(collectionCsvV1OwnedCellCount, '');
     }
-    final beforeQuantity = projection.ownedCellsBeforeQuantity(
+    final beforeLocation = projection.ownedCellsBeforeLocation(
       entry,
       clzFriendly: clzFriendly,
     );
@@ -215,10 +209,11 @@ final class CollectionCsvExporter {
       entry,
       clzFriendly: clzFriendly,
     );
-    if (beforeQuantity.length + cells.length != collectionCsvV1OwnedCellCount) {
+    if (beforeLocation.length + cells.length !=
+        collectionCsvV1OwnedCellCount) {
       throw StateError(
         'Collection CSV owned projection for ${projection.kind.apiValue} '
-        'returned ${beforeQuantity.length + cells.length} cells; expected '
+        'returned ${beforeLocation.length + cells.length} cells; expected '
         '$collectionCsvV1OwnedCellCount.',
       );
     }
@@ -230,9 +225,9 @@ final class CollectionCsvExporter {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
-    final cfValues = entry.ownedRef != null
+    final cfValues = entry.collectionItemRef != null
         ? _customFieldCells(
-            entry.ownedRef!.key,
+            entry.collectionItemRef!.key,
             customFieldDefinitions,
             customFieldValuesByItem,
           )
@@ -246,7 +241,6 @@ final class CollectionCsvExporter {
       entry.pricePaidCents?.toString() ?? '',
       entry.currency ?? entry.wishlistItem?.currency ?? '',
       entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
-      entry.quantity.toString(),
       _locationCell(entry),
       _ownedIndexNumber(entry),
       ..._kindOwnedCellsAfterIndex(entry, clzFriendly: false),
@@ -267,9 +261,9 @@ final class CollectionCsvExporter {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
-    final cfValues = entry.ownedRef != null
+    final cfValues = entry.collectionItemRef != null
         ? _customFieldCells(
-            entry.ownedRef!.key,
+            entry.collectionItemRef!.key,
             customFieldDefinitions,
             customFieldValuesByItem,
           )
@@ -282,8 +276,7 @@ final class CollectionCsvExporter {
       _formatDate(entry.purchaseDate),
       _formatMoney(entry.pricePaidCents),
       entry.currency ?? entry.wishlistItem?.currency ?? '',
-      ..._kindOwnedCellsBeforeQuantity(entry, clzFriendly: true),
-      entry.quantity.toString(),
+      ..._kindOwnedCellsBeforeLocation(entry, clzFriendly: true),
       _locationCell(entry),
       _ownedIndexNumber(entry),
       ..._kindOwnedCellsAfterIndex(entry, clzFriendly: true),
@@ -301,15 +294,15 @@ final class CollectionCsvExporter {
   }
 
   String _locationCell(LibraryWorkspaceSource entry) {
-    return entry.locationPath ?? entry.ownedSummary?.locationLabel ?? '';
+    return entry.locationPath ?? entry.collectionItemSummary?.locationLabel ?? '';
   }
 
   List<String> _customFieldCells(
-    String ownedRefKey,
+    String collectionItemRefKey,
     List<CustomFieldDefinition> definitions,
     Map<String, List<CustomFieldValue>> valuesByItem,
   ) {
-    final values = valuesByItem[ownedRefKey] ?? const [];
+    final values = valuesByItem[collectionItemRefKey] ?? const [];
     final byDefId = {
       for (final v in values) v.fieldDefinitionId: v.value ?? '',
     };

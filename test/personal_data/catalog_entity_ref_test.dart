@@ -8,7 +8,7 @@ void main() {
       _item().catalogRef,
       const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'comic-1',
       ),
     );
@@ -35,7 +35,7 @@ void main() {
     expect(
       values[const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'comic-1',
       )],
       'comic',
@@ -46,6 +46,5 @@ void main() {
 CatalogItemDto _item() => CatalogItemDto.raw(
       id: 'comic-1',
       mediaKind: CatalogMediaKind.comic,
-      common: const CatalogCommonDto(title: 'Comic'),
-      payload: const <String, dynamic>{},
+      kindData: const {'title': 'Comic'},
     );

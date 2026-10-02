@@ -9,7 +9,6 @@ abstract final class CollectionCsvV1Schema {
     'kind',
     'title',
     'status',
-    'quantity',
     'location_id',
     'notes',
   ];
@@ -19,7 +18,6 @@ abstract final class CollectionCsvV1Schema {
     'Media Type',
     'Title',
     'Collection Status',
-    'Quantity',
     'Location ID',
     'Notes',
   ];

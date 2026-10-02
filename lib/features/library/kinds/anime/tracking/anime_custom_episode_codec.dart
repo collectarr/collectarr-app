@@ -96,7 +96,7 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeSyncCodec {
     return {
       'catalog_ref': CatalogEntityRef(
         kind: kind,
-        entityType: CatalogEntityTypeId.root,
+        entityType: CatalogEntityTypeId.catalogItem,
         id: episode.seriesId.value,
       ).toJson(),
       'season_number': episode.seasonNumber,

@@ -3,25 +3,18 @@ import '../config/manga_kind_capabilities.dart';
 
 final mangaKindWorkspace = TypedLibraryKindWorkspace<MangaWorkspaceDto>(
   entityWorkspaces: {
-    LibraryEntityScope.work: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
-      scope: LibraryEntityScope.work,
+    LibraryEntityScope.catalogItem: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
+      scope: LibraryEntityScope.catalogItem,
       fields: mangaWorkWorkspaceSchema.toRegistry(),
       projector: const MangaWorkspaceProjector(
-        expectedScope: LibraryEntityScope.work,
+        expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.release: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
-      scope: LibraryEntityScope.release,
-      fields: mangaReleaseWorkspaceSchema.toRegistry(),
-      projector: const MangaWorkspaceProjector(
-        expectedScope: LibraryEntityScope.release,
-      ),
-    ),
-    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
-      scope: LibraryEntityScope.copy,
+    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
+      scope: LibraryEntityScope.collectionItem,
       fields: mangaCopyWorkspaceSchema.toRegistry(),
       projector: const MangaWorkspaceProjector(
-        expectedScope: LibraryEntityScope.copy,
+        expectedScope: LibraryEntityScope.collectionItem,
       ),
     ),
   },

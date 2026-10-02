@@ -16,8 +16,8 @@ void main() {
     final volumeOne = CatalogItemDto.raw(
       id: 'volume-1',
       mediaKind: CatalogMediaKind.manga,
-      common: const CatalogCommonDto(title: 'Nausicaa 1'),
-      payload: const {
+      kindData: const {
+        'title': 'Nausicaa 1',
         'series': {'series_id': 'series-1', 'series_title': 'Nausicaa'},
         'volume_number': 1,
         'chapters': [
@@ -28,8 +28,8 @@ void main() {
     final volumeTwo = CatalogItemDto.raw(
       id: 'volume-2',
       mediaKind: CatalogMediaKind.manga,
-      common: const CatalogCommonDto(title: 'Nausicaa 2'),
-      payload: const {
+      kindData: const {
+        'title': 'Nausicaa 2',
         'series': {'series_id': 'series-1', 'series_title': 'Nausicaa'},
         'volume_number': 2,
         'chapters': [
@@ -68,8 +68,8 @@ void main() {
       CatalogItemDto.raw(
         id: 'manga-1',
         mediaKind: CatalogMediaKind.manga,
-        common: const CatalogCommonDto(title: 'Nausicaa'),
-        payload: const {
+        kindData: const {
+          'title': 'Nausicaa',
           'series_title': 'Nausicaa',
           'volume_number': 1,
           'genres': ['Adventure'],
@@ -107,20 +107,20 @@ LibraryWorkspaceSource _mangaEntry(String id, int volume, {bool owned = true}) {
     itemId: id,
     catalogData: testWorkspaceCatalogData(CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.manga),
-      kindMetadata: MangaMetadata(
+      kindData: MangaMetadata(
         title: 'Volume $volume',
         seriesTitle: 'Nausicaa',
         volumeNumber: volume,
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Nausicaa'),
       ),
     ).asShelfCatalogItem),
-    ownedSummary: owned
-        ? testOwnedSummary(testOwnedItem(
+    collectionItemSummary: owned
+        ? testCollectionItemSummary(testCollectionItem(
             id: 'owned-$id',
             catalogRef: CatalogEntityRef(
               id: id,
               kind: CatalogMediaKind.manga,
-              entityType: const CatalogEntityTypeId('work'),
+              entityType: CatalogEntityTypeId.catalogItem,
             ),
             updatedAt: DateTime.utc(2026, 1, 1),
           ))

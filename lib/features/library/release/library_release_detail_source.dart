@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
@@ -22,7 +22,7 @@ abstract interface class LibraryReleaseDetailSource {
   List<LibraryReleaseDetailOption> detailOptionsForCatalogData(
     LibraryWorkspaceCatalogData catalogData,
     CatalogEntityRef rootRef, {
-    Iterable<OwnedCopySummary> ownedItems = const <OwnedCopySummary>[],
+    Iterable<CollectionItemSummary> collectionItems = const <CollectionItemSummary>[],
     Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
   });
 }

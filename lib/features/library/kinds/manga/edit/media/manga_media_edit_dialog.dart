@@ -35,10 +35,7 @@ class _MangaMediaSchemaEditDialogState
     super.initState();
     final transport = widget.request.kindItem.kindCapability
         .mapTransport((transport) => transport);
-    final canonical = transport.kindMetadata;
-    _media = canonical is MangaMedia
-        ? canonical
-        : MangaMedia.fromJson(transport.payload);
+    _media = MangaMedia.fromJson(transport.payload);
     _draft = mangaCatalogFormValuesFromMedia(_media);
   }
 
@@ -72,7 +69,7 @@ class _MangaMediaSchemaEditDialogState
           );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
-              transport.withKindMetadata(updated),
+              transport.withKindData(updated),
             ),
           );
           Navigator.of(context).pop(

@@ -63,7 +63,7 @@ const _movieCatalogItemTabs = [
   ),
 ];
 
-const _movieOwnedCopyTabs = [
+const _movieCollectionItemTabs = [
   LibraryEditTabSpec(
     id: 'edition',
     icon: Icons.info_outline,
@@ -121,7 +121,6 @@ class MovieLibraryCatalogItemEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const MovieLibraryCatalogItemEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
@@ -130,8 +129,6 @@ class MovieLibraryCatalogItemEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Catalog Item / copy reference',
-          ownedBundleLabel: 'Owned item bundle',
           ownedTabs: _movieCatalogItemTabs,
           trackedTabs: _movieCatalogItemTabs,
           catalogTabs: _movieCatalogItemTabs,
@@ -139,11 +136,10 @@ class MovieLibraryCatalogItemEditPresentationBuilder
         );
 }
 
-class MovieLibraryOwnedCopyEditPresentationBuilder
+class MovieLibraryCollectionItemEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
-  const MovieLibraryOwnedCopyEditPresentationBuilder()
+  const MovieLibraryCollectionItemEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
@@ -152,18 +148,16 @@ class MovieLibraryOwnedCopyEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Catalog Item / copy reference',
-          ownedBundleLabel: 'Owned item bundle',
-          ownedTabs: _movieOwnedCopyTabs,
-          trackedTabs: _movieOwnedCopyTabs,
-          catalogTabs: _movieOwnedCopyTabs,
+          ownedTabs: _movieCollectionItemTabs,
+          trackedTabs: _movieCollectionItemTabs,
+          catalogTabs: _movieCollectionItemTabs,
           customTabBuilder: buildMovieCustomTabView,
         );
 }
 
 const movieLibraryEditPresentation = LibraryEditPresentation(
   builder: MovieLibraryCatalogItemEditPresentationBuilder(),
-  copyBuilder: MovieLibraryOwnedCopyEditPresentationBuilder(),
+  copyBuilder: MovieLibraryCollectionItemEditPresentationBuilder(),
 );
 
 class MovieLibraryEditDialog extends StatelessWidget {

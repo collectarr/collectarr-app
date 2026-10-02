@@ -111,7 +111,6 @@ class GameLibraryCombinedEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const GameLibraryCombinedEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
@@ -120,8 +119,6 @@ class GameLibraryCombinedEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _gameCombinedTabs,
           trackedTabs: _gameCombinedTabs,
           catalogTabs: _gameCombinedTabs,
@@ -133,7 +130,6 @@ class GameLibraryMediaEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const GameLibraryMediaEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
@@ -142,8 +138,6 @@ class GameLibraryMediaEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _gameMediaTabs,
           trackedTabs: _gameMediaTabs,
           catalogTabs: _gameMediaTabs,
@@ -155,7 +149,6 @@ class GameLibraryReleaseEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const GameLibraryReleaseEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
@@ -164,8 +157,6 @@ class GameLibraryReleaseEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _gameReleaseTabs,
           trackedTabs: _gameReleaseTabs,
           catalogTabs: _gameReleaseTabs,

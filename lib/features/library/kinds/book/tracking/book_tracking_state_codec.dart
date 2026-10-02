@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
@@ -35,7 +35,7 @@ final class BookTrackingStateCodec
           trackingStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
-            ownedRefKey: row.ownedRefKey,
+            collectionItemRefKey: row.collectionItemRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -84,7 +84,7 @@ final class BookTrackingStateCodec
           trackingStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
-            ownedRefKey: row.ownedRefKey,
+            collectionItemRefKey: row.collectionItemRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -118,7 +118,7 @@ final class BookTrackingStateCodec
       trackingStorageRowFromColumns(
         id: row.id,
         catalogRefJson: row.catalogRefJson,
-        ownedRefKey: row.ownedRefKey,
+        collectionItemRefKey: row.collectionItemRefKey,
         sourceType: row.sourceType,
         status: row.status,
         rating: row.rating,
@@ -145,7 +145,7 @@ final class BookTrackingStateCodec
           BookTrackingRowsCompanion.insert(
             id: entry.id,
             catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
-            ownedRefKey: Value(entry.ownedRef?.key),
+            collectionItemRefKey: Value(entry.collectionItemRef?.key),
             sourceType: Value(entry.sourceTypeApiValue),
             status: Value(entry.statusStorageValue),
             rating: Value(entry.rating),
@@ -182,7 +182,7 @@ final class BookTrackingStateCodec
   BookTrackingState create({
     required String id,
     required CatalogEntityRef catalogRef,
-    OwnedCopyRef? ownedRef,
+    CollectionItemRef? collectionItemRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -199,7 +199,7 @@ final class BookTrackingStateCodec
     return BookTrackingState(
       id: id,
       catalogRef: catalogRef,
-      ownedRef: ownedRef,
+      collectionItemRef: collectionItemRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -244,7 +244,7 @@ final class BookTrackingStateCodec
     return BookTrackingState(
       id: id,
       catalogRef: catalogRef,
-      ownedRef: ownedCopyRefFromSerialized(payload['owned_ref']),
+      collectionItemRef: collectionItemRefFromSerialized(payload['collection_item_ref']),
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -268,7 +268,7 @@ final class BookTrackingStateCodec
     return BookTrackingState(
       id: row.id,
       catalogRef: row.catalogRef,
-      ownedRef: row.ownedRef,
+      collectionItemRef: row.collectionItemRef,
       sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,

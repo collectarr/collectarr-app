@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state_codec.dart';
@@ -12,7 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const item = CatalogEntityRef(
     kind: CatalogMediaKind.music,
-    entityType: CatalogEntityTypeId.root,
+    entityType: CatalogEntityTypeId.catalogItem,
     id: 'music-item-1',
   );
 
@@ -25,12 +25,12 @@ void main() {
     );
 
     expect(state.catalogRef, item);
-    expect(state.ownedRef, isNull);
+    expect(state.collectionItemRef, isNull);
     expect(const MusicTrackingStateCodec().toSyncPayload(state)['catalog_ref'],
         item.toJson());
   });
 
-  test('Music codec rejects child and owned-copy tracking targets', () {
+  test('Music codec rejects child and collection-item tracking targets', () {
     const codec = MusicTrackingStateCodec();
 
     expect(
@@ -51,10 +51,9 @@ void main() {
       () => codec.create(
         id: 'copy-tracking',
         catalogRef: item,
-        ownedRef: const OwnedCopyRef(
+        collectionItemRef: const CollectionItemRef(
           kind: CatalogMediaKind.music,
-          itemId: 'music-item-1',
-          id: OwnedCopyId('copy-1'),
+          id: CollectionItemId('copy-1'),
         ),
         updatedAt: DateTime.utc(2026, 9, 15),
       ),
@@ -71,7 +70,7 @@ void main() {
     );
     const item2 = CatalogEntityRef(
       kind: CatalogMediaKind.music,
-      entityType: CatalogEntityTypeId.root,
+      entityType: CatalogEntityTypeId.catalogItem,
       id: 'music-item-2',
     );
 
@@ -94,6 +93,6 @@ void main() {
     );
     expect(musicEntries.map((entry) => entry.catalogRef.id),
         containsAll(<String>['music-item-1', 'music-item-2']));
-    expect(musicEntries.every((entry) => entry.ownedRef == null), isTrue);
+    expect(musicEntries.every((entry) => entry.collectionItemRef == null), isTrue);
   });
 }

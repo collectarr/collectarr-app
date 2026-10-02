@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -14,8 +14,8 @@ LibraryCardPresentation buildMangaCardPresentation(
   final mangaDto =
       item.dto is MangaWorkspaceDto ? item.dto as MangaWorkspaceDto : null;
   final owned =
-      MangaOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch);
-  final mangaDetails = owned is MangaOwnedItem ? owned.details : null;
+      MangaCollectionItemProjection.fromDispatch(item.source.collectionItemDispatch);
+  final mangaDetails = owned is MangaCollectionItem ? owned.details : null;
   final badges = <LibraryCardBadge>[];
 
   if (mangaDetails?.signedBy != null && mangaDetails!.signedBy!.isNotEmpty) {
@@ -36,7 +36,7 @@ LibraryCardPresentation buildMangaCardPresentation(
     );
   }
 
-  if (owned is MangaOwnedItem && owned.grade?.trim().isNotEmpty == true) {
+  if (owned is MangaCollectionItem && owned.grade?.trim().isNotEmpty == true) {
     badges.add(
       LibraryCardBadge(
         icon: Icons.workspace_premium,
@@ -47,7 +47,7 @@ LibraryCardPresentation buildMangaCardPresentation(
 
   Widget Function(Widget child)? overlay;
   if (mangaDetails?.gradingCompany != null &&
-      owned is MangaOwnedItem &&
+      owned is MangaCollectionItem &&
       owned.grade != null) {
     overlay = (child) => SlabFrameOverlay.maybeWrap(
           rawOrSlabbed: 'slabbed',

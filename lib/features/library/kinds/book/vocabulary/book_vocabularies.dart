@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
 
 abstract final class BookVocabularyIds {
   static const publisher = VocabularyId<String>('book.publisher');
@@ -57,8 +57,8 @@ abstract final class BookVocabularies {
     );
   }
 
-  static BookOwnedItem _replaceOwnedValue(
-    BookOwnedItem item,
+  static BookCollectionItem _replaceOwnedValue(
+    BookCollectionItem item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -91,7 +91,7 @@ abstract final class BookVocabularies {
   }
 
   static Iterable<String?> _ownedValues(
-    BookOwnedItem item,
+    BookCollectionItem item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

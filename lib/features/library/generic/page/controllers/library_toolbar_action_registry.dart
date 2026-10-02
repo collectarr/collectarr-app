@@ -184,7 +184,7 @@ class LibraryToolbarActionRegistry {
     final registration = actionContext.view.type;
     final activeScope = projection != null && projection.allItems.isNotEmpty
         ? projection.allItems.first.node.scope
-        : LibraryEntityScope.work;
+        : LibraryEntityScope.catalogItem;
     final activeFields = libraryKindWorkspaceForKind(registration.kind)
         .fieldsForScope(activeScope);
     final kindToolbarActions =

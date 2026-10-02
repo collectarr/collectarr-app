@@ -9,25 +9,25 @@ TransferableField gameTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(GameOwnedItem item) read,
-  required GameOwnedItem Function(GameOwnedItem item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.copy,
+  required String? Function(GameCollectionItem item) read,
+  required GameCollectionItem Function(GameCollectionItem item, String? value) write,
+  LibraryEntityScope scope = LibraryEntityScope.collectionItem,
 }) {
-  return TransferableField.typed<GameOwnedItem>(
+  return TransferableField.typed<GameCollectionItem>(
     key: key,
     label: label,
     icon: icon,
     type: type,
     scope: scope,
-    decode: (value) => value as GameOwnedItem,
+    decode: (value) => value as GameCollectionItem,
     read: read,
     write: write,
   );
 }
 
 final gameUniversalTransferableFields =
-    TransferableField.universalForTyped<GameOwnedItem>(
-  decode: (value) => value as GameOwnedItem,
+    TransferableField.universalForTyped<GameCollectionItem>(
+  decode: (value) => value as GameCollectionItem,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,
@@ -49,10 +49,6 @@ final gameUniversalTransferableFields =
   readSellPriceCents: (item) => item.sellPriceCents?.toString(),
   writeSellPriceCents: (item, value) => item.copyWith(
     sellPriceCents: value == null ? null : int.tryParse(value),
-  ),
-  readQuantity: (item) => item.quantity.toString(),
-  writeQuantity: (item, value) => item.copyWith(
-    quantity: value == null ? 1 : int.tryParse(value) ?? 1,
   ),
   readIndexNumber: (item) => item.indexNumber?.toString(),
   writeIndexNumber: (item, value) => item.copyWith(

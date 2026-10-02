@@ -16,6 +16,7 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
   FutureOr<void> Function()? onManageImprint,
   FutureOr<void> Function()? onManageSeriesGroup,
   FutureOr<void> Function()? onManagePhysicalFormat,
+  bool includeTitle = true,
 }) =>
     AddSchema<ComicAddManualDraft>(
       title: (_) => 'Manual comic issue',
@@ -32,6 +33,7 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
           label: 'Issue',
           fields: comicCatalogItemIdentityFields(
             values: (draft) => draft.values,
+            includeTitle: includeTitle,
             physicalFormatOptions: physicalFormatOptions ??
                 ComicVocabularies.physicalFormat.builtIns,
             onManagePhysicalFormat: onManagePhysicalFormat,

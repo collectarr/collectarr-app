@@ -16,7 +16,8 @@ final class ComicRepository
   CatalogItemCacheRepository get _catalog => CatalogItemCacheRepository(_db);
 
   @override
-  Future<ComicCatalogItem?> findById(ComicCatalogItemId id) => getCatalogItem(id);
+  Future<ComicCatalogItem?> findById(ComicCatalogItemId id) =>
+      getCatalogItem(id);
 
   Future<ComicCatalogItem?> getCatalogItem(ComicCatalogItemId id) async {
     final item = await _catalog.find(
@@ -63,8 +64,7 @@ final class ComicRepository
       ...media.toJson(),
       'id': id,
       'kind': CatalogMediaKind.comic.apiValue,
-    }).withKindMetadata(media);
+    }).withKindData(media);
     await _catalog.upsert(item);
   }
-
 }

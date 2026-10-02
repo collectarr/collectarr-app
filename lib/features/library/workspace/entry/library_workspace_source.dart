@@ -1,25 +1,25 @@
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
 import 'library_workspace_catalog_data.dart';
 
 /// Concrete workspace source used after kind dispatch.
 ///
 /// Mixed/global Shelf consumers use [CatalogDisplaySummary],
-/// [OwnedCopySummary] and refs. Kind-dispatched workspace pages receive the
+/// [CollectionItemSummary] and refs. Kind-dispatched workspace pages receive the
 /// owning kind's structural catalog data; transport DTOs do not cross this
 /// workspace boundary.
 final class LibraryWorkspaceSource {
   const LibraryWorkspaceSource({
     required this.itemId,
     this.catalogSummary,
-    this.ownedSummary,
+    this.collectionItemSummary,
     this.trackingSummary,
     this.trackingSummaries = const <TrackingSummary>[],
     this.wishlistItem,
@@ -29,12 +29,12 @@ final class LibraryWorkspaceSource {
     this.fallbackOwnerLabel,
     this.catalogSearchTokens = const <String>[],
     this.catalogData,
-    this.ownedItemDispatch,
+    this.collectionItemDispatch,
   });
 
   final String itemId;
   final CatalogDisplaySummary? catalogSummary;
-  final OwnedCopySummary? ownedSummary;
+  final CollectionItemSummary? collectionItemSummary;
   final TrackingSummary? trackingSummary;
   final List<TrackingSummary> trackingSummaries;
   final WishlistItem? wishlistItem;
@@ -50,8 +50,8 @@ final class LibraryWorkspaceSource {
   final LibraryWorkspaceCatalogData? catalogData;
 
   /// Concrete kind-owned aggregate behind an explicit typed dispatch
-  /// boundary. Mixed/global callers must use [ownedSummary] instead.
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  /// boundary. Mixed/global callers must use [collectionItemSummary] instead.
+  final LibraryCollectionItemDispatch? collectionItemDispatch;
 
   /// Structural search tokens captured at the catalog boundary. Generic
   /// search may index these values but never inspects the transport payload.
@@ -59,7 +59,7 @@ final class LibraryWorkspaceSource {
 
   CatalogEntityRef? get catalogRef {
     final sourceRef =
-        catalogSummary?.ref ?? catalogData?.ref ?? ownedSummary?.catalogRef;
+        catalogSummary?.ref ?? catalogData?.ref ?? collectionItemSummary?.catalogRef;
     if (sourceRef != null) return sourceRef;
     final wishlistRef = wishlistItem?.catalogRef;
     if (wishlistRef == null) return null;
@@ -73,13 +73,13 @@ final class LibraryWorkspaceSource {
   CatalogMediaKind get mediaKind =>
       catalogSummary?.kind ??
       catalogData?.kind ??
-      ownedSummary?.ref.kind ??
+      collectionItemSummary?.ref.kind ??
       wishlistItem?.catalogRef.kind ??
       CatalogMediaKind.unknown;
 
-  OwnedCopyRef? get ownedRef => ownedSummary?.ref;
+  CollectionItemRef? get collectionItemRef => collectionItemSummary?.ref;
 
-  bool get isOwned => ownedSummary != null;
+  bool get isOwned => collectionItemSummary != null;
   bool get isTracked => trackingSummary != null || trackingSummaries.isNotEmpty;
   bool get isWishlisted => wishlistItem != null;
 
@@ -98,12 +98,12 @@ final class LibraryWorkspaceSource {
   }
 
   bool get hasNotes =>
-      (ownedSummary?.hasNotes ?? false) ||
+      (collectionItemSummary?.hasNotes ?? false) ||
       (wishlistItem?.notes?.trim().isNotEmpty ?? false);
 
   DateTime get updatedAt {
     final values = <DateTime>[
-      if (ownedSummary?.updatedAt case final value?) value,
+      if (collectionItemSummary?.updatedAt case final value?) value,
       if (trackingSummary?.updatedAt case final value?) value,
       if (wishlistItem?.updatedAt case final value?) value,
     ];
@@ -112,7 +112,7 @@ final class LibraryWorkspaceSource {
     return values.first;
   }
 
-  DateTime? get addedAt => ownedSummary?.createdAt ?? wishlistItem?.createdAt;
+  DateTime? get addedAt => collectionItemSummary?.createdAt ?? wishlistItem?.createdAt;
 
   String get title {
     final value = catalogSummary?.primaryLabel.trim();
@@ -131,17 +131,15 @@ final class LibraryWorkspaceSource {
   String? get trackingNotes => trackingSummary?.notes;
   String get trackingStatusLabel => trackingStatus.label;
 
-  String? get ownerLabel => ownedSummary?.ownerLabel ?? fallbackOwnerLabel;
+  String? get ownerLabel => collectionItemSummary?.ownerLabel ?? fallbackOwnerLabel;
 
-  int get quantity => ownedSummary?.quantity ?? 0;
-
-  int? get pricePaidCents => ownedSummary?.pricePaidCents;
-  int? get sellPriceCents => ownedSummary?.sellPriceCents;
-  int? get marketValueCents => ownedSummary?.marketValueCents;
-  String? get soldTo => ownedSummary?.soldTo;
-  String? get currency => ownedSummary?.currency;
-  String? get purchaseStore => ownedSummary?.purchaseStore;
-  DateTime? get purchaseDate => ownedSummary?.purchaseDate;
-  DateTime? get soldAt => ownedSummary?.soldAt;
-  String? get personalNotes => ownedSummary?.notes;
+  int? get pricePaidCents => collectionItemSummary?.pricePaidCents;
+  int? get sellPriceCents => collectionItemSummary?.sellPriceCents;
+  int? get marketValueCents => collectionItemSummary?.marketValueCents;
+  String? get soldTo => collectionItemSummary?.soldTo;
+  String? get currency => collectionItemSummary?.currency;
+  String? get purchaseStore => collectionItemSummary?.purchaseStore;
+  DateTime? get purchaseDate => collectionItemSummary?.purchaseDate;
+  DateTime? get soldAt => collectionItemSummary?.soldAt;
+  String? get personalNotes => collectionItemSummary?.notes;
 }

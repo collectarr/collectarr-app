@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LibraryColumnPresetStore {
   const LibraryColumnPresetStore(
     this.config, {
-    this.scope = LibraryEntityScope.work,
+    this.scope = LibraryEntityScope.catalogItem,
   });
 
   final LibraryKindRegistration config;

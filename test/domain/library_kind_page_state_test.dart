@@ -193,9 +193,9 @@ void main() {
           title: 'Hyperion',
         ),
       )),
-      ownedItem: null,
+      collectionItem: null,
       accent: Colors.blue,
-      scope: LibraryEntityScope.work,
+      scope: LibraryEntityScope.catalogItem,
     );
 
     final dialog = buildBookLibraryEditDialog(
@@ -203,7 +203,7 @@ void main() {
       request,
     ) as LibraryEditRenderer;
 
-    expect(dialog.scope, LibraryEntityScope.work);
+    expect(dialog.scope, LibraryEntityScope.catalogItem);
   });
 
   test('library kind page builder dispatches known kinds', () {

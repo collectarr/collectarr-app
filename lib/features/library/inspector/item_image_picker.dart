@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,10 +18,10 @@ const itemImageTypeLabels = {
   'other': 'Other',
 };
 
-Future<String?> pickAndStoreOwnedItemImage({
+Future<String?> pickAndStoreCollectionItemImage({
   required BuildContext context,
   required LocalDatabase db,
-  required OwnedCopyRef ownedRef,
+  required CollectionItemRef collectionItemRef,
   String? imageType,
 }) async {
   try {
@@ -57,7 +57,7 @@ Future<String?> pickAndStoreOwnedItemImage({
     final bytes = await picked.readAsBytes();
     await ItemImagesCacheRepository(db).upsert(
       id: _itemImageUuid.v4(),
-      ownedRef: ownedRef,
+      collectionItemRef: collectionItemRef,
       imageType: selectedType,
       imageData: bytes,
     );

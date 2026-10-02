@@ -86,7 +86,7 @@ String _uidFor(CalendarEvent event) {
   }
   final catalogRef = event.catalogRef;
   final id = catalogRef == null
-      ? event.ownedRef?.key ?? 'na'
+      ? event.collectionItemRef?.key ?? 'na'
       : '${catalogRef.kind.apiValue}:${catalogRef.entityType.apiValue}:'
           '${catalogRef.id}';
   final slug = event.title

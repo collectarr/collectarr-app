@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_entity_r
 /// The shell is responsible for rendering tabs and managing the form. This
 /// controller is responsible for turning that form into domain selections and
 /// kind-owned mutation commands. The kind owns one canonical Catalog Item
-/// session and one separate Owned Copy session.
+/// session and one separate Collection Item session.
 final class LibraryEditSessionController {
   const LibraryEditSessionController({
     required LibraryCatalogItemEditSession catalogItemSession,
@@ -41,7 +41,7 @@ final class LibraryEditSessionController {
     LibraryEditShellState state, {
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
-    final existingOwnedItem = state.ownedItem;
+    final existingCollectionItem = state.collectionItem;
     final baseSelection = LibraryEditSelection(
       kindItem: state.kindItem,
       scope: state.scope,
@@ -82,10 +82,10 @@ final class LibraryEditSessionController {
                 state.tracking.trackingNotesController.text,
               ),
             ),
-      ownedUpdatePayload: existingOwnedItem == null
+      ownedUpdatePayload: existingCollectionItem == null
           ? null
           : copySession.buildOwnedUpdatePayload(
-              ownedRef: existingOwnedItem.ref,
+              collectionItemRef: existingCollectionItem.ref,
               personal: state.personal,
             ),
       customFieldEdits: state.customFieldEdits,
@@ -108,7 +108,7 @@ final class LibraryEditSessionController {
           kindItem: state.kindItem,
           scope: state.scope,
         );
-    if (state.scope == LibraryEntityScope.copy) return source;
+    if (state.scope == LibraryEntityScope.collectionItem) return source;
     return catalogItemSession.applyCanonicalEdits(source, state.formFields);
   }
 
@@ -123,13 +123,12 @@ final class LibraryEditSessionController {
     LibraryEditShellState state,
     LibraryEditSelection selection,
   ) {
-    if (state.scope == LibraryEntityScope.copy) return selection;
+    if (state.scope == LibraryEntityScope.collectionItem) return selection;
     return catalogItemSession.applySelectionEdits(selection);
   }
 
   LibraryAddCommonDraft buildCommonCopyDraft(LibraryEditShellState state) {
     return LibraryAddCommonDraft(
-      quantity: parseInt(state.personal.quantityController.text) ?? 1,
       condition: emptyToNull(state.personal.conditionController.text),
       purchaseDate: parseDate(state.personal.purchaseDateController.text),
       pricePaidCents: parseMoneyCents(state.personal.priceController.text),
@@ -148,13 +147,11 @@ final class LibraryEditSessionController {
     return copySession.toDetailsDraft();
   }
 
-  AddOwnedItemCommand buildCopyAddCommand(LibraryEditShellState state) {
+  AddCollectionItemCommand buildCopyAddCommand(LibraryEditShellState state) {
     return libraryAddForKind(state.type.kind).buildCommandFromDetails(
       state.kindItem,
       buildCommonCopyDraft(state),
       buildCopyDetails(state),
-      targetRef:
-          state.personal.selectedOwnedTargetRef ?? state.kindItem.reference,
       kindValue: emptyToNull(state.personal.gradeController.text),
       tracking: LibraryAddTrackingDraft(
         readStatus: emptyToNull(state.tracking.trackingController.text),
@@ -166,14 +163,14 @@ final class LibraryEditSessionController {
     );
   }
 
-  OwnedItemUpdateRequest buildCopyUpdateCommand(
+  CollectionItemUpdateRequest buildCopyUpdateCommand(
     LibraryEditShellState state,
-    OwnedCopyRef ownedRef,
+    CollectionItemRef collectionItemRef,
   ) {
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
+    return UpdateCollectionItemCommand(
+      collectionItemRef: collectionItemRef,
       payload: copySession.buildOwnedUpdatePayload(
-        ownedRef: ownedRef,
+        collectionItemRef: collectionItemRef,
         personal: state.personal,
       ),
     );

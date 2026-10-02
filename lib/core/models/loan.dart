@@ -1,10 +1,10 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 class Loan {
   const Loan({
     required this.id,
-    required this.ownedRef,
+    required this.collectionItemRef,
     required this.borrowerName,
     required this.lentDate,
     this.dueDate,
@@ -16,7 +16,7 @@ class Loan {
 
   /// Structural reference to the lent copy. Loan code never interprets the
   /// referenced kind's domain details.
-  final OwnedCopyRef ownedRef;
+  final CollectionItemRef collectionItemRef;
   final String borrowerName;
   final DateTime lentDate;
   final DateTime? dueDate;
@@ -30,17 +30,17 @@ class Loan {
   }
 
   factory Loan.fromJson(Map<String, Object?> json) {
-    final ownedPayload = json['owned_ref'];
+    final ownedPayload = json['collection_item_ref'];
     if (ownedPayload is! Map) {
-      throw const FormatException('Loan.owned_ref is required');
+      throw const FormatException('Loan.collection_item_ref is required');
     }
-    final ownedRef = OwnedCopyRef.fromJson(
+    final collectionItemRef = CollectionItemRef.fromJson(
       Map<String, Object?>.from(ownedPayload),
     );
-    requireKnownOwnedRef(ownedRef, 'loan.ownedRef');
+    requireKnownCollectionItemRef(collectionItemRef, 'loan.collectionItemRef');
     return Loan(
       id: _requiredString(json, 'id'),
-      ownedRef: ownedRef,
+      collectionItemRef: collectionItemRef,
       borrowerName: _requiredString(json, 'borrower_name'),
       lentDate: _requiredDate(json, 'lent_date'),
       dueDate: _optionalDate(json, 'due_date'),
@@ -75,7 +75,7 @@ class Loan {
 
   Map<String, Object?> toJson() {
     return {
-      'owned_ref': ownedRef.toJson(),
+      'collection_item_ref': collectionItemRef.toJson(),
       'borrower_name': borrowerName,
       'lent_date':
           '${lentDate.year}-${lentDate.month.toString().padLeft(2, '0')}-${lentDate.day.toString().padLeft(2, '0')}',
@@ -87,7 +87,7 @@ class Loan {
   }
 
   Loan copyWith({
-    OwnedCopyRef? ownedRef,
+    CollectionItemRef? collectionItemRef,
     String? borrowerName,
     DateTime? dueDate,
     DateTime? returnedDate,
@@ -95,7 +95,7 @@ class Loan {
   }) {
     return Loan(
       id: id,
-      ownedRef: ownedRef ?? this.ownedRef,
+      collectionItemRef: collectionItemRef ?? this.collectionItemRef,
       borrowerName: borrowerName ?? this.borrowerName,
       lentDate: lentDate,
       dueDate: dueDate ?? this.dueDate,

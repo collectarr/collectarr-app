@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
-import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
+import 'package:collectarr_app/features/collection/mutations/collection_item_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -21,7 +21,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_entity_r
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -142,7 +142,7 @@ void main() {
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
     final type = const MusicRegistration();
-    final owned = testOwnedItem(
+    final owned = testCollectionItem(
       id: 'owned-music-1',
       itemId: 'music-1',
       kind: 'music',
@@ -159,7 +159,7 @@ void main() {
     );
     await CatalogTransportRepository(db).upsertTransportItems([catalog]);
     final ownedRepository = MusicOwnedRepository(db);
-    await ownedRepository.upsert(MusicOwnedItem.fromJson(owned.toJson()));
+    await ownedRepository.upsert(MusicCollectionItem.fromJson(owned.toJson()));
     harness.selectedBucket = 'Very Good';
 
     final source = testLibraryWorkspaceSource(
@@ -169,18 +169,19 @@ void main() {
         release,
         ref: catalog.catalogRef,
       ),
-      ownedItem: owned,
+      collectionItem: owned,
     );
-    final copyNode = LibraryCopyRef(
-      workId: catalog.id,
-      releaseId: catalog.id,
-      ownedRef: owned.ref,
+    final copyNode = LibraryCollectionItemNodeRef(
+      catalogItemId: catalog.id,
+      collectionItemRef: owned.ref,
     );
     final copyWorkspace = libraryKindWorkspaceForKind(type.kind);
     final projectionItem = LibraryProjectionItem<LibraryWorkspaceDto>(
       source: source,
       node: copyNode,
-      dto: copyWorkspace.projectorForScope(LibraryEntityScope.copy).project(
+      dto: copyWorkspace
+          .projectorForScope(LibraryEntityScope.collectionItem)
+          .project(
             source: source,
             entity: copyNode,
           ),
@@ -203,7 +204,7 @@ void main() {
 
     expect(affected, 1);
     expect(harness.selectedBucket, 'Mint');
-    final updated = await ownedRepository.findById(MusicOwnedCopyId(owned.id));
+    final updated = await ownedRepository.findById(CollectionItemId(owned.id));
     expect(updated?.condition, 'Mint');
   });
 
@@ -285,8 +286,8 @@ Future<_CoordinatorHarness> _pumpHarness(
 ) async {
   final events = CollectionEventBus();
   addTearDown(events.dispose);
-  final mutations = OwnedItemMutations(
-    ownedItems: OwnedItemsRepository(db),
+  final mutations = CollectionItemMutations(
+    collectionItems: CollectionItemsRepository(db),
     wishlist: WishlistItemsCacheRepository(db),
     catalogSummaries: CatalogDisplaySummaryRepository(db),
     syncQueue: SyncQueueRepository(db),
@@ -304,7 +305,7 @@ Future<_CoordinatorHarness> _pumpHarness(
 final class _CoordinatorHarness {
   _CoordinatorHarness(this.mutations);
 
-  final OwnedItemMutations mutations;
+  final CollectionItemMutations mutations;
   late BuildContext buildContext;
   late WidgetRef ref;
   String? selectedBucket;
@@ -317,7 +318,7 @@ final class _CoordinatorHarness {
           localDatabaseProvider.overrideWithValue(
             mutations.mutationRunner.database,
           ),
-          ownedItemMutationsProvider.overrideWithValue(mutations),
+          collectionItemMutationsProvider.overrideWithValue(mutations),
         ],
         child: Consumer(
           builder: (context, ref, child) {
@@ -368,7 +369,7 @@ final class _CoordinatorHarness {
       setActiveSmartListName: (_) {},
       getScopeHistory: () => const [],
       setScopeHistory: (_) {},
-      getActiveLoanOwnedCopyIds: () => const <OwnedCopyRef>{},
+      getActiveLoanCollectionItemIds: () => const <CollectionItemRef>{},
       getPinnedSortFavoriteIds: () => const <String>{},
       setPinnedSortFavoriteIds: (_) {},
       getPinnedColumnFavoriteKeys: () => const <String>{},

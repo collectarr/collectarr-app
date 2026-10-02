@@ -10,7 +10,7 @@ abstract interface class WorkProjectionCapability<
     TDto extends LibraryWorkspaceDto> {
   LibraryProjectionItem<TDto> projectWork({
     required LibraryWorkspaceSource source,
-    required LibraryWorkRef node,
+    required LibraryCatalogItemNodeRef node,
     required LibraryEntityWorkspaceProjector<TDto> projector,
     List<String> customFieldBadges = const [],
   });
@@ -51,7 +51,7 @@ final class DefaultWorkProjectionCapability<TDto extends LibraryWorkspaceDto>
   @override
   LibraryProjectionItem<TDto> projectWork({
     required LibraryWorkspaceSource source,
-    required LibraryWorkRef node,
+    required LibraryCatalogItemNodeRef node,
     required LibraryEntityWorkspaceProjector<TDto> projector,
     List<String> customFieldBadges = const [],
   }) {

@@ -1,4 +1,4 @@
-﻿# Kind Workspace and Form Inventory
+# Kind Workspace and Form Inventory
 
 > Historical snapshot captured on 2026-09-24 before Music was flattened. The
 > Music-specific source paths and Release Group/Release scopes below are no
@@ -13,7 +13,7 @@ For workspace fields, the projected source is taken from each field callback whe
 
 ## Comic
 
-Sources: Catalog Item schema `[lib/features/library/kinds/comic/workspace/comic_catalog_item_workspace_schema.dart]`; Owned Copy schema `[lib/features/library/kinds/comic/workspace/comic_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/comic/workspace/comic_workspace_facets.dart`; IDs: `[lib/features/library/kinds/comic/workspace/comic_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/comic/workspace/comic_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: Catalog Item schema `[lib/features/library/kinds/comic/workspace/comic_catalog_item_workspace_schema.dart]`; Collection Item schema `[lib/features/library/kinds/comic/workspace/comic_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/comic/workspace/comic_workspace_facets.dart`; IDs: `[lib/features/library/kinds/comic/workspace/comic_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/comic/workspace/comic_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
@@ -354,7 +354,7 @@ Sources: Work schema `[lib/features/library/kinds/tv/workspace/tv_work_workspace
 
 ## Music
 
-Sources: work fields `[music_release_group_workspace_fields.dart]`, release fields `[music_release_workspace_fields.dart]`, copy fields `[music_owned_copy_workspace_fields.dart]`; scoped schemas live beside them. IDs are declared in `[music_ids.dart]`; legacy scope-aware preference decoding is in `[music_preference_codec.dart]`. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: work fields `[music_release_group_workspace_fields.dart]`, release fields `[music_release_workspace_fields.dart]`, copy fields `[music_collection_item_workspace_fields.dart]`; scoped schemas live beside them. IDs are declared in `[music_ids.dart]`; legacy scope-aware preference decoding is in `[music_preference_codec.dart]`. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
@@ -388,7 +388,7 @@ Sources: work fields `[music_release_group_workspace_fields.dart]`, release fiel
 | copy | `title` | `music.title` | Title | `dto.primaryLabel` | yes | yes | — | yes |
 | copy | `artist` | `music.artist` | Artist | `dto.artist` | yes | yes | yes | yes |
 | copy | `publisher` | `music.publisher` | Label | `dto.publisher` | yes | yes | yes | — |
-| copy | `condition` | `music.condition` | Condition | `MusicOwnedItem.condition` | yes | yes | yes | yes |
+| copy | `condition` | `music.condition` | Condition | `MusicCollectionItem.condition` | yes | yes | yes | yes |
 | copy | `location` | `music.location` | Location | `context.source.locationPath` | yes | yes | yes | yes |
 | copy | `pricePaid` | `music.price_paid` | Purchase Price | `context.source.pricePaidCents` | yes | yes | — | yes |
 | copy | `status` | `music.status` | Status | `context.source.isOwned/isWishlisted` | yes | yes | — | yes |
@@ -397,13 +397,13 @@ Sources: work fields `[music_release_group_workspace_fields.dart]`, release fiel
 | copy | `wishlist` | `music.wishlist` | Wishlist | `context.source.isWishlisted` | yes | — | — | — |
 | copy | `updatedAt` | `music.updated_at` | Updated | `context.source.updatedAt` | yes | yes | — | yes |
 | copy | `addedAt` | `music.added_at` | Added | `context.source.addedAt` | yes | yes | — | — |
-| copy | `signedBy` | `music.signed_by` | Signed By | `MusicOwnedItem.details.signedBy` | yes | — | — | — |
-| copy | `grade` | `music.grade` | Grade | `MusicOwnedItem.grade` | yes | yes | yes | yes |
-| copy | `storage` | `music.storage` | Storage | `MusicOwnedItem.details.media[]` | yes | yes | yes | yes |
+| copy | `signedBy` | `music.signed_by` | Signed By | `MusicCollectionItem.details.signedBy` | yes | — | — | — |
+| copy | `grade` | `music.grade` | Grade | `MusicCollectionItem.grade` | yes | yes | yes | yes |
+| copy | `storage` | `music.storage` | Storage | `MusicCollectionItem.details.media[]` | yes | yes | yes | yes |
 | copy | `purchaseDate` | `music.purchase_date` | Purchase date | `context.source.purchaseDate` | yes | yes | — | yes |
 | copy | `marketValue` | `music.market_value` | Market value | `context.source.marketValueCents` | yes | yes | — | yes |
-| copy | `indexNumber` | `music.index_number` | Index number | `MusicOwnedItem.indexNumber` | yes | yes | — | yes |
-| copy | `lastCleaned` | `music.last_cleaned` | Last cleaned | `MusicOwnedItem.details.lastCleanedDate` | yes | yes | — | — |
+| copy | `indexNumber` | `music.index_number` | Index number | `MusicCollectionItem.indexNumber` | yes | yes | — | yes |
+| copy | `lastCleaned` | `music.last_cleaned` | Last cleaned | `MusicCollectionItem.details.lastCleanedDate` | yes | yes | — | — |
 
 - Workspace sort IDs: music.added_at, music.aggregate_last_listened, music.aggregate_listen_count, music.artist, music.condition, music.disc_count, music.grade, music.index_number, music.last_cleaned, music.last_listened, music.listen_count, music.listened_release_count, music.location, music.market_value, music.price_paid, music.purchase_date, music.release.release_date, music.release.track_count, music.release_count, music.release_group.release_date, music.release_group.track_count, music.status, music.storage, music.title, music.updated_at
 - Workspace group IDs: music.artist, music.box_set, music.condition, music.country, music.format, music.genre, music.grade, music.location, music.publisher, music.storage
@@ -412,7 +412,7 @@ Sources: work fields `[music_release_group_workspace_fields.dart]`, release fiel
 - Legacy preference IDs `music.release_date` and `music.track_count` are decoded to release group IDs in work mode and Release IDs in release mode. Other Music IDs remain unchanged.
 - Title, artist, status, and cover intentionally share IDs across the three projections; Release and Copy also share the same publisher ID. Release Group and Release date/count IDs are distinct because their projected values differ.
 - Facet ID members: artist, publisher, genre, format, country
-- Add/Edit field IDs (prefix identifies source family): add:release, add:release_group, add:year, edit:collection_status, edit:condition, edit:currency, edit:current_value, edit:digital, edit:edition, edit:grade, edit:identity, edit:index_number, edit:last_cleaned, edit:listening, edit:location, edit:notes, edit:owner, edit:personal, edit:personal_notes, edit:purchase, edit:purchase_date, edit:purchase_price, edit:purchase_store, edit:quantity, edit:recording, edit:release, edit:release_group, edit:sale, edit:sell_price, edit:signed_by, edit:sold_at, edit:sold_to, edit:tags, edit:tracking, edit:tracking_notes, edit:tracking_rating, edit:tracking_status, forms:artist, forms:barcode, forms:box_set_name, forms:box_set_position, forms:box_set_ref, forms:catalog_number, forms:country, forms:cover_image_url, forms:format, forms:genres, forms:is_live, forms:language, forms:original_release_date, forms:original_title, forms:packaging, forms:record_label, forms:recording_date, forms:release_date, forms:release_status, forms:release_type, forms:sort_title, forms:studio, forms:subtitle, forms:title, forms:upc
+- Add/Edit field IDs (prefix identifies source family): add:release, add:release_group, add:year, edit:collection_status, edit:condition, edit:currency, edit:current_value, edit:digital, edit:edition, edit:grade, edit:identity, edit:index_number, edit:last_cleaned, edit:listening, edit:location, edit:notes, edit:owner, edit:personal, edit:personal_notes, edit:purchase, edit:purchase_date, edit:purchase_price, edit:purchase_store, edit:recording, edit:release, edit:release_group, edit:sale, edit:sell_price, edit:signed_by, edit:sold_at, edit:sold_to, edit:tags, edit:tracking, edit:tracking_notes, edit:tracking_rating, edit:tracking_status, forms:artist, forms:barcode, forms:box_set_name, forms:box_set_position, forms:box_set_ref, forms:catalog_number, forms:country, forms:cover_image_url, forms:format, forms:genres, forms:is_live, forms:language, forms:original_release_date, forms:original_title, forms:packaging, forms:record_label, forms:recording_date, forms:release_date, forms:release_status, forms:release_type, forms:sort_title, forms:studio, forms:subtitle, forms:title, forms:upc
 
 ## Persistence audit points
 

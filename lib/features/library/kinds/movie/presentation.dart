@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
@@ -67,8 +67,8 @@ final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => MovieOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
+    value: (item) => MovieCollectionItemProjection.fromDispatch(
+      item.source.collectionItemDispatch,
     )?.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
@@ -91,8 +91,8 @@ final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => MovieOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
+    value: (item) => MovieCollectionItemProjection.fromDispatch(
+      item.source.collectionItemDispatch,
     )?.condition,
   ),
   LibraryFilterDefinition<Object?>(
@@ -123,7 +123,7 @@ String moviesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 
 final moviesLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
-    queryHint: 'Enter title, creator, or keyword...',
+    queryHint: 'Search by title, studio, year, or release...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
   ),
   filterLabels: const LibraryPresentationLabels(

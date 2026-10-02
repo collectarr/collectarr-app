@@ -115,7 +115,7 @@ void main() {
         reason: '${kind.apiValue} must define Core search ranking',
       );
     }
-    expect(libraryOwnedSummaryReadersByKind.keys, containsAll(activeKinds));
+    expect(libraryCollectionItemSummaryReadersByKind.keys, containsAll(activeKinds));
     expect(libraryCatalogTransportCodecs, hasLength(activeKinds.length));
   });
 

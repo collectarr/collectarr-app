@@ -1,14 +1,14 @@
 import '../movie_module_dependencies.dart';
-import '../ownership/movie_transfer_owned_item.dart';
+import '../ownership/movie_transfer_collection_item.dart';
 
 final movieKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.work,
+      scope: LibraryEntityScope.catalogItem,
       builder: buildMovieLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.copy,
+      scope: LibraryEntityScope.collectionItem,
       builder: buildMovieLibraryEditDialog,
     ),
   ]),
@@ -16,8 +16,8 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
   presentation: movieLibraryEditPresentation,
   coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: MovieVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
-    MovieOwnedItem item => item.grade,
+  ownedCollectionValueReader: (collectionItem) => switch (collectionItem?.value) {
+    MovieCollectionItem item => item.grade,
     _ => null,
   },
   defaultCondition: 'Near Mint',
@@ -26,17 +26,17 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
   ownedDigitalFlagResolver: resolveMovieOwnedDigitalFlag,
   ownedFormatHintResolver: resolveMovieOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-      MovieOwnedItemUpdatePayload.partial(
+      MovieCollectionItemUpdatePayload.partial(
     indexNumber: Patch.set(indexNumber),
   ),
   ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-      MovieOwnedItemUpdatePayload.partial(
+      MovieCollectionItemUpdatePayload.partial(
     condition: Patch.set(condition),
     grade: Patch.set(collectionValue),
   ),
   ownedBulkUpdatePayloadBuilder:
       (_, condition, collectionValue, locationId, tags) =>
-          MovieOwnedItemUpdatePayload.partial(
+          MovieCollectionItemUpdatePayload.partial(
     condition:
         condition == null ? const Patch.unchanged() : Patch.set(condition),
     grade: collectionValue == null
@@ -56,7 +56,7 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
     locationChanged,
     locationId,
   ) =>
-      MovieOwnedItemUpdatePayload.partial(
+      MovieCollectionItemUpdatePayload.partial(
     purchaseDate: Patch.set(purchaseDate),
     pricePaidCents: Patch.set(pricePaidCents),
     currency: Patch.set(currency),
@@ -66,8 +66,8 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
   ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = movieTransferOwnedItem(updated);
-    return MovieOwnedItemUpdatePayload.partial(
+    final typed = movieTransferCollectionItem(updated);
+    return MovieCollectionItemUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
       personalNotes: Patch.set(typed.personalNotes),
@@ -78,7 +78,6 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
       purchaseStore: Patch.set(typed.purchaseStore),
       pricePaidCents: Patch.set(typed.pricePaidCents),
       sellPriceCents: Patch.set(typed.sellPriceCents),
-      quantity: Patch.set(typed.quantity),
       indexNumber: Patch.set(typed.indexNumber),
       purchaseDate: Patch.set(typed.purchaseDate),
       soldAt: Patch.set(typed.soldAt),
@@ -90,5 +89,5 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
     );
   },
   ownedDetailsResetPayloadBuilder: () =>
-      MovieOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+      MovieCollectionItemUpdatePayload.partial(details: const Patch.clear()),
 );

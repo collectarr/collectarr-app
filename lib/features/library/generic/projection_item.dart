@@ -26,11 +26,12 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
     LibraryKindRegistration type, {
     List<String> customFieldBadges = const <String>[],
   }) {
-    final node = LibraryWorkRef(
-      workId: source.catalogRef?.id ?? source.itemId,
+    final node = LibraryCatalogItemNodeRef(
+      catalogItemId: source.catalogRef?.id ?? source.itemId,
+      collectionItemRef: source.collectionItemRef,
     );
     final dto = libraryKindWorkspaceForKind(type.kind)
-        .projectorForScope(LibraryEntityScope.work)
+        .projectorForScope(LibraryEntityScope.catalogItem)
         .project(
           source: source,
           entity: node,
@@ -58,24 +59,20 @@ Set<String> customFieldTargetIds({
   required LibraryEntityRef node,
 }) {
   return {
-    if (source.ownedSummary case final owned?) ...[
+    if (source.collectionItemSummary case final owned?) ...[
       owned.ref.key,
       owned.ref.id.value,
     ],
-    if (source.ownedRef case final owned?) ...[
+    if (source.collectionItemRef case final owned?) ...[
       owned.key,
       owned.id.value,
     ],
     if (source.catalogRef case final catalog?) catalog.id,
-    node.workId,
+    node.catalogItemId,
     if (node case LibraryReleaseRef(:final releaseId)) releaseId,
-    if (node
-        case LibraryCopyRef(
-          :final ownedRef,
-          :final copyId,
-        )) ...[
-      ownedRef.key,
-      if (copyId != null) copyId,
+    if (node case LibraryCollectionItemNodeRef(:final collectionItemRef)) ...[
+      collectionItemRef.key,
+      collectionItemRef.id.value,
     ],
   };
 }
@@ -96,14 +93,17 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
           source.catalogData?.kind == kind)
         libraryWorkCapabilityForKind(type.kind).projectWork(
           source: source,
-          node: LibraryWorkRef(
-            workId: source.catalogRef?.id ?? source.itemId,
+          node: LibraryCatalogItemNodeRef(
+            catalogItemId: source.catalogRef?.id ?? source.itemId,
+            collectionItemRef: source.collectionItemRef,
           ),
-          projector: workspace.projectorForScope(LibraryEntityScope.work),
+          projector:
+              workspace.projectorForScope(LibraryEntityScope.catalogItem),
           customFieldBadges: customFieldBadgesForNode(
             source: source,
-            node: LibraryWorkRef(
-              workId: source.catalogRef?.id ?? source.itemId,
+            node: LibraryCatalogItemNodeRef(
+              catalogItemId: source.catalogRef?.id ?? source.itemId,
+              collectionItemRef: source.collectionItemRef,
             ),
             customFieldDefinitions: customFieldDefinitions,
             customFieldValuesByDefinitionByItem:

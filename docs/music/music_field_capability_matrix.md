@@ -12,9 +12,9 @@ for the CLZ labels and v1 field names.
 | Credits | Catalog Item | People and classical credits for the album | Core catalog |
 | Discs, disc titles, matrix sides | Contained Catalog Item data | Ordered album content and pressing identifiers | Core catalog |
 | Tracks and track credits | Contained disc data | Ordered track list; not a separate workspace entity | Core catalog |
-| Status, condition, purchase/value data, location, notes, rating, tags | Owned Copy | Personal facts for one distinguishable copy | App and Sync |
-| Storage device, slot, observed runouts, personal images | Owned Copy | Physical details and images for one copy | App and Sync |
-| Listening events | Catalog Item, optional Owned Copy | User activity for an album; copy is recorded only when known | App and Sync |
+| Status, condition, purchase/value data, location, notes, rating, tags | Collection Item | Personal facts for one distinguishable copy | App and Sync |
+| Storage device, slot, observed runouts, personal images | Collection Item | Physical details and images for one copy | App and Sync |
+| Listening events | Catalog Item, optional Collection Item | User activity for an album; copy is recorded only when known | App and Sync |
 
 ## Boundaries
 
@@ -27,7 +27,7 @@ for the CLZ labels and v1 field names.
   selector remains active in App. Some local Dart and Drift symbols retain
   historical `Release` names for the root Catalog Item.
 - Providers, provider IDs, provider ingest, and canonical catalog payloads are
-  outside personal Sync. Sync carries Owned Copies and personal activity.
+  outside personal Sync. Sync carries Collection Items and personal activity.
 - Music is grounded in the saved CLZ Music Edit form. Exact CLZ parity for the
   other eight kinds remains unverified until their Edit-form captures are
   available.

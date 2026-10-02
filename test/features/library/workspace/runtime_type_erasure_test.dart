@@ -32,7 +32,7 @@ void main() {
           title: title,
         ).asShelfCatalogItem),
       );
-      final node = LibraryWorkRef(workId: id);
+      final node = LibraryCatalogItemNodeRef(catalogItemId: id);
       return comicWorkspace.project(source: source, node: node);
     }
 
@@ -45,7 +45,7 @@ void main() {
           title: title,
         ).asShelfCatalogItem),
       );
-      final node = LibraryWorkRef(workId: id);
+      final node = LibraryCatalogItemNodeRef(catalogItemId: id);
       return bookWorkspace.project(source: source, node: node);
     }
 
@@ -115,39 +115,39 @@ void main() {
     test('every concrete kind exposes its typed workspace directly', () {
       expect(animeKindIdentity.kind, CatalogMediaKind.anime);
       expect(animeKindWorkspace.fields, isNotNull);
-      expect(animeKindWorkspace.projectorForScope(LibraryEntityScope.work),
+      expect(animeKindWorkspace.projectorForScope(LibraryEntityScope.catalogItem),
           isNotNull);
       expect(boardGameKindIdentity.kind, CatalogMediaKind.boardgame);
       expect(boardGameKindWorkspace.fields, isNotNull);
-      expect(boardGameKindWorkspace.projectorForScope(LibraryEntityScope.work),
+      expect(boardGameKindWorkspace.projectorForScope(LibraryEntityScope.catalogItem),
           isNotNull);
       expect(bookKindIdentity.kind, CatalogMediaKind.book);
       expect(bookKindWorkspace.fields, isNotNull);
-      expect(bookKindWorkspace.projectorForScope(LibraryEntityScope.work),
+      expect(bookKindWorkspace.projectorForScope(LibraryEntityScope.catalogItem),
           isNotNull);
       expect(comicKindIdentity.kind, CatalogMediaKind.comic);
       expect(comicKindWorkspace.fields, isNotNull);
-      expect(comicKindWorkspace.projectorForScope(LibraryEntityScope.work),
+      expect(comicKindWorkspace.projectorForScope(LibraryEntityScope.catalogItem),
           isNotNull);
       expect(gameKindIdentity.kind, CatalogMediaKind.game);
       expect(gameKindWorkspace.fields, isNotNull);
-      expect(gameKindWorkspace.projectorForScope(LibraryEntityScope.work),
+      expect(gameKindWorkspace.projectorForScope(LibraryEntityScope.catalogItem),
           isNotNull);
       expect(mangaKindIdentity.kind, CatalogMediaKind.manga);
       expect(mangaKindWorkspace.fields, isNotNull);
-      expect(mangaKindWorkspace.projectorForScope(LibraryEntityScope.work),
+      expect(mangaKindWorkspace.projectorForScope(LibraryEntityScope.catalogItem),
           isNotNull);
       expect(movieKindIdentity.kind, CatalogMediaKind.movie);
       expect(movieKindWorkspace.fields, isNotNull);
-      expect(movieKindWorkspace.projectorForScope(LibraryEntityScope.work),
+      expect(movieKindWorkspace.projectorForScope(LibraryEntityScope.catalogItem),
           isNotNull);
       expect(musicKindIdentity.kind, CatalogMediaKind.music);
       expect(musicKindWorkspace.fields, isNotNull);
-      expect(musicKindWorkspace.projectorForScope(LibraryEntityScope.work),
+      expect(musicKindWorkspace.projectorForScope(LibraryEntityScope.catalogItem),
           isNotNull);
       expect(tvKindIdentity.kind, CatalogMediaKind.tv);
       expect(tvKindWorkspace.fields, isNotNull);
-      expect(tvKindWorkspace.projectorForScope(LibraryEntityScope.work),
+      expect(tvKindWorkspace.projectorForScope(LibraryEntityScope.catalogItem),
           isNotNull);
     });
   });

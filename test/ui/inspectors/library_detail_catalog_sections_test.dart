@@ -24,7 +24,7 @@ void main() {
         genres: ['House', 'Electronic'],
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'music-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'music-1');
     final dto = const MusicCatalogItemWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -67,7 +67,7 @@ void main() {
         characters: ['Alana'],
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'comic-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
     final dto = const ComicWorkspaceProjector().project(
       source: source,
       entity: node,

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_storage_reposi
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_collection_item_persistence.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
@@ -49,7 +49,7 @@ class SyncApplyService {
   final CollectarrSyncClient client;
   final LocalDatabase db;
   final SyncQueueRepository queue;
-  final CollectarrOwnedItemPersistence ownedPersistence;
+  final CollectarrCollectionItemPersistence ownedPersistence;
   final TrackingStorageRepository trackingRecords;
   final WishlistItemsCacheRepository wishlistItems;
   final LocationRepository locations;
@@ -102,7 +102,7 @@ class SyncApplyService {
           locationUpserts.add(_locationFromEntity(entity));
         }
       }
-      if (type == 'owned_copy') {
+      if (type == 'collection_item') {
         ownedPayloads.add(_ownedPayloadFromEntity(entity));
       }
       if (type == 'tracking_entry') {
@@ -223,13 +223,13 @@ class SyncApplyService {
     final action = entity['action'] as String;
     final payload = _payload(entity);
     final deletedAt = action == 'delete' ? entity['client_changed_at'] : null;
-    if (type != 'owned_copy') {
-      throw FormatException('Expected owned_copy entity, got $type');
+    if (type != 'collection_item') {
+      throw FormatException('Expected collection_item entity, got $type');
     }
     final rawCatalogRef = payload['catalog_ref'];
     if (rawCatalogRef is! Map) {
       throw const FormatException(
-        'Owned copy sync payload is missing catalog_ref',
+        'Collection item sync payload is missing catalog_ref',
       );
     }
     final itemRef = _catalogItemRefFromSync(rawCatalogRef);
@@ -243,10 +243,9 @@ class SyncApplyService {
     };
     return (
       kind: kind,
-      ref: OwnedCopyRef.fromJson({
+      ref: CollectionItemRef.fromJson({
         'kind': kind.apiValue,
-        'item_id': itemRef.id,
-        'copy_id': entity['entity_id'],
+        'id': entity['entity_id'],
       }),
       payload: normalizedPayload,
     );
@@ -519,7 +518,7 @@ class SyncApplyService {
 
 typedef _OwnedSyncPayload = ({
   CatalogMediaKind kind,
-  OwnedCopyRef ref,
+  CollectionItemRef ref,
   JsonMap payload,
 });
 

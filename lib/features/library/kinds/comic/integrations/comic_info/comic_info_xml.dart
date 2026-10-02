@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:xml/xml.dart';
 
 /// Serializes and deserializes ComicInfo.xml (ComicRack/Kavita/Komga standard).
 class ComicInfoXml {
   const ComicInfoXml();
 
-  /// Builds ComicInfo.xml from the typed Comic media and owned copy.
-  String serialize(ComicCatalogItem comic, [ComicOwnedItem? owned]) {
+  /// Builds ComicInfo.xml from the typed Comic media and collection item.
+  String serialize(ComicCatalogItem comic, [ComicCollectionItem? owned]) {
     final builder = XmlBuilder();
     builder.processing('xml', 'version="1.0" encoding="utf-8"');
     builder.element('ComicInfo', nest: () {
@@ -44,7 +44,7 @@ class ComicInfoXml {
       _optionalElement(builder, 'Publisher', comic.publisher);
       _optionalElement(builder, 'Format', comic.physicalFormatLabel);
 
-      // Personal fields from the typed Comic owned copy.
+      // Personal fields from the typed Comic collection item.
       if (owned != null) {
         _optionalElement(builder, 'Notes', owned.personalNotes);
         if (owned.reading.rating != null && owned.reading.rating! > 0) {

@@ -10,7 +10,7 @@
     "anime": {
       "tables": [
         {
-          "name": "AnimeOwnedItemsRows",
+          "name": "AnimeCollectionItemsRows",
           "source": "lib/features/library/kinds/anime/data/local/anime_local_tables.dart",
           "columns": [
             {
@@ -56,10 +56,6 @@
             {
               "property": "personalNotes",
               "sqlName": "personal_notes"
-            },
-            {
-              "property": "quantity",
-              "sqlName": "quantity"
             },
             {
               "property": "indexNumber",
@@ -160,8 +156,8 @@
               "sqlName": "catalog_ref_json"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "mediaId",
@@ -246,8 +242,8 @@
               "sqlName": "tracking_entry_id"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "completedAt",
@@ -459,7 +455,7 @@
             "boxSetId"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "box_set_id"
@@ -475,7 +471,7 @@
             "boxSetName"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "box_set_name"
@@ -498,6 +494,23 @@
           ],
           "workspaceFieldIds": []
         },
+        "collectionItemRefKey": {
+          "symbols": [
+            "collectionItemRefKey",
+            "collection_item_ref_key"
+          ],
+          "databaseColumns": [
+            "collectionItemRefKey"
+          ],
+          "databaseTables": [
+            "AnimeTrackingRows",
+            "AnimeTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "collection_item_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
         "collectionStatus": {
           "symbols": [
             "collectionStatus",
@@ -507,7 +520,7 @@
             "collectionStatus"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "collection_status"
@@ -538,7 +551,7 @@
             "condition"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "condition"
@@ -567,7 +580,7 @@
             "createdAt"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "created_at"
@@ -582,7 +595,7 @@
             "currency"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "currency"
@@ -598,8 +611,8 @@
             "deletedAt"
           ],
           "databaseTables": [
+            "AnimeCollectionItemsRows",
             "AnimeCustomEpisodeRows",
-            "AnimeOwnedItemsRows",
             "AnimeTrackingRows",
             "AnimeTrackingUnitRows",
             "AnimeWatchSessionRows"
@@ -632,7 +645,7 @@
             "distributor"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "distributor"
@@ -753,7 +766,7 @@
             "features"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "features"
@@ -795,7 +808,7 @@
             "grade"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "grade"
@@ -813,7 +826,7 @@
             "hdrFormatsJson"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "hdr_formats_json"
@@ -828,8 +841,8 @@
             "id"
           ],
           "databaseTables": [
+            "AnimeCollectionItemsRows",
             "AnimeCustomEpisodeRows",
-            "AnimeOwnedItemsRows",
             "AnimeTrackingRows",
             "AnimeTrackingUnitRows",
             "AnimeWatchSessionRows"
@@ -848,7 +861,7 @@
             "indexNumber"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "index_number"
@@ -864,7 +877,7 @@
             "isDigital"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "is_digital"
@@ -880,7 +893,7 @@
             "itemId"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "item_id"
@@ -923,7 +936,7 @@
             "locationId"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "location_id"
@@ -939,7 +952,7 @@
             "marketValueCents"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "market_value_cents"
@@ -990,23 +1003,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "ownedRefKey": {
-          "symbols": [
-            "ownedRefKey",
-            "owned_ref_key"
-          ],
-          "databaseColumns": [
-            "ownedRefKey"
-          ],
-          "databaseTables": [
-            "AnimeTrackingRows",
-            "AnimeTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "owned_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
         "ownerLabel": {
           "symbols": [
             "ownerLabel",
@@ -1016,7 +1012,7 @@
             "ownerLabel"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_label"
@@ -1032,7 +1028,7 @@
             "ownerUserId"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_user_id"
@@ -1047,7 +1043,7 @@
             "packaging"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "packaging"
@@ -1063,7 +1059,7 @@
             "personalNotes"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "personal_notes"
@@ -1091,7 +1087,7 @@
             "pricePaidCents"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "price_paid_cents"
@@ -1150,7 +1146,7 @@
             "purchaseDate"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_date"
@@ -1166,25 +1162,10 @@
             "purchaseStore"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
-        "quantity": {
-          "symbols": [
-            "quantity"
-          ],
-          "databaseColumns": [
-            "quantity"
-          ],
-          "databaseTables": [
-            "AnimeOwnedItemsRows"
-          ],
-          "sqlNames": [
-            "quantity"
           ],
           "workspaceFieldIds": []
         },
@@ -1214,7 +1195,7 @@
             "region"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "region"
@@ -1340,7 +1321,7 @@
             "sellPriceCents"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "sell_price_cents"
@@ -1373,7 +1354,7 @@
             "soldAt"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_at"
@@ -1389,7 +1370,7 @@
             "soldTo"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_to"
@@ -1493,7 +1474,7 @@
             "tags"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows"
+            "AnimeCollectionItemsRows"
           ],
           "sqlNames": [
             "tags"
@@ -1509,7 +1490,7 @@
             "targetRefJson"
           ],
           "databaseTables": [
-            "AnimeOwnedItemsRows",
+            "AnimeCollectionItemsRows",
             "AnimeTrackingUnitRows",
             "AnimeWatchSessionRows"
           ],
@@ -1593,8 +1574,8 @@
             "updatedAt"
           ],
           "databaseTables": [
+            "AnimeCollectionItemsRows",
             "AnimeCustomEpisodeRows",
-            "AnimeOwnedItemsRows",
             "AnimeTrackingRows",
             "AnimeTrackingUnitRows",
             "AnimeWatchSessionRows"
@@ -1650,7 +1631,7 @@
     "boardgame": {
       "tables": [
         {
-          "name": "BoardGameOwnedItemsRows",
+          "name": "BoardGameCollectionItemsRows",
           "source": "lib/features/library/kinds/boardgame/data/local/boardgame_local_tables.dart",
           "columns": [
             {
@@ -1668,10 +1649,6 @@
             {
               "property": "isDigital",
               "sqlName": "is_digital"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
             },
             {
               "property": "condition",
@@ -1696,10 +1673,6 @@
             {
               "property": "personalNotes",
               "sqlName": "personal_notes"
-            },
-            {
-              "property": "quantity",
-              "sqlName": "quantity"
             },
             {
               "property": "indexNumber",
@@ -1846,8 +1819,8 @@
               "sqlName": "catalog_ref_json"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "sourceType",
@@ -1994,6 +1967,22 @@
           ],
           "workspaceFieldIds": []
         },
+        "collectionItemRefKey": {
+          "symbols": [
+            "collectionItemRefKey",
+            "collection_item_ref_key"
+          ],
+          "databaseColumns": [
+            "collectionItemRefKey"
+          ],
+          "databaseTables": [
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "collection_item_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
         "collectionStatus": {
           "symbols": [
             "collectionStatus",
@@ -2003,7 +1992,7 @@
             "collectionStatus"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "collection_status"
@@ -2031,7 +2020,7 @@
             "componentCompleteness"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "component_completeness"
@@ -2047,7 +2036,7 @@
             "componentCondition"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "component_condition"
@@ -2062,7 +2051,7 @@
             "condition"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "condition"
@@ -2091,7 +2080,7 @@
             "createdAt"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "created_at"
@@ -2106,7 +2095,7 @@
             "currency"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "currency"
@@ -2137,7 +2126,7 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows",
+            "BoardGameCollectionItemsRows",
             "BoardGameTrackingRows"
           ],
           "sqlNames": [
@@ -2181,7 +2170,7 @@
             "editionLanguage"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "edition_language"
@@ -2197,7 +2186,7 @@
             "editionRegion"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "edition_region"
@@ -2240,7 +2229,7 @@
             "grade"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "grade"
@@ -2256,7 +2245,7 @@
             "hasCustomInsert"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "has_custom_insert"
@@ -2272,7 +2261,7 @@
             "hasPaintedMiniatures"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "has_painted_miniatures"
@@ -2287,7 +2276,7 @@
             "id"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows",
+            "BoardGameCollectionItemsRows",
             "BoardGamePlaySessionsRows",
             "BoardGameTrackingRows"
           ],
@@ -2305,7 +2294,7 @@
             "indexNumber"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "index_number"
@@ -2321,7 +2310,7 @@
             "isDigital"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "is_digital"
@@ -2337,7 +2326,7 @@
             "isSleeved"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "is_sleeved"
@@ -2353,7 +2342,7 @@
             "itemId"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "item_id"
@@ -2386,7 +2375,7 @@
             "locationId"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "location_id"
@@ -2402,7 +2391,7 @@
             "marketValueCents"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "market_value_cents"
@@ -2478,7 +2467,7 @@
             "missingPiecesNotes"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "missing_pieces_notes"
@@ -2501,22 +2490,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "ownedRefKey": {
-          "symbols": [
-            "ownedRefKey",
-            "owned_ref_key"
-          ],
-          "databaseColumns": [
-            "ownedRefKey"
-          ],
-          "databaseTables": [
-            "BoardGameTrackingRows"
-          ],
-          "sqlNames": [
-            "owned_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
         "ownerLabel": {
           "symbols": [
             "ownerLabel",
@@ -2526,7 +2499,7 @@
             "ownerLabel"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_label"
@@ -2542,7 +2515,7 @@
             "ownerUserId"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_user_id"
@@ -2558,7 +2531,7 @@
             "personalNotes"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "personal_notes"
@@ -2627,7 +2600,7 @@
             "pricePaidCents"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "price_paid_cents"
@@ -2686,7 +2659,7 @@
             "purchaseDate"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_date"
@@ -2702,25 +2675,10 @@
             "purchaseStore"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
-        "quantity": {
-          "symbols": [
-            "quantity"
-          ],
-          "databaseColumns": [
-            "quantity"
-          ],
-          "databaseTables": [
-            "BoardGameOwnedItemsRows"
-          ],
-          "sqlNames": [
-            "quantity"
           ],
           "workspaceFieldIds": []
         },
@@ -2791,7 +2749,7 @@
             "sellPriceCents"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "sell_price_cents"
@@ -2807,7 +2765,7 @@
             "soldAt"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_at"
@@ -2823,7 +2781,7 @@
             "soldTo"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_to"
@@ -2888,7 +2846,7 @@
             "storageNotes"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "storage_notes"
@@ -2903,26 +2861,10 @@
             "tags"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows"
+            "BoardGameCollectionItemsRows"
           ],
           "sqlNames": [
             "tags"
-          ],
-          "workspaceFieldIds": []
-        },
-        "targetRefJson": {
-          "symbols": [
-            "targetRefJson",
-            "target_ref_json"
-          ],
-          "databaseColumns": [
-            "targetRefJson"
-          ],
-          "databaseTables": [
-            "BoardGameOwnedItemsRows"
-          ],
-          "sqlNames": [
-            "target_ref_json"
           ],
           "workspaceFieldIds": []
         },
@@ -2962,7 +2904,7 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "BoardGameOwnedItemsRows",
+            "BoardGameCollectionItemsRows",
             "BoardGameTrackingRows"
           ],
           "sqlNames": [
@@ -3003,7 +2945,7 @@
     "book": {
       "tables": [
         {
-          "name": "BookOwnedItemsRows",
+          "name": "BookCollectionItemsRows",
           "source": "lib/features/library/kinds/book/data/local/book_local_tables.dart",
           "columns": [
             {
@@ -3049,10 +2991,6 @@
             {
               "property": "personalNotes",
               "sqlName": "personal_notes"
-            },
-            {
-              "property": "quantity",
-              "sqlName": "quantity"
             },
             {
               "property": "indexNumber",
@@ -3137,8 +3075,8 @@
               "sqlName": "tracking_entry_id"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "completedAt",
@@ -3175,8 +3113,8 @@
               "sqlName": "catalog_ref_json"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "sourceType",
@@ -3229,7 +3167,7 @@
         "lib/features/library/kinds/book/workspace/book_ids.dart"
       ],
       "mapperSources": [
-        "lib/features/library/kinds/book/data/local/book_owned_item_local_mapper.dart"
+        "lib/features/library/kinds/book/data/local/book_collection_item_local_mapper.dart"
       ],
       "fields": {
         "addedAt": {
@@ -3287,6 +3225,23 @@
           ],
           "workspaceFieldIds": []
         },
+        "collectionItemRefKey": {
+          "symbols": [
+            "collectionItemRefKey",
+            "collection_item_ref_key"
+          ],
+          "databaseColumns": [
+            "collectionItemRefKey"
+          ],
+          "databaseTables": [
+            "BookTrackingRows",
+            "BookTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "collection_item_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
         "collectionStatus": {
           "symbols": [
             "collectionStatus",
@@ -3296,7 +3251,7 @@
             "collectionStatus"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "collection_status"
@@ -3327,7 +3282,7 @@
             "condition"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "condition"
@@ -3368,7 +3323,7 @@
             "createdAt"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "created_at"
@@ -3383,7 +3338,7 @@
             "currency"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "currency"
@@ -3399,7 +3354,7 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows",
+            "BookCollectionItemsRows",
             "BookTrackingRows",
             "BookTrackingUnitRows"
           ],
@@ -3417,7 +3372,7 @@
             "dustJacketCondition"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "dust_jacket_condition"
@@ -3433,7 +3388,7 @@
             "dustJacketPresent"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "dust_jacket_present"
@@ -3486,7 +3441,7 @@
             "grade"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "grade"
@@ -3501,7 +3456,7 @@
             "id"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows",
+            "BookCollectionItemsRows",
             "BookTrackingRows",
             "BookTrackingUnitRows"
           ],
@@ -3530,7 +3485,7 @@
             "indexNumber"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "index_number"
@@ -3546,7 +3501,7 @@
             "isDigital"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "is_digital"
@@ -3573,7 +3528,7 @@
             "itemId"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "item_id"
@@ -3600,7 +3555,7 @@
             "locationId"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "location_id"
@@ -3616,7 +3571,7 @@
             "marketValueCents"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "market_value_cents"
@@ -3638,23 +3593,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "ownedRefKey": {
-          "symbols": [
-            "ownedRefKey",
-            "owned_ref_key"
-          ],
-          "databaseColumns": [
-            "ownedRefKey"
-          ],
-          "databaseTables": [
-            "BookTrackingRows",
-            "BookTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "owned_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
         "ownerLabel": {
           "symbols": [
             "ownerLabel",
@@ -3664,7 +3602,7 @@
             "ownerLabel"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_label"
@@ -3680,7 +3618,7 @@
             "ownerUserId"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_user_id"
@@ -3708,7 +3646,7 @@
             "personalNotes"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "personal_notes"
@@ -3736,7 +3674,7 @@
             "pricePaidCents"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "price_paid_cents"
@@ -3795,7 +3733,7 @@
             "purchaseDate"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_date"
@@ -3811,25 +3749,10 @@
             "purchaseStore"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
-        "quantity": {
-          "symbols": [
-            "quantity"
-          ],
-          "databaseColumns": [
-            "quantity"
-          ],
-          "databaseTables": [
-            "BookOwnedItemsRows"
-          ],
-          "sqlNames": [
-            "quantity"
           ],
           "workspaceFieldIds": []
         },
@@ -3883,7 +3806,7 @@
             "sellPriceCents"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "sell_price_cents"
@@ -3910,7 +3833,7 @@
             "signedBy"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "signed_by"
@@ -3928,7 +3851,7 @@
             "soldAt"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_at"
@@ -3944,7 +3867,7 @@
             "soldTo"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_to"
@@ -4019,7 +3942,7 @@
             "tags"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows"
+            "BookCollectionItemsRows"
           ],
           "sqlNames": [
             "tags"
@@ -4035,7 +3958,7 @@
             "targetRefJson"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows",
+            "BookCollectionItemsRows",
             "BookTrackingUnitRows"
           ],
           "sqlNames": [
@@ -4106,7 +4029,7 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "BookOwnedItemsRows",
+            "BookCollectionItemsRows",
             "BookTrackingRows",
             "BookTrackingUnitRows"
           ],
@@ -4149,7 +4072,7 @@
     "comic": {
       "tables": [
         {
-          "name": "ComicOwnedItemsRows",
+          "name": "ComicCollectionItemsRows",
           "source": "lib/features/library/kinds/comic/data/local/comic_local_tables.dart",
           "columns": [
             {
@@ -4195,10 +4118,6 @@
             {
               "property": "personalNotes",
               "sqlName": "personal_notes"
-            },
-            {
-              "property": "quantity",
-              "sqlName": "quantity"
             },
             {
               "property": "indexNumber",
@@ -4315,8 +4234,8 @@
           "source": "lib/features/library/kinds/comic/data/local/comic_local_tables.dart",
           "columns": [
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "rating",
@@ -4353,8 +4272,8 @@
               "sqlName": "tracking_entry_id"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "completedAt",
@@ -4387,8 +4306,8 @@
               "sqlName": "catalog_ref_json"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "sourceType",
@@ -4503,7 +4422,7 @@
             "certificationNumber"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "certification_number"
@@ -4511,6 +4430,24 @@
           "workspaceFieldIds": [
             "comic.certification_number"
           ]
+        },
+        "collectionItemRefKey": {
+          "symbols": [
+            "collectionItemRefKey",
+            "collection_item_ref_key"
+          ],
+          "databaseColumns": [
+            "collectionItemRefKey"
+          ],
+          "databaseTables": [
+            "ComicReadingRows",
+            "ComicTrackingRows",
+            "ComicTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "collection_item_ref_key"
+          ],
+          "workspaceFieldIds": []
         },
         "collectionStatus": {
           "symbols": [
@@ -4521,7 +4458,7 @@
             "collectionStatus"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "collection_status"
@@ -4552,7 +4489,7 @@
             "condition"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "condition"
@@ -4605,7 +4542,7 @@
             "coverPriceCents"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "cover_price_cents"
@@ -4621,7 +4558,7 @@
             "createdAt"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "created_at"
@@ -4636,7 +4573,7 @@
             "currency"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "currency"
@@ -4652,7 +4589,7 @@
             "customLabel"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "custom_label"
@@ -4670,7 +4607,7 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows",
+            "ComicCollectionItemsRows",
             "ComicTrackingRows",
             "ComicTrackingUnitRows"
           ],
@@ -4704,7 +4641,7 @@
             "grade"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "grade"
@@ -4722,7 +4659,7 @@
             "graderNotes"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "grader_notes"
@@ -4740,7 +4677,7 @@
             "gradingCompany"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "grading_company"
@@ -4757,7 +4694,7 @@
             "id"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows",
+            "ComicCollectionItemsRows",
             "ComicTrackingRows",
             "ComicTrackingUnitRows"
           ],
@@ -4786,7 +4723,7 @@
             "indexNumber"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "index_number"
@@ -4802,7 +4739,7 @@
             "isDigital"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "is_digital"
@@ -4836,7 +4773,7 @@
             "itemId"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "item_id"
@@ -4852,7 +4789,7 @@
             "keyCategory"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "key_category"
@@ -4870,7 +4807,7 @@
             "keyComic"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "key_comic"
@@ -4888,7 +4825,7 @@
             "keyReason"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "key_reason"
@@ -4906,7 +4843,7 @@
             "keySeverity"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "key_severity"
@@ -4924,7 +4861,7 @@
             "labelType"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "label_type"
@@ -4942,7 +4879,7 @@
             "lastBagBoardDate"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "last_bag_board_date"
@@ -4971,7 +4908,7 @@
             "locationId"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "location_id"
@@ -4987,7 +4924,7 @@
             "marketValueCents"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "market_value_cents"
@@ -5009,24 +4946,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "ownedRefKey": {
-          "symbols": [
-            "ownedRefKey",
-            "owned_ref_key"
-          ],
-          "databaseColumns": [
-            "ownedRefKey"
-          ],
-          "databaseTables": [
-            "ComicReadingRows",
-            "ComicTrackingRows",
-            "ComicTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "owned_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
         "ownerLabel": {
           "symbols": [
             "ownerLabel",
@@ -5036,7 +4955,7 @@
             "ownerLabel"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_label"
@@ -5052,7 +4971,7 @@
             "ownerUserId"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_user_id"
@@ -5080,7 +4999,7 @@
             "pageQuality"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "page_quality"
@@ -5098,7 +5017,7 @@
             "personalNotes"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "personal_notes"
@@ -5126,7 +5045,7 @@
             "pricePaidCents"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "price_paid_cents"
@@ -5185,7 +5104,7 @@
             "purchaseDate"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_date"
@@ -5201,25 +5120,10 @@
             "purchaseStore"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
-        "quantity": {
-          "symbols": [
-            "quantity"
-          ],
-          "databaseColumns": [
-            "quantity"
-          ],
-          "databaseTables": [
-            "ComicOwnedItemsRows"
-          ],
-          "sqlNames": [
-            "quantity"
           ],
           "workspaceFieldIds": []
         },
@@ -5250,7 +5154,7 @@
             "rawOrSlabbed"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "raw_or_slabbed"
@@ -5292,7 +5196,7 @@
             "sellPriceCents"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "sell_price_cents"
@@ -5319,7 +5223,7 @@
             "signedBy"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "signed_by"
@@ -5337,7 +5241,7 @@
             "soldAt"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_at"
@@ -5353,7 +5257,7 @@
             "soldTo"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_to"
@@ -5419,7 +5323,7 @@
             "tags"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows"
+            "ComicCollectionItemsRows"
           ],
           "sqlNames": [
             "tags"
@@ -5435,7 +5339,7 @@
             "targetRefJson"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows",
+            "ComicCollectionItemsRows",
             "ComicTrackingUnitRows"
           ],
           "sqlNames": [
@@ -5495,7 +5399,7 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "ComicOwnedItemsRows",
+            "ComicCollectionItemsRows",
             "ComicTrackingRows",
             "ComicTrackingUnitRows"
           ],
@@ -5544,7 +5448,7 @@
     "game": {
       "tables": [
         {
-          "name": "GameOwnedItemsRows",
+          "name": "GameCollectionItemsRows",
           "source": "lib/features/library/kinds/game/data/local/game_local_tables.dart",
           "columns": [
             {
@@ -5562,10 +5466,6 @@
             {
               "property": "isDigital",
               "sqlName": "is_digital"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
             },
             {
               "property": "condition",
@@ -5590,10 +5490,6 @@
             {
               "property": "personalNotes",
               "sqlName": "personal_notes"
-            },
-            {
-              "property": "quantity",
-              "sqlName": "quantity"
             },
             {
               "property": "indexNumber",
@@ -5686,8 +5582,8 @@
               "sqlName": "catalog_ref_json"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "sourceType",
@@ -5740,7 +5636,7 @@
         "lib/features/library/kinds/game/workspace/game_ids.dart"
       ],
       "mapperSources": [
-        "lib/features/library/kinds/game/data/local/game_owned_item_local_mapper.dart"
+        "lib/features/library/kinds/game/data/local/game_collection_item_local_mapper.dart"
       ],
       "fields": {
         "addedAt": {
@@ -5818,6 +5714,22 @@
             "game.cib_price"
           ]
         },
+        "collectionItemRefKey": {
+          "symbols": [
+            "collectionItemRefKey",
+            "collection_item_ref_key"
+          ],
+          "databaseColumns": [
+            "collectionItemRefKey"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "collection_item_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
         "collectionStatus": {
           "symbols": [
             "collectionStatus",
@@ -5827,7 +5739,7 @@
             "collectionStatus"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "collection_status"
@@ -5842,7 +5754,7 @@
             "completeness"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "completeness"
@@ -5871,7 +5783,7 @@
             "condition"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "condition"
@@ -5889,7 +5801,7 @@
             "coreRegion"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "core_region"
@@ -5918,7 +5830,7 @@
             "createdAt"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "created_at"
@@ -5933,7 +5845,7 @@
             "currency"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "currency"
@@ -5949,7 +5861,7 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows",
+            "GameCollectionItemsRows",
             "GameTrackingRows"
           ],
           "sqlNames": [
@@ -6014,7 +5926,7 @@
             "grade"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "grade"
@@ -6042,7 +5954,7 @@
             "hasBox"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "has_box"
@@ -6060,7 +5972,7 @@
             "hasManual"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "has_manual"
@@ -6077,7 +5989,7 @@
             "id"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows",
+            "GameCollectionItemsRows",
             "GameTrackingRows"
           ],
           "sqlNames": [
@@ -6094,7 +6006,7 @@
             "indexNumber"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "index_number"
@@ -6110,7 +6022,7 @@
             "isDigital"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "is_digital"
@@ -6126,7 +6038,7 @@
             "itemId"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "item_id"
@@ -6153,7 +6065,7 @@
             "locationId"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "location_id"
@@ -6193,7 +6105,7 @@
             "marketValueCents"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "market_value_cents"
@@ -6227,22 +6139,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "ownedRefKey": {
-          "symbols": [
-            "ownedRefKey",
-            "owned_ref_key"
-          ],
-          "databaseColumns": [
-            "ownedRefKey"
-          ],
-          "databaseTables": [
-            "GameTrackingRows"
-          ],
-          "sqlNames": [
-            "owned_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
         "ownerLabel": {
           "symbols": [
             "ownerLabel",
@@ -6252,7 +6148,7 @@
             "ownerLabel"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_label"
@@ -6268,7 +6164,7 @@
             "ownerUserId"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_user_id"
@@ -6284,7 +6180,7 @@
             "personalNotes"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "personal_notes"
@@ -6313,7 +6209,7 @@
             "priceChartingId"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "price_charting_id"
@@ -6343,7 +6239,7 @@
             "pricePaidCents"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "price_paid_cents"
@@ -6402,7 +6298,7 @@
             "purchaseDate"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_date"
@@ -6418,25 +6314,10 @@
             "purchaseStore"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
-        "quantity": {
-          "symbols": [
-            "quantity"
-          ],
-          "databaseColumns": [
-            "quantity"
-          ],
-          "databaseTables": [
-            "GameOwnedItemsRows"
-          ],
-          "sqlNames": [
-            "quantity"
           ],
           "workspaceFieldIds": []
         },
@@ -6478,7 +6359,7 @@
             "sellPriceCents"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "sell_price_cents"
@@ -6505,7 +6386,7 @@
             "soldAt"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_at"
@@ -6521,7 +6402,7 @@
             "soldTo"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_to"
@@ -6585,26 +6466,10 @@
             "tags"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "tags"
-          ],
-          "workspaceFieldIds": []
-        },
-        "targetRefJson": {
-          "symbols": [
-            "targetRefJson",
-            "target_ref_json"
-          ],
-          "databaseColumns": [
-            "targetRefJson"
-          ],
-          "databaseTables": [
-            "GameOwnedItemsRows"
-          ],
-          "sqlNames": [
-            "target_ref_json"
           ],
           "workspaceFieldIds": []
         },
@@ -6644,7 +6509,7 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows",
+            "GameCollectionItemsRows",
             "GameTrackingRows"
           ],
           "sqlNames": [
@@ -6663,7 +6528,7 @@
             "valueIsLocked"
           ],
           "databaseTables": [
-            "GameOwnedItemsRows"
+            "GameCollectionItemsRows"
           ],
           "sqlNames": [
             "value_is_locked"
@@ -6698,7 +6563,7 @@
     "manga": {
       "tables": [
         {
-          "name": "MangaOwnedItemsRows",
+          "name": "MangaCollectionItemsRows",
           "source": "lib/features/library/kinds/manga/data/local/manga_local_tables.dart",
           "columns": [
             {
@@ -6744,10 +6609,6 @@
             {
               "property": "personalNotes",
               "sqlName": "personal_notes"
-            },
-            {
-              "property": "quantity",
-              "sqlName": "quantity"
             },
             {
               "property": "indexNumber",
@@ -6884,8 +6745,8 @@
               "sqlName": "tracking_entry_id"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "completedAt",
@@ -6922,8 +6783,8 @@
               "sqlName": "catalog_ref_json"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "sourceType",
@@ -6976,7 +6837,7 @@
         "lib/features/library/kinds/manga/workspace/manga_ids.dart"
       ],
       "mapperSources": [
-        "lib/features/library/kinds/manga/data/local/manga_owned_item_local_mapper.dart"
+        "lib/features/library/kinds/manga/data/local/manga_collection_item_local_mapper.dart"
       ],
       "fields": {
         "addedAt": {
@@ -7011,7 +6872,7 @@
             "boxSetOuterCondition"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "box_set_outer_condition"
@@ -7045,7 +6906,7 @@
             "certificationNumber"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "certification_number"
@@ -7080,6 +6941,23 @@
           ],
           "workspaceFieldIds": []
         },
+        "collectionItemRefKey": {
+          "symbols": [
+            "collectionItemRefKey",
+            "collection_item_ref_key"
+          ],
+          "databaseColumns": [
+            "collectionItemRefKey"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows",
+            "MangaTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "collection_item_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
         "collectionStatus": {
           "symbols": [
             "collectionStatus",
@@ -7089,7 +6967,7 @@
             "collectionStatus"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "collection_status"
@@ -7120,7 +6998,7 @@
             "condition"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "condition"
@@ -7149,7 +7027,7 @@
             "createdAt"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "created_at"
@@ -7164,7 +7042,7 @@
             "currency"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "currency"
@@ -7180,7 +7058,7 @@
             "customLabel"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "custom_label"
@@ -7196,7 +7074,7 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows",
+            "MangaCollectionItemsRows",
             "MangaTrackingRows",
             "MangaTrackingUnitRows"
           ],
@@ -7225,7 +7103,7 @@
             "dustJacketCondition"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "dust_jacket_condition"
@@ -7243,7 +7121,7 @@
             "dustJacketPresent"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "dust_jacket_present"
@@ -7300,7 +7178,7 @@
             "grade"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "grade"
@@ -7316,7 +7194,7 @@
             "graderNotes"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "grader_notes"
@@ -7332,7 +7210,7 @@
             "gradingCompany"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "grading_company"
@@ -7347,7 +7225,7 @@
             "id"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows",
+            "MangaCollectionItemsRows",
             "MangaTrackingRows",
             "MangaTrackingUnitRows"
           ],
@@ -7365,7 +7243,7 @@
             "indexNumber"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "index_number"
@@ -7381,7 +7259,7 @@
             "insertsPresent"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "inserts_present"
@@ -7399,7 +7277,7 @@
             "isDigital"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "is_digital"
@@ -7415,7 +7293,7 @@
             "itemId"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "item_id"
@@ -7431,7 +7309,7 @@
             "labelType"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "label_type"
@@ -7447,7 +7325,7 @@
             "localizedEdition"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "localized_edition"
@@ -7488,7 +7366,7 @@
             "locationId"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "location_id"
@@ -7504,7 +7382,7 @@
             "marketValueCents"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "market_value_cents"
@@ -7547,7 +7425,7 @@
             "obiStripPresent"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "obi_strip_present"
@@ -7568,23 +7446,6 @@
             "manga.original_publisher"
           ]
         },
-        "ownedRefKey": {
-          "symbols": [
-            "ownedRefKey",
-            "owned_ref_key"
-          ],
-          "databaseColumns": [
-            "ownedRefKey"
-          ],
-          "databaseTables": [
-            "MangaTrackingRows",
-            "MangaTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "owned_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
         "ownerLabel": {
           "symbols": [
             "ownerLabel",
@@ -7594,7 +7455,7 @@
             "ownerLabel"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_label"
@@ -7610,7 +7471,7 @@
             "ownerUserId"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_user_id"
@@ -7626,7 +7487,7 @@
             "pageQuality"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "page_quality"
@@ -7642,7 +7503,7 @@
             "personalNotes"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "personal_notes"
@@ -7670,7 +7531,7 @@
             "pricePaidCents"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "price_paid_cents"
@@ -7685,7 +7546,7 @@
             "printing"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "printing"
@@ -7758,7 +7619,7 @@
             "purchaseDate"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_date"
@@ -7774,25 +7635,10 @@
             "purchaseStore"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
-        "quantity": {
-          "symbols": [
-            "quantity"
-          ],
-          "databaseColumns": [
-            "quantity"
-          ],
-          "databaseTables": [
-            "MangaOwnedItemsRows"
-          ],
-          "sqlNames": [
-            "quantity"
           ],
           "workspaceFieldIds": []
         },
@@ -7822,7 +7668,7 @@
             "rawOrSlabbed"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "raw_or_slabbed"
@@ -7886,7 +7732,7 @@
             "sellPriceCents"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "sell_price_cents"
@@ -7925,7 +7771,7 @@
             "signedBy"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "signed_by"
@@ -7943,7 +7789,7 @@
             "slipcoverPresent"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "slipcover_present"
@@ -7961,7 +7807,7 @@
             "soldAt"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_at"
@@ -7977,7 +7823,7 @@
             "soldTo"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_to"
@@ -8041,7 +7887,7 @@
             "tags"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows"
+            "MangaCollectionItemsRows"
           ],
           "sqlNames": [
             "tags"
@@ -8057,7 +7903,7 @@
             "targetRefJson"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows",
+            "MangaCollectionItemsRows",
             "MangaTrackingUnitRows"
           ],
           "sqlNames": [
@@ -8140,7 +7986,7 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "MangaOwnedItemsRows",
+            "MangaCollectionItemsRows",
             "MangaTrackingRows",
             "MangaTrackingUnitRows"
           ],
@@ -8185,7 +8031,7 @@
     "movie": {
       "tables": [
         {
-          "name": "MovieOwnedItemsRows",
+          "name": "MovieCollectionItemsRows",
           "source": "lib/features/library/kinds/movie/data/local/movie_local_tables.dart",
           "columns": [
             {
@@ -8227,10 +8073,6 @@
             {
               "property": "personalNotes",
               "sqlName": "personal_notes"
-            },
-            {
-              "property": "quantity",
-              "sqlName": "quantity"
             },
             {
               "property": "indexNumber",
@@ -8327,8 +8169,8 @@
               "sqlName": "catalog_ref_json"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "sourceType",
@@ -8452,7 +8294,7 @@
             "boxSetId"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "box_set_id"
@@ -8468,7 +8310,7 @@
             "boxSetName"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "box_set_name"
@@ -8491,6 +8333,22 @@
           ],
           "workspaceFieldIds": []
         },
+        "collectionItemRefKey": {
+          "symbols": [
+            "collectionItemRefKey",
+            "collection_item_ref_key"
+          ],
+          "databaseColumns": [
+            "collectionItemRefKey"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "collection_item_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
         "collectionStatus": {
           "symbols": [
             "collectionStatus",
@@ -8500,7 +8358,7 @@
             "collectionStatus"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "collection_status"
@@ -8515,7 +8373,7 @@
             "condition"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "condition"
@@ -8544,7 +8402,7 @@
             "createdAt"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "created_at"
@@ -8559,7 +8417,7 @@
             "currency"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "currency"
@@ -8575,7 +8433,7 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows",
+            "MovieCollectionItemsRows",
             "MovieTrackingRows"
           ],
           "sqlNames": [
@@ -8602,7 +8460,7 @@
             "distributor"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "distributor"
@@ -8652,7 +8510,7 @@
             "features"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "features"
@@ -8705,7 +8563,7 @@
             "grade"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "grade"
@@ -8723,7 +8581,7 @@
             "hdrFormatsJson"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "hdr_formats_json"
@@ -8738,7 +8596,7 @@
             "id"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows",
+            "MovieCollectionItemsRows",
             "MovieTrackingRows"
           ],
           "sqlNames": [
@@ -8755,7 +8613,7 @@
             "indexNumber"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "index_number"
@@ -8771,7 +8629,7 @@
             "isDigital"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "is_digital"
@@ -8787,7 +8645,7 @@
             "itemId"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "item_id"
@@ -8814,7 +8672,7 @@
             "locationId"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "location_id"
@@ -8830,7 +8688,7 @@
             "marketValueCents"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "market_value_cents"
@@ -8876,22 +8734,6 @@
             "movie.original_title"
           ]
         },
-        "ownedRefKey": {
-          "symbols": [
-            "ownedRefKey",
-            "owned_ref_key"
-          ],
-          "databaseColumns": [
-            "ownedRefKey"
-          ],
-          "databaseTables": [
-            "MovieTrackingRows"
-          ],
-          "sqlNames": [
-            "owned_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
         "ownerLabel": {
           "symbols": [
             "ownerLabel",
@@ -8901,7 +8743,7 @@
             "ownerLabel"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_label"
@@ -8917,7 +8759,7 @@
             "ownerUserId"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_user_id"
@@ -8932,7 +8774,7 @@
             "packaging"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "packaging"
@@ -8948,7 +8790,7 @@
             "personalNotes"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "personal_notes"
@@ -8976,7 +8818,7 @@
             "pricePaidCents"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "price_paid_cents"
@@ -9046,7 +8888,7 @@
             "purchaseDate"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_date"
@@ -9062,25 +8904,10 @@
             "purchaseStore"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
-        "quantity": {
-          "symbols": [
-            "quantity"
-          ],
-          "databaseColumns": [
-            "quantity"
-          ],
-          "databaseTables": [
-            "MovieOwnedItemsRows"
-          ],
-          "sqlNames": [
-            "quantity"
           ],
           "workspaceFieldIds": []
         },
@@ -9109,7 +8936,7 @@
             "region"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "region"
@@ -9161,7 +8988,7 @@
             "sellPriceCents"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "sell_price_cents"
@@ -9177,7 +9004,7 @@
             "soldAt"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_at"
@@ -9193,7 +9020,7 @@
             "soldTo"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_to"
@@ -9257,7 +9084,7 @@
             "tags"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows"
+            "MovieCollectionItemsRows"
           ],
           "sqlNames": [
             "tags"
@@ -9300,7 +9127,7 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "MovieOwnedItemsRows",
+            "MovieCollectionItemsRows",
             "MovieTrackingRows"
           ],
           "sqlNames": [
@@ -9387,7 +9214,7 @@
           ]
         },
         {
-          "name": "MusicOwnedItemsRows",
+          "name": "MusicCollectionItemsRows",
           "source": "lib/features/library/kinds/music/data/local/music_local_tables.dart",
           "columns": [
             {
@@ -9429,10 +9256,6 @@
             {
               "property": "personalNotes",
               "sqlName": "personal_notes"
-            },
-            {
-              "property": "quantity",
-              "sqlName": "quantity"
             },
             {
               "property": "indexNumber",
@@ -9513,8 +9336,8 @@
               "sqlName": "catalog_ref_json"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "sourceType",
@@ -9575,8 +9398,8 @@
               "sqlName": "catalog_item_id"
             },
             {
-              "property": "ownedCopyId",
-              "sqlName": "owned_copy_id"
+              "property": "collectionItemId",
+              "sqlName": "collection_item_id"
             },
             {
               "property": "listenedAt",
@@ -9726,6 +9549,38 @@
           ],
           "workspaceFieldIds": []
         },
+        "collectionItemId": {
+          "symbols": [
+            "collectionItemId",
+            "collection_item_id"
+          ],
+          "databaseColumns": [
+            "collectionItemId"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows"
+          ],
+          "sqlNames": [
+            "collection_item_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "collectionItemRefKey": {
+          "symbols": [
+            "collectionItemRefKey",
+            "collection_item_ref_key"
+          ],
+          "databaseColumns": [
+            "collectionItemRefKey"
+          ],
+          "databaseTables": [
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "collection_item_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
         "collectionStatus": {
           "symbols": [
             "collectionStatus",
@@ -9735,7 +9590,7 @@
             "collectionStatus"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "collection_status"
@@ -9750,7 +9605,7 @@
             "condition"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "condition"
@@ -9791,8 +9646,8 @@
           ],
           "databaseTables": [
             "MusicAlbumImagesRows",
-            "MusicListenEventsRows",
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows",
+            "MusicListenEventsRows"
           ],
           "sqlNames": [
             "created_at"
@@ -9807,7 +9662,7 @@
             "currency"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "currency"
@@ -9823,8 +9678,8 @@
             "deletedAt"
           ],
           "databaseTables": [
+            "MusicCollectionItemsRows",
             "MusicListenEventsRows",
-            "MusicOwnedItemsRows",
             "MusicTrackingRows"
           ],
           "sqlNames": [
@@ -9906,7 +9761,7 @@
             "grade"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "grade"
@@ -9924,8 +9779,8 @@
           ],
           "databaseTables": [
             "MusicAlbumImagesRows",
+            "MusicCollectionItemsRows",
             "MusicListenEventsRows",
-            "MusicOwnedItemsRows",
             "MusicTrackingRows"
           ],
           "sqlNames": [
@@ -9974,7 +9829,7 @@
             "indexNumber"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "index_number"
@@ -9992,7 +9847,7 @@
             "isDigital"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "is_digital"
@@ -10008,7 +9863,7 @@
             "itemId"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "item_id"
@@ -10047,7 +9902,7 @@
             "lastCleanedDate"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "last_cleaned_date"
@@ -10120,7 +9975,7 @@
             "locationId"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "location_id"
@@ -10148,7 +10003,7 @@
             "marketValueCents"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "market_value_cents"
@@ -10166,7 +10021,7 @@
             "mediumDetailsJson"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "medium_details_json"
@@ -10189,38 +10044,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "ownedCopyId": {
-          "symbols": [
-            "ownedCopyId",
-            "owned_copy_id"
-          ],
-          "databaseColumns": [
-            "ownedCopyId"
-          ],
-          "databaseTables": [
-            "MusicListenEventsRows"
-          ],
-          "sqlNames": [
-            "owned_copy_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownedRefKey": {
-          "symbols": [
-            "ownedRefKey",
-            "owned_ref_key"
-          ],
-          "databaseColumns": [
-            "ownedRefKey"
-          ],
-          "databaseTables": [
-            "MusicTrackingRows"
-          ],
-          "sqlNames": [
-            "owned_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
         "ownerLabel": {
           "symbols": [
             "ownerLabel",
@@ -10230,7 +10053,7 @@
             "ownerLabel"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_label"
@@ -10246,7 +10069,7 @@
             "ownerUserId"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_user_id"
@@ -10273,7 +10096,7 @@
             "personalNotes"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "personal_notes"
@@ -10301,7 +10124,7 @@
             "pricePaidCents"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "price_paid_cents"
@@ -10360,7 +10183,7 @@
             "purchaseDate"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_date"
@@ -10378,7 +10201,7 @@
             "purchaseStore"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_store"
@@ -10397,21 +10220,6 @@
           ],
           "sqlNames": [
             "purpose"
-          ],
-          "workspaceFieldIds": []
-        },
-        "quantity": {
-          "symbols": [
-            "quantity"
-          ],
-          "databaseColumns": [
-            "quantity"
-          ],
-          "databaseTables": [
-            "MusicOwnedItemsRows"
-          ],
-          "sqlNames": [
-            "quantity"
           ],
           "workspaceFieldIds": []
         },
@@ -10477,7 +10285,7 @@
             "sellPriceCents"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "sell_price_cents"
@@ -10493,7 +10301,7 @@
             "signedBy"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "signed_by"
@@ -10511,7 +10319,7 @@
             "soldAt"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_at"
@@ -10527,7 +10335,7 @@
             "soldTo"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_to"
@@ -10619,7 +10427,7 @@
             "tags"
           ],
           "databaseTables": [
-            "MusicOwnedItemsRows"
+            "MusicCollectionItemsRows"
           ],
           "sqlNames": [
             "tags"
@@ -10674,8 +10482,8 @@
             "updatedAt"
           ],
           "databaseTables": [
+            "MusicCollectionItemsRows",
             "MusicListenEventsRows",
-            "MusicOwnedItemsRows",
             "MusicTrackingRows"
           ],
           "sqlNames": [
@@ -10701,7 +10509,7 @@
     "tv": {
       "tables": [
         {
-          "name": "TvOwnedItemsRows",
+          "name": "TvCollectionItemsRows",
           "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
           "columns": [
             {
@@ -10747,10 +10555,6 @@
             {
               "property": "personalNotes",
               "sqlName": "personal_notes"
-            },
-            {
-              "property": "quantity",
-              "sqlName": "quantity"
             },
             {
               "property": "indexNumber",
@@ -11025,8 +10829,8 @@
               "sqlName": "catalog_ref_json"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "sourceType",
@@ -11103,8 +10907,8 @@
               "sqlName": "tracking_entry_id"
             },
             {
-              "property": "ownedRefKey",
-              "sqlName": "owned_ref_key"
+              "property": "collectionItemRefKey",
+              "sqlName": "collection_item_ref_key"
             },
             {
               "property": "completedAt",
@@ -11184,7 +10988,7 @@
             "boxSetId"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "box_set_id"
@@ -11200,7 +11004,7 @@
             "boxSetName"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "box_set_name"
@@ -11223,6 +11027,23 @@
           ],
           "workspaceFieldIds": []
         },
+        "collectionItemRefKey": {
+          "symbols": [
+            "collectionItemRefKey",
+            "collection_item_ref_key"
+          ],
+          "databaseColumns": [
+            "collectionItemRefKey"
+          ],
+          "databaseTables": [
+            "TvTrackingRows",
+            "TvTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "collection_item_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
         "collectionStatus": {
           "symbols": [
             "collectionStatus",
@@ -11232,7 +11053,7 @@
             "collectionStatus"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "collection_status"
@@ -11278,7 +11099,7 @@
             "condition"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "condition"
@@ -11319,7 +11140,7 @@
             "createdAt"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "created_at"
@@ -11345,7 +11166,7 @@
             "currency"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "currency"
@@ -11361,9 +11182,9 @@
             "deletedAt"
           ],
           "databaseTables": [
+            "TvCollectionItemsRows",
             "TvCustomEpisodeRows",
             "TvEpisodeProgressRows",
-            "TvOwnedItemsRows",
             "TvTrackingRows",
             "TvTrackingUnitRows",
             "TvWatchSessionRows"
@@ -11396,7 +11217,7 @@
             "distributor"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "distributor"
@@ -11490,7 +11311,7 @@
             "features"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "features"
@@ -11533,7 +11354,7 @@
             "grade"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "grade"
@@ -11551,7 +11372,7 @@
             "hdrFormatsJson"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "hdr_formats_json"
@@ -11566,8 +11387,8 @@
             "id"
           ],
           "databaseTables": [
+            "TvCollectionItemsRows",
             "TvCustomEpisodeRows",
-            "TvOwnedItemsRows",
             "TvTrackingRows",
             "TvTrackingUnitRows",
             "TvWatchSessionRows"
@@ -11586,7 +11407,7 @@
             "indexNumber"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "index_number"
@@ -11602,7 +11423,7 @@
             "isDigital"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "is_digital"
@@ -11618,7 +11439,7 @@
             "itemId"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "item_id"
@@ -11689,7 +11510,7 @@
             "locationId"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "location_id"
@@ -11705,7 +11526,7 @@
             "marketValueCents"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "market_value_cents"
@@ -11740,23 +11561,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "ownedRefKey": {
-          "symbols": [
-            "ownedRefKey",
-            "owned_ref_key"
-          ],
-          "databaseColumns": [
-            "ownedRefKey"
-          ],
-          "databaseTables": [
-            "TvTrackingRows",
-            "TvTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "owned_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
         "ownerLabel": {
           "symbols": [
             "ownerLabel",
@@ -11766,7 +11570,7 @@
             "ownerLabel"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_label"
@@ -11782,7 +11586,7 @@
             "ownerUserId"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "owner_user_id"
@@ -11797,7 +11601,7 @@
             "packaging"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "packaging"
@@ -11813,7 +11617,7 @@
             "personalNotes"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "personal_notes"
@@ -11841,7 +11645,7 @@
             "pricePaidCents"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "price_paid_cents"
@@ -11889,7 +11693,7 @@
             "purchaseDate"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_date"
@@ -11905,25 +11709,10 @@
             "purchaseStore"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
-        "quantity": {
-          "symbols": [
-            "quantity"
-          ],
-          "databaseColumns": [
-            "quantity"
-          ],
-          "databaseTables": [
-            "TvOwnedItemsRows"
-          ],
-          "sqlNames": [
-            "quantity"
           ],
           "workspaceFieldIds": []
         },
@@ -11970,7 +11759,7 @@
             "region"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "region"
@@ -12090,7 +11879,7 @@
             "sellPriceCents"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "sell_price_cents"
@@ -12135,7 +11924,7 @@
             "soldAt"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_at"
@@ -12151,7 +11940,7 @@
             "soldTo"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "sold_to"
@@ -12244,7 +12033,7 @@
             "tags"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows"
+            "TvCollectionItemsRows"
           ],
           "sqlNames": [
             "tags"
@@ -12260,7 +12049,7 @@
             "targetRefJson"
           ],
           "databaseTables": [
-            "TvOwnedItemsRows",
+            "TvCollectionItemsRows",
             "TvTrackingUnitRows",
             "TvWatchSessionRows"
           ],
@@ -12356,9 +12145,9 @@
             "updatedAt"
           ],
           "databaseTables": [
+            "TvCollectionItemsRows",
             "TvCustomEpisodeRows",
             "TvEpisodeProgressRows",
-            "TvOwnedItemsRows",
             "TvTrackingRows",
             "TvTrackingUnitRows",
             "TvWatchSessionRows"

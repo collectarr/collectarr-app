@@ -1,14 +1,13 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 
 String _ownedSeedKey(CatalogMediaKind kind, String id) =>
-    OwnedCopyRef(
+    CollectionItemRef(
       kind: kind,
-      itemId: id.replaceFirst('seed-owned-', ''),
-      id: OwnedCopyId(id),
+      id: CollectionItemId(id),
     ).key;
 
 Future<void> seedCustomFields(CustomFieldRepository repo) async {
@@ -87,13 +86,13 @@ Future<void> seedCustomFields(CustomFieldRepository repo) async {
     await repo.upsertDefinition(def);
   }
 
-  // Values for some owned items
+  // Values for some collection items
   final values = [
     CustomFieldValue(
       id: 'seed-cf-val-01',
       targetId:
           _ownedSeedKey(CatalogMediaKind.comic, 'seed-owned-seed-comic-01'),
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetScope: CustomFieldTargetScope.collectionItem,
       fieldDefinitionId: 'seed-cf-def-01',
       value: 'Purchase',
       updatedAt: now,
@@ -102,7 +101,7 @@ Future<void> seedCustomFields(CustomFieldRepository repo) async {
       id: 'seed-cf-val-02',
       targetId:
           _ownedSeedKey(CatalogMediaKind.comic, 'seed-owned-seed-comic-01'),
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetScope: CustomFieldTargetScope.collectionItem,
       fieldDefinitionId: 'seed-cf-def-02',
       value: 'First print, great condition for the price',
       updatedAt: now,
@@ -111,7 +110,7 @@ Future<void> seedCustomFields(CustomFieldRepository repo) async {
       id: 'seed-cf-val-03',
       targetId:
           _ownedSeedKey(CatalogMediaKind.comic, 'seed-owned-seed-comic-03'),
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetScope: CustomFieldTargetScope.collectionItem,
       fieldDefinitionId: 'seed-cf-def-03',
       value: '350',
       updatedAt: now,
@@ -119,7 +118,7 @@ Future<void> seedCustomFields(CustomFieldRepository repo) async {
     CustomFieldValue(
       id: 'seed-cf-val-04',
       targetId: _ownedSeedKey(CatalogMediaKind.book, 'seed-owned-seed-book-01'),
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetScope: CustomFieldTargetScope.collectionItem,
       fieldDefinitionId: 'seed-cf-def-04',
       value: '2020-03-16',
       updatedAt: now,
@@ -127,7 +126,7 @@ Future<void> seedCustomFields(CustomFieldRepository repo) async {
     CustomFieldValue(
       id: 'seed-cf-val-05',
       targetId: _ownedSeedKey(CatalogMediaKind.book, 'seed-owned-seed-book-07'),
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetScope: CustomFieldTargetScope.collectionItem,
       fieldDefinitionId: 'seed-cf-def-05',
       value: 'true',
       updatedAt: now,
@@ -135,7 +134,7 @@ Future<void> seedCustomFields(CustomFieldRepository repo) async {
     CustomFieldValue(
       id: 'seed-cf-val-06',
       targetId: _ownedSeedKey(CatalogMediaKind.book, 'seed-owned-seed-book-01'),
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetScope: CustomFieldTargetScope.collectionItem,
       fieldDefinitionId: 'seed-cf-def-06',
       value: '20:30',
       updatedAt: now,
@@ -143,7 +142,7 @@ Future<void> seedCustomFields(CustomFieldRepository repo) async {
     CustomFieldValue(
       id: 'seed-cf-val-07',
       targetId: _ownedSeedKey(CatalogMediaKind.book, 'seed-owned-seed-book-01'),
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetScope: CustomFieldTargetScope.collectionItem,
       fieldDefinitionId: 'seed-cf-def-07',
       value: 'https://example.com/book-01',
       updatedAt: now,
@@ -151,7 +150,7 @@ Future<void> seedCustomFields(CustomFieldRepository repo) async {
     CustomFieldValue(
       id: 'seed-cf-val-08',
       targetId: _ownedSeedKey(CatalogMediaKind.book, 'seed-owned-seed-book-07'),
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetScope: CustomFieldTargetScope.collectionItem,
       fieldDefinitionId: 'seed-cf-def-08',
       value: 'Jane Doe',
       updatedAt: now,
@@ -159,7 +158,7 @@ Future<void> seedCustomFields(CustomFieldRepository repo) async {
     CustomFieldValue(
       id: 'seed-cf-val-09',
       targetId: _ownedSeedKey(CatalogMediaKind.book, 'seed-owned-seed-book-07'),
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetScope: CustomFieldTargetScope.collectionItem,
       fieldDefinitionId: 'seed-cf-def-09',
       value: '["Hardcover","Digital"]',
       updatedAt: now,

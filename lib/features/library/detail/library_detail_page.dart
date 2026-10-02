@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
@@ -20,11 +20,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
 final activeOwnedCopiesByCatalogItemProvider = FutureProvider.autoDispose
-    .family<List<OwnedCopySummary>, (CatalogMediaKind, String)>(
+    .family<List<CollectionItemSummary>, (CatalogMediaKind, String)>(
   (ref, params) async {
     final (kind, catalogItemId) = params;
     final database = ref.watch(localDatabaseProvider);
-    final reader = libraryOwnedSummaryReadersByKind[kind];
+    final reader = libraryCollectionItemSummaryReadersByKind[kind];
     if (reader == null) return const [];
     final items = await reader(database);
     return items
@@ -43,7 +43,7 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
     super.key,
     required this.type,
     required this.item,
-    required this.ownedSummary,
+    required this.collectionItemSummary,
     this.ownedCopies,
     required this.accent,
     required this.onAddOwned,
@@ -56,14 +56,14 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final OwnedCopySummary? ownedSummary;
-  final List<OwnedCopySummary>? ownedCopies;
+  final CollectionItemSummary? collectionItemSummary;
+  final List<CollectionItemSummary>? ownedCopies;
   final Color accent;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
-  final void Function(OwnedCopySummary? ownedItem)? onEdit;
+  final void Function(CollectionItemSummary? collectionItem)? onEdit;
   final ValueChanged<String>? onFilterByValue;
 
   @override
@@ -71,27 +71,27 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
 }
 
 class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
-  OwnedCopyRef? _selectedOwnedCopyRef;
-  bool _selectNewestOwnedItem = false;
+  CollectionItemRef? _selectedCollectionItemRef;
+  bool _selectNewestCollectionItem = false;
 
   @override
   void initState() {
     super.initState();
-    _selectedOwnedCopyRef = widget.ownedSummary?.ref;
+    _selectedCollectionItemRef = widget.collectionItemSummary?.ref;
   }
 
   @override
   void didUpdateWidget(covariant LibraryDetailPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.item.node.id != oldWidget.item.node.id) {
-      _selectedOwnedCopyRef = widget.ownedSummary?.ref;
-      _selectNewestOwnedItem = false;
+      _selectedCollectionItemRef = widget.collectionItemSummary?.ref;
+      _selectNewestCollectionItem = false;
       return;
     }
-    if (widget.ownedSummary?.ref != oldWidget.ownedSummary?.ref &&
-        widget.ownedSummary != null &&
-        _selectedOwnedCopyRef == null) {
-      _selectedOwnedCopyRef = widget.ownedSummary!.ref;
+    if (widget.collectionItemSummary?.ref != oldWidget.collectionItemSummary?.ref &&
+        widget.collectionItemSummary != null &&
+        _selectedCollectionItemRef == null) {
+      _selectedCollectionItemRef = widget.collectionItemSummary!.ref;
     }
   }
 
@@ -113,28 +113,28 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     final ownedCopies = widget.ownedCopies == null
         ? (loadedCopies != null && loadedCopies.isNotEmpty
             ? loadedCopies
-            : (widget.ownedSummary == null
-                ? const <OwnedCopySummary>[]
-                : <OwnedCopySummary>[widget.ownedSummary!]))
+            : (widget.collectionItemSummary == null
+                ? const <CollectionItemSummary>[]
+                : <CollectionItemSummary>[widget.collectionItemSummary!]))
         : widget.ownedCopies!;
-    final ownedResolution = resolveActiveOwnedSummary(
+    final ownedResolution = resolveActiveCollectionItemSummary(
       ownedCopies,
-      fallback: widget.ownedSummary,
-      selectedOwnedCopyRef: _selectedOwnedCopyRef,
-      selectNewest: _selectNewestOwnedItem,
+      fallback: widget.collectionItemSummary,
+      selectedCollectionItemRef: _selectedCollectionItemRef,
+      selectNewest: _selectNewestCollectionItem,
     );
-    final activeOwnedSummary = ownedResolution.ownedItem;
+    final activeCollectionItemSummary = ownedResolution.collectionItem;
     final activeTrackingSummary = resolveActiveTrackingSummary(
       libraryTrackingSummariesForItem(
         widget.type,
         widget.item,
         ref.watch(trackingSummariesByCatalogRefProvider),
-        ownedItem: activeOwnedSummary,
+        collectionItem: activeCollectionItemSummary,
       ),
-      activeOwnedSummary,
+      activeCollectionItemSummary,
     );
     final isOwned = ownedCopies.isNotEmpty ||
-        activeOwnedSummary != null ||
+        activeCollectionItemSummary != null ||
         widget.item.source.isOwned;
     final palette = appPalette(context);
     return Theme(
@@ -148,42 +148,41 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               child: _LibraryDetailToolbar(
                 type: widget.type,
                 item: widget.item,
-                activeOwnedItem: activeOwnedSummary,
+                activeCollectionItem: activeCollectionItemSummary,
                 ownedCopies: ownedCopies,
-                selectedOwnedCopyRef: activeOwnedSummary?.ref,
+                selectedCollectionItemRef: activeCollectionItemSummary?.ref,
                 accent: widget.accent,
-                onSelectOwnedItem: ownedCopies.length < 2
+                onSelectCollectionItem: ownedCopies.length < 2
                     ? null
                     : (value) => setState(() {
-                          _selectedOwnedCopyRef = value;
-                          _selectNewestOwnedItem = false;
+                          _selectedCollectionItemRef = value;
+                          _selectNewestCollectionItem = false;
                         }),
                 onEdit: widget.onEdit == null
                     ? null
-                    : () => widget.onEdit!(activeOwnedSummary),
+                    : () => widget.onEdit!(activeCollectionItemSummary),
                 onToggleOwned: isOwned
-                    ? activeOwnedSummary == null
+                    ? activeCollectionItemSummary == null
                         ? widget.onRemoveOwned
-                        : () => _removeOwnedCopy(activeOwnedSummary)
+                        : () => _removeCollectionItem(activeCollectionItemSummary)
                     : widget.onAddOwned,
                 onAddCopy: isOwned && widget.onAddOwned != null
-                    ? () => _addOwnedCopy(
+                    ? () => _addCollectionItem(
                           widget.item,
-                          ownedItem: activeOwnedSummary,
                         )
                     : null,
                 onToggleWishlist: widget.item.source.isWishlisted
                     ? widget.onRemoveWishlist
                     : widget.onAddWishlist,
                 onSearchOnEbay: () => _searchOnEbay(widget.item),
-                onAssignFolders: activeOwnedSummary == null
+                onAssignFolders: activeCollectionItemSummary == null
                     ? null
                     : () {
                         final db = ref.read(localDatabaseProvider);
                         showFolderAssignmentDialog(
                           context: context,
                           db: db,
-                          ownedRef: activeOwnedSummary.ref,
+                          collectionItemRef: activeCollectionItemSummary.ref,
                         );
                       },
               ),
@@ -195,7 +194,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                 hero: LibraryDetailHero(
                   type: widget.type,
                   item: widget.item,
-                  ownedItem: activeOwnedSummary,
+                  collectionItem: activeCollectionItemSummary,
                   ownedCopies: ownedCopies,
                   accent: widget.accent,
                   isOwned: isOwned,
@@ -205,7 +204,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                   type: widget.type,
                   item: widget.item,
                   accent: widget.accent,
-                  ownedSummary: activeOwnedSummary,
+                  collectionItemSummary: activeCollectionItemSummary,
                   trackingSummary: activeTrackingSummary,
                   ownedCopies: ownedCopies,
                   onFilterByValue: widget.onFilterByValue,
@@ -227,19 +226,12 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     await launchEbaySearch(query);
   }
 
-  Future<void> _addOwnedCopy(
-    LibraryProjectionView item, {
-    OwnedCopySummary? ownedItem,
-  }) async {
+  Future<void> _addCollectionItem(
+    LibraryProjectionView item,
+  ) async {
     if (!libraryOwnershipForKind(widget.type.kind).canCreateCopyAt(item.node)) {
       return;
     }
-    final targetRef = resolveLibraryMutationTargetFromSummary(
-          item: item,
-          ownedItem: ownedItem,
-        ) ??
-        libraryTrackingTargetForItem(widget.type, item);
-    if (targetRef == null) return;
     final catalogRef = item.source.catalogRef;
     if (catalogRef == null) {
       return;
@@ -250,33 +242,32 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     if (catalogItem == null) {
       return;
     }
-    await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
+    await ref.read(collectionCommandCoordinatorProvider).addCollectionItem(
           libraryAddForKind(widget.type.kind).buildCommand(
             catalogItem,
             const LibraryAddCommonDraft(),
             libraryAddForKind(widget.type.kind).createInitialDraft(),
-            targetRef: targetRef,
           ),
         );
     if (!mounted) {
       return;
     }
     setState(() {
-      _selectedOwnedCopyRef = null;
-      _selectNewestOwnedItem = true;
+      _selectedCollectionItemRef = null;
+      _selectNewestCollectionItem = true;
     });
   }
 
-  Future<void> _removeOwnedCopy(OwnedCopySummary item) async {
-    await ref.read(ownedItemMutationsProvider).removeItem(item.ref);
+  Future<void> _removeCollectionItem(CollectionItemSummary item) async {
+    await ref.read(collectionItemMutationsProvider).removeItem(item.ref);
     if (!mounted) {
       return;
     }
     setState(() {
-      if (_selectedOwnedCopyRef == item.ref) {
-        _selectedOwnedCopyRef = null;
+      if (_selectedCollectionItemRef == item.ref) {
+        _selectedCollectionItemRef = null;
       }
-      _selectNewestOwnedItem = false;
+      _selectNewestCollectionItem = false;
     });
   }
 }
@@ -285,11 +276,11 @@ class _LibraryDetailToolbar extends StatelessWidget {
   const _LibraryDetailToolbar({
     required this.type,
     required this.item,
-    required this.activeOwnedItem,
+    required this.activeCollectionItem,
     required this.ownedCopies,
-    required this.selectedOwnedCopyRef,
+    required this.selectedCollectionItemRef,
     required this.accent,
-    required this.onSelectOwnedItem,
+    required this.onSelectCollectionItem,
     required this.onEdit,
     required this.onToggleOwned,
     required this.onAddCopy,
@@ -300,11 +291,11 @@ class _LibraryDetailToolbar extends StatelessWidget {
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final OwnedCopySummary? activeOwnedItem;
-  final List<OwnedCopySummary> ownedCopies;
-  final OwnedCopyRef? selectedOwnedCopyRef;
+  final CollectionItemSummary? activeCollectionItem;
+  final List<CollectionItemSummary> ownedCopies;
+  final CollectionItemRef? selectedCollectionItemRef;
   final Color accent;
-  final ValueChanged<OwnedCopyRef?>? onSelectOwnedItem;
+  final ValueChanged<CollectionItemRef?>? onSelectCollectionItem;
   final VoidCallback? onEdit;
   final VoidCallback? onToggleOwned;
   final VoidCallback? onAddCopy;
@@ -315,9 +306,9 @@ class _LibraryDetailToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final hasCopyMenu = ownedCopies.length > 1 && onSelectOwnedItem != null;
+    final hasCopyMenu = ownedCopies.length > 1 && onSelectCollectionItem != null;
     final isOwned = ownedCopies.isNotEmpty ||
-        activeOwnedItem != null ||
+        activeCollectionItem != null ||
         item.source.isOwned;
     final identifierCode = libraryCardPresentationForEntry(item).identifierCode;
 
@@ -365,7 +356,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
               ),
               if (hasCopyMenu) ...[
                 const SizedBox(width: 4),
-                LibraryDenseMenuButton<OwnedCopyRef>(
+                LibraryDenseMenuButton<CollectionItemRef>(
                   key: const ValueKey('detail-toolbar-copy-menu'),
                   label: 'Copy',
                   icon: Icons.copy_all_outlined,
@@ -374,20 +365,20 @@ class _LibraryDetailToolbar extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                   entries: [
                     for (var index = 0; index < ownedCopies.length; index += 1)
-                      LibraryDenseMenuEntry<OwnedCopyRef>(
+                      LibraryDenseMenuEntry<CollectionItemRef>(
                         value: ownedCopies[index].ref,
-                        label: ownedCopies[index].ref == selectedOwnedCopyRef
-                            ? 'Viewing ${buildOwnedCopySummaryLabel(ownedCopies[index], index)}'
-                            : buildOwnedCopySummaryLabel(
+                        label: ownedCopies[index].ref == selectedCollectionItemRef
+                            ? 'Viewing ${buildCollectionItemSummaryLabel(ownedCopies[index], index)}'
+                            : buildCollectionItemSummaryLabel(
                                 ownedCopies[index],
                                 index,
                               ),
-                        icon: ownedCopies[index].ref == selectedOwnedCopyRef
+                        icon: ownedCopies[index].ref == selectedCollectionItemRef
                             ? Icons.check_circle
                             : Icons.radio_button_unchecked,
                       ),
                   ],
-                  onSelected: (value) => onSelectOwnedItem?.call(value),
+                  onSelected: (value) => onSelectCollectionItem?.call(value),
                 ),
               ],
               if (identifierCode?.trim().isNotEmpty == true) ...[

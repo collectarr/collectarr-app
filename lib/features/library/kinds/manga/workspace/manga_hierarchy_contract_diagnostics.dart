@@ -10,7 +10,7 @@ String? mangaHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   if (dto.seriesTitle?.trim().isNotEmpty != true) {
     return 'Missing series title';
   }
-  if (item.node.scope != LibraryEntityScope.work &&
+  if (item.node.scope != LibraryEntityScope.catalogItem &&
       dto.variant?.trim().isNotEmpty != true) {
     return 'Missing release variant';
   }

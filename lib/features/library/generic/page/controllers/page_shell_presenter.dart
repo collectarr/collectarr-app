@@ -37,7 +37,7 @@ abstract final class LibraryPageShellPresenter {
           shelfState: stateValue,
           allOwnedCopies: [
             for (final item in resolvedProjection.allItems)
-              if (item.source.ownedSummary case final owned?) owned,
+              if (item.source.collectionItemSummary case final owned?) owned,
           ],
           allWishlistItems: allWishlistItems,
         );
@@ -79,13 +79,13 @@ abstract final class LibraryPageShellPresenter {
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
     required ShelfState shelfState,
-    required List<OwnedCopySummary> allOwnedCopies,
+    required List<CollectionItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     final registration = state.widget.type;
     final activeScope = projection.allItems.isNotEmpty
         ? projection.allItems.first.node.scope
-        : LibraryEntityScope.work;
+        : LibraryEntityScope.catalogItem;
     final activeFields = libraryKindWorkspaceForKind(registration.kind)
         .fieldsForScope(activeScope);
     final workspaceOverride = state.buildWorkspaceOverride(
@@ -237,8 +237,8 @@ abstract final class LibraryPageShellPresenter {
           state._collectionActionCoordinator.runCollectionAction(
         (actions) => actions.removeWishlist(item),
       ),
-      onEditItem: (item, ownedItem) =>
-          unawaited(state._editCoordinator.showEditDialog(item, ownedItem)),
+      onEditItem: (item, collectionItem) =>
+          unawaited(state._editCoordinator.showEditDialog(item, collectionItem)),
       workspaceOverride: workspaceOverride,
       onItemContextMenu: (item, position) => state._collectionActionCoordinator
           .handleItemContextMenu(projection, item, position),
@@ -357,13 +357,13 @@ abstract final class LibraryPageShellPresenter {
                 ? state._dialogCoordinator.showGradePickListEditorFlow
                 : null,
         onEditTagPickList: state._dialogCoordinator.showTagPickListEditorFlow,
-        onTransferFieldData: state._hasOwnedItemsInProjection(projection)
+        onTransferFieldData: state._hasCollectionItemsInProjection(projection)
             ? () =>
                 state._dialogCoordinator.showTransferFieldDataFlow(projection)
             : null,
         onReassignIndex: state.widget.type.toolbarActionAvailability
                     .allows(LibraryToolbarActionId.reassignIndex) &&
-                state._hasOwnedItemsInProjection(projection)
+                state._hasCollectionItemsInProjection(projection)
             ? () => state._dialogCoordinator.reassignIndexFlow(projection)
             : null,
         onPrintReport: projection.filteredItems.isNotEmpty
@@ -425,7 +425,7 @@ abstract final class LibraryPageShellPresenter {
           state._selectAllVisible(projection);
         }
       },
-      onBulkEdit: state._hasOwnedItemsInSelection(projection)
+      onBulkEdit: state._hasCollectionItemsInSelection(projection)
           ? () => state._collectionActionCoordinator.bulkEditFlow(projection)
           : null,
       onPrintToPdf: state._hasSelectedItemsInSelection(projection)
@@ -435,14 +435,14 @@ abstract final class LibraryPageShellPresenter {
           ? () =>
               state._sharingCoordinator.shareSelectedCollectionFlow(projection)
           : null,
-      onBulkDuplicate: state._hasOwnedItemsInSelection(projection)
+      onBulkDuplicate: state._hasCollectionItemsInSelection(projection)
           ? () =>
               state._collectionActionCoordinator.bulkDuplicateFlow(projection)
           : null,
-      onBulkLoan: state._hasLoanableOwnedItemsInSelection(projection)
+      onBulkLoan: state._hasLoanableCollectionItemsInSelection(projection)
           ? () => state._dialogCoordinator.showLoanSelectionFlow(projection)
           : null,
-      onTransferFieldData: state._hasOwnedItemsInSelection(projection)
+      onTransferFieldData: state._hasCollectionItemsInSelection(projection)
           ? () => state._dialogCoordinator
               .showTransferFieldDataForSelectionFlow(projection)
           : null,

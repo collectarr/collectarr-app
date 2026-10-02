@@ -1,4 +1,4 @@
-﻿# Game Catalog Item and Owned Copy Field Ledger
+﻿# Game Catalog Item and Collection Item Field Ledger
 
 **Status:** Provisional Core field inventory. No saved Edit-form capture is available for this kind, so displayed CLZ labels, tab locations, exact types, and literal CLZ parity are unverified. This ledger records the current pinned Core Catalog Item v1 fields only; it is not evidence of complete product parity.
 
@@ -48,7 +48,7 @@
 
 ## Ownership boundary
 
-This file inventories catalog fields only. Owned Copy fields, tracking, loans, locations, personal images, notes, custom-field values, and other user state belong to App. They must not be added to this kind's Core Catalog Item proposal payload.
+This file inventories catalog fields only. Collection Item fields, tracking, loans, locations, personal images, notes, custom-field values, and other user state belong to App. They must not be added to this kind's Core Catalog Item proposal payload.
 
 ## CLZ verification
 

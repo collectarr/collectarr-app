@@ -1,19 +1,19 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_fields.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +36,7 @@ class BookEditDraft
         LibraryCopyEditSessionDefaults
     implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
   BookEditDraft({
-    this.ownedItem,
+    this.collectionItem,
     this.signedBy,
     this.dustJacketPresent = false,
     this.dustJacketCondition,
@@ -57,7 +57,7 @@ class BookEditDraft
     required this.translatorsController,
   });
 
-  final BookOwnedItem? ownedItem;
+  final BookCollectionItem? collectionItem;
 
   String? signedBy;
   bool dustJacketPresent;
@@ -87,7 +87,7 @@ class BookEditDraft
 
   @override
   void initializePersonalState(PersonalStateDraft personal) {
-    final item = ownedItem;
+    final item = collectionItem;
     if (item == null) return;
     personal.ownerLabelController.text = item.ownerLabel ?? '';
     personal.conditionController.text = item.condition ?? '';
@@ -98,7 +98,6 @@ class BookEditDraft
         ? ''
         : (item.pricePaidCents! / 100).toStringAsFixed(2);
     personal.currencyController.text = item.currency ?? '';
-    personal.quantityController.text = item.quantity.toString();
     personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
     personal.notesController.text = item.personalNotes ?? '';
     personal.tagsController.text = item.tags ?? '';
@@ -116,14 +115,11 @@ class BookEditDraft
   }
 
   @override
-  BookOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedCopyRef ownedRef,
+  BookCollectionItemUpdatePayload buildOwnedUpdatePayload({
+    required CollectionItemRef collectionItemRef,
     required PersonalStateDraft personal,
   }) {
-    final targetRef = personal.selectedOwnedTargetRef;
-    return BookOwnedItemUpdatePayload(
-      targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
-      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+    return BookCollectionItemUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -398,11 +394,11 @@ class BookEditDraft
 
 LibraryEditSessionBundle createBookEditDraft({
   required CatalogSearchCandidate item,
-  LibraryOwnedItemDispatch? ownedItemDispatch,
+  LibraryCollectionItemDispatch? collectionItemDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = BookOwnedItemProjection.fromDispatch(ownedItemDispatch);
+  final owned = BookCollectionItemProjection.fromDispatch(collectionItemDispatch);
   final book = owned?.details;
   final rawMetadata = item.kindCapability.mapTransport(
       (transport) => BookCatalogMetadata.fromJson(transport.kindData));
@@ -411,7 +407,7 @@ LibraryEditSessionBundle createBookEditDraft({
       : BookCatalogMetadata.fromJson(
           item.kindCapability.mapTransport((transport) => transport).payload);
   final draft = BookEditDraft(
-    ownedItem: owned,
+    collectionItem: owned,
     signedBy: book?.signedBy,
     dustJacketPresent: book?.dustJacketPresent ?? false,
     dustJacketCondition: book?.dustJacketCondition,

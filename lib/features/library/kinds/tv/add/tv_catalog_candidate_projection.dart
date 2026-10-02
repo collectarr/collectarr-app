@@ -7,8 +7,8 @@ CatalogSearchCandidate tvCatalogTransportFromCoreItem(
 ) {
   return item.kindCapability.mapTransport((transport) {
     final metadata = TvSeriesMetadata.fromJson(
-      catalogPayloadWithoutSnapshotVersion(transport.toSyncPayload()),
+      catalogTransportPayloadFor(transport),
     );
-    return item.kindCapability.withKindMetadata(metadata);
+    return item.kindCapability.withKindData(metadata);
   });
 }

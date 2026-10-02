@@ -54,37 +54,12 @@ CatalogSearchCandidate? buildAnimeManualCandidate(
     'region': _nullable(release.region),
     'release_date': release.releaseDate?.toIso8601String(),
     'variant': _nullable(release.variant),
-    'editions': release.title.trim().isEmpty
-        ? const <Map<String, dynamic>>[]
-        : [
-            {
-              'id': '$id-release',
-              'title': release.title.trim(),
-              'format': _nullable(release.format),
-              'physical_format': _nullable(release.format),
-              'physical_format_label': _nullable(release.format),
-              'region': _nullable(release.region),
-              'language': _nullable(release.language),
-              'release_date': release.releaseDate?.toIso8601String(),
-              'publisher': _nullable(release.publisher),
-              'distributor': _nullable(release.distributor),
-              'upc': _nullable(release.barcode),
-              'metadata': {
-                'media_count': release.mediaCount,
-                'audio_tracks': release.audioTracks,
-                'subtitles': release.subtitles,
-                'description': _nullable(release.description),
-                'cover_image_url': _nullable(release.coverImageUrl),
-                'variant': _nullable(release.variant),
-              },
-            },
-          ],
   });
 
   return CatalogSearchCandidate.fromItem(
     CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.anime),
-      kindMetadata: metadata,
+      kindData: metadata,
     ),
   );
 }
@@ -105,8 +80,6 @@ Map<String, Object?>? buildAnimeManualProposalData(
   final candidate = buildAnimeManualCandidate(draft, title: title);
   if (candidate == null) return null;
   return candidate.kindCapability.mapTransport(
-    (item) => Map<String, Object?>.from(
-      (item.kindMetadata as AnimeMetadata).toJson(),
-    ),
+    (item) => Map<String, Object?>.from(item.kindData),
   );
 }

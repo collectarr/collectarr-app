@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_collection_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
 
 export 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
-export 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+export 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
 export 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
-export 'package:collectarr_app/features/library/kinds/book/data/local/book_owned_item_local_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/book/data/local/book_collection_item_local_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
@@ -18,7 +18,7 @@ export 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 
 final class BookPersonalOverlay {
   const BookPersonalOverlay({
-    this.ownedItem,
+    this.collectionItem,
     this.trackingSummary,
     this.wishlistItem,
     this.locationPath,
@@ -27,8 +27,8 @@ final class BookPersonalOverlay {
 
   factory BookPersonalOverlay.fromShelf(LibraryWorkspaceSource source) {
     return BookPersonalOverlay(
-      ownedItem: BookOwnedItemProjection.fromDispatch(
-        source.ownedItemDispatch,
+      collectionItem: BookCollectionItemProjection.fromDispatch(
+        source.collectionItemDispatch,
       ),
       trackingSummary: source.trackingSummary,
       wishlistItem: source.wishlistItem,
@@ -37,7 +37,7 @@ final class BookPersonalOverlay {
     );
   }
 
-  final BookOwnedItem? ownedItem;
+  final BookCollectionItem? collectionItem;
   final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final String? locationPath;

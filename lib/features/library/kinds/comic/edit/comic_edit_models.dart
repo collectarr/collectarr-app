@@ -188,12 +188,12 @@ LibraryEditSelection applyComicSelectionEdits(
   final characterNames = characterDetails
       .map((character) => character['name']!.toString())
       .toList(growable: false);
-  final current = selection.kindItem.kindCapability
-          .mapTransport((transport) => transport)
-          .kindMetadata is ComicCatalogItem
-      ? selection.kindItem.kindCapability
-          .mapTransport((transport) => transport)
-          .kindMetadata as ComicCatalogItem
+  final current = selection.kindItem.kindCapability.mapTransport(
+              (transport) => ComicCatalogItem.fromJson(transport.kindData))
+          is ComicCatalogItem
+      ? selection.kindItem.kindCapability.mapTransport(
+              (transport) => ComicCatalogItem.fromJson(transport.kindData))
+          as ComicCatalogItem
       : ComicCatalogItem.fromJson(selection.kindItem.kindCapability
           .mapTransport((transport) => transport)
           .payload);
@@ -224,7 +224,7 @@ LibraryEditSelection applyComicSelectionEdits(
 
   final updatedItem = selection.kindItem.kindCapability.mapTransport(
     (transport) => CatalogSearchCandidate.fromItem(
-      transport.withKindMetadata(updatedMetadata),
+      transport.withKindData(updatedMetadata),
     ),
   );
   return selection.copyWith(kindItem: updatedItem);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
@@ -9,7 +9,7 @@ export 'package:collectarr_app/features/library/workspace/schema/library_identif
 export 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 export 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
-typedef LibraryOwnedGroupBucketValueMutator = UpdateOwnedItemCommand? Function(
+typedef LibraryOwnedGroupBucketValueMutator = UpdateCollectionItemCommand? Function(
   Object item,
   String currentLabel, {
   String? replacement,

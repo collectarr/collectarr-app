@@ -1,11 +1,7 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:drift/drift.dart';
@@ -13,26 +9,24 @@ import 'package:drift/drift.dart';
 final class ComicLocalMapper {
   const ComicLocalMapper._();
 
-  static ComicOwnedItemsRowsCompanion toOwnedItemRow(ComicOwnedItem item) {
+  static ComicCollectionItemsRowsCompanion toCollectionItemRow(ComicCollectionItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.comic) {
-      throw StateError('Cannot persist an invalid ComicOwnedItem');
+      throw StateError('Cannot persist an invalid ComicCollectionItem');
     }
 
     final details = item.details;
-    return ComicOwnedItemsRowsCompanion.insert(
+    return ComicCollectionItemsRowsCompanion.insert(
       id: item.id.value,
       itemId: item.itemId,
       createdAt: Value(item.createdAt),
       isDigital: Value(item.isDigital),
-      targetRefJson: Value(_encodeTargetRef(item.targetRef)),
       condition: Value(item.condition),
       grade: Value(item.grade),
       purchaseDate: Value(item.purchaseDate),
       pricePaidCents: Value(item.pricePaidCents),
       currency: Value(item.currency),
       personalNotes: Value(item.personalNotes),
-      quantity: Value(item.quantity),
       indexNumber: Value(item.indexNumber),
       tags: Value(item.tags),
       updatedAt: item.updatedAt,
@@ -63,28 +57,26 @@ final class ComicLocalMapper {
     );
   }
 
-  static ComicOwnedItem fromOwnedItemRow(
-    ComicOwnedItemsRow row, {
+  static ComicCollectionItem fromCollectionItemRow(
+    ComicCollectionItemsRow row, {
     ComicReadingState reading = const ComicReadingState(),
   }) {
     final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.catalogItem,
       id: row.itemId,
     );
-    return ComicOwnedItem(
-      id: ComicOwnedCopyId(row.id),
+    return ComicCollectionItem(
+      id: CollectionItemId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
-      targetRef: _decodeTargetRef(row.targetRefJson),
       condition: row.condition,
       grade: row.grade,
       purchaseDate: row.purchaseDate,
       pricePaidCents: row.pricePaidCents,
       currency: row.currency,
       personalNotes: row.personalNotes,
-      quantity: row.quantity,
       indexNumber: row.indexNumber,
       tags: row.tags,
       updatedAt: row.updatedAt,
@@ -118,12 +110,11 @@ final class ComicLocalMapper {
     );
   }
 
-  static ComicReadingRowsCompanion toReadingRow(ComicOwnedItem item) {
+  static ComicReadingRowsCompanion toReadingRow(ComicCollectionItem item) {
     return ComicReadingRowsCompanion.insert(
-      ownedRefKey: OwnedCopyRef(
+      collectionItemRefKey: CollectionItemRef(
         kind: CatalogMediaKind.comic,
-        itemId: item.catalogRef.rootScope.id,
-        id: OwnedCopyId(item.id.value),
+        id: CollectionItemId(item.id.value),
       ).key,
       rating: Value(item.reading.rating),
       status: Value(item.reading.status),
@@ -139,24 +130,6 @@ final class ComicLocalMapper {
       startedAt: row.startedAt,
       finishedAt: row.finishedAt,
     );
-  }
-
-  static String? _encodeTargetRef(CatalogEntityRef? targetRef) =>
-      targetRef == null ? null : jsonEncode(targetRef.toJson());
-
-  static CatalogEntityRef? _decodeTargetRef(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
-    final decoded = _decodeJson(raw);
-    if (decoded is! Map) return null;
-    return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
-  }
-
-  static dynamic _decodeJson(String raw) {
-    try {
-      return jsonDecode(raw);
-    } on FormatException {
-      return null;
-    }
   }
 
 }

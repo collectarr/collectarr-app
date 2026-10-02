@@ -96,3 +96,11 @@ abstract interface class CatalogWorkspaceDataEnricher {
     LibraryWorkspaceCatalogData data,
   );
 }
+
+/// Runs the kind-owned summary projection at the transport boundary.
+extension CatalogKindTransportSummary on CatalogKindTransportBoundary {
+  CatalogDisplaySummary summarizeTransport(CatalogItemDto item) {
+    final codec = this as CatalogKindTransportCodec<dynamic>;
+    return codec.summarize(codec.decode(item));
+  }
+}

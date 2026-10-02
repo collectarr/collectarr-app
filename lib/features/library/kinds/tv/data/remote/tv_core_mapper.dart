@@ -12,7 +12,6 @@ final class TvCoreMapper {
     if (item.mediaKind != CatalogMediaKind.tv) {
       throw StateError('TV Core mapping received ${item.kind} data');
     }
-    final payload = catalogPayloadWithoutSnapshotVersion(item.toSyncPayload());
-    return TvSeries.fromJson(payload);
+    return TvSeries.fromJson(catalogTransportPayloadFor(item));
   }
 }

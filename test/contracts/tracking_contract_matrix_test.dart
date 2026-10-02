@@ -94,7 +94,7 @@ void _defineTrackingStateContract(
           : CatalogEntityRef(
               id: '$name-work-1',
               kind: kind,
-              entityType: const CatalogEntityTypeId('work'),
+              entityType: CatalogEntityTypeId.catalogItem,
             ),
       status: MediaTrackingStatus.inProgress,
       rating: 8,

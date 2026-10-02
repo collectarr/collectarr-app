@@ -14,12 +14,9 @@ final class MangaWorkspaceCatalogData
   });
 
   factory MangaWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
-    final rawMetadata = item.kindMetadata;
     return MangaWorkspaceCatalogData(
       ref: item.catalogRef,
-      metadata: rawMetadata is MangaMetadata
-          ? rawMetadata
-          : MangaMetadata.fromJson(item.toSyncPayload()),
+      metadata: MangaMetadata.fromJson(item.payload),
       catalogReleaseDate: item.releaseDate,
     );
   }

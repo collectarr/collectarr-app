@@ -73,7 +73,7 @@ void main() {
         id: 'game-1',
         mediaKind: CatalogMediaKind.game,
       ),
-      kindMetadata: metadata,
+      kindData: metadata,
     );
     final catalogItem = GameCatalogMapper.mapMetadataItemToGame(catalogDto);
     final dto = GameWorkspaceDto(

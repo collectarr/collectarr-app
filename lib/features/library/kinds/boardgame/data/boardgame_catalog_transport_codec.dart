@@ -24,13 +24,8 @@ final class BoardGameCatalogTransportCodec
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
 
   @override
-  BoardGameCatalogItem decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is BoardGameMetadata) {
-      return BoardGameCatalogItem(item: item, metadata: metadata);
-    }
-    return BoardGameCatalogMapper.mapMetadataItemToBoardGame(item);
-  }
+  BoardGameCatalogItem decode(CatalogItemDto item) =>
+      BoardGameCatalogMapper.mapMetadataItemToBoardGame(item);
 
   @override
   Future<void> upsert(LocalDatabase db, BoardGameCatalogItem item) {

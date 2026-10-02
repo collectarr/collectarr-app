@@ -92,10 +92,8 @@ final class TvReleaseMediaEditController {
     final episodes = flattenTvEpisodes(series);
     final discCount =
         (initialDiscCount ?? episodes.length).clamp(1, 20).toInt();
-    final meta = item.kindMetadata;
-    final formatLabel = meta is TvSeriesMetadata
-        ? (meta.physicalFormatLabel ?? meta.physicalFormat)
-        : null;
+    final meta = TvSeriesMetadata.fromJson(item.payload);
+    final formatLabel = meta.physicalFormatLabel ?? meta.physicalFormat;
     if (discCount == 1) {
       return [
         TvReleaseMedia(

@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:drift/native.dart';
@@ -43,30 +44,24 @@ void main() {
     expect(await repository.getTracking(tracking.id!), isNull);
   });
 
-  test('AnimeLocalMapper round-trips the complete owned copy', () async {
+  test('AnimeLocalMapper round-trips the complete collection item', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final item = AnimeOwnedItem(
-      id: const AnimeOwnedCopyId('owned-anime-1'),
+    final item = AnimeCollectionItem(
+      id: const CollectionItemId('owned-anime-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'anime-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),
       isDigital: false,
-      targetRef: const CatalogEntityRef(
-        kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityTypeId('edition'),
-        id: 'release-1',
-      ),
       condition: 'Near Mint',
       grade: '9.5',
       purchaseDate: DateTime.utc(2026, 4, 2),
       pricePaidCents: 3999,
       currency: 'EUR',
       personalNotes: 'Limited pressing',
-      quantity: 2,
       indexNumber: 3,
       tags: 'favorite,limited',
       updatedAt: DateTime.utc(2026, 4, 3),
@@ -87,26 +82,22 @@ void main() {
       ),
     );
 
-    await db.into(db.animeOwnedItemsRows).insert(
-          AnimeLocalMapper.toOwnedItemRow(item),
+    await db.into(db.animeCollectionItemsRows).insert(
+          AnimeLocalMapper.toCollectionItemRow(item),
         );
-    final row = await db.select(db.animeOwnedItemsRows).getSingle();
-    final restored = AnimeLocalMapper.fromOwnedItemRow(row);
+    final row = await db.select(db.animeCollectionItemsRows).getSingle();
+    final restored = AnimeLocalMapper.fromCollectionItemRow(row);
 
-    expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
     expect(restored.isDigital, false);
-    expect(restored.targetRef?.entityType.apiValue, 'edition');
-    expect(restored.targetRef?.id, 'release-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);
     expect(restored.pricePaidCents, item.pricePaidCents);
     expect(restored.currency, item.currency);
     expect(restored.personalNotes, item.personalNotes);
-    expect(restored.quantity, item.quantity);
     expect(restored.indexNumber, item.indexNumber);
     expect(restored.tags, item.tags);
     expect(restored.updatedAt.toUtc(), item.updatedAt);
@@ -121,12 +112,12 @@ void main() {
 
   test('Anime local mapper requires persisted identities', () {
     expect(
-      () => AnimeLocalMapper.toOwnedItemRow(
-        AnimeOwnedItem(
-          id: const AnimeOwnedCopyId(''),
+      () => AnimeLocalMapper.toCollectionItemRow(
+        AnimeCollectionItem(
+          id: const CollectionItemId(''),
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.anime,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
             id: 'anime-1',
           ),
           updatedAt: DateTime.utc(2026, 1, 1),

@@ -147,7 +147,7 @@ final comicKindActions = const LibraryEntityActionCapability(
   release: LibraryEntityActionSet.release,
   copy: LibraryEntityActionSet.copy,
   semanticActions: {
-    LibraryEntityScope.work: [
+    LibraryEntityScope.catalogItem: [
       LibraryEntitySemanticActionDefinition(
         id: 'comic.missing_issues',
         label: 'Missing issues',
@@ -162,12 +162,12 @@ final comicKindInspector = LibraryInspectorCapability(
   entityRegistry: LibraryEntityInspectorRegistry(
     contributors: [
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
+        scope: LibraryEntityScope.catalogItem,
         heroBuilder: buildComicWorkInspectorHero,
         sectionsBuilder: buildComicWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
+        scope: LibraryEntityScope.collectionItem,
         heroBuilder: buildComicCopyInspectorHero,
         sectionsBuilder: buildComicCopyInspectorSections,
       ),

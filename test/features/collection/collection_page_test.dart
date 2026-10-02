@@ -43,7 +43,7 @@ void main() {
           ),
         );
     await ComicOwnedRepository(db).upsert(
-      testComicOwnedItemFrom(testOwnedItem(
+      testComicCollectionItemFrom(testCollectionItem(
         id: 'owned-1',
         itemId: 'comic-1',
         kind: 'comic',
@@ -52,7 +52,6 @@ void main() {
         pricePaidCents: 1299,
         currency: 'USD',
         personalNotes: 'Signed copy',
-        quantity: 2,
         locationId: 'loc-box-6',
         keyComic: true,
         readStatus: 'read',
@@ -80,7 +79,7 @@ void main() {
 
     expect(find.text('Shelf'), findsOneWidget);
     expect(find.text('Owned'), findsWidgets);
-    expect(find.text('Quantity'), findsOneWidget);
+    expect(find.text('Quantity'), findsNothing);
     expect(find.text('2'), findsWidgets);
     expect(find.text('Wishlist'), findsWidgets);
     expect(find.text('USD 12.99'), findsWidgets);
@@ -131,7 +130,7 @@ void main() {
       }),
     ]);
     await ComicOwnedRepository(db).upsert(
-      testComicOwnedItemFrom(testOwnedItem(
+      testComicCollectionItemFrom(testCollectionItem(
         id: 'owned-1',
         itemId: 'comic-1',
         kind: 'comic',
@@ -139,7 +138,6 @@ void main() {
         grade: '9.8',
         pricePaidCents: 1299,
         currency: 'USD',
-        quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 11),
       )),
     );

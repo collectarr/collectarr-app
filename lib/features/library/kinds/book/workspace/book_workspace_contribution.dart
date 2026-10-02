@@ -3,18 +3,18 @@ import '../config/book_kind_capabilities.dart';
 
 final bookKindWorkspace = TypedLibraryKindWorkspace<BookWorkspaceDto>(
   entityWorkspaces: {
-    LibraryEntityScope.work: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
-      scope: LibraryEntityScope.work,
+    LibraryEntityScope.catalogItem: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
+      scope: LibraryEntityScope.catalogItem,
       fields: bookCatalogItemWorkspaceSchema.toRegistry(),
       projector: const BookWorkspaceProjector(
-        expectedScope: LibraryEntityScope.work,
+        expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
-      scope: LibraryEntityScope.copy,
+    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
+      scope: LibraryEntityScope.collectionItem,
       fields: bookCopyWorkspaceSchema.toRegistry(),
       projector: const BookWorkspaceProjector(
-        expectedScope: LibraryEntityScope.copy,
+        expectedScope: LibraryEntityScope.collectionItem,
       ),
     ),
   },

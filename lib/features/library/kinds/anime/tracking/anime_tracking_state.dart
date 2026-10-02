@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
@@ -53,7 +53,7 @@ final class AnimeTrackingState extends PersonalTrackingBase
     required this.id,
     required this.catalogRef,
     required this.coordinates,
-    this.ownedRef,
+    this.collectionItemRef,
     Object? sourceType,
     super.status,
     super.rating,
@@ -75,7 +75,7 @@ final class AnimeTrackingState extends PersonalTrackingBase
   @override
   final CatalogEntityRef catalogRef;
   @override
-  final OwnedCopyRef? ownedRef;
+  final CollectionItemRef? collectionItemRef;
   @override
   final TrackingSourceType? sourceType;
   @override
@@ -97,7 +97,7 @@ final class AnimeTrackingState extends PersonalTrackingBase
   AnimeTrackingState copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingStorageUnset,
+    Object? collectionItemRef = trackingStorageUnset,
     Object? sourceType = trackingStorageUnset,
     Object? status = trackingStorageUnset,
     Object? rating = trackingStorageUnset,
@@ -114,9 +114,9 @@ final class AnimeTrackingState extends PersonalTrackingBase
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
       coordinates: coordinates,
-      ownedRef: identical(ownedRef, trackingStorageUnset)
-          ? this.ownedRef
-          : ownedRef as OwnedCopyRef?,
+      collectionItemRef: identical(collectionItemRef, trackingStorageUnset)
+          ? this.collectionItemRef
+          : collectionItemRef as CollectionItemRef?,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,
@@ -161,7 +161,7 @@ final class AnimeTrackingState extends PersonalTrackingBase
   AnimeTrackingState copyWithCoordinates({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingStorageUnset,
+    Object? collectionItemRef = trackingStorageUnset,
     Object? sourceType = trackingStorageUnset,
     Object? status = trackingStorageUnset,
     Object? rating = trackingStorageUnset,
@@ -189,9 +189,9 @@ final class AnimeTrackingState extends PersonalTrackingBase
             : (episodeNumber as num?)?.toDouble(),
         episodeRatings: episodeRatings ?? coordinates.episodeRatings,
       ),
-      ownedRef: identical(ownedRef, trackingStorageUnset)
-          ? this.ownedRef
-          : ownedRef as OwnedCopyRef?,
+      collectionItemRef: identical(collectionItemRef, trackingStorageUnset)
+          ? this.collectionItemRef
+          : collectionItemRef as CollectionItemRef?,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,

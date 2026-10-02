@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
@@ -265,7 +265,7 @@ abstract class LibraryMediaPresentationBuilder {
     required VoidCallback onBack,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedCopySummary> ownedCopies,
+    required List<CollectionItemSummary> ownedCopies,
     required List<WishlistItem> wishlistItems,
     required LibraryEntityWorkspaceProjector projector,
   }) =>

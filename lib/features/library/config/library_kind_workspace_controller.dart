@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
@@ -29,7 +29,7 @@ class LibraryKindWorkspaceController extends LibraryNoopBrowserDelegate {
     if (!canOpenItemDetailDrilldown(type, item)) {
       return;
     }
-    openItemDrilldown(item.node.workId);
+    openItemDrilldown(item.node.catalogItemId);
   }
 
   @override
@@ -42,7 +42,7 @@ class LibraryKindWorkspaceController extends LibraryNoopBrowserDelegate {
     required Color accent,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedCopySummary> allOwnedCopies,
+    required List<CollectionItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     if (!canOpenKindDrilldown(type, selectedItem)) {
@@ -50,7 +50,7 @@ class LibraryKindWorkspaceController extends LibraryNoopBrowserDelegate {
     }
     final drilldownState = itemDrilldownState;
     if (drilldownState == null ||
-        drilldownState.rootItemId != selectedItem.node.workId) {
+        drilldownState.rootItemId != selectedItem.node.catalogItemId) {
       return null;
     }
     return buildLibraryKindDrilldown(

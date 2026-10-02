@@ -1,15 +1,13 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   final kind = item.source.mediaKind;
@@ -38,10 +36,10 @@ List<TrackingSummary> libraryTrackingSummariesForItem(
   LibraryKindRegistration type,
   LibraryProjectionView item,
   Map<CatalogEntityRef, List<TrackingSummary>> summariesByRef, {
-  OwnedCopySummary? ownedItem,
+  CollectionItemSummary? collectionItem,
 }) {
   final targets = <CatalogEntityRef>[
-    if (ownedItem?.targetRef case final target?) target,
+    if (collectionItem?.catalogRef case final target?) target,
     if (libraryTrackingTargetForItem(type, item) case final target?) target,
     if (item.source.catalogRef case final target?) target,
   ];
@@ -54,13 +52,13 @@ List<TrackingSummary> libraryTrackingSummariesForItem(
   return const <TrackingSummary>[];
 }
 
-String? libraryOwnedReferenceLabel(
-  OwnedCopySummary? ownedItem, {
+String? libraryCollectionItemReferenceLabel(
+  CollectionItemSummary? collectionItem, {
   String? mediaType,
 }) {
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
   return _libraryReferenceLabel(
-    libraryTargetScopeForCatalogRef(ownedItem?.targetRef),
+    libraryTargetScopeForCatalogRef(collectionItem?.catalogRef),
     itemLabel:
         'Owned as ${labels.labelFor('item', fallback: 'Media').toLowerCase()}',
     editionLabel:
@@ -76,18 +74,10 @@ String? libraryWishlistReferenceLabel(
   WishlistItem? wishlistItem, {
   String? mediaType,
 }) {
+  if (wishlistItem == null) return null;
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
-  return _libraryReferenceLabel(
-    libraryTargetScopeForCatalogRef(wishlistItem?.catalogRef),
-    itemLabel:
-        'Wishlisted as ${labels.labelFor('item', fallback: 'Media').toLowerCase()}',
-    editionLabel:
-        'Wishlisted as ${labels.labelFor('edition', fallback: 'Edition').toLowerCase()}',
-    variantLabel:
-        'Wishlisted as ${labels.labelFor('variant', fallback: 'Physical release').toLowerCase()}',
-    bundleLabel:
-        'Wishlisted as ${labels.labelFor('bundle', fallback: 'Bundle').toLowerCase()}',
-  );
+  return 'Wishlisted as '
+      '${labels.labelFor('item', fallback: 'Media').toLowerCase()}';
 }
 
 /// Returns the kind-owned card projection consumed by shared workspace chrome.
@@ -148,28 +138,36 @@ List<String> libraryWorkspaceReferenceHierarchySegments({
   return segments;
 }
 
-OwnedCopyRef? resolveLibraryOwnedCopyRef(
+CollectionItemRef? resolveLibraryCollectionItemRef(
   LibraryProjectionView item,
-  OwnedCopySummary? ownedItem,
+  CollectionItemSummary? collectionItem,
 ) {
-  return ownedItem?.ref ?? item.source.ownedRef;
+  return collectionItem?.ref ?? item.source.collectionItemRef;
 }
 
-OwnedCopyRef? resolveLibraryOwnedSummaryRef(
+CollectionItemRef? resolveLibraryCollectionItemSummaryRef(
   LibraryProjectionView item,
-  OwnedCopySummary? ownedItem,
+  CollectionItemSummary? collectionItem,
 ) {
-  return ownedItem?.ref ?? item.source.ownedRef;
+  return collectionItem?.ref ?? item.source.collectionItemRef;
 }
 
 CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
   LibraryProjectionView? item,
-  OwnedCopySummary? ownedItem,
+  CollectionItemSummary? collectionItem,
   WishlistItem? wishlistItem,
 }) {
-  final existingTarget = ownedItem?.targetRef ?? wishlistItem?.catalogRef;
-  if (existingTarget != null) {
-    return existingTarget;
+  final ownedTarget = collectionItem?.catalogRef;
+  if (ownedTarget != null) {
+    return ownedTarget;
+  }
+  final wishlistTarget = wishlistItem?.catalogRef;
+  if (wishlistTarget != null) {
+    return CatalogEntityRef(
+      kind: wishlistTarget.kind,
+      entityType: CatalogEntityTypeId.catalogItem,
+      id: wishlistTarget.id,
+    );
   }
   final releaseNode = item?.node is LibraryReleaseRef
       ? (item!.node as LibraryReleaseRef)
@@ -204,59 +202,59 @@ LibraryCatalogTargetLevel? libraryTargetScopeForCatalogRef(
 
 TrackingSummary? resolveActiveTrackingSummary(
   List<TrackingSummary> entries,
-  OwnedCopySummary? activeOwnedItem,
+  CollectionItemSummary? activeCollectionItem,
 ) {
   if (entries.isEmpty) {
     return null;
   }
-  if (activeOwnedItem != null) {
+  if (activeCollectionItem != null) {
     for (final entry in entries) {
-      if (entry.ownedRef == activeOwnedItem.ref) {
+      if (entry.collectionItemRef == activeCollectionItem.ref) {
         return entry;
       }
     }
   }
   for (final entry in entries) {
-    if (entry.ownedRef == null) {
+    if (entry.collectionItemRef == null) {
       return entry;
     }
   }
   return entries.first;
 }
 
-class LibraryOwnedSummaryResolution {
-  const LibraryOwnedSummaryResolution({
-    required this.ownedItem,
-    this.nextSelectedOwnedCopyRef,
+class LibraryCollectionItemSummaryResolution {
+  const LibraryCollectionItemSummaryResolution({
+    required this.collectionItem,
+    this.nextSelectedCollectionItemRef,
     this.clearNewest = false,
   });
 
-  final OwnedCopySummary? ownedItem;
-  final OwnedCopyRef? nextSelectedOwnedCopyRef;
+  final CollectionItemSummary? collectionItem;
+  final CollectionItemRef? nextSelectedCollectionItemRef;
   final bool clearNewest;
 }
 
-LibraryOwnedSummaryResolution resolveActiveOwnedSummary(
-  List<OwnedCopySummary> ownedCopies, {
-  OwnedCopySummary? fallback,
-  OwnedCopyRef? selectedOwnedCopyRef,
+LibraryCollectionItemSummaryResolution resolveActiveCollectionItemSummary(
+  List<CollectionItemSummary> ownedCopies, {
+  CollectionItemSummary? fallback,
+  CollectionItemRef? selectedCollectionItemRef,
   bool selectNewest = false,
 }) {
   if (ownedCopies.isEmpty) {
-    return LibraryOwnedSummaryResolution(ownedItem: fallback);
+    return LibraryCollectionItemSummaryResolution(collectionItem: fallback);
   }
   if (selectNewest) {
     final newest = ownedCopies.first;
-    return LibraryOwnedSummaryResolution(
-      ownedItem: newest,
-      nextSelectedOwnedCopyRef: newest.ref,
+    return LibraryCollectionItemSummaryResolution(
+      collectionItem: newest,
+      nextSelectedCollectionItemRef: newest.ref,
       clearNewest: true,
     );
   }
-  if (selectedOwnedCopyRef != null) {
+  if (selectedCollectionItemRef != null) {
     for (final item in ownedCopies) {
-      if (item.ref == selectedOwnedCopyRef) {
-        return LibraryOwnedSummaryResolution(ownedItem: item);
+      if (item.ref == selectedCollectionItemRef) {
+        return LibraryCollectionItemSummaryResolution(collectionItem: item);
       }
     }
   }
@@ -266,20 +264,16 @@ LibraryOwnedSummaryResolution resolveActiveOwnedSummary(
           (item) => item.ref == fallback.ref,
           orElse: () => ownedCopies.first,
         );
-  return LibraryOwnedSummaryResolution(
-    ownedItem: resolved,
-    nextSelectedOwnedCopyRef: resolved.ref,
+  return LibraryCollectionItemSummaryResolution(
+    collectionItem: resolved,
+    nextSelectedCollectionItemRef: resolved.ref,
   );
 }
 
-String buildOwnedCopySummaryLabel(OwnedCopySummary item, int index) {
+String buildCollectionItemSummaryLabel(CollectionItemSummary item, int index) {
   final parts = <String>[
     item.isDigital == true ? 'Digital copy' : 'Copy ${index + 1}',
   ];
-  final quantity = item.quantity;
-  if (quantity > 1) {
-    parts.add('Qty $quantity');
-  }
   final location = item.locationLabel?.trim();
   if (location != null && location.isNotEmpty) {
     parts.add(location);
@@ -326,8 +320,8 @@ String? _preferredReleaseVariantId(LibraryWorkspaceReleaseSummary release) {
   return release.variants.isEmpty ? null : release.variants.first.id;
 }
 
-String? buildOwnedCopyLabel(
-  OwnedCopySummary? item,
+String? buildCollectionItemLabel(
+  CollectionItemSummary? item,
   int index, {
   String? collectionValue,
 }) {
@@ -347,13 +341,6 @@ String? buildOwnedCopyLabel(
 String? _normalizedEntryAnchorId(String? value) {
   final trimmed = value?.trim();
   return trimmed == null || trimmed.isEmpty ? null : trimmed;
-}
-
-Set<CatalogEntityRef> watchWishlistRefs(WidgetRef ref) {
-  return ref.watch(wishlistRefsProvider).maybeWhen(
-        data: (ids) => ids,
-        orElse: () => const <CatalogEntityRef>{},
-      );
 }
 
 String formatMoney(int? cents, String? currency) {

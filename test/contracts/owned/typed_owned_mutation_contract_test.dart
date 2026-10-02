@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_collection_item_create_payload.dart';
 
 void main() {
   test('collection add writes every active kind to its typed owned table',
@@ -37,13 +37,12 @@ void main() {
     for (final kind in kinds) {
       final rootRef = CatalogEntityRef(
         kind: kind,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'contract-owned-${kind.apiValue}',
       );
-      await coordinator.addOwnedItem(
-        typedAddOwnedItemCommand(
+      await coordinator.addCollectionItem(
+        typedAddCollectionItemCommand(
           catalogRef: rootRef,
-          targetRef: rootRef,
           common: const LibraryAddCommonDraft(
             condition: 'Good',
           ),
@@ -51,7 +50,7 @@ void main() {
               .createInitialDraft()
               .toOwnedDetailsDraft(),
           typedPayload: kind == CatalogMediaKind.music
-              ? MusicOwnedItemCreatePayload(
+              ? MusicCollectionItemCreatePayload(
                   catalogRef: rootRef,
                   details: const MusicOwnedDetailsDraft(),
                 )
@@ -60,14 +59,15 @@ void main() {
       );
     }
 
-    expect(await db.select(db.comicOwnedItemsRows).get(), hasLength(1));
-    expect(await db.select(db.mangaOwnedItemsRows).get(), hasLength(1));
-    expect(await db.select(db.bookOwnedItemsRows).get(), hasLength(1));
-    expect(await db.select(db.gameOwnedItemsRows).get(), hasLength(1));
-    expect(await db.select(db.boardGameOwnedItemsRows).get(), hasLength(1));
-    expect(await db.select(db.movieOwnedItemsRows).get(), hasLength(1));
-    expect(await db.select(db.tvOwnedItemsRows).get(), hasLength(1));
-    expect(await db.select(db.animeOwnedItemsRows).get(), hasLength(1));
-    expect(await db.select(db.musicOwnedItemsRows).get(), hasLength(1));
+    expect(await db.select(db.comicCollectionItemsRows).get(), hasLength(1));
+    expect(await db.select(db.mangaCollectionItemsRows).get(), hasLength(1));
+    expect(await db.select(db.bookCollectionItemsRows).get(), hasLength(1));
+    expect(await db.select(db.gameCollectionItemsRows).get(), hasLength(1));
+    expect(
+        await db.select(db.boardGameCollectionItemsRows).get(), hasLength(1));
+    expect(await db.select(db.movieCollectionItemsRows).get(), hasLength(1));
+    expect(await db.select(db.tvCollectionItemsRows).get(), hasLength(1));
+    expect(await db.select(db.animeCollectionItemsRows).get(), hasLength(1));
+    expect(await db.select(db.musicCollectionItemsRows).get(), hasLength(1));
   });
 }

@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/sync/data/sync_retry_mapper.dart';
 import 'package:drift/native.dart';
@@ -17,11 +18,11 @@ void main() {
     final repository = ComicOwnedRepository(db);
     final updatedAt = DateTime.utc(2026, 5, 12, 8);
     await repository.upsert(
-      ComicOwnedItem(
-        id: ComicOwnedCopyId('owned-retry'),
+      ComicCollectionItem(
+        id: CollectionItemId('owned-retry'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'comic-retry',
         ),
         condition: 'Near Mint',
@@ -32,13 +33,13 @@ void main() {
 
     final retry = await SyncRetryMapper.localRetryChange(
       const SyncRejectedChange(
-        entityType: 'owned_item',
+        entityType: 'collection_item',
         entityId: 'owned-retry',
         reason: 'conflict',
         localPayload: {
           'catalog_ref': {
             'kind': 'comic',
-            'entity_type': 'work',
+            'entity_type': 'catalog_item',
             'id': 'comic-retry',
           },
         },
@@ -52,7 +53,7 @@ void main() {
     expect(retry?.entityId, 'owned-retry');
     expect(retry?.payload['catalog_ref'], {
       'kind': 'comic',
-      'entity_type': 'work',
+      'entity_type': 'catalog_item',
       'id': 'comic-retry',
     });
     expect(retry?.payload['condition'], 'Near Mint');
@@ -65,11 +66,11 @@ void main() {
     addTearDown(db.close);
     final repository = ComicOwnedRepository(db);
     await repository.upsert(
-      ComicOwnedItem(
-        id: ComicOwnedCopyId('owned-deleted-retry'),
+      ComicCollectionItem(
+        id: CollectionItemId('owned-deleted-retry'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'comic-deleted-retry',
         ),
         updatedAt: DateTime.utc(2026, 5, 12, 8),
@@ -79,13 +80,13 @@ void main() {
 
     final retry = await SyncRetryMapper.localRetryChange(
       const SyncRejectedChange(
-        entityType: 'owned_item',
+        entityType: 'collection_item',
         entityId: 'owned-deleted-retry',
         reason: 'conflict',
         localPayload: {
           'catalog_ref': {
             'kind': 'comic',
-            'entity_type': 'work',
+            'entity_type': 'catalog_item',
             'id': 'comic-deleted-retry',
           },
         },
@@ -104,11 +105,11 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     await ComicOwnedRepository(db).upsert(
-      ComicOwnedItem(
-        id: ComicOwnedCopyId('owned-untyped-retry'),
+      ComicCollectionItem(
+        id: CollectionItemId('owned-untyped-retry'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'comic-untyped-retry',
         ),
         updatedAt: DateTime.utc(2026, 5, 12, 8),
@@ -118,7 +119,7 @@ void main() {
 
     final retry = await SyncRetryMapper.localRetryChange(
       const SyncRejectedChange(
-        entityType: 'owned_item',
+        entityType: 'collection_item',
         entityId: 'owned-untyped-retry',
         reason: 'conflict',
       ),

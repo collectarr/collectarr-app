@@ -72,7 +72,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final kind = item.source.mediaKind;
     final registration = libraryKindRegistrationForKind(kind);
     final targetParts = libraryCatalogTargetForKind(registration.kind).parts(
-      item.source.ownedSummary?.targetRef,
+      item.source.collectionItemSummary?.catalogRef,
     );
     final rawEditions = libraryPresentationForKind(registration.kind)
         .builder
@@ -95,7 +95,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
       coverFocused: coverFocused,
     );
 
-    final strongSelection = selected && item.node is! LibraryWorkRef;
+    final strongSelection = selected && item.node is! LibraryCatalogItemNodeRef;
     final coverCacheWidth = _targetCacheWidth(context);
 
     if (cardLayout == LibraryCardLayout.vertical) {
@@ -210,7 +210,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 gradeLabel: gradeLabel,
                                 slabLabel: _coverSlabLabel(presentation),
                                 notesLabel: libraryNotesMarkerLabel(
-                                    item.source.ownedSummary?.notes),
+                                    item.source.collectionItemSummary?.notes),
                               ),
                             ),
                           ],
@@ -245,7 +245,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               [
-                                if (item.node is! LibraryWorkRef &&
+                                if (item.node is! LibraryCatalogItemNodeRef &&
                                     presentation.variant != null &&
                                     presentation.variant!.isNotEmpty)
                                   presentation.variant,
@@ -299,8 +299,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: badge.label,
                                     accentColor: accentColor,
                                   ),
-                                if (_compactNotesLabel(
-                                        item.source.ownedSummary?.notes)
+                                if (_compactNotesLabel(item
+                                        .source.collectionItemSummary?.notes)
                                     case final noteLabel?)
                                   LibraryCompactMetaPill(
                                     icon: Icons.sticky_note_2_outlined,
@@ -319,13 +319,16 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: item.source.locationPath!,
                                     accentColor: accentColor,
                                   ),
-                                if (item.source.ownedSummary?.pricePaidCents !=
+                                if (item.source.collectionItemSummary
+                                        ?.pricePaidCents !=
                                     null)
                                   LibraryCompactMetaPill(
                                     icon: Icons.attach_money,
                                     label: moneyFormatter(
-                                      item.source.ownedSummary!.pricePaidCents,
-                                      item.source.ownedSummary!.currency,
+                                      item.source.collectionItemSummary!
+                                          .pricePaidCents,
+                                      item.source.collectionItemSummary!
+                                          .currency,
                                     ),
                                     accentColor: accentColor,
                                   ),
@@ -338,7 +341,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               ],
                             ),
                             const Spacer(),
-                            if (item.node is! LibraryWorkRef) ...[
+                            if (item.node is! LibraryCatalogItemNodeRef) ...[
                               Builder(
                                 builder: (context) {
                                   final format = presentation.format;
@@ -426,7 +429,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final releaseDate = presentation.releaseDate;
     final format = presentation.format;
     final subtitle = [
-      if (item.node is! LibraryWorkRef && variant != null && variant.isNotEmpty)
+      if (item.node is! LibraryCatalogItemNodeRef &&
+          variant != null &&
+          variant.isNotEmpty)
         variant,
       if (releaseDate != null) dateFormatter(releaseDate),
       if (format != null && format.isNotEmpty) format,
@@ -498,7 +503,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 keyLabel: _coverKeyLabel(presentation),
                                 slabLabel: _coverSlabLabel(presentation),
                                 notesLabel: libraryNotesMarkerLabel(
-                                    item.source.ownedSummary?.notes),
+                                    item.source.collectionItemSummary?.notes),
                               ),
                             ),
                           ],
@@ -625,7 +630,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
       title: item.dto.primaryLabel,
       itemNumber: presentation.itemNumber,
       imageUrl: item.dto.imageUrl,
-      ownedRef: item.source.ownedRef,
+      collectionItemRef: item.source.collectionItemRef,
       targetCacheWidth: coverCacheWidth,
       fallbackAspectRatio: 1 /
           libraryViewProfileForKind(item.source.mediaKind)

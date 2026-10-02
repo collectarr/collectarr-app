@@ -11,49 +11,49 @@ abstract final class GameCatalogItemWorkspaceFields {
     id: GameFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final platform = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.platform,
     label: 'Platform',
     getValue: (dto) => dto.platform,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final developer = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.developer,
     label: 'Developer',
     getValue: (dto) => dto.developer,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final publisher = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final releaseDate = dateField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final barcode = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final edition = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.edition,
     label: 'Edition',
     getValue: (dto) => dto.edition,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final cover =
@@ -61,56 +61,56 @@ abstract final class GameCatalogItemWorkspaceFields {
     id: GameFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final franchise = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.franchise,
     label: 'Franchise',
     getValue: (dto) => dto.franchise,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final series = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.series,
     label: 'Series',
     getValue: (dto) => dto.seriesTitle,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final ageRating = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.ageRating,
     label: 'Age Rating',
     getValue: (dto) => dto.ageRating,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final loosePrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.loosePrice,
     label: 'Loose Price',
     getValue: (dto) => dto.loosePrice,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final cibPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.cibPrice,
     label: 'CIB Price',
     getValue: (dto) => dto.cibPrice,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final newPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.newPrice,
     label: 'New/Sealed Price',
     getValue: (dto) => dto.newPrice,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final gradedPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.gradedPrice,
     label: 'Graded Price',
     getValue: (dto) => dto.gradedPrice,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 
@@ -249,7 +249,7 @@ final gameCatalogItemWorkspaceColumnDefinitions = [
 final gameCatalogItemWorkspaceSchema =
   LibraryEntityWorkspaceSchema<GameKind, GameWorkspaceDto>(
   kindNamespace: 'game',
-  entityScope: LibraryEntityScope.work,
+  entityScope: LibraryEntityScope.catalogItem,
   fields: gameCatalogItemWorkspaceFieldDefinitions,
   columns: gameCatalogItemWorkspaceColumnDefinitions,
   sorts: gameCatalogItemWorkspaceSortDefinitions,

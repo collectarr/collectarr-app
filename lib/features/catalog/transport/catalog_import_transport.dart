@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 
 /// A schema-v1 catalog snapshot waiting to cross into catalog persistence.
 ///
@@ -22,7 +21,7 @@ final class CatalogImportTransport {
     return CatalogImportTransport(
       ref: item.catalogRef,
       payload: Map<String, dynamic>.unmodifiable(
-        catalogPayloadWithoutSnapshotVersion(item.toSyncPayload()),
+        item.toJson(),
       ),
     );
   }
@@ -42,12 +41,10 @@ final class CatalogImportTransport {
     return CatalogImportTransport(
       ref: CatalogEntityRef(
         kind: kind,
-        entityType: CatalogEntityTypeId.root,
+        entityType: CatalogEntityTypeId.catalogItem,
         id: id,
       ),
-      payload: Map<String, dynamic>.unmodifiable(
-        catalogPayloadWithoutSnapshotVersion(payload),
-      ),
+      payload: Map<String, dynamic>.unmodifiable(payload),
     );
   }
 
@@ -62,7 +59,7 @@ final class CatalogImportTransport {
     return CatalogImportTransport(
       ref: ref,
       payload: Map<String, dynamic>.unmodifiable({
-        ...catalogPayloadWithoutSnapshotVersion(nextPayload),
+        ...nextPayload,
         'id': ref.id,
         'kind': ref.kind.apiValue,
       }),
@@ -73,11 +70,9 @@ final class CatalogImportTransport {
   ///
   /// Callers must dispatch the result immediately to the owning kind codec;
   /// this method is not a generic catalog-domain accessor.
-  CatalogItemDto decodeItem() => CatalogItemDto.fromJson(
-        catalogPayloadWithoutSnapshotVersion({
-          ...payload,
-          'id': ref.id,
-          'kind': ref.kind.apiValue,
-        }),
-      );
+  CatalogItemDto decodeItem() => CatalogItemDto.fromJson({
+        ...payload,
+        'id': ref.id,
+        'kind': ref.kind.apiValue,
+      });
 }

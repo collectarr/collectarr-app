@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 
 abstract final class GameVocabularyIds {
@@ -58,8 +58,8 @@ abstract final class GameVocabularies {
     );
   }
 
-  static GameOwnedItem _replaceOwnedValue(
-    GameOwnedItem item,
+  static GameCollectionItem _replaceOwnedValue(
+    GameCollectionItem item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -95,7 +95,7 @@ abstract final class GameVocabularies {
   }
 
   static Iterable<String?> _ownedValues(
-    GameOwnedItem item,
+    GameCollectionItem item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

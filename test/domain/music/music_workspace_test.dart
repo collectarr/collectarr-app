@@ -20,7 +20,7 @@ void main() {
 
     final dto = const MusicCatalogItemWorkspaceProjector().project(
       source: source,
-      entity: const LibraryWorkRef(workId: 'album-1'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'album-1'),
     );
 
     expect(dto.title, 'The Wall');
@@ -77,7 +77,7 @@ void main() {
     final album = _album();
     final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.music,
-      entityType: CatalogEntityTypeId.root,
+      entityType: CatalogEntityTypeId.catalogItem,
       id: album.id.value,
     );
     final events = [
@@ -100,7 +100,7 @@ void main() {
 
     final dto = const MusicCatalogItemWorkspaceProjector().project(
       source: source,
-      entity: const LibraryWorkRef(workId: 'album-1'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'album-1'),
     );
 
     expect(dto.listenCount, 2);
@@ -118,7 +118,7 @@ LibraryWorkspaceSource _source(
         album,
         ref: CatalogEntityRef(
           kind: CatalogMediaKind.music,
-          entityType: CatalogEntityTypeId.root,
+          entityType: CatalogEntityTypeId.catalogItem,
           id: album.id.value,
         ),
         listeningSummary: listeningSummary,

@@ -1,16 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_collection_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dart';
 
-final comicOwnedContributor = TypedOwnedKindContributor<ComicOwnedItem>(
+final comicOwnedContributor = TypedOwnedKindContributor<ComicCollectionItem>(
   kind: CatalogMediaKind.comic,
   findById: (database, id) =>
-      ComicOwnedRepository(database).findById(ComicOwnedCopyId(id)),
+      ComicOwnedRepository(database).findById(CollectionItemId(id)),
   upsert: (database, item) => ComicOwnedRepository(database).upsert(item),
   listActive: (database) => ComicOwnedRepository(database).listActive(),
   createItem: ({
@@ -22,10 +23,10 @@ final comicOwnedContributor = TypedOwnedKindContributor<ComicOwnedItem>(
     required ownerUserId,
     required ownerLabel,
   }) {
-    if (payload is! ComicOwnedItemCreatePayload) {
+    if (payload is! ComicCollectionItemCreatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
-    return payload.toOwnedItem(
+    return payload.toCollectionItem(
       resolvedCatalogRef: resolvedCatalogRef,
       id: id,
       createdAt: createdAt,
@@ -41,7 +42,7 @@ final comicOwnedContributor = TypedOwnedKindContributor<ComicOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (payload is! ComicOwnedItemUpdatePayload) {
+    if (payload is! ComicCollectionItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {
@@ -55,9 +56,9 @@ final comicOwnedContributor = TypedOwnedKindContributor<ComicOwnedItem>(
     );
   },
   toJson: (item) => item.toJson().cast<String, Object?>(),
-  fromJson: ComicOwnedItem.fromJson,
-  summary: ComicOwnedItemProjection.toSummary,
-  createPayload: ComicOwnedItemCreatePayload.fromTypedItem,
+  fromJson: ComicCollectionItem.fromJson,
+  summary: ComicCollectionItemProjection.toSummary,
+  createPayload: ComicCollectionItemCreatePayload.fromTypedItem,
   itemId: (item) => item.id.value,
   markDeleted: (item, deletedAt) =>
       item.copyWith(deletedAt: deletedAt, updatedAt: deletedAt),

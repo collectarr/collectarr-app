@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
@@ -22,6 +24,16 @@ const List<CatalogKindTransportBoundary> libraryCatalogTransportCodecs = [
   MusicCatalogTransportCodec(),
   TvCatalogTransportCodec(),
 ];
+
+CatalogDisplaySummary summarizeCatalogTransport(CatalogItemDto item) {
+  final codec = libraryCatalogTransportCodecs.firstWhere(
+    (candidate) => candidate.kind == item.mediaKind,
+    orElse: () => throw StateError(
+      'No Catalog Item codec is registered for ${item.mediaKind.apiValue}.',
+    ),
+  );
+  return codec.summarizeTransport(item);
+}
 
 List<CatalogKindLookup> libraryCatalogLookups(LocalDatabase database) => [
       AnimeCatalogLookup(database),

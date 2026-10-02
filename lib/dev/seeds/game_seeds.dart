@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -7,12 +8,11 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_copy_id.dart';
 
-final gameDevSeedContributor = TypedDevSeedKindContributor<GameOwnedItem>(
+final gameDevSeedContributor = TypedDevSeedKindContributor<GameCollectionItem>(
   kind: CatalogMediaKind.game,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
@@ -30,11 +30,11 @@ final gameDevSeedContributor = TypedDevSeedKindContributor<GameOwnedItem>(
   validateCatalog: validateGameSeedCatalog,
   validateCatalogGraph: validateGameSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: gameSeedOwnedItems,
-  ownedSummaryTyped: GameOwnedItemProjection.toSummary,
+  collectionItemsTyped: gameSeedCollectionItems,
+  collectionItemSummaryTyped: GameCollectionItemProjection.toSummary,
   validateOwnedTyped: validateGameSeedOwned,
   seedOwnedTyped: (db, now) =>
-      GameOwnedRepository(db).upsertAll(gameSeedOwnedItems(now)),
+      GameOwnedRepository(db).upsertAll(gameSeedCollectionItems(now)),
   trackingRecords: gameSeedTrackingStates,
 );
 
@@ -84,7 +84,7 @@ List<String> validateGameSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateGameSeedOwned(GameOwnedItem item) {
+List<String> validateGameSeedOwned(GameCollectionItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
@@ -740,10 +740,10 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
     ];
 
-List<GameOwnedItem> gameSeedOwnedItems(DateTime now) => [
+List<GameCollectionItem> gameSeedCollectionItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.game, 15))
-        GameOwnedItem(
-          id: GameOwnedCopyId('seed-owned-$itemId'),
+        GameCollectionItem(
+          id: CollectionItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.game, itemId),
           createdAt: now.subtract(const Duration(days: 200)),
           updatedAt: now,
@@ -761,7 +761,6 @@ List<GameOwnedItem> gameSeedOwnedItems(DateTime now) => [
           pricePaidCents: 5999,
           currency: 'USD',
           personalNotes: 'Physical launch edition on disc.',
-          quantity: 1,
           purchaseStore: 'PlayStation Direct / Steam',
           collectionStatus: 'collected',
         ),
@@ -775,7 +774,7 @@ List<TrackingStorageRecord> gameSeedTrackingStates(DateTime now) => [
             CatalogMediaKind.game,
             'seed-game-${seedOrdinal2(i)}',
           ),
-          ownedRef: seedOwnedRef(
+          collectionItemRef: seedCollectionItemRef(
             CatalogMediaKind.game,
             'seed-owned-seed-game-${seedOrdinal2(i)}',
           ),

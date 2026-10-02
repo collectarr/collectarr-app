@@ -1,18 +1,18 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:flutter/foundation.dart';
 
 /// A completed listening event for a concrete Music Catalog Item.
 ///
 /// Listening history is App-owned activity. It targets the catalog item and
-/// can optionally record which owned copy was used.
+/// can optionally record which collection item was used.
 @immutable
 final class MusicListenEvent {
   const MusicListenEvent({
     required this.id,
     required this.catalogRef,
     required this.listenedAt,
-    this.ownedRef,
+    this.collectionItemRef,
     this.startedAt,
     this.finishedAt,
     this.location,
@@ -25,7 +25,7 @@ final class MusicListenEvent {
   final String id;
   final CatalogItemRef catalogRef;
   final DateTime listenedAt;
-  final OwnedCopyRef? ownedRef;
+  final CollectionItemRef? collectionItemRef;
   final DateTime? startedAt;
   final DateTime? finishedAt;
   final String? location;
@@ -40,7 +40,7 @@ final class MusicListenEvent {
         'id': id,
         'catalog_ref': catalogRef.toJson(),
         'listened_at': listenedAt.toIso8601String(),
-        if (ownedRef != null) 'owned_ref': ownedRef!.toJson(),
+        if (collectionItemRef != null) 'collection_item_ref': collectionItemRef!.toJson(),
         if (startedAt != null) 'started_at': startedAt!.toIso8601String(),
         if (finishedAt != null) 'finished_at': finishedAt!.toIso8601String(),
         if (location != null) 'location': location,
@@ -61,7 +61,7 @@ final class MusicListenEvent {
     if (rawCatalog is! Map) {
       throw const FormatException('MusicListenEvent requires catalog_ref');
     }
-    final rawOwned = json['owned_ref'];
+    final rawOwned = json['collection_item_ref'];
     return MusicListenEvent(
       id: (json['id'] as String?) ?? '',
       catalogRef: CatalogItemRef.fromJson(
@@ -70,8 +70,8 @@ final class MusicListenEvent {
       listenedAt: json['listened_at'] != null
           ? DateTime.parse(json['listened_at'] as String)
           : DateTime.now(),
-      ownedRef: rawOwned is Map
-          ? OwnedCopyRef.fromJson(Map<String, Object?>.from(rawOwned))
+      collectionItemRef: rawOwned is Map
+          ? CollectionItemRef.fromJson(Map<String, Object?>.from(rawOwned))
           : null,
       startedAt: _date(json['started_at']),
       finishedAt: _date(json['finished_at']),

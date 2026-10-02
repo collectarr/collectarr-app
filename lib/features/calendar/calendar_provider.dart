@@ -12,12 +12,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Provides all calendar events aggregated from collection data.
 final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   final db = ref.watch(localDatabaseProvider);
-  final ownedItems = await ref.watch(collectionSummariesProvider.future);
+  final collectionItems = await ref.watch(collectionSummariesProvider.future);
   final watchSessions = await ref.watch(watchSessionsProvider.future);
   final loans = await LoanRepository(db).getAllLoans();
 
   final catalogRefs = <CatalogEntityRef>{};
-  for (final item in ownedItems) {
+  for (final item in collectionItems) {
     if (item.catalogRef case final ref?) {
       catalogRefs.add(ref.rootScope);
     }
@@ -44,7 +44,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   }
 
   final universalCalendarContext = UniversalCalendarContext(
-    ownedItems: ownedItems,
+    collectionItems: collectionItems,
     loans: loans,
     watchSessions: watchSessions,
     titleForRef: titleFor,
@@ -55,7 +55,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
     events.addAll(await contributor.contribute(universalCalendarContext));
   }
 
-  // Resolve owned item → catalog item mapping.
+  // Resolve collection item → catalog item mapping.
   events.sort((a, b) => a.date.compareTo(b.date));
   return events;
 });

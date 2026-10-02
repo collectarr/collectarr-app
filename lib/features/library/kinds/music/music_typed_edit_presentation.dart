@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_header_title.dart';
 
-/// Presentation marker for Music's Catalog Item and Owned Copy editors.
+/// Presentation marker for Music's Catalog Item and Collection Item editors.
 ///
 /// Music never enters the generic draft renderer. The registry still carries
 /// the shared presentation slot because other library kinds use it.
@@ -37,14 +37,11 @@ final class MusicTypedEditPresentationBuilder
     required LibraryEditPresentationContext context,
   }) =>
       const LibraryEditPresentationState(
-        showsOwnershipReferenceSection: false,
         usesOwnedMainArtworkLayout: false,
         usesDetailsTab: false,
         usesArtworkCoverTab: false,
         usesArtworkPhotosTab: false,
         trackingSectionTitle: 'Tracking',
-        ownershipReferenceTitle: 'Ownership reference',
-        ownedBundleLabel: 'Owned copy',
       );
 }
 

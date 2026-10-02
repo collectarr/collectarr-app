@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_collection_item_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -71,7 +71,7 @@ Widget buildTvCatalogItemInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
+      collectionItem: request.collectionItem,
       ownedCopies: request.ownedCopies,
       accent: request.accent,
     );
@@ -83,9 +83,9 @@ Widget buildTvCopyInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
+      collectionItem: request.collectionItem,
       ownedCopies: [
-        if (request.ownedItem != null) request.ownedItem!,
+        if (request.collectionItem != null) request.collectionItem!,
       ],
       accent: request.accent,
     );
@@ -102,14 +102,14 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   final metadata = catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
   final catalogRef = CatalogEntityRef(
     kind: request.type.kind,
-    entityType: CatalogEntityTypeId.root,
+    entityType: CatalogEntityTypeId.catalogItem,
     id: item.source.itemId,
   );
 
   final tvLinks = metadata?.links ?? const <TrailerLinkDto>[];
 
-  final ownedItem =
-      TvOwnedItemProjection.fromDispatch(request.ownedItemDispatch);
+  final collectionItem =
+      TvCollectionItemProjection.fromDispatch(request.collectionItemDispatch);
   final tvDto = dto is TvWorkspaceDto ? dto : null;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Display title', value: dto.primaryLabel),
@@ -125,8 +125,8 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ),
     if (tvDto?.format?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Format', value: tvDto!.format!),
-    if (ownedItem?.condition?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Condition', value: ownedItem!.condition!),
+    if (collectionItem?.condition?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Condition', value: collectionItem!.condition!),
     if (tvLinks.isNotEmpty)
       LibraryDetailField(label: 'Trailers', value: tvLinks.length.toString()),
   ];
@@ -222,12 +222,12 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           catalogRef: catalogRef,
         ),
         if (includePersonalStatus &&
-            (request.ownedItem != null || request.trackingSummary != null))
+            (request.collectionItem != null || request.trackingSummary != null))
           InspectorPersonalStatusSection(
             type: request.type,
             item: request.item,
-            ownedItem: request.ownedItem,
-            ownedItemDispatch: request.ownedItemDispatch,
+            collectionItem: request.collectionItem,
+            collectionItemDispatch: request.collectionItemDispatch,
             trackingSummary: request.trackingSummary,
             accent: request.accent,
             onFilterByValue: request.onFilterByValue,

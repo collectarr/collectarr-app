@@ -27,7 +27,7 @@ void main() {
           itemNumber: '1',
           series: series,
         )),
-        ownedItem: testOwnedItem(itemId: 'issue-1'),
+        collectionItem: testCollectionItem(itemId: 'issue-1'),
       ),
       libraryKindRegistrationForKind(CatalogMediaKind.comic),
     );

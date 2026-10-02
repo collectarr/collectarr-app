@@ -1,21 +1,21 @@
 import '../game_module_dependencies.dart';
-import '../ownership/game_transfer_owned_item.dart';
+import '../ownership/game_transfer_collection_item.dart';
 
 final gameKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.work,
+      scope: LibraryEntityScope.catalogItem,
       builder: buildGameLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.copy,
+      scope: LibraryEntityScope.collectionItem,
       builder: buildGameLibraryEditDialog,
     ),
   ]),
   vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
   conditions: GameVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
-    GameOwnedItem item => item.grade,
+  ownedCollectionValueReader: (collectionItem) => switch (collectionItem?.value) {
+    GameCollectionItem item => item.grade,
     _ => null,
   },
   defaultCondition: 'Near Mint',
@@ -26,17 +26,17 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
   ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
   ownedFormatHintResolver: resolveGameOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-      GameOwnedItemUpdatePayload.partial(
+      GameCollectionItemUpdatePayload.partial(
     indexNumber: Patch.set(indexNumber),
   ),
   ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-      GameOwnedItemUpdatePayload.partial(
+      GameCollectionItemUpdatePayload.partial(
     condition: Patch.set(condition),
     grade: Patch.set(collectionValue),
   ),
   ownedBulkUpdatePayloadBuilder:
       (_, condition, collectionValue, locationId, tags) =>
-          GameOwnedItemUpdatePayload.partial(
+          GameCollectionItemUpdatePayload.partial(
     condition:
         condition == null ? const Patch.unchanged() : Patch.set(condition),
     grade: collectionValue == null
@@ -56,7 +56,7 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
     locationChanged,
     locationId,
   ) =>
-      GameOwnedItemUpdatePayload.partial(
+      GameCollectionItemUpdatePayload.partial(
     purchaseDate: Patch.set(purchaseDate),
     pricePaidCents: Patch.set(pricePaidCents),
     currency: Patch.set(currency),
@@ -66,8 +66,8 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
   ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = gameTransferOwnedItem(updated);
-    return GameOwnedItemUpdatePayload.partial(
+    final typed = gameTransferCollectionItem(updated);
+    return GameCollectionItemUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
       personalNotes: Patch.set(typed.personalNotes),
@@ -78,7 +78,6 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
       purchaseStore: Patch.set(typed.purchaseStore),
       pricePaidCents: Patch.set(typed.pricePaidCents),
       sellPriceCents: Patch.set(typed.sellPriceCents),
-      quantity: Patch.set(typed.quantity),
       indexNumber: Patch.set(typed.indexNumber),
       purchaseDate: Patch.set(typed.purchaseDate),
       soldAt: Patch.set(typed.soldAt),
@@ -90,7 +89,7 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
     );
   },
   ownedDetailsResetPayloadBuilder: () =>
-      GameOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+      GameCollectionItemUpdatePayload.partial(details: const Patch.clear()),
 );
 
 Iterable<String> getGameFacetValues(

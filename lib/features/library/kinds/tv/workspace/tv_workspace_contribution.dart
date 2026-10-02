@@ -3,18 +3,18 @@ import '../config/tv_kind_capabilities.dart';
 
 final tvKindWorkspace = TypedLibraryKindWorkspace<TvWorkspaceDto>(
   entityWorkspaces: {
-    LibraryEntityScope.work: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
-      scope: LibraryEntityScope.work,
+    LibraryEntityScope.catalogItem: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
+      scope: LibraryEntityScope.catalogItem,
       fields: tvWorkWorkspaceSchema.toRegistry(),
       projector: const TvWorkspaceProjector(
-        expectedScope: LibraryEntityScope.work,
+        expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
-      scope: LibraryEntityScope.copy,
+    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
+      scope: LibraryEntityScope.collectionItem,
       fields: tvCopyWorkspaceSchema.toRegistry(),
       projector: const TvWorkspaceProjector(
-        expectedScope: LibraryEntityScope.copy,
+        expectedScope: LibraryEntityScope.collectionItem,
       ),
     ),
   },

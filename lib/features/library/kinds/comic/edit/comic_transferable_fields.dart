@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:flutter/material.dart';
 
 /// Comic-owned transfer semantics stay typed until the generic transfer
@@ -13,7 +13,7 @@ final class ComicTransferableField {
     required this.type,
     required this.read,
     required this.write,
-    this.scope = LibraryEntityScope.copy,
+    this.scope = LibraryEntityScope.collectionItem,
   });
 
   final String key;
@@ -21,17 +21,17 @@ final class ComicTransferableField {
   final IconData icon;
   final TransferableFieldType type;
   final LibraryEntityScope scope;
-  final String? Function(ComicOwnedItem item) read;
-  final ComicOwnedItem Function(ComicOwnedItem item, String? value) write;
+  final String? Function(ComicCollectionItem item) read;
+  final ComicCollectionItem Function(ComicCollectionItem item, String? value) write;
 
   TransferableField toTransferableField() {
-    return TransferableField.typed<ComicOwnedItem>(
+    return TransferableField.typed<ComicCollectionItem>(
       key: key,
       label: label,
       icon: icon,
       type: type,
       scope: scope,
-      decode: (value) => value as ComicOwnedItem,
+      decode: (value) => value as ComicCollectionItem,
       read: read,
       write: write,
     );
@@ -112,7 +112,7 @@ final comicTransferableFields = <ComicTransferableField>[
     label: 'Cover price',
     icon: Icons.price_check,
     type: TransferableFieldType.integer,
-    scope: LibraryEntityScope.copy,
+    scope: LibraryEntityScope.collectionItem,
     read: (item) => item.details.coverPriceCents?.toString(),
     write: (item, value) => item.copyWith(
       details: item.details.copyWith(

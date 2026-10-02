@@ -39,12 +39,12 @@ List<Widget> buildBoardGameCopyInspectorSections(
 ) {
   return [
     _BoardGameInspectorMain(inspector: inspector),
-    if (inspector.ownedItem != null || inspector.trackingSummary != null)
+    if (inspector.collectionItem != null || inspector.trackingSummary != null)
       InspectorPersonalStatusSection(
         type: inspector.type,
         item: inspector.item,
-        ownedItem: inspector.ownedItem,
-        ownedItemDispatch: inspector.ownedItemDispatch,
+        collectionItem: inspector.collectionItem,
+        collectionItemDispatch: inspector.collectionItemDispatch,
         trackingSummary: inspector.trackingSummary,
         accent: inspector.accent,
         onFilterByValue: inspector.onFilterByValue,
@@ -59,7 +59,7 @@ Widget buildBoardGameCatalogItemInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
+      collectionItem: request.collectionItem,
       ownedCopies: request.ownedCopies,
       accent: request.accent,
     );
@@ -71,9 +71,9 @@ Widget buildBoardGameCopyInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
+      collectionItem: request.collectionItem,
       ownedCopies: [
-        if (request.ownedItem != null) request.ownedItem!,
+        if (request.collectionItem != null) request.collectionItem!,
       ],
       accent: request.accent,
     );

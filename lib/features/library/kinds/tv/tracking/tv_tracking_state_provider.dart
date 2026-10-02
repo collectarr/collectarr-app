@@ -14,7 +14,7 @@ final tvTrackingStateBySeriesIdProvider =
   (ref, seriesId) async {
     final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.tv,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.catalogItem,
       id: seriesId,
     );
     final entries = await TvTrackingStateCodec().listFromStorage(

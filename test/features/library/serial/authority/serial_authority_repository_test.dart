@@ -45,7 +45,7 @@ void main() {
     final updated = await CatalogSnapshotRepository(db).findByRef(
       const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'comic-1',
       ),
     );
@@ -91,7 +91,7 @@ void main() {
     final updated = await CatalogSnapshotRepository(db).findByRef(
       const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'comic-2',
       ),
     );

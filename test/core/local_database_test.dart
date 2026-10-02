@@ -19,12 +19,12 @@ void main() {
     final names = tables.map((row) => row.data['name']).whereType<String>();
 
     expect(names, contains('comic_media_rows'));
-    expect(names, contains('comic_owned_items_rows'));
+    expect(names, contains('comic_collection_items_rows'));
     expect(names, contains('book_release_rows'));
     expect(names, contains('tv_episode_rows'));
     expect(names, contains('anime_watch_session_rows'));
     expect(names, contains('music_album_images_rows'));
-    expect(names, contains('music_owned_items_rows'));
+    expect(names, contains('music_collection_items_rows'));
     expect(names, contains('music_tracking_rows'));
     expect(names, contains('music_listen_events_rows'));
     expect(names, isNot(contains('anime_media_rows')));
@@ -48,7 +48,7 @@ void main() {
       'movie_media_rows',
       'tv_series_rows',
       'music_album_images_rows',
-      'music_owned_items_rows',
+      'music_collection_items_rows',
     ];
     final tables = await db
         .customSelect(

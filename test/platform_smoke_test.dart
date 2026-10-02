@@ -90,7 +90,7 @@ void main() {
       final item = await CatalogSnapshotRepository(db).findByRef(
         const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'smoke-1',
         ),
       );

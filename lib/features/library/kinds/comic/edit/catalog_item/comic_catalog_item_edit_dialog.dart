@@ -35,10 +35,7 @@ class _ComicCatalogItemEditDialogState
     super.initState();
     final transport = widget.request.kindItem.kindCapability
         .mapTransport((transport) => transport);
-    final canonical = transport.kindMetadata;
-    _media = canonical is ComicCatalogItem
-        ? canonical
-        : ComicCatalogItem.fromJson(transport.payload);
+    _media = ComicCatalogItem.fromJson(transport.payload);
     _draft = comicCatalogItemFormValuesFrom(_media);
   }
 
@@ -72,7 +69,7 @@ class _ComicCatalogItemEditDialogState
           );
           final updated = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
-              transport.withKindMetadata(updatedMedia),
+              transport.withKindData(updatedMedia),
             ),
           );
           Navigator.of(context).pop(

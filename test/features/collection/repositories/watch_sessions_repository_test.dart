@@ -67,7 +67,7 @@ void main() {
       id: 'movie-session-1',
       targetRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'movie-1',
       ),
       watchedAt: DateTime.utc(2026, 9, 6, 18),

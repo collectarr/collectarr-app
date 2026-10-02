@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,15 +14,14 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = BoardGameOwnedRepository(db);
-    final item = BoardGameOwnedItem(
-      id: const BoardGameOwnedCopyId('owned-boardgame-1'),
+    final item = BoardGameCollectionItem(
+      id: const CollectionItemId('owned-boardgame-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.boardgame,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'boardgame-1',
       ),
       condition: 'Mint',
-      quantity: 1,
       updatedAt: DateTime.utc(2026, 9, 1),
       details: const BoardgameOwnedDetails(
         componentCompleteness: 'Complete',
@@ -52,11 +52,11 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = BoardGameOwnedRepository(db);
-    final item = BoardGameOwnedItem(
-      id: const BoardGameOwnedCopyId('owned-boardgame-invalid'),
+    final item = BoardGameCollectionItem(
+      id: const CollectionItemId('owned-boardgame-invalid'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.game,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'game-1',
       ),
       updatedAt: DateTime.utc(2026, 9, 1),

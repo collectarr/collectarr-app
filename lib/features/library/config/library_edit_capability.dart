@@ -1,42 +1,42 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
+import 'package:collectarr_app/features/library/config/library_collection_item_semantics.dart';
 import 'package:collectarr_app/features/library/config/library_core_correction_capability.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 export 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
-export 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
-export 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
+export 'package:collectarr_app/features/library/config/collection_item_update_payload.dart';
+export 'package:collectarr_app/features/library/config/library_collection_item_semantics.dart';
 export 'package:collectarr_app/features/library/config/library_core_correction_capability.dart';
 
 typedef LibraryEditSessionFactory = LibraryEditSessionBundle Function({
   required CatalogSearchCandidate item,
-  LibraryOwnedItemDispatch? ownedItemDispatch,
+  LibraryCollectionItemDispatch? collectionItemDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 });
 
-typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
-    OwnedCopyRef ownedRef, int indexNumber);
+typedef LibraryOwnedIndexUpdatePayloadBuilder = CollectionItemUpdatePayload Function(
+    CollectionItemRef collectionItemRef, int indexNumber);
 
-typedef LibraryOwnedConditionValueUpdatePayloadBuilder = OwnedItemUpdatePayload
-    Function(OwnedCopyRef ownedRef, String? condition, String? collectionValue);
+typedef LibraryOwnedConditionValueUpdatePayloadBuilder = CollectionItemUpdatePayload
+    Function(CollectionItemRef collectionItemRef, String? condition, String? collectionValue);
 
 typedef LibraryOwnedCollectionValueReader = String? Function(
-  LibraryOwnedItemDispatch? ownedItem,
+  LibraryCollectionItemDispatch? collectionItem,
 );
 
 typedef LibraryOwnedFormatHint = ({String? format, String? label});
@@ -45,17 +45,17 @@ typedef LibraryOwnedFormatHintResolver = LibraryOwnedFormatHint Function(
   CatalogSearchCandidate item,
 );
 
-typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
-  OwnedCopyRef ownedRef,
+typedef LibraryOwnedBulkUpdatePayloadBuilder = CollectionItemUpdatePayload Function(
+  CollectionItemRef collectionItemRef,
   String? condition,
   String? collectionValue,
   String? locationId,
   String? tags,
 );
 
-typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
+typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = CollectionItemUpdatePayload
     Function(
-  OwnedCopyRef ownedRef,
+  CollectionItemRef collectionItemRef,
   DateTime? purchaseDate,
   int? pricePaidCents,
   String? currency,
@@ -65,13 +65,13 @@ typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
   String? locationId,
 );
 
-typedef LibraryOwnedTransferUpdatePayloadBuilder = OwnedItemUpdatePayload
+typedef LibraryOwnedTransferUpdatePayloadBuilder = CollectionItemUpdatePayload
     Function(
-  OwnedCopyRef ownedRef,
+  CollectionItemRef collectionItemRef,
   Object updated,
 );
 
-typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload
+typedef LibraryOwnedDetailsResetPayloadBuilder = CollectionItemUpdatePayload
     Function();
 
 final class LibraryEntityEditContributor {
@@ -161,8 +161,8 @@ final class LibraryOwnedEditCapability {
       ownedTransferUpdatePayloadBuilder;
   final LibraryOwnedDetailsResetPayloadBuilder? ownedDetailsResetPayloadBuilder;
 
-  String? readOwnedCollectionValue(LibraryOwnedItemDispatch? ownedItem) =>
-      ownedCollectionValueReader(ownedItem);
+  String? readOwnedCollectionValue(LibraryCollectionItemDispatch? collectionItem) =>
+      ownedCollectionValueReader(collectionItem);
 
   LibraryOwnedFormatHint resolveOwnedFormatHint(
     CatalogSearchCandidate item,
@@ -170,14 +170,14 @@ final class LibraryOwnedEditCapability {
       ownedFormatHintResolver(item);
 
   bool? resolveOwnedDigitalFlag(
-    OwnedCopySummary? ownedItem,
+    CollectionItemSummary? collectionItem,
     List<LibraryAddReleaseOption> releases, {
     String? fallbackFormat,
     String? fallbackLabel,
     Iterable<PhysicalMediaFormat> formats = const [],
   }) {
     return ownedDigitalFlagResolver(
-      ownedItem,
+      collectionItem,
       releases,
       fallbackFormat: fallbackFormat,
       fallbackLabel: fallbackLabel,
@@ -185,22 +185,22 @@ final class LibraryOwnedEditCapability {
     );
   }
 
-  UpdateOwnedItemCommand buildIndexUpdateCommand({
-    required OwnedCopyRef ownedRef,
+  UpdateCollectionItemCommand buildIndexUpdateCommand({
+    required CollectionItemRef collectionItemRef,
     required int indexNumber,
   }) {
     final builder = ownedIndexUpdatePayloadBuilder;
     if (builder == null) {
       throw StateError('No typed Owned index update builder is registered.');
     }
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
-      payload: builder(ownedRef, indexNumber),
+    return UpdateCollectionItemCommand(
+      collectionItemRef: collectionItemRef,
+      payload: builder(collectionItemRef, indexNumber),
     );
   }
 
-  UpdateOwnedItemCommand buildConditionValueUpdateCommand({
-    required OwnedCopyRef ownedRef,
+  UpdateCollectionItemCommand buildConditionValueUpdateCommand({
+    required CollectionItemRef collectionItemRef,
     required String? condition,
     required String? collectionValue,
   }) {
@@ -210,14 +210,14 @@ final class LibraryOwnedEditCapability {
         'No typed Owned condition/value update builder is registered.',
       );
     }
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
-      payload: builder(ownedRef, condition, collectionValue),
+    return UpdateCollectionItemCommand(
+      collectionItemRef: collectionItemRef,
+      payload: builder(collectionItemRef, condition, collectionValue),
     );
   }
 
-  UpdateOwnedItemCommand buildBulkUpdateCommand({
-    required OwnedCopyRef ownedRef,
+  UpdateCollectionItemCommand buildBulkUpdateCommand({
+    required CollectionItemRef collectionItemRef,
     required String? condition,
     required String? collectionValue,
     required String? locationId,
@@ -227,10 +227,10 @@ final class LibraryOwnedEditCapability {
     if (builder == null) {
       throw StateError('No typed Owned bulk update builder is registered.');
     }
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
+    return UpdateCollectionItemCommand(
+      collectionItemRef: collectionItemRef,
       payload: builder(
-        ownedRef,
+        collectionItemRef,
         condition,
         collectionValue,
         locationId,
@@ -239,8 +239,8 @@ final class LibraryOwnedEditCapability {
     );
   }
 
-  UpdateOwnedItemCommand buildPersonalDetailsUpdateCommand({
-    required OwnedCopyRef ownedRef,
+  UpdateCollectionItemCommand buildPersonalDetailsUpdateCommand({
+    required CollectionItemRef collectionItemRef,
     required DateTime? purchaseDate,
     required int? pricePaidCents,
     required String? currency,
@@ -255,10 +255,10 @@ final class LibraryOwnedEditCapability {
         'No typed Owned personal details update builder is registered.',
       );
     }
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
+    return UpdateCollectionItemCommand(
+      collectionItemRef: collectionItemRef,
       payload: builder(
-        ownedRef,
+        collectionItemRef,
         purchaseDate,
         pricePaidCents,
         currency,
@@ -270,29 +270,29 @@ final class LibraryOwnedEditCapability {
     );
   }
 
-  UpdateOwnedItemCommand buildTransferUpdateCommand({
-    required OwnedCopyRef ownedRef,
+  UpdateCollectionItemCommand buildTransferUpdateCommand({
+    required CollectionItemRef collectionItemRef,
     required Object updated,
   }) {
     final builder = ownedTransferUpdatePayloadBuilder;
     if (builder == null) {
       throw StateError('No typed Owned transfer update builder is registered.');
     }
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
-      payload: builder(ownedRef, updated),
+    return UpdateCollectionItemCommand(
+      collectionItemRef: collectionItemRef,
+      payload: builder(collectionItemRef, updated),
     );
   }
 
-  UpdateOwnedItemCommand buildDetailsResetCommand({
-    required OwnedCopyRef ownedRef,
+  UpdateCollectionItemCommand buildDetailsResetCommand({
+    required CollectionItemRef collectionItemRef,
   }) {
     final builder = ownedDetailsResetPayloadBuilder;
     if (builder == null) {
       throw StateError('No typed Owned details reset builder is registered.');
     }
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
+    return UpdateCollectionItemCommand(
+      collectionItemRef: collectionItemRef,
       payload: builder(),
     );
   }

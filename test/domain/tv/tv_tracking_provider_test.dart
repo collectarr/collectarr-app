@@ -91,10 +91,10 @@ void main() {
       CatalogItemDto.raw(
         id: '1396',
         mediaKind: CatalogMediaKind.tv,
-        common: const CatalogCommonDto(
-          title: 'Breaking Bad',
-          coverImageUrl: 'https://cdn/tv.jpg',
-        ),
+        kindData: const {
+          'title': 'Breaking Bad',
+          'cover_image_url': 'https://cdn/tv.jpg',
+        },
         payload: const {'status': 'Ended', 'network': 'AMC'},
       ),
     );

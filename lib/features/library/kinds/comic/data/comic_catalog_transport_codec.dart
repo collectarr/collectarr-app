@@ -24,11 +24,8 @@ final class ComicCatalogTransportCodec
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  ComicCatalogItem decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is ComicCatalogItem) return metadata;
-    return ComicCatalogItem.fromJson(catalogTransportPayloadFor(item));
-  }
+  ComicCatalogItem decode(CatalogItemDto item) =>
+      ComicCatalogItem.fromJson(catalogTransportPayloadFor(item));
 
   @override
   Future<void> upsert(LocalDatabase db, ComicCatalogItem item) {

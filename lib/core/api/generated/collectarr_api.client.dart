@@ -86,25 +86,6 @@ class CollectarrApiClient {
     return _resolveImageUrls(data);
   }
 
-  Future<T> _fetchTypedMetadataItem<T extends TypedMetadataResponse>(
-    String path,
-    T Function(Map<String, dynamic>) factory,
-  ) async {
-    final response = await _dio.get<Map<String, dynamic>>(path);
-    final data = response.data;
-    if (data == null) {
-      throw StateError('$path returned an empty response body');
-    }
-    return factory(_resolveImageUrls(data));
-  }
-
-  Future<ComicWorkDto> getComicWorkDto(String id) {
-    return _fetchTypedMetadataItem(
-      '/api/v1/metadata/comics/works/${Uri.encodeComponent(id)}',
-      ComicWorkDto.fromJson,
-    );
-  }
-
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/api/v1/metadata/bundle-releases/$bundleReleaseId',

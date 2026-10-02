@@ -157,7 +157,7 @@ LibraryProjectionItem _item(String id, String title, {int? year}) {
       releaseDate: year != null ? DateTime.utc(year, 1, 1) : null,
     ).asShelfCatalogItem),
   );
-  final node = LibraryWorkRef(workId: id);
+  final node = LibraryCatalogItemNodeRef(catalogItemId: id);
   final dto = const GenericWorkspaceProjector().project(
     source: source,
     entity: node,

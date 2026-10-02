@@ -190,7 +190,7 @@ Widget _buildDefaultDetailPage(
   return LibraryDetailPage(
     type: request.type,
     item: request.item,
-    ownedSummary: request.ownedSummary,
+    collectionItemSummary: request.collectionItemSummary,
     accent: request.accent,
     onAddOwned: request.onAddOwned,
     onRemoveOwned: request.onRemoveOwned,

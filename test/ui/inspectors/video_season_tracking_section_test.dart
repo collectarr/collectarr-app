@@ -50,7 +50,7 @@ void main() {
         displayTitle: 'Cowboy Bebop',
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: itemId);
+    const node = LibraryCatalogItemNodeRef(catalogItemId: itemId);
     final tvItem = libraryKindWorkspaceForKind(CatalogMediaKind.tv)
         .project(source: source, node: node);
 
@@ -65,7 +65,7 @@ void main() {
             request: LibraryDetailPageRequest(
               type: type,
               item: tvItem,
-              ownedSummary: null,
+              collectionItemSummary: null,
               accent: Colors.orange,
               onAddOwned: () {},
               onRemoveOwned: () {},

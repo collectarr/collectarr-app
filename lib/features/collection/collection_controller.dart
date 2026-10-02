@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
@@ -19,26 +19,26 @@ import 'package:collectarr_app/features/library/tracking/watch_session_codec.dar
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final collectionProvider = FutureProvider<List<OwnedCopySummary>>((ref) async {
-  final cache = OwnedItemsRepository(ref.watch(localDatabaseProvider));
+final collectionProvider = FutureProvider<List<CollectionItemSummary>>((ref) async {
+  final cache = CollectionItemsRepository(ref.watch(localDatabaseProvider));
   return cache.listActiveSummaries();
 });
 
 final collectionByCatalogRefProvider =
-    Provider<Map<CatalogEntityRef, OwnedCopySummary>>((ref) {
+    Provider<Map<CatalogEntityRef, CollectionItemSummary>>((ref) {
   final collection = ref.watch(collectionSummariesProvider);
   return collection.maybeWhen(
     data: (items) => {
       for (final item in items)
         if (!item.isDeleted && item.catalogRef != null) item.catalogRef!: item,
     },
-    orElse: () => const <CatalogEntityRef, OwnedCopySummary>{},
+    orElse: () => const <CatalogEntityRef, CollectionItemSummary>{},
   );
 });
 
 final collectionSummariesProvider =
-    FutureProvider<List<OwnedCopySummary>>((ref) async {
-  final cache = OwnedItemsRepository(ref.watch(localDatabaseProvider));
+    FutureProvider<List<CollectionItemSummary>>((ref) async {
+  final cache = CollectionItemsRepository(ref.watch(localDatabaseProvider));
   return cache.listActiveSummaries();
 });
 

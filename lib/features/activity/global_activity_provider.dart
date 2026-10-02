@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -52,22 +52,22 @@ final globalActivityProvider =
 
   final loans = await LoanRepository(db).getAllLoans();
 
-  final ownedByCatalogRef = <CatalogEntityRef, List<OwnedCopySummary>>{};
+  final ownedByCatalogRef = <CatalogEntityRef, List<CollectionItemSummary>>{};
   for (final item in owned) {
     final catalogRef = item.catalogRef;
     if (catalogRef == null) continue;
     ownedByCatalogRef
-        .putIfAbsent(catalogRef.rootScope, () => <OwnedCopySummary>[])
+        .putIfAbsent(catalogRef.rootScope, () => <CollectionItemSummary>[])
         .add(item);
   }
-  final ownedByRef = <OwnedCopyRef, OwnedCopySummary>{
+  final ownedByRef = <CollectionItemRef, CollectionItemSummary>{
     for (final item in owned)
       if (item.catalogRef != null) item.ref: item,
   };
   final loansByRef = <CatalogEntityRef, List<Loan>>{};
   for (final loan in loans) {
-    final ownedItem = ownedByRef[loan.ownedRef];
-    final catalogRef = ownedItem?.catalogRef;
+    final collectionItem = ownedByRef[loan.collectionItemRef];
+    final catalogRef = collectionItem?.catalogRef;
     if (catalogRef == null) continue;
     loansByRef.putIfAbsent(catalogRef.rootScope, () => <Loan>[]).add(loan);
   }
@@ -93,7 +93,14 @@ final globalActivityProvider =
   for (final item in wishlistItems) {
     if (item.isDeleted) continue;
     wishlistByRef
-        .putIfAbsent(item.catalogRef.rootScope, () => <WishlistItem>[])
+        .putIfAbsent(
+          CatalogEntityRef(
+            kind: item.catalogRef.kind,
+            entityType: CatalogEntityTypeId.catalogItem,
+            id: item.catalogRef.id,
+          ),
+          () => <WishlistItem>[],
+        )
         .add(item);
   }
   final refs = <CatalogEntityRef>{
@@ -112,7 +119,7 @@ final globalActivityProvider =
   final entries = <GlobalActivityEntry>[];
   for (final itemRef in refs) {
     final events = ActivityEventAggregator.aggregate(
-      ownedItems: ownedByCatalogRef[itemRef] ?? const <OwnedCopySummary>[],
+      collectionItems: ownedByCatalogRef[itemRef] ?? const <CollectionItemSummary>[],
       trackingRecords:
           trackingByRef[itemRef] ?? const <TrackingActivitySummary>[],
       wishlistItems: wishlistByRef[itemRef] ?? const <WishlistItem>[],

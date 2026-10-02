@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,15 +14,14 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = MusicOwnedRepository(db);
-    final item = MusicOwnedItem(
-      id: const MusicOwnedCopyId('owned-music-1'),
+    final item = MusicCollectionItem(
+      id: const CollectionItemId('owned-music-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
-        entityType: CatalogEntityTypeId.root,
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'music-1',
       ),
       condition: 'Mint',
-      quantity: 1,
       updatedAt: DateTime.utc(2026, 9, 1),
       details: const MusicOwnedDetails(
         media: [
@@ -62,11 +62,11 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = MusicOwnedRepository(db);
-    final item = MusicOwnedItem(
-      id: const MusicOwnedCopyId('owned-music-invalid'),
+    final item = MusicCollectionItem(
+      id: const CollectionItemId('owned-music-invalid'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'book-1',
       ),
       updatedAt: DateTime.utc(2026, 9, 1),
@@ -80,11 +80,11 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = MusicOwnedRepository(db);
-    final item = MusicOwnedItem(
-      id: const MusicOwnedCopyId('owned-music-catalog-item'),
+    final item = MusicCollectionItem(
+      id: const CollectionItemId('owned-music-catalog-item'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
-        entityType: CatalogEntityTypeId.root,
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'music-1',
       ),
       updatedAt: DateTime.utc(2026, 9, 1),

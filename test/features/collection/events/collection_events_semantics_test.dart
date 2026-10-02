@@ -4,16 +4,16 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
-import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
+import 'package:collectarr_app/features/collection/mutations/collection_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
@@ -32,7 +32,7 @@ void main() {
   late LocalDatabase db;
   late CollectionEventBus eventBus;
   late CollectionMutationRunner runner;
-  late OwnedItemMutations ownedMutations;
+  late CollectionItemMutations ownedMutations;
   late WishlistMutations wishlistMutations;
   late TrackingMutations trackingMutations;
 
@@ -45,7 +45,7 @@ void main() {
       events: eventBus,
     );
 
-    final ownedRepo = OwnedItemsRepository(db);
+    final ownedRepo = CollectionItemsRepository(db);
     final wishlistRepo = WishlistItemsCacheRepository(db);
     final trackingRepo = TrackingStorageRepository(
       db,
@@ -61,8 +61,8 @@ void main() {
     );
     final syncQueueRepo = SyncQueueRepository(db);
 
-    ownedMutations = OwnedItemMutations(
-      ownedItems: ownedRepo,
+    ownedMutations = CollectionItemMutations(
+      collectionItems: ownedRepo,
       wishlist: wishlistRepo,
       catalogSummaries: CatalogDisplaySummaryRepository(db),
       syncQueue: syncQueueRepo,
@@ -89,12 +89,12 @@ void main() {
     await db.close();
   });
 
-  test('add owned item without wishlist emits OwnedItemAdded only', () async {
+  test('add collection item without wishlist emits CollectionItemAdded only', () async {
     final events = <CollectionEvent>[];
     final sub = eventBus.stream.listen(events.add);
 
-    final item = await ownedMutations.addOwnedItem(
-      typedAddOwnedItemCommand(
+    final item = await ownedMutations.addCollectionItem(
+      typedAddCollectionItemCommand(
         catalogRef: testCatalogRef('movie-100', kind: 'movie'),
         common: const LibraryAddCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
@@ -102,12 +102,12 @@ void main() {
     );
 
     await Future<void>.delayed(Duration.zero);
-    expect(events, [OwnedItemAdded(item)]);
+    expect(events, [CollectionItemAdded(item)]);
     await sub.cancel();
   });
 
   test(
-      'add owned item with matching wishlist entry emits OwnedItemAdded and WishlistChanged',
+      'add collection item with matching wishlist entry emits CollectionItemAdded and WishlistChanged',
       () async {
     await wishlistMutations.addToWishlist(
       testCatalogRef('movie-200', kind: 'movie'),
@@ -116,8 +116,8 @@ void main() {
     final events = <CollectionEvent>[];
     final sub = eventBus.stream.listen(events.add);
 
-    final item = await ownedMutations.addOwnedItem(
-      typedAddOwnedItemCommand(
+    final item = await ownedMutations.addCollectionItem(
+      typedAddCollectionItemCommand(
         catalogRef: testCatalogRef('movie-200', kind: 'movie'),
         common: const LibraryAddCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
@@ -126,7 +126,7 @@ void main() {
 
     await Future<void>.delayed(Duration.zero);
     expect(events, [
-      OwnedItemAdded(item),
+      CollectionItemAdded(item),
       WishlistChanged(testCatalogRef('movie-200', kind: 'movie')),
     ]);
     await sub.cancel();
@@ -142,10 +142,10 @@ void main() {
           throw Exception('Database mutation failed');
         },
         eventsToEmit: [
-          OwnedItemAdded(
-            const OwnedCopyRef(
+          CollectionItemAdded(
+            const CollectionItemRef(
               kind: CatalogMediaKind.movie,
-              id: OwnedCopyId('should-not-emit'),
+              id: CollectionItemId('should-not-emit'),
             ),
           ),
           WishlistChanged(testCatalogRef('should-not-emit', kind: 'movie')),

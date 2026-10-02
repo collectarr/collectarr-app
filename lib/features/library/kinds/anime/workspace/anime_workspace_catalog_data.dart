@@ -19,16 +19,11 @@ final class AnimeWorkspaceCatalogData
   }) : _transport = transport;
 
   factory AnimeWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
-    final rawMetadata = item.kindMetadata;
     return AnimeWorkspaceCatalogData(
       ref: item.catalogRef,
       video: AnimeCatalogMapper.mapMetadataItemToAnime(item),
-      media: rawMetadata is AnimeMedia
-          ? rawMetadata
-          : AnimeWorkspaceMapper.fromCatalogItem(item),
-      metadata: rawMetadata is AnimeMetadata
-          ? rawMetadata
-          : AnimeMetadata.fromJson(item.payload),
+      media: AnimeWorkspaceMapper.fromCatalogItem(item),
+      metadata: AnimeMetadata.fromJson(item.payload),
       transport: item,
     );
   }

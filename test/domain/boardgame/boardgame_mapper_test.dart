@@ -8,8 +8,8 @@ void main() {
     final dto = CatalogItemDto.raw(
       id: 'boardgame-1',
       mediaKind: CatalogMediaKind.boardgame,
-      common: const CatalogCommonDto(title: 'Catan'),
-      payload: const {
+      kindData: const {
+        'title': 'Catan',
         'platforms': ['Base Game'],
         'identifiers': ['BGG:13'],
         'contributors': ['Klaus Teuber'],

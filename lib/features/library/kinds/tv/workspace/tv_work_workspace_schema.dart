@@ -12,84 +12,84 @@ abstract final class TvWorkWorkspaceFields {
     id: TvFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final publisher = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.network,
     label: 'Network / Studio',
     getValue: (dto) => dto.publisher,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final series = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.series,
     label: 'Series',
     getValue: (dto) => dto.seriesTitle,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final cover = LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final firstAirDate = dateField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.firstAirDate,
     label: 'First Air Date',
     getValue: (dto) => dto.firstAirDate,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final lastAirDate = dateField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.lastAirDate,
     label: 'Last Air Date',
     getValue: (dto) => dto.lastAirDate,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final tvStatus = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.tvStatus,
     label: 'Series Status',
     getValue: (dto) => dto.tvStatus,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final streamingService = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.streamingService,
     label: 'Streamer',
     getValue: (dto) => dto.streamingService,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final contentRating = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.contentRating,
     label: 'Content Rating',
     getValue: (dto) => dto.contentRating,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final seasonCount = numberField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.seasonCount,
     label: 'Seasons',
     getValue: (dto) => dto.seasonCount,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final episodeCount = numberField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.episodeCount,
     label: 'Episodes',
     getValue: (dto) => dto.episodeCount,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final episodeRuntimeMinutes = numberField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.episodeRuntimeMinutes,
     label: 'Episode Runtime (m)',
     getValue: (dto) => dto.episodeRuntimeMinutes,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 
@@ -209,7 +209,7 @@ final tvWorkWorkspaceColumnDefinitions = [
 final tvWorkWorkspaceSchema =
     LibraryEntityWorkspaceSchema<TvKind, TvWorkspaceDto>(
   kindNamespace: 'tv',
-  entityScope: LibraryEntityScope.work,
+  entityScope: LibraryEntityScope.catalogItem,
   fields: tvWorkWorkspaceFieldDefinitions,
   columns: tvWorkWorkspaceColumnDefinitions,
   sorts: tvWorkWorkspaceSortDefinitions,

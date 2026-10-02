@@ -22,7 +22,7 @@ void main() {
   testWidgets('music inspector renders CLZ-like panel with disc groups', (
     tester,
   ) async {
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-music-1',
       itemId: 'music-1',
       indexNumber: 1,
@@ -30,7 +30,7 @@ void main() {
       updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
     );
     final graph = _musicGraph(
-      workId: 'music-1',
+      catalogItemId: 'music-1',
       title: 'Lupus Dei',
       artist: 'Powerwolf',
       media: [
@@ -49,7 +49,7 @@ void main() {
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
       catalogData: graph.catalog,
-      ownedSummary: testOwnedSummary(ownedItem),
+      collectionItemSummary: testCollectionItemSummary(collectionItem),
     );
     final node = graph.ref;
     final dto = const MusicCatalogItemWorkspaceProjector().project(
@@ -61,8 +61,8 @@ void main() {
     final inspectorRequest = LibraryInspectorRequest(
       type: const MusicRegistration(),
       item: item,
-      ownedItem: testOwnedSummary(ownedItem),
-      ownedCopies: [testOwnedSummary(ownedItem)],
+      collectionItem: testCollectionItemSummary(collectionItem),
+      ownedCopies: [testCollectionItemSummary(collectionItem)],
       accent: const Color(0xFFFDAD49),
       detailsLayout: LibraryDetailsLayout.hidden,
       onFilterByValue: (_) {},
@@ -74,8 +74,8 @@ void main() {
       hero: const SizedBox.shrink(),
       primarySections: const [],
       trailingSections: const [],
-      ownedCopies: [testOwnedSummary(ownedItem)],
-      selectedOwnedCopyRef: testOwnedSummary(ownedItem).ref,
+      ownedCopies: [testCollectionItemSummary(collectionItem)],
+      selectedCollectionItemRef: testCollectionItemSummary(collectionItem).ref,
       extraActions: const [],
       onAddCopy: () {},
       onOpenDetails: () {},
@@ -110,14 +110,14 @@ void main() {
   testWidgets('music inspector highlights matching tracks for track search', (
     tester,
   ) async {
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-music-2',
       itemId: 'music-2',
       createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
       updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
     );
     final graph = _musicGraph(
-      workId: 'music-2',
+      catalogItemId: 'music-2',
       title: 'Lupus Dei',
       artist: 'Powerwolf',
       media: [
@@ -132,7 +132,7 @@ void main() {
     final source = LibraryWorkspaceSource(
       itemId: 'music-2',
       catalogData: graph.catalog,
-      ownedSummary: testOwnedSummary(ownedItem),
+      collectionItemSummary: testCollectionItemSummary(collectionItem),
     );
     final node = graph.ref;
     final dto = const MusicCatalogItemWorkspaceProjector().project(
@@ -144,8 +144,8 @@ void main() {
     final inspectorRequest = LibraryInspectorRequest(
       type: const MusicRegistration(),
       item: item,
-      ownedItem: testOwnedSummary(ownedItem),
-      ownedCopies: [testOwnedSummary(ownedItem)],
+      collectionItem: testCollectionItemSummary(collectionItem),
+      ownedCopies: [testCollectionItemSummary(collectionItem)],
       accent: const Color(0xFFFDAD49),
       detailsLayout: LibraryDetailsLayout.hidden,
       onFilterByValue: (_) {},
@@ -158,8 +158,8 @@ void main() {
       hero: const SizedBox.shrink(),
       primarySections: const [],
       trailingSections: const [],
-      ownedCopies: [testOwnedSummary(ownedItem)],
-      selectedOwnedCopyRef: testOwnedSummary(ownedItem).ref,
+      ownedCopies: [testCollectionItemSummary(collectionItem)],
+      selectedCollectionItemRef: testCollectionItemSummary(collectionItem).ref,
       extraActions: const [],
       onAddCopy: () {},
       onOpenDetails: () {},
@@ -200,21 +200,21 @@ void main() {
   });
 }
 
-({MusicWorkspaceCatalogData catalog, LibraryWorkRef ref}) _musicGraph({
-  required String workId,
+({MusicWorkspaceCatalogData catalog, LibraryCatalogItemNodeRef ref}) _musicGraph({
+  required String catalogItemId,
   required String title,
   required String artist,
   required List<MusicMedium> media,
 }) {
   final release = MusicAlbum(
-    id: MusicAlbumId(workId),
+    id: MusicAlbumId(catalogItemId),
     title: title,
     artist: artist,
     mediums: media,
   );
   return (
     catalog: MusicWorkspaceCatalogData.fromMusic(release),
-    ref: LibraryWorkRef(workId: workId),
+    ref: LibraryCatalogItemNodeRef(catalogItemId: catalogItemId),
   );
 }
 

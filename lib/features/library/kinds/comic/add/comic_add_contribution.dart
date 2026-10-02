@@ -12,13 +12,9 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   manualCandidateBuilder: buildComicManualCandidate,
   manualProposalBuilder: buildComicManualProposalData,
   manualPaneBuilder: buildComicAddManualPane,
-  headerBuilder: buildComicAddHeader,
-  modeBarBuilder: buildComicAddModeBar,
   previewPaneBuilder: buildComicAddPreviewPane,
-  searchPaneBuilder: buildComicAddSearchPane,
-  bottomBarPresentation: LibraryAddBottomBarPresentation.segmentedTarget,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      ComicOwnedItemCreatePayload(
+      ComicCollectionItemCreatePayload(
     catalogRef: item.reference,
     details: details as ComicOwnedDetailsDraft,
     condition: common.condition,
@@ -27,7 +23,6 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,
     personalNotes: common.personalNotes,
-    quantity: common.quantity,
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
@@ -69,9 +64,8 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => ComicCatalogItem.fromJson(transport.kindData));
               return metadata is ComicCatalogItem
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const [];
@@ -82,10 +76,11 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
             exactWeight: 75,
             containsWeight: 36,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
-              return metadata is ComicCatalogItem ? [metadata.issueNumber] : const [];
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => ComicCatalogItem.fromJson(transport.kindData));
+              return metadata is ComicCatalogItem
+                  ? [metadata.issueNumber]
+                  : const [];
             },
           ),
           LibraryAddSearchRankField(
@@ -93,9 +88,8 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => ComicCatalogItem.fromJson(transport.kindData));
               return metadata is ComicCatalogItem
                   ? [metadata.publisher, metadata.imprint]
                   : const [];
@@ -106,9 +100,8 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => ComicCatalogItem.fromJson(transport.kindData));
               return metadata is ComicCatalogItem
                   ? [
                       metadata.releaseDate?.year,

@@ -9,21 +9,21 @@ abstract final class BookCatalogItemWorkspaceFields {
     id: BookFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final author = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.author,
     label: 'Author',
     getValue: (dto) => dto.author,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final series = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.series,
     label: 'Series',
     getValue: (dto) => dto.seriesTitle,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final cover =
@@ -31,42 +31,42 @@ abstract final class BookCatalogItemWorkspaceFields {
     id: BookFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final subtitle = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.subtitle,
     label: 'Subtitle',
     getValue: (dto) => dto.subtitle,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final translator = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.translator,
     label: 'Translator',
     getValue: (dto) => dto.translator,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final editor = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.editor,
     label: 'Editor',
     getValue: (dto) => dto.editor,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final illustrator = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.illustrator,
     label: 'Illustrator',
     getValue: (dto) => dto.illustrator,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final coverArtist = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.coverArtist,
     label: 'Cover Artist',
     getValue: (dto) => dto.coverArtist,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 

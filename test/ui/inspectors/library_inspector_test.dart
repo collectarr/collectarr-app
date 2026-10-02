@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
@@ -61,7 +61,7 @@ void main() {
     final request = LibraryInspectorRequest(
       type: const BookRegistration(),
       item: item,
-      ownedItem: null,
+      collectionItem: null,
       accent: Colors.orange,
     );
 
@@ -103,7 +103,7 @@ void main() {
                   title: 'The Last Ronin',
                   barcode: '82771402051700111',
                 ),
-                ownedItem: testOwnedSummary(testOwnedItem(
+                collectionItem: testCollectionItemSummary(testCollectionItem(
                   id: 'owned-comic-hero-1',
                   itemId: 'comic-hero-1',
                   isDigital: false,
@@ -149,7 +149,7 @@ void main() {
                         kind: 'comic',
                         title: 'The Last Ronin',
                       ),
-                      ownedItem: testOwnedSummary(testOwnedItem(
+                      collectionItem: testCollectionItemSummary(testCollectionItem(
                         id: 'owned-comic-hero-narrow-1',
                         itemId: 'comic-hero-narrow-1',
                         isDigital: false,
@@ -183,7 +183,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-comic-hero-2',
       itemId: 'comic-hero-2',
       kind: 'comic',
@@ -213,14 +213,14 @@ void main() {
                 id: 'comic-hero-2',
                 kind: 'comic',
                 title: 'The Last Ronin',
-                ownedItem: ownedItem,
+                collectionItem: collectionItem,
               ),
-              ownedItem: testOwnedSummary(ownedItem),
-              ownedItemDispatch: testComicOwnedItemDispatchFrom(
-                testComicOwnedItemFrom(ownedItem),
+              collectionItem: testCollectionItemSummary(collectionItem),
+              collectionItemDispatch: testComicCollectionItemDispatchFrom(
+                testComicCollectionItemFrom(collectionItem),
               ),
               ownedCopies: [
-                testOwnedSummary(testOwnedItem(
+                testCollectionItemSummary(testCollectionItem(
                   id: 'owned-comic-hero-2',
                   itemId: 'comic-hero-2',
                   isDigital: false,
@@ -267,14 +267,14 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     await ComicOwnedRepository(db).upsertAll([
-      testComicOwnedItemFrom(testOwnedItem(
+      testComicCollectionItemFrom(testCollectionItem(
         id: 'owned-comic-1',
         itemId: 'comic-multi-1',
         kind: 'comic',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
       )),
-      testComicOwnedItemFrom(testOwnedItem(
+      testComicCollectionItemFrom(testCollectionItem(
         id: 'owned-comic-2',
         itemId: 'comic-multi-1',
         kind: 'comic',
@@ -282,7 +282,7 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 23, 11),
       )),
     ]);
-    OwnedCopySummary? editedOwnedItem;
+    CollectionItemSummary? editedCollectionItem;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -297,20 +297,20 @@ void main() {
                 kind: 'comic',
                 title: 'The Last Ronin',
               ),
-              ownedItem: testOwnedSummary(testOwnedItem(
+              collectionItem: testCollectionItemSummary(testCollectionItem(
                 id: 'owned-comic-1',
                 itemId: 'comic-multi-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
               )),
               ownedCopies: [
-                testOwnedSummary(testOwnedItem(
+                testCollectionItemSummary(testCollectionItem(
                   id: 'owned-comic-1',
                   itemId: 'comic-multi-1',
                   condition: 'Near Mint',
                   updatedAt: DateTime.utc(2026, 5, 23, 10),
                 )),
-                testOwnedSummary(testOwnedItem(
+                testCollectionItemSummary(testCollectionItem(
                   id: 'owned-comic-2',
                   itemId: 'comic-multi-1',
                   condition: 'Very Fine',
@@ -322,7 +322,7 @@ void main() {
               onRemoveOwned: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
-              onEdit: (ownedItem) => editedOwnedItem = ownedItem,
+              onEdit: (collectionItem) => editedCollectionItem = collectionItem,
               db: db,
             ),
           ),
@@ -332,7 +332,7 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    expect(editedOwnedItem, isNull);
+    expect(editedCollectionItem, isNull);
     expect(find.text('Active copy'), findsOneWidget);
     expect(find.textContaining('copies in collection'), findsOneWidget);
   });
@@ -353,14 +353,14 @@ void main() {
                     kind: 'book',
                     title: 'Hyperion',
                   ),
-                  ownedItem: null,
+                  collectionItem: null,
                   accent: Colors.blue,
                 ),
                 hero: const SizedBox(height: 20),
                 primarySections: const [SizedBox.shrink()],
                 trailingSections: const [SizedBox.shrink()],
                 ownedCopies: const [],
-                selectedOwnedCopyRef: null,
+                selectedCollectionItemRef: null,
                 extraActions: const [Text('Extra action')],
                 onAddCopy: () {},
                 onOpenDetails: () {},
@@ -433,7 +433,7 @@ void main() {
 
   testWidgets('personal section shows cover price for Comic-owned details',
       (tester) async {
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-1',
       itemId: 'comic-1',
       kind: 'comic',
@@ -454,11 +454,11 @@ void main() {
               id: 'comic-1',
               kind: 'comic',
               title: 'Saga',
-              ownedItem: ownedItem,
+              collectionItem: collectionItem,
             ),
-            ownedItem: testOwnedSummary(ownedItem),
-            ownedItemDispatch: testComicOwnedItemDispatchFrom(
-              testComicOwnedItemFrom(ownedItem),
+            collectionItem: testCollectionItemSummary(collectionItem),
+            collectionItemDispatch: testComicCollectionItemDispatchFrom(
+              testComicCollectionItemFrom(collectionItem),
             ),
             accent: Colors.orange,
           ),
@@ -485,7 +485,7 @@ void main() {
               kind: 'movie',
               title: 'Blade Runner 2049',
             ),
-            ownedItem: testOwnedSummary(testOwnedItem(
+            collectionItem: testCollectionItemSummary(testCollectionItem(
               id: 'owned-1',
               itemId: 'movie-1',
               isDigital: true,
@@ -522,7 +522,7 @@ void main() {
                 id: 'book-1',
                 kind: 'book',
                 title: 'The Fellowship of the Ring',
-                ownedItem: testOwnedItem(
+                collectionItem: testCollectionItem(
                   id: 'owned-1',
                   itemId: 'book-1',
                   kind: 'book',
@@ -578,7 +578,7 @@ void main() {
                 kind: 'book',
                 title: 'The Two Towers',
               ),
-              ownedItem: testOwnedSummary(testOwnedItem(
+              collectionItem: testCollectionItemSummary(testCollectionItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 updatedAt: DateTime.utc(2026, 5, 23),
@@ -614,7 +614,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'front-1',
-            ownedRefKey: 'book:owned-1',
+            collectionItemRefKey: 'book:owned-1',
             imageType: const Value('front_cover'),
             imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -623,7 +623,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'back-1',
-            ownedRefKey: 'book:owned-1',
+            collectionItemRefKey: 'book:owned-1',
             imageType: const Value('back_cover'),
             imageData: base64Decode(base64Encode(const [4, 5, 6, 7])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -635,7 +635,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorItemImagesSection(
-              ownedRef: OwnedCopyRef.fromKey('book:owned-1'),
+              collectionItemRef: CollectionItemRef.fromKey('book:owned-1'),
               db: db,
               accent: Colors.orange,
             ),
@@ -657,14 +657,14 @@ void main() {
     addTearDown(db.close);
     const type = BookRegistration();
     await BookOwnedRepository(db).upsertAll([
-      testBookOwnedItemFrom(testOwnedItem(
+      testBookCollectionItemFrom(testCollectionItem(
         id: 'owned-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
       )),
-      testBookOwnedItemFrom(testOwnedItem(
+      testBookCollectionItemFrom(testCollectionItem(
         id: 'owned-2',
         itemId: 'book-1',
         kind: 'book',
@@ -686,20 +686,20 @@ void main() {
                 kind: 'book',
                 title: 'The Return of the King',
               ),
-              ownedItem: testOwnedSummary(testOwnedItem(
+              collectionItem: testCollectionItemSummary(testCollectionItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
               )),
               ownedCopies: [
-                testOwnedSummary(testOwnedItem(
+                testCollectionItemSummary(testCollectionItem(
                   id: 'owned-1',
                   itemId: 'book-1',
                   condition: 'Near Mint',
                   updatedAt: DateTime.utc(2026, 5, 23, 10),
                 )),
-                testOwnedSummary(testOwnedItem(
+                testCollectionItemSummary(testCollectionItem(
                   id: 'owned-2',
                   itemId: 'book-1',
                   condition: 'Very Fine',
@@ -731,14 +731,14 @@ void main() {
     addTearDown(db.close);
     const type = BookRegistration();
     await BookOwnedRepository(db).upsertAll([
-      testBookOwnedItemFrom(testOwnedItem(
+      testBookCollectionItemFrom(testCollectionItem(
         id: 'owned-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
       )),
-      testBookOwnedItemFrom(testOwnedItem(
+      testBookCollectionItemFrom(testCollectionItem(
         id: 'owned-2',
         itemId: 'book-1',
         kind: 'book',
@@ -746,7 +746,7 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 23, 11),
       )),
     ]);
-    OwnedCopySummary? editedOwnedItem;
+    CollectionItemSummary? editedCollectionItem;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -761,20 +761,20 @@ void main() {
                 kind: 'book',
                 title: 'The Return of the King',
               ),
-              ownedItem: testOwnedSummary(testOwnedItem(
+              collectionItem: testCollectionItemSummary(testCollectionItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
               )),
               ownedCopies: [
-                testOwnedSummary(testOwnedItem(
+                testCollectionItemSummary(testCollectionItem(
                   id: 'owned-1',
                   itemId: 'book-1',
                   condition: 'Near Mint',
                   updatedAt: DateTime.utc(2026, 5, 23, 10),
                 )),
-                testOwnedSummary(testOwnedItem(
+                testCollectionItemSummary(testCollectionItem(
                   id: 'owned-2',
                   itemId: 'book-1',
                   condition: 'Very Fine',
@@ -786,7 +786,7 @@ void main() {
               onRemoveOwned: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
-              onEdit: (ownedItem) => editedOwnedItem = ownedItem,
+              onEdit: (collectionItem) => editedCollectionItem = collectionItem,
               db: db,
             ),
           ),
@@ -796,7 +796,7 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.byType(DropdownButtonFormField<OwnedCopyRef>).first);
+    await tester.tap(find.byType(DropdownButtonFormField<CollectionItemRef>).first);
     await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Copy 2').last);
     await pumpUntilSettled(tester);
@@ -811,7 +811,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(editedOwnedItem?.ref.id.value, 'owned-2');
+    expect(editedCollectionItem?.ref.id.value, 'owned-2');
   });
 
   testWidgets(
@@ -824,14 +824,14 @@ void main() {
     const type = BookRegistration();
 
     await BookOwnedRepository(db).upsertAll([
-      testBookOwnedItemFrom(testOwnedItem(
+      testBookCollectionItemFrom(testCollectionItem(
         id: 'owned-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
       )),
-      testBookOwnedItemFrom(testOwnedItem(
+      testBookCollectionItemFrom(testCollectionItem(
         id: 'owned-2',
         itemId: 'book-1',
         kind: 'book',
@@ -842,7 +842,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'back-owned-2',
-            ownedRefKey: 'book:owned-2',
+            collectionItemRefKey: 'book:owned-2',
             imageType: const Value('back_cover'),
             imageData: base64Decode('AQIDBA=='),
             createdAt: DateTime.utc(2026, 5, 23, 11),
@@ -862,20 +862,20 @@ void main() {
                 kind: 'book',
                 title: 'The Return of the King',
               ),
-              ownedItem: testOwnedSummary(testOwnedItem(
+              collectionItem: testCollectionItemSummary(testCollectionItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
               )),
               ownedCopies: [
-                testOwnedSummary(testOwnedItem(
+                testCollectionItemSummary(testCollectionItem(
                   id: 'owned-1',
                   itemId: 'book-1',
                   condition: 'Near Mint',
                   updatedAt: DateTime.utc(2026, 5, 23, 10),
                 )),
-                testOwnedSummary(testOwnedItem(
+                testCollectionItemSummary(testCollectionItem(
                   id: 'owned-2',
                   itemId: 'book-1',
                   condition: 'Very Fine',
@@ -900,7 +900,7 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Front'), findsNothing);
     expect(find.widgetWithText(FilledButton, 'Back'), findsNothing);
 
-    await tester.tap(find.byType(DropdownButtonFormField<OwnedCopyRef>).first);
+    await tester.tap(find.byType(DropdownButtonFormField<CollectionItemRef>).first);
     await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Copy 2').last);
     await pumpUntilSettled(tester);

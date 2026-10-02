@@ -110,13 +110,13 @@ void main() {
 
     final workspaceDto = const MovieWorkspaceProjector().project(
       source: source,
-      entity: const LibraryWorkRef(workId: 'movie-1'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'movie-1'),
     );
 
     final ctx = LibraryProjectionContext<MovieWorkspaceDto>(
       source: source,
       dto: workspaceDto,
-      node: const LibraryWorkRef(workId: 'movie-1'),
+      node: const LibraryCatalogItemNodeRef(catalogItemId: 'movie-1'),
     );
 
     expect(

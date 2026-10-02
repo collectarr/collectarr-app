@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_collection_item_projection.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -11,11 +11,11 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -41,7 +41,7 @@ class AnimeEditDraft
         LibraryCopyEditSessionDefaults
     implements AnimeEditDraftContract {
   AnimeEditDraft({
-    this.ownedItem,
+    this.collectionItem,
     required this.featuresController,
     required this.boxSetNameController,
     required this.regionController,
@@ -60,7 +60,7 @@ class AnimeEditDraft
     required this.animeEdit,
   });
 
-  final AnimeOwnedItem? ownedItem;
+  final AnimeCollectionItem? collectionItem;
 
   @override
   final TextEditingController featuresController;
@@ -105,7 +105,7 @@ class AnimeEditDraft
 
   @override
   void initializePersonalState(PersonalStateDraft personal) {
-    final item = ownedItem;
+    final item = collectionItem;
     if (item == null) return;
     personal.ownerLabelController.text = item.ownerLabel ?? '';
     personal.conditionController.text = item.condition ?? '';
@@ -116,7 +116,6 @@ class AnimeEditDraft
         ? ''
         : (item.pricePaidCents! / 100).toStringAsFixed(2);
     personal.currencyController.text = item.currency ?? '';
-    personal.quantityController.text = item.quantity.toString();
     personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
     personal.notesController.text = item.personalNotes ?? '';
     personal.tagsController.text = item.tags ?? '';
@@ -134,14 +133,11 @@ class AnimeEditDraft
   }
 
   @override
-  AnimeOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedCopyRef ownedRef,
+  AnimeCollectionItemUpdatePayload buildOwnedUpdatePayload({
+    required CollectionItemRef collectionItemRef,
     required PersonalStateDraft personal,
   }) {
-    final targetRef = personal.selectedOwnedTargetRef;
-    return AnimeOwnedItemUpdatePayload(
-      targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
-      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+    return AnimeCollectionItemUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -400,11 +396,11 @@ class AnimeEditDraft
 
 LibraryEditSessionBundle createAnimeEditDraft({
   required CatalogSearchCandidate item,
-  LibraryOwnedItemDispatch? ownedItemDispatch,
+  LibraryCollectionItemDispatch? collectionItemDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = AnimeOwnedItemProjection.fromDispatch(ownedItemDispatch);
+  final owned = AnimeCollectionItemProjection.fromDispatch(collectionItemDispatch);
   final video = owned?.details;
   final metadata = item.kindCapability
       .mapTransport((transport) => AnimeMetadata.fromJson(transport.kindData));
@@ -447,7 +443,7 @@ LibraryEditSessionBundle createAnimeEditDraft({
   animeEdit.initializeAnimeEditors();
 
   final draft = AnimeEditDraft(
-    ownedItem: owned,
+    collectionItem: owned,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
     regionController: textControllers.create(text: video?.region ?? ''),

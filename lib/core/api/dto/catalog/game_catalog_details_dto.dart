@@ -13,4 +13,10 @@ class GameCatalogDetailsDto {
       platforms.isNotEmpty ||
       (toySubtype != null && toySubtype!.isNotEmpty) ||
       (toyType != null && toyType!.isNotEmpty);
+
+  Map<String, dynamic> toJson() => {
+        if (platforms.isNotEmpty) 'platforms': platforms,
+        if (toySubtype != null) 'toy_subtype': toySubtype,
+        if (toyType != null) 'toy_type': toyType,
+      };
 }

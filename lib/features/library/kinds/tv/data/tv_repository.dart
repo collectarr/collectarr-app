@@ -153,15 +153,7 @@ final class TvRepository implements ReadRepository<TvSeriesId, TvSeries> {
   CatalogItemDto _toCatalogItem(TvSeries series) => CatalogItemDto.raw(
         id: series.id,
         mediaKind: CatalogMediaKind.tv,
-        common: CatalogCommonDto(
-          title: series.title,
-          originalTitle: series.rawPayload['original_title']?.toString(),
-          synopsis: series.description,
-          coverImageUrl: series.coverImageUrl,
-          thumbnailImageUrl: series.thumbnailImageUrl,
-          releaseDate: series.originalAirDate,
-        ),
-        kindMetadata: series,
+        kindData: series.toJson(),
       );
 
   TvSeries _replaceChildren(

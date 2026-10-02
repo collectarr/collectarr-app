@@ -57,31 +57,6 @@ void main() {
     actualFields: (_) => const ['id', 'ignoredField'],
   );
 
-  test('ComicWorkDto fields are explicitly classified', () {
-    final source = File(
-      'lib/core/api/generated/collectarr_api.models.dart',
-    ).readAsStringSync();
-    validateCoreDtoFieldAdoption(
-      source: source,
-      policy: CoreFieldAdoptionPolicy(
-        dtoName: 'ComicWorkDto',
-        mapped: {
-          'id',
-          'title',
-          'contributors',
-          'description',
-          'firstPublicationDate',
-          'originalLanguage',
-          'sortTitle',
-          'subtitle',
-          'issues',
-          'kind',
-        },
-        intentionallyIgnored: const {},
-      ),
-    );
-  });
-
   test('Core field adoption rejects an unclassified DTO field', () {
     const source = '''
 class FixtureDto {

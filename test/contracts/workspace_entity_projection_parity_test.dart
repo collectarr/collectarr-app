@@ -1,14 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
@@ -23,17 +15,17 @@ void main() {
     for (final kind in CatalogMediaKind.values.where(
       (kind) => kind != CatalogMediaKind.unknown,
     )) {
-      final workId = 'workspace-${kind.apiValue}';
-      final owned = testOwnedItem(
+      final catalogItemId = 'workspace-${kind.apiValue}';
+      final owned = testCollectionItem(
         id: 'owned-${kind.apiValue}',
-        itemId: workId,
+        itemId: catalogItemId,
         kind: kind.apiValue,
       );
       final source = LibraryWorkspaceSource(
-        itemId: workId,
+        itemId: catalogItemId,
         catalogData: testWorkspaceCatalogData(
           testCatalogItem(
-            id: workId,
+            id: catalogItemId,
             kind: kind.apiValue,
             title: 'Work ${kind.apiValue}',
             editions: const [
@@ -50,31 +42,39 @@ void main() {
             ],
           ),
         ),
-        ownedSummary: testOwnedSummary(owned),
+        collectionItemSummary: testCollectionItemSummary(owned),
       );
       final workspace = libraryKindWorkspaceForKind(kind);
+      if (kind == CatalogMediaKind.anime || kind == CatalogMediaKind.manga) {
+        expect(
+          () => workspace.projectorForScope(LibraryEntityScope.release),
+          throwsStateError,
+          reason:
+              '${kind.apiValue} editions are Catalog Items, not Release nodes',
+        );
+        continue;
+      }
       final releaseRef = LibraryReleaseRef(
-        workId: workId,
+        catalogItemId: catalogItemId,
         releaseId: 'release-2',
         release: const LibraryWorkspaceReleaseSummary(
           id: 'release-2',
           title: 'Second release',
         ),
       );
-      final copyRef = LibraryCopyRef(
-        workId: workId,
-        releaseId: 'release-2',
-        ownedRef: source.ownedSummary!.ref,
+      final copyRef = LibraryCollectionItemNodeRef(
+        catalogItemId: catalogItemId,
+        collectionItemRef: source.collectionItemSummary!.ref,
       );
 
       final releaseDto = workspace
           .projectorForScope(LibraryEntityScope.release)
           .project(source: source, entity: releaseRef);
       final copyDto = workspace
-          .projectorForScope(LibraryEntityScope.copy)
+          .projectorForScope(LibraryEntityScope.collectionItem)
           .project(source: source, entity: copyRef);
-      final releaseProjection = _selectedRelease(releaseDto);
-      final copyProjection = _selectedRelease(copyDto);
+      final releaseProjection = _selectedRelease(releaseDto, releaseRef);
+      final copyProjection = _selectedRelease(copyDto, copyRef);
 
       expect(
         releaseProjection.id,
@@ -95,7 +95,7 @@ void main() {
       expect(copyProjection.title, 'Second release');
 
       final staleReleaseRef = LibraryReleaseRef(
-        workId: workId,
+        catalogItemId: catalogItemId,
         releaseId: 'release-stale',
         release: const LibraryWorkspaceReleaseSummary(
           id: 'release-stale',
@@ -111,13 +111,14 @@ void main() {
             '${kind.apiValue} must reject a stale ReleaseRef instead of using primary release',
       );
       expect(
-        () => workspace.projectorForScope(LibraryEntityScope.copy).project(
-            source: source,
-            entity: LibraryCopyRef(
-              workId: workId,
-              releaseId: 'release-stale',
-              ownedRef: source.ownedSummary!.ref,
-            )),
+        () => workspace
+            .projectorForScope(LibraryEntityScope.collectionItem)
+            .project(
+                source: source,
+                entity: LibraryCollectionItemNodeRef(
+                  catalogItemId: catalogItemId,
+                  collectionItemRef: source.collectionItemSummary!.ref,
+                )),
         throwsStateError,
         reason:
             '${kind.apiValue} must reject a stale CopyRef instead of substituting another release',
@@ -126,48 +127,21 @@ void main() {
   });
 }
 
-({String id, String title}) _selectedRelease(LibraryWorkspaceDto dto) {
-  return switch (dto) {
-    AnimeWorkspaceDto(:final release) => (
-        id: release!.id.toString(),
-        title: release.title,
-      ),
-    BoardGameWorkspaceDto(:final release) => (
-        id: release!.id,
-        title: release.title,
-      ),
-    BookWorkspaceDto(:final release) => (
-        id: release!.id,
-        title: release.title,
-      ),
-    ComicWorkspaceDto(:final release) => (
-        id: release!.id,
-        title: release.title,
-      ),
-    GameWorkspaceDto(:final release) => (
-        id: release!.id,
-        title: release.title,
-      ),
-    MangaWorkspaceDto(:final release) => (
-        id: release!.id,
-        title: release.title,
-      ),
-    MovieWorkspaceDto(:final release) => (
-        id: release!.id,
-        title: release.title,
-      ),
-    MusicCatalogItemWorkspaceDto(:final music) => (
-        id: music.id.value,
-        title: music.title,
-      ),
-    MusicOwnedCopyWorkspaceDto(:final music) => (
-        id: music.id.value,
-        title: music.title,
-      ),
-    TvWorkspaceDto(:final release) => (
-        id: release!.id,
-        title: release.title,
-      ),
-    _ => throw StateError('Unexpected workspace DTO type: ${dto.runtimeType}'),
+({String id, String title}) _selectedRelease(
+  LibraryWorkspaceDto dto,
+  LibraryEntityRef node,
+) {
+  if (dto case MusicCatalogItemWorkspaceDto(:final music)) {
+    return (id: music.id.value, title: music.title);
+  }
+  if (dto case MusicCollectionItemWorkspaceDto(:final music)) {
+    return (id: music.id.value, title: music.title);
+  }
+  final id = switch (node) {
+    LibraryReleaseRef(:final releaseId) => releaseId,
+    LibraryCollectionItemNodeRef(:final collectionItemRef) =>
+      collectionItemRef.id.value,
+    _ => throw StateError('Unexpected workspace node: ${node.runtimeType}'),
   };
+  return (id: id, title: dto.primaryLabel);
 }

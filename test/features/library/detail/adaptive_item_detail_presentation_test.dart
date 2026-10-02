@@ -54,7 +54,7 @@ void main() {
                       context: context,
                       type: type,
                       item: item,
-                      ownedSummary: null,
+                      collectionItemSummary: null,
                       accent: Colors.deepOrange,
                       onAddOwned: () {},
                       onRemoveOwned: () {},

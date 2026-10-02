@@ -77,8 +77,10 @@ final class MangaSerialAuthorityContributor
         CatalogItemDto.raw(
           id: item.id,
           mediaKind: kind,
-          common: item.common,
-          payload: payload,
+          kindData: {
+            ...item.kindData,
+            ...payload,
+          },
         ),
       ]);
     }

@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_collection_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
@@ -139,37 +139,37 @@ final class MovieCollectionCsvProjection
   @override
   String? ownedCollectionValue(LibraryWorkspaceSource entry) {
     final owned =
-        MovieOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MovieOwnedItem ? owned.grade : null;
+        MovieCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is MovieCollectionItem ? owned.grade : null;
   }
 
   @override
   String? ownedCondition(LibraryWorkspaceSource entry) {
     final owned =
-        MovieOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MovieOwnedItem ? owned.condition : null;
+        MovieCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is MovieCollectionItem ? owned.condition : null;
   }
 
   @override
   int? ownedIndexNumber(LibraryWorkspaceSource entry) {
     final owned =
-        MovieOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MovieOwnedItem ? owned.indexNumber : null;
+        MovieCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is MovieCollectionItem ? owned.indexNumber : null;
   }
 
   @override
   String? ownedTags(LibraryWorkspaceSource entry) {
     final owned =
-        MovieOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MovieOwnedItem ? owned.tags : null;
+        MovieCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is MovieCollectionItem ? owned.tags : null;
   }
 
   @override
-  List<String> ownedCellsBeforeQuantity(
+  List<String> ownedCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
-    return clzFriendly ? const [''] : const [];
+    return const [];
   }
 
   @override
@@ -178,9 +178,7 @@ final class MovieCollectionCsvProjection
     required bool clzFriendly,
   }) {
     return List<String>.filled(
-      clzFriendly
-          ? collectionCsvV1OwnedCellCount - 1
-          : collectionCsvV1OwnedCellCount,
+      collectionCsvV1OwnedCellCount,
       '',
     );
   }

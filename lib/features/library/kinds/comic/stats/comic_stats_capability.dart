@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
@@ -63,7 +63,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
 
   static int countKeyComics(Iterable<LibraryWorkspaceSource> entries) {
     return entries.where((entry) => entry.isOwned).where((entry) {
-      return _comicOwnedItem(entry)?.details.keyComic == true;
+      return _comicCollectionItem(entry)?.details.keyComic == true;
     }).length;
   }
 
@@ -271,8 +271,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
     return match == null ? null : int.tryParse(match.group(1)!);
   }
 
-  static ComicOwnedItem? _comicOwnedItem(LibraryWorkspaceSource entry) {
-    return ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
+  static ComicCollectionItem? _comicCollectionItem(LibraryWorkspaceSource entry) {
+    return ComicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
   }
 
   static ComicCatalogItem? _comicMetadata(LibraryWorkspaceSource entry) {

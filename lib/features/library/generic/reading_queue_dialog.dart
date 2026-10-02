@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
@@ -14,7 +14,7 @@ Future<void> showReadingQueueDialog({
   required BuildContext context,
   required LocalDatabase db,
   required String mediaKind,
-  required Iterable<OwnedCopySummary> ownedItems,
+  required Iterable<CollectionItemSummary> collectionItems,
   Iterable<TrackingSummary> trackingSummaries = const [],
   required Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef,
   ValueChanged<String>? onSelectItem,
@@ -24,7 +24,7 @@ Future<void> showReadingQueueDialog({
     builder: (_) => _ReadingQueueDialog(
       db: db,
       mediaKind: mediaKind,
-      ownedItems: ownedItems.toList(growable: false),
+      collectionItems: collectionItems.toList(growable: false),
       trackingSummaries: trackingSummaries.toList(growable: false),
       catalogSummariesByRef: catalogSummariesByRef,
       onSelectItem: onSelectItem,
@@ -36,7 +36,7 @@ class _ReadingQueueDialog extends StatefulWidget {
   const _ReadingQueueDialog({
     required this.db,
     required this.mediaKind,
-    required this.ownedItems,
+    required this.collectionItems,
     required this.trackingSummaries,
     required this.catalogSummariesByRef,
     this.onSelectItem,
@@ -44,7 +44,7 @@ class _ReadingQueueDialog extends StatefulWidget {
 
   final LocalDatabase db;
   final String mediaKind;
-  final List<OwnedCopySummary> ownedItems;
+  final List<CollectionItemSummary> collectionItems;
   final List<TrackingSummary> trackingSummaries;
   final Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef;
   final ValueChanged<String>? onSelectItem;
@@ -74,11 +74,11 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
     final repo = ReadingQueueRepository(widget.db);
     final queueRefs = await repo.getQueue();
     final ownedByRef = {
-      for (final item in widget.ownedItems) item.ref: item,
+      for (final item in widget.collectionItems) item.ref: item,
     };
-    final trackingByOwnedRef = {
+    final trackingByCollectionItemRef = {
       for (final entry in widget.trackingSummaries)
-        if (!entry.isDeleted && entry.ownedRef != null) entry.ownedRef!: entry,
+        if (!entry.isDeleted && entry.collectionItemRef != null) entry.collectionItemRef!: entry,
     };
     final trackingByCatalogRef = {
       for (final entry in widget.trackingSummaries)
@@ -103,7 +103,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
         _ReadingQueueDialogEntry(
           summary: summary,
           catalogSummary: catalogSummary,
-          trackingSummary: trackingByOwnedRef[summary.ref] ??
+          trackingSummary: trackingByCollectionItemRef[summary.ref] ??
               trackingByCatalogRef[catalogRef.rootScope],
         ),
       );
@@ -359,7 +359,7 @@ class _ReadingQueueDialogEntry {
     this.trackingSummary,
   });
 
-  final OwnedCopySummary summary;
+  final CollectionItemSummary summary;
   final CatalogDisplaySummary catalogSummary;
   final TrackingSummary? trackingSummary;
 

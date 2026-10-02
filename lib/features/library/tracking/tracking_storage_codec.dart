@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
@@ -21,7 +21,7 @@ final class TrackingStorageRow {
   const TrackingStorageRow({
     required this.id,
     required this.catalogRef,
-    required this.ownedRef,
+    required this.collectionItemRef,
     required this.sourceType,
     required this.status,
     required this.rating,
@@ -35,7 +35,7 @@ final class TrackingStorageRow {
 
   final String id;
   final CatalogEntityRef catalogRef;
-  final OwnedCopyRef? ownedRef;
+  final CollectionItemRef? collectionItemRef;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -128,7 +128,7 @@ abstract interface class TrackingStorageCodec {
   TrackingStorageRecord create({
     required String id,
     required CatalogEntityRef catalogRef,
-    OwnedCopyRef? ownedRef,
+    CollectionItemRef? collectionItemRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -149,7 +149,7 @@ abstract interface class TrackingStorageCodec {
 
   JsonMap toSyncPayload(TrackingStorageRecord entry);
 
-  /// Reconstructs a tracking entry received from the provider sync boundary.
+  /// Reconstructs a tracking entry received from the personal Sync boundary.
   ///
   /// Kind-specific coordinates are parsed by the owning codec rather than by
   /// the shared model's transport factory.
@@ -203,7 +203,7 @@ mixin TrackingStorageCodecSupport {
       catalogRef: row.catalogRef,
       status:
           mediaTrackingStatusFromValue(row.status) ?? MediaTrackingStatus.none,
-      ownedRef: row.ownedRef,
+      collectionItemRef: row.collectionItemRef,
       sourceType: trackingSourceTypeFromValue(row.sourceType),
       rating: row.rating,
       startedAt: row.startedAt,
@@ -274,7 +274,7 @@ mixin TrackingStorageCodecSupport {
 TrackingStorageRow trackingStorageRowFromColumns({
   required String id,
   required String catalogRefJson,
-  required String? ownedRefKey,
+  required String? collectionItemRefKey,
   required String? sourceType,
   required String? status,
   required int? rating,
@@ -294,14 +294,14 @@ TrackingStorageRow trackingStorageRowFromColumns({
     Map<String, Object?>.from(decoded),
   );
   requireKnownCatalogRef(catalogRef, 'tracking.catalogRef');
-  final ownedRef = ownedCopyRefFromSerialized(ownedRefKey);
-  if (ownedRef != null) {
-    requireMatchingOwnedCatalogKinds(catalogRef, ownedRef);
+  final collectionItemRef = collectionItemRefFromSerialized(collectionItemRefKey);
+  if (collectionItemRef != null) {
+    requireMatchingCatalogAndCollectionItemKinds(catalogRef, collectionItemRef);
   }
   return TrackingStorageRow(
     id: id,
     catalogRef: catalogRef,
-    ownedRef: ownedRef,
+    collectionItemRef: collectionItemRef,
     sourceType: sourceType,
     status: status,
     rating: rating,

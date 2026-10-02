@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
-import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/config/collection_item_update_payload.dart';
 
 // ---------------------------------------------------------------------------
 // Selection data classes returned by the edit dialog
@@ -18,7 +18,7 @@ enum LibraryEditSubmitAction {
 class LibraryEditSelection {
   const LibraryEditSelection({
     required this.kindItem,
-    this.scope = LibraryEntityScope.work,
+    this.scope = LibraryEntityScope.catalogItem,
     this.wishlist,
     this.tracking,
     this.trackingKindPatch,
@@ -35,7 +35,7 @@ class LibraryEditSelection {
   final LibraryWishlistEditSelection? wishlist;
   final LibraryTrackingEditSelection? tracking;
   final TrackingKindPatch? trackingKindPatch;
-  final OwnedItemUpdatePayload? ownedUpdatePayload;
+  final CollectionItemUpdatePayload? ownedUpdatePayload;
   final Map<String, String?> customFieldEdits;
   final List<ItemImageEdit> itemImageEdits;
   final LibraryEditSubmitAction submitAction;
@@ -46,7 +46,7 @@ class LibraryEditSelection {
     LibraryWishlistEditSelection? wishlist,
     LibraryTrackingEditSelection? tracking,
     TrackingKindPatch? trackingKindPatch,
-    OwnedItemUpdatePayload? ownedUpdatePayload,
+    CollectionItemUpdatePayload? ownedUpdatePayload,
     Map<String, String?>? customFieldEdits,
     List<ItemImageEdit>? itemImageEdits,
     LibraryEditSubmitAction? submitAction,

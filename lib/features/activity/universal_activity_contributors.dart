@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -13,7 +13,7 @@ typedef UniversalActivityKindPredicate = bool Function(CatalogMediaKind kind);
 /// models whose lifecycle semantics are shared across all kinds.
 final class UniversalActivityContext {
   const UniversalActivityContext({
-    this.ownedItems = const [],
+    this.collectionItems = const [],
     this.trackingRecords = const [],
     this.wishlistItems = const [],
     this.loans = const [],
@@ -21,7 +21,7 @@ final class UniversalActivityContext {
     this.hasKindContributor = _noKindContributor,
   });
 
-  final Iterable<OwnedCopySummary> ownedItems;
+  final Iterable<CollectionItemSummary> collectionItems;
   final Iterable<TrackingActivitySummary> trackingRecords;
   final Iterable<WishlistItem> wishlistItems;
   final Iterable<Loan> loans;
@@ -35,7 +35,7 @@ final class OwnedActivityContributor
 
   @override
   Iterable<ActivityEvent> contribute(UniversalActivityContext context) sync* {
-    for (final item in context.ownedItems) {
+    for (final item in context.collectionItems) {
       if (item.purchaseDate != null) {
         yield ActivityEvent(
           kind: ActivityEventKind.purchased,

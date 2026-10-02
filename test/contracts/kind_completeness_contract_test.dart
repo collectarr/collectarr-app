@@ -78,7 +78,7 @@ void main() {
             reason: '$kind field registry must declare groups');
 
         // Projector
-        expect(workspace.projectorForScope(LibraryEntityScope.work), isNotNull,
+        expect(workspace.projectorForScope(LibraryEntityScope.catalogItem), isNotNull,
             reason: '$kind must have a workspace projector');
 
         // View Profile, Hierarchy, Metadata, Inspector, Transfer
@@ -148,7 +148,7 @@ void main() {
       );
 
       for (final kind in activeKinds) {
-        expect(libraryOwnedSummaryReadersByKind, contains(kind));
+        expect(libraryCollectionItemSummaryReadersByKind, contains(kind));
       }
     });
 
@@ -209,7 +209,7 @@ void main() {
               id.contains('updated_at') ||
               id.contains('added_at') ||
               id.contains('completeness')) {
-            expect(field.entityScope, equals(LibraryEntityScope.copy),
+            expect(field.entityScope, equals(LibraryEntityScope.collectionItem),
                 reason: '$kind field ${field.id.value} must have copy scope');
           }
 
@@ -237,7 +237,7 @@ void main() {
               id.endsWith('.writer') ||
               id.endsWith('.director') ||
               id.endsWith('.developer')) {
-            expect(field.entityScope, equals(LibraryEntityScope.work),
+            expect(field.entityScope, equals(LibraryEntityScope.catalogItem),
                 reason: '$kind field ${field.id.value} must have media scope');
           }
         }

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -99,12 +99,13 @@ final class LibraryCatalogReleaseProjectionCapability<
   }) {
     final releaseTarget = targetFor(rootRef, summary);
     final releaseNode = LibraryReleaseRef(
-      workId: rootRef.id,
+      catalogItemId: rootRef.id,
       releaseId: summary.id,
       release: summary,
     );
     final releaseState = LibraryReleaseState(
-      isOwned: _targetMatches(source.ownedSummary?.targetRef, rootRef, summary),
+      isOwned: _targetMatches(
+          source.collectionItemSummary?.catalogRef, rootRef, summary),
       isWishlisted:
           source.wishlistItem?.catalogRef == rootRef.toCatalogItemRef(),
       isTracked: source.trackingSummaryFor(releaseTarget) != null,
@@ -157,7 +158,8 @@ final class LibraryCatalogReleaseDetailSource
   List<LibraryReleaseDetailOption> detailOptionsForCatalogData(
     LibraryWorkspaceCatalogData catalogData,
     CatalogEntityRef rootRef, {
-    Iterable<OwnedCopySummary> ownedItems = const <OwnedCopySummary>[],
+    Iterable<CollectionItemSummary> collectionItems =
+        const <CollectionItemSummary>[],
     Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
   }) {
     return [

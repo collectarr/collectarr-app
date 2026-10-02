@@ -9,7 +9,6 @@ class BookCatalogItemEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const BookCatalogItemEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: false,
           useOwnedMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
@@ -18,8 +17,6 @@ class BookCatalogItemEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
           ownedTabs: const [
             LibraryEditTabSpec(
               id: 'main',
@@ -147,8 +144,7 @@ class BookCatalogItemEditPresentationBuilder
   }) {
     String? creator;
     creator = kindItem.kindCapability.mapTransport((transport) {
-      final metadata = transport.kindMetadata;
-      if (metadata is! BookCatalogMetadata) return null;
+      final metadata = BookCatalogMetadata.fromJson(transport.payload);
       for (final credit in metadata.creators) {
         final name = credit['name']?.toString().trim();
         if (name != null && name.isNotEmpty) return name;

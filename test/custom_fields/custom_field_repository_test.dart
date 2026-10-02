@@ -124,15 +124,15 @@ void main() {
         id: 'def-1',
         name: 'Storage Box',
         fieldType: 'text',
-        editScope: CustomFieldTargetScope.ownedCopy.apiValue,
+        editScope: CustomFieldTargetScope.collectionItem.apiValue,
         createdAt: DateTime.utc(2026, 1, 1),
       );
       await repo.upsertDefinition(def);
       final defs = await repo.listDefinitions(
-        targetScope: CustomFieldTargetScope.ownedCopy,
+        targetScope: CustomFieldTargetScope.collectionItem,
       );
       expect(defs, hasLength(1));
-      expect(defs.single.targetScope, CustomFieldTargetScope.ownedCopy);
+      expect(defs.single.targetScope, CustomFieldTargetScope.collectionItem);
     });
 
     test('deleteDefinition removes definition', () async {
@@ -152,7 +152,7 @@ void main() {
       expect(
         await repo.listValuesForTarget(
           targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
         ),
         isEmpty,
       );
@@ -162,7 +162,7 @@ void main() {
       final value = CustomFieldValue(
         id: 'val-1',
         targetId: 'comic:owned-1',
-        targetScope: CustomFieldTargetScope.ownedCopy,
+        targetScope: CustomFieldTargetScope.collectionItem,
         fieldDefinitionId: 'def-1',
         value: 'Shelf A',
         updatedAt: DateTime.utc(2026, 1, 1),
@@ -170,7 +170,7 @@ void main() {
       await repo.upsertValue(value);
       final values = await repo.listValuesForTarget(
         targetId: 'comic:owned-1',
-        targetScope: CustomFieldTargetScope.ownedCopy,
+        targetScope: CustomFieldTargetScope.collectionItem,
       );
       expect(values, hasLength(1));
       expect(values.single.value, 'Shelf A');
@@ -182,7 +182,7 @@ void main() {
         CustomFieldValue(
           id: 'val-1',
           targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
           fieldDefinitionId: 'def-1',
           value: 'A',
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -190,7 +190,7 @@ void main() {
         CustomFieldValue(
           id: 'val-2',
           targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
           fieldDefinitionId: 'def-2',
           value: 'B',
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -198,7 +198,7 @@ void main() {
       ]);
       final values = await repo.listValuesForTarget(
         targetId: 'comic:owned-1',
-        targetScope: CustomFieldTargetScope.ownedCopy,
+        targetScope: CustomFieldTargetScope.collectionItem,
       );
       expect(values, hasLength(2));
     });
@@ -208,7 +208,7 @@ void main() {
         CustomFieldValue(
           id: 'val-1',
           targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
           fieldDefinitionId: 'def-1',
           value: 'A',
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -216,7 +216,7 @@ void main() {
         CustomFieldValue(
           id: 'val-2',
           targetId: 'comic:owned-2',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
           fieldDefinitionId: 'def-1',
           value: 'B',
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -224,7 +224,7 @@ void main() {
         CustomFieldValue(
           id: 'val-3',
           targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
           fieldDefinitionId: 'def-2',
           value: 'C',
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -270,7 +270,7 @@ void main() {
         CustomFieldValue(
           id: 'val-1',
           targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
           fieldDefinitionId: 'def-1',
           value: 'A',
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -278,7 +278,7 @@ void main() {
         CustomFieldValue(
           id: 'val-2',
           targetId: 'comic:owned-2',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
           fieldDefinitionId: 'def-1',
           value: 'B',
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -286,19 +286,19 @@ void main() {
       ]);
       await repo.deleteValuesForTarget(
         targetId: 'comic:owned-1',
-        targetScope: CustomFieldTargetScope.ownedCopy,
+        targetScope: CustomFieldTargetScope.collectionItem,
       );
       expect(
         await repo.listValuesForTarget(
           targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
         ),
         isEmpty,
       );
       expect(
         await repo.listValuesForTarget(
           targetId: 'comic:owned-2',
-          targetScope: CustomFieldTargetScope.ownedCopy,
+          targetScope: CustomFieldTargetScope.collectionItem,
         ),
         hasLength(1),
       );

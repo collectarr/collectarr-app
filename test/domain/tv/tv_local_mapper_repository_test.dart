@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,30 +34,24 @@ void main() {
     );
   });
 
-  test('TvLocalMapper round-trips the complete owned copy', () async {
+  test('TvLocalMapper round-trips the complete collection item', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final item = TvOwnedItem(
-      id: const TvOwnedCopyId('owned-tv-1'),
+    final item = TvCollectionItem(
+      id: const CollectionItemId('owned-tv-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'tv-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),
       isDigital: false,
-      targetRef: const CatalogEntityRef(
-        kind: CatalogMediaKind.tv,
-        entityType: CatalogEntityTypeId('edition'),
-        id: 'release-1',
-      ),
       condition: 'Near Mint',
       grade: '9.5',
       purchaseDate: DateTime.utc(2026, 4, 2),
       pricePaidCents: 3999,
       currency: 'EUR',
       personalNotes: 'Complete season set',
-      quantity: 2,
       indexNumber: 3,
       tags: 'favorite,complete',
       updatedAt: DateTime.utc(2026, 4, 3),
@@ -77,26 +72,22 @@ void main() {
       ),
     );
 
-    await db.into(db.tvOwnedItemsRows).insert(
-          TvLocalMapper.toOwnedItemRow(item),
+    await db.into(db.tvCollectionItemsRows).insert(
+          TvLocalMapper.toCollectionItemRow(item),
         );
-    final row = await db.select(db.tvOwnedItemsRows).getSingle();
-    final restored = TvLocalMapper.fromOwnedItemRow(row);
+    final row = await db.select(db.tvCollectionItemsRows).getSingle();
+    final restored = TvLocalMapper.fromCollectionItemRow(row);
 
-    expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
     expect(restored.isDigital, false);
-    expect(restored.targetRef?.entityType.apiValue, 'edition');
-    expect(restored.targetRef?.id, 'release-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);
     expect(restored.pricePaidCents, item.pricePaidCents);
     expect(restored.currency, item.currency);
     expect(restored.personalNotes, item.personalNotes);
-    expect(restored.quantity, item.quantity);
     expect(restored.indexNumber, item.indexNumber);
     expect(restored.tags, item.tags);
     expect(restored.updatedAt.toUtc(), item.updatedAt);

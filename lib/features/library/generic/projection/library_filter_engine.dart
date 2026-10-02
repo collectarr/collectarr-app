@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -20,7 +20,7 @@ class LibraryFilterEngine {
     required LibrarySearchDocument searchDoc,
     required LibraryKindRegistration type,
     LibraryProjectionIndex? index,
-    Set<OwnedCopyRef> activeLoanOwnedCopyIds = const {},
+    Set<CollectionItemRef> activeLoanCollectionItemIds = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
   }) {
@@ -50,7 +50,7 @@ class LibraryFilterEngine {
       item,
       type,
       query.filterSelection,
-      activeLoanOwnedCopyIds,
+      activeLoanCollectionItemIds,
       customFieldValuesByDefinitionByItem,
     )) {
       return false;
@@ -113,7 +113,7 @@ class LibraryFilterEngine {
     LibraryProjectionItem item,
     LibraryCollectionStatusScope scope,
   ) {
-    final isSold = item.source.ownedSummary?.soldAt != null;
+    final isSold = item.source.collectionItemSummary?.soldAt != null;
     final isWishlistOnly = item.source.isWishlisted && !item.source.isOwned;
     final isCatalogOnly = !item.source.isOwned && !item.source.isWishlisted;
     final isInCollection = item.source.isOwned && !isSold;
@@ -155,7 +155,7 @@ class LibraryFilterEngine {
     LibraryProjectionItem item,
     LibraryKindRegistration type,
     LibraryFilterSelection filters,
-    Set<OwnedCopyRef> activeLoanOwnedCopyIds,
+    Set<CollectionItemRef> activeLoanCollectionItemIds,
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
   ) {
     if (!filters.hasActiveFilters) {
@@ -176,7 +176,7 @@ class LibraryFilterEngine {
       return false;
     }
     if (!_matchesLoanFilter(
-        item, filters.loanStatusFilter, activeLoanOwnedCopyIds)) {
+        item, filters.loanStatusFilter, activeLoanCollectionItemIds)) {
       return false;
     }
     if (!_matchesDateRange(item, filters)) {
@@ -201,11 +201,11 @@ class LibraryFilterEngine {
     if (definitionId == null || definitionId.isEmpty) {
       return true;
     }
-    final ownedRefKey = item.source.ownedRef?.key;
-    if (ownedRefKey == null) {
+    final collectionItemRefKey = item.source.collectionItemRef?.key;
+    if (collectionItemRefKey == null) {
       return false;
     }
-    final values = customFieldValuesByDefinitionByItem[ownedRefKey];
+    final values = customFieldValuesByDefinitionByItem[collectionItemRefKey];
     final actualValue = values?[definitionId]?.trim();
     if (actualValue == null || actualValue.isEmpty) {
       return false;
@@ -224,16 +224,16 @@ class LibraryFilterEngine {
   bool _matchesLoanFilter(
     LibraryProjectionItem item,
     LibraryLoanStatusFilter filter,
-    Set<OwnedCopyRef> activeLoanOwnedCopyIds,
+    Set<CollectionItemRef> activeLoanCollectionItemIds,
   ) {
     if (filter == LibraryLoanStatusFilter.all) {
       return true;
     }
-    final ownedRef = item.source.ownedRef;
-    if (ownedRef == null) {
+    final collectionItemRef = item.source.collectionItemRef;
+    if (collectionItemRef == null) {
       return false;
     }
-    final hasActiveLoan = activeLoanOwnedCopyIds.contains(ownedRef);
+    final hasActiveLoan = activeLoanCollectionItemIds.contains(collectionItemRef);
     return switch (filter) {
       LibraryLoanStatusFilter.all => true,
       LibraryLoanStatusFilter.onLoan => hasActiveLoan,

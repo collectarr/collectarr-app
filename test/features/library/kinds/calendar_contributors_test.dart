@@ -206,7 +206,7 @@ LibraryCalendarContext _context({
       for (final id in ids)
         CatalogEntityRef(
           kind: catalogMediaKindFromApiValue(id.split('-').first),
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: id,
         ),
     },

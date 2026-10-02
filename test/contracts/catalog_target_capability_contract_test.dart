@@ -13,7 +13,7 @@ void main() {
         final targetCapability = capability;
         final root = CatalogEntityRef(
           kind: kind,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: '${kind.apiValue}-work',
         );
 

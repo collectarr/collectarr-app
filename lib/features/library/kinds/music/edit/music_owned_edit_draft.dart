@@ -1,10 +1,10 @@
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 
 /// Mutable Copy-owned state for Music's dedicated copy editor.
 final class MusicOwnedEditDraft {
-  MusicOwnedEditDraft.fromItem(MusicOwnedItem item)
+  MusicOwnedEditDraft.fromItem(MusicCollectionItem item)
       : original = item,
         media = List<MusicOwnedMediumDetails>.of(item.details.media),
         condition = item.condition,
@@ -27,7 +27,7 @@ final class MusicOwnedEditDraft {
         signedBy = item.details.signedBy,
         lastCleanedDate = item.details.lastCleanedDate;
 
-  final MusicOwnedItem original;
+  final MusicCollectionItem original;
   List<MusicOwnedMediumDetails> media;
   String? condition;
   String? grade;

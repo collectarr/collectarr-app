@@ -1,12 +1,12 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
 
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
@@ -94,8 +94,8 @@ List<_ComicInspectorTab> _comicInspectorTabs(
   final storyArcs = catalogItem?.storyArcs ?? const <String>[];
   final characters = catalogItem?.characters ?? const <String>[];
   final creators = catalogItem?.creators ?? const <Map<String, dynamic>>[];
-  final ownedItem =
-      ComicOwnedItemProjection.fromDispatch(request.ownedItemDispatch);
+  final collectionItem =
+      ComicCollectionItemProjection.fromDispatch(request.collectionItemDispatch);
 
   final tabs = <_ComicInspectorTab>[
     _ComicInspectorTab(
@@ -159,16 +159,16 @@ List<_ComicInspectorTab> _comicInspectorTabs(
             children: [
               LibraryDetailFieldTable(
                   fields:
-                      _valueFacts(item, request.ownedItem, request.ownedCopies))
+                      _valueFacts(item, request.collectionItem, request.ownedCopies))
             ],
           ),
-          if (ownedItem != null) ...[
+          if (collectionItem != null) ...[
             const SizedBox(height: 8),
             LibraryDetailSection(
               title: 'Collector',
               accentColor: request.accent,
               children: [
-                LibraryDetailFieldTable(fields: _collectorFacts(ownedItem))
+                LibraryDetailFieldTable(fields: _collectorFacts(collectionItem))
               ],
             ),
           ],
@@ -233,12 +233,12 @@ List<_ComicInspectorTab> _comicInspectorTabs(
       builder: (context, ref) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (_noteFacts(ownedItem).isNotEmpty)
+          if (_noteFacts(collectionItem).isNotEmpty)
             LibraryDetailSection(
               title: 'Notes',
               accentColor: request.accent,
               children: [
-                LibraryDetailFieldTable(fields: _noteFacts(ownedItem))
+                LibraryDetailFieldTable(fields: _noteFacts(collectionItem))
               ],
             ),
           if (_linkFacts(request.item).isNotEmpty) ...[
@@ -260,7 +260,7 @@ List<_ComicInspectorTab> _comicInspectorTabs(
     ),
   ];
   return switch (scope) {
-    LibraryEntityScope.work => [
+    LibraryEntityScope.catalogItem => [
         for (final tab in tabs)
           if (tab.label != 'Value Details') tab,
       ],
@@ -268,7 +268,7 @@ List<_ComicInspectorTab> _comicInspectorTabs(
         for (final tab in tabs)
           if (tab.label != 'Value Details') tab,
       ],
-    LibraryEntityScope.copy => [
+    LibraryEntityScope.collectionItem => [
         for (final tab in tabs)
           if (tab.label == 'Overview' ||
               tab.label == 'Value Details' ||
@@ -306,7 +306,7 @@ List<Widget> buildComicWorkInspectorSections(
   return [
     ComicInspectorTabsSection(
       request: request,
-      scope: LibraryEntityScope.work,
+      scope: LibraryEntityScope.catalogItem,
     ),
   ];
 }
@@ -318,7 +318,7 @@ List<Widget> buildComicCopyInspectorSections(
   return [
     ComicInspectorTabsSection(
       request: request,
-      scope: LibraryEntityScope.copy,
+      scope: LibraryEntityScope.collectionItem,
     ),
   ];
 }
@@ -401,7 +401,7 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
               ),
             ] else
               const Text(
-                  'No missing issues detected for the owned copies in this series.'),
+                  'No missing issues detected for the collection items in this series.'),
           ],
         );
       },
@@ -561,12 +561,12 @@ List<LibraryDetailField> _seriesFacts(LibraryProjectionView item) {
   return rows;
 }
 
-List<LibraryDetailField> _collectorFacts(ComicOwnedItem? ownedItem) {
-  if (ownedItem == null) {
+List<LibraryDetailField> _collectorFacts(ComicCollectionItem? collectionItem) {
+  if (collectionItem == null) {
     return const [];
   }
   final rows = <LibraryDetailField>[];
-  final comic = ownedItem.details;
+  final comic = collectionItem.details;
   if (comic.rawOrSlabbed?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
         label: 'Raw / Slabbed', value: comic.rawOrSlabbed!.trim()));
@@ -591,14 +591,14 @@ List<LibraryDetailField> _collectorFacts(ComicOwnedItem? ownedItem) {
 
 List<LibraryDetailField> _valueFacts(
   LibraryProjectionView item,
-  OwnedCopySummary? ownedItem,
-  List<OwnedCopySummary> ownedCopies,
+  CollectionItemSummary? collectionItem,
+  List<CollectionItemSummary> ownedCopies,
 ) {
-  if (ownedItem == null) {
+  if (collectionItem == null) {
     return const [];
   }
   final effectiveOwnedCopies =
-      ownedCopies.isNotEmpty ? ownedCopies : <OwnedCopySummary>[ownedItem];
+      ownedCopies.isNotEmpty ? ownedCopies : <CollectionItemSummary>[collectionItem];
   final snapshot = LibraryValueSnapshot.fromItem(
     item,
     purchasePriceCents: item.source.pricePaidCents,
@@ -633,10 +633,10 @@ List<LibraryDetailField> _valueFacts(
         label: 'Insurance Value',
         value: formatMoney(snapshot.insuranceValueCents, snapshot.currency)));
   }
-  if (ownedItem.pricePaidCents != null) {
+  if (collectionItem.pricePaidCents != null) {
     rows.add(LibraryDetailField(
         label: 'Paid',
-        value: formatMoney(ownedItem.pricePaidCents, ownedItem.currency)));
+        value: formatMoney(collectionItem.pricePaidCents, collectionItem.currency)));
   }
   if (snapshot.unrealizedGainLossCents != null) {
     rows.add(LibraryDetailField(
@@ -647,7 +647,7 @@ List<LibraryDetailField> _valueFacts(
 
   if (effectiveOwnedCopies.length > 1) {
     final totalsCurrency =
-        _inspectorValueCurrency(effectiveOwnedCopies, ownedItem);
+        _inspectorValueCurrency(effectiveOwnedCopies, collectionItem);
     final totalMarketValue = _sumOwnedValueCents(
       effectiveOwnedCopies,
       (item) => item.marketValueCents,
@@ -670,8 +670,8 @@ List<LibraryDetailField> _valueFacts(
 }
 
 int? _sumOwnedValueCents(
-  List<OwnedCopySummary> items,
-  int? Function(OwnedCopySummary item) selector,
+  List<CollectionItemSummary> items,
+  int? Function(CollectionItemSummary item) selector,
 ) {
   var hasValue = false;
   var total = 0;
@@ -687,8 +687,8 @@ int? _sumOwnedValueCents(
 }
 
 String? _inspectorValueCurrency(
-  List<OwnedCopySummary> ownedCopies,
-  OwnedCopySummary? ownedItem,
+  List<CollectionItemSummary> ownedCopies,
+  CollectionItemSummary? collectionItem,
 ) {
   for (final copy in ownedCopies) {
     final currency = copy.currency?.trim();
@@ -696,7 +696,7 @@ String? _inspectorValueCurrency(
       return currency;
     }
   }
-  final ownedCurrency = ownedItem?.currency?.trim();
+  final ownedCurrency = collectionItem?.currency?.trim();
   if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
     return ownedCurrency;
   }
@@ -704,10 +704,10 @@ String? _inspectorValueCurrency(
 }
 
 List<LibraryDetailField> _noteFacts(
-  ComicOwnedItem? ownedItem,
+  ComicCollectionItem? collectionItem,
 ) {
   final rows = <LibraryDetailField>[];
-  final personalNotes = ownedItem?.personalNotes?.trim();
+  final personalNotes = collectionItem?.personalNotes?.trim();
   if (personalNotes != null && personalNotes.isNotEmpty) {
     rows.add(LibraryDetailField(label: 'Personal', value: personalNotes));
   }

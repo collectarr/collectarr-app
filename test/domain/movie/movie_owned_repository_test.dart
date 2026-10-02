@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,11 +21,11 @@ void main() {
 
   test('round trips complete Movie copies and filters deleted copies',
       () async {
-    final item = MovieOwnedItem(
-      id: const MovieOwnedCopyId('owned-1'),
+    final item = MovieCollectionItem(
+      id: const CollectionItemId('owned-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'movie-1',
       ),
       condition: 'Very Good',

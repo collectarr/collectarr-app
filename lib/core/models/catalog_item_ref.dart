@@ -21,6 +21,12 @@ final class CatalogItemRef {
       };
 
   factory CatalogItemRef.fromJson(Map<String, Object?> json) {
+    final unexpected = json.keys.where((key) => key != 'kind' && key != 'id');
+    if (unexpected.isNotEmpty) {
+      throw FormatException(
+        'CatalogItemRef contains unsupported fields: ${unexpected.join(', ')}',
+      );
+    }
     final rawKind = json['kind'];
     final rawId = json['id'];
     if (rawKind is! String || rawId is! String || rawId.trim().isEmpty) {

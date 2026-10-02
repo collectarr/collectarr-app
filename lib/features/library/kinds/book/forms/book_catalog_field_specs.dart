@@ -8,7 +8,7 @@ typedef BookFormValuesReader<TDraft> = BookCatalogFormValues Function(
   TDraft draft,
 );
 
-List<LibraryFieldSpec<TDraft>> bookWorkFields<TDraft>({
+List<LibraryFieldSpec<TDraft>> bookCatalogIdentityFields<TDraft>({
   required BookFormValuesReader<TDraft> values,
   bool includeTitle = true,
   Set<String>? include,
@@ -43,7 +43,7 @@ List<LibraryFieldSpec<TDraft>> bookWorkFields<TDraft>({
       ),
     ].where((field) => include == null || include.contains(field.id)).toList();
 
-List<LibraryFieldSpec<TDraft>> bookWorkPublicationFields<TDraft>({
+List<LibraryFieldSpec<TDraft>> bookPublicationHistoryFields<TDraft>({
   required BookFormValuesReader<TDraft> values,
   Set<String>? include,
 }) =>
@@ -81,7 +81,7 @@ List<LibraryFieldSpec<TDraft>> bookWorkPublicationFields<TDraft>({
       ),
     ].where((field) => include == null || include.contains(field.id)).toList();
 
-List<LibraryFieldSpec<TDraft>> bookReleaseFields<TDraft>({
+List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
   required BookFormValuesReader<TDraft> values,
   Set<String>? include,
   String titleLabel = 'Title',

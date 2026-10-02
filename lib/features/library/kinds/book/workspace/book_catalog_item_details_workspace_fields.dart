@@ -10,35 +10,35 @@ abstract final class BookCatalogItemDetailsWorkspaceFields {
     id: BookFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final pageCount = numberField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.pageCount,
     label: 'Page count',
     getValue: (dto) => dto.pageCount,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final isbn = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.isbn,
     label: 'ISBN',
     getValue: (dto) => dto.isbn ?? dto.barcode,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final releaseDate = dateField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final format = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.format,
     label: 'Format',
     getValue: (dto) => dto.format,
-    entityScope: LibraryEntityScope.work,
+    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 

@@ -11,7 +11,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   manualCandidateBuilder: buildTvManualCandidate,
   manualProposalBuilder: buildTvManualProposalData,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      TvOwnedItemCreatePayload(
+      TvCollectionItemCreatePayload(
     catalogRef: item.reference,
     details: details as TvOwnedDetailsDraft,
     condition: common.condition,
@@ -20,7 +20,6 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,
     personalNotes: common.personalNotes,
-    quantity: common.quantity,
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
@@ -67,9 +66,8 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => TvSeriesMetadata.fromJson(transport.kindData));
               return metadata is TvSeriesMetadata
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
@@ -80,9 +78,8 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => TvSeriesMetadata.fromJson(transport.kindData));
               return metadata is TvSeriesMetadata
                   ? [
                       metadata.publisher,
@@ -98,9 +95,8 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => TvSeriesMetadata.fromJson(transport.kindData));
               return metadata is TvSeriesMetadata
                   ? [
                       metadata.firstAirDate?.year,

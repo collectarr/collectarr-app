@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
@@ -14,11 +14,11 @@ abstract final class BookCopyWorkspaceFields {
     id: BookFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = BookOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return owned is BookOwnedItem ? owned.condition : null;
+      final owned = BookCollectionItemProjection.fromDispatch(
+          context.source.collectionItemDispatch);
+      return owned is BookCollectionItem ? owned.condition : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final location =
@@ -26,7 +26,7 @@ abstract final class BookCopyWorkspaceFields {
     id: BookFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final pricePaid =
@@ -34,7 +34,7 @@ abstract final class BookCopyWorkspaceFields {
     id: BookFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final status =
@@ -44,7 +44,7 @@ abstract final class BookCopyWorkspaceFields {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final rating =
@@ -52,7 +52,7 @@ abstract final class BookCopyWorkspaceFields {
     id: BookFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final wishlist =
@@ -60,7 +60,7 @@ abstract final class BookCopyWorkspaceFields {
     id: BookFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final updatedAt =
@@ -68,7 +68,7 @@ abstract final class BookCopyWorkspaceFields {
     id: BookFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final addedAt =
@@ -76,7 +76,7 @@ abstract final class BookCopyWorkspaceFields {
     id: BookFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final readStatus =
@@ -84,7 +84,7 @@ abstract final class BookCopyWorkspaceFields {
     id: BookFieldIds.readStatus,
     label: 'Read Status',
     getValue: (context) => context.dto.personal.trackingStatus,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final signedBy =
@@ -92,11 +92,11 @@ abstract final class BookCopyWorkspaceFields {
     id: BookFieldIds.signedBy,
     label: 'Signed By',
     getValue: (context) {
-      final owned = BookOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return owned is BookOwnedItem ? owned.details.signedBy : null;
+      final owned = BookCollectionItemProjection.fromDispatch(
+          context.source.collectionItemDispatch);
+      return owned is BookCollectionItem ? owned.details.signedBy : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 }
 
@@ -129,7 +129,7 @@ final bookCopyWorkspaceGroupDefinitions = [
 final bookCopyWorkspaceSortDefinitions = [
   LibrarySortDefinition<BookKind, BookWorkspaceDto>(
     id: BookSortIds.status,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
     compare: (left, right) {
       int rank(LibraryProjectionContext<BookWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;
@@ -225,7 +225,7 @@ final bookCopyWorkspaceColumnDefinitions = [
 final bookCopyWorkspaceSchema =
     LibraryEntityWorkspaceSchema<BookKind, BookWorkspaceDto>(
   kindNamespace: 'book',
-  entityScope: LibraryEntityScope.copy,
+  entityScope: LibraryEntityScope.collectionItem,
   fields: bookCopyWorkspaceFieldDefinitions,
   columns: bookCopyWorkspaceColumnDefinitions,
   sorts: bookCopyWorkspaceSortDefinitions,

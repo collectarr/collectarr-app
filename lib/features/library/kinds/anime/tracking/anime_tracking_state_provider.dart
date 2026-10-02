@@ -14,7 +14,7 @@ final animeTrackingStateBySeriesIdProvider =
   (ref, seriesId) async {
     final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.anime,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.catalogItem,
       id: seriesId,
     );
     final entries = await AnimeTrackingStateCodec().listFromStorage(

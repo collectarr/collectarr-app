@@ -68,12 +68,6 @@ List<CoreFieldAdoptionPolicy> _policies() => [
             'episodeMappings',
       ),
       _policy(
-        'ComicWorkDto',
-        'id title contributors description firstPublicationDate '
-            'originalLanguage sortTitle subtitle issues',
-        ignored: _kindReason('Comic'),
-      ),
-      _policy(
         'TvSeriesDto',
         'id title characterAppearances contributions description endDate '
             'episodeCount identifiers media network originalAirDate '

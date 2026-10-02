@@ -93,28 +93,31 @@ CatalogItemDto seedCatalogItem({
     if (resolvedPublishing != null) 'publishing': resolvedPublishing.toJson(),
     if (payload != null) ...payload,
   };
-  final common = CatalogCommonDto(
-    title: title,
-    displayTitle: displayTitle,
-    localizedTitle: localizedTitle,
-    originalTitle: originalTitle,
-    titleExtension: titleExtension,
-    searchAliases: searchAliases,
-    synopsis: synopsis,
-    coverImageUrl: resolvedCoverImageUrl,
-    thumbnailImageUrl: thumbnailImageUrl ?? resolvedCoverImageUrl,
-    coverImageData: coverImageData,
-    sortKey: sortKey,
-    releaseDate: releaseDate,
-    releaseYear: releaseYear,
-    editions: editions ?? const [],
-    trailerUrls: trailerUrls ?? const [],
-  );
+  final kindData = <String, dynamic>{
+    'title': title,
+    if (displayTitle != null) 'display_title': displayTitle,
+    if (localizedTitle != null) 'localized_title': localizedTitle,
+    if (originalTitle != null) 'original_title': originalTitle,
+    if (titleExtension != null) 'title_extension': titleExtension,
+    if (searchAliases != null) 'search_aliases': searchAliases,
+    if (synopsis != null) 'synopsis': synopsis,
+    if (resolvedCoverImageUrl != null) 'cover_image_url': resolvedCoverImageUrl,
+    if ((thumbnailImageUrl ?? resolvedCoverImageUrl) != null)
+      'thumbnail_image_url': thumbnailImageUrl ?? resolvedCoverImageUrl,
+    if (coverImageData != null) 'cover_image_data': coverImageData,
+    if (sortKey != null) 'sort_key': sortKey,
+    if (releaseDate != null) 'release_date': releaseDate.toIso8601String(),
+    if (releaseYear != null) 'release_year': releaseYear,
+    if (editions?.isNotEmpty ?? false)
+      'editions': editions!.map((edition) => edition.toJson()).toList(),
+    if (trailerUrls?.isNotEmpty ?? false)
+      'trailer_urls': trailerUrls!.map((link) => link.toJson()).toList(),
+    ...mergedPayload,
+  };
   return CatalogItemDto.raw(
     id: id,
     mediaKind: kind,
-    common: common,
-    payload: mergedPayload,
+    kindData: kindData,
   );
 }
 

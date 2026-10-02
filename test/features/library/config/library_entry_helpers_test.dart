@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -23,7 +23,7 @@ void main() {
       id: 'tracking-item',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'book-1',
       ),
       progressCurrent: 10,
@@ -33,10 +33,10 @@ void main() {
       id: 'tracking-copy',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'book-1',
       ),
-      ownedRef: OwnedCopyRef.fromKey('book:owned-1'),
+      collectionItemRef: CollectionItemRef.fromKey('book:owned-1'),
       progressCurrent: 50,
       updatedAt: DateTime.utc(2026, 5, 25, 11),
     );
@@ -46,11 +46,11 @@ void main() {
         trackingSummaryFromRecord(trackedOnly),
         trackingSummaryFromRecord(copyTracked),
       ],
-      testOwnedCopySummary(testOwnedItem(
+      testCollectionItemSummary(testCollectionItem(
         id: 'owned-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'book-1',
         ),
         updatedAt: DateTime.utc(2026, 5, 25, 11),
@@ -95,7 +95,7 @@ void main() {
         title: 'Example Comic',
       ).asShelfCatalogItem),
     );
-    final node = LibraryWorkRef(workId: 'comic-5');
+    final node = LibraryCatalogItemNodeRef(catalogItemId: 'comic-5');
     final dto =
         const ComicWorkspaceProjector().project(source: source, entity: node);
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
@@ -117,17 +117,16 @@ void main() {
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Example Comic'),
       ).asShelfCatalogItem),
     );
-    final node = const LibraryCopyRef(
-      workId: 'comic-2',
-      releaseId: 'release-2',
-      ownedRef: OwnedCopyRef(
+    final node = const LibraryCollectionItemNodeRef(
+      catalogItemId: 'comic-2',
+      collectionItemRef: CollectionItemRef(
         kind: CatalogMediaKind.comic,
-        id: OwnedCopyId('owned-comic-2'),
+        id: CollectionItemId('owned-comic-2'),
       ),
     );
     final dto = const ComicWorkspaceProjector().project(
       source: source,
-      entity: const LibraryWorkRef(workId: 'comic-2'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'comic-2'),
     );
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
@@ -148,7 +147,7 @@ void main() {
         title: 'Spirited Away',
       ).asShelfCatalogItem),
     );
-    final node = LibraryWorkRef(workId: 'movie-1');
+    final node = LibraryCatalogItemNodeRef(catalogItemId: 'movie-1');
     final dto =
         const GenericWorkspaceProjector().project(source: source, entity: node);
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);

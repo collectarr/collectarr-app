@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/catalog/manga_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_collection_item_projection.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -12,10 +12,10 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 
 enum MangaCanonicalEditField {
@@ -36,7 +36,7 @@ class MangaEditDraft
         LibraryCopyEditSessionDefaults
     implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
   MangaEditDraft({
-    this.ownedItem,
+    this.collectionItem,
     this.rawOrSlabbed,
     this.signedBy,
     this.gradingCompany,
@@ -76,7 +76,7 @@ class MangaEditDraft
     required this.localizedPublisherController,
   });
 
-  final MangaOwnedItem? ownedItem;
+  final MangaCollectionItem? collectionItem;
 
   String? rawOrSlabbed;
   String? signedBy;
@@ -138,7 +138,7 @@ class MangaEditDraft
 
   @override
   void initializePersonalState(PersonalStateDraft personal) {
-    final item = ownedItem;
+    final item = collectionItem;
     if (item == null) return;
     personal.ownerLabelController.text = item.ownerLabel ?? '';
     personal.conditionController.text = item.condition ?? '';
@@ -149,7 +149,6 @@ class MangaEditDraft
         ? ''
         : (item.pricePaidCents! / 100).toStringAsFixed(2);
     personal.currencyController.text = item.currency ?? '';
-    personal.quantityController.text = item.quantity.toString();
     personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
     personal.notesController.text = item.personalNotes ?? '';
     personal.tagsController.text = item.tags ?? '';
@@ -167,14 +166,11 @@ class MangaEditDraft
   }
 
   @override
-  MangaOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedCopyRef ownedRef,
+  MangaCollectionItemUpdatePayload buildOwnedUpdatePayload({
+    required CollectionItemRef collectionItemRef,
     required PersonalStateDraft personal,
   }) {
-    final targetRef = personal.selectedOwnedTargetRef;
-    return MangaOwnedItemUpdatePayload(
-      targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
-      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+    return MangaCollectionItemUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -449,15 +445,15 @@ class MangaEditDraft
 
 LibraryEditSessionBundle createMangaEditDraft({
   required CatalogSearchCandidate item,
-  LibraryOwnedItemDispatch? ownedItemDispatch,
+  LibraryCollectionItemDispatch? collectionItemDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = MangaOwnedItemProjection.fromDispatch(ownedItemDispatch);
+  final owned = MangaCollectionItemProjection.fromDispatch(collectionItemDispatch);
   final manga = owned?.details;
   final metadata = mangaEditMetadataFromCandidate(item);
   final draft = MangaEditDraft(
-    ownedItem: owned,
+    collectionItem: owned,
     rawOrSlabbed: manga?.grading.rawOrSlabbed,
     signedBy: manga?.signedBy,
     gradingCompany: manga?.gradingCompany,

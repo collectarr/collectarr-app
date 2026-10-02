@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
@@ -61,7 +61,7 @@ void main() {
     expect(comic.id, const ComicCatalogItemId('id-1'));
   });
 
-  test('catalog item builds sync snapshot payload', () {
+  test('catalog item builds flat Core payload', () {
     final item = testCatalogItem(
       id: 'comic-1',
       kind: 'comic',
@@ -77,9 +77,8 @@ void main() {
       variant: 'Cover A',
     );
 
-    final payload = item.toSyncPayload();
+    final payload = item.toJson();
 
-    expect(payload['snapshot_version'], 1);
     expect(payload['id'], 'comic-1');
     expect(payload['kind'], 'comic');
     expect(payload['title'], 'Absolute Batman');
@@ -168,7 +167,7 @@ void main() {
       entityType: const CatalogEntityTypeId('edition'),
       id: 'edition-1',
     );
-    final owned = testOwnedItem(
+    final owned = testCollectionItem(
       id: 'owned-1',
       itemId: 'book-1',
       catalogRef: ref,
@@ -177,7 +176,7 @@ void main() {
     final customValue = CustomFieldValue(
       id: 'cf-1',
       targetId: owned.ref.key,
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetScope: CustomFieldTargetScope.collectionItem,
       catalogRef: ref,
       fieldDefinitionId: 'field-1',
       value: 'Shelf A',
@@ -187,7 +186,7 @@ void main() {
     expect(owned.toSyncPayload()['catalog_ref'], ref.toJson());
     expect(customValue.toSyncPayload()['catalog_ref'], ref.toJson());
     expect(
-      BookOwnedItem.fromJson({
+      BookCollectionItem.fromJson({
         'id': 'owned-1',
         'catalog_ref': ref.toJson(),
         'updated_at': '2026-07-02T00:00:00.000Z',
@@ -219,7 +218,7 @@ void main() {
       () {
     final loan = Loan.fromJson({
       'id': 'loan-1',
-      'owned_ref': {'kind': 'book', 'id': 'owned-1'},
+      'collection_item_ref': {'kind': 'book', 'id': 'owned-1'},
       'borrower_name': 'Alex',
       'lent_date': '2026-05-01',
       'due_date': 'not-a-date',
@@ -232,7 +231,7 @@ void main() {
     expect(
       () => Loan.fromJson({
         'id': 'loan-2',
-        'owned_ref': {'kind': 'book', 'id': 'owned-2'},
+        'collection_item_ref': {'kind': 'book', 'id': 'owned-2'},
         'borrower_name': 'Jamie',
         'lent_date': 'invalid-date',
       }),
@@ -254,13 +253,13 @@ void main() {
         smartList.filterSelection.ownershipFilter, LibraryOwnershipFilter.all);
   });
 
-  test('owned item builds sync payload', () {
-    final item = testOwnedItem(
+  test('collection item builds sync payload', () {
+    final item = testCollectionItem(
       id: 'owned-1',
       itemId: 'comic-1',
       catalogRef: CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'comic-1',
       ),
       createdAt: DateTime.utc(2026, 5, 10),
@@ -271,7 +270,6 @@ void main() {
       pricePaidCents: 1299,
       coverPriceCents: 1599,
       currency: 'USD',
-      quantity: 2,
       keyComic: true,
       keyReason: 'First appearance',
       tags: 'signed,key',
@@ -288,7 +286,7 @@ void main() {
 
     expect(payload['catalog_ref'], {
       'kind': 'comic',
-      'entity_type': 'work',
+      'entity_type': 'catalog_item',
       'id': 'comic-1',
     });
     expect(payload['created_at'], '2026-05-10T00:00:00.000Z');
@@ -297,7 +295,6 @@ void main() {
     expect(payload['purchase_date'], '2026-05-11T00:00:00.000Z');
     expect(payload['price_paid_cents'], 1299);
     expect(payload['cover_price_cents'], 1599);
-    expect(payload['quantity'], 2);
     expect(payload.containsKey('storage_box'), isFalse);
     expect(payload['key_comic'], isTrue);
     expect(payload['key_reason'], 'First appearance');
@@ -324,7 +321,7 @@ void main() {
 
     expect(payload['catalog_ref'], {
       'kind': 'comic',
-      'entity_type': 'work',
+      'entity_type': 'catalog_item',
       'id': 'comic-1',
     });
     expect(payload['target_price_cents'], 999);

@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 abstract class LibraryEditPresentationBuilderBase
     extends LibraryEditPresentationBuilder {
   const LibraryEditPresentationBuilderBase({
-    required this.showOwnershipReferenceSection,
     required this.useOwnedMainArtworkLayout,
     required this.useDetailsTab,
     required this.useArtworkCoverTab,
@@ -16,15 +15,12 @@ abstract class LibraryEditPresentationBuilderBase
     required this.trackingSectionTitle,
     required this.ownedDigitalTrackingSectionTitle,
     required this.ownedDigitalTrackingHint,
-    required this.ownershipReferenceTitle,
-    required this.ownedBundleLabel,
     required this.ownedTabs,
     required this.trackedTabs,
     required this.catalogTabs,
     this.customTabBuilder,
   });
 
-  final bool showOwnershipReferenceSection;
   final bool useOwnedMainArtworkLayout;
   final bool useDetailsTab;
   final bool useArtworkCoverTab;
@@ -32,8 +28,6 @@ abstract class LibraryEditPresentationBuilderBase
   final String trackingSectionTitle;
   final String ownedDigitalTrackingSectionTitle;
   final String ownedDigitalTrackingHint;
-  final String ownershipReferenceTitle;
-  final String ownedBundleLabel;
   final List<LibraryEditTabSpec> ownedTabs;
   final List<LibraryEditTabSpec> trackedTabs;
   final List<LibraryEditTabSpec> catalogTabs;
@@ -72,7 +66,7 @@ abstract class LibraryEditPresentationBuilderBase
   List<LibraryEditTabSpec> buildTabs({
     required LibraryEditPresentationContext context,
   }) {
-    final tabs = context.scope == LibraryEntityScope.work
+    final tabs = context.scope == LibraryEntityScope.catalogItem
         ? [
             ...catalogTabs,
             if (context.hasCustomFields)
@@ -112,9 +106,6 @@ abstract class LibraryEditPresentationBuilderBase
     required LibraryEditPresentationContext context,
   }) {
     return LibraryEditPresentationState(
-      showsOwnershipReferenceSection: showOwnershipReferenceSection &&
-          context.isOwned &&
-          (context.hasOwnedTargetOptions || context.hasAdditionalTargetOptions),
       usesOwnedMainArtworkLayout: useOwnedMainArtworkLayout && context.isOwned,
       usesDetailsTab: useDetailsTab,
       usesArtworkCoverTab: useArtworkCoverTab,
@@ -127,8 +118,6 @@ abstract class LibraryEditPresentationBuilderBase
       trackingSectionHint: context.isOwned && context.isDigitalFormat
           ? ownedDigitalTrackingHint
           : null,
-      ownershipReferenceTitle: ownershipReferenceTitle,
-      ownedBundleLabel: ownedBundleLabel,
     );
   }
 }

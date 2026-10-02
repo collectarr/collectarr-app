@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_owned_copy_workspace_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_collection_item_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_item_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -16,7 +16,8 @@ import 'package:collectarr_app/features/library/workspace/schema/library_workspa
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Music workspace schemas separate catalog items from owned copies', () {
+  test('Music workspace schemas separate catalog items from collection items',
+      () {
     final itemFieldIds = _fieldIds(musicCatalogItemWorkspaceSchema.fields);
     final itemColumnIds = _columnIds(musicCatalogItemWorkspaceSchema.columns);
     final itemGroupIds = _groupIds(musicCatalogItemWorkspaceSchema.groups);
@@ -35,7 +36,7 @@ void main() {
     expect(itemColumnIds, isNot(contains(MusicFieldIds.condition.value)));
     expect(itemGroupIds, isNot(contains(MusicGroupIds.condition.value)));
 
-    final copyFieldIds = _fieldIds(musicOwnedCopyWorkspaceSchema.fields);
+    final copyFieldIds = _fieldIds(musicCollectionItemWorkspaceSchema.fields);
     expect(copyFieldIds, contains(MusicFieldIds.condition.value));
     expect(copyFieldIds, contains(MusicFieldIds.grade.value));
     expect(copyFieldIds, contains(MusicFieldIds.location.value));
@@ -51,16 +52,14 @@ void main() {
 
   test('Music workspace exposes catalog item and copy scopes only', () {
     final titleSchema = musicKindWorkspace.fieldsForNode(
-      const LibraryWorkRef(workId: 'group-1'),
+      const LibraryCatalogItemNodeRef(catalogItemId: 'group-1'),
     );
     final copySchema = musicKindWorkspace.fieldsForNode(
-      const LibraryCopyRef(
-        workId: 'group-1',
-        releaseId: 'release-1',
-        ownedRef: OwnedCopyRef(
+      const LibraryCollectionItemNodeRef(
+        catalogItemId: 'group-1',
+        collectionItemRef: CollectionItemRef(
           kind: CatalogMediaKind.music,
-          itemId: 'release-1',
-          id: OwnedCopyId('owned-1'),
+          id: CollectionItemId('owned-1'),
         ),
       ),
     );
@@ -76,9 +75,9 @@ void main() {
   test('browser mode exposes only its Music schema options', () {
     final workspace = musicKindWorkspace;
     final mediaGroups =
-        workspace.availableGroupIdsForScope(LibraryEntityScope.work);
+        workspace.availableGroupIdsForScope(LibraryEntityScope.catalogItem);
     final mediaSorts =
-        workspace.availableSortIdsForScope(LibraryEntityScope.work);
+        workspace.availableSortIdsForScope(LibraryEntityScope.catalogItem);
     final releaseGroups =
         workspace.availableGroupIdsForScope(LibraryEntityScope.release);
     final releaseSorts =
@@ -100,15 +99,15 @@ void main() {
   test('Music tracking stays attached to its catalog item', () {
     const itemRef = CatalogEntityRef(
       kind: CatalogMediaKind.music,
-      entityType: CatalogEntityTypeId.root,
+      entityType: CatalogEntityTypeId.catalogItem,
       id: 'album-1',
     );
     final target = musicKindWorkspace.trackingTargetForNode(
-      const LibraryWorkRef(workId: 'album-1'),
+      const LibraryCatalogItemNodeRef(catalogItemId: 'album-1'),
       itemRef,
     );
 
-    expect(target.entityType, CatalogEntityTypeId.root);
+    expect(target.entityType, CatalogEntityTypeId.catalogItem);
     expect(target.id, 'album-1');
     expect(target.rootId, 'album-1');
   });

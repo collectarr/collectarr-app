@@ -51,9 +51,7 @@ class GameEditController {
     required CatalogItemDto item,
     required LibraryEditShellState draft,
   }) {
-    final meta = item.kindMetadata is GameCatalogMetadata
-        ? (item.kindMetadata as GameCatalogMetadata)
-        : null;
+    final meta = GameCatalogMetadata.fromJson(item.payload);
     developerOptions = _mergePickListOptions(
       splitPickListValues(developersController.text),
     );
@@ -78,16 +76,12 @@ class GameEditController {
   }
 
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .kindMetadata is GameCatalogMetadata
-        ? (selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .kindMetadata as GameCatalogMetadata)
-        : null;
+    final meta = selection.kindItem.kindCapability.mapTransport(
+      (transport) => GameCatalogMetadata.fromJson(transport.kindData),
+    );
     final platforms = splitPickListValues(platformsController.text);
 
-    final existing = meta?.creators ?? const <Map<String, dynamic>>[];
+    final existing = meta.creators;
     final preserved = <Map<String, dynamic>>[];
     for (final entry in existing) {
       final role = entry['role']?.toString().toLowerCase() ?? '';
@@ -115,35 +109,31 @@ class GameEditController {
     final updatedCountry = emptyToNull(countryController.text);
     final genres = _splitValues(
       genresController.text,
-      fallback: meta?.genres ?? const [],
+      fallback: meta.genres,
     );
     final languages = _splitValues(
       languageController.text,
-      fallback: meta?.languages ?? const [],
+      fallback: meta.languages,
     );
 
-    final updatedMetadata = meta?.copyWith(
-          platforms: platforms,
-          platform: platforms.firstOrNull ?? meta.platform,
-          developers:
-              developerNames.isNotEmpty ? developerNames : meta.developers,
-          creators: mergedCreators.isNotEmpty ? mergedCreators : meta.creators,
-          series: emptyToNull(seriesTitleController.text) ?? meta.series,
-          publishers: updatedPub != null ? [updatedPub] : meta.publishers,
-          franchise: updatedFranchise ?? meta.franchise,
-          genres: genres,
-          ageRating: updatedAgeRating ?? meta.ageRating,
-          languages: languages,
-          country: updatedCountry ?? meta.country,
-          releaseDate: parseDate(releaseDateController.text),
-        ) ??
-        selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .kindMetadata;
+    final updatedMetadata = meta.copyWith(
+      platforms: platforms,
+      platform: platforms.firstOrNull ?? meta.platform,
+      developers: developerNames.isNotEmpty ? developerNames : meta.developers,
+      creators: mergedCreators.isNotEmpty ? mergedCreators : meta.creators,
+      series: emptyToNull(seriesTitleController.text) ?? meta.series,
+      publishers: updatedPub != null ? [updatedPub] : meta.publishers,
+      franchise: updatedFranchise ?? meta.franchise,
+      genres: genres,
+      ageRating: updatedAgeRating ?? meta.ageRating,
+      languages: languages,
+      country: updatedCountry ?? meta.country,
+      releaseDate: parseDate(releaseDateController.text),
+    );
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindMetadata(updatedMetadata),
+        transport.withKindData(updatedMetadata),
       ),
     );
 

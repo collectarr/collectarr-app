@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:drift/native.dart';
@@ -13,15 +14,14 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = MangaOwnedRepository(db);
-    final item = MangaOwnedItem(
-      id: const MangaOwnedCopyId('owned-manga-1'),
+    final item = MangaCollectionItem(
+      id: const CollectionItemId('owned-manga-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.manga,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'manga-1',
       ),
       condition: 'Mint',
-      quantity: 1,
       updatedAt: DateTime.utc(2026, 9, 1),
       details: const MangaOwnedDetails(
         grading: MangaGradingDetails(
@@ -56,11 +56,11 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = MangaOwnedRepository(db);
-    final item = MangaOwnedItem(
-      id: const MangaOwnedCopyId('owned-manga-invalid'),
+    final item = MangaCollectionItem(
+      id: const CollectionItemId('owned-manga-invalid'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'book-1',
       ),
       updatedAt: DateTime.utc(2026, 9, 1),

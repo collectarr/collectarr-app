@@ -102,7 +102,7 @@ class PickListMergeService {
     };
     final target = preview.targetValue.trim();
     await _db.transaction(() async {
-      await _mergeOwnedItems(
+      await _mergeCollectionItems(
         preview.listName,
         preview.mediaKind,
         sourceSet,
@@ -127,7 +127,7 @@ class PickListMergeService {
     });
   }
 
-  Future<void> _mergeOwnedItems(
+  Future<void> _mergeCollectionItems(
     String listName,
     String? mediaKind,
     Set<String> sourceSet,

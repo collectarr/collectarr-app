@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
@@ -14,11 +14,11 @@ abstract final class BoardGameCopyWorkspaceFields {
     id: BoardGameFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = BoardGameOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return owned is BoardGameOwnedItem ? owned.condition : null;
+      final owned = BoardGameCollectionItemProjection.fromDispatch(
+          context.source.collectionItemDispatch);
+      return owned is BoardGameCollectionItem ? owned.condition : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final location =
@@ -26,7 +26,7 @@ abstract final class BoardGameCopyWorkspaceFields {
     id: BoardGameFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final pricePaid =
@@ -34,7 +34,7 @@ abstract final class BoardGameCopyWorkspaceFields {
     id: BoardGameFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final status =
@@ -44,7 +44,7 @@ abstract final class BoardGameCopyWorkspaceFields {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final rating =
@@ -52,7 +52,7 @@ abstract final class BoardGameCopyWorkspaceFields {
     id: BoardGameFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final wishlist =
@@ -60,7 +60,7 @@ abstract final class BoardGameCopyWorkspaceFields {
     id: BoardGameFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final updatedAt =
@@ -68,7 +68,7 @@ abstract final class BoardGameCopyWorkspaceFields {
     id: BoardGameFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final addedAt =
@@ -76,7 +76,7 @@ abstract final class BoardGameCopyWorkspaceFields {
     id: BoardGameFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 }
 
@@ -107,7 +107,7 @@ final boardgameCopyWorkspaceGroupDefinitions = [
 final boardgameCopyWorkspaceSortDefinitions = [
   LibrarySortDefinition<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameSortIds.status,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
     compare: (left, right) {
       int rank(LibraryProjectionContext<BoardGameWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;
@@ -201,7 +201,7 @@ final boardgameCopyWorkspaceColumnDefinitions = [
 final boardgameCopyWorkspaceSchema =
     LibraryEntityWorkspaceSchema<BoardGameKind, BoardGameWorkspaceDto>(
   kindNamespace: 'boardgame',
-  entityScope: LibraryEntityScope.copy,
+  entityScope: LibraryEntityScope.collectionItem,
   fields: boardgameCopyWorkspaceFieldDefinitions,
   columns: boardgameCopyWorkspaceColumnDefinitions,
   sorts: boardgameCopyWorkspaceSortDefinitions,

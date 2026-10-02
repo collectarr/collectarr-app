@@ -9,7 +9,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final store = LibraryColumnPresetStore(
       const ComicRegistration(),
-      scope: LibraryEntityScope.copy,
+      scope: LibraryEntityScope.collectionItem,
     );
 
     final saved = await store.savePreset(

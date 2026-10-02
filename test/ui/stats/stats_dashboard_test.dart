@@ -82,7 +82,7 @@ void main() {
             series: const CatalogSeriesDetailsDto(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
           ).asShelfCatalogItem),
-          ownedSummary: testOwnedSummary(testOwnedItem(
+          collectionItemSummary: testCollectionItemSummary(testCollectionItem(
             id: 'owned-1',
             itemId: 'game-1',
             pricePaidCents: 4000,
@@ -100,7 +100,7 @@ void main() {
             series: const CatalogSeriesDetailsDto(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
           ).asShelfCatalogItem),
-          ownedSummary: testOwnedSummary(testOwnedItem(
+          collectionItemSummary: testCollectionItemSummary(testCollectionItem(
             id: 'owned-2',
             itemId: 'game-2',
             pricePaidCents: 2500,
@@ -171,7 +171,7 @@ void main() {
               itemNumber: itemNumber,
               series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
             ).asShelfCatalogItem),
-            ownedSummary: testOwnedSummary(testOwnedItem(
+            collectionItemSummary: testCollectionItemSummary(testCollectionItem(
               id: 'owned-$itemNumber',
               itemId: 'comic-$itemNumber',
               updatedAt: DateTime.utc(2026, 5, 1),
@@ -228,7 +228,7 @@ void main() {
                 volumeNumber: '$volume',
               ),
             ).asShelfCatalogItem),
-            ownedSummary: testOwnedSummary(testOwnedItem(
+            collectionItemSummary: testCollectionItemSummary(testCollectionItem(
               id: 'owned-comic-volume-$volume',
               itemId: 'comic-volume-$volume',
               updatedAt: DateTime.utc(2026, 5, 1),
@@ -285,7 +285,7 @@ void main() {
                 seasonNumber: season,
               ),
             ).asShelfCatalogItem),
-            ownedSummary: testOwnedSummary(testOwnedItem(
+            collectionItemSummary: testCollectionItemSummary(testCollectionItem(
               id: 'owned-movie-season-$season',
               itemId: 'movie-season-$season',
               updatedAt: DateTime.utc(2026, 5, 1),

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
@@ -20,7 +20,7 @@ void main() {
       id: 'tv-sync-1',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'tv-1',
       ),
       coordinates: TvTrackingCoordinates(
@@ -36,7 +36,7 @@ void main() {
       id: entry.id,
       updatedAt: updatedAt,
     );
-    expect(restored.catalogRef.entityType, const CatalogEntityTypeId('work'));
+    expect(restored.catalogRef.entityType, CatalogEntityTypeId.catalogItem);
     final coordinates = tvTrackingCoordinatesFor(restored);
     expect(coordinates.seasonNumber, 3);
     expect(coordinates.episodeNumber, 7);
@@ -120,7 +120,7 @@ void main() {
         id: ref.id,
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'movie-sync-boundary',
         ),
         progressCurrent: 2,
@@ -166,7 +166,7 @@ void main() {
         id: 'movie-tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
           id: 'movie-1',
         ),
         updatedAt: DateTime.utc(2026, 9, 6),
@@ -200,19 +200,19 @@ void main() {
     );
     const catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.catalogItem,
       id: 'comic-import-1',
     );
-    const ownedRef = OwnedCopyRef(
+    const collectionItemRef = CollectionItemRef(
       kind: CatalogMediaKind.comic,
-      id: OwnedCopyId('owned-import-1'),
+      id: CollectionItemId('owned-import-1'),
     );
 
     final results = await repository.upsertImportedAll([
       TrackingStorageImport(
         entryId: 'tracking-import-1',
         catalogRef: catalogRef,
-        ownedRef: ownedRef,
+        collectionItemRef: collectionItemRef,
         now: DateTime.utc(2026, 9, 14),
         rating: 9,
         status: 'Completed',
@@ -225,7 +225,7 @@ void main() {
     expect(results.single.payload['rating'], 9);
     final persisted =
         await repository.findStorageRecordByRef(results.single.ref);
-    expect(persisted?.ownedRef, ownedRef);
+    expect(persisted?.collectionItemRef, collectionItemRef);
     expect(persisted?.rating, 9);
   });
 }

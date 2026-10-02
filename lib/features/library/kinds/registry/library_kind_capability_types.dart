@@ -1,4 +1,4 @@
-export 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+export 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
 
 export 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 export 'package:collectarr_app/features/library/config/library_kind_identity.dart';

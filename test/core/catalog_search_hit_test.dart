@@ -14,7 +14,7 @@ void main() {
     });
 
     expect(hit.ref.kind, CatalogMediaKind.movie);
-    expect(hit.ref.entityType, const CatalogEntityTypeId('work'));
+    expect(hit.ref.entityType, CatalogEntityTypeId.catalogItem);
     expect(hit.ref.id, 'movie-1');
     expect(hit.kind, CatalogMediaKind.movie);
     expect(hit.title, 'Arrival');
@@ -22,7 +22,7 @@ void main() {
     expect(hit.toJson(), {
       'id': 'movie-1',
       'kind': 'movie',
-      'entity_type': 'work',
+      'entity_type': 'catalog_item',
       'title': 'Arrival',
       'subtitle': 'A linguist meets visitors.',
       'image_url': 'https://example.test/arrival.jpg',
@@ -34,7 +34,7 @@ void main() {
     final hit = CatalogSearchHit(
       ref: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'book-1',
       ),
       kind: CatalogMediaKind.book,
@@ -45,7 +45,7 @@ void main() {
 
     expect(hit.ref, isA<CatalogEntityRef>());
     expect(hit.ref.kind, CatalogMediaKind.book);
-    expect(hit.ref.entityType, const CatalogEntityTypeId('work'));
+    expect(hit.ref.entityType, CatalogEntityTypeId.catalogItem);
     expect(hit.ref.id, 'book-1');
     expect(hit.subtitle, '1');
     expect(hit.imageUrl, 'https://example.test/dune.jpg');

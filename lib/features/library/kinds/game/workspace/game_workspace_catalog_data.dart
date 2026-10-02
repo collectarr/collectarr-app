@@ -16,15 +16,10 @@ final class GameWorkspaceCatalogData
   });
 
   factory GameWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
-    final rawMetadata = item.kindMetadata;
-    final metadata = rawMetadata is GameCatalogMetadata
-        ? rawMetadata
-        : GameCatalogMetadata.fromJson(item.payload);
+    final metadata = GameCatalogMetadata.fromJson(item.payload);
     return GameWorkspaceCatalogData(
       ref: item.catalogRef,
-      game: GameCatalogMapper.mapMetadataItemToGame(
-        item.withKindMetadata(metadata),
-      ),
+      game: GameCatalogMapper.mapMetadataItemToGame(item),
       metadata: metadata,
     );
   }

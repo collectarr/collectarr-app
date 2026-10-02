@@ -1,16 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_collection_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dart';
 
-final animeOwnedContributor = TypedOwnedKindContributor<AnimeOwnedItem>(
+final animeOwnedContributor = TypedOwnedKindContributor<AnimeCollectionItem>(
   kind: CatalogMediaKind.anime,
   findById: (database, id) =>
-      AnimeOwnedRepository(database).findById(AnimeOwnedCopyId(id)),
+      AnimeOwnedRepository(database).findById(CollectionItemId(id)),
   upsert: (database, item) => AnimeOwnedRepository(database).upsert(item),
   listActive: (database) => AnimeOwnedRepository(database).listActive(),
   createItem: ({
@@ -22,10 +23,10 @@ final animeOwnedContributor = TypedOwnedKindContributor<AnimeOwnedItem>(
     required ownerUserId,
     required ownerLabel,
   }) {
-    if (payload is! AnimeOwnedItemCreatePayload) {
+    if (payload is! AnimeCollectionItemCreatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
-    return payload.toOwnedItem(
+    return payload.toCollectionItem(
       resolvedCatalogRef: resolvedCatalogRef,
       id: id,
       createdAt: createdAt,
@@ -41,7 +42,7 @@ final animeOwnedContributor = TypedOwnedKindContributor<AnimeOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (payload is! AnimeOwnedItemUpdatePayload) {
+    if (payload is! AnimeCollectionItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {
@@ -55,9 +56,9 @@ final animeOwnedContributor = TypedOwnedKindContributor<AnimeOwnedItem>(
     );
   },
   toJson: (item) => item.toJson().cast<String, Object?>(),
-  fromJson: AnimeOwnedItem.fromJson,
-  summary: AnimeOwnedItemProjection.toSummary,
-  createPayload: AnimeOwnedItemCreatePayload.fromTypedItem,
+  fromJson: AnimeCollectionItem.fromJson,
+  summary: AnimeCollectionItemProjection.toSummary,
+  createPayload: AnimeCollectionItemCreatePayload.fromTypedItem,
   itemId: (item) => item.id.value,
   markDeleted: (item, deletedAt) =>
       item.copyWith(deletedAt: deletedAt, updatedAt: deletedAt),

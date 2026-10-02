@@ -1,16 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_collection_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dart';
 
-final tvOwnedContributor = TypedOwnedKindContributor<TvOwnedItem>(
+final tvOwnedContributor = TypedOwnedKindContributor<TvCollectionItem>(
   kind: CatalogMediaKind.tv,
   findById: (database, id) =>
-      TvOwnedRepository(database).findById(TvOwnedCopyId(id)),
+      TvOwnedRepository(database).findById(CollectionItemId(id)),
   upsert: (database, item) => TvOwnedRepository(database).upsert(item),
   listActive: (database) => TvOwnedRepository(database).listActive(),
   createItem: ({
@@ -22,10 +23,10 @@ final tvOwnedContributor = TypedOwnedKindContributor<TvOwnedItem>(
     required ownerUserId,
     required ownerLabel,
   }) {
-    if (payload is! TvOwnedItemCreatePayload) {
+    if (payload is! TvCollectionItemCreatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
-    return payload.toOwnedItem(
+    return payload.toCollectionItem(
       resolvedCatalogRef: resolvedCatalogRef,
       id: id,
       createdAt: createdAt,
@@ -41,7 +42,7 @@ final tvOwnedContributor = TypedOwnedKindContributor<TvOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (payload is! TvOwnedItemUpdatePayload) {
+    if (payload is! TvCollectionItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {
@@ -55,9 +56,9 @@ final tvOwnedContributor = TypedOwnedKindContributor<TvOwnedItem>(
     );
   },
   toJson: (item) => item.toJson().cast<String, Object?>(),
-  fromJson: TvOwnedItem.fromJson,
-  summary: TvOwnedItemProjection.toSummary,
-  createPayload: TvOwnedItemCreatePayload.fromTypedItem,
+  fromJson: TvCollectionItem.fromJson,
+  summary: TvCollectionItemProjection.toSummary,
+  createPayload: TvCollectionItemCreatePayload.fromTypedItem,
   itemId: (item) => item.id.value,
   markDeleted: (item, deletedAt) =>
       item.copyWith(deletedAt: deletedAt, updatedAt: deletedAt),

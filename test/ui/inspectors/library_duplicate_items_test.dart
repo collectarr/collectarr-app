@@ -162,11 +162,10 @@ LibraryWorkspaceSource _entry({
       if (publisher != null) 'publisher': publisher,
       if (releaseYear != null) 'release_year': releaseYear,
     }).asShelfCatalogItem),
-    ownedSummary: owned
-        ? testOwnedSummary(testOwnedItem(
+    collectionItemSummary: owned
+        ? testCollectionItemSummary(testCollectionItem(
             id: 'owned-$itemId',
             itemId: itemId,
-            quantity: 1,
             updatedAt: timestamp,
           ))
         : null,

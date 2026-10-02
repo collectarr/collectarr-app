@@ -89,11 +89,11 @@ List<Widget> _buildMovieEntitySections(
     if ((metadata?.links.isNotEmpty ?? false))
       InspectorLinksTrailersSection(request: request),
     if (includePersonalStatus &&
-        (request.ownedItem != null || request.trackingSummary != null))
+        (request.collectionItem != null || request.trackingSummary != null))
       InspectorPersonalStatusSection(
         type: request.type,
         item: item,
-        ownedItem: request.ownedItem,
+        collectionItem: request.collectionItem,
         trackingSummary: request.trackingSummary,
         accent: request.accent,
         onFilterByValue: request.onFilterByValue,
@@ -110,7 +110,7 @@ Widget buildMovieInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
+      collectionItem: request.collectionItem,
       ownedCopies: request.ownedCopies,
       accent: request.accent,
     );
@@ -122,9 +122,9 @@ Widget buildMovieCopyInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
+      collectionItem: request.collectionItem,
       ownedCopies: [
-        if (request.ownedItem != null) request.ownedItem!,
+        if (request.collectionItem != null) request.collectionItem!,
       ],
       accent: request.accent,
     );
@@ -164,7 +164,7 @@ class _MovieInspectorPanel extends StatelessWidget {
       hero: LibraryDetailHero(
         type: request.inspector.type,
         item: item,
-        ownedItem: request.inspector.ownedItem,
+        collectionItem: request.inspector.collectionItem,
         accent: accent,
       ),
       sections: [

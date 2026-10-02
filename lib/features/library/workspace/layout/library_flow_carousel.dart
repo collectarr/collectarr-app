@@ -151,7 +151,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                   if (!widget.selectionEnabled ||
                                       widget.selectedIds.isEmpty) {
                                     widget.onActivateItem(
-                                        widget.items[index].source.itemId);
+                                        widget.items[index].node.id);
                                   }
                                 },
                                 itemBuilder: (context, index) {
@@ -185,7 +185,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                         accent: widget.accent,
                                         selected: widget.selectionEnabled &&
                                             widget.selectedIds
-                                                .contains(item.source.itemId),
+                                                .contains(item.node.id),
                                         selectionMode:
                                             widget.selectionEnabled &&
                                                 widget.selectedIds.isNotEmpty,
@@ -195,7 +195,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                                 .selectionEnabled
                                             ? () =>
                                                 widget.onToggleSelectionItem(
-                                                    item.source.itemId)
+                                                    item.node.id)
                                             : null,
                                         onDoubleTap: () =>
                                             widget.onOpenItem(item),
@@ -250,7 +250,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                   borderRadius: kAppRadiusLarge,
                                   child: _FlowBackdrop(
                                     key: ValueKey(
-                                        'flow-carousel-backdrop-${activeItem.source.itemId}'),
+                                        'flow-carousel-backdrop-${activeItem.node.id}'),
                                     item: activeItem,
                                     accent: widget.accent,
                                   ),
@@ -316,8 +316,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
     if (selectedId == null) {
       return _currentIndex.clamp(0, widget.items.length - 1);
     }
-    final index =
-        widget.items.indexWhere((item) => item.source.itemId == selectedId);
+    final index = widget.items.indexWhere((item) => item.node.id == selectedId);
     return index >= 0 ? index : 0;
   }
 
@@ -397,7 +396,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
   void _handleTap(LibraryProjectionItem item, int index) {
     _focusNode.requestFocus();
     if (!widget.selectionEnabled) {
-      widget.onActivateItem(item.source.itemId);
+      widget.onActivateItem(item.node.id);
       if (index != _currentIndex) {
         _animateToPage(index);
       }
@@ -407,26 +406,26 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
     final isToggleSelection = _isToggleSelectionModifierPressed();
     if (isRangeSelection) {
       final anchorId =
-          widget.selectedAnchorId ?? widget.selectedId ?? item.source.itemId;
+          widget.selectedAnchorId ?? widget.selectedId ?? item.node.id;
       final orderedIds = [
-        for (final candidate in widget.items) candidate.source.itemId
+        for (final candidate in widget.items) candidate.node.id
       ];
       final rangeIds = selectionRangeItemIds(
         orderedIds,
         anchorId: anchorId,
-        targetId: item.source.itemId,
+        targetId: item.node.id,
       );
       widget.onApplySelection(
         isToggleSelection ? {...widget.selectedIds, ...rangeIds} : rangeIds,
-        item.source.itemId,
+        item.node.id,
       );
       return;
     }
     if (isToggleSelection) {
-      widget.onToggleSelectionItem(item.source.itemId);
+      widget.onToggleSelectionItem(item.node.id);
       return;
     }
-    widget.onActivateItem(item.source.itemId);
+    widget.onActivateItem(item.node.id);
     if (index != _currentIndex) {
       _animateToPage(index);
     }
@@ -470,7 +469,7 @@ class _FlowBackdrop extends StatelessWidget {
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
         child: Stack(
-          key: ValueKey(item.source.itemId),
+          key: ValueKey(item.node.id),
           fit: StackFit.expand,
           children: [
             Transform.scale(
@@ -484,7 +483,7 @@ class _FlowBackdrop extends StatelessWidget {
                     itemNumber:
                         libraryCardPresentationForEntry(item).itemNumber,
                     imageUrl: item.dto.imageUrl,
-                    ownedRef: item.source.ownedRef,
+                    collectionItemRef: item.source.collectionItemRef,
                     borderRadius: 0,
                     fit: BoxFit.cover,
                   ),
@@ -681,7 +680,8 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                             title: title,
                             itemNumber: itemNumber,
                             imageUrl: dto.imageUrl,
-                            ownedRef: widget.item.source.ownedRef,
+                            collectionItemRef:
+                                widget.item.source.collectionItemRef,
                             accentColor: widget.accent,
                             enableFullscreen: false,
                             enableSecondaryControl: false,
@@ -702,7 +702,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                               libraryHierarchyContractDiagnosticLabel(
                                   widget.item),
                           notesLabel: libraryNotesMarkerLabel(
-                              widget.item.source.ownedSummary?.notes),
+                              widget.item.source.collectionItemSummary?.notes),
                         ),
                       ),
                       if (showEditButton)
@@ -807,7 +807,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
   @override
   void didUpdateWidget(covariant _FlowCarouselFooter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.item.source.itemId != oldWidget.item.source.itemId) {
+    if (widget.item.node.id != oldWidget.item.node.id) {
       _showReleases = false;
     }
   }
@@ -949,7 +949,8 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                         libraryCatalogTargetForKind(
                           widget.item.source.mediaKind,
                         )
-                            .parts(widget.item.source.ownedSummary?.targetRef)
+                            .parts(widget
+                                .item.source.collectionItemSummary?.catalogRef)
                             .firstId,
                     accent: widget.accent,
                   ),

@@ -3,7 +3,7 @@ import 'dart:developer' as developer;
 
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -373,17 +373,17 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       data: (value) => value,
       orElse: () => null,
     );
-    final overdueLoanOwnedRefs =
-        ref.watch(overdueLoanOwnedCopyIdsProvider).maybeWhen(
+    final overdueLoanCollectionItemRefs =
+        ref.watch(overdueLoanCollectionItemIdsProvider).maybeWhen(
               data: (value) => value,
-              orElse: () => const <OwnedCopyRef>{},
+              orElse: () => const <CollectionItemRef>{},
             );
     final shelfForOverdue = ref.watch(shelfProvider);
     final overdueCounts = shelfForOverdue.maybeWhen(
-      data: (value) => overdueLoanCountsByKind(value, overdueLoanOwnedRefs),
+      data: (value) => overdueLoanCountsByKind(value, overdueLoanCollectionItemRefs),
       orElse: () => const <String, int>{},
     );
-    final overdueLoanCount = overdueLoanOwnedRefs.length;
+    final overdueLoanCount = overdueLoanCollectionItemRefs.length;
     final selectedOverdueLoanCount = overdueCounts[selected.kind] ?? 0;
     final topBar = MediaLibraryActionsBar(
       overdueLoanCount: overdueLoanCount,

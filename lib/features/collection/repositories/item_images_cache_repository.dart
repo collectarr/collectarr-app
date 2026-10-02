@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
@@ -11,17 +11,17 @@ class ItemImagesCacheRepository {
   /// Upsert an image entry (insert or replace by id).
   Future<void> upsert({
     required String id,
-    required OwnedCopyRef ownedRef,
+    required CollectionItemRef collectionItemRef,
     required String imageType,
     required Uint8List imageData,
     String? caption,
     int sortOrder = 0,
   }) async {
-    requireKnownOwnedRef(ownedRef);
+    requireKnownCollectionItemRef(collectionItemRef);
     await _db.into(_db.itemImagesCache).insertOnConflictUpdate(
           ItemImagesCacheCompanion.insert(
             id: id,
-            ownedRefKey: ownedRef.key,
+            collectionItemRefKey: collectionItemRef.key,
             imageType: Value(imageType),
             imageData: imageData,
             caption: Value(caption),
@@ -31,12 +31,12 @@ class ItemImagesCacheRepository {
         );
   }
 
-  /// Get all images for an owned item, ordered by sort order.
-  Future<List<ItemImagesCacheData>> listByOwnedRef(
-      OwnedCopyRef ownedRef) async {
-    requireKnownOwnedRef(ownedRef);
+  /// Get all images for a collection item, ordered by sort order.
+  Future<List<ItemImagesCacheData>> listByCollectionItemRef(
+      CollectionItemRef collectionItemRef) async {
+    requireKnownCollectionItemRef(collectionItemRef);
     return (_db.select(_db.itemImagesCache)
-          ..where((row) => row.ownedRefKey.equals(ownedRef.key))
+          ..where((row) => row.collectionItemRefKey.equals(collectionItemRef.key))
           ..orderBy([
             (row) => OrderingTerm.asc(row.sortOrder),
             (row) => OrderingTerm.asc(row.createdAt),
@@ -44,15 +44,15 @@ class ItemImagesCacheRepository {
         .get();
   }
 
-  /// Get the primary (first) image of a given type for an owned item.
+  /// Get the primary (first) image of a given type for a collection item.
   Future<ItemImagesCacheData?> primaryImageForItem(
-    OwnedCopyRef ownedRef, {
+    CollectionItemRef collectionItemRef, {
     String imageType = 'front_cover',
   }) async {
-    requireKnownOwnedRef(ownedRef);
+    requireKnownCollectionItemRef(collectionItemRef);
     return (_db.select(_db.itemImagesCache)
           ..where((row) =>
-              row.ownedRefKey.equals(ownedRef.key) &
+              row.collectionItemRefKey.equals(collectionItemRef.key) &
               row.imageType.equals(imageType))
           ..orderBy([
             (row) => OrderingTerm.asc(row.sortOrder),
@@ -62,17 +62,17 @@ class ItemImagesCacheRepository {
         .getSingleOrNull();
   }
 
-  /// Get front cover bytes for an owned item (for display).
-  Future<Uint8List?> frontCoverBytes(OwnedCopyRef ownedRef) async {
-    final row = await primaryImageForItem(ownedRef);
+  /// Get front cover bytes for a collection item (for display).
+  Future<Uint8List?> frontCoverBytes(CollectionItemRef collectionItemRef) async {
+    final row = await primaryImageForItem(collectionItemRef);
     return row?.imageData;
   }
 
-  /// Delete all images for an owned item.
-  Future<void> deleteByOwnedRef(OwnedCopyRef ownedRef) async {
-    requireKnownOwnedRef(ownedRef);
+  /// Delete all images for a collection item.
+  Future<void> deleteByCollectionItemRef(CollectionItemRef collectionItemRef) async {
+    requireKnownCollectionItemRef(collectionItemRef);
     await (_db.delete(_db.itemImagesCache)
-          ..where((row) => row.ownedRefKey.equals(ownedRef.key)))
+          ..where((row) => row.collectionItemRefKey.equals(collectionItemRef.key)))
         .go();
   }
 

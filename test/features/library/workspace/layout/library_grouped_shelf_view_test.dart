@@ -31,7 +31,7 @@ LibraryProjectionItem _item({
     catalogSummary: cat.asShelfCatalogSummary,
     catalogData: testWorkspaceCatalogData(cat.asShelfCatalogItem),
   );
-  final node = LibraryWorkRef(workId: id);
+  final node = LibraryCatalogItemNodeRef(catalogItemId: id);
   final dto = const GenericWorkspaceProjector().project(
     source: source,
     entity: node,
@@ -135,7 +135,7 @@ void main() {
       catalogSummary: cat.asShelfCatalogSummary,
       catalogData: testWorkspaceCatalogData(cat.asShelfCatalogItem),
     );
-    final node = const LibraryWorkRef(workId: 'c1');
+    final node = const LibraryCatalogItemNodeRef(catalogItemId: 'c1');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.comic)
         .project(source: source, node: node);
 
@@ -197,7 +197,7 @@ void main() {
       catalogSummary: cat.asShelfCatalogSummary,
       catalogData: testWorkspaceCatalogData(cat.asShelfCatalogItem),
     );
-    final node = const LibraryWorkRef(workId: 'c1');
+    final node = const LibraryCatalogItemNodeRef(catalogItemId: 'c1');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.comic)
         .project(source: source, node: node);
 

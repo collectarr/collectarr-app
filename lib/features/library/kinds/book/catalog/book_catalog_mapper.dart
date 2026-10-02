@@ -7,10 +7,7 @@ final class BookCatalogMapper {
   const BookCatalogMapper._();
 
   static BookCatalogItem mapMetadataItemToBook(CatalogItemDto item) {
-    final rawMetadata = item.kindMetadata;
-    final parsed = rawMetadata is BookCatalogMetadata
-        ? rawMetadata
-        : BookCatalogMetadata.fromJson(item.toSyncPayload());
+    final parsed = BookCatalogMetadata.fromJson(item.payload);
     final metadata = parsed.copyWith(title: item.title);
     return BookCatalogItem(
       id: item.id,

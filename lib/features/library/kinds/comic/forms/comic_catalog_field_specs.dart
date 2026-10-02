@@ -8,15 +8,17 @@ List<LibraryFieldSpec<T>> comicCatalogItemIdentityFields<T>({
   required ComicCatalogItemValuesReader<T> values,
   Iterable<String>? physicalFormatOptions,
   FutureOr<void> Function()? onManagePhysicalFormat,
+  bool includeTitle = true,
   bool includeSeries = true,
 }) =>
     [
-      _text<T>(
-        id: 'title',
-        label: 'Title',
-        value: (draft) => values(draft).title,
-        setValue: (draft, value) => values(draft).title = value,
-      ),
+      if (includeTitle)
+        _text<T>(
+          id: 'title',
+          label: 'Title',
+          value: (draft) => values(draft).title,
+          setValue: (draft, value) => values(draft).title = value,
+        ),
       if (includeSeries)
         _text<T>(
           id: 'series',

@@ -114,12 +114,12 @@ final movieKindInspector = LibraryInspectorCapability(
   entityRegistry: LibraryEntityInspectorRegistry(
     contributors: [
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
+        scope: LibraryEntityScope.catalogItem,
         heroBuilder: buildMovieInspectorHero,
         sectionsBuilder: buildMovieInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
+        scope: LibraryEntityScope.collectionItem,
         heroBuilder: buildMovieCopyInspectorHero,
         sectionsBuilder: buildMovieCopyInspectorSections,
       ),

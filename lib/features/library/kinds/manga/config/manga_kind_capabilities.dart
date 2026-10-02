@@ -1,7 +1,5 @@
 import '../manga_module_dependencies.dart';
 import 'manga_kind_configuration.dart';
-import 'package:collectarr_app/features/library/kinds/manga/release/manga_release_projection_capability.dart'
-    as manga_release;
 
 final mangaKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.manga,
@@ -60,10 +58,6 @@ final mangaKindTrackingProfile = mangaTrackingProfile;
 
 final mangaKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final mangaKindReleaseCapability = manga_release.mangaKindReleaseCapability;
-
-final mangaKindReleaseDetailSource = manga_release.mangaKindReleaseDetailSource;
-
 final mangaKindCatalogTarget = const MangaCatalogTargetCapability();
 
 final mangaKindUiPolicy = const LibraryUiPolicy();
@@ -105,7 +99,7 @@ final mangaKindMetadata = LibraryMetadataCapability(
 final mangaKindHierarchy = const LibraryHierarchyCapability();
 
 final mangaKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Volume', plural: 'Volumes'),
+  work: LibraryEntityLabel(singular: 'Catalog Item', plural: 'Catalog Items'),
   release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
   copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
 );
@@ -119,7 +113,7 @@ final mangaKindTrackingTopology = const LibraryTrackingTopology(
 
 final mangaKindActions = const LibraryEntityActionCapability(
   work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
+  release: LibraryEntityActionSet(),
   copy: LibraryEntityActionSet.copy,
 );
 
@@ -127,17 +121,12 @@ final mangaKindInspector = LibraryInspectorCapability(
   entityRegistry: LibraryEntityInspectorRegistry(
     contributors: [
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
+        scope: LibraryEntityScope.catalogItem,
         heroBuilder: buildMangaWorkInspectorHero,
         sectionsBuilder: buildMangaWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildMangaReleaseInspectorHero,
-        sectionsBuilder: buildMangaReleaseInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
+        scope: LibraryEntityScope.collectionItem,
         heroBuilder: buildMangaCopyInspectorHero,
         sectionsBuilder: buildMangaCopyInspectorSections,
       ),

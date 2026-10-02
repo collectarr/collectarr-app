@@ -64,7 +64,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'movie-1',
         kind: 'movie',
-        ownedItem: testOwnedItem(
+        collectionItem: testCollectionItem(
           itemId: 'movie-1',
           kind: 'movie',
           marketValueCents: 2400,
@@ -74,7 +74,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'movie-2',
         kind: 'movie',
-        ownedItem: testOwnedItem(
+        collectionItem: testCollectionItem(
           itemId: 'movie-2',
           kind: 'movie',
           marketValueCents: 1600,

@@ -1,21 +1,22 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/updater/app_update_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Nullable copy semantics', () {
-    test('ComicOwnedItem exposes typed kind-owned details', () {
-      final item = ComicOwnedItem(
-        id: const ComicOwnedCopyId('item-typed'),
+    test('ComicCollectionItem exposes typed kind-owned details', () {
+      final item = ComicCollectionItem(
+        id: const CollectionItemId('item-typed'),
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           id: 'cat-typed',
@@ -31,10 +32,10 @@ void main() {
     });
 
     test(
-        'ComicOwnedItem.copyWith allows preserving, updating, and clearing nullable fields',
+        'ComicCollectionItem.copyWith allows preserving, updating, and clearing nullable fields',
         () {
-      final item = ComicOwnedItem(
-        id: const ComicOwnedCopyId('item-1'),
+      final item = ComicCollectionItem(
+        id: const CollectionItemId('item-1'),
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           id: 'cat-1',
@@ -225,7 +226,7 @@ void main() {
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.book,
           id: 'b-1',
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
         ),
         targetPriceCents: 1500,
         currency: 'USD',

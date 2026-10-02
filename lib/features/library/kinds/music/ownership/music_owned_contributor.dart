@@ -1,16 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_collection_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dart';
 
-final musicOwnedContributor = TypedOwnedKindContributor<MusicOwnedItem>(
+final musicOwnedContributor = TypedOwnedKindContributor<MusicCollectionItem>(
   kind: CatalogMediaKind.music,
   findById: (database, id) =>
-      MusicOwnedRepository(database).findById(MusicOwnedCopyId(id)),
+      MusicOwnedRepository(database).findById(CollectionItemId(id)),
   upsert: (database, item) => MusicOwnedRepository(database).upsert(item),
   listActive: (database) => MusicOwnedRepository(database).listActive(),
   createItem: ({
@@ -22,10 +23,10 @@ final musicOwnedContributor = TypedOwnedKindContributor<MusicOwnedItem>(
     required ownerUserId,
     required ownerLabel,
   }) {
-    if (payload is! MusicOwnedItemCreatePayload) {
+    if (payload is! MusicCollectionItemCreatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
-    return payload.toOwnedItem(
+    return payload.toCollectionItem(
       resolvedCatalogRef: resolvedCatalogRef,
       id: id,
       createdAt: createdAt,
@@ -41,7 +42,7 @@ final musicOwnedContributor = TypedOwnedKindContributor<MusicOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (payload is! MusicOwnedItemUpdatePayload) {
+    if (payload is! MusicCollectionItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     return payload.applyTo(
@@ -52,9 +53,9 @@ final musicOwnedContributor = TypedOwnedKindContributor<MusicOwnedItem>(
     );
   },
   toJson: (item) => item.toJson().cast<String, Object?>(),
-  fromJson: MusicOwnedItem.fromJson,
-  summary: MusicOwnedItemProjection.toSummary,
-  createPayload: MusicOwnedItemCreatePayload.fromTypedItem,
+  fromJson: MusicCollectionItem.fromJson,
+  summary: MusicCollectionItemProjection.toSummary,
+  createPayload: MusicCollectionItemCreatePayload.fromTypedItem,
   itemId: (item) => item.id.value,
   markDeleted: (item, deletedAt) =>
       item.copyWith(deletedAt: deletedAt, updatedAt: deletedAt),

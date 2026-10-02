@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -12,7 +12,7 @@ class LibraryDetailHero extends StatelessWidget {
     super.key,
     required this.type,
     required this.item,
-    required this.ownedItem,
+    required this.collectionItem,
     this.ownedCopies = const [],
     required this.accent,
     this.isOwned,
@@ -21,8 +21,8 @@ class LibraryDetailHero extends StatelessWidget {
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final OwnedCopySummary? ownedItem;
-  final List<OwnedCopySummary> ownedCopies;
+  final CollectionItemSummary? collectionItem;
+  final List<CollectionItemSummary> ownedCopies;
   final Color accent;
   final bool? isOwned;
   final Widget? kindOwnedContent;
@@ -32,15 +32,12 @@ class LibraryDetailHero extends StatelessWidget {
     final palette = appPalette(context);
     final dto = item.dto;
     final presentation = libraryCardPresentationForEntry(item);
-    final resolvedOwnedRef = resolveLibraryOwnedSummaryRef(item, ownedItem);
+    final resolvedCollectionItemRef = resolveLibraryCollectionItemSummaryRef(item, collectionItem);
     final resolvedIsOwned =
-        isOwned ?? (ownedItem != null || item.source.isOwned);
+        isOwned ?? (collectionItem != null || item.source.isOwned);
     final referenceLabel = presentation.format;
     final totalCopies =
-        ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
-    final totalQuantity = ownedCopies.isEmpty
-        ? (ownedItem?.quantity ?? 0)
-        : ownedCopies.fold<int>(0, (sum, item) => sum + item.quantity);
+        ownedCopies.isEmpty ? (collectionItem == null ? 0 : 1) : ownedCopies.length;
     final totalPaidCents = _sumOwnedValueCents(
       ownedCopies,
       (item) => item.pricePaidCents,
@@ -50,15 +47,14 @@ class LibraryDetailHero extends StatelessWidget {
       (item) => item.marketValueCents,
     );
     final totalsCurrency =
-        _detailHeroValueCurrency(ownedCopies, ownedItem, item);
-    final selectedCopyIndex = ownedItem == null || ownedCopies.isEmpty
+        _detailHeroValueCurrency(ownedCopies, collectionItem, item);
+    final selectedCopyIndex = collectionItem == null || ownedCopies.isEmpty
         ? null
         : ownedCopies.indexWhere(
-            (i) => i.ref == ownedItem!.ref,
+            (i) => i.ref == collectionItem!.ref,
           );
     final summaryFacts = <({String label, String value})>[
       (label: 'Status', value: resolvedIsOwned ? 'Owned' : 'Not owned'),
-      (label: 'Quantity', value: totalQuantity.toString()),
       if (totalCopies > 1) (label: 'Copies', value: totalCopies.toString()),
       if (totalCopies > 1 && totalPaidCents != null)
         (
@@ -75,7 +71,7 @@ class LibraryDetailHero extends StatelessWidget {
       (
         label: 'Updated',
         value:
-            formatNullableDate(ownedItem?.updatedAt ?? item.source.updatedAt) ??
+            formatNullableDate(collectionItem?.updatedAt ?? item.source.updatedAt) ??
                 '-',
       ),
     ];
@@ -135,7 +131,7 @@ class LibraryDetailHero extends StatelessWidget {
                     context,
                     coverWidth: 140,
                   ),
-                  ownedRef: resolvedOwnedRef,
+                  collectionItemRef: resolvedCollectionItemRef,
                   enableHoverCue: false,
                 ),
               ),
@@ -208,8 +204,8 @@ class LibraryDetailHero extends StatelessWidget {
 }
 
 int? _sumOwnedValueCents(
-  List<OwnedCopySummary> items,
-  int? Function(OwnedCopySummary item) selector,
+  List<CollectionItemSummary> items,
+  int? Function(CollectionItemSummary item) selector,
 ) {
   var hasValue = false;
   var total = 0;
@@ -225,8 +221,8 @@ int? _sumOwnedValueCents(
 }
 
 String? _detailHeroValueCurrency(
-  List<OwnedCopySummary> ownedCopies,
-  OwnedCopySummary? ownedItem,
+  List<CollectionItemSummary> ownedCopies,
+  CollectionItemSummary? collectionItem,
   LibraryProjectionView item,
 ) {
   for (final copy in ownedCopies) {
@@ -235,7 +231,7 @@ String? _detailHeroValueCurrency(
       return currency;
     }
   }
-  final ownedCurrency = ownedItem?.currency?.trim();
+  final ownedCurrency = collectionItem?.currency?.trim();
   if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
     return ownedCurrency;
   }

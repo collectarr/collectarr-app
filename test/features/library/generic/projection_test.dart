@@ -29,7 +29,7 @@ void main() {
           testCatalogItem(id: 'music-1', kind: 'music', title: 'Album 1')
               .asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'music-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'music-1');
     final dto = const MusicCatalogItemWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -52,10 +52,10 @@ void main() {
         title: 'Saga #1',
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
       ).asShelfCatalogItem),
-      ownedSummary:
-          testOwnedSummary(testOwnedItem(id: 'o1', itemId: 'comic-1')),
+      collectionItemSummary:
+          testCollectionItemSummary(testCollectionItem(id: 'o1', itemId: 'comic-1')),
     );
-    const node1 = LibraryWorkRef(workId: 'comic-1');
+    const node1 = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
     final dto1 = const ComicWorkspaceProjector().project(
       source: source1,
       entity: node1,

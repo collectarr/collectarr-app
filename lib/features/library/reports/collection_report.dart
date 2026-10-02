@@ -14,7 +14,6 @@ enum ReportColumn {
   reference('Reference', 1.8),
   owned('Owned', 0.7),
   wishlist('Wishlist', 0.8),
-  quantity('Quantity', 0.8),
   location('Location', 1.0);
 
   const ReportColumn(this.label, this.flex);
@@ -31,7 +30,6 @@ enum ReportColumn {
           : '${ref.kind.apiValue}:${ref.entityType.apiValue}:${ref.id}',
       ReportColumn.owned => item.source.isOwned ? 'yes' : 'no',
       ReportColumn.wishlist => item.source.isWishlisted ? 'yes' : 'no',
-      ReportColumn.quantity => item.source.quantity.toString(),
       ReportColumn.location => item.source.locationPath ?? '',
     };
   }
@@ -42,7 +40,6 @@ const _defaultReportColumns = [
   ReportColumn.kind,
   ReportColumn.reference,
   ReportColumn.owned,
-  ReportColumn.quantity,
   ReportColumn.location,
 ];
 

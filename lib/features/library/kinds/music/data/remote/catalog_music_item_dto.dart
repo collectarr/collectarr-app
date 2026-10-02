@@ -55,6 +55,10 @@ final class CatalogMusicItemDto implements JsonEncodable {
 
   factory CatalogMusicItemDto.fromJson(Map<String, dynamic> json) {
     final catalogJson = Map<String, dynamic>.from(json);
+    // Catalog Item revisions are transport metadata. Some Core response paths
+    // include this beside the flattened kind fields; it must never become a
+    // Music catalog field or make a valid Music item fail to decode.
+    catalogJson.remove('snapshot_version');
     const allowedKeys = {
       'id',
       'kind',

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_value_capability.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 
 class ComicValueCapability implements LibraryValueCapability {
   const ComicValueCapability();
@@ -15,13 +15,13 @@ class ComicValueCapability implements LibraryValueCapability {
         if (entry.isOwned)
           (
             entry: entry,
-            owned: _comicOwnedItem(entry),
+            owned: _comicCollectionItem(entry),
           ),
     ].where((candidate) {
-      final ownedItem = candidate.owned;
-      return ownedItem != null &&
-          ownedItem.details.coverPriceCents != null &&
-          ownedItem.currency != null;
+      final collectionItem = candidate.owned;
+      return collectionItem != null &&
+          collectionItem.details.coverPriceCents != null &&
+          collectionItem.currency != null;
     }).toList(growable: false);
     if (valuedEntries.isEmpty) {
       return null;
@@ -44,7 +44,7 @@ class ComicValueCapability implements LibraryValueCapability {
     );
   }
 
-  static ComicOwnedItem? _comicOwnedItem(LibraryWorkspaceSource entry) {
-    return ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
+  static ComicCollectionItem? _comicCollectionItem(LibraryWorkspaceSource entry) {
+    return ComicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
   }
 }

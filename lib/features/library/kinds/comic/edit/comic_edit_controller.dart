@@ -145,12 +145,12 @@ class ComicEditController {
         .where((s) => s.isNotEmpty)
         .toList();
 
-    final currentMeta = selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .kindMetadata is ComicCatalogItem
-        ? selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .kindMetadata as ComicCatalogItem
+    final currentMeta = selection.kindItem.kindCapability.mapTransport(
+                (transport) => ComicCatalogItem.fromJson(transport.kindData))
+            is ComicCatalogItem
+        ? selection.kindItem.kindCapability.mapTransport(
+                (transport) => ComicCatalogItem.fromJson(transport.kindData))
+            as ComicCatalogItem
         : item;
 
     final updatedSeries = (currentMeta.series != null ||
@@ -212,7 +212,7 @@ class ComicEditController {
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindMetadata(updatedMeta),
+        transport.withKindData(updatedMeta),
       ),
     );
     final withMetadata = selection.copyWith(kindItem: updatedItem);

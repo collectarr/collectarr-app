@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_collection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
@@ -14,11 +14,11 @@ abstract final class AnimeCopyWorkspaceFields {
     id: AnimeFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = AnimeOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return owned is AnimeOwnedItem ? owned.condition : null;
+      final owned = AnimeCollectionItemProjection.fromDispatch(
+          context.source.collectionItemDispatch);
+      return owned is AnimeCollectionItem ? owned.condition : null;
     },
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final location =
@@ -26,7 +26,7 @@ abstract final class AnimeCopyWorkspaceFields {
     id: AnimeFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final pricePaid =
@@ -34,7 +34,7 @@ abstract final class AnimeCopyWorkspaceFields {
     id: AnimeFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final status =
@@ -44,7 +44,7 @@ abstract final class AnimeCopyWorkspaceFields {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final rating =
@@ -52,7 +52,7 @@ abstract final class AnimeCopyWorkspaceFields {
     id: AnimeFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final wishlist =
@@ -60,7 +60,7 @@ abstract final class AnimeCopyWorkspaceFields {
     id: AnimeFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final updatedAt =
@@ -68,7 +68,7 @@ abstract final class AnimeCopyWorkspaceFields {
     id: AnimeFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final addedAt =
@@ -76,7 +76,7 @@ abstract final class AnimeCopyWorkspaceFields {
     id: AnimeFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 
   static final watchStatus =
@@ -84,7 +84,7 @@ abstract final class AnimeCopyWorkspaceFields {
     id: AnimeFieldIds.watchStatus,
     label: 'Watch Status',
     getValue: (context) => context.dto.personal.trackingStatus,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
   );
 }
 
@@ -110,7 +110,7 @@ final animeCopyWorkspaceGroupDefinitions = [
 final animeCopyWorkspaceSortDefinitions = [
   LibrarySortDefinition<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeSortIds.status,
-    entityScope: LibraryEntityScope.copy,
+    entityScope: LibraryEntityScope.collectionItem,
     compare: (left, right) {
       int rank(LibraryProjectionContext<AnimeWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;
@@ -204,7 +204,7 @@ final animeCopyWorkspaceColumnDefinitions = [
 final animeCopyWorkspaceSchema =
     LibraryEntityWorkspaceSchema<AnimeKind, AnimeWorkspaceDto>(
   kindNamespace: 'anime',
-  entityScope: LibraryEntityScope.copy,
+  entityScope: LibraryEntityScope.collectionItem,
   fields: animeCopyWorkspaceFieldDefinitions,
   columns: animeCopyWorkspaceColumnDefinitions,
   sorts: animeCopyWorkspaceSortDefinitions,

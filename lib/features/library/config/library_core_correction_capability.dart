@@ -24,48 +24,30 @@ typedef LibraryCoreCorrectionTargetResolver = LibraryCoreCorrectionTarget
   required CatalogEntityRef catalogRef,
 });
 
-/// Structural fallback used by kinds whose Core target is exactly their
-/// Work/Release/Copy entity reference. The resolver is still registered by
-/// each kind so a kind can replace this policy when its canonical identity
-/// differs from the generic structural ref.
+/// Uses the direct Catalog Item identity for source-neutral Core corrections.
+/// Personal collection-item identity never changes the canonical correction
+/// target.
 LibraryCoreCorrectionTarget resolveStructuralLibraryCoreCorrectionTarget({
   required LibraryEntityRef? node,
   required LibraryEntityScope? requestedScope,
   required CatalogEntityRef catalogRef,
 }) {
-  if (node case LibraryCopyRef(:final releaseId)) {
-    if (releaseId.trim().isEmpty) {
-      throw StateError('Copy correction requires a concrete parent Release.');
+  if (node != null) {
+    final catalogItemId = node.catalogItemId.trim();
+    if (catalogItemId.isEmpty) {
+      throw StateError('Catalog Item correction requires an item ID.');
     }
     return LibraryCoreCorrectionTarget(
-      scope: LibraryEntityScope.release.apiValue,
-      entityId: releaseId,
-    );
-  }
-  if (node case LibraryReleaseRef(:final releaseId)) {
-    if (releaseId.trim().isEmpty) {
-      throw StateError('Release correction requires a concrete Release.');
-    }
-    return LibraryCoreCorrectionTarget(
-      scope: LibraryEntityScope.release.apiValue,
-      entityId: releaseId,
-    );
-  }
-  if (node case LibraryWorkRef(:final workId)) {
-    if (workId.trim().isEmpty) {
-      throw StateError('Work correction requires a concrete Work.');
-    }
-    return LibraryCoreCorrectionTarget(
-      scope: LibraryEntityScope.work.apiValue,
-      entityId: workId,
+      scope: LibraryEntityScope.catalogItem.apiValue,
+      entityId: catalogItemId,
     );
   }
 
-  final scope = requestedScope ?? LibraryEntityScope.work;
+  final scope = requestedScope ?? LibraryEntityScope.catalogItem;
   final entityId = switch (scope) {
-    LibraryEntityScope.work => (catalogRef.rootId ?? catalogRef.id).trim(),
-    LibraryEntityScope.release => catalogRef.id.trim(),
-    LibraryEntityScope.copy => '',
+    LibraryEntityScope.catalogItem =>
+      (catalogRef.rootId ?? catalogRef.id).trim(),
+    LibraryEntityScope.release || LibraryEntityScope.collectionItem => '',
   };
   if (entityId.isEmpty) {
     throw StateError(

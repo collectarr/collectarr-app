@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 
 abstract final class MovieVocabularyIds {
@@ -62,8 +62,8 @@ abstract final class MovieVocabularies {
     );
   }
 
-  static MovieOwnedItem _replaceOwnedValue(
-    MovieOwnedItem item,
+  static MovieCollectionItem _replaceOwnedValue(
+    MovieCollectionItem item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -101,7 +101,7 @@ abstract final class MovieVocabularies {
   }
 
   static Iterable<String?> _ownedValues(
-    MovieOwnedItem item,
+    MovieCollectionItem item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

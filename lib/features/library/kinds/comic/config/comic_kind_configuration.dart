@@ -19,8 +19,8 @@ const comicTransferableFieldKeys = <String>[
 ];
 
 final comicUniversalTransferableFields =
-    TransferableField.universalForTyped<ComicOwnedItem>(
-  decode: (value) => value as ComicOwnedItem,
+    TransferableField.universalForTyped<ComicCollectionItem>(
+  decode: (value) => value as ComicCollectionItem,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,
@@ -42,10 +42,6 @@ final comicUniversalTransferableFields =
   readSellPriceCents: (item) => item.sellPriceCents?.toString(),
   writeSellPriceCents: (item, value) => item.copyWith(
     sellPriceCents: value == null ? null : int.tryParse(value),
-  ),
-  readQuantity: (item) => item.quantity.toString(),
-  writeQuantity: (item, value) => item.copyWith(
-    quantity: value == null ? 1 : int.tryParse(value) ?? 1,
   ),
   readIndexNumber: (item) => item.indexNumber?.toString(),
   writeIndexNumber: (item, value) => item.copyWith(

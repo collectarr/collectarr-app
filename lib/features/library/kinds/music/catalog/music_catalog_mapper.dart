@@ -128,15 +128,7 @@ final class MusicCatalogMapper {
     return CatalogItemDto.raw(
       id: album.id.value,
       mediaKind: CatalogMediaKind.music,
-      common: CatalogCommonDto(
-        title: album.title,
-        originalTitle: album.originalTitle,
-        coverImageUrl: album.coverImageUrl,
-        thumbnailImageUrl: album.thumbnailImageUrl,
-        releaseDate: album.releaseDate,
-        releaseDateParts: album.releaseDateParts,
-      ),
-      payload: {'music': music},
+      kindData: music,
     );
   }
 
@@ -144,20 +136,8 @@ final class MusicCatalogMapper {
       mapMetadataItemToMusic(dto);
 
   static MusicAlbum mapMetadataItemToMusic(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is MusicAlbum) return metadata;
-    if (metadata is CatalogMusicItemDto) return _fromTypedDto(metadata);
-
     final payload = catalogTransportPayloadFor(item);
-    final nestedMusic = payload['music'];
-    final musicPayload = nestedMusic is Map
-        ? <String, dynamic>{
-            ...Map<String, dynamic>.from(nestedMusic),
-            'id': item.id,
-            'kind': 'music',
-          }
-        : <String, dynamic>{...payload, 'id': item.id, 'kind': 'music'};
-    return _fromTypedDto(CatalogMusicItemDto.fromJson(musicPayload));
+    return _fromTypedDto(CatalogMusicItemDto.fromJson(payload));
   }
 
   static MusicAlbum _fromTypedDto(CatalogMusicItemDto item) {

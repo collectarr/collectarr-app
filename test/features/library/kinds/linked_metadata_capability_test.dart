@@ -144,7 +144,7 @@ LibraryWorkspaceSource _shelfEntry(
 }) {
   final transport = CatalogItemDto(
     identity: LibraryItemIdentity(id: 'item-1', mediaKind: kind),
-    kindMetadata: metadata,
+    kindData: metadata,
   ).asShelfCatalogItem;
   return LibraryWorkspaceSource(
     itemId: 'item-1',

@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_collection_item_projection.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -11,10 +11,10 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_collection_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'game_edit_controller.dart';
 
@@ -36,7 +36,7 @@ class GameEditDraft
         LibraryCopyEditSessionDefaults
     implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
   GameEditDraft({
-    this.ownedItem,
+    this.collectionItem,
     required this.gameCompleteness,
     required this.gameHasBox,
     required this.gameHasManual,
@@ -46,7 +46,7 @@ class GameEditDraft
     required this.gameEdit,
   });
 
-  final GameOwnedItem? ownedItem;
+  final GameCollectionItem? collectionItem;
 
   String? gameCompleteness;
   bool? gameHasBox;
@@ -69,7 +69,7 @@ class GameEditDraft
 
   @override
   void initializePersonalState(PersonalStateDraft personal) {
-    final item = ownedItem;
+    final item = collectionItem;
     if (item == null) return;
     personal.ownerLabelController.text = item.ownerLabel ?? '';
     personal.conditionController.text = item.condition ?? '';
@@ -80,7 +80,6 @@ class GameEditDraft
         ? ''
         : (item.pricePaidCents! / 100).toStringAsFixed(2);
     personal.currencyController.text = item.currency ?? '';
-    personal.quantityController.text = item.quantity.toString();
     personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
     personal.notesController.text = item.personalNotes ?? '';
     personal.tagsController.text = item.tags ?? '';
@@ -98,12 +97,11 @@ class GameEditDraft
   }
 
   @override
-  GameOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedCopyRef ownedRef,
+  GameCollectionItemUpdatePayload buildOwnedUpdatePayload({
+    required CollectionItemRef collectionItemRef,
     required PersonalStateDraft personal,
   }) {
-    return GameOwnedItemUpdatePayload(
-      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+    return GameCollectionItemUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -295,11 +293,11 @@ class GameEditDraft
 
 LibraryEditSessionBundle createGameEditDraft({
   required CatalogSearchCandidate item,
-  LibraryOwnedItemDispatch? ownedItemDispatch,
+  LibraryCollectionItemDispatch? collectionItemDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = GameOwnedItemProjection.fromDispatch(ownedItemDispatch);
+  final owned = GameCollectionItemProjection.fromDispatch(collectionItemDispatch);
   final game = owned?.details;
   final meta = item.kindCapability.mapTransport(
               (transport) => GameCatalogMetadata.fromJson(transport.kindData))
@@ -331,7 +329,7 @@ LibraryEditSessionBundle createGameEditDraft({
   );
 
   final draft = GameEditDraft(
-    ownedItem: owned,
+    collectionItem: owned,
     gameCompleteness: game?.completeness,
     gameHasBox: game?.hasBox,
     gameHasManual: game?.hasManual,

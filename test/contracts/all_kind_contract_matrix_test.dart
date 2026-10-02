@@ -37,7 +37,7 @@ void main() {
       workspace: mangaKindWorkspace,
       contractFiles: const [
         'test/domain/manga/manga_catalog_transport_test.dart',
-        'test/domain/manga/manga_owned_item_local_mapper_test.dart',
+        'test/domain/manga/manga_collection_item_local_mapper_test.dart',
         'test/features/catalog/catalog_cache_repository_test.dart',
         'test/domain/manga/manga_add_schema_test.dart',
         'test/domain/manga/manga_media_edit_schema_test.dart',
@@ -49,7 +49,7 @@ void main() {
       kind: CatalogMediaKind.book,
       workspace: bookKindWorkspace,
       contractFiles: const [
-        'test/domain/book/book_owned_item_local_mapper_test.dart',
+        'test/domain/book/book_collection_item_local_mapper_test.dart',
         'test/features/catalog/catalog_cache_repository_test.dart',
         'test/domain/book/book_add_schema_test.dart',
         'test/domain/book/book_edit_schema_test.dart',
@@ -62,7 +62,7 @@ void main() {
       workspace: gameKindWorkspace,
       contractFiles: const [
         'test/domain/game/game_core_mapper_test.dart',
-        'test/domain/game/game_owned_item_local_mapper_test.dart',
+        'test/domain/game/game_collection_item_local_mapper_test.dart',
         'test/features/catalog/catalog_cache_repository_test.dart',
         'test/domain/game/game_add_schema_test.dart',
         'test/domain/game/game_edit_schema_test.dart',
@@ -125,7 +125,7 @@ void main() {
       requiresKindSessionFactory: false,
       contractFiles: const [
         'test/domain/music/music_core_mapper_test.dart',
-        'test/domain/music/music_owned_copy_mapper_test.dart',
+        'test/domain/music/music_collection_item_mapper_test.dart',
         'test/domain/music/music_add_edit_schema_test.dart',
         'test/domain/music/music_workspace_test.dart',
       ],

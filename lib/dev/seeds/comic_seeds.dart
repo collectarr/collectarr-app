@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -11,13 +12,13 @@ import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_track
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
 
-final comicDevSeedContributor = TypedDevSeedKindContributor<ComicOwnedItem>(
+final comicDevSeedContributor = TypedDevSeedKindContributor<ComicCollectionItem>(
   kind: CatalogMediaKind.comic,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -35,11 +36,11 @@ final comicDevSeedContributor = TypedDevSeedKindContributor<ComicOwnedItem>(
   validateCatalog: validateComicSeedCatalog,
   validateCatalogGraph: validateComicSeedCatalogGraph,
   validateBarcode: validateComicSeedBarcode,
-  ownedItemsTyped: comicSeedOwnedItems,
-  ownedSummaryTyped: ComicOwnedItemProjection.toSummary,
+  collectionItemsTyped: comicSeedCollectionItems,
+  collectionItemSummaryTyped: ComicCollectionItemProjection.toSummary,
   validateOwnedTyped: validateComicSeedOwned,
   seedOwnedTyped: (db, now) =>
-      ComicOwnedRepository(db).upsertAll(comicSeedOwnedItems(now)),
+      ComicOwnedRepository(db).upsertAll(comicSeedCollectionItems(now)),
   trackingRecords: comicSeedTrackingStates,
   trackingUnits: comicSeedTrackingUnits,
   seedDatabase: seedComicDatabase,
@@ -100,7 +101,7 @@ List<String> validateComicSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateComicSeedOwned(ComicOwnedItem item) {
+List<String> validateComicSeedOwned(ComicCollectionItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
@@ -138,7 +139,7 @@ Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
       id: 'seed-unit-comic-${item.id}-$issueId',
       targetRef: CatalogEntityRef(
         kind: item.mediaKind,
-        entityType: CatalogEntityTypeId.root,
+        entityType: CatalogEntityTypeId.catalogItem,
         id: item.id,
       ),
       issueNumber: issueNumber,
@@ -794,10 +795,10 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
     ];
 
-List<ComicOwnedItem> comicSeedOwnedItems(DateTime now) => [
+List<ComicCollectionItem> comicSeedCollectionItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.comic, 15))
-        ComicOwnedItem(
-          id: ComicOwnedCopyId('seed-owned-$itemId'),
+        ComicCollectionItem(
+          id: CollectionItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.comic, itemId),
           createdAt: now.subtract(const Duration(days: 260)),
           updatedAt: now,
@@ -817,7 +818,6 @@ List<ComicOwnedItem> comicSeedOwnedItems(DateTime now) => [
           currency: 'USD',
           personalNotes:
               'Bagged & boarded in mylar with acid-free backing board.',
-          quantity: 1,
           purchaseStore: 'Midtown Comics',
           collectionStatus: 'collected',
         ),
@@ -831,7 +831,7 @@ List<TrackingStorageRecord> comicSeedTrackingStates(DateTime now) => [
             CatalogMediaKind.comic,
             'seed-comic-${seedOrdinal2(i)}',
           ),
-          ownedRef: seedOwnedRef(
+          collectionItemRef: seedCollectionItemRef(
             CatalogMediaKind.comic,
             'seed-owned-seed-comic-${seedOrdinal2(i)}',
           ),
@@ -850,7 +850,7 @@ List<TrackingStorageRecord> comicSeedTrackingStates(DateTime now) => [
 Future<void> seedComicReadingStates(LocalDatabase db, DateTime now) async {
   final repository = ComicOwnedRepository(db);
   for (var i = 1; i <= 15; i++) {
-    final id = ComicOwnedCopyId('seed-owned-seed-comic-${seedOrdinal2(i)}');
+    final id = CollectionItemId('seed-owned-seed-comic-${seedOrdinal2(i)}');
     final item = await repository.findById(id);
     if (item == null) {
       throw StateError(

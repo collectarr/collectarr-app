@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
 
 abstract final class BoardGameVocabularyIds {
   static const condition = VocabularyId<String>('boardgame.condition');
@@ -56,8 +56,8 @@ abstract final class BoardGameVocabularies {
     );
   }
 
-  static BoardGameOwnedItem _replaceOwnedValue(
-    BoardGameOwnedItem item,
+  static BoardGameCollectionItem _replaceOwnedValue(
+    BoardGameCollectionItem item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -86,7 +86,7 @@ abstract final class BoardGameVocabularies {
   }
 
   static Iterable<String?> _ownedValues(
-    BoardGameOwnedItem item,
+    BoardGameCollectionItem item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

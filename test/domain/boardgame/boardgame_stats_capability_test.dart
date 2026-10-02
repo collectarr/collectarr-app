@@ -63,7 +63,7 @@ LibraryWorkspaceSource _entry(String id, BoardGameMetadata metadata) {
         id: id,
         mediaKind: CatalogMediaKind.boardgame,
       ),
-      kindMetadata: metadata,
+      kindData: metadata,
     ).asShelfCatalogItem),
   );
 }

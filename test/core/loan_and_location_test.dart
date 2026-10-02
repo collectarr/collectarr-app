@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -14,9 +14,9 @@ void main() {
     test('isOverdueAt uses the provided clock', () {
       final loan = Loan(
         id: 'loan-1',
-        ownedRef: const OwnedCopyRef(
+        collectionItemRef: const CollectionItemRef(
           kind: CatalogMediaKind.book,
-          id: OwnedCopyId('owned-1'),
+          id: CollectionItemId('owned-1'),
         ),
         borrowerName: 'Alex',
         lentDate: DateTime.utc(2026, 5, 1),
@@ -31,17 +31,17 @@ void main() {
     test('exposes the structural owned reference without domain details', () {
       final loan = Loan(
         id: 'loan-1',
-        ownedRef: const OwnedCopyRef(
+        collectionItemRef: const CollectionItemRef(
           kind: CatalogMediaKind.book,
-          id: OwnedCopyId('owned-1'),
+          id: CollectionItemId('owned-1'),
         ),
         borrowerName: 'Alex',
         lentDate: DateTime.utc(2026, 5, 1),
       );
 
-      expect(loan.ownedRef.kind, CatalogMediaKind.book);
-      expect(loan.ownedRef.id, const OwnedCopyId('owned-1'));
-      expect(loan.toJson()['owned_ref'], {
+      expect(loan.collectionItemRef.kind, CatalogMediaKind.book);
+      expect(loan.collectionItemRef.id, const CollectionItemId('owned-1'));
+      expect(loan.toJson()['collection_item_ref'], {
         'kind': 'book',
         'id': 'owned-1',
       });

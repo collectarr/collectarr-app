@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
@@ -92,12 +92,12 @@ void main() {
         variant: 'Direct',
       );
 
-      final owned = testOwnedItem(
+      final owned = testCollectionItem(
         id: 'owned_1',
         catalogRef: const CatalogEntityRef(
           id: 'comic_1',
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.catalogItem,
         ),
         condition: '9.8',
         grade: '9.8',
@@ -117,17 +117,17 @@ void main() {
             id: 'comic_1',
             mediaKind: CatalogMediaKind.comic,
           ),
-          kindMetadata: comicMeta,
+          kindData: comicMeta,
         ).asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(owned),
-        ownedItemDispatch: testComicOwnedItemDispatchFrom(
-          ComicOwnedItem.fromJson(owned.toJson()),
+        collectionItemSummary: testCollectionItemSummary(owned),
+        collectionItemDispatch: testComicCollectionItemDispatchFrom(
+          ComicCollectionItem.fromJson(owned.toJson()),
         ),
       );
 
       const projector = ComicWorkspaceProjector();
-      const node = LibraryWorkRef(
-        workId: 'comic_1',
+      const node = LibraryCatalogItemNodeRef(
+        catalogItemId: 'comic_1',
       );
       final dto = projector.project(
         source: shelfEntry,
@@ -135,10 +135,10 @@ void main() {
       );
 
       expect(dto.comic.title, 'Amazing Fantasy #15');
-      expect(dto.ownedItem?.id.value, 'owned_1');
-      expect(dto.ownedItem?.condition, '9.8');
-      expect(dto.ownedItem?.details.keyComic, isTrue);
-      expect(dto.ownedItem?.details.gradingCompany, 'CGC');
+      expect(dto.collectionItem?.id.value, 'owned_1');
+      expect(dto.collectionItem?.condition, '9.8');
+      expect(dto.collectionItem?.details.keyComic, isTrue);
+      expect(dto.collectionItem?.details.gradingCompany, 'CGC');
       expect(dto.writer, 'Stan Lee');
       expect(dto.artist, 'Steve Ditko');
       expect(dto.coverArtist, 'Jack Kirby');
@@ -152,11 +152,13 @@ void main() {
         dto: dto,
       );
 
-      expect(
-          ComicCatalogItemWorkspaceFields.title.getValue(ctx), 'Amazing Fantasy #15');
+      expect(ComicCatalogItemWorkspaceFields.title.getValue(ctx),
+          'Amazing Fantasy #15');
       expect(ComicCatalogItemWorkspaceFields.writer.getValue(ctx), 'Stan Lee');
-      expect(ComicCatalogItemWorkspaceFields.artist.getValue(ctx), 'Steve Ditko');
-      expect(ComicCatalogItemWorkspaceFields.coverArtist.getValue(ctx), 'Jack Kirby');
+      expect(
+          ComicCatalogItemWorkspaceFields.artist.getValue(ctx), 'Steve Ditko');
+      expect(ComicCatalogItemWorkspaceFields.coverArtist.getValue(ctx),
+          'Jack Kirby');
       expect(ComicCatalogItemWorkspaceFields.imprint.getValue(ctx), 'Marvel');
       expect(ComicCatalogItemWorkspaceFields.variant.getValue(ctx), 'Direct');
       expect(ComicCatalogItemWorkspaceFields.pageCount.getValue(ctx), 36);
@@ -199,10 +201,10 @@ void main() {
           id: 'comic-edit-1',
           mediaKind: CatalogMediaKind.comic,
         ),
-        kindMetadata: metadata,
+        kindData: metadata,
       );
 
-      final itemMeta = item.kindMetadata as ComicCatalogItem;
+      final itemMeta = ComicCatalogItem.fromJson(item.payload);
       expect(itemMeta.issueNumber, '1');
       expect(itemMeta.publisher, 'Image Comics');
       expect(itemMeta.country, 'US');

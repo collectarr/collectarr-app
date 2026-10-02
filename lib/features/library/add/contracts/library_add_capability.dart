@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
@@ -41,7 +41,7 @@ typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
 );
 
 typedef LibraryAddOwnedPayloadBuilder<TDraft extends LibraryAddKindDraft>
-    = OwnedItemCreatePayload Function(
+    = CollectionItemCreatePayload Function(
   CatalogSearchCandidate item,
   LibraryAddCommonDraft common,
   TDraft draft,
@@ -194,11 +194,7 @@ abstract interface class LibraryAddCapability<
     LibraryAddManualPaneRequest request,
   );
 
-  LibraryAddHeaderBuilder? get headerBuilder;
-  LibraryAddModeBarBuilder? get modeBarBuilder;
   LibraryAddPreviewPaneBuilder? get previewPaneBuilder;
-  LibraryAddSearchPaneBuilder? get searchPaneBuilder;
-  LibraryAddBottomBarPresentation get bottomBarPresentation;
   LibraryAddChromeConfig get chrome;
   LibraryAddSearchCapability get search;
   LibraryAddResultPolicy get resultPolicy;
@@ -214,27 +210,29 @@ abstract interface class LibraryAddCapability<
     LibraryAddPreviewPaneRequest request,
   );
 
-  AddOwnedItemCommand buildCommand(
+  AddCollectionItemCommand buildCommand(
     CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
     LibraryAddKindDraft draft, {
-    CatalogEntityRef? targetRef,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   });
 
-  AddOwnedItemCommand buildCommandFromDetails(
+  AddCollectionItemCommand buildCommandFromDetails(
     CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
     JsonEncodable details, {
     LibraryAddKindDraft? draft,
-    CatalogEntityRef? targetRef,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
     String? kindValue,
   });
 }
 
 class _EmptyKindAddDraft implements LibraryKindAddDraft {
-  const _EmptyKindAddDraft();
+  _EmptyKindAddDraft();
+
+  @override
+  String catalogTitle = '';
+
   @override
   void dispose() {}
 }
@@ -250,11 +248,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.manualCandidateValidationMessage =
         'The manual entry is incomplete or contains invalid values.',
     this.manualPaneBuilder,
-    this.headerBuilder,
-    this.modeBarBuilder,
     this.previewPaneBuilder,
-    this.searchPaneBuilder,
-    this.bottomBarPresentation = LibraryAddBottomBarPresentation.responsiveMenu,
     this.chrome = const LibraryAddChromeConfig(),
     required this.search,
     this.ownedPayloadBuilder,
@@ -274,15 +268,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     LibraryAddManualPaneRequest request,
   )? manualPaneBuilder;
   @override
-  final LibraryAddHeaderBuilder? headerBuilder;
-  @override
-  final LibraryAddModeBarBuilder? modeBarBuilder;
-  @override
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
-  @override
-  final LibraryAddSearchPaneBuilder? searchPaneBuilder;
-  @override
-  final LibraryAddBottomBarPresentation bottomBarPresentation;
   @override
   final LibraryAddChromeConfig chrome;
   @override
@@ -311,7 +297,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
 
   @override
   LibraryKindAddDraft createManualDraft() =>
-      manualDraftBuilder?.call() ?? const _EmptyKindAddDraft();
+      manualDraftBuilder?.call() ?? _EmptyKindAddDraft();
 
   @override
   CatalogSearchCandidate? buildManualCandidate(
@@ -354,7 +340,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     );
   }
 
-  OwnedItemCreatePayload _buildOwnedPayload(
+  CollectionItemCreatePayload _buildOwnedPayload(
     CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
     TDraft draft,
@@ -384,11 +370,10 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   }
 
   @override
-  AddOwnedItemCommand buildCommand(
+  AddCollectionItemCommand buildCommand(
     CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
     LibraryAddKindDraft draft, {
-    CatalogEntityRef? targetRef,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   }) {
     final effectiveDraft = _resolveDraft(
@@ -402,11 +387,10 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       effectiveDraft,
       details,
     );
-    return AddOwnedItemCommand(
+    return AddCollectionItemCommand(
       catalogRef: item.reference,
       typedPayload: typedPayload,
-      targetRef: targetRef ?? item.reference,
-      tracking: OwnedItemTrackingDraft(
+      tracking: CollectionItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
         rating: tracking.rating,
         startedAt: tracking.startedAt,
@@ -417,12 +401,11 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   }
 
   @override
-  AddOwnedItemCommand buildCommandFromDetails(
+  AddCollectionItemCommand buildCommandFromDetails(
     CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
     JsonEncodable details, {
     LibraryAddKindDraft? draft,
-    CatalogEntityRef? targetRef,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
     String? kindValue,
   }) {
@@ -437,11 +420,10 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       details,
       kindValue: kindValue,
     );
-    return AddOwnedItemCommand(
+    return AddCollectionItemCommand(
       catalogRef: item.reference,
       typedPayload: typedPayload,
-      targetRef: targetRef ?? item.reference,
-      tracking: OwnedItemTrackingDraft(
+      tracking: CollectionItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
         rating: tracking.rating,
         startedAt: tracking.startedAt,

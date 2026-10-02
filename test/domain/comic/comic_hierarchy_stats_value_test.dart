@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +26,7 @@ void main() {
     final entries = [
       testLibraryWorkspaceSource(
         itemId: 'comic-1',
-        ownedItem: testOwnedItem(
+        collectionItem: testCollectionItem(
           itemId: 'comic-1',
           keyComic: true,
           kind: 'comic',
@@ -34,11 +34,11 @@ void main() {
       ),
       testLibraryWorkspaceSource(
         itemId: 'comic-2',
-        ownedItem: testOwnedItem(itemId: 'comic-2', kind: 'comic'),
+        collectionItem: testCollectionItem(itemId: 'comic-2', kind: 'comic'),
       ),
       testLibraryWorkspaceSource(
         itemId: 'comic-3',
-        ownedItem: null,
+        collectionItem: null,
       ),
     ];
 
@@ -49,7 +49,7 @@ void main() {
     final entries = [
       testLibraryWorkspaceSource(
         itemId: 'comic-1',
-        ownedItem: testOwnedItem(
+        collectionItem: testCollectionItem(
           itemId: 'comic-1',
           kind: 'comic',
           coverPriceCents: 1200,
@@ -58,7 +58,7 @@ void main() {
       ),
       testLibraryWorkspaceSource(
         itemId: 'comic-2',
-        ownedItem: testOwnedItem(
+        collectionItem: testCollectionItem(
           itemId: 'comic-2',
           kind: 'comic',
           coverPriceCents: 800,
@@ -67,7 +67,7 @@ void main() {
       ),
       testLibraryWorkspaceSource(
         itemId: 'comic-3',
-        ownedItem: testOwnedItem(
+        collectionItem: testCollectionItem(
           itemId: 'comic-3',
           kind: 'comic',
           coverPriceCents: 500,
@@ -94,13 +94,11 @@ void main() {
     final missingVariant = _comicProjection(
       id: 'missing-variant',
       seriesTitle: 'Saga',
-      node: LibraryCopyRef(
-        workId: 'missing-variant',
-        releaseId: 'missing-release',
-        ownedRef: const OwnedCopyRef(
+      node: LibraryCollectionItemNodeRef(
+        catalogItemId: 'missing-variant',
+        collectionItemRef: const CollectionItemRef(
           kind: CatalogMediaKind.comic,
-          itemId: 'missing-variant',
-          id: OwnedCopyId('owned-missing-variant'),
+          id: CollectionItemId('owned-missing-variant'),
         ),
       ),
     );
@@ -119,7 +117,7 @@ void main() {
   test('Comic owns its cover-price transfer field', () {
     expect(kTransferableReleaseFieldKeys, isNot(contains('coverPriceCents')));
     expect(
-      comicKindTransfer.fieldKeysForScope(LibraryEntityScope.copy),
+      comicKindTransfer.fieldKeysForScope(LibraryEntityScope.collectionItem),
       contains('coverPriceCents'),
     );
   });
@@ -138,13 +136,13 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
-      ownedItem: null,
+      collectionItem: null,
       accent: Colors.blue,
-      scope: LibraryEntityScope.copy,
+      scope: LibraryEntityScope.collectionItem,
     );
     final builder = comicKindEditCapabilities
         .presentationCapability.editRegistry
-        .builderForScope(LibraryEntityScope.copy);
+        .builderForScope(LibraryEntityScope.collectionItem);
 
     expect(builder, isNotNull);
     await tester.pumpWidget(
@@ -186,7 +184,7 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
-      ownedItem: null,
+      collectionItem: null,
       accent: Colors.blue,
       scope: LibraryEntityScope.release,
       editPrimaryRelease: true,
@@ -231,7 +229,7 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
-      ownedItem: testOwnedSummary(testOwnedItem(
+      collectionItem: testCollectionItemSummary(testCollectionItem(
         itemId: item.identity.id,
         rawOrSlabbed: 'Slabbed',
         gradingCompany: 'CGC',
@@ -254,10 +252,8 @@ void main() {
         hasWishlistContext: false,
         isDigitalFormat: false,
         hasPhysicalFormats: true,
-        hasOwnedTargetOptions: false,
-        hasAdditionalTargetOptions: false,
         hasCustomFields: false,
-        scope: LibraryEntityScope.copy,
+        scope: LibraryEntityScope.collectionItem,
       ),
     );
     expect(ownedTabs.map((tab) => tab.id), contains('owned'));
@@ -275,7 +271,7 @@ void main() {
                   context: context,
                   draft: draft,
                   accent: Colors.blue,
-                  scope: LibraryEntityScope.copy,
+                  scope: LibraryEntityScope.collectionItem,
                   item: CatalogSearchCandidate.fromItem(item),
                   markDirty: () {},
                 )!;
@@ -312,12 +308,13 @@ LibraryProjectionItem<ComicWorkspaceDto> _comicProjection({
       variant: variant,
     )),
   );
-  final titleNode = LibraryWorkRef(workId: id);
-  final dto =
-      comicKindWorkspace.projectorForScope(LibraryEntityScope.work).project(
-            source: source,
-            entity: titleNode,
-          );
+  final titleNode = LibraryCatalogItemNodeRef(catalogItemId: id);
+  final dto = comicKindWorkspace
+      .projectorForScope(LibraryEntityScope.catalogItem)
+      .project(
+        source: source,
+        entity: titleNode,
+      );
   return LibraryProjectionItem(
     source: source,
     node: node ?? titleNode,

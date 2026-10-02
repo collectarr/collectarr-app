@@ -147,7 +147,7 @@ LibraryWorkspaceSource _musicSource(
     kind: 'music',
     title: title,
     payload: musicWithGenres.toJson(),
-  ).withKindMetadata(musicWithGenres);
+  ).withKindData(musicWithGenres);
   return testLibraryWorkspaceSource(
     itemId: id,
     kind: 'music',

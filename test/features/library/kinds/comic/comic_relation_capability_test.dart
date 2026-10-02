@@ -22,7 +22,7 @@ void main() {
         ),
       ).asShelfCatalogItem),
     );
-    const node = LibraryWorkRef(workId: 'comic-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
     final item = LibraryProjectionItem(
       source: source,
       node: node,

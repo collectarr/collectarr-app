@@ -74,12 +74,12 @@ final boardGameKindInspector = LibraryInspectorCapability(
   entityRegistry: LibraryEntityInspectorRegistry(
     contributors: [
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
+        scope: LibraryEntityScope.catalogItem,
         heroBuilder: buildBoardGameCatalogItemInspectorHero,
         sectionsBuilder: buildBoardGameCatalogItemInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
+        scope: LibraryEntityScope.collectionItem,
         heroBuilder: buildBoardGameCopyInspectorHero,
         sectionsBuilder: buildBoardGameCopyInspectorSections,
       ),

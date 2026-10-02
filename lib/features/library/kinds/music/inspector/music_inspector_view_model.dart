@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
@@ -50,14 +50,14 @@ final class MusicInspectorViewModel {
       mediums: List<MusicMedium>.unmodifiable(mediums),
       tracks: List<MusicTrackListEntry>.unmodifiable(tracks),
       owned:
-          MusicOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch),
+          MusicCollectionItemProjection.fromDispatch(item.source.collectionItemDispatch),
     );
   }
 
   final MusicAlbum music;
   final List<MusicMedium> mediums;
   final List<MusicTrackListEntry> tracks;
-  final MusicOwnedItem? owned;
+  final MusicCollectionItem? owned;
 
   MusicOwnedMediumStorageView storageForMedium(int mediumNumber) {
     final ownedDetails = owned?.details;
@@ -96,7 +96,7 @@ MusicWorkspaceCatalogData _fallbackMusicCatalog(
       .trim();
   final ref = CatalogEntityRef(
     kind: CatalogMediaKind.music,
-    entityType: CatalogEntityTypeId.root,
+    entityType: CatalogEntityTypeId.catalogItem,
     id: rootId.isEmpty ? 'unknown-music-item' : rootId,
   );
   return MusicWorkspaceCatalogData.fromMusic(

@@ -11,11 +11,11 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   test('combines manual, purchase, sold, and insurance values', () {
-    final ownedItem = testOwnedItem(
+    final collectionItem = testCollectionItem(
       id: 'owned-1',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityTypeId('owned_copy'),
+        entityType: CatalogEntityTypeId('collection_item'),
         id: 'comic-1',
       ),
       updatedAt: DateTime.utc(2026, 7, 5),
@@ -34,9 +34,9 @@ void main() {
           coverPriceCents: 2500,
         ),
       ).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(ownedItem),
+      collectionItemSummary: testCollectionItemSummary(collectionItem),
     );
-    const node = LibraryWorkRef(workId: 'comic-1');
+    const node = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
     final dto = const ComicWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -49,10 +49,10 @@ void main() {
 
     final snapshot = LibraryValueSnapshot.fromItem(
       item,
-      purchasePriceCents: ownedItem.pricePaidCents,
-      soldPriceCents: ownedItem.sellPriceCents,
-      manualEstimatedValueCents: ownedItem.marketValueCents,
-      ownedCurrency: ownedItem.currency,
+      purchasePriceCents: collectionItem.pricePaidCents,
+      soldPriceCents: collectionItem.sellPriceCents,
+      manualEstimatedValueCents: collectionItem.marketValueCents,
+      ownedCurrency: collectionItem.currency,
     );
 
     expect(snapshot.manualEstimatedValueCents, 1800);

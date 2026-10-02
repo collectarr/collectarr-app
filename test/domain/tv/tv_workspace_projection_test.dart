@@ -19,7 +19,7 @@ void main() {
 
     final dto = const TvWorkspaceProjector().project(
       source: source,
-      entity: const LibraryWorkRef(workId: 'series-1'),
+      entity: const LibraryCatalogItemNodeRef(catalogItemId: 'series-1'),
     );
 
     expect(dto.title, 'Cowboy Bebop');

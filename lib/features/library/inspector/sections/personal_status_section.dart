@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -11,16 +11,16 @@ class InspectorPersonalStatusSection extends StatelessWidget {
     required this.type,
     required this.item,
     required this.accent,
-    this.ownedItem,
-    this.ownedItemDispatch,
+    this.collectionItem,
+    this.collectionItemDispatch,
     this.trackingSummary,
     this.onFilterByValue,
   });
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final OwnedCopySummary? ownedItem;
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  final CollectionItemSummary? collectionItem;
+  final LibraryCollectionItemDispatch? collectionItemDispatch;
   final TrackingSummary? trackingSummary;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -30,8 +30,8 @@ class InspectorPersonalStatusSection extends StatelessWidget {
     return InspectorPersonalSection(
       type: type,
       item: item,
-      ownedItem: ownedItem,
-      ownedItemDispatch: ownedItemDispatch,
+      collectionItem: collectionItem,
+      collectionItemDispatch: collectionItemDispatch,
       trackingSummary: trackingSummary,
       accent: accent,
       onFilterByValue: onFilterByValue,

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -24,7 +24,7 @@ abstract interface class TrackingKindPatch {
 abstract interface class TrackingStorageRecord {
   String get id;
   CatalogEntityRef get catalogRef;
-  OwnedCopyRef? get ownedRef;
+  CollectionItemRef? get collectionItemRef;
   TrackingSourceType? get sourceType;
   MediaTrackingStatus? get status;
   int? get rating;
@@ -44,7 +44,7 @@ abstract interface class TrackingStorageRecord {
   TrackingStorageRecord copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedRef,
+    Object? collectionItemRef,
     Object? sourceType,
     Object? status,
     Object? rating,
@@ -81,7 +81,7 @@ mixin TrackingStorageRecordBehavior on PersonalTrackingBase
   Map<String, dynamic> toSyncPayload() {
     return {
       'catalog_ref': catalogRef.toJson(),
-      'owned_ref': ownedRef?.toJson(),
+      'collection_item_ref': collectionItemRef?.toJson(),
       'source_type': trackingSourceApiValue,
       'status': statusStorageValue,
       'rating': rating,

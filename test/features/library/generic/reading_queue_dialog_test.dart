@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
@@ -27,16 +27,16 @@ void main() {
       (
     tester,
   ) async {
-    const ownedRef1 = OwnedCopyRef(
+    const collectionItemRef1 = CollectionItemRef(
       kind: CatalogMediaKind.book,
-      id: OwnedCopyId('owned-1'),
+      id: CollectionItemId('owned-1'),
     );
-    const ownedRef2 = OwnedCopyRef(
+    const collectionItemRef2 = CollectionItemRef(
       kind: CatalogMediaKind.book,
-      id: OwnedCopyId('owned-2'),
+      id: CollectionItemId('owned-2'),
     );
-    await ReadingQueueRepository(db).addToQueue(ownedRef1);
-    await ReadingQueueRepository(db).addToQueue(ownedRef2);
+    await ReadingQueueRepository(db).addToQueue(collectionItemRef1);
+    await ReadingQueueRepository(db).addToQueue(collectionItemRef2);
 
     String? selectedItemId;
 
@@ -50,19 +50,19 @@ void main() {
                   context: context,
                   db: db,
                   mediaKind: 'book',
-                  ownedItems: [
-                    OwnedCopySummary(
-                      ref: const OwnedCopyRef(
+                  collectionItems: [
+                    CollectionItemSummary(
+                      ref: const CollectionItemRef(
                         kind: CatalogMediaKind.book,
-                        id: OwnedCopyId('owned-1'),
+                        id: CollectionItemId('owned-1'),
                       ),
                       title: 'Dune',
                       catalogRef: testCatalogRef('book-1', kind: 'book'),
                     ),
-                    OwnedCopySummary(
-                      ref: const OwnedCopyRef(
+                    CollectionItemSummary(
+                      ref: const CollectionItemRef(
                         kind: CatalogMediaKind.book,
-                        id: OwnedCopyId('owned-2'),
+                        id: CollectionItemId('owned-2'),
                       ),
                       title: 'Foundation',
                       catalogRef: testCatalogRef('book-2', kind: 'book'),
@@ -74,7 +74,7 @@ void main() {
                     TrackingSummary(
                       id: 'tracking-1',
                       catalogRef: testCatalogRef('book-1', kind: 'book'),
-                      ownedRef: OwnedCopyRef.fromKey('book:owned-1'),
+                      collectionItemRef: CollectionItemRef.fromKey('book:owned-1'),
                       status: MediaTrackingStatus.inProgress,
                       updatedAt: DateTime.utc(2026, 1, 1),
                     ),

@@ -41,7 +41,7 @@ void main() {
       final shelf = LibraryWorkspaceSource(
         itemId: 'manga-1',
         catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(testOwnedItem(
+        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
           id: 'owned-manga-1',
           itemId: 'manga-1',
           rawOrSlabbed: 'Raw',
@@ -56,7 +56,7 @@ void main() {
 
       final dto = const MangaWorkspaceProjector().project(
         source: shelf,
-        entity: const LibraryWorkRef(workId: 'manga-1'),
+        entity: const LibraryCatalogItemNodeRef(catalogItemId: 'manga-1'),
       );
 
       expect(dto.seriesTitle, 'Vagabond');

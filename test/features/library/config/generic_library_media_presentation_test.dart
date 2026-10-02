@@ -15,7 +15,7 @@ LibraryProjectionView _makeItem(
   String id, {
   String? title,
   String? locationPath,
-  TestOwnedItem? ownedItem,
+  TestCollectionItem? collectionItem,
   WishlistItem? wishlistItem,
 }) {
   final cat = testCatalogItem(
@@ -26,11 +26,11 @@ LibraryProjectionView _makeItem(
   final source = LibraryWorkspaceSource(
     itemId: id,
     catalogData: testWorkspaceCatalogData(cat.asShelfCatalogItem),
-    ownedSummary: ownedItem == null ? null : testOwnedSummary(ownedItem),
+    collectionItemSummary: collectionItem == null ? null : testCollectionItemSummary(collectionItem),
     wishlistItem: wishlistItem,
     locationPath: locationPath,
   );
-  final node = LibraryWorkRef(workId: id);
+  final node = LibraryCatalogItemNodeRef(catalogItemId: id);
   final dto = const GenericWorkspaceProjector().project(
     source: source,
     entity: node,
@@ -85,7 +85,7 @@ void main() {
     final catalogOnly = _makeItem('catalog-only');
     final owned = _makeItem(
       'owned',
-      ownedItem: testOwnedItem(id: 'owned-1', itemId: 'owned', kind: 'comic'),
+      collectionItem: testCollectionItem(id: 'owned-1', itemId: 'owned', kind: 'comic'),
     );
     final wishlisted = _makeItem(
       'wishlisted',

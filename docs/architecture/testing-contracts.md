@@ -10,7 +10,7 @@ The current contract families cover:
 ```text
 identity, Core mapping, field adoption, repository, persistence,
 workspace, fields, sorts, groups, facets, vocabulary, Add, catalog Edit,
-Owned Copy Edit, tracking, and kind registration
+Collection Item Edit, tracking, and kind registration
 ```
 
 The current architecture status and per-kind field ledgers describe the active

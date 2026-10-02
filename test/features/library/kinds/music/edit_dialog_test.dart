@@ -50,7 +50,7 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: type,
       item: CatalogSearchCandidate.fromItem(item),
-      ownedItem: null,
+      collectionItem: null,
       accent: Colors.deepPurple,
     );
 
@@ -131,7 +131,7 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: type,
       item: CatalogSearchCandidate.fromItem(item),
-      ownedItem: null,
+      collectionItem: null,
       accent: Colors.deepPurple,
       physicalFormats: musicPhysicalMediaFormats,
       customFieldDefinitions: [

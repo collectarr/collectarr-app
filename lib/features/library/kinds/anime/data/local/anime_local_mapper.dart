@@ -1,10 +1,11 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:drift/drift.dart';
@@ -12,26 +13,24 @@ import 'package:drift/drift.dart';
 final class AnimeLocalMapper {
   const AnimeLocalMapper._();
 
-  static AnimeOwnedItemsRowsCompanion toOwnedItemRow(AnimeOwnedItem item) {
+  static AnimeCollectionItemsRowsCompanion toCollectionItemRow(AnimeCollectionItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.anime) {
-      throw StateError('Cannot persist an invalid AnimeOwnedItem');
+      throw StateError('Cannot persist an invalid AnimeCollectionItem');
     }
 
     final details = item.details;
-    return AnimeOwnedItemsRowsCompanion.insert(
+    return AnimeCollectionItemsRowsCompanion.insert(
       id: item.id.value,
       itemId: item.itemId,
       createdAt: Value(item.createdAt),
       isDigital: Value(item.isDigital),
-      targetRefJson: Value(_encodeTargetRef(item.targetRef)),
       condition: Value(item.condition),
       grade: Value(item.grade),
       purchaseDate: Value(item.purchaseDate),
       pricePaidCents: Value(item.pricePaidCents),
       currency: Value(item.currency),
       personalNotes: Value(item.personalNotes),
-      quantity: Value(item.quantity),
       indexNumber: Value(item.indexNumber),
       tags: Value(item.tags),
       updatedAt: item.updatedAt,
@@ -55,25 +54,23 @@ final class AnimeLocalMapper {
     );
   }
 
-  static AnimeOwnedItem fromOwnedItemRow(AnimeOwnedItemsRow row) {
+  static AnimeCollectionItem fromCollectionItemRow(AnimeCollectionItemsRow row) {
     final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.anime,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.catalogItem,
       id: row.itemId,
     );
-    return AnimeOwnedItem(
-      id: AnimeOwnedCopyId(row.id),
+    return AnimeCollectionItem(
+      id: CollectionItemId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
-      targetRef: _decodeTargetRef(row.targetRefJson),
       condition: row.condition,
       grade: row.grade,
       purchaseDate: row.purchaseDate,
       pricePaidCents: row.pricePaidCents,
       currency: row.currency,
       personalNotes: row.personalNotes,
-      quantity: row.quantity,
       indexNumber: row.indexNumber,
       tags: row.tags,
       updatedAt: row.updatedAt,
@@ -150,16 +147,6 @@ final class AnimeLocalMapper {
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
-  }
-
-  static String? _encodeTargetRef(CatalogEntityRef? targetRef) =>
-      targetRef == null ? null : jsonEncode(targetRef.toJson());
-
-  static CatalogEntityRef? _decodeTargetRef(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
-    final decoded = _decodeJson(raw);
-    if (decoded is! Map) return null;
-    return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
   }
 
   static dynamic _decodeJson(String raw) {

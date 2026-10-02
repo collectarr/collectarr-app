@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
@@ -246,7 +246,7 @@ class TvLibraryMediaPresentationBuilder
 
   @override
   bool canOpenKindDrilldown(LibraryProjectionView item) {
-    return item.node.scope == LibraryEntityScope.work &&
+    return item.node.scope == LibraryEntityScope.catalogItem &&
         item.source.mediaKind == CatalogMediaKind.tv;
   }
 
@@ -273,7 +273,7 @@ class TvLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.workId),
+          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (seriesTitle != null)
@@ -282,13 +282,13 @@ class TvLibraryMediaPresentationBuilder
             value: seriesTitle,
             onTap: tapFor(seriesTitle),
           ),
-        if (item.node.scope != LibraryEntityScope.work && variant != null)
+        if (item.node.scope != LibraryEntityScope.catalogItem && variant != null)
           LibraryDetailField(
             label: 'Format / Edition',
             value: variant,
             onTap: tapFor(variant),
           ),
-        if (item.node.scope != LibraryEntityScope.work && barcode != null)
+        if (item.node.scope != LibraryEntityScope.catalogItem && barcode != null)
           LibraryDetailField(label: 'UPC / Barcode', value: barcode),
       ],
       contextFacts: [
@@ -361,10 +361,8 @@ class TvLibraryMediaPresentationBuilder
     required VoidCallback onBack,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedCopySummary> ownedCopies,
+    required List<CollectionItemSummary> ownedCopies,
     required List<WishlistItem> wishlistItems,
-    required String? selectedReleaseId,
-    required void Function(String releaseId) onSelectRelease,
     required LibraryEntityWorkspaceProjector projector,
   }) {
     return TvShelfSeasonDrilldown(

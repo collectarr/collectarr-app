@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -15,14 +15,14 @@ void main() {
   test('projects universal lifecycle domains without kind semantics', () {
     final catalogRef = const CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.catalogItem,
       id: 'book-activity',
     );
     final now = DateTime.utc(2026, 9, 1);
-    final owned = OwnedCopySummary(
-      ref: OwnedCopyRef(
+    final owned = CollectionItemSummary(
+      ref: CollectionItemRef(
         kind: catalogRef.mediaKind,
-        id: const OwnedCopyId('owned-book-activity'),
+        id: const CollectionItemId('owned-book-activity'),
       ),
       title: catalogRef.id,
       catalogRef: catalogRef,
@@ -48,7 +48,7 @@ void main() {
     );
     final loan = Loan(
       id: 'loan-book-activity',
-      ownedRef: OwnedCopyRef(
+      collectionItemRef: CollectionItemRef(
         kind: catalogRef.mediaKind,
         id: owned.ref.id,
       ),
@@ -61,7 +61,7 @@ void main() {
         .expand(
           (contributor) => contributor.contribute(
             UniversalActivityContext(
-              ownedItems: [owned],
+              collectionItems: [owned],
               trackingRecords: [TrackingActivitySummary.fromSummary(tracking)],
               wishlistItems: [wishlist],
               loans: [loan],
@@ -102,7 +102,7 @@ void main() {
           id: 'watch-1',
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
             id: 'book-1',
           ),
           watchedAt: DateTime.utc(2026, 1, 5),

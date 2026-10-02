@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
@@ -66,20 +66,20 @@ class UserFolderRepository {
         .go();
   }
 
-  Future<List<OwnedCopyRef>> getOwnedRefsInFolder(String folderId) async {
+  Future<List<CollectionItemRef>> getCollectionItemRefsInFolder(String folderId) async {
     final rows = await (_db.select(_db.userFolderItemsCache)
           ..where((t) => t.folderId.equals(folderId))
           ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
         .get();
     return rows.map((r) {
-      final ref = OwnedCopyRef.fromKey(r.ownedRefKey);
-      requireKnownOwnedRef(ref);
+      final ref = CollectionItemRef.fromKey(r.collectionItemRefKey);
+      requireKnownCollectionItemRef(ref);
       return ref;
     }).toList();
   }
 
-  Future<void> addItemToFolder(String folderId, OwnedCopyRef ownedRef) async {
-    requireKnownOwnedRef(ownedRef);
+  Future<void> addItemToFolder(String folderId, CollectionItemRef collectionItemRef) async {
+    requireKnownCollectionItemRef(collectionItemRef);
     final maxSort = await _db.customSelect(
       'SELECT COALESCE(MAX(sort_order), 0) AS m FROM user_folder_items_cache WHERE folder_id = ?',
       variables: [Variable.withString(folderId)],
@@ -89,7 +89,7 @@ class UserFolderRepository {
     await _db.into(_db.userFolderItemsCache).insertOnConflictUpdate(
           UserFolderItemsCacheCompanion.insert(
             folderId: folderId,
-            ownedRefKey: ownedRef.key,
+            collectionItemRefKey: collectionItemRef.key,
             sortOrder: Value(sortOrder),
           ),
         );
@@ -97,19 +97,19 @@ class UserFolderRepository {
 
   Future<void> removeItemFromFolder(
     String folderId,
-    OwnedCopyRef ownedRef,
+    CollectionItemRef collectionItemRef,
   ) async {
-    requireKnownOwnedRef(ownedRef);
+    requireKnownCollectionItemRef(collectionItemRef);
     await (_db.delete(_db.userFolderItemsCache)
           ..where((t) =>
-              t.folderId.equals(folderId) & t.ownedRefKey.equals(ownedRef.key)))
+              t.folderId.equals(folderId) & t.collectionItemRefKey.equals(collectionItemRef.key)))
         .go();
   }
 
-  Future<List<UserFolder>> getFoldersForItem(OwnedCopyRef ownedRef) async {
-    requireKnownOwnedRef(ownedRef);
+  Future<List<UserFolder>> getFoldersForItem(CollectionItemRef collectionItemRef) async {
+    requireKnownCollectionItemRef(collectionItemRef);
     final rows = await (_db.select(_db.userFolderItemsCache)
-          ..where((t) => t.ownedRefKey.equals(ownedRef.key)))
+          ..where((t) => t.collectionItemRefKey.equals(collectionItemRef.key)))
         .get();
     if (rows.isEmpty) return [];
     final folderIds = rows.map((r) => r.folderId).toSet();

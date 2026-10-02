@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -44,8 +44,8 @@ class LibraryReleaseDetailPage extends ConsumerStatefulWidget {
 class _LibraryReleaseDetailPageState
     extends ConsumerState<LibraryReleaseDetailPage> {
   String? _selectedReleaseNodeId;
-  final Map<String, OwnedCopyRef?> _selectedOwnedCopyRefByRelease =
-      <String, OwnedCopyRef?>{};
+  final Map<String, CollectionItemRef?> _selectedCollectionItemRefByRelease =
+      <String, CollectionItemRef?>{};
 
   @override
   void initState() {
@@ -69,7 +69,7 @@ class _LibraryReleaseDetailPageState
         rootRef: _rootCatalogRef(widget.request),
       );
       _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
-      _selectedOwnedCopyRefByRelease.clear();
+      _selectedCollectionItemRefByRelease.clear();
     }
   }
 
@@ -80,22 +80,23 @@ class _LibraryReleaseDetailPageState
     if (catalogData == null || releaseSource == null) {
       return;
     }
-    await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
+    await ref.read(collectionCommandCoordinatorProvider).addCollectionItem(
           libraryAddForKind(widget.request.type.kind).buildCommand(
             releaseSource.candidateForCatalogData(catalogData),
             const LibraryAddCommonDraft(),
             libraryAddForKind(widget.request.type.kind).createInitialDraft(),
-            targetRef: release.option.targetRef,
           ),
         );
   }
 
   Future<void> _removeSelectedCopy(_ResolvedLibraryRelease release) async {
-    final selectedCopy = _selectedOwnedCopyFor(release);
+    final selectedCopy = _selectedCollectionItemFor(release);
     if (selectedCopy == null) {
       return;
     }
-    await ref.read(ownedItemMutationsProvider).removeItem(selectedCopy.ref);
+    await ref
+        .read(collectionItemMutationsProvider)
+        .removeItem(selectedCopy.ref);
   }
 
   Future<void> _addWishlistForRelease(_ResolvedLibraryRelease release) async {
@@ -123,11 +124,12 @@ class _LibraryReleaseDetailPageState
         );
   }
 
-  OwnedCopySummary? _selectedOwnedCopyFor(_ResolvedLibraryRelease release) {
+  CollectionItemSummary? _selectedCollectionItemFor(
+      _ResolvedLibraryRelease release) {
     if (release.ownedCopies.isEmpty) {
       return null;
     }
-    final selectedRef = _selectedOwnedCopyRefByRelease[release.node.id];
+    final selectedRef = _selectedCollectionItemRefByRelease[release.node.id];
     if (selectedRef != null) {
       for (final copy in release.ownedCopies) {
         if (copy.ref == selectedRef) {
@@ -143,9 +145,9 @@ class _LibraryReleaseDetailPageState
     final request = widget.request;
     final releaseSource = libraryReleaseDetailSourceForKind(request.type.kind);
     final wishlistValue = ref.watch(wishlistProvider);
-    final ownedCopies = request.item.source.ownedSummary == null
-        ? const <OwnedCopySummary>[]
-        : <OwnedCopySummary>[request.item.source.ownedSummary!];
+    final ownedCopies = request.item.source.collectionItemSummary == null
+        ? const <CollectionItemSummary>[]
+        : <CollectionItemSummary>[request.item.source.collectionItemSummary!];
     final wishlistItems = wishlistValue.maybeWhen(
       data: (items) => items
           .where(
@@ -187,8 +189,9 @@ class _LibraryReleaseDetailPageState
       }
     }
     selectedRelease ??= releases.isEmpty ? null : releases.first;
-    final selectedOwnedCopy =
-        selectedRelease == null ? null : _selectedOwnedCopyFor(selectedRelease);
+    final selectedCollectionItem = selectedRelease == null
+        ? null
+        : _selectedCollectionItemFor(selectedRelease);
     final appBarForeground = appContrastingTextColor(request.accent);
     final kindMediaContribution = libraryInspectorForKind(request.type.kind)
         .mediaDetailContributionBuilder
@@ -206,7 +209,7 @@ class _LibraryReleaseDetailPageState
               tooltip: 'Edit metadata and collection fields',
               onPressed: request.onEdit == null
                   ? null
-                  : () => request.onEdit!(request.ownedSummary),
+                  : () => request.onEdit!(request.collectionItemSummary),
               icon: const Icon(Icons.edit_outlined),
             ),
           ],
@@ -217,7 +220,7 @@ class _LibraryReleaseDetailPageState
             LibraryDetailHero(
               type: request.type,
               item: request.item,
-              ownedItem: request.ownedSummary,
+              collectionItem: request.collectionItemSummary,
               accent: request.accent,
               isOwned: request.item.source.isOwned,
             ),
@@ -243,13 +246,13 @@ class _LibraryReleaseDetailPageState
                     accent: request.accent,
                     releases: releases,
                     selectedReleaseId: activeRelease.node.id,
-                    selectedOwnedCopyRef: selectedOwnedCopy?.ref,
+                    selectedCollectionItemRef: selectedCollectionItem?.ref,
                     onSelectRelease: (value) =>
                         setState(() => _selectedReleaseNodeId = value),
-                    onSelectOwnedItem: (releaseId, ownedItemRef) {
+                    onSelectCollectionItem: (releaseId, collectionItemRef) {
                       setState(() {
-                        _selectedOwnedCopyRefByRelease[releaseId] =
-                            ownedItemRef;
+                        _selectedCollectionItemRefByRelease[releaseId] =
+                            collectionItemRef;
                       });
                     },
                     onAddCopy: _addCopyForRelease,
@@ -258,10 +261,10 @@ class _LibraryReleaseDetailPageState
                         ? null
                         : () => _removeWishlistForRelease(activeRelease),
                     onEditCopy:
-                        request.onEdit == null || selectedOwnedCopy == null
+                        request.onEdit == null || selectedCollectionItem == null
                             ? null
-                            : () => request.onEdit!(selectedOwnedCopy),
-                    onRemoveCopy: selectedOwnedCopy == null
+                            : () => request.onEdit!(selectedCollectionItem),
+                    onRemoveCopy: selectedCollectionItem == null
                         ? null
                         : () => _removeSelectedCopy(activeRelease),
                   );
@@ -273,12 +276,13 @@ class _LibraryReleaseDetailPageState
                 releases: releases,
                 selectedReleaseId: _selectedReleaseNodeId ??
                     (releases.isEmpty ? null : releases.first.node.id),
-                selectedOwnedCopyRef: null,
+                selectedCollectionItemRef: null,
                 onSelectRelease: (value) =>
                     setState(() => _selectedReleaseNodeId = value),
-                onSelectOwnedItem: (releaseId, ownedItemRef) {
+                onSelectCollectionItem: (releaseId, collectionItemRef) {
                   setState(() {
-                    _selectedOwnedCopyRefByRelease[releaseId] = ownedItemRef;
+                    _selectedCollectionItemRefByRelease[releaseId] =
+                        collectionItemRef;
                   });
                 },
                 onAddCopy: _addCopyForRelease,
@@ -329,7 +333,7 @@ List<LibraryEntityRef> _releaseNodesFor(
   for (final option in options) {
     nodes.add(
       LibraryReleaseRef(
-        workId: item.node.workId,
+        catalogItemId: item.node.catalogItemId,
         releaseId: option.id,
         release: option.summary,
       ),
@@ -341,7 +345,7 @@ List<LibraryEntityRef> _releaseNodesFor(
 List<_ResolvedLibraryRelease> _resolvedReleasesFor(
   LibraryProjectionView item, {
   required LibraryReleaseDetailSource? source,
-  required List<OwnedCopySummary> ownedCopies,
+  required List<CollectionItemSummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
   final catalogData = item.source.catalogData;
@@ -350,7 +354,7 @@ List<_ResolvedLibraryRelease> _resolvedReleasesFor(
   final options = source.detailOptionsForCatalogData(
     catalogData,
     rootRef,
-    ownedItems: ownedCopies,
+    collectionItems: ownedCopies,
     wishlistItems: wishlistItems,
   );
   return [
@@ -367,11 +371,11 @@ List<_ResolvedLibraryRelease> _resolvedReleasesFor(
 _ResolvedLibraryRelease _buildResolvedLibraryRelease(
   LibraryProjectionView item,
   LibraryReleaseDetailOption option, {
-  required List<OwnedCopySummary> ownedCopies,
+  required List<CollectionItemSummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
   final matchedOwnedCopies = ownedCopies.where((copy) {
-    final targetRef = copy.targetRef;
+    final targetRef = copy.catalogRef;
     return targetRef != null && targetRef == option.targetRef;
   }).toList(growable: false)
     ..sort(
@@ -387,7 +391,7 @@ _ResolvedLibraryRelease _buildResolvedLibraryRelease(
     }
   }
   final node = LibraryReleaseRef(
-    workId: item.node.workId,
+    catalogItemId: item.node.catalogItemId,
     releaseId: option.id,
     release: option.summary,
   );
@@ -430,23 +434,17 @@ class _ResolvedLibraryRelease {
 
   final LibraryReleaseRef node;
   final LibraryReleaseDetailOption option;
-  final List<OwnedCopySummary> ownedCopies;
+  final List<CollectionItemSummary> ownedCopies;
   final WishlistItem? wishlistItem;
-
-  int get totalQuantity =>
-      ownedCopies.fold<int>(0, (sum, item) => sum + item.quantity);
 
   String get ownershipLabel {
     if (ownedCopies.isEmpty) {
       return wishlistItem == null ? 'No copies yet' : 'Wishlisted release';
     }
-    if (ownedCopies.length == 1 && totalQuantity <= 1) {
+    if (ownedCopies.length == 1) {
       return '1 copy in collection';
     }
-    if (totalQuantity == ownedCopies.length) {
-      return '${ownedCopies.length} copies in collection';
-    }
-    return '${ownedCopies.length} copies in collection · Qty $totalQuantity';
+    return '${ownedCopies.length} copies in collection';
   }
 }
 
@@ -455,9 +453,9 @@ class _LibraryReleaseBrowserSection extends StatelessWidget {
     required this.accent,
     required this.releases,
     required this.selectedReleaseId,
-    required this.selectedOwnedCopyRef,
+    required this.selectedCollectionItemRef,
     required this.onSelectRelease,
-    required this.onSelectOwnedItem,
+    required this.onSelectCollectionItem,
     required this.onAddCopy,
     this.onAddWishlist,
     this.onRemoveWishlist,
@@ -468,10 +466,10 @@ class _LibraryReleaseBrowserSection extends StatelessWidget {
   final Color accent;
   final List<_ResolvedLibraryRelease> releases;
   final String? selectedReleaseId;
-  final OwnedCopyRef? selectedOwnedCopyRef;
+  final CollectionItemRef? selectedCollectionItemRef;
   final ValueChanged<String> onSelectRelease;
-  final void Function(String releaseId, OwnedCopyRef? ownedItemRef)
-      onSelectOwnedItem;
+  final void Function(String releaseId, CollectionItemRef? collectionItemRef)
+      onSelectCollectionItem;
   final Future<void> Function(_ResolvedLibraryRelease release) onAddCopy;
   final Future<void> Function()? onAddWishlist;
   final Future<void> Function()? onRemoveWishlist;
@@ -536,10 +534,10 @@ class _LibraryReleaseBrowserSection extends StatelessWidget {
                 const SizedBox(height: 12),
                 _LibraryReleaseActionsPanel(
                   release: selectedRelease,
-                  selectedOwnedCopyRef: selectedOwnedCopyRef,
+                  selectedCollectionItemRef: selectedCollectionItemRef,
                   accent: accent,
-                  onSelectOwnedItem: (value) =>
-                      onSelectOwnedItem(selectedRelease!.node.id, value),
+                  onSelectCollectionItem: (value) =>
+                      onSelectCollectionItem(selectedRelease!.node.id, value),
                   onAddCopy: () => onAddCopy(selectedRelease!),
                   onAddWishlist: onAddWishlist,
                   onRemoveWishlist: onRemoveWishlist,
@@ -642,7 +640,7 @@ class _LibraryReleaseTile extends StatelessWidget {
                   child: LibraryCoverImage(
                     title: release.option.summary.title,
                     imageUrl: null,
-                    ownedRef: release.ownedCopies.isEmpty
+                    collectionItemRef: release.ownedCopies.isEmpty
                         ? null
                         : release.ownedCopies.first.ref,
                     borderRadius: 12,
@@ -697,9 +695,9 @@ class _LibraryReleaseTile extends StatelessWidget {
 class _LibraryReleaseActionsPanel extends StatelessWidget {
   const _LibraryReleaseActionsPanel({
     required this.release,
-    required this.selectedOwnedCopyRef,
+    required this.selectedCollectionItemRef,
     required this.accent,
-    required this.onSelectOwnedItem,
+    required this.onSelectCollectionItem,
     required this.onAddCopy,
     this.onAddWishlist,
     this.onRemoveWishlist,
@@ -708,9 +706,9 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
   });
 
   final _ResolvedLibraryRelease release;
-  final OwnedCopyRef? selectedOwnedCopyRef;
+  final CollectionItemRef? selectedCollectionItemRef;
   final Color accent;
-  final ValueChanged<OwnedCopyRef?> onSelectOwnedItem;
+  final ValueChanged<CollectionItemRef?> onSelectCollectionItem;
   final Future<void> Function() onAddCopy;
   final Future<void> Function()? onAddWishlist;
   final Future<void> Function()? onRemoveWishlist;
@@ -747,11 +745,11 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
             ),
             if (release.ownedCopies.isNotEmpty) ...[
               const SizedBox(height: 10),
-              CompactSearchDropdownFormField<OwnedCopyRef>(
+              CompactSearchDropdownFormField<CollectionItemRef>(
                 initialValue: release.ownedCopies.any(
-                  (copy) => copy.ref == selectedOwnedCopyRef,
+                  (copy) => copy.ref == selectedCollectionItemRef,
                 )
-                    ? selectedOwnedCopyRef
+                    ? selectedCollectionItemRef
                     : release.ownedCopies.first.ref,
                 isExpanded: true,
                 decoration: const InputDecoration(
@@ -761,10 +759,10 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
                   for (var index = 0;
                       index < release.ownedCopies.length;
                       index += 1)
-                    DropdownMenuItem<OwnedCopyRef>(
+                    DropdownMenuItem<CollectionItemRef>(
                       value: release.ownedCopies[index].ref,
                       child: Text(
-                        buildOwnedCopySummaryLabel(
+                        buildCollectionItemSummaryLabel(
                           release.ownedCopies[index],
                           index,
                         ),
@@ -773,7 +771,7 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
                       ),
                     ),
                 ],
-                onChanged: onSelectOwnedItem,
+                onChanged: onSelectCollectionItem,
               ),
             ],
             const SizedBox(height: 10),

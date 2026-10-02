@@ -24,7 +24,7 @@ void main() {
       ).asShelfCatalogItem),
     );
 
-    final node = const LibraryWorkRef(workId: 'movie-1');
+    final node = const LibraryCatalogItemNodeRef(catalogItemId: 'movie-1');
     final dto = const MovieWorkspaceProjector().project(
       source: source,
       entity: node,
@@ -39,7 +39,7 @@ void main() {
     final request = LibraryInspectorRequest(
       type: const MovieRegistration(),
       item: item,
-      ownedItem: null,
+      collectionItem: null,
       accent: Colors.green,
     );
 

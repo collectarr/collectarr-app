@@ -374,9 +374,9 @@ class LibraryFilterOptions {
       if (source.locationPath?.trim().isNotEmpty == true) {
         addValue('location', source.locationPath);
       }
-      final ownedRefKey = source.ownedRef?.key;
-      if (ownedRefKey != null) {
-        final values = customFieldValuesByDefinitionByItem[ownedRefKey];
+      final collectionItemRefKey = source.collectionItemRef?.key;
+      if (collectionItemRefKey != null) {
+        final values = customFieldValuesByDefinitionByItem[collectionItemRefKey];
         if (values != null) {
           for (final fieldEntry in values.entries) {
             final normalizedValues = parseCustomFieldMultiValues(

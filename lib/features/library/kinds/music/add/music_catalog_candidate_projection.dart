@@ -32,8 +32,6 @@ CatalogMusicItemDto musicCatalogItemFromCandidate(
   CatalogSearchCandidate item,
 ) {
   return item.kindCapability.mapTransport((transport) {
-    final metadata = transport.kindMetadata;
-    if (metadata is CatalogMusicItemDto) return metadata;
     return CatalogMusicItemDto.fromCatalogSearchPayload(transport.payload);
   });
 }

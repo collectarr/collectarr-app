@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
 
-/// Complete BoardGame-owned copy state. Play sessions are tracking data and
+/// Complete BoardGame-collection item state. Play sessions are tracking data and
 /// remain in their dedicated table rather than being embedded in a copy.
-class BoardGameOwnedItemsRows extends Table {
+class BoardGameCollectionItemsRows extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
   DateTimeColumn get createdAt => dateTime().nullable()();
@@ -13,7 +13,6 @@ class BoardGameOwnedItemsRows extends Table {
   IntColumn get pricePaidCents => integer().nullable()();
   TextColumn get currency => text().nullable()();
   TextColumn get personalNotes => text().nullable()();
-  IntColumn get quantity => integer().withDefault(const Constant(1))();
   IntColumn get indexNumber => integer().nullable()();
   TextColumn get tags => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
@@ -61,7 +60,7 @@ class BoardGamePlaySessionsRows extends Table {
 class BoardGameTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get catalogRefJson => text()();
-  TextColumn get ownedRefKey => text().nullable()();
+  TextColumn get collectionItemRefKey => text().nullable()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
   IntColumn get rating => integer().nullable()();

@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:flutter/material.dart';
@@ -16,18 +16,18 @@ class InspectorBackdrop extends StatelessWidget {
   const InspectorBackdrop({
     super.key,
     required this.item,
-    this.ownedItem,
+    this.collectionItem,
   });
 
   final LibraryProjectionView item;
-  final OwnedCopySummary? ownedItem;
+  final CollectionItemSummary? collectionItem;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
     final card = libraryCardPresentationForEntry(item);
-    final ownedRef = resolveLibraryOwnedCopyRef(item, ownedItem);
+    final collectionItemRef = resolveLibraryCollectionItemRef(item, collectionItem);
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -37,7 +37,7 @@ class InspectorBackdrop extends StatelessWidget {
             title: dto.primaryLabel,
             itemNumber: card.itemNumber,
             imageUrl: dto.imageUrl,
-            ownedRef: ownedRef,
+            collectionItemRef: collectionItemRef,
           ),
         ),
         DecoratedBox(
@@ -328,7 +328,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                     ),
             if (!compactActions && onDuplicate != null)
               InspectorToolIconButton(
-                tooltip: 'Duplicate owned copy',
+                tooltip: 'Duplicate collection item',
                 onPressed: onDuplicate,
                 icon: Icons.copy_all_outlined,
               ),

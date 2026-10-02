@@ -11,25 +11,25 @@ TransferableField bookTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(BookOwnedItem item) read,
-  required BookOwnedItem Function(BookOwnedItem item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.copy,
+  required String? Function(BookCollectionItem item) read,
+  required BookCollectionItem Function(BookCollectionItem item, String? value) write,
+  LibraryEntityScope scope = LibraryEntityScope.collectionItem,
 }) {
-  return TransferableField.typed<BookOwnedItem>(
+  return TransferableField.typed<BookCollectionItem>(
     key: key,
     label: label,
     icon: icon,
     type: type,
     scope: scope,
-    decode: (value) => value as BookOwnedItem,
+    decode: (value) => value as BookCollectionItem,
     read: read,
     write: write,
   );
 }
 
 final bookUniversalTransferableFields =
-    TransferableField.universalForTyped<BookOwnedItem>(
-  decode: (value) => value as BookOwnedItem,
+    TransferableField.universalForTyped<BookCollectionItem>(
+  decode: (value) => value as BookCollectionItem,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,
@@ -51,10 +51,6 @@ final bookUniversalTransferableFields =
   readSellPriceCents: (item) => item.sellPriceCents?.toString(),
   writeSellPriceCents: (item, value) => item.copyWith(
     sellPriceCents: value == null ? null : int.tryParse(value),
-  ),
-  readQuantity: (item) => item.quantity.toString(),
-  writeQuantity: (item, value) => item.copyWith(
-    quantity: value == null ? 1 : int.tryParse(value) ?? 1,
   ),
   readIndexNumber: (item) => item.indexNumber?.toString(),
   writeIndexNumber: (item, value) => item.copyWith(
@@ -94,7 +90,7 @@ final bookTransferableFields = <TransferableField>[
     label: 'Dust jacket',
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
-    scope: LibraryEntityScope.copy,
+    scope: LibraryEntityScope.collectionItem,
     read: (item) => item.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
@@ -107,7 +103,7 @@ final bookTransferableFields = <TransferableField>[
     label: 'Dust jacket condition',
     icon: Icons.grade_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.copy,
+    scope: LibraryEntityScope.collectionItem,
     read: (item) => item.details.dustJacketCondition,
     write: (item, value) {
       return item.copyWith(

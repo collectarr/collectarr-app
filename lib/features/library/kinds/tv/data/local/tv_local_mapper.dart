@@ -1,39 +1,37 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:drift/drift.dart';
 
-/// Maps TV-owned copy state to its App-owned Drift row.
+/// Maps TV-collection item state to its App-owned Drift row.
 ///
 /// TV catalog data lives in the shared Catalog Item cache; this mapper only
 /// handles personal copy state.
 final class TvLocalMapper {
   const TvLocalMapper._();
 
-  static TvOwnedItemsRowsCompanion toOwnedItemRow(TvOwnedItem item) {
+  static TvCollectionItemsRowsCompanion toCollectionItemRow(TvCollectionItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.tv) {
-      throw StateError('Cannot persist an invalid TvOwnedItem');
+      throw StateError('Cannot persist an invalid TvCollectionItem');
     }
 
     final details = item.details;
-    return TvOwnedItemsRowsCompanion.insert(
+    return TvCollectionItemsRowsCompanion.insert(
       id: item.id.value,
       itemId: item.itemId,
       createdAt: Value(item.createdAt),
       isDigital: Value(item.isDigital),
-      targetRefJson: Value(_encodeTargetRef(item.targetRef)),
       condition: Value(item.condition),
       grade: Value(item.grade),
       purchaseDate: Value(item.purchaseDate),
       pricePaidCents: Value(item.pricePaidCents),
       currency: Value(item.currency),
       personalNotes: Value(item.personalNotes),
-      quantity: Value(item.quantity),
       indexNumber: Value(item.indexNumber),
       tags: Value(item.tags),
       updatedAt: item.updatedAt,
@@ -57,25 +55,23 @@ final class TvLocalMapper {
     );
   }
 
-  static TvOwnedItem fromOwnedItemRow(TvOwnedItemsRow row) {
+  static TvCollectionItem fromCollectionItemRow(TvCollectionItemsRow row) {
     final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.tv,
-      entityType: CatalogEntityTypeId.root,
+      entityType: CatalogEntityTypeId.catalogItem,
       id: row.itemId,
     );
-    return TvOwnedItem(
-      id: TvOwnedCopyId(row.id),
+    return TvCollectionItem(
+      id: CollectionItemId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
-      targetRef: _decodeTargetRef(row.targetRefJson),
       condition: row.condition,
       grade: row.grade,
       purchaseDate: row.purchaseDate,
       pricePaidCents: row.pricePaidCents,
       currency: row.currency,
       personalNotes: row.personalNotes,
-      quantity: row.quantity,
       indexNumber: row.indexNumber,
       tags: row.tags,
       updatedAt: row.updatedAt,
@@ -99,16 +95,6 @@ final class TvLocalMapper {
         distributor: row.distributor,
       ),
     );
-  }
-
-  static String? _encodeTargetRef(CatalogEntityRef? targetRef) =>
-      targetRef == null ? null : jsonEncode(targetRef.toJson());
-
-  static CatalogEntityRef? _decodeTargetRef(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
-    final decoded = _decodeJson(raw);
-    if (decoded is! Map) return null;
-    return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
   }
 
   static dynamic _decodeJson(String raw) {

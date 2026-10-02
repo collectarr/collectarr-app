@@ -58,7 +58,7 @@ void main() {
     expect(restored.mechanics, ['Trading']);
   });
 
-  test('Board Game Owned Copy schema round trips typed details', () {
+  test('Board Game Collection Item schema round trips typed details', () {
     final draft = createBoardGameEditDraft(
       item: _item(const BoardGameMetadata(title: 'Catan')),
       textControllers: TextControllerGroup(),
@@ -114,7 +114,7 @@ CatalogSearchCandidate _item(BoardGameMetadata metadata) =>
           id: 'boardgame-1',
           mediaKind: CatalogMediaKind.boardgame,
         ),
-        kindMetadata: metadata,
+        kindData: metadata,
       ),
     );
 

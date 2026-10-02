@@ -1,7 +1,7 @@
 enum PickListScope {
   media,
   release,
-  ownedCopy,
+  collectionItem,
   trackingRecord,
   customField,
   all,

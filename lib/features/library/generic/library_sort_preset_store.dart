@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LibrarySortPresetStore {
   const LibrarySortPresetStore(
     this.config, {
-    this.scope = LibraryEntityScope.work,
+    this.scope = LibraryEntityScope.catalogItem,
   });
 
   final LibraryKindRegistration config;

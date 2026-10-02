@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -8,12 +8,12 @@ import 'package:flutter/material.dart';
 class InspectorReadingQueueSection extends StatefulWidget {
   const InspectorReadingQueueSection({
     super.key,
-    required this.ownedRef,
+    required this.collectionItemRef,
     required this.db,
     required this.accent,
   });
 
-  final OwnedCopyRef ownedRef;
+  final CollectionItemRef collectionItemRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -37,7 +37,7 @@ class _InspectorReadingQueueSectionState
   Future<void> _load() async {
     final repo = ReadingQueueRepository(widget.db);
     final queue = await repo.getQueue();
-    final idx = queue.indexOf(widget.ownedRef);
+    final idx = queue.indexOf(widget.collectionItemRef);
     if (mounted) {
       setState(() {
         _inQueue = idx >= 0;
@@ -50,16 +50,16 @@ class _InspectorReadingQueueSectionState
   Future<void> _toggle() async {
     final repo = ReadingQueueRepository(widget.db);
     if (_inQueue) {
-      await repo.removeFromQueue(widget.ownedRef);
+      await repo.removeFromQueue(widget.collectionItemRef);
     } else {
-      await repo.addToQueue(widget.ownedRef);
+      await repo.addToQueue(widget.collectionItemRef);
     }
     unawaited(_load());
   }
 
   Future<void> _moveToTop() async {
     final repo = ReadingQueueRepository(widget.db);
-    await repo.moveToTop(widget.ownedRef);
+    await repo.moveToTop(widget.collectionItemRef);
     unawaited(_load());
   }
 

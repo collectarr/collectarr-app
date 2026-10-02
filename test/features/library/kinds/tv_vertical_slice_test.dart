@@ -130,14 +130,14 @@ void main() {
             id: 'tv_1',
             mediaKind: CatalogMediaKind.tv,
           ),
-          kindMetadata: tvMeta,
+          kindData: tvMeta,
         ).asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(testOwnedItem(
+        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'tv_1',
             kind: CatalogMediaKind.tv,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
           ),
           condition: 'Mint',
           updatedAt: DateTime.now(),
@@ -145,8 +145,8 @@ void main() {
       );
 
       const projector = TvWorkspaceProjector();
-      const node = LibraryWorkRef(
-        workId: 'tv_1',
+      const node = LibraryCatalogItemNodeRef(
+        catalogItemId: 'tv_1',
       );
       final dto = projector.project(
         source: shelfEntry,

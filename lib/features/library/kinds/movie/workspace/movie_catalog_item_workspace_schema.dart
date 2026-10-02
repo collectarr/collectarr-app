@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_entity_
 final movieCatalogItemWorkspaceSchema =
     LibraryEntityWorkspaceSchema<MovieKind, MovieWorkspaceDto>(
   kindNamespace: 'movie',
-  entityScope: LibraryEntityScope.work,
+  entityScope: LibraryEntityScope.catalogItem,
   fields: [
     ...movieCatalogIdentityFieldDefinitions,
     ...movieCatalogEditionFieldDefinitions,

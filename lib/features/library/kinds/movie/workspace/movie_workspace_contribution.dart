@@ -4,18 +4,18 @@ import 'movie_catalog_item_workspace_schema.dart';
 
 final movieKindWorkspace = TypedLibraryKindWorkspace<MovieWorkspaceDto>(
   entityWorkspaces: {
-    LibraryEntityScope.work: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
-      scope: LibraryEntityScope.work,
+    LibraryEntityScope.catalogItem: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
+      scope: LibraryEntityScope.catalogItem,
       fields: movieCatalogItemWorkspaceSchema.toRegistry(),
       projector: const MovieWorkspaceProjector(
-        expectedScope: LibraryEntityScope.work,
+        expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
-      scope: LibraryEntityScope.copy,
+    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
+      scope: LibraryEntityScope.collectionItem,
       fields: movieCopyWorkspaceSchema.toRegistry(),
       projector: const MovieWorkspaceProjector(
-        expectedScope: LibraryEntityScope.copy,
+        expectedScope: LibraryEntityScope.collectionItem,
       ),
     ),
   },

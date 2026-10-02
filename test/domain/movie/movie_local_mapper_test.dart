@@ -1,21 +1,22 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_owned_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('round trips the complete Movie owned copy', () async {
+  test('round trips the complete Movie collection item', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final item = MovieOwnedItem(
-      id: const MovieOwnedCopyId('owned-1'),
+    final item = MovieCollectionItem(
+      id: const CollectionItemId('owned-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'movie-1',
       ),
       createdAt: DateTime.utc(2026, 1, 2),
@@ -26,7 +27,6 @@ void main() {
       pricePaidCents: 2499,
       currency: 'USD',
       personalNotes: 'Collector copy',
-      quantity: 2,
       indexNumber: 1,
       tags: 'favorite,4k',
       updatedAt: DateTime.utc(2026, 1, 4),
@@ -50,10 +50,10 @@ void main() {
       ),
     );
 
-    await db.into(db.movieOwnedItemsRows).insert(
+    await db.into(db.movieCollectionItemsRows).insert(
           MovieOwnedLocalMapper.toRow(item),
         );
-    final row = await db.select(db.movieOwnedItemsRows).getSingle();
+    final row = await db.select(db.movieCollectionItemsRows).getSingle();
     final restored = MovieOwnedLocalMapper.fromRow(row);
 
     expect(restored.id, item.id);
@@ -67,7 +67,6 @@ void main() {
     expect(restored.pricePaidCents, item.pricePaidCents);
     expect(restored.currency, item.currency);
     expect(restored.personalNotes, item.personalNotes);
-    expect(restored.quantity, item.quantity);
     expect(restored.indexNumber, item.indexNumber);
     expect(restored.tags, item.tags);
     expect(restored.updatedAt.toUtc(), item.updatedAt);
@@ -83,14 +82,14 @@ void main() {
     expect(restored.details, item.details);
   });
 
-  test('requires a persisted Movie owned-copy identity', () {
+  test('requires a persisted Movie collection-item identity', () {
     expect(
       () => MovieOwnedLocalMapper.toRow(
-        MovieOwnedItem(
-          id: const MovieOwnedCopyId(''),
+        MovieCollectionItem(
+          id: const CollectionItemId(''),
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.movie,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
             id: 'movie-1',
           ),
           updatedAt: DateTime.utc(2026, 1, 1),

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,7 @@ Widget buildBookWorkInspectorHero(
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    ownedItem: request.ownedItem,
+    collectionItem: request.collectionItem,
     ownedCopies: request.ownedCopies,
     accent: request.accent,
     kindOwnedContent: buildBookAuthorSpotlight(
@@ -32,9 +32,9 @@ Widget buildBookCopyInspectorHero(
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    ownedItem: request.ownedItem,
+    collectionItem: request.collectionItem,
     ownedCopies: [
-      if (request.ownedItem != null) request.ownedItem!,
+      if (request.collectionItem != null) request.collectionItem!,
     ],
     accent: request.accent,
     kindOwnedContent: buildBookAuthorSpotlight(
@@ -72,7 +72,7 @@ List<Widget> buildBookCopyInspectorSections(
     accent: request.accent,
     onFilterByValue: request.onFilterByValue,
   );
-  final owned = BookOwnedItemProjection.fromDispatch(request.ownedItemDispatch);
+  final owned = BookCollectionItemProjection.fromDispatch(request.collectionItemDispatch);
   if (owned == null) return sections;
   final details = owned.details;
   final facts = <LibraryDetailField>[
@@ -90,7 +90,7 @@ List<Widget> buildBookCopyInspectorSections(
   return [
     ...sections,
     LibraryDetailSection(
-      title: 'Owned copy details',
+      title: 'Collection item details',
       accentColor: request.accent,
       children: [LibraryDetailFieldTable(fields: facts)],
     ),

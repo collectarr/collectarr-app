@@ -7,7 +7,7 @@ void main() {
   test('formats rejected sync changes by reason and entity type', () {
     final message = SyncWarningFormatter.rejectedChanges([
       const SyncRejectedChange(
-        entityType: 'owned_item',
+        entityType: 'collection_item',
         entityId: 'owned-1',
         reason: 'server_has_newer_client_change',
       ),
@@ -17,7 +17,7 @@ void main() {
         reason: 'server_has_newer_client_change',
       ),
       const SyncRejectedChange(
-        entityType: 'owned_item',
+        entityType: 'collection_item',
         entityId: 'owned-2',
         reason: 'server_has_newer_client_change',
       ),
@@ -25,7 +25,7 @@ void main() {
 
     expect(
       message,
-      '3 local sync changes were not applied because another device had newer data. Service data was kept (2 owned items, 1 wishlist item).',
+      '3 local sync changes were not applied because another device had newer data. Service data was kept (2 collection items, 1 wishlist item).',
     );
   });
 

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
 
@@ -37,7 +37,7 @@ abstract interface class CollectionCsvKindProfile {
   /// Collection does not inspect this map. It passes it immediately to the
   /// generated kind persistence dispatcher, which decodes it into the
   /// concrete Owned aggregate and returns only a structural mutation result.
-  OwnedImportTransport ownedItemImportTransport(
+  OwnedImportTransport collectionItemImportTransport(
     CollectionCsvOwnedImport input,
   );
 
@@ -80,7 +80,9 @@ abstract interface class CollectionCsvKindProfile {
 
   String? ownedTags(LibraryWorkspaceSource entry);
 
-  List<String> ownedCellsBeforeQuantity(
+  /// Kind-owned values positioned after price and before location in the
+  /// CLZ-friendly layout, such as a Comic cover price.
+  List<String> ownedCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   });
@@ -108,7 +110,6 @@ final class CollectionCsvOwnedImport {
     this.pricePaidCents,
     this.currency,
     this.personalNotes,
-    this.quantity = 1,
     this.locationId,
     this.indexNumber,
     this.tags,
@@ -126,7 +127,6 @@ final class CollectionCsvOwnedImport {
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final int quantity;
   final String? locationId;
   final int? indexNumber;
   final String? tags;
@@ -151,7 +151,7 @@ abstract interface class CollectionCsvOwnedCellsDecoder {
 /// The helper writes only schema-v1 personal columns. Concrete projections
 /// still choose the final Owned type and decode their own kind cells.
 mixin CollectionCsvKindOwnedImportSupport {
-  OwnedImportTransport ownedItemImportTransport(
+  OwnedImportTransport collectionItemImportTransport(
     CollectionCsvOwnedImport input,
   ) {
     final payload = collectionCsvKindOwnedImportPayload(input);
@@ -160,10 +160,9 @@ mixin CollectionCsvKindOwnedImportSupport {
       payload.addAll(details.toJson());
     }
     return OwnedImportTransport(
-      ref: OwnedCopyRef(
+      ref: CollectionItemRef(
         kind: input.catalogRef.kind,
-        itemId: input.catalogRef.rootScope.id,
-        id: OwnedCopyId(input.id),
+        id: CollectionItemId(input.id),
       ),
       catalogRef: input.catalogRef,
       payload: payload,
@@ -180,7 +179,6 @@ Map<String, dynamic> collectionCsvKindOwnedImportPayload(
       ? <String, dynamic>{
           'id': input.id,
           'created_at': input.now.toUtc().toIso8601String(),
-          'quantity': input.quantity,
         }
       : Map<String, dynamic>.from(input.existingPayload!);
 
@@ -196,9 +194,6 @@ Map<String, dynamic> collectionCsvKindOwnedImportPayload(
   if (input.currency != null) payload['currency'] = input.currency;
   if (input.personalNotes != null) {
     payload['personal_notes'] = input.personalNotes;
-  }
-  if (input.quantity != 1 || input.existingPayload == null) {
-    payload['quantity'] = input.quantity;
   }
   if (input.locationId != null) payload['location_id'] = input.locationId;
   if (input.indexNumber != null) {

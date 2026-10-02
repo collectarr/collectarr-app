@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 final musicCatalogItemWorkspaceSchema =
     LibraryEntityWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(
   kindNamespace: 'music',
-  entityScope: LibraryEntityScope.work,
+  entityScope: LibraryEntityScope.catalogItem,
   fields: [
     MusicCatalogItemWorkspaceFields.title,
     MusicCatalogItemWorkspaceFields.artist,

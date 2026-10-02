@@ -25,11 +25,6 @@ class _ShelfHeader extends StatelessWidget {
         value: state.ownedCount.toString(),
       ),
       _ShelfStatCard(
-        icon: Icons.tag_outlined,
-        label: 'Quantity',
-        value: state.totalQuantity.toString(),
-      ),
-      _ShelfStatCard(
         icon: Icons.star_border,
         label: 'Wishlist',
         value: state.wishlistCount.toString(),
@@ -324,7 +319,7 @@ class _LibraryWorkspaceSourceRowState
   Widget build(BuildContext context) {
     final entry = widget.entry;
     final colorScheme = Theme.of(context).colorScheme;
-    final owned = entry.ownedSummary;
+    final owned = entry.collectionItemSummary;
     final wishlist = entry.wishlistItem;
     final kindShelfExtension = libraryShelfExtensionForEntry(
       entry,

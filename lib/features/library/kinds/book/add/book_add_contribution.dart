@@ -10,7 +10,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   manualCandidateBuilder: buildBookManualCandidate,
   manualProposalBuilder: buildBookManualProposalData,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      BookOwnedItemCreatePayload(
+      BookCollectionItemCreatePayload(
     catalogRef: item.reference,
     details: details as BookOwnedDetailsDraft,
     condition: common.condition,
@@ -19,7 +19,6 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,
     personalNotes: common.personalNotes,
-    quantity: common.quantity,
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
@@ -61,9 +60,8 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BookCatalogMetadata.fromJson(transport.kindData));
               return metadata is BookCatalogMetadata
                   ? metadata.authors
                   : const <Object?>[];
@@ -74,9 +72,8 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
             exactWeight: 90,
             containsWeight: 30,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BookCatalogMetadata.fromJson(transport.kindData));
               return metadata is BookCatalogMetadata
                   ? [metadata.barcode, metadata.itemNumber]
                   : const <Object?>[];
@@ -87,9 +84,8 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BookCatalogMetadata.fromJson(transport.kindData));
               return metadata is BookCatalogMetadata
                   ? [metadata.publisher, metadata.originalPublisher]
                   : const <Object?>[];
@@ -100,9 +96,8 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BookCatalogMetadata.fromJson(transport.kindData));
               return metadata is BookCatalogMetadata
                   ? [metadata.originalPublicationDate?.year]
                   : const <Object?>[];

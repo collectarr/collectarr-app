@@ -34,7 +34,7 @@ class TvEpisodesTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final seriesRef = CatalogEntityRef(
       kind: type.kind,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.catalogItem,
       id: item.id,
     );
     final customEpisodesAsync =

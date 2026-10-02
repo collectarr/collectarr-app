@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -52,10 +52,10 @@ void main() {
         return 42;
       },
       eventsToEmit: const [
-        OwnedItemAdded(
-          OwnedCopyRef(
+        CollectionItemAdded(
+          CollectionItemRef(
             kind: CatalogMediaKind.comic,
-            id: OwnedCopyId('owned-1'),
+            id: CollectionItemId('owned-1'),
           ),
         ),
       ],
@@ -65,10 +65,10 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     expect(eventsReceived, hasLength(1));
     expect(
-      (eventsReceived.first as OwnedItemAdded).ownedRef,
-      const OwnedCopyRef(
+      (eventsReceived.first as CollectionItemAdded).collectionItemRef,
+      const CollectionItemRef(
         kind: CatalogMediaKind.comic,
-        id: OwnedCopyId('owned-1'),
+        id: CollectionItemId('owned-1'),
       ),
     );
     expect(syncScheduled, isTrue);
@@ -103,10 +103,10 @@ void main() {
           throw Exception('Simulated write failure');
         },
         eventsToEmit: const [
-          OwnedItemAdded(
-            OwnedCopyRef(
+          CollectionItemAdded(
+            CollectionItemRef(
               kind: CatalogMediaKind.comic,
-              id: OwnedCopyId('owned-fail'),
+              id: CollectionItemId('owned-fail'),
             ),
           ),
         ],

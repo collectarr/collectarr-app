@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
@@ -11,7 +10,6 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
     required this.personal,
     required this.video,
     required this.media,
-    this.release,
     this.metadata,
   });
 
@@ -19,7 +17,6 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
   final PersonalCopyProjection personal;
   final AnimeCatalogItem video;
   final AnimeMedia media;
-  final AnimeRelease? release;
   final AnimeMetadata? metadata;
 
   String get title => common.title;
@@ -44,28 +41,19 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
   String? get studio =>
       _firstString(media.rawPayload['studios']) ??
       metadata?.studios.firstOrNull;
-  String? get publisher =>
-      release?.publisher ??
-      release?.distributor ??
-      (release == null ? studio : null);
+  String? get publisher => metadata?.publisher ?? studio;
   String? get seriesTitle =>
       metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
   String? get itemNumber => metadata?.itemNumber;
   DateTime? get releaseDate =>
-      release?.releaseDate ??
-      (release == null
-          ? metadata?.startDate ?? media.originalAirDate ?? common.releaseDate
-          : null);
-  String? get country => release == null ? metadata?.country : null;
-  String? get language => release == null ? metadata?.language : null;
-  String? get identifierCode => release?.barcode;
+      metadata?.startDate ?? media.originalAirDate ?? common.releaseDate;
+  String? get country => metadata?.country;
+  String? get language => metadata?.language;
+  String? get identifierCode => metadata?.barcode;
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
   String? get referenceFormatLabel =>
-      release?.format ??
-      (release == null
-          ? metadata?.physicalFormatLabel ?? metadata?.physicalFormat
-          : null);
+      metadata?.physicalFormatLabel ?? metadata?.physicalFormat;
   String? get format => referenceFormatLabel;
   @override
   Iterable<String> get searchTokens => [

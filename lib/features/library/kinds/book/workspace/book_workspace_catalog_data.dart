@@ -19,18 +19,14 @@ final class BookWorkspaceCatalogData
   });
 
   factory BookWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
-    final rawMetadata = item.kindMetadata;
+    final metadata = BookCatalogMetadata.fromJson(item.payload);
     return BookWorkspaceCatalogData(
       ref: item.catalogRef,
       catalogTitle: item.title,
       book: BookCatalogMapper.mapMetadataItemToBook(item),
       catalogReleaseDate: item.releaseDate,
       catalogCoverImageUrl: item.displayCoverUrl,
-      metadata: rawMetadata is BookCatalogMetadata
-          ? rawMetadata
-          : rawMetadata == null
-              ? null
-              : BookCatalogMetadata.fromJson(item.toSyncPayload()),
+      metadata: metadata,
     );
   }
 

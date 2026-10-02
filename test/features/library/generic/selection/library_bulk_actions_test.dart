@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -11,7 +12,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repos
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
@@ -58,14 +59,14 @@ void main() {
     final trackingMutations = container.read(trackingMutationsProvider);
     LibraryBulkActions buildActions() => LibraryBulkActions(
           coordinator: coordinator,
-          ownedMutations: container.read(ownedItemMutationsProvider),
+          ownedMutations: container.read(collectionItemMutationsProvider),
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
           catalogSnapshots: CatalogSnapshotRepository(db),
         );
 
-    await coordinator.addOwnedItem(
-      typedAddOwnedItemCommand(
+    await coordinator.addCollectionItem(
+      typedAddCollectionItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         common: const LibraryAddCommonDraft(locationId: 'loc-a'),
         details: const MovieOwnedDetailsDraft(),
@@ -79,8 +80,8 @@ void main() {
       entries: [
         LibraryWorkspaceSource(
           itemId: 'movie-1',
-          ownedSummary: MovieOwnedItemProjection.toSummary(row),
-          ownedItemDispatch: testMovieOwnedItemDispatchFrom(row),
+          collectionItemSummary: MovieCollectionItemProjection.toSummary(row),
+          collectionItemDispatch: testMovieCollectionItemDispatchFrom(row),
         ),
       ],
       selection: const LibraryBulkEditSelection(
@@ -108,14 +109,14 @@ void main() {
     final trackingMutations = container.read(trackingMutationsProvider);
     LibraryBulkActions buildActions() => LibraryBulkActions(
           coordinator: coordinator,
-          ownedMutations: container.read(ownedItemMutationsProvider),
+          ownedMutations: container.read(collectionItemMutationsProvider),
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
           catalogSnapshots: CatalogSnapshotRepository(db),
         );
 
-    await coordinator.addOwnedItem(
-      typedAddOwnedItemCommand(
+    await coordinator.addCollectionItem(
+      typedAddCollectionItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         common: const LibraryAddCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
@@ -128,13 +129,13 @@ void main() {
     await actions.moveSelectedToWishlist([
       LibraryWorkspaceSource(
         itemId: 'movie-1',
-        ownedSummary: MovieOwnedItemProjection.toSummary(row),
-        ownedItemDispatch: testMovieOwnedItemDispatchFrom(row),
+        collectionItemSummary: MovieCollectionItemProjection.toSummary(row),
+        collectionItemDispatch: testMovieCollectionItemDispatchFrom(row),
       ),
     ]);
 
     final deletedOwned =
-        await MovieOwnedRepository(db).findById(MovieOwnedCopyId(row.id.value));
+        await MovieOwnedRepository(db).findById(CollectionItemId(row.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
 
     expect(deletedOwned?.deletedAt, isNotNull);
@@ -163,14 +164,14 @@ void main() {
     final trackingMutations = container.read(trackingMutationsProvider);
     LibraryBulkActions buildActions() => LibraryBulkActions(
           coordinator: coordinator,
-          ownedMutations: container.read(ownedItemMutationsProvider),
+          ownedMutations: container.read(collectionItemMutationsProvider),
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
           catalogSnapshots: CatalogSnapshotRepository(db),
         );
 
-    await coordinator.addOwnedItem(
-      typedAddOwnedItemCommand(
+    await coordinator.addCollectionItem(
+      typedAddCollectionItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         common: const LibraryAddCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
@@ -194,8 +195,8 @@ void main() {
     await actions.removeSelected([
       LibraryWorkspaceSource(
         itemId: 'movie-1',
-        ownedSummary: MovieOwnedItemProjection.toSummary(ownedRow),
-        ownedItemDispatch: testMovieOwnedItemDispatchFrom(ownedRow),
+        collectionItemSummary: MovieCollectionItemProjection.toSummary(ownedRow),
+        collectionItemDispatch: testMovieCollectionItemDispatchFrom(ownedRow),
       ),
       LibraryWorkspaceSource(
         itemId: 'movie-2',
@@ -213,7 +214,7 @@ void main() {
         trackingSummary: TrackingSummary(
           id: trackingRow.id,
           catalogRef: trackingRow.catalogRef,
-          ownedRef: trackingRow.ownedRef,
+          collectionItemRef: trackingRow.collectionItemRef,
           sourceType:
               trackingSourceTypeFromValue(trackingRow.sourceTypeApiValue),
           status:
@@ -230,7 +231,7 @@ void main() {
     ]);
 
     final deletedOwned = await MovieOwnedRepository(db)
-        .findById(MovieOwnedCopyId(ownedRow.id.value));
+        .findById(CollectionItemId(ownedRow.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
     final deletedTracking =
         await trackingRecordTestRepository(db).findStorageRecordByRef(
@@ -260,7 +261,7 @@ void main() {
     final trackingMutations = container.read(trackingMutationsProvider);
     LibraryBulkActions buildActions() => LibraryBulkActions(
           coordinator: coordinator,
-          ownedMutations: container.read(ownedItemMutationsProvider),
+          ownedMutations: container.read(collectionItemMutationsProvider),
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
           catalogSnapshots: CatalogSnapshotRepository(db),

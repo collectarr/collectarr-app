@@ -46,7 +46,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
             value: (draft) => values(draft).variant,
             setValue: (draft, value) => values(draft).variant = value,
           ),
-          ...bookReleaseFields(
+          ...bookCatalogEditionFields(
             values: values,
             titleLabel: 'Edition title',
             include: {
@@ -90,7 +90,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
             value: (draft) => values(draft).seriesGroup,
             setValue: (draft, value) => values(draft).seriesGroup = value,
           ),
-          ...bookReleaseFields(
+          ...bookCatalogEditionFields(
             values: values,
             include: {'distributor', 'page_count'},
           ),
@@ -106,7 +106,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
             value: (draft) => values(draft).characters,
             setValue: (draft, value) => values(draft).characters = value,
           ),
-          ...bookWorkPublicationFields(
+          ...bookPublicationHistoryFields(
             values: values,
             include: {'genres'},
           ),
@@ -122,7 +122,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
             value: (draft) => values(draft).country,
             setValue: (draft, value) => values(draft).country = value,
           ),
-          ...bookWorkFields(
+          ...bookCatalogIdentityFields(
             values: values,
             include: {'description'},
             descriptionLabel: 'Synopsis',

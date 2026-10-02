@@ -14,7 +14,7 @@ void main() {
     expect(contributor?.name, 'animeDevSeedContributor');
     expect(
       contributor?.declaredType,
-      startsWith('TypedDevSeedKindContributor<AnimeOwnedItem>'),
+      startsWith('TypedDevSeedKindContributor<AnimeCollectionItem>'),
     );
   });
 
@@ -37,7 +37,7 @@ void main() {
       ),
     );
 
-    expect(tables, contains('ComicOwnedItemsRows'));
+    expect(tables, contains('ComicCollectionItemsRows'));
     expect(tables, isNot(contains('ComicMediaRows')));
     expect(tables, isNot(contains('ComicReleaseRows')));
   });

@@ -1,8 +1,7 @@
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_collection_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
@@ -25,40 +24,20 @@ final class MangaWorkspaceProjector
     requireEntityScope(entity, expectedScope ?? entity.scope);
     final catalog = _catalogFor(source);
     final metadata = catalog.metadata;
-    final release = _releaseForEntity(metadata, entity);
     final owned =
-        MangaOwnedItemProjection.fromDispatch(source.ownedItemDispatch);
-    final ownedDetails = owned is MangaOwnedItem ? owned.details : null;
+        MangaCollectionItemProjection.fromDispatch(source.collectionItemDispatch);
+    final ownedDetails = owned is MangaCollectionItem ? owned.details : null;
 
     return MangaWorkspaceDto(
-      common: _mangaCommonProjection(source, entity, metadata, release),
+      common: _mangaCommonProjection(source, entity, metadata),
       personal: PersonalCopyProjection.fromShelf(
         source,
         releaseState: releaseState,
       ),
       metadata: metadata,
-      release: release,
       ownedDetails: ownedDetails,
     );
   }
-}
-
-CatalogEditionDto? _releaseForEntity(
-  MangaMetadata metadata,
-  LibraryEntityRef entity,
-) {
-  final releaseId = switch (entity) {
-    LibraryWorkRef() => null,
-    LibraryReleaseRef(:final releaseId) => releaseId,
-    LibraryCopyRef(:final releaseId) => releaseId,
-  };
-  if (releaseId == null) return null;
-  for (final release in metadata.editions) {
-    if (release.id == releaseId) return release;
-  }
-  throw StateError(
-    'Manga release "$releaseId" is not present in the canonical work graph',
-  );
 }
 
 MangaWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
@@ -71,21 +50,13 @@ WorkspaceCommonProjection _mangaCommonProjection(
   LibraryWorkspaceSource source,
   LibraryEntityRef node,
   MangaMetadata? metadata,
-  CatalogEditionDto? release,
 ) {
-  final isWork = node is LibraryWorkRef;
-  final title = isWork ? metadata?.title : release!.title;
-  final coverImageUrl = release?.metadata?['cover_image_url']?.toString();
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: title,
-    overrideReleaseDate: release?.releaseDate ??
-        (isWork
-            ? metadata?.localizedReleaseDate ??
-                metadata?.originalPublicationDate
-            : null),
-    overrideCoverImageUrl:
-        coverImageUrl ?? (isWork ? metadata?.coverImageUrl : null),
+    overrideTitle: metadata?.title,
+    overrideReleaseDate:
+        metadata?.localizedReleaseDate ?? metadata?.originalPublicationDate,
+    overrideCoverImageUrl: metadata?.coverImageUrl,
   );
 }

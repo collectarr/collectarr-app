@@ -101,12 +101,12 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
       accumulator.coverUrl = coverUrl;
     }
 
-    if (dto.ownedItem != null) {
+    if (dto.collectionItem != null) {
       accumulator.ownedIssueNumbers.add(issueNumber);
       continue;
     }
     if (options.excludeOnOrder &&
-        dto.ownedItem?.collectionStatus?.trim().toLowerCase() == 'on_order') {
+        dto.collectionItem?.collectionStatus?.trim().toLowerCase() == 'on_order') {
       continue;
     }
     if (options.excludeUnreleased &&

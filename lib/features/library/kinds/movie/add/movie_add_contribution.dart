@@ -13,13 +13,9 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
       'Enter a title and correct any invalid Catalog Item details.',
   manualPaneBuilder: buildMovieAddManualPane,
   chrome: movieAddChrome,
-  headerBuilder: buildMovieAddHeader,
-  modeBarBuilder: buildMovieAddModeBar,
   previewPaneBuilder: buildMovieAddPreviewPane,
-  searchPaneBuilder: buildMovieAddSearchPane,
-  bottomBarPresentation: LibraryAddBottomBarPresentation.segmentedTarget,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      MovieOwnedItemCreatePayload(
+      MovieCollectionItemCreatePayload(
     catalogRef: item.reference,
     details: details as MovieOwnedDetailsDraft,
     condition: common.condition,
@@ -28,7 +24,6 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,
     personalNotes: common.personalNotes,
-    quantity: common.quantity,
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
@@ -75,9 +70,8 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  MovieCatalogMetadata.fromJson(transport.kindData));
               return metadata is MovieCatalogMetadata
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
@@ -88,9 +82,8 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  MovieCatalogMetadata.fromJson(transport.kindData));
               return metadata is MovieCatalogMetadata
                   ? [metadata.releaseDate?.year]
                   : const <Object?>[];

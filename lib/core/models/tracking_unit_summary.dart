@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 
 /// Structural mixed-feature projection of a kind-owned tracking unit.
 ///
@@ -14,14 +14,14 @@ class TrackingUnitSummary {
     required this.completedAt,
     required this.updatedAt,
     this.trackingEntryId,
-    this.ownedRef,
+    this.collectionItemRef,
     this.deletedAt,
   });
 
   final String id;
   final CatalogEntityRef targetRef;
   final String? trackingEntryId;
-  final OwnedCopyRef? ownedRef;
+  final CollectionItemRef? collectionItemRef;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -33,7 +33,7 @@ class TrackingUnitSummary {
     return {
       'catalog_ref': targetRef.toJson(),
       'tracking_entry_id': trackingEntryId,
-      'owned_ref': ownedRef?.toJson(),
+      'collection_item_ref': collectionItemRef?.toJson(),
       'completed_at': completedAt.toUtc().toIso8601String(),
     };
   }
@@ -42,7 +42,7 @@ class TrackingUnitSummary {
     String? id,
     CatalogEntityRef? targetRef,
     String? trackingEntryId,
-    OwnedCopyRef? ownedRef,
+    CollectionItemRef? collectionItemRef,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -51,7 +51,7 @@ class TrackingUnitSummary {
       id: id ?? this.id,
       targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedRef: ownedRef ?? this.ownedRef,
+      collectionItemRef: collectionItemRef ?? this.collectionItemRef,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,

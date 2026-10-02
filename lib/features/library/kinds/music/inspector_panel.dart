@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -22,10 +22,10 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_album_ima
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
-import 'package:collectarr_app/core/models/money.dart' show OwnedCopyId;
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart'
-    show OwnedCopyRef;
+import 'package:collectarr_app/core/models/collection_item_projection.dart'
+    show CollectionItemRef;
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -262,12 +262,11 @@ class _MusicListeningSection extends ConsumerWidget {
             MusicListenEvent(
               id: 'listen-${now.microsecondsSinceEpoch}',
               catalogRef: catalogRef,
-              ownedRef: owned == null
+              collectionItemRef: owned == null
                   ? null
-                  : OwnedCopyRef(
+                  : CollectionItemRef(
                       kind: CatalogMediaKind.music,
-                      itemId: catalogRef.id,
-                      id: OwnedCopyId(owned.id.value),
+                      id: CollectionItemId(owned.id.value),
                     ),
               listenedAt: now,
               notes: notesController.text.trim().isEmpty
@@ -381,7 +380,7 @@ class _MusicListenEventTile extends ConsumerWidget {
             MusicListenEvent(
               id: event.id,
               catalogRef: event.catalogRef,
-              ownedRef: event.ownedRef,
+              collectionItemRef: event.collectionItemRef,
               listenedAt: event.listenedAt,
               startedAt: event.startedAt,
               finishedAt: event.finishedAt,
@@ -1051,12 +1050,11 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final source = inspector.item.source;
-    final owned = MusicOwnedItemProjection.fromDispatch(
-      inspector.ownedItemDispatch,
+    final owned = MusicCollectionItemProjection.fromDispatch(
+      inspector.collectionItemDispatch,
     );
     final personalRows = <(String, String)>[
       ('Index', owned?.indexNumber?.toString() ?? '-'),
-      ('Quantity', owned?.quantity.toString() ?? '-'),
       if (owned?.isDigital != null)
         ('Media ownership', owned!.isDigital! ? 'Digital' : 'Physical'),
       if (owned?.condition?.trim().isNotEmpty == true)

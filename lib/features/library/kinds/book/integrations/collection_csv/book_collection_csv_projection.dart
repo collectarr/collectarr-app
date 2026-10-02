@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_collection_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
@@ -134,34 +134,34 @@ final class BookCollectionCsvProjection
 
   @override
   String? ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final owned = BookOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is BookOwnedItem ? owned.grade : null;
+    final owned = BookCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is BookCollectionItem ? owned.grade : null;
   }
 
   @override
   String? ownedCondition(LibraryWorkspaceSource entry) {
-    final owned = BookOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is BookOwnedItem ? owned.condition : null;
+    final owned = BookCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is BookCollectionItem ? owned.condition : null;
   }
 
   @override
   int? ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final owned = BookOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is BookOwnedItem ? owned.indexNumber : null;
+    final owned = BookCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is BookCollectionItem ? owned.indexNumber : null;
   }
 
   @override
   String? ownedTags(LibraryWorkspaceSource entry) {
-    final owned = BookOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is BookOwnedItem ? owned.tags : null;
+    final owned = BookCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    return owned is BookCollectionItem ? owned.tags : null;
   }
 
   @override
-  List<String> ownedCellsBeforeQuantity(
+  List<String> ownedCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
-    return clzFriendly ? const [''] : const [];
+    return const [];
   }
 
   @override
@@ -170,9 +170,7 @@ final class BookCollectionCsvProjection
     required bool clzFriendly,
   }) {
     return List<String>.filled(
-      clzFriendly
-          ? collectionCsvV1OwnedCellCount - 1
-          : collectionCsvV1OwnedCellCount,
+      collectionCsvV1OwnedCellCount,
       '',
     );
   }

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
@@ -88,7 +88,7 @@ final class AnimeReleaseDetailSource implements LibraryReleaseDetailSource {
 
   List<CatalogEditionDto> resolveCatalogData(
     LibraryWorkspaceCatalogData catalogData, {
-    Iterable<OwnedCopySummary> ownedItems = const <OwnedCopySummary>[],
+    Iterable<CollectionItemSummary> collectionItems = const <CollectionItemSummary>[],
     Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
   }) {
     if (catalogData is! AnimeWorkspaceCatalogData) {
@@ -173,7 +173,7 @@ final class AnimeReleaseDetailSource implements LibraryReleaseDetailSource {
   List<LibraryReleaseDetailOption> detailOptionsForCatalogData(
     LibraryWorkspaceCatalogData catalogData,
     CatalogEntityRef rootRef, {
-    Iterable<OwnedCopySummary> ownedItems = const <OwnedCopySummary>[],
+    Iterable<CollectionItemSummary> collectionItems = const <CollectionItemSummary>[],
     Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
   }) {
     final editions = resolveCatalogData(catalogData);

@@ -189,36 +189,6 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
   final publicationDate = values.publicationYear == null
       ? null
       : DateTime.utc(values.publicationYear!);
-  final release = CatalogEditionDto(
-    id: '$id-release',
-    title: _optional(values.releaseTitle) ?? normalizedTitle,
-    format: _optional(values.format),
-    publisher: _optional(values.publisher),
-    distributor: _optional(values.distributor),
-    isbn: _optional(values.isbn),
-    upc: _optional(values.barcode),
-    language: _optional(values.language),
-    region: _optional(values.region) ?? _optional(values.country),
-    releaseDate: values.releaseDate,
-    releaseDateParts: values.releaseDate == null
-        ? null
-        : PartialDate.fromDateTime(values.releaseDate!),
-    physicalFormat: _optional(values.format),
-    physicalFormatLabel: _optional(values.binding),
-    metadata: {
-      if (_optional(values.imprint) case final imprint?) 'imprint': imprint,
-      if (values.pageCount != null) 'page_count': values.pageCount,
-      if (_optional(values.releaseDescription) case final description?)
-        'description': description,
-      if (_optional(values.coverImageUrl) case final cover?)
-        'cover_image_url': cover,
-      if (_optional(values.barcode) case final barcode?) 'barcode': barcode,
-      if (_optional(values.backCoverImageUrl) case final backCover?)
-        'back_cover_image_url': backCover,
-      if (_optional(values.variant) case final variant?) 'variant': variant,
-    },
-  );
-
   return MangaMetadata(
     title: normalizedTitle,
     authors: _split(values.authors),
@@ -233,7 +203,7 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
     country: _optional(values.country) ?? 'JP',
     genres: List<String>.unmodifiable(values.genres),
     series: series ?? _manualSeries(values),
-    seriesTitle: _optional(values.seriesTitle) ?? normalizedTitle,
+    seriesTitle: _optional(values.seriesTitle),
     editionTitle: _optional(values.releaseTitle),
     pageCount: values.pageCount,
     imprint: _optional(values.imprint),
@@ -242,7 +212,6 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
     publisher: _optional(values.publisher),
     barcode: _optional(values.barcode),
     variant: _optional(values.variant),
-    editions: [release],
     rawPayload: {
       if (_optional(values.characters) case final characters?)
         'characters': _split(characters),

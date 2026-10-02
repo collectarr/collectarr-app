@@ -122,7 +122,7 @@ final class AnimeCatalogMapper {
   const AnimeCatalogMapper._();
 
   static AnimeCatalogItem mapDtoToAnime(CatalogItemDto dto) {
-    final payload = dto.toSyncPayload();
+    final payload = dto.toJson();
     final videoPayload = (payload['video'] as Map?) ?? payload;
 
     final runtimeMinutes = videoPayload['runtime_minutes'] is num
@@ -266,6 +266,6 @@ final class AnimeCatalogMapper {
   }
 
   static AnimeCatalogItem mapMetadataItemToAnime(CatalogItemDto item) {
-    return mapDtoToAnime(CatalogItemDto.fromJson(item.toSyncPayload()));
+    return mapDtoToAnime(CatalogItemDto.fromJson(item.toJson()));
   }
 }

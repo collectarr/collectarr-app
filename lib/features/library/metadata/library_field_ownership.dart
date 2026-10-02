@@ -147,11 +147,6 @@ const List<PersonalLibraryFieldSpec> kUniversalPersonalLibraryFields = [
     syncable: true,
   ),
   PersonalLibraryFieldSpec(
-    key: 'quantity',
-    label: 'Quantity',
-    group: 'Acquisition',
-  ),
-  PersonalLibraryFieldSpec(
     key: 'index_number',
     label: 'Index number',
     group: 'Acquisition',

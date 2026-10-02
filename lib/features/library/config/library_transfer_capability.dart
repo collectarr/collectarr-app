@@ -20,7 +20,6 @@ const kTransferablePersonalFieldKeys = <String>[
   'purchaseStore',
   'pricePaidCents',
   'sellPriceCents',
-  'quantity',
   'indexNumber',
   'purchaseDate',
   'soldAt',
@@ -52,20 +51,20 @@ class LibraryTransferCapability {
   }
 
   List<String> fieldKeysForScope(
-      [LibraryEntityScope scope = LibraryEntityScope.copy]) {
+      [LibraryEntityScope scope = LibraryEntityScope.collectionItem]) {
     return switch (scope) {
-      LibraryEntityScope.work => kTransferableMediaFieldKeys,
+      LibraryEntityScope.catalogItem => kTransferableMediaFieldKeys,
       LibraryEntityScope.release => [
           for (final f in allFields())
             if (f.scope == LibraryEntityScope.release) f.key,
         ],
-      LibraryEntityScope.copy => transferableFieldKeys,
+      LibraryEntityScope.collectionItem => transferableFieldKeys,
     };
   }
 
   List<TransferableField> fieldsWithCustomFields(
     List<CustomFieldDefinition> definitions, {
-    LibraryEntityScope scope = LibraryEntityScope.copy,
+    LibraryEntityScope scope = LibraryEntityScope.collectionItem,
   }) {
     return TransferableField.withCustomFields(
       definitions,

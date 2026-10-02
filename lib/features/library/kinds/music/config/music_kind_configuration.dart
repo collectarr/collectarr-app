@@ -10,25 +10,25 @@ TransferableField musicTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(MusicOwnedItem item) read,
-  required MusicOwnedItem Function(MusicOwnedItem item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.copy,
+  required String? Function(MusicCollectionItem item) read,
+  required MusicCollectionItem Function(MusicCollectionItem item, String? value) write,
+  LibraryEntityScope scope = LibraryEntityScope.collectionItem,
 }) {
-  return TransferableField.typed<MusicOwnedItem>(
+  return TransferableField.typed<MusicCollectionItem>(
     key: key,
     label: label,
     icon: icon,
     type: type,
     scope: scope,
-    decode: (value) => value as MusicOwnedItem,
+    decode: (value) => value as MusicCollectionItem,
     read: read,
     write: write,
   );
 }
 
 final musicUniversalTransferableFields =
-    TransferableField.universalForTyped<MusicOwnedItem>(
-  decode: (value) => value as MusicOwnedItem,
+    TransferableField.universalForTyped<MusicCollectionItem>(
+  decode: (value) => value as MusicCollectionItem,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,
@@ -50,10 +50,6 @@ final musicUniversalTransferableFields =
   readSellPriceCents: (item) => item.sellPriceCents?.toString(),
   writeSellPriceCents: (item, value) => item.copyWith(
     sellPriceCents: value == null ? null : int.tryParse(value),
-  ),
-  readQuantity: (item) => item.quantity.toString(),
-  writeQuantity: (item, value) => item.copyWith(
-    quantity: value == null ? 1 : int.tryParse(value) ?? 1,
   ),
   readIndexNumber: (item) => item.indexNumber?.toString(),
   writeIndexNumber: (item, value) => item.copyWith(

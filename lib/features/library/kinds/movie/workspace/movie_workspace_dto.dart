@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadat
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-/// Read-only projection of one concrete Movie Catalog Item and its owned copy.
+/// Read-only projection of one concrete Movie Catalog Item and its collection item.
 ///
 /// Edition facts live on [movie]. Contained discs remain children of that item
 /// and do not create another workspace node.

@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -42,8 +42,8 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     super.key,
     required this.type,
     required this.kindItem,
-    required this.ownedItem,
-    this.ownedItemDispatch,
+    required this.collectionItem,
+    this.collectionItemDispatch,
     this.wishlistItem,
     this.trackingSummary,
     required this.accent,
@@ -55,7 +55,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.onPrevious,
     this.onNext,
     this.node,
-    this.scope = LibraryEntityScope.work,
+    this.scope = LibraryEntityScope.catalogItem,
   }) : draft = null;
 
   LibraryEditRenderer.fromDraft({
@@ -63,13 +63,13 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     required LibraryEditShellState draft,
     this.onPrevious,
     this.onNext,
-    this.scope = LibraryEntityScope.work,
+    this.scope = LibraryEntityScope.catalogItem,
   })  : draft = draft,
         node = draft.node,
         type = draft.type,
         kindItem = draft.kindItem,
-        ownedItem = draft.ownedItem,
-        ownedItemDispatch = draft.ownedItemDispatch,
+        collectionItem = draft.collectionItem,
+        collectionItemDispatch = draft.collectionItemDispatch,
         wishlistItem = draft.wishlistItem,
         trackingSummary = draft.trackingSummary,
         accent = draft.accent,
@@ -83,10 +83,10 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
 
   /// Concrete candidate retained only for kind-owned draft/custom boundaries.
   final CatalogSearchCandidate kindItem;
-  final OwnedCopySummary? ownedItem;
+  final CollectionItemSummary? collectionItem;
 
   /// Concrete kind-owned aggregate passed through the typed edit boundary.
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  final LibraryCollectionItemDispatch? collectionItemDispatch;
   final WishlistItem? wishlistItem;
   final TrackingSummary? trackingSummary;
   final Color accent;
@@ -143,8 +143,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         hasWishlistContext: _draft.hasWishlistContext,
         isDigitalFormat: _draft.isDigitalFormat,
         hasPhysicalFormats: widget.physicalFormats.isNotEmpty,
-        hasOwnedTargetOptions: false,
-        hasAdditionalTargetOptions: widget.wishlistTargetOptions.isNotEmpty,
         hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
         scope: widget.scope,
       );
@@ -158,8 +156,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           scope: widget.scope,
           node: widget.node,
           item: widget.kindItem,
-          ownedItem: widget.ownedItem,
-          ownedItemDispatch: widget.ownedItemDispatch,
+          collectionItem: widget.collectionItem,
+          collectionItemDispatch: widget.collectionItemDispatch,
           wishlistItem: widget.wishlistItem,
           trackingSummary: widget.trackingSummary,
           accent: widget.accent,
@@ -286,8 +284,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       type: widget.type,
       item: _draft.kindItem,
       node: _draft.node,
-      ownedItem: _draft.ownedItem,
-      ownedItemDispatch: _draft.ownedItemDispatch,
+      collectionItem: _draft.collectionItem,
+      collectionItemDispatch: _draft.collectionItemDispatch,
       accent: widget.accent,
       scope: widget.scope,
     );

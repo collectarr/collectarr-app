@@ -85,14 +85,14 @@ void main() {
             id: 'anime_1',
             mediaKind: CatalogMediaKind.anime,
           ),
-          kindMetadata: animeMeta,
+          kindData: animeMeta,
         ).asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(testOwnedItem(
+        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'anime_1',
             kind: CatalogMediaKind.anime,
-            entityType: CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
           ),
           condition: 'Mint',
           updatedAt: DateTime.now(),
@@ -100,8 +100,8 @@ void main() {
       );
 
       const projector = AnimeWorkspaceProjector();
-      const node = LibraryWorkRef(
-        workId: 'anime_1',
+      const node = LibraryCatalogItemNodeRef(
+        catalogItemId: 'anime_1',
       );
       final dto = projector.project(
         source: shelfEntry,

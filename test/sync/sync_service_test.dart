@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -11,7 +12,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_rep
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_collection_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import '../helpers/tracking_state_test_helpers.dart';
 import 'package:drift/native.dart';
@@ -28,7 +29,7 @@ void main() {
       client: client,
       db: db,
       queue: SyncQueueRepository(db),
-      ownedPersistence: CollectarrOwnedItemPersistence(db),
+      ownedPersistence: CollectarrCollectionItemPersistence(db),
       trackingRecords: TrackingStorageRepository(
         db,
         codecs: libraryTrackingStorageCodecs,
@@ -37,8 +38,8 @@ void main() {
     ).syncNow('android', since: since);
 
     final owned = await ComicOwnedRepository(db)
-        .findById(const ComicOwnedCopyId('owned-1'));
-    final typedOwnedRow = await db.select(db.comicOwnedItemsRows).getSingle();
+        .findById(const CollectionItemId('owned-1'));
+    final typedOwnedRow = await db.select(db.comicCollectionItemsRows).getSingle();
     final trackingRow = await readSingleTrackingState(db);
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final locations = await LocationRepository(db).getAll();
@@ -68,7 +69,7 @@ void main() {
     await queue.enqueue(
       SyncChange(
         id: 'sync-1',
-        entityType: 'owned_item',
+        entityType: 'collection_item',
         entityId: 'owned-1',
         action: 'upsert',
         payload: const {'item_id': 'comic-1', 'grade': '7.5'},
@@ -80,7 +81,7 @@ void main() {
       client: _RejectedSyncClient(),
       db: db,
       queue: queue,
-      ownedPersistence: CollectarrOwnedItemPersistence(db),
+      ownedPersistence: CollectarrCollectionItemPersistence(db),
       trackingRecords: TrackingStorageRepository(
         db,
         codecs: libraryTrackingStorageCodecs,
@@ -89,7 +90,7 @@ void main() {
     ).syncNow('android', since: DateTime.utc(2026, 5, 11));
 
     final owned = await ComicOwnedRepository(db)
-        .findById(const ComicOwnedCopyId('owned-1'));
+        .findById(const CollectionItemId('owned-1'));
     expect(result.rejectedCount, 1);
     expect(result.rejectedChanges.single.entityId, 'owned-1');
     expect(await queue.pendingCount(), 0);
@@ -110,7 +111,7 @@ void main() {
         action: 'upsert',
         payload: const {
           'item_id': 'movie-1',
-          'owned_ref': {'kind': 'movie', 'id': 'owned-1'},
+          'collection_item_ref': {'kind': 'movie', 'id': 'owned-1'},
           'edition_id': 'edition-stream',
           'variant_id': 'variant-4k',
           'source_type': 'digital',
@@ -131,7 +132,7 @@ void main() {
       client: client,
       db: db,
       queue: queue,
-      ownedPersistence: CollectarrOwnedItemPersistence(db),
+      ownedPersistence: CollectarrCollectionItemPersistence(db),
       trackingRecords: TrackingStorageRepository(
         db,
         codecs: libraryTrackingStorageCodecs,
@@ -154,7 +155,7 @@ void main() {
       pushed['payload'],
       {
         'item_id': 'movie-1',
-        'owned_ref': {'kind': 'movie', 'id': 'owned-1'},
+        'collection_item_ref': {'kind': 'movie', 'id': 'owned-1'},
         'edition_id': 'edition-stream',
         'variant_id': 'variant-4k',
         'source_type': 'digital',
@@ -215,7 +216,7 @@ class _FakeSyncClient extends CollectarrSyncClient {
           },
         },
         {
-          'entity_type': 'owned_item',
+          'entity_type': 'collection_item',
           'entity_id': 'owned-1',
           'action': 'delete',
           'source_device_id': 'desktop',
@@ -224,7 +225,7 @@ class _FakeSyncClient extends CollectarrSyncClient {
           'payload': {
             'catalog_ref': {
               'kind': 'comic',
-              'entity_type': 'work',
+              'entity_type': 'catalog_item',
               'id': 'comic-1',
             },
           },
@@ -239,10 +240,10 @@ class _FakeSyncClient extends CollectarrSyncClient {
           'payload': {
             'catalog_ref': {
               'kind': 'comic',
-              'entity_type': 'work',
+              'entity_type': 'catalog_item',
               'id': 'comic-1',
             },
-            'owned_ref': {'kind': 'comic', 'id': 'owned-1'},
+            'collection_item_ref': {'kind': 'comic', 'id': 'owned-1'},
             'source_type': 'physical',
             'status': 'Completed',
             'rating': 9,
@@ -258,7 +259,7 @@ class _FakeSyncClient extends CollectarrSyncClient {
           'payload': {
             'catalog_ref': {
               'kind': 'tv',
-              'entity_type': 'work',
+              'entity_type': 'catalog_item',
               'id': 'tv-series-1',
             },
             'season_number': 2,
@@ -290,7 +291,7 @@ class _FakeSyncClient extends CollectarrSyncClient {
           'payload': {
             'catalog_ref': {
               'kind': 'comic',
-              'entity_type': 'work',
+              'entity_type': 'catalog_item',
               'id': 'comic-2',
             },
           },
@@ -314,7 +315,7 @@ class _RejectedSyncClient extends CollectarrSyncClient {
       'accepted': <dynamic>[],
       'rejected': [
         {
-          'entity_type': 'owned_item',
+          'entity_type': 'collection_item',
           'entity_id': 'owned-1',
           'reason': 'server_has_newer_client_change',
           'current_client_changed_at': '2026-05-12T09:00:00.000Z',
@@ -329,7 +330,7 @@ class _RejectedSyncClient extends CollectarrSyncClient {
       'server_time': '2026-05-12T09:05:00.000Z',
       'entities': [
         {
-          'entity_type': 'owned_item',
+          'entity_type': 'collection_item',
           'entity_id': 'owned-1',
           'action': 'upsert',
           'source_device_id': 'desktop',
@@ -338,7 +339,7 @@ class _RejectedSyncClient extends CollectarrSyncClient {
           'payload': {
             'catalog_ref': {
               'kind': 'comic',
-              'entity_type': 'work',
+              'entity_type': 'catalog_item',
               'id': 'comic-1',
             },
             'grade': '9.8',

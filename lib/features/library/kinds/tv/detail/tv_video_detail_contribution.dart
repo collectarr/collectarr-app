@@ -35,7 +35,7 @@ final class TvVideoDetailContribution extends ConsumerWidget {
     final request = this.request;
     final catalogRef = CatalogEntityRef(
       kind: request.type.kind,
-      entityType: CatalogEntityTypeId.root,
+      entityType: CatalogEntityTypeId.catalogItem,
       id: request.item.source.itemId,
     );
     final seasonsAsync = ref.watch(tvSeasonsByCatalogRefProvider(catalogRef));

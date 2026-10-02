@@ -15,27 +15,18 @@ CatalogSearchCandidate? buildComicManualCandidate(
   if (draft is! ComicAddManualDraft || title.trim().isEmpty) return null;
   if (comicAddSchema.validate?.call(draft) != null) return null;
   final id = 'manual-comic-${DateTime.now().microsecondsSinceEpoch}';
-  final values = draft.values..seriesTitle = title.trim();
-  final issueNumber = values.issueNumber.trim();
-  final generatedTitle = [
-    title.trim(),
-    if (issueNumber.isNotEmpty) '#$issueNumber',
-  ].join(' ');
-  final candidateTitle = values.title.trim().isEmpty
-      ? generatedTitle
-      : values.title.trim();
-  values.title = candidateTitle;
+  final values = draft.values..title = title.trim();
   final metadata = comicCatalogItemFromFormValues(
     original: ComicCatalogItem(
       id: ComicCatalogItemId(id),
-      title: candidateTitle,
+      title: title.trim(),
     ),
     values: values,
   );
   return CatalogSearchCandidate.fromItem(
     CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.comic),
-      kindMetadata: metadata,
+      kindData: metadata,
     ),
   );
 }
@@ -51,8 +42,6 @@ Map<String, Object?>? buildComicManualProposalData(
   final candidate = buildComicManualCandidate(draft, title: title);
   if (candidate == null) return null;
   return candidate.kindCapability.mapTransport(
-    (item) => Map<String, Object?>.from(
-      (item.kindMetadata as ComicCatalogItem).toJson(),
-    ),
+    (item) => Map<String, Object?>.from(item.kindData),
   );
 }

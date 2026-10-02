@@ -46,8 +46,8 @@ class TrackingUnitStorageRepository {
 
   Future<void> upsert(TrackingUnitSummary unit) async {
     requireKnownCatalogRef(unit.targetRef, 'trackingUnit.targetRef');
-    if (unit.ownedRef != null) {
-      requireMatchingOwnedCatalogKinds(unit.targetRef, unit.ownedRef!);
+    if (unit.collectionItemRef != null) {
+      requireMatchingCatalogAndCollectionItemKinds(unit.targetRef, unit.collectionItemRef!);
     }
     final codec = _codecForKind(unit.targetRef.mediaKind);
     await _db.transaction(() => codec.upsertToStorage(_db, unit));
@@ -59,8 +59,8 @@ class TrackingUnitStorageRepository {
     await _db.transaction(() async {
       for (final unit in values) {
         requireKnownCatalogRef(unit.targetRef, 'trackingUnit.targetRef');
-        if (unit.ownedRef != null) {
-          requireMatchingOwnedCatalogKinds(unit.targetRef, unit.ownedRef!);
+        if (unit.collectionItemRef != null) {
+          requireMatchingCatalogAndCollectionItemKinds(unit.targetRef, unit.collectionItemRef!);
         }
         await _codecForKind(unit.targetRef.mediaKind)
             .upsertToStorage(_db, unit);

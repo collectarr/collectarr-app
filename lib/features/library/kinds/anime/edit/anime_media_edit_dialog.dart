@@ -33,10 +33,7 @@ class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
     super.initState();
     final transport = widget.request.kindItem.kindCapability
         .mapTransport((transport) => transport);
-    final canonical = transport.kindMetadata;
-    _media = canonical is AnimeMedia
-        ? canonical
-        : AnimeMedia.fromJson(transport.payload);
+    _media = AnimeMedia.fromJson(transport.payload);
     _draft = animeMediaFormValuesFrom(_media);
   }
 
@@ -70,7 +67,7 @@ class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
           );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
-              transport.withKindMetadata(updated),
+              transport.withKindData(updated),
             ),
           );
           Navigator.of(context).pop(

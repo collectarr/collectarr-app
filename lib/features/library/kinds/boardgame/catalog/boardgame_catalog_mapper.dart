@@ -9,10 +9,7 @@ final class BoardGameCatalogMapper {
   /// Maps one flat Core Board Game Catalog Item without manufacturing
   /// editions or variants.
   static BoardGameCatalogItem mapDtoToBoardGame(CatalogItemDto dto) {
-    final rawMetadata = dto.kindMetadata;
-    final metadata = rawMetadata is BoardGameMetadata
-        ? rawMetadata
-        : BoardGameMetadata.fromJson(catalogTransportPayloadFor(dto));
+    final metadata = BoardGameMetadata.fromJson(catalogTransportPayloadFor(dto));
     return BoardGameCatalogItem(item: dto, metadata: metadata);
   }
 

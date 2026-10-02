@@ -1,25 +1,26 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:drift/drift.dart';
 
-/// Maps Music-owned copy data to its local Drift row.
+/// Maps Music-collection item data to its local Drift row.
 final class MusicOwnedLocalMapper {
   const MusicOwnedLocalMapper._();
 
-  static MusicOwnedItemsRowsCompanion toOwnedItemRow(MusicOwnedItem item) {
+  static MusicCollectionItemsRowsCompanion toCollectionItemRow(MusicCollectionItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.music) {
-      throw StateError('Cannot persist an invalid MusicOwnedItem');
+      throw StateError('Cannot persist an invalid MusicCollectionItem');
     }
     item.validateCatalogItemOwnership();
 
     final details = item.details;
-    return MusicOwnedItemsRowsCompanion.insert(
+    return MusicCollectionItemsRowsCompanion.insert(
       id: item.id.value,
       itemId: item.itemId,
       createdAt: Value(item.createdAt),
@@ -30,7 +31,6 @@ final class MusicOwnedLocalMapper {
       pricePaidCents: Value(item.pricePaidCents),
       currency: Value(item.currency),
       personalNotes: Value(item.personalNotes),
-      quantity: Value(item.quantity),
       indexNumber: Value(item.indexNumber),
       tags: Value(item.tags),
       updatedAt: item.updatedAt,
@@ -52,14 +52,14 @@ final class MusicOwnedLocalMapper {
     );
   }
 
-  static MusicOwnedItem fromOwnedItemRow(MusicOwnedItemsRow row) {
+  static MusicCollectionItem fromCollectionItemRow(MusicCollectionItemsRow row) {
     final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.music,
-      entityType: CatalogEntityTypeId.root,
+      entityType: CatalogEntityTypeId.catalogItem,
       id: row.itemId,
     );
-    final item = MusicOwnedItem(
-      id: MusicOwnedCopyId(row.id),
+    final item = MusicCollectionItem(
+      id: CollectionItemId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
@@ -69,7 +69,6 @@ final class MusicOwnedLocalMapper {
       pricePaidCents: row.pricePaidCents,
       currency: row.currency,
       personalNotes: row.personalNotes,
-      quantity: row.quantity,
       indexNumber: row.indexNumber,
       tags: row.tags,
       updatedAt: row.updatedAt,

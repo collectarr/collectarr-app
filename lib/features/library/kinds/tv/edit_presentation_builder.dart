@@ -80,7 +80,6 @@ class TvLibraryEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const TvLibraryEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
@@ -89,8 +88,6 @@ class TvLibraryEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Release / copy reference',
-          ownedBundleLabel: 'Owned release bundle',
           ownedTabs: _tvAllTabs,
           trackedTabs: _tvMediaTabs,
           catalogTabs: _tvMediaTabs,
@@ -102,7 +99,6 @@ class TvLibraryMediaEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const TvLibraryMediaEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
@@ -111,8 +107,6 @@ class TvLibraryMediaEditPresentationBuilder
           ownedDigitalTrackingSectionTitle: 'Ownership details',
           ownedDigitalTrackingHint:
               'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Release / copy reference',
-          ownedBundleLabel: 'Owned release bundle',
           ownedTabs: _tvMediaTabs,
           trackedTabs: _tvMediaTabs,
           catalogTabs: _tvMediaTabs,

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -39,7 +39,7 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedSummaries: [
-        testOwnedCopySummary(testOwnedItem(
+        testCollectionItemSummary(testCollectionItem(
           id: 'owned-1',
           itemId: game.id,
           kind: 'game',
@@ -110,7 +110,7 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedSummaries: [
-        testOwnedCopySummary(testOwnedItem(
+        testCollectionItemSummary(testCollectionItem(
           id: 'owned-1',
           itemId: game.id,
           kind: 'game',
@@ -230,7 +230,7 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedSummaries: [
-        testOwnedCopySummary(testOwnedItem(
+        testCollectionItemSummary(testCollectionItem(
           id: 'owned-game-rail-1',
           itemId: game.id,
           kind: 'game',
@@ -286,14 +286,14 @@ void main() {
       publisher: 'Jump Over the Age',
       releaseYear: 2022,
     );
-    final owned = testOwnedItem(
+    final owned = testCollectionItem(
       id: 'owned-overdue-1',
       itemId: game.id,
       kind: 'game',
       updatedAt: now,
     );
     final shelf = ShelfState.from(
-      ownedSummaries: [testOwnedCopySummary(owned)],
+      ownedSummaries: [testCollectionItemSummary(owned)],
       wishlistItems: const [],
       catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
       catalogDataByRef: {game.catalogRef: game.asShelfCatalogData},
@@ -301,9 +301,9 @@ void main() {
     await LoanRepository(db).create(
       Loan(
         id: 'loan-overdue-1',
-        ownedRef: OwnedCopyRef(
+        collectionItemRef: CollectionItemRef(
           kind: CatalogMediaKind.game,
-          id: OwnedCopyId(owned.id),
+          id: CollectionItemId(owned.id),
         ),
         borrowerName: 'Alex',
         lentDate: DateTime.utc(2020, 1, 1),

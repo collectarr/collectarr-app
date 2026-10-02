@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/edit/session/library_edit_sessio
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -35,8 +35,8 @@ class LibraryEditShellState {
     required this.scope,
     required this.node,
     required this.kindItem,
-    required this.ownedItem,
-    required this.ownedItemDispatch,
+    required this.collectionItem,
+    required this.collectionItemDispatch,
     required this.wishlistItem,
     required this.trackingSummary,
     required this.accent,
@@ -65,8 +65,8 @@ class LibraryEditShellState {
   /// draft and final catalog mutation boundary. The shared shell keeps this
   /// candidate opaque and routes semantic work through the kind session.
   final CatalogSearchCandidate kindItem;
-  final OwnedCopySummary? ownedItem;
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  final CollectionItemSummary? collectionItem;
+  final LibraryCollectionItemDispatch? collectionItemDispatch;
   final WishlistItem? wishlistItem;
   final TrackingSummary? trackingSummary;
   final Color accent;
@@ -144,8 +144,8 @@ class LibraryEditShellState {
       scope: request.resolvedScope,
       node: request.node,
       item: request.kindItem,
-      ownedItem: request.ownedItem,
-      ownedItemDispatch: request.ownedItemDispatch,
+      collectionItem: request.collectionItem,
+      collectionItemDispatch: request.collectionItemDispatch,
       wishlistItem: request.wishlistItem,
       trackingSummary: request.trackingSummary,
       accent: request.accent,
@@ -159,11 +159,11 @@ class LibraryEditShellState {
 
   factory LibraryEditShellState.fromItem({
     required LibraryKindRegistration type,
-    LibraryEntityScope scope = LibraryEntityScope.work,
+    LibraryEntityScope scope = LibraryEntityScope.catalogItem,
     LibraryEntityRef? node,
     required CatalogSearchCandidate item,
-    OwnedCopySummary? ownedItem,
-    LibraryOwnedItemDispatch? ownedItemDispatch,
+    CollectionItemSummary? collectionItem,
+    LibraryCollectionItemDispatch? collectionItemDispatch,
     WishlistItem? wishlistItem,
     TrackingSummary? trackingSummary,
     required Color accent,
@@ -178,8 +178,8 @@ class LibraryEditShellState {
       scope: scope,
       node: node,
       item: item,
-      ownedItem: ownedItem,
-      ownedItemDispatch: ownedItemDispatch,
+      collectionItem: collectionItem,
+      collectionItemDispatch: collectionItemDispatch,
       wishlistItem: wishlistItem,
       trackingSummary: trackingSummary,
       accent: accent,
@@ -193,11 +193,11 @@ class LibraryEditShellState {
 
   factory LibraryEditShellState.fromFields({
     required LibraryKindRegistration type,
-    LibraryEntityScope scope = LibraryEntityScope.work,
+    LibraryEntityScope scope = LibraryEntityScope.catalogItem,
     LibraryEntityRef? node,
     required CatalogSearchCandidate item,
-    required OwnedCopySummary? ownedItem,
-    LibraryOwnedItemDispatch? ownedItemDispatch,
+    required CollectionItemSummary? collectionItem,
+    LibraryCollectionItemDispatch? collectionItemDispatch,
     required WishlistItem? wishlistItem,
     required TrackingSummary? trackingSummary,
     required Color accent,
@@ -212,8 +212,8 @@ class LibraryEditShellState {
         scope: scope,
         node: node,
         item: item,
-        ownedItem: ownedItem,
-        ownedItemDispatch: ownedItemDispatch,
+        collectionItem: collectionItem,
+        collectionItemDispatch: collectionItemDispatch,
         wishlistItem: wishlistItem,
         trackingSummary: trackingSummary,
         accent: accent,
@@ -228,7 +228,7 @@ class LibraryEditShellState {
   // Domain Helpers & Actions
   // ---------------------------------------------------------------------------
 
-  bool get isOwned => ownedItem != null;
+  bool get isOwned => collectionItem != null;
   bool get hasTrackingContext => isOwned || trackingSummary != null;
   bool get isTrackingOnly => !isOwned && trackingSummary != null;
   bool get hasWishlistContext => wishlistItem != null;
@@ -256,8 +256,7 @@ class LibraryEditShellState {
       startedAt: tracking.startedAt,
       finishedAt: tracking.finishedAt,
       soldAt: personal.soldAt,
-      selectedTargetRef: personal.selectedOwnedTargetRef ??
-          trackingSummary?.catalogRef ??
+      selectedTargetRef: trackingSummary?.catalogRef ??
           wishlistEntityRef ??
           kindItem.reference,
       customFieldEdits: Map<String, String?>.from(customFieldEdits),

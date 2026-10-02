@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -8,14 +9,14 @@ import 'package:collectarr_app/dev/seeds/music_seed_catalog_details.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 
-final musicDevSeedContributor = TypedDevSeedKindContributor<MusicOwnedItem>(
+final musicDevSeedContributor = TypedDevSeedKindContributor<MusicCollectionItem>(
   kind: CatalogMediaKind.music,
-  trackingRequiresOwnedRef: false,
+  trackingRequiresCollectionItemRef: false,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
     paperType: null,
@@ -32,11 +33,11 @@ final musicDevSeedContributor = TypedDevSeedKindContributor<MusicOwnedItem>(
   validateCatalog: validateMusicSeedCatalog,
   validateCatalogGraph: validateMusicSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: musicSeedOwnedItems,
-  ownedSummaryTyped: MusicOwnedItemProjection.toSummary,
+  collectionItemsTyped: musicSeedCollectionItems,
+  collectionItemSummaryTyped: MusicCollectionItemProjection.toSummary,
   validateOwnedTyped: validateMusicSeedOwned,
   seedOwnedTyped: (db, now) =>
-      MusicOwnedRepository(db).upsertAll(musicSeedOwnedItems(now)),
+      MusicOwnedRepository(db).upsertAll(musicSeedCollectionItems(now)),
   trackingRecords: musicSeedTrackingStates,
 );
 
@@ -135,7 +136,7 @@ List<String> validateMusicSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateMusicSeedOwned(MusicOwnedItem item) {
+List<String> validateMusicSeedOwned(MusicCollectionItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
@@ -1398,10 +1399,10 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
     ];
 
-List<MusicOwnedItem> musicSeedOwnedItems(DateTime now) => [
+List<MusicCollectionItem> musicSeedCollectionItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.music, 15))
-        MusicOwnedItem(
-          id: MusicOwnedCopyId('seed-owned-$itemId'),
+        MusicCollectionItem(
+          id: CollectionItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.music, itemId),
           createdAt: now.subtract(const Duration(days: 220)),
           updatedAt: now,
@@ -1427,7 +1428,6 @@ List<MusicOwnedItem> musicSeedOwnedItems(DateTime now) => [
           pricePaidCents: 3499,
           currency: 'USD',
           personalNotes: '180g Vinyl in antistatic inner sleeve. Clean spin.',
-          quantity: 1,
           purchaseStore: 'Local Record Store / Acoustic Sounds',
           collectionStatus: 'collected',
         ),

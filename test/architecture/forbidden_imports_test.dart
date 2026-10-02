@@ -27,7 +27,7 @@ void main() {
 
     expect(storyArcs['databaseColumns'], contains('storyArcsJson'));
     expect(storyArcs['symbols'], contains('story_arcs'));
-    expect(comicTableNames, contains('ComicOwnedItemsRows'));
+    expect(comicTableNames, contains('ComicCollectionItemsRows'));
     expect(comicTableNames, isNot(contains('ComicMediaRows')));
     expect(comicTableNames, isNot(contains('ComicReleaseRows')));
     expect(series['workspaceFieldIds'], contains('comic.series'));
@@ -220,12 +220,12 @@ class TestStats {}
   test('architecture boundary checker allows structural owned projections', () {
     final repoRoot = Directory.current.path;
     const testCode = '''
-class OwnedCopySummary {
+class CollectionItemSummary {
   final String? subtitle;
-  const OwnedCopySummary(this.subtitle);
+  const CollectionItemSummary(this.subtitle);
 }
 ''';
-    final relativePath = 'lib/core/models/owned_copy_projection.dart';
+    final relativePath = 'lib/core/models/collection_item_projection.dart';
     final parseResult = parseString(
       content: testCode,
       path: p.join(repoRoot, relativePath),
@@ -280,7 +280,6 @@ String label(ActivityEventKind kind) => switch (kind) {
       () {
     final repoRoot = Directory.current.path;
     const testCode = '''
-    import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 
 class TestValue {}
 ''';
@@ -590,7 +589,6 @@ class CalendarHost {}
       'whole-repository boundary checker rejects Core DTOs from generic mappers',
       () {
     const testCode = '''
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 
 class GenericMapper {}
 ''';
@@ -629,7 +627,6 @@ class SettingsMetadata {
 
   test('composition roots may wire kind contributors', () {
     const testCode = '''
-import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 
 class DatabaseCompositionRoot {}
 ''';

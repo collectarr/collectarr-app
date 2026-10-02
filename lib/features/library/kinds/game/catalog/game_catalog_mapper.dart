@@ -7,10 +7,7 @@ final class GameCatalogMapper {
 
   /// Maps one flat Core Game Catalog Item without manufacturing editions.
   static GameCatalogItem mapMetadataItemToGame(CatalogItemDto item) {
-    final rawMetadata = item.kindMetadata;
-    final metadata = rawMetadata is GameCatalogMetadata
-        ? rawMetadata
-        : GameCatalogMetadata.fromJson(item.payload);
+    final metadata = GameCatalogMetadata.fromJson(item.payload);
     return GameCatalogItem(item: item, metadata: metadata);
   }
 }

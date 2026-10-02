@@ -278,7 +278,7 @@ final class _MusicAlbumStructureTabState
         content: Text(
           'This removes ${medium.tracks.length} track entries from the release. '
           'Storage, slot, and matrix details for this disc will also be '
-          'removed from its owned copies when you save.',
+          'removed from its collection items when you save.',
         ),
         actions: [
           TextButton(

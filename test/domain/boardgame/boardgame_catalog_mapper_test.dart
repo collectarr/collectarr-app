@@ -7,14 +7,12 @@ void main() {
     final dto = CatalogItemDto.raw(
       id: 'boardgame-edition-1',
       mediaKind: CatalogMediaKind.boardgame,
-      common: CatalogCommonDto(
-        title: 'Brass: Birmingham — Deluxe Edition',
-        originalTitle: 'Brass: Birmingham',
-        synopsis: 'An economic strategy game.',
-        releaseDate: DateTime.utc(2018, 10, 1),
-        releaseYear: 2018,
-      ),
-      payload: const {
+      kindData: const {
+        'title': 'Brass: Birmingham — Deluxe Edition',
+        'original_title': 'Brass: Birmingham',
+        'synopsis': 'An economic strategy game.',
+        'release_date': '2018-10-01T00:00:00.000Z',
+        'release_year': 2018,
         'edition_title': 'Deluxe Edition',
         'barcode': '123456789',
         'catalog_number': 'ROX-001',

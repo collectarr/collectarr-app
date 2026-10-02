@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -70,7 +70,7 @@ Widget buildGameWorkInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
+      collectionItem: request.collectionItem,
       ownedCopies: request.ownedCopies,
       accent: request.accent,
     );
@@ -82,9 +82,9 @@ Widget buildGameCopyInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
+      collectionItem: request.collectionItem,
       ownedCopies: [
-        if (request.ownedItem != null) request.ownedItem!,
+        if (request.collectionItem != null) request.collectionItem!,
       ],
       accent: request.accent,
     );
@@ -341,8 +341,8 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
     final gameDto = dto is GameWorkspaceDto ? dto : null;
     final metadata = _gameMetadata(item);
     final typedOwned =
-        GameOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch);
-    final owned = typedOwned is GameOwnedItem ? typedOwned : null;
+        GameCollectionItemProjection.fromDispatch(item.source.collectionItemDispatch);
+    final owned = typedOwned is GameCollectionItem ? typedOwned : null;
     final releaseYear = adapter?.releaseDate?.year;
     final detailRows = <(String, String)>[
       if (gameDto?.publisher?.trim().isNotEmpty == true)

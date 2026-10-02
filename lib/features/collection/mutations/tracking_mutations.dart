@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
@@ -12,7 +12,7 @@ import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
@@ -33,14 +33,14 @@ final class TrackingMutations {
     required this.watchSessions,
     required this.syncQueue,
     required this.mutationRunner,
-    this.ownedItems,
+    this.collectionItems,
     this.idGenerator = _defaultIdGenerator,
   });
 
   final TrackingStorageRepository trackingRecords;
   final TrackingUnitStorageRepository trackingUnits;
   final WatchSessionsRepository watchSessions;
-  final OwnedItemsRepository? ownedItems;
+  final CollectionItemsRepository? collectionItems;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;
@@ -56,9 +56,9 @@ final class TrackingMutations {
     TrackingProgressSnapshot? progress,
     String? notes,
   }) {
-    final target = entry.ownedRef == null
+    final target = entry.collectionItemRef == null
         ? TrackingTarget.catalog(entry.catalogRef)
-        : TrackingTarget.owned(entry.ownedRef!);
+        : TrackingTarget.owned(entry.collectionItemRef!);
     final resolvedProgress = progress ?? entry.progress;
     return upsertTrackingState(
       target,
@@ -93,18 +93,19 @@ final class TrackingMutations {
   }) async {
     final now = DateTime.now().toUtc();
     late CatalogEntityRef catalogRef;
-    OwnedCopyRef? targetOwnedRef;
+    CollectionItemRef? targetCollectionItemRef;
 
     switch (target) {
       case CatalogTrackingTarget(:final ref):
         catalogRef = targetRef ?? ref;
-      case OwnedItemTrackingTarget(:final ownedRef):
-        targetOwnedRef = ownedRef;
-        if (ownedItems != null) {
-          final owned = await ownedItems!.findSummaryByRef(ownedRef);
-          if (owned != null && owned.ref.kind != ownedRef.kind) {
+      case CollectionItemTrackingTarget(:final collectionItemRef):
+        targetCollectionItemRef = collectionItemRef;
+        if (collectionItems != null) {
+          final owned =
+              await collectionItems!.findSummaryByRef(collectionItemRef);
+          if (owned != null && owned.ref.kind != collectionItemRef.kind) {
             throw ArgumentError(
-              'Owned tracking reference kind ${ownedRef.kind.apiValue} '
+              'Owned tracking reference kind ${collectionItemRef.kind.apiValue} '
               'does not match persisted kind ${owned.ref.kind.apiValue}.',
             );
           }
@@ -115,13 +116,13 @@ final class TrackingMutations {
           } else {
             throw ArgumentError(
               'Owned tracking requires a CatalogEntityRef when the owned '
-              'summary has no catalog target: ${ownedRef.key}',
+              'summary has no catalog target: ${collectionItemRef.key}',
             );
           }
         } else {
           throw ArgumentError(
             'Owned tracking requires a CatalogEntityRef when no owned '
-            'repository is configured: ${ownedRef.key}',
+            'repository is configured: ${collectionItemRef.key}',
           );
         }
     }
@@ -133,7 +134,7 @@ final class TrackingMutations {
         final serialized = await trackingRecords.upsertMutation(
           id: entryId,
           catalogRef: catalogRef,
-          ownedRef: targetOwnedRef,
+          collectionItemRef: targetCollectionItemRef,
           sourceType: sourceType,
           status: status,
           rating: rating,
@@ -177,7 +178,7 @@ final class TrackingMutations {
   }
 
   Future<void> syncOwnedTrackingState(
-    OwnedCopyRef ownedRef, {
+    CollectionItemRef collectionItemRef, {
     CatalogEntityRef? catalogRef,
     bool? isDigital,
     CatalogEntityRef? targetRef,
@@ -193,21 +194,21 @@ final class TrackingMutations {
     TrackingKindPatch? kindPatch,
   }) async {
     final now = DateTime.now().toUtc();
-    final ownedSummary = catalogRef == null
-        ? await ownedItems?.findSummaryByRef(ownedRef)
+    final collectionItemSummary = catalogRef == null
+        ? await collectionItems?.findSummaryByRef(collectionItemRef)
         : null;
     final baseCatalogRef = targetRef ??
         catalogRef ??
-        ownedSummary?.targetRef ??
-        ownedSummary?.catalogRef;
+        collectionItemSummary?.catalogRef ??
+        collectionItemSummary?.catalogRef;
     if (baseCatalogRef == null) {
       throw StateError(
         'Cannot resolve catalog reference for owned tracking target '
-        '${ownedRef.id.value}',
+        '${collectionItemRef.id.value}',
       );
     }
     final resolvedCatalogRef = baseCatalogRef;
-    final resolvedIsDigital = ownedSummary?.isDigital ?? isDigital;
+    final resolvedIsDigital = collectionItemSummary?.isDigital ?? isDigital;
     final trackingTopology =
         libraryTrackingTopologyForKind(resolvedCatalogRef.mediaKind);
     if (trackingTopology.usesCatalogTargetForOwnedTracking) {
@@ -238,7 +239,7 @@ final class TrackingMutations {
         final serialized = await trackingRecords.upsertMutation(
           id: entryId,
           catalogRef: resolvedCatalogRef,
-          ownedRef: ownedRef,
+          collectionItemRef: collectionItemRef,
           status: status,
           rating: rating,
           notes: notes,

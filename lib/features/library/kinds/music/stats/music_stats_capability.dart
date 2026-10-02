@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -61,7 +61,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
       if (ownedCopies > 0)
         LibraryStatsTileDescriptor(
           icon: Icons.inventory_2_outlined,
-          label: 'Owned copies',
+          label: 'Collection items',
           value: ownedCopies.toString(),
         ),
       if (signedCopies > 0)
@@ -196,7 +196,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   static int totalOwnedCopies(Iterable<LibraryWorkspaceSource> entries) {
     return entries.fold<int>(
       0,
-      (total, entry) => total + (entry.ownedSummary?.quantity ?? 0),
+      (total, entry) => total + (entry.collectionItemSummary == null ? 0 : 1),
     );
   }
 
@@ -211,12 +211,12 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     return entries.fold<int>(
       0,
       (total, entry) {
-        final owned = MusicOwnedItemProjection.fromDispatch(
-          entry.ownedItemDispatch,
+        final owned = MusicCollectionItemProjection.fromDispatch(
+          entry.collectionItemDispatch,
         );
         return total +
             (owned?.details.signedBy?.trim().isNotEmpty == true
-                ? owned!.quantity
+                ? 1
                 : 0);
       },
     );

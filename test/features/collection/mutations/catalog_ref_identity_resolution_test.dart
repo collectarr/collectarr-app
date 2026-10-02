@@ -7,9 +7,9 @@ import 'package:collectarr_app/features/catalog/catalog_display_summary_reposito
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
-import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
+import 'package:collectarr_app/features/collection/mutations/collection_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:drift/native.dart';
@@ -21,7 +21,7 @@ void main() {
   late WishlistItemsCacheRepository wishlistRepo;
   late SyncQueueRepository syncQueue;
   late WishlistMutations wishlistMutations;
-  late OwnedItemMutations ownedMutations;
+  late CollectionItemMutations ownedMutations;
 
   setUp(() {
     db = LocalDatabase(NativeDatabase.memory());
@@ -39,8 +39,8 @@ void main() {
       mutationRunner: runner,
     );
 
-    ownedMutations = OwnedItemMutations(
-      ownedItems: OwnedItemsRepository(db),
+    ownedMutations = CollectionItemMutations(
+      collectionItems: CollectionItemsRepository(db),
       catalogSummaries: CatalogDisplaySummaryRepository(db),
       wishlist: wishlistRepo,
       syncQueue: syncQueue,
@@ -107,13 +107,13 @@ void main() {
     });
 
     test(
-        'addOwnedItem with missing catalog cache item uses command catalogRef kind and never defaults to comic',
+        'addCollectionItem with missing catalog cache item uses command catalogRef kind and never defaults to comic',
         () async {
-      final owned = await ownedMutations.addOwnedItem(
-        typedAddOwnedItemCommand(
+      final owned = await ownedMutations.addCollectionItem(
+        typedAddCollectionItemCommand(
           catalogRef: CatalogEntityRef(
             kind: CatalogMediaKind.music,
-            entityType: const CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId.catalogItem,
             id: 'music-album-1',
           ),
           common: LibraryAddCommonDraft(),

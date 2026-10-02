@@ -25,8 +25,6 @@ CatalogSearchCandidate? buildMusicManualCandidate(
   final normalizedTitle = title.trim();
   final proposal = buildMusicManualProposalData(draft, title: normalizedTitle);
   if (proposal == null) return null;
-  final releaseDateParts =
-      draft.releaseDateParts ?? _partsFromDate(draft.releaseDate);
   final id = 'manual-music-${DateTime.now().microsecondsSinceEpoch}';
   final itemJson = <String, dynamic>{
     'id': id,
@@ -41,14 +39,7 @@ CatalogSearchCandidate? buildMusicManualCandidate(
   final item = CatalogItemDto.raw(
     id: id,
     mediaKind: CatalogMediaKind.music,
-    common: CatalogCommonDto(
-      title: normalizedTitle,
-      coverImageUrl: musicItem.coverImageUrl,
-      releaseDate: releaseDateParts?.asDateTime,
-      releaseDateParts: releaseDateParts,
-      releaseYear: releaseDateParts?.year,
-    ),
-    kindMetadata: musicItem,
+    kindData: musicItem.toJson(),
   );
   return CatalogSearchCandidate.fromItem(item);
 }

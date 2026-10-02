@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -11,12 +12,12 @@ import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_track
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 
-final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaOwnedItem>(
+final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaCollectionItem>(
   kind: CatalogMediaKind.manga,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -34,11 +35,11 @@ final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaOwnedItem>(
   validateCatalog: validateMangaSeedCatalog,
   validateCatalogGraph: validateMangaSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: mangaSeedOwnedItems,
-  ownedSummaryTyped: MangaOwnedItemProjection.toSummary,
+  collectionItemsTyped: mangaSeedCollectionItems,
+  collectionItemSummaryTyped: MangaCollectionItemProjection.toSummary,
   validateOwnedTyped: validateMangaSeedOwned,
   seedOwnedTyped: (db, now) =>
-      MangaOwnedRepository(db).upsertAll(mangaSeedOwnedItems(now)),
+      MangaOwnedRepository(db).upsertAll(mangaSeedCollectionItems(now)),
   trackingRecords: mangaSeedTrackingStates,
   trackingUnits: mangaSeedTrackingUnits,
 );
@@ -81,7 +82,7 @@ List<String> validateMangaSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateMangaSeedOwned(MangaOwnedItem item) {
+List<String> validateMangaSeedOwned(MangaCollectionItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
@@ -114,7 +115,7 @@ Iterable<MangaTrackingUnit> mangaSeedTrackingUnits(
       id: 'seed-unit-manga-${item.id}-$chapterId',
       targetRef: CatalogEntityRef(
         kind: item.mediaKind,
-        entityType: CatalogEntityTypeId.root,
+        entityType: CatalogEntityTypeId.catalogItem,
         id: item.id,
       ),
       volumeNumber: volumeNumber,
@@ -693,10 +694,10 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
     ];
 
-List<MangaOwnedItem> mangaSeedOwnedItems(DateTime now) => [
+List<MangaCollectionItem> mangaSeedCollectionItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.manga, 15))
-        MangaOwnedItem(
-          id: MangaOwnedCopyId('seed-owned-$itemId'),
+        MangaCollectionItem(
+          id: CollectionItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(CatalogMediaKind.manga, itemId),
           createdAt: now.subtract(const Duration(days: 210)),
           updatedAt: now,
@@ -726,7 +727,6 @@ List<MangaOwnedItem> mangaSeedOwnedItems(DateTime now) => [
           pricePaidCents: 1999,
           currency: 'USD',
           personalNotes: 'Physical volume with dust jacket.',
-          quantity: 1,
           purchaseStore: 'Barnes & Noble',
           collectionStatus: 'collected',
         ),
@@ -740,7 +740,7 @@ List<TrackingStorageRecord> mangaSeedTrackingStates(DateTime now) => [
             CatalogMediaKind.manga,
             'seed-manga-${seedOrdinal2(i)}',
           ),
-          ownedRef: seedOwnedRef(
+          collectionItemRef: seedCollectionItemRef(
             CatalogMediaKind.manga,
             'seed-owned-seed-manga-${seedOrdinal2(i)}',
           ),

@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -97,19 +97,19 @@ class LocationRepository {
   }
 
   Future<void> assignItemToLocation(
-      OwnedCopyRef ownedRef, String? locationId) async {
-    final repository = OwnedItemsRepository(_db);
+      CollectionItemRef collectionItemRef, String? locationId) async {
+    final repository = CollectionItemsRepository(_db);
     for (final item in await repository.listActiveSummaries()) {
-      if (item.ref == ownedRef) {
+      if (item.ref == collectionItemRef) {
         await repository.updateLocation(item.ref, locationId);
         return;
       }
     }
   }
 
-  Future<String?> getItemLocationId(OwnedCopyRef ownedRef) async {
-    for (final item in await OwnedItemsRepository(_db).listActiveSummaries()) {
-      if (item.ref == ownedRef) return item.locationLabel;
+  Future<String?> getItemLocationId(CollectionItemRef collectionItemRef) async {
+    for (final item in await CollectionItemsRepository(_db).listActiveSummaries()) {
+      if (item.ref == collectionItemRef) return item.locationLabel;
     }
     return null;
   }
@@ -129,9 +129,9 @@ class LocationRepository {
   Future<void> _deleteLocationRow(String id) async {
     await (_db.update(_db.locationsCache)..where((t) => t.parentId.equals(id)))
         .write(const LocationsCacheCompanion(parentId: Value(null)));
-    final ownedRepository = OwnedItemsRepository(_db);
-    final ownedItems = await ownedRepository.listActiveSummaries();
-    for (final item in ownedItems.where((item) => item.locationLabel == id)) {
+    final ownedRepository = CollectionItemsRepository(_db);
+    final collectionItems = await ownedRepository.listActiveSummaries();
+    for (final item in collectionItems.where((item) => item.locationLabel == id)) {
       await ownedRepository.updateLocation(item.ref, null);
     }
     await (_db.delete(_db.locationsCache)..where((t) => t.id.equals(id))).go();

@@ -47,7 +47,7 @@ final class LibraryAddMutationDependencies {
   });
 
   final CatalogTransportRepository catalog;
-  final OwnedItemMutations ownedMutations;
+  final CollectionItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
 }
@@ -101,23 +101,22 @@ final class LibraryAddCoordinator {
     final baseTracking = trackingDraft ?? defaults.toTrackingDraft();
 
     for (final item in values) {
-      final digitalOwnedItem =
+      final digitalCollectionItem =
           libraryAddForKind(item.summary.kind).digitalCopyFlag(item);
-      final isDigitalOwnedItem = digitalOwnedItem == true;
+      final isDigitalCollectionItem = digitalCollectionItem == true;
       final reference = item.reference;
 
       final itemCommon = LibraryAddCommonDraft(
-        condition: isDigitalOwnedItem ? null : baseCommon.condition,
+        condition: isDigitalCollectionItem ? null : baseCommon.condition,
         purchaseDate: baseCommon.purchaseDate,
         pricePaidCents: baseCommon.pricePaidCents,
         currency: baseCommon.currency,
         personalNotes: baseCommon.personalNotes,
-        quantity: baseCommon.quantity,
         tags: baseCommon.tags,
-        locationId: isDigitalOwnedItem ? null : baseCommon.locationId,
+        locationId: isDigitalCollectionItem ? null : baseCommon.locationId,
         purchaseStore: baseCommon.purchaseStore,
         collectionStatus: baseCommon.collectionStatus,
-        isDigital: digitalOwnedItem ?? baseCommon.isDigital,
+        isDigital: digitalCollectionItem ?? baseCommon.isDigital,
       );
       switch (target) {
         case LibraryAddTarget.owned:
@@ -128,14 +127,13 @@ final class LibraryAddCoordinator {
             itemCommon,
             kindDraftsByCatalogRef[item.reference] ??
                 capability.createInitialDraft(),
-            targetRef: reference,
             tracking: baseTracking,
           );
-          final ownedItem = await ownedMutations.addOwnedItem(addCmd);
+          final collectionItem = await ownedMutations.addCollectionItem(addCmd);
           final tracking = addCmd.tracking;
           if (tracking != null) {
             await trackingMutations.syncOwnedTrackingState(
-              ownedItem,
+              collectionItem,
               targetRef: reference,
               status: tracking.status,
               rating: tracking.rating,

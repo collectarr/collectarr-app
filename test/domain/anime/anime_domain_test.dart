@@ -49,7 +49,7 @@ void main() {
       final shelf = LibraryWorkspaceSource(
         itemId: 'anime-1',
         catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
-        ownedSummary: testOwnedSummary(testOwnedItem(
+        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
           id: 'owned-anime-1',
           itemId: 'anime-1',
           updatedAt: DateTime.utc(2026, 5, 30),
@@ -61,7 +61,7 @@ void main() {
         fallbackOwnerLabel: 'Andrei',
       );
 
-      const node = LibraryWorkRef(workId: 'anime-1');
+      const node = LibraryCatalogItemNodeRef(catalogItemId: 'anime-1');
       final dto = const AnimeWorkspaceProjector().project(
         source: shelf,
         entity: node,

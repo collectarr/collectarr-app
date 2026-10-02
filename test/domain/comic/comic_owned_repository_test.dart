@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/collection_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -13,22 +14,15 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    final item = ComicOwnedItem(
-      id: const ComicOwnedCopyId('owned-comic-1'),
+    final item = ComicCollectionItem(
+      id: const CollectionItemId('owned-comic-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.catalogItem,
         id: 'comic-1',
-      ),
-      targetRef: const CatalogEntityRef(
-        kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityTypeId('edition'),
-        id: 'edition-1',
-        rootId: 'comic-1',
       ),
       condition: 'Fine',
       grade: '8.0',
-      quantity: 2,
       updatedAt: DateTime.utc(2026, 9, 5),
       details: const ComicOwnedDetails(
         gradingCompany: 'CGC',
@@ -45,9 +39,9 @@ void main() {
 
     final restored = await repository.findById(item.id);
     expect(restored, item);
-    final ownedRows = await db.select(db.comicOwnedItemsRows).get();
+    final ownedRows = await db.select(db.comicCollectionItemsRows).get();
     expect(ownedRows, hasLength(1));
-    expect(ownedRows.single.targetRefJson, isNotNull);
+    expect(ownedRows.single.itemId, 'comic-1');
     expect(await db.select(db.comicReadingRows).get(), hasLength(1));
 
     await repository.markDeleted(item, DateTime.utc(2026, 9, 6));

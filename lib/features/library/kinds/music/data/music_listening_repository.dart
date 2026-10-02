@@ -1,8 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/money.dart' show OwnedCopyId;
-import 'package:collectarr_app/core/models/owned_copy_projection.dart';
+import 'package:collectarr_app/core/models/collection_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:drift/drift.dart';
 
@@ -47,9 +46,9 @@ final class MusicListeningRepository {
     );
   }
 
-  Future<void> upsert(MusicListenEvent event) {
-    _validateEvent(event);
-    return _db.into(_db.musicListenEventsRows).insertOnConflictUpdate(
+  Future<void> upsert(MusicListenEvent event) async {
+    await _validateEvent(_db, event);
+    await _db.into(_db.musicListenEventsRows).insertOnConflictUpdate(
           _toRow(event),
         );
   }
@@ -57,7 +56,7 @@ final class MusicListeningRepository {
   Future<void> upsertAll(Iterable<MusicListenEvent> events) async {
     final values = events.toList(growable: false);
     for (final event in values) {
-      _validateEvent(event);
+      await _validateEvent(_db, event);
     }
     if (values.isEmpty) return;
     await _db.batch((batch) {
@@ -74,7 +73,7 @@ final class MusicListeningRepository {
       MusicListenEvent(
         id: event.id,
         catalogRef: event.catalogRef,
-        ownedRef: event.ownedRef,
+        collectionItemRef: event.collectionItemRef,
         listenedAt: event.listenedAt,
         startedAt: event.startedAt,
         finishedAt: event.finishedAt,
@@ -92,7 +91,7 @@ MusicListenEventsRowsCompanion _toRow(MusicListenEvent event) {
   return MusicListenEventsRowsCompanion.insert(
     id: event.id,
     catalogItemId: event.catalogRef.id,
-    ownedCopyId: Value(event.ownedRef?.id.value),
+    collectionItemId: Value(event.collectionItemRef?.id.value),
     listenedAt: event.listenedAt,
     startedAt: Value(event.startedAt),
     finishedAt: Value(event.finishedAt),
@@ -110,12 +109,11 @@ MusicListenEvent _fromRow(MusicListenEventsRow row) => MusicListenEvent(
         kind: CatalogMediaKind.music,
         id: row.catalogItemId,
       ),
-      ownedRef: row.ownedCopyId == null
+      collectionItemRef: row.collectionItemId == null
           ? null
-          : OwnedCopyRef(
+          : CollectionItemRef(
               kind: CatalogMediaKind.music,
-              itemId: row.catalogItemId,
-              id: OwnedCopyId(row.ownedCopyId!),
+              id: CollectionItemId(row.collectionItemId!),
             ),
       listenedAt: row.listenedAt,
       startedAt: row.startedAt,
@@ -127,22 +125,26 @@ MusicListenEvent _fromRow(MusicListenEventsRow row) => MusicListenEvent(
       deletedAt: row.deletedAt,
     );
 
-void _validateEvent(MusicListenEvent event) {
+Future<void> _validateEvent(LocalDatabase db, MusicListenEvent event) async {
   if (event.id.trim().isEmpty) {
     throw StateError('Cannot persist a Music listen event without an id');
   }
   _validateCatalogItem(event.catalogRef);
-  if (event.ownedRef case final owned?
+  if (event.collectionItemRef case final owned?
       when owned.kind != CatalogMediaKind.music) {
     throw StateError(
-      'Music listen events can only reference Music owned copies',
+      'Music listen events can only reference Music collection items',
     );
   }
-  if (event.ownedRef case final owned?
-      when owned.itemId != event.catalogRef.id) {
-    throw StateError(
-      'The Music owned copy must belong to the event Catalog Item',
-    );
+  if (event.collectionItemRef case final owned?) {
+    final ownedRow = await (db.select(db.musicCollectionItemsRows)
+          ..where((table) => table.id.equals(owned.id.value)))
+        .getSingleOrNull();
+    if (ownedRow == null || ownedRow.itemId != event.catalogRef.id) {
+      throw StateError(
+        'The Music collection item must belong to the event Catalog Item',
+      );
+    }
   }
 }
 

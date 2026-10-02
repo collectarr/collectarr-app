@@ -105,12 +105,12 @@ final gameKindInspector = LibraryInspectorCapability(
   entityRegistry: LibraryEntityInspectorRegistry(
     contributors: [
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
+        scope: LibraryEntityScope.catalogItem,
         heroBuilder: buildGameWorkInspectorHero,
         sectionsBuilder: buildGameWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
+        scope: LibraryEntityScope.collectionItem,
         heroBuilder: buildGameCopyInspectorHero,
         sectionsBuilder: buildGameCopyInspectorSections,
       ),

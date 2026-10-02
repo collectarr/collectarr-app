@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
@@ -38,7 +38,7 @@ List<ExportPreviewArtifact> comicInfoExportPreviews(
     if (catalog is! ComicWorkspaceCatalogData) continue;
     final comic = catalog.comic;
     final owned =
-        ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
+        ComicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
     if (exportedCount > 0) {
       buffer.writeln();
       buffer.writeln('<!-- --- next issue --- -->');

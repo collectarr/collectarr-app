@@ -56,7 +56,7 @@ class BookInspectorPanel extends StatelessWidget {
           LibraryDetailHero(
             type: request.inspector.type,
             item: item,
-            ownedItem: request.inspector.ownedItem,
+            collectionItem: request.inspector.collectionItem,
             accent: accent,
             kindOwnedContent: buildBookAuthorSpotlight(
               item: item,
