@@ -27,11 +27,8 @@ final class MusicCatalogTransportCodec
   CatalogMediaKind get kind => CatalogMediaKind.music;
 
   @override
-  MusicAlbum decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is MusicAlbum) return metadata;
-    return MusicCatalogMapper.mapMetadataItemToMusic(item);
-  }
+  MusicAlbum decode(CatalogItemDto item) =>
+      MusicCatalogMapper.mapMetadataItemToMusic(item);
 
   @override
   Future<void> upsert(LocalDatabase db, MusicAlbum item) {
@@ -145,15 +142,7 @@ final class MusicCatalogTransportCodec
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final items = await listTransport(db);
-    return [
-      for (final item in items)
-        CatalogDisplaySummary.root(
-          kind: kind,
-          id: item.id,
-          primaryLabel: item.resolvedDisplayTitle,
-          imageUrl: item.displayCoverUrl,
-        ),
-    ];
+    return [for (final item in items) summarize(decode(item))];
   }
 }
 
@@ -176,7 +165,6 @@ CatalogItemDto _projection(MusicAlbum item) {
     'thumbnail_image_url',
     () => item.coverImageUrl,
   );
-  payload['track_count'] = item.trackCount;
   final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(item);
+  return projection.withKindData(item);
 }

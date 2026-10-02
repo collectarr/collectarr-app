@@ -1,194 +1,159 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
-export 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/game_catalog_details_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/video_catalog_details_dto.dart';
 export 'package:collectarr_app/core/models/catalog_media_kind.dart';
-
-class GameCatalogDetailsDto {
-  const GameCatalogDetailsDto({this.platforms = const []});
-  final List<String> platforms;
-  bool get hasData => platforms.isNotEmpty;
-  Map<String, dynamic> toJson() => {'platforms': platforms};
-}
-
-class VideoCatalogDetailsDto {
-  const VideoCatalogDetailsDto({
-    this.runtimeMinutes,
-    this.color,
-    this.nrDiscs,
-    this.screenRatio,
-    this.audioTracks,
-    this.subtitles,
-    this.layers,
-  });
-  final int? runtimeMinutes;
-  final String? color;
-  final int? nrDiscs;
-  final String? screenRatio;
-  final String? audioTracks;
-  final String? subtitles;
-  final String? layers;
-
-  bool get hasData =>
-      runtimeMinutes != null ||
-      (color != null && color!.isNotEmpty) ||
-      nrDiscs != null ||
-      (screenRatio != null && screenRatio!.isNotEmpty) ||
-      (audioTracks != null && audioTracks!.isNotEmpty) ||
-      (subtitles != null && subtitles!.isNotEmpty) ||
-      (layers != null && layers!.isNotEmpty);
-
-  Map<String, dynamic> toJson() => {
-        if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
-        if (color != null) 'color': color,
-        if (nrDiscs != null) 'nr_discs': nrDiscs,
-        if (screenRatio != null) 'screen_ratio': screenRatio,
-        if (audioTracks != null) 'audio_tracks': audioTracks,
-        if (subtitles != null) 'subtitles': subtitles,
-        if (layers != null) 'layers': layers,
-      };
-}
 
 @immutable
 final class CatalogItemDto {
   factory CatalogItemDto({
     required LibraryItemIdentity identity,
-    required Object? kindMetadata,
+    required JsonEncodable kindData,
   }) =>
-      CatalogItemDto._raw(
+      CatalogItemDto.raw(
         id: identity.id,
         mediaKind: identity.mediaKind,
-        payload: const <String, dynamic>{},
-        kindMetadata: kindMetadata,
+        kindData: kindData.toJson(),
       );
 
   factory CatalogItemDto.raw({
     required String id,
     required CatalogMediaKind mediaKind,
-    required CatalogCommonDto common,
-    Map<String, dynamic> payload = const <String, dynamic>{},
-    Object? kindMetadata,
+    Map<String, dynamic> kindData = const <String, dynamic>{},
   }) {
     return CatalogItemDto._raw(
       id: id,
       mediaKind: mediaKind,
-      payload: {
-        ...common.toJson(),
-        ...payload,
-      },
-      kindMetadata: kindMetadata,
+      kindData: Map<String, dynamic>.unmodifiable(
+        _withoutEnvelopeFields(kindData),
+      ),
     );
   }
 
   const CatalogItemDto._raw({
     required this.id,
     required this.mediaKind,
-    required Map<String, dynamic> payload,
-    Object? kindMetadata,
-  })  : _payload = payload,
-        _kindMetadata = kindMetadata;
+    required Map<String, dynamic> kindData,
+  }) : _kindData = kindData;
 
   final String id;
   final CatalogMediaKind mediaKind;
-  final Map<String, dynamic> _payload;
-  final Object? _kindMetadata;
+  final Map<String, dynamic> _kindData;
 
-  Map<String, dynamic> get payload {
-    final base = <String, dynamic>{
-      ..._payload,
-      // Kind mappers receive this map at the transport boundary. Preserve
-      // identity here so a mapper can reconstruct the concrete aggregate
-      // without reaching back into the erased DTO envelope.
-      'id': id,
-      'kind': mediaKind.apiValue,
-    };
-    final metadata = _kindMetadata;
-    if (metadata is Map) {
-      return {...base, ...Map<String, dynamic>.from(metadata)};
-    }
-    if (metadata is JsonEncodable) {
-      return {
-        ...base,
-        ...metadata.toJson(),
+  /// The flattened fields owned by this item's kind, without routing data.
+  ///
+  /// This map is only a transport boundary. Semantic reads and writes belong
+  /// to the kind's typed model and mapper.
+  Map<String, dynamic> get kindData => _kindData;
+
+  /// The flattened Core item at the HTTP and kind-mapper boundary.
+  Map<String, dynamic> get payload => {
+        ...kindData,
+        'id': id,
+        'kind': mediaKind.apiValue,
       };
-    }
-    return base;
-  }
-
-  Object? get kindMetadata => _kindMetadata ?? payload;
 
   LibraryItemIdentity get identity =>
       LibraryItemIdentity(id: id, mediaKind: mediaKind);
 
-  CatalogCommonDto get common => CatalogCommonDto.fromJson(payload);
-
   String get kind => mediaKind.apiValue;
 
-  String get title => common.title;
-  String? get displayTitle => common.displayTitle;
-  String? get localizedTitle => common.localizedTitle;
-  String? get originalTitle => common.originalTitle;
-  String? get titleExtension => common.titleExtension;
-  List<String>? get searchAliases => common.searchAliases;
-  String? get sortKey => common.sortKey;
-  String? get synopsis => common.synopsis;
-  String? get coverImageUrl => common.coverImageUrl;
-  String? get thumbnailImageUrl => common.thumbnailImageUrl;
-  String? get coverImageData => common.coverImageData;
-  DateTime? get releaseDate => common.releaseDate;
-  PartialDate? get releaseDateParts => common.releaseDateParts;
-  int? get releaseYear => common.releaseYear;
-  List<TrailerLinkDto> get trailerUrls => common.trailerUrls;
-  List<CatalogEditionDto> get editions => common.editions;
+  CatalogItemRef get catalogItemRef => CatalogItemRef(kind: mediaKind, id: id);
 
-  String? get itemNumber => (payload['item_number'] ??
-      (payload['publishing'] as Map?)?['issue_number']) as String?;
-  String? get variant =>
-      (payload['variant'] ?? (payload['publishing'] as Map?)?['variant'])
-          as String?;
-  String? get publisher => (payload['publisher'] ??
-      (payload['publishing'] as Map?)?['original_publisher']) as String?;
-  String? get barcode =>
-      (payload['barcode'] ?? (payload['publishing'] as Map?)?['barcode'])
-          as String?;
+  // These are read-only workspace conveniences derived from the flat payload.
+  // They are never serialized separately: Core and the local cache retain
+  // every canonical value only in kindData, and kind-owned codecs remain the
+  // source for semantic behavior.
+  String get title => _string(kindData['title'] ?? kindData['name']) ?? '';
+  String? get displayTitle => _string(kindData['display_title']);
+  String? get localizedTitle => _string(kindData['localized_title']);
+  String? get originalTitle => _string(kindData['original_title']);
+  String? get titleExtension => _string(kindData['title_extension']);
+  List<String>? get searchAliases => _stringList(
+        kindData['search_aliases'] ?? kindData['aliases'],
+      );
+  String? get sortKey =>
+      _string(kindData['sort_key'] ?? kindData['sort_title']);
+  String? get synopsis => _string(
+        kindData['synopsis'] ?? kindData['description'] ?? kindData['overview'],
+      );
+  String? get coverImageUrl => _string(
+        kindData['cover_image_url'] ??
+            kindData['cover_url'] ??
+            kindData['poster_url'],
+      );
+  String? get thumbnailImageUrl => _string(
+        kindData['thumbnail_image_url'] ?? kindData['thumbnail_url'],
+      );
+  String? get coverImageData => _string(kindData['cover_image_data']);
+  PartialDate? get releaseDateParts => PartialDate.tryParse(
+        kindData['release_date_parts'] ?? kindData['release_date'],
+      );
+  DateTime? get releaseDate => releaseDateParts?.asDateTime;
+  int? get releaseYear =>
+      (kindData['release_year'] as num?)?.toInt() ?? releaseDateParts?.year;
+  String? get itemNumber => _string(
+        kindData['item_number'] ??
+            (kindData['publishing'] as Map?)?['issue_number'],
+      );
+  String? get variant => _string(
+        kindData['variant'] ?? (kindData['publishing'] as Map?)?['variant'],
+      );
+  String? get publisher => _string(
+        kindData['publisher'] ??
+            (kindData['publishing'] as Map?)?['original_publisher'],
+      );
+  String? get barcode => _string(
+        kindData['barcode'] ?? (kindData['publishing'] as Map?)?['barcode'],
+      );
   String? get identifierCode => barcode;
-  String? get physicalFormat => (payload['physical_format'] ??
-      (payload['publishing'] as Map?)?['physical_format']) as String?;
-  String? get physicalFormatLabel => (payload['physical_format_label'] ??
-      (payload['publishing'] as Map?)?['physical_format_label']) as String?;
-  String? get editionTitle => (payload['edition_title'] ??
-      (payload['publishing'] as Map?)?['edition_title']) as String?;
+  String? get physicalFormat => _string(
+        kindData['physical_format'] ??
+            (kindData['publishing'] as Map?)?['physical_format'],
+      );
+  String? get physicalFormatLabel => _string(
+        kindData['physical_format_label'] ??
+            (kindData['publishing'] as Map?)?['physical_format_label'],
+      );
+  String? get editionTitle => _string(
+        kindData['edition_title'] ??
+            (kindData['publishing'] as Map?)?['edition_title'],
+      );
+  List<TrailerLinkDto> get trailerUrls => [
+        ..._linkList(kindData['trailer_urls'] ?? kindData['trailers']),
+        ..._linkList(kindData['external_links'], defaultKind: 'external'),
+      ];
+  List<CatalogEditionDto> get editions =>
+      _mapList(kindData['editions']).map(CatalogEditionDto.fromJson).toList();
 
-  String get resolvedDisplayTitle => common.resolvedDisplayTitle;
-  String? get displayCoverUrl => common.displayCoverUrl;
+  String get resolvedDisplayTitle =>
+      displayTitle ?? localizedTitle ?? originalTitle ?? title;
+  String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
 
   CatalogEntityRef get catalogRef => CatalogEntityRef(
         kind: mediaKind,
-        entityType: CatalogEntityTypeId.root,
+        entityType: CatalogEntityTypeId.catalogItem,
         id: id,
       );
 
   CatalogEntityRef catalogRefForTarget(CatalogEntityRef? targetRef) {
-    if (targetRef == null) {
-      return CatalogEntityRef(
-        kind: mediaKind,
-        entityType: CatalogEntityTypeId.root,
-        id: id,
-      );
-    }
+    if (targetRef == null) return catalogRef;
     return targetRef.copyWith(
       kind: mediaKind,
       rootId: targetRef.rootId ?? (targetRef.id == id ? null : id),
@@ -199,36 +164,70 @@ final class CatalogItemDto {
     return CatalogItemDto.raw(
       id: envelope.id,
       mediaKind: envelope.kind,
-      common: envelope.common,
-      payload: envelope.payload,
+      kindData: envelope.kindData,
     );
   }
 
   factory CatalogItemDto.fromJson(Map<String, dynamic> json) {
-    final envelope = CatalogItemEnvelopeDto.fromJson(json);
-    return CatalogItemDto.fromEnvelope(envelope);
-  }
-
-  Map<String, dynamic> toSyncPayload() {
-    return {
-      'snapshot_version': 1,
-      'kind': kind,
-      ...common.toJson(),
-      ...payload,
+    if (json.containsKey('kind_data')) {
+      return CatalogItemDto.fromEnvelope(
+        CatalogItemEnvelopeDto.fromJson(json),
+      );
+    }
+    const unsupportedEnvelopeFields = {
+      'ref',
+      'ref_id',
+      'media_kind',
+      'entity_type',
+      'root_id',
+      'parent_id',
+      'common',
+      'payload',
     };
-  }
-
-  Map<String, dynamic> toJson() => toSyncPayload();
-
-  CatalogItemEnvelopeDto toEnvelope() {
-    return CatalogItemEnvelopeDto(
-      ref: catalogRef,
-      kind: mediaKind,
-      common: common,
-      payload: payload,
+    final unsupported = json.keys.where(
+      unsupportedEnvelopeFields.contains,
+    );
+    if (unsupported.isNotEmpty) {
+      throw FormatException(
+        'Catalog Item v1 payload contains unsupported fields: '
+        '${unsupported.join(', ')}.',
+      );
+    }
+    final rawId = json['id'];
+    final rawKind = json['kind'];
+    if (rawId is! String || rawId.trim().isEmpty || rawKind is! String) {
+      throw const FormatException(
+        'Flat Catalog Item payload requires kind and id.',
+      );
+    }
+    final mediaKind = catalogMediaKindFromApiValue(rawKind);
+    if (mediaKind.isUnknown) {
+      throw FormatException('Catalog Item v1 has unsupported kind: $rawKind.');
+    }
+    return CatalogItemDto.raw(
+      id: rawId,
+      mediaKind: mediaKind,
+      kindData: json,
     );
   }
 
+  /// Emits the flat Core payload with its identity alongside kind-owned data.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'kind': kind,
+        ...kindData,
+      };
+
+  CatalogItemEnvelopeDto toEnvelope() => CatalogItemEnvelopeDto(
+        ref: catalogItemRef,
+        kindData: kindData,
+      );
+
+  /// Applies editor values directly to the flattened kind-owned data map.
+  ///
+  /// This convenience is used by the current kind editors while their typed
+  /// draft adapters are being consolidated. It never creates a shared/common
+  /// metadata object or writes these fields outside kindData.
   CatalogItemDto copyWith({
     LibraryItemIdentity? identity,
     String? title,
@@ -249,15 +248,11 @@ final class CatalogItemDto {
     List<TrailerLinkDto>? trailerUrls,
     Object? physicalFormat = _unset,
     Object? physicalFormatLabel = _unset,
-    Object? kindMetadata,
+    Object? editionTitle = _unset,
   }) {
-    final updatedReleaseDateParts = identical(releaseDateParts, _unset)
-        ? null
-        : releaseDateParts as PartialDate?;
-    final json = <String, dynamic>{
-      ...payload,
-      ...common.toJson(),
-      'title': title ?? this.title,
+    final data = <String, dynamic>{
+      ...kindData,
+      if (title != null) 'title': title,
       if (!identical(displayTitle, _unset)) 'display_title': displayTitle,
       if (!identical(localizedTitle, _unset)) 'localized_title': localizedTitle,
       if (!identical(originalTitle, _unset)) 'original_title': originalTitle,
@@ -272,10 +267,8 @@ final class CatalogItemDto {
         'cover_image_data': coverImageData,
       if (!identical(releaseDate, _unset))
         'release_date': (releaseDate as DateTime?)?.toIso8601String(),
-      if (!identical(releaseDateParts, _unset)) ...{
-        'release_date': updatedReleaseDateParts?.asDateTime?.toIso8601String(),
-        'release_date_parts': updatedReleaseDateParts?.toJson(),
-      },
+      if (!identical(releaseDateParts, _unset))
+        'release_date_parts': (releaseDateParts as PartialDate?)?.toJson(),
       if (!identical(releaseYear, _unset)) 'release_year': releaseYear,
       if (editions != null)
         'editions': [for (final edition in editions) edition.toJson()],
@@ -284,27 +277,67 @@ final class CatalogItemDto {
       if (!identical(physicalFormat, _unset)) 'physical_format': physicalFormat,
       if (!identical(physicalFormatLabel, _unset))
         'physical_format_label': physicalFormatLabel,
+      if (!identical(editionTitle, _unset)) 'edition_title': editionTitle,
     };
     final updatedIdentity = identity ?? this.identity;
-    return CatalogItemDto._raw(
+    return CatalogItemDto.raw(
       id: updatedIdentity.id,
       mediaKind: updatedIdentity.mediaKind,
-      payload: json,
-      // Keep the kind-owned semantic object when generic common fields are
-      // edited. Replacing it with `json` would erase the typed boundary and
-      // force the owning kind to reconstruct its model through JSON later.
-      kindMetadata: kindMetadata ?? _kindMetadata,
+      kindData: data,
     );
   }
 
-  CatalogItemDto withKindMetadata(Object? kindMetadata) {
-    return CatalogItemDto._raw(
+  CatalogItemDto withKindData(JsonEncodable kindData) {
+    return CatalogItemDto.raw(
       id: id,
       mediaKind: mediaKind,
-      payload: _payload,
-      kindMetadata: kindMetadata,
+      kindData: {
+        ...this.kindData,
+        ...kindData.toJson(),
+      },
     );
   }
 }
 
+Map<String, dynamic> _withoutEnvelopeFields(Map<String, dynamic> value) => {
+      for (final entry in value.entries)
+        if (!_transportFields.contains(entry.key)) entry.key: entry.value,
+    };
+
+const _transportFields = <String>{
+  'id',
+  'kind',
+  'snapshot_version',
+};
+
 const _unset = Object();
+
+String? _string(Object? value) {
+  final result = value?.toString().trim();
+  return result == null || result.isEmpty ? null : result;
+}
+
+List<String>? _stringList(Object? value) =>
+    value is List ? value.whereType<String>().toList(growable: false) : null;
+
+List<Map<String, dynamic>> _mapList(Object? value) => value is List
+    ? value
+        .whereType<Map<dynamic, dynamic>>()
+        .map((entry) => Map<String, dynamic>.from(entry))
+        .toList()
+    : const <Map<String, dynamic>>[];
+
+List<TrailerLinkDto> _linkList(
+  Object? value, {
+  String? defaultKind,
+}) =>
+    [
+      for (final link in _mapList(value))
+        TrailerLinkDto.fromJson({
+          ...link,
+          if (link['kind'] == null &&
+              link['type'] == null &&
+              defaultKind != null)
+            'kind': defaultKind,
+        }),
+    ];
