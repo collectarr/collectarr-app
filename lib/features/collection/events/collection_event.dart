@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 
 @immutable
@@ -108,7 +109,7 @@ final class WatchSessionChanged extends CollectionEvent {
 
 final class MetadataOverrideChanged extends CollectionEvent {
   const MetadataOverrideChanged(this.catalogRef);
-  final CatalogEntityRef catalogRef;
+  final CatalogItemRef catalogRef;
 
   @override
   bool operator ==(Object other) =>

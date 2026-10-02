@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -304,7 +305,10 @@ class _LibraryReleaseDetailPageState
               targetOptions: watchHistoryTargets,
             ),
             LibraryMetadataCorrectionsSection(
-              targetRef: itemRef,
+              catalogRef: CatalogItemRef(
+                kind: request.type.kind,
+                id: request.item.source.itemId,
+              ),
               accent: request.accent,
             ),
           ],
@@ -412,7 +416,7 @@ CatalogEntityRef _rootCatalogRefForItem(
   }
   return CatalogEntityRef(
     kind: kind,
-    entityType: CatalogEntityTypeId.root,
+    entityType: CatalogEntityTypeId.catalogItem,
     id: item.source.itemId,
   );
 }

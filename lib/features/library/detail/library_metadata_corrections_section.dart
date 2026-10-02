@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -14,16 +14,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class LibraryMetadataCorrectionsSection extends ConsumerWidget {
   const LibraryMetadataCorrectionsSection({
     super.key,
-    required this.targetRef,
+    required this.catalogRef,
     required this.accent,
   });
 
-  final CatalogEntityRef targetRef;
+  final CatalogItemRef catalogRef;
   final Color accent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final overrides = ref.watch(metadataOverridesByItemProvider)[targetRef] ??
+    final overrides = ref.watch(metadataOverridesByItemProvider)[catalogRef] ??
         const <UserMetadataOverride>[];
     final palette = appPalette(context);
     return DecoratedBox(
@@ -75,7 +75,7 @@ class LibraryMetadataCorrectionsSection extends ConsumerWidget {
   }
 
   Future<void> _showAddDialog(BuildContext context, WidgetRef ref) async {
-    final contributor = libraryAdminContributorForKind(targetRef.mediaKind);
+    final contributor = libraryAdminContributorForKind(catalogRef.kind);
     final fields = contributor?.metadataOverrideFields ??
         const <LibraryMetadataOverrideField>[];
     final result = await showDialog<MetadataOverrideFormResult>(
@@ -89,7 +89,7 @@ class LibraryMetadataCorrectionsSection extends ConsumerWidget {
       return;
     }
     await ref.read(metadataOverrideMutationsProvider).setMetadataOverride(
-          targetRef,
+          catalogRef,
           fieldId: result.fieldId,
           overrideValue: result.overrideValue,
           originalValue: result.originalValue,

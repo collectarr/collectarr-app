@@ -5,6 +5,10 @@ import 'package:drift/drift.dart';
 /// Catalog Items are keyed by their owning kind and concrete item ID. Kind
 /// details remain inside the pinned kind payload rather than being split into
 /// a generic Work/Release graph.
+/// Offline cache for canonical Core items.
+///
+/// `payloadJson` has routing identity plus one kind-owned `kind_data` object;
+/// catalog values are never split into shared title, cover, or date columns.
 class CatalogItemsCache extends Table {
   TextColumn get catalogKind => text()();
   TextColumn get itemId => text()();
@@ -108,7 +112,7 @@ class SyncQueue extends Table {
 
 class UserMetadataOverridesCache extends Table {
   TextColumn get id => text()();
-  TextColumn get targetRefJson => text()();
+  TextColumn get catalogRefJson => text()();
   TextColumn get fieldKey => text()();
   TextColumn get originalValue => text().nullable()();
   TextColumn get overrideValue => text()();

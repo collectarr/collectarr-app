@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:drift/drift.dart';
 
@@ -104,6 +105,11 @@ class SyncQueueRepository {
       }
       payload[entry.key as String] = entry.value;
     }
+    _validateCatalogItemReference(
+      row.entityType,
+      row.action,
+      payload,
+    );
     if (row.entityType.trim().isEmpty ||
         row.entityId.trim().isEmpty ||
         row.action.trim().isEmpty) {
@@ -122,14 +128,79 @@ class SyncQueueRepository {
   }
 
   SyncQueueCompanion _toCompanion(SyncChange change) {
+    final payload = _catalogItemPayload(
+      change.entityType,
+      change.action,
+      change.payload,
+    );
     return SyncQueueCompanion.insert(
       id: change.id,
       entityType: change.entityType,
       entityId: change.entityId,
       action: change.action,
-      payloadJson: change.payloadJson,
+      payloadJson: jsonEncode(payload),
       clientChangedAt: change.clientChangedAt,
     );
+  }
+
+  Map<String, dynamic> _catalogItemPayload(
+    String entityType,
+    String action,
+    Map<String, dynamic> source,
+  ) {
+    final payload = Map<String, dynamic>.from(source);
+    final rawReference = payload['catalog_ref'];
+    if (rawReference is Map) {
+      payload['catalog_ref'] = CatalogItemRef.fromJson(
+        Map<String, Object?>.from(rawReference),
+      ).toJson();
+    } else if (rawReference != null) {
+      throw const FormatException(
+        'Sync Catalog Item reference must be a JSON object.',
+      );
+    }
+    if (entityType == 'owned_copy' && payload.containsKey('target_ref')) {
+      payload.remove('target_ref');
+    } else if (payload.containsKey('target_ref')) {
+      throw FormatException(
+        'Sync $entityType payload cannot contain target_ref.',
+      );
+    }
+    _validateCatalogItemReference(entityType, action, payload);
+    return payload;
+  }
+
+  void _validateCatalogItemReference(
+    String entityType,
+    String action,
+    Map<String, dynamic> payload,
+  ) {
+    if (payload.containsKey('target_ref')) {
+      throw FormatException(
+        'Sync $entityType payload cannot contain target_ref.',
+      );
+    }
+    if (action == 'delete' && entityType != 'music_listen_event') return;
+    final required = switch (entityType) {
+      'owned_copy' ||
+      'wishlist_item' ||
+      'tracking_entry' ||
+      'tracking_unit' ||
+      'watch_session' ||
+      'music_listen_event' ||
+      'custom_episode' ||
+      'metadata_override' =>
+        true,
+      _ => false,
+    };
+    final rawReference = payload['catalog_ref'];
+    if (!required && rawReference == null) return;
+    if (rawReference is! Map) {
+      throw FormatException(
+        'Sync $entityType payload is missing its Catalog Item reference.',
+      );
+    }
+    CatalogItemRef.fromJson(Map<String, Object?>.from(rawReference));
   }
 }
 

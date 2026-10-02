@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
@@ -179,18 +180,20 @@ final metadataOverridesProvider =
 });
 
 final metadataOverridesByItemProvider =
-    Provider<Map<CatalogEntityRef, List<UserMetadataOverride>>>((ref) {
+    Provider<Map<CatalogItemRef, List<UserMetadataOverride>>>((ref) {
   final overrides = ref.watch(metadataOverridesProvider);
   return overrides.maybeWhen(
     data: (items) {
-      final grouped = <CatalogEntityRef, List<UserMetadataOverride>>{};
+      final grouped = <CatalogItemRef, List<UserMetadataOverride>>{};
       for (final o in items) {
         if (o.isDeleted) continue;
-        grouped.putIfAbsent(o.targetRef, () => <UserMetadataOverride>[]).add(o);
+        grouped
+            .putIfAbsent(o.catalogRef, () => <UserMetadataOverride>[])
+            .add(o);
       }
       return grouped;
     },
-    orElse: () => const <CatalogEntityRef, List<UserMetadataOverride>>{},
+    orElse: () => const <CatalogItemRef, List<UserMetadataOverride>>{},
   );
 });
 

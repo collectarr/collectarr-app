@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
@@ -231,12 +232,10 @@ class SyncApplyService {
         'Owned copy sync payload is missing catalog_ref',
       );
     }
-    final catalogRef = CatalogEntityRef.fromJson(
-      JsonMap.from(rawCatalogRef),
-    );
-    final kind = catalogRef.mediaKind;
+    final itemRef = _catalogItemRefFromSync(rawCatalogRef);
+    final kind = itemRef.kind;
     final normalizedPayload = {
-      ...payload,
+      ..._withInternalCatalogRef(payload),
       'id': entity['entity_id'],
       'created_at': payload['created_at'] ?? entity['client_changed_at'],
       'updated_at': entity['client_changed_at'],
@@ -246,7 +245,7 @@ class SyncApplyService {
       kind: kind,
       ref: OwnedCopyRef.fromJson({
         'kind': kind.apiValue,
-        'item_id': catalogRef.rootScope.id,
+        'item_id': itemRef.id,
         'copy_id': entity['entity_id'],
       }),
       payload: normalizedPayload,
@@ -262,7 +261,7 @@ class SyncApplyService {
       throw FormatException('Expected wishlist_item entity, got $type');
     }
     return WishlistItem.fromJson({
-      ...payload,
+      ..._withInternalCatalogRef(payload),
       'id': entity['entity_id'],
       'created_at': payload['created_at'] ?? entity['client_changed_at'],
       'updated_at': entity['client_changed_at'],
@@ -284,13 +283,14 @@ class SyncApplyService {
         'Tracking entry sync payload is missing catalog_ref',
       );
     }
-    final catalogRef = CatalogEntityRef.fromJson(JsonMap.from(rawRef));
+    final catalogRef = _internalRootRef(_catalogItemRefFromSync(rawRef));
+    final syncPayload = _withInternalCatalogRef(payload);
     return TrackingStorageSyncInput(
       ref: TrackingStateRef(
         kind: catalogRef.mediaKind,
         id: entity['entity_id'] as String,
       ),
-      payload: payload,
+      payload: syncPayload,
       updatedAt: DateTime.parse(entity['client_changed_at'] as String),
       deletedAt: deletedAt == null ? null : DateTime.parse(deletedAt as String),
     );
@@ -308,7 +308,7 @@ class SyncApplyService {
         'Tracking unit sync payload is missing catalog_ref',
       );
     }
-    final catalogRef = CatalogEntityRef.fromJson(JsonMap.from(rawRef));
+    final catalogRef = _internalRootRef(_catalogItemRefFromSync(rawRef));
     final codec =
         libraryTrackingUnitCodecs.cast<TrackingUnitStorageCodec?>().firstWhere(
               (candidate) => candidate?.kind == catalogRef.mediaKind,
@@ -323,7 +323,7 @@ class SyncApplyService {
     final changedAt = DateTime.parse(entity['client_changed_at'] as String);
     return codec.fromSyncPayload(
       id: entity['entity_id'] as String,
-      payload: payload,
+      payload: _withInternalCatalogRef(payload),
       updatedAt: changedAt,
       deletedAt: action == 'delete' ? changedAt : null,
     );
@@ -339,7 +339,7 @@ class SyncApplyService {
     }
     final rawRef = payload['catalog_ref'];
     final kind = rawRef is Map
-        ? catalogMediaKindFromValue(rawRef['kind'])
+        ? _catalogItemRefFromSync(rawRef).kind
         : CatalogMediaKind.unknown;
     final codec = kind.isUnknown
         ? null
@@ -349,7 +349,7 @@ class SyncApplyService {
             );
     if (codec != null) {
       return codec.fromSyncPayload(
-        payload: payload,
+        payload: _withInternalCatalogRef(payload),
         id: entity['entity_id'] as String,
         updatedAt: DateTime.parse(entity['client_changed_at'] as String),
         deletedAt:
@@ -407,7 +407,7 @@ class SyncApplyService {
     }
     return _CustomEpisodeSyncInput(
       id: entity['entity_id'] as String,
-      payload: payload,
+      payload: _withInternalCatalogRef(payload),
       updatedAt: DateTime.parse(entity['client_changed_at'] as String),
       deletedAt: deletedAt == null ? null : DateTime.parse(deletedAt as String),
     );
@@ -416,7 +416,7 @@ class SyncApplyService {
   CustomEpisodeSyncCodec _customEpisodeCodecFor(JsonMap payload) {
     final rawRef = payload['catalog_ref'];
     final kind = rawRef is Map
-        ? catalogMediaKindFromValue(rawRef['kind'])
+        ? _catalogItemRefFromSync(rawRef).kind
         : CatalogMediaKind.unknown;
     for (final codec in libraryCustomEpisodeCodecs) {
       if (codec.kind == kind) return codec;
@@ -522,6 +522,32 @@ typedef _OwnedSyncPayload = ({
   OwnedCopyRef ref,
   JsonMap payload,
 });
+
+CatalogItemRef _catalogItemRefFromSync(Object? value) {
+  if (value is! Map) {
+    throw const FormatException(
+        'Sync Catalog Item reference must be an object.');
+  }
+  return CatalogItemRef.fromJson(Map<String, Object?>.from(value));
+}
+
+CatalogEntityRef _internalRootRef(CatalogItemRef ref) => CatalogEntityRef(
+      kind: ref.kind,
+      entityType: CatalogEntityTypeId.catalogItem,
+      id: ref.id,
+    );
+
+JsonMap _withInternalCatalogRef(
+  JsonMap payload, {
+  String outputField = 'catalog_ref',
+}) {
+  final ref = _internalRootRef(_catalogItemRefFromSync(payload['catalog_ref']));
+  final result = Map<String, dynamic>.from(payload)
+    ..remove('catalog_ref')
+    ..remove('target_ref');
+  result[outputField] = ref.toJson();
+  return result;
+}
 
 final class _CustomEpisodeSyncInput {
   const _CustomEpisodeSyncInput({

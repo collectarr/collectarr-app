@@ -1,4 +1,5 @@
 import 'catalog_entity_ref.dart';
+import 'catalog_item_ref.dart';
 import 'owned_copy_projection.dart';
 
 /// Validates a structural catalog target before it crosses a persistence or
@@ -53,6 +54,20 @@ void requireMatchingOwnedCatalogKinds(
     throw ArgumentError(
       'The $ownedName item ID (${ownedRef.itemId}) must match the root '
       'Catalog Item ID (${catalogRef.rootScope.id}).',
+    );
+  }
+}
+
+/// Validates a direct v1 Catalog Item identity at a global feature boundary.
+void requireKnownCatalogItemRef(
+  CatalogItemRef ref, [
+  String name = 'catalogItemRef',
+]) {
+  if (ref.kind.isUnknown || ref.id.trim().isEmpty) {
+    throw ArgumentError.value(
+      ref,
+      name,
+      'Expected a known Catalog Item reference with a non-empty id.',
     );
   }
 }

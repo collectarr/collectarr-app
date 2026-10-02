@@ -1,14 +1,14 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
 
-/// A user-level correction for one field on one catalog entity.
+/// A user-level correction for one field on one Catalog Item.
 ///
-/// The target and field identifier are opaque to generic persistence and
+/// The Catalog Item and field identifier are opaque to generic persistence and
 /// synchronization. The owning kind validates and interprets them.
 class UserMetadataOverride {
   UserMetadataOverride({
     required this.id,
-    required this.targetRef,
+    required this.catalogRef,
     required this.fieldId,
     required this.overrideValue,
     required this.updatedAt,
@@ -20,7 +20,7 @@ class UserMetadataOverride {
   final String id;
 
   /// Structural catalog target. Its semantic meaning belongs to the kind.
-  final CatalogEntityRef targetRef;
+  final CatalogItemRef catalogRef;
 
   /// Kind-owned field identifier. The generic layer does not inspect its
   /// value; it only carries the typed identity to a serialization boundary.
@@ -39,7 +39,7 @@ class UserMetadataOverride {
 
   Map<String, Object?> toSyncPayload() {
     return {
-      'target_ref': targetRef.toJson(),
+      'catalog_ref': catalogRef.toJson(),
       'field_key': fieldId.serializedValue,
       'original_value': originalValue,
       'override_value': overrideValue,
@@ -47,18 +47,18 @@ class UserMetadataOverride {
   }
 
   factory UserMetadataOverride.fromJson(Map<String, Object?> json) {
-    final rawTarget = json['target_ref'];
-    if (rawTarget is! Map) {
-      throw const FormatException('Metadata override target_ref is required');
+    final rawCatalogRef = json['catalog_ref'];
+    if (rawCatalogRef is! Map) {
+      throw const FormatException('Metadata override catalog_ref is required');
     }
-    final targetRef = CatalogEntityRef.fromJson(
-      Map<String, Object?>.from(rawTarget),
+    final catalogRef = CatalogItemRef.fromJson(
+      Map<String, Object?>.from(rawCatalogRef),
     );
     return UserMetadataOverride(
       id: json['id'] as String,
-      targetRef: targetRef,
+      catalogRef: catalogRef,
       fieldId: MetadataFieldId(
-        kind: targetRef.mediaKind,
+        kind: catalogRef.kind,
         value: json['field_key'] as String,
       ),
       originalValue: json['original_value'] as String?,
@@ -72,7 +72,7 @@ class UserMetadataOverride {
 
   UserMetadataOverride copyWith({
     String? id,
-    CatalogEntityRef? targetRef,
+    CatalogItemRef? catalogRef,
     MetadataFieldId? fieldId,
     String? originalValue,
     String? overrideValue,
@@ -81,7 +81,7 @@ class UserMetadataOverride {
   }) {
     return UserMetadataOverride(
       id: id ?? this.id,
-      targetRef: targetRef ?? this.targetRef,
+      catalogRef: catalogRef ?? this.catalogRef,
       fieldId: fieldId ?? this.fieldId,
       originalValue: originalValue ?? this.originalValue,
       overrideValue: overrideValue ?? this.overrideValue,

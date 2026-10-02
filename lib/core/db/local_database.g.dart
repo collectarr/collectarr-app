@@ -1101,11 +1101,11 @@ class $UserMetadataOverridesCacheTable extends UserMetadataOverridesCache
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _targetRefJsonMeta =
-      const VerificationMeta('targetRefJson');
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
   @override
-  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
-      'target_ref_json', aliasedName, false,
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _fieldKeyMeta =
       const VerificationMeta('fieldKey');
@@ -1140,7 +1140,7 @@ class $UserMetadataOverridesCacheTable extends UserMetadataOverridesCache
   @override
   List<GeneratedColumn> get $columns => [
         id,
-        targetRefJson,
+        catalogRefJson,
         fieldKey,
         originalValue,
         overrideValue,
@@ -1163,13 +1163,13 @@ class $UserMetadataOverridesCacheTable extends UserMetadataOverridesCache
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('target_ref_json')) {
+    if (data.containsKey('catalog_ref_json')) {
       context.handle(
-          _targetRefJsonMeta,
-          targetRefJson.isAcceptableOrUnknown(
-              data['target_ref_json']!, _targetRefJsonMeta));
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
     } else if (isInserting) {
-      context.missing(_targetRefJsonMeta);
+      context.missing(_catalogRefJsonMeta);
     }
     if (data.containsKey('field_key')) {
       context.handle(_fieldKeyMeta,
@@ -1213,8 +1213,8 @@ class $UserMetadataOverridesCacheTable extends UserMetadataOverridesCache
     return UserMetadataOverridesCacheData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      targetRefJson: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
       fieldKey: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}field_key'])!,
       originalValue: attachedDatabase.typeMapping
@@ -1237,7 +1237,7 @@ class $UserMetadataOverridesCacheTable extends UserMetadataOverridesCache
 class UserMetadataOverridesCacheData extends DataClass
     implements Insertable<UserMetadataOverridesCacheData> {
   final String id;
-  final String targetRefJson;
+  final String catalogRefJson;
   final String fieldKey;
   final String? originalValue;
   final String overrideValue;
@@ -1245,7 +1245,7 @@ class UserMetadataOverridesCacheData extends DataClass
   final DateTime? deletedAt;
   const UserMetadataOverridesCacheData(
       {required this.id,
-      required this.targetRefJson,
+      required this.catalogRefJson,
       required this.fieldKey,
       this.originalValue,
       required this.overrideValue,
@@ -1255,7 +1255,7 @@ class UserMetadataOverridesCacheData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['target_ref_json'] = Variable<String>(targetRefJson);
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
     map['field_key'] = Variable<String>(fieldKey);
     if (!nullToAbsent || originalValue != null) {
       map['original_value'] = Variable<String>(originalValue);
@@ -1271,7 +1271,7 @@ class UserMetadataOverridesCacheData extends DataClass
   UserMetadataOverridesCacheCompanion toCompanion(bool nullToAbsent) {
     return UserMetadataOverridesCacheCompanion(
       id: Value(id),
-      targetRefJson: Value(targetRefJson),
+      catalogRefJson: Value(catalogRefJson),
       fieldKey: Value(fieldKey),
       originalValue: originalValue == null && nullToAbsent
           ? const Value.absent()
@@ -1289,7 +1289,7 @@ class UserMetadataOverridesCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return UserMetadataOverridesCacheData(
       id: serializer.fromJson<String>(json['id']),
-      targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
       fieldKey: serializer.fromJson<String>(json['fieldKey']),
       originalValue: serializer.fromJson<String?>(json['originalValue']),
       overrideValue: serializer.fromJson<String>(json['overrideValue']),
@@ -1302,7 +1302,7 @@ class UserMetadataOverridesCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'targetRefJson': serializer.toJson<String>(targetRefJson),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
       'fieldKey': serializer.toJson<String>(fieldKey),
       'originalValue': serializer.toJson<String?>(originalValue),
       'overrideValue': serializer.toJson<String>(overrideValue),
@@ -1313,7 +1313,7 @@ class UserMetadataOverridesCacheData extends DataClass
 
   UserMetadataOverridesCacheData copyWith(
           {String? id,
-          String? targetRefJson,
+          String? catalogRefJson,
           String? fieldKey,
           Value<String?> originalValue = const Value.absent(),
           String? overrideValue,
@@ -1321,7 +1321,7 @@ class UserMetadataOverridesCacheData extends DataClass
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       UserMetadataOverridesCacheData(
         id: id ?? this.id,
-        targetRefJson: targetRefJson ?? this.targetRefJson,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
         fieldKey: fieldKey ?? this.fieldKey,
         originalValue:
             originalValue.present ? originalValue.value : this.originalValue,
@@ -1333,9 +1333,9 @@ class UserMetadataOverridesCacheData extends DataClass
       UserMetadataOverridesCacheCompanion data) {
     return UserMetadataOverridesCacheData(
       id: data.id.present ? data.id.value : this.id,
-      targetRefJson: data.targetRefJson.present
-          ? data.targetRefJson.value
-          : this.targetRefJson,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
       fieldKey: data.fieldKey.present ? data.fieldKey.value : this.fieldKey,
       originalValue: data.originalValue.present
           ? data.originalValue.value
@@ -1352,7 +1352,7 @@ class UserMetadataOverridesCacheData extends DataClass
   String toString() {
     return (StringBuffer('UserMetadataOverridesCacheData(')
           ..write('id: $id, ')
-          ..write('targetRefJson: $targetRefJson, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
           ..write('fieldKey: $fieldKey, ')
           ..write('originalValue: $originalValue, ')
           ..write('overrideValue: $overrideValue, ')
@@ -1363,14 +1363,14 @@ class UserMetadataOverridesCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, targetRefJson, fieldKey, originalValue,
+  int get hashCode => Object.hash(id, catalogRefJson, fieldKey, originalValue,
       overrideValue, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is UserMetadataOverridesCacheData &&
           other.id == this.id &&
-          other.targetRefJson == this.targetRefJson &&
+          other.catalogRefJson == this.catalogRefJson &&
           other.fieldKey == this.fieldKey &&
           other.originalValue == this.originalValue &&
           other.overrideValue == this.overrideValue &&
@@ -1381,7 +1381,7 @@ class UserMetadataOverridesCacheData extends DataClass
 class UserMetadataOverridesCacheCompanion
     extends UpdateCompanion<UserMetadataOverridesCacheData> {
   final Value<String> id;
-  final Value<String> targetRefJson;
+  final Value<String> catalogRefJson;
   final Value<String> fieldKey;
   final Value<String?> originalValue;
   final Value<String> overrideValue;
@@ -1390,7 +1390,7 @@ class UserMetadataOverridesCacheCompanion
   final Value<int> rowid;
   const UserMetadataOverridesCacheCompanion({
     this.id = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
     this.fieldKey = const Value.absent(),
     this.originalValue = const Value.absent(),
     this.overrideValue = const Value.absent(),
@@ -1400,7 +1400,7 @@ class UserMetadataOverridesCacheCompanion
   });
   UserMetadataOverridesCacheCompanion.insert({
     required String id,
-    required String targetRefJson,
+    required String catalogRefJson,
     required String fieldKey,
     this.originalValue = const Value.absent(),
     required String overrideValue,
@@ -1408,13 +1408,13 @@ class UserMetadataOverridesCacheCompanion
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        targetRefJson = Value(targetRefJson),
+        catalogRefJson = Value(catalogRefJson),
         fieldKey = Value(fieldKey),
         overrideValue = Value(overrideValue),
         updatedAt = Value(updatedAt);
   static Insertable<UserMetadataOverridesCacheData> custom({
     Expression<String>? id,
-    Expression<String>? targetRefJson,
+    Expression<String>? catalogRefJson,
     Expression<String>? fieldKey,
     Expression<String>? originalValue,
     Expression<String>? overrideValue,
@@ -1424,7 +1424,7 @@ class UserMetadataOverridesCacheCompanion
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (targetRefJson != null) 'target_ref_json': targetRefJson,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
       if (fieldKey != null) 'field_key': fieldKey,
       if (originalValue != null) 'original_value': originalValue,
       if (overrideValue != null) 'override_value': overrideValue,
@@ -1436,7 +1436,7 @@ class UserMetadataOverridesCacheCompanion
 
   UserMetadataOverridesCacheCompanion copyWith(
       {Value<String>? id,
-      Value<String>? targetRefJson,
+      Value<String>? catalogRefJson,
       Value<String>? fieldKey,
       Value<String?>? originalValue,
       Value<String>? overrideValue,
@@ -1445,7 +1445,7 @@ class UserMetadataOverridesCacheCompanion
       Value<int>? rowid}) {
     return UserMetadataOverridesCacheCompanion(
       id: id ?? this.id,
-      targetRefJson: targetRefJson ?? this.targetRefJson,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
       fieldKey: fieldKey ?? this.fieldKey,
       originalValue: originalValue ?? this.originalValue,
       overrideValue: overrideValue ?? this.overrideValue,
@@ -1461,8 +1461,8 @@ class UserMetadataOverridesCacheCompanion
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (targetRefJson.present) {
-      map['target_ref_json'] = Variable<String>(targetRefJson.value);
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
     if (fieldKey.present) {
       map['field_key'] = Variable<String>(fieldKey.value);
@@ -1489,7 +1489,7 @@ class UserMetadataOverridesCacheCompanion
   String toString() {
     return (StringBuffer('UserMetadataOverridesCacheCompanion(')
           ..write('id: $id, ')
-          ..write('targetRefJson: $targetRefJson, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
           ..write('fieldKey: $fieldKey, ')
           ..write('originalValue: $originalValue, ')
           ..write('overrideValue: $overrideValue, ')
@@ -34392,7 +34392,7 @@ typedef $$SyncQueueTableProcessedTableManager = ProcessedTableManager<
 typedef $$UserMetadataOverridesCacheTableCreateCompanionBuilder
     = UserMetadataOverridesCacheCompanion Function({
   required String id,
-  required String targetRefJson,
+  required String catalogRefJson,
   required String fieldKey,
   Value<String?> originalValue,
   required String overrideValue,
@@ -34403,7 +34403,7 @@ typedef $$UserMetadataOverridesCacheTableCreateCompanionBuilder
 typedef $$UserMetadataOverridesCacheTableUpdateCompanionBuilder
     = UserMetadataOverridesCacheCompanion Function({
   Value<String> id,
-  Value<String> targetRefJson,
+  Value<String> catalogRefJson,
   Value<String> fieldKey,
   Value<String?> originalValue,
   Value<String> overrideValue,
@@ -34424,8 +34424,9 @@ class $$UserMetadataOverridesCacheTableFilterComposer
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get fieldKey => $composableBuilder(
       column: $table.fieldKey, builder: (column) => ColumnFilters(column));
@@ -34455,8 +34456,8 @@ class $$UserMetadataOverridesCacheTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson,
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get fieldKey => $composableBuilder(
@@ -34489,8 +34490,8 @@ class $$UserMetadataOverridesCacheTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => column);
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get fieldKey =>
       $composableBuilder(column: $table.fieldKey, builder: (column) => column);
@@ -34540,7 +34541,7 @@ class $$UserMetadataOverridesCacheTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> targetRefJson = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
             Value<String> fieldKey = const Value.absent(),
             Value<String?> originalValue = const Value.absent(),
             Value<String> overrideValue = const Value.absent(),
@@ -34550,7 +34551,7 @@ class $$UserMetadataOverridesCacheTableTableManager extends RootTableManager<
           }) =>
               UserMetadataOverridesCacheCompanion(
             id: id,
-            targetRefJson: targetRefJson,
+            catalogRefJson: catalogRefJson,
             fieldKey: fieldKey,
             originalValue: originalValue,
             overrideValue: overrideValue,
@@ -34560,7 +34561,7 @@ class $$UserMetadataOverridesCacheTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String targetRefJson,
+            required String catalogRefJson,
             required String fieldKey,
             Value<String?> originalValue = const Value.absent(),
             required String overrideValue,
@@ -34570,7 +34571,7 @@ class $$UserMetadataOverridesCacheTableTableManager extends RootTableManager<
           }) =>
               UserMetadataOverridesCacheCompanion.insert(
             id: id,
-            targetRefJson: targetRefJson,
+            catalogRefJson: catalogRefJson,
             fieldKey: fieldKey,
             originalValue: originalValue,
             overrideValue: overrideValue,
