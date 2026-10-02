@@ -15,9 +15,14 @@ void main() {
     }).toSearchJson();
 
     expect(result['id'], 'album-1');
-    expect(result['title'], 'Kind of Blue (2025 Vinyl)');
-    expect(result['music'], containsPair('artist', 'Miles Davis'));
-    expect(result['music'], containsPair('format', 'Vinyl'));
+    final kindData = result['kind_data'] as Map<String, dynamic>;
+    expect(kindData['title'], 'Kind of Blue (2025 Vinyl)');
+    expect(kindData['artist_credits'], [
+      {'name': 'Miles Davis'}
+    ]);
+    expect(kindData['format'], 'Vinyl');
+    expect(result, isNot(contains('title')));
+    expect(result, isNot(contains('music')));
     expect(result, isNot(contains('release_group')));
     expect(result, isNot(contains('releases')));
   });

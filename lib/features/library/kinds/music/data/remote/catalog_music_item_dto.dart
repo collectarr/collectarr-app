@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 
 /// Transport model for Core's flattened Music Catalog Item API.
 ///
@@ -55,16 +54,11 @@ final class CatalogMusicItemDto implements JsonEncodable {
   }) : studios = List<String>.unmodifiable(studios);
 
   factory CatalogMusicItemDto.fromJson(Map<String, dynamic> json) {
-    // Transport snapshot metadata is not part of the strict Music catalog
-    // contract. Strip it before validating this kind-owned payload. Remove
-    // the root marker explicitly as well so this decoder remains defensive
-    // when called directly with a transport envelope.
-    final catalogJson = catalogPayloadWithoutSnapshotVersion(json)
-      ..remove('snapshot_version');
+    // This marker belongs to the transport, not the Music Catalog Item.
+    // Discard it at ingress while keeping all actual catalog fields strict.
+    final catalogJson = Map<String, dynamic>.from(json);
+    catalogJson.remove('snapshot_version');
     const allowedKeys = {
-      // Accept this transport envelope marker defensively, but never expose it
-      // as Music catalog metadata.
-      'snapshot_version',
       'id',
       'kind',
       'title',
@@ -180,16 +174,7 @@ final class CatalogMusicItemDto implements JsonEncodable {
   factory CatalogMusicItemDto.fromCatalogSearchPayload(
     Map<String, dynamic> payload,
   ) {
-    final nestedMusic = payload['music'];
-    if (nestedMusic is! Map) {
-      throw const FormatException(
-        'Music catalog search result requires a music payload.',
-      );
-    }
-    final json = Map<String, dynamic>.from(nestedMusic);
-    json['id'] = payload['id'];
-    json['kind'] = payload['kind'];
-    return CatalogMusicItemDto.fromJson(json);
+    return CatalogMusicItemDto.fromJson(payload);
   }
 
   final String id;
@@ -302,20 +287,14 @@ final class CatalogMusicItemDto implements JsonEncodable {
         ...toProposalData(),
       };
 
-  /// Projects one flat Music item into the shared catalog search envelope.
+  /// Projects one Music item into the shared catalog search envelope.
   ///
-  /// Music-specific fields stay owned by this DTO; the shared candidate only
-  /// receives the generic envelope plus the untouched Music payload.
+  /// Only routing identity sits outside `kind_data`. Title, cover, dates, and
+  /// every other catalog value remain owned by the Music kind.
   Map<String, dynamic> toSearchJson() => {
         'id': id,
         'kind': 'music',
-        'title': title,
-        if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
-        if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
-        if (releaseDate != null) 'release_date': releaseDate,
-        if (releaseDateParts != null) 'release_date_parts': releaseDateParts,
-        if (revision > 0) 'revision': revision,
-        'music': toProposalData(),
+        'kind_data': toProposalData(),
       };
 }
 
