@@ -5,11 +5,14 @@ final class AnimeAddManualDraft implements LibraryKindAddDraft {
   AnimeAddManualDraft({
     AnimeMediaFormValues? media,
     AnimeReleaseFormValues? release,
+    this.catalogTitle = '',
   })  : media = media ?? AnimeMediaFormValues(),
         release = release ?? AnimeReleaseFormValues();
 
   final AnimeMediaFormValues media;
   final AnimeReleaseFormValues release;
+  @override
+  String catalogTitle;
 
   @override
   void dispose() {}

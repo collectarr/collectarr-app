@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/kinds/book/add/book_add_schema.d
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,20 +91,6 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
     final request = widget.request;
     return LibraryAddManualPaneShell(
       request: request,
-      title: 'Manual book',
-      subtitle:
-          'Set identity and publication details before saving to your library.',
-      identity: LibraryFormSection(
-        title: 'Identity',
-        accent: request.accent,
-        child: TextField(
-          controller: request.titleController,
-          decoration: const InputDecoration(
-            labelText: 'Book Title',
-            prefixIcon: Icon(Icons.book_outlined),
-          ),
-        ),
-      ),
       formContent: AddSchemaRenderer<BookAddManualDraft>.embedded(
         schema: bookAddSchemaFor(
           publisherOptions: _publisherOptions.isEmpty

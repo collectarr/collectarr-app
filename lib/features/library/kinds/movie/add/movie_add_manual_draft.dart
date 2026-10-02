@@ -3,10 +3,14 @@ import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_
 
 /// Movie's Add session owns catalog values; renderer widgets own input controllers.
 final class MovieAddManualDraft implements LibraryKindAddDraft {
-  MovieAddManualDraft({MovieCatalogFormValues? values})
-      : values = values ?? MovieCatalogFormValues();
+  MovieAddManualDraft({
+    MovieCatalogFormValues? values,
+    this.catalogTitle = '',
+  }) : values = values ?? MovieCatalogFormValues();
 
   final MovieCatalogFormValues values;
+  @override
+  String catalogTitle;
 
   @override
   void dispose() {}

@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_reposito
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +26,7 @@ class MangaAddManualPane extends ConsumerStatefulWidget {
 }
 
 class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
+  late final TextEditingController _seriesController;
   List<String> _publisherOptions = const [];
   List<String> _imprintOptions = const [];
   List<String> _formatOptions = const [];
@@ -36,9 +36,16 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
   @override
   void initState() {
     super.initState();
-    _selectedSeriesId =
-        widget.request.manualDraftAs<MangaAddManualDraft>().values.seriesId;
+    final draft = widget.request.manualDraftAs<MangaAddManualDraft>();
+    _seriesController = TextEditingController(text: draft.values.seriesTitle);
+    _selectedSeriesId = draft.values.seriesId;
     _loadVocabularies();
+  }
+
+  @override
+  void dispose() {
+    _seriesController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadVocabularies() async {
@@ -65,7 +72,7 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
       ),
       SerialAuthorityRepository(db).searchEntries(
         mediaKind: CatalogMediaKind.manga.apiValue,
-        selectedTitle: widget.request.titleController.text,
+        selectedTitle: _seriesController.text,
         selectedSeriesId: _selectedSeriesId,
       ),
     ]);
@@ -84,15 +91,17 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
       context: context,
       db: ref.read(localDatabaseProvider),
       mediaKind: CatalogMediaKind.manga.apiValue,
-      selectedTitle: widget.request.titleController.text,
+      selectedTitle: _seriesController.text,
       selectedSeriesId: _selectedSeriesId,
     );
     if (!mounted || selected == null) return;
     setState(() {
       _selectedSeriesId = selected.coreSeriesId;
-      widget.request.manualDraftAs<MangaAddManualDraft>().values.seriesId =
-          selected.coreSeriesId ?? '';
-      widget.request.titleController.value = TextEditingValue(
+      final values = widget.request.manualDraftAs<MangaAddManualDraft>().values;
+      values
+        ..seriesId = selected.coreSeriesId ?? ''
+        ..seriesTitle = selected.title;
+      _seriesController.value = TextEditingValue(
         text: selected.title,
         selection: TextSelection.collapsed(offset: selected.title.length),
       );
@@ -110,8 +119,10 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
         );
     setState(() {
       _selectedSeriesId = match?.coreSeriesId;
-      widget.request.manualDraftAs<MangaAddManualDraft>().values.seriesId =
-          match?.coreSeriesId ?? '';
+      final values = widget.request.manualDraftAs<MangaAddManualDraft>().values;
+      values
+        ..seriesTitle = normalized
+        ..seriesId = match?.coreSeriesId ?? '';
     });
   }
 
@@ -166,19 +177,12 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
     final schema = _schema();
     return LibraryAddManualPaneShell(
       request: request,
-      title: 'Manual manga volume',
-      subtitle:
-          'Set series, volume, and release details before saving to your collection.',
-      identity: LibraryFormSection(
-        title: 'Series',
-        accent: request.accent,
-        child: SingleValuePickField(
-          controller: request.titleController,
-          options: [for (final entry in _seriesEntries) entry.title],
-          label: 'Series',
-          onChanged: _setManualSeries,
-          onManage: _openManualSeriesPicker,
-        ),
+      identityDetails: SingleValuePickField(
+        controller: _seriesController,
+        options: [for (final entry in _seriesEntries) entry.title],
+        label: 'Series',
+        onChanged: _setManualSeries,
+        onManage: _openManualSeriesPicker,
       ),
       formContent: AddSchemaRenderer<MangaAddManualDraft>.embedded(
         schema: schema,

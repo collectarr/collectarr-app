@@ -3,10 +3,14 @@ import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_
 
 /// Manga Add state contains typed catalog values; schema renderers own inputs.
 final class MangaAddManualDraft implements LibraryKindAddDraft {
-  MangaAddManualDraft({MangaCatalogFormValues? values})
-      : values = values ?? MangaCatalogFormValues();
+  MangaAddManualDraft({
+    MangaCatalogFormValues? values,
+    this.catalogTitle = '',
+  }) : values = values ?? MangaCatalogFormValues();
 
   final MangaCatalogFormValues values;
+  @override
+  String catalogTitle;
 
   @override
   void dispose() {}

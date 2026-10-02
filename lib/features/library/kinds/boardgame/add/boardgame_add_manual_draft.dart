@@ -3,10 +3,14 @@ import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_
 
 /// Board Game Add state contains typed catalog values; schema renderers own inputs.
 final class BoardgameAddManualDraft implements LibraryKindAddDraft {
-  BoardgameAddManualDraft({BoardGameCatalogFormValues? values})
-      : values = values ?? BoardGameCatalogFormValues();
+  BoardgameAddManualDraft({
+    BoardGameCatalogFormValues? values,
+    this.catalogTitle = '',
+  }) : values = values ?? BoardGameCatalogFormValues();
 
   final BoardGameCatalogFormValues values;
+  @override
+  String catalogTitle;
 
   @override
   void dispose() {}

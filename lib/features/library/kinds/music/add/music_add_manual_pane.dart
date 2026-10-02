@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_tracks_tab.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:flutter/material.dart';
 
 class MusicAddManualPane extends StatelessWidget {
@@ -54,17 +53,6 @@ class MusicAddManualPane extends StatelessWidget {
           },
           rightAlignedFieldIds: const {'genres'},
           fields: [
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'title',
-              label: 'Title',
-              value: (_) => request.titleController.text,
-              setValue: (_, value) {
-                request.titleController.value = TextEditingValue(
-                  text: value,
-                  selection: TextSelection.collapsed(offset: value.length),
-                );
-              },
-            ),
             for (final id in mainFieldIds) fieldsById[id]!,
           ],
         ),
@@ -78,7 +66,8 @@ class MusicAddManualPane extends StatelessWidget {
           fields: [
             for (final section in musicAddSchema.sections)
               for (final field in section.fields)
-                if (!mainFieldIds.contains(field.id)) field,
+                if (field.id != 'title' && !mainFieldIds.contains(field.id))
+                  field,
           ],
         ),
       ],
@@ -86,9 +75,6 @@ class MusicAddManualPane extends StatelessWidget {
 
     return LibraryAddManualPaneShell(
       request: request,
-      title: 'Manual music album setup',
-      subtitle: '',
-      identity: null,
       tabs: [
         LibraryAddManualPaneTab(
           label: 'Main',

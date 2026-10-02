@@ -183,7 +183,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       itemImages: widget.itemImages,
       kindDraft: libraryAddForKind(widget.type.kind).createManualDraft(),
     );
-    _manualDraft.titleController.text = _queryController.text;
+    _manualDraft.kindDraft.catalogTitle = _queryController.text;
 
     _controller = LibraryAddSessionController(
       kind: widget.type.kind,
@@ -378,7 +378,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       onCommonDraftChanged: (common) =>
           _controller.updateCommonDraft((_) => common),
       onKindDraftChanged: (draft) => _controller.updateKindDraft((_) => draft),
-      titleController: _manualDraft.titleController,
       tagsController: _manualDraft.tagsController,
       personalNotesController: _manualDraft.personalNotesController,
       coverPriceController: _manualDraft.coverPriceController,
@@ -506,7 +505,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final Map<String, Object?>? catalogItem =
         capability.buildManualProposalData(
       _manualDraft.kindDraft,
-      title: _manualDraft.titleController.text,
+      title: _manualDraft.kindDraft.catalogTitle,
     );
     if (catalogItem == null) {
       _controller.reportSubmissionError(
@@ -582,7 +581,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final capability = libraryAddForKind(widget.type.kind);
     final candidate = capability.buildManualCandidate(
       _manualDraft.kindDraft,
-      title: _manualDraft.titleController.text,
+      title: _manualDraft.kindDraft.catalogTitle,
     );
     if (candidate == null) {
       _controller.reportSubmissionError(
@@ -717,7 +716,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   ) async {
     if (_manualDialogOpen) return;
     if (!_hasOpenedManualDialog) {
-      _manualDraft.titleController.text = _queryController.text;
+      _manualDraft.kindDraft.catalogTitle = _queryController.text;
       _hasOpenedManualDialog = true;
     }
     _controller.dismissSuggestions();
@@ -797,12 +796,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       advancedFilters: state.search.advancedFilters,
     );
 
-    final headerRequest = LibraryAddHeaderRequest(
-      type: widget.type,
-      accent: accent,
-      onClose: _closeDialog,
-    );
-
     LibraryAddModeBarRequest buildModeBarRequest(
       List<LibraryAddAdvancedFilterField<String>> advancedFilterDescriptors,
     ) {
@@ -874,12 +867,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           (_dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight) + delta,
         );
       }),
-      header: addCapability.headerBuilder?.call(context, headerRequest) ??
-          AccentDialogHeader(
-            title: 'Add ${widget.type.identity.pluralLabel}',
-            icon: widget.type.identity.icon,
-            onClose: _closeDialog,
-          ),
+      header: AccentDialogHeader(
+        title: 'Add ${widget.type.identity.pluralLabel}',
+        icon: widget.type.identity.icon,
+        onClose: _closeDialog,
+      ),
       contextBar: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -892,48 +884,44 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               identifierCode: widget.initialIdentifier!.trim(),
             ),
           Builder(
-            builder: (scopedContext) =>
-                addCapability.modeBarBuilder
-                    ?.call(scopedContext, modeBarRequest) ??
-                LibraryAddModeBar(
-                  type: widget.type,
-                  accent: accent,
-                  isWideLayout: isWideLayout,
-                  mode: state.mode,
-                  queryController: _queryController,
-                  identifierController: _identifierController,
-                  isSearching: state.search.isBusy,
-                  onModeChanged: _selectAddMode,
-                  onSearch: () {
-                    _controller.dismissSuggestions();
-                    _controller.updateQuery(_queryController.text);
-                    _controller.executeSearch();
-                  },
-                  onQueryChanged: _controller.updateQuery,
-                  suggestions: state.search.suggestions,
-                  showSuggestions: state.search.showSuggestions,
-                  onSelectSuggestion: (item) {
-                    _queryController.text = item.summary.primaryLabel;
-                    _controller.selectSuggestion(item);
-                  },
-                  onDismissSuggestions: _controller.dismissSuggestions,
-                  canScanCover:
-                      libraryAddForKind(widget.type.kind).chrome.canScanCover,
-                  isScanningCover: state.search.isScanningCover,
-                  onScanCover: () => _controller.scanCover(scopedContext),
-                  onLookupIdentifier: () => _controller.lookupIdentifier(
-                    identifierCode: _identifierController.text,
-                  ),
-                  onManual: () => _openManualDialog(accent, addCapability),
-                  showAdvanced: state.search.showAdvancedSearch,
-                  onToggleAdvanced: _controller.toggleAdvancedSearch,
-                  advancedFilterState: state.search.advancedFilters,
-                  onAdvancedFilterChanged: _controller.updateAdvancedFilter,
-                  advancedFilterDescriptors:
-                      modeBarRequest.advancedFilterDescriptors,
-                  kindSpecificPaneBuilder:
-                      modeBarRequest.kindSpecificPaneBuilder,
-                ),
+            builder: (scopedContext) => LibraryAddModeBar(
+              type: widget.type,
+              accent: accent,
+              isWideLayout: isWideLayout,
+              mode: state.mode,
+              queryController: _queryController,
+              identifierController: _identifierController,
+              isSearching: state.search.isBusy,
+              onModeChanged: _selectAddMode,
+              onSearch: () {
+                _controller.dismissSuggestions();
+                _controller.updateQuery(_queryController.text);
+                _controller.executeSearch();
+              },
+              onQueryChanged: _controller.updateQuery,
+              suggestions: state.search.suggestions,
+              showSuggestions: state.search.showSuggestions,
+              onSelectSuggestion: (item) {
+                _queryController.text = item.summary.primaryLabel;
+                _controller.selectSuggestion(item);
+              },
+              onDismissSuggestions: _controller.dismissSuggestions,
+              canScanCover:
+                  libraryAddForKind(widget.type.kind).chrome.canScanCover,
+              isScanningCover: state.search.isScanningCover,
+              onScanCover: () => _controller.scanCover(scopedContext),
+              onLookupIdentifier: () => _controller.lookupIdentifier(
+                identifierCode: _identifierController.text,
+              ),
+              onManual: () => _openManualDialog(accent, addCapability),
+              showAdvanced: state.search.showAdvancedSearch,
+              onToggleAdvanced: _controller.toggleAdvancedSearch,
+              advancedFilterState: state.search.advancedFilters,
+              onAdvancedFilterChanged: _controller.updateAdvancedFilter,
+              advancedFilterDescriptors:
+                  modeBarRequest.advancedFilterDescriptors,
+              kindSpecificPaneBuilder: modeBarRequest.kindSpecificPaneBuilder,
+            ),
           ),
           if (state.search.error != null)
             Material(
@@ -968,7 +956,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         LibraryAddDialogMode.identifier =>
           LayoutBuilder(
             builder: (context, constraints) {
-              final searchPaneRequest = LibraryAddSearchPaneRequest(
+              final searchPaneWidget = LibraryAddSearchPane(
                 type: widget.type,
                 isBusy: state.search.isBusy,
                 isLoadingMoreResults: state.search.isLoadingMoreResults,
@@ -986,32 +974,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 resultPolicy: resultPolicy,
                 resultPolicyState: state.selection.resultPolicyState,
                 onResultPolicyOptionChanged: _controller.setResultPolicyOption,
-                isWideLayout: constraints.maxWidth >= 720,
                 onSelectResult: _controller.selectResult,
                 onToggleResultCheck: _controller.toggleCheckedResult,
               );
-
-              final searchPaneWidget = addCapability.searchPaneBuilder
-                      ?.call(context, searchPaneRequest) ??
-                  LibraryAddSearchPane(
-                    type: searchPaneRequest.type,
-                    isBusy: searchPaneRequest.isBusy,
-                    isLoadingMoreResults:
-                        searchPaneRequest.isLoadingMoreResults,
-                    hasMoreResults: searchPaneRequest.hasMoreResults,
-                    loadMoreError: searchPaneRequest.loadMoreError,
-                    onLoadMoreResults: searchPaneRequest.onLoadMoreResults,
-                    error: searchPaneRequest.error,
-                    accent: searchPaneRequest.accent,
-                    results: searchPaneRequest.results,
-                    selectedResultId: searchPaneRequest.selectedResultId,
-                    checkedResultIds: searchPaneRequest.checkedResultIds,
-                    ownedCatalogRefs: searchPaneRequest.ownedCatalogRefs,
-                    coreMatchSummary: searchPaneRequest.coreMatchSummary,
-                    resultPolicy: searchPaneRequest.resultPolicy,
-                    onSelectResult: searchPaneRequest.onSelectResult,
-                    onToggleResultCheck: searchPaneRequest.onToggleResultCheck,
-                  );
 
               final previewPaneWidget = LibraryAddPreviewPane(
                 type: widget.type,
@@ -1088,7 +1053,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         );
         return LibraryAddBottomBar(
           request: bottomBarRequest,
-          presentation: addCapability.bottomBarPresentation,
         );
       }(),
     );

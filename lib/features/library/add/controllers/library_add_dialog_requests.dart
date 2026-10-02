@@ -1,9 +1,8 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
@@ -24,26 +23,6 @@ typedef LibraryAddPreviewPaneBuilder = Widget Function(
   LibraryAddPreviewPaneRequest request,
 );
 
-typedef LibraryAddHeaderBuilder = Widget Function(
-  BuildContext context,
-  LibraryAddHeaderRequest request,
-);
-
-typedef LibraryAddModeBarBuilder = Widget Function(
-  BuildContext context,
-  LibraryAddModeBarRequest request,
-);
-
-typedef LibraryAddSearchPaneBuilder = Widget Function(
-  BuildContext context,
-  LibraryAddSearchPaneRequest request,
-);
-
-enum LibraryAddBottomBarPresentation {
-  responsiveMenu,
-  segmentedTarget,
-}
-
 class LibraryAddManualPaneRequest {
   const LibraryAddManualPaneRequest({
     required this.kind,
@@ -53,7 +32,6 @@ class LibraryAddManualPaneRequest {
     this.kindDraft,
     this.onCommonDraftChanged,
     this.onKindDraftChanged,
-    required this.titleController,
     required this.tagsController,
     required this.personalNotesController,
     required this.coverPriceController,
@@ -94,7 +72,6 @@ class LibraryAddManualPaneRequest {
   final LibraryKindAddDraft manualDraft;
   final ValueChanged<LibraryAddCommonDraft>? onCommonDraftChanged;
   final ValueChanged<LibraryAddKindDraft>? onKindDraftChanged;
-  final TextEditingController titleController;
   final TextEditingController tagsController;
   final TextEditingController personalNotesController;
   final TextEditingController coverPriceController;
@@ -145,18 +122,6 @@ class LibraryAddPreviewPaneRequest {
   final CatalogSearchCandidate? item;
   final bool isFetchingPreview;
   final bool searched;
-}
-
-class LibraryAddHeaderRequest {
-  const LibraryAddHeaderRequest({
-    required this.type,
-    required this.accent,
-    required this.onClose,
-  });
-
-  final LibraryKindRegistration type;
-  final Color accent;
-  final VoidCallback onClose;
 }
 
 class LibraryAddModeBarRequest {
@@ -218,50 +183,6 @@ class LibraryAddModeBarRequest {
   String advancedFilterText(LibraryAddFilterId id) {
     return advancedFilterState[id]?.displayValue ?? '';
   }
-}
-
-class LibraryAddSearchPaneRequest {
-  const LibraryAddSearchPaneRequest({
-    required this.type,
-    required this.isBusy,
-    this.isLoadingMoreResults = false,
-    this.hasMoreResults = false,
-    this.loadMoreError,
-    this.onLoadMoreResults,
-    required this.error,
-    required this.accent,
-    required this.results,
-    required this.selectedResultId,
-    required this.checkedResultIds,
-    required this.ownedCatalogRefs,
-    this.coreMatchSummary,
-    required this.resultPolicy,
-    required this.resultPolicyState,
-    required this.onResultPolicyOptionChanged,
-    required this.isWideLayout,
-    required this.onSelectResult,
-    required this.onToggleResultCheck,
-  });
-
-  final LibraryKindRegistration type;
-  final bool isBusy;
-  final bool isLoadingMoreResults;
-  final bool hasMoreResults;
-  final String? loadMoreError;
-  final VoidCallback? onLoadMoreResults;
-  final String? error;
-  final Color accent;
-  final List<CatalogSearchCandidate> results;
-  final String? selectedResultId;
-  final Set<String> checkedResultIds;
-  final Set<CatalogEntityRef> ownedCatalogRefs;
-  final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
-  final LibraryAddResultPolicy resultPolicy;
-  final LibraryAddResultPolicyState resultPolicyState;
-  final void Function(String id, bool value) onResultPolicyOptionChanged;
-  final bool isWideLayout;
-  final ValueChanged<String> onSelectResult;
-  final ValueChanged<String> onToggleResultCheck;
 }
 
 class LibraryAddBottomBarRequest {

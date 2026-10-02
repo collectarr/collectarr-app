@@ -61,6 +61,8 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
         discs = List.of(discs),
         externalLinks = List.of(externalLinks);
 
+  @override
+  String catalogTitle = '';
   String artist;
   String sortTitle;
   String subtitle;

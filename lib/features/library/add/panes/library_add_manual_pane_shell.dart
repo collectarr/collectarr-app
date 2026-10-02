@@ -16,17 +16,15 @@ class LibraryAddManualPaneShell extends StatefulWidget {
   const LibraryAddManualPaneShell({
     super.key,
     required this.request,
-    required this.title,
-    required this.subtitle,
-    required this.identity,
+    this.identityDetails,
     this.formContent,
     this.tabs,
   });
 
   final LibraryAddManualPaneRequest request;
-  final String title;
-  final String subtitle;
-  final Widget? identity;
+
+  /// Optional kind-specific fields shown below the shared Catalog Item title.
+  final Widget? identityDetails;
   final Widget? formContent;
   final List<LibraryAddManualPaneTab>? tabs;
 
@@ -86,7 +84,6 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
   @override
   Widget build(BuildContext context) {
     final request = widget.request;
-    final subtitle = widget.subtitle.trim();
     final tabs = [
       ..._resolvedTabs,
       if (request.customFieldDefinitions.isNotEmpty)
@@ -136,12 +133,16 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
           accent: request.accent,
         ),
     ];
+    final enteredTitle = request.manualDraft.catalogTitle.trim();
+    final headerTitle = enteredTitle.isEmpty
+        ? 'Add ${request.type.identity.singularLabel}'
+        : enteredTitle;
 
     return LibraryEditDialogScaffold(
       formKey: _formKey,
       accent: request.accent,
       icon: request.type.identity.icon,
-      title: widget.title,
+      title: headerTitle,
       badges: badges,
       tabController: _tabController,
       tabs: [
@@ -151,21 +152,20 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
         for (var index = 0; index < tabs.length; index++)
           EditTabShell(
             children: [
-              if (index == 0 && subtitle.isNotEmpty)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
+              if (index == 0)
+                TextFormField(
+                  initialValue: request.manualDraft.catalogTitle,
+                  onChanged: (value) {
+                    request.manualDraft.catalogTitle = value;
+                    setState(() {});
+                  },
+                  decoration: const InputDecoration(labelText: 'Title'),
                 ),
-              if (index == 0 && subtitle.isNotEmpty) const SizedBox(height: 12),
-              if (index == 0 && widget.identity != null) ...[
-                widget.identity!,
+              if (index == 0 && widget.identityDetails != null) ...[
                 const SizedBox(height: 10),
+                widget.identityDetails!,
               ],
+              if (index == 0) const SizedBox(height: 12),
               tabs[index].content,
             ],
           ),

@@ -3,10 +3,14 @@ import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_fo
 
 /// Book Add state contains typed catalog values; schema renderers own inputs.
 final class BookAddManualDraft implements LibraryKindAddDraft {
-  BookAddManualDraft({BookCatalogFormValues? values})
-      : values = values ?? BookCatalogFormValues();
+  BookAddManualDraft({
+    BookCatalogFormValues? values,
+    this.catalogTitle = '',
+  }) : values = values ?? BookCatalogFormValues();
 
   final BookCatalogFormValues values;
+  @override
+  String catalogTitle;
 
   @override
   void dispose() {}

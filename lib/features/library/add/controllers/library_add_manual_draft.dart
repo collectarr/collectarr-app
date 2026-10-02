@@ -21,7 +21,6 @@ class LibraryAddManualDraft {
 
   final LibraryKindAddDraft kindDraft;
 
-  final titleController = TextEditingController();
   final tagsController = TextEditingController();
   final personalNotesController = TextEditingController();
   final coverPriceController = TextEditingController();
@@ -39,7 +38,6 @@ class LibraryAddManualDraft {
   DateTime? soldAt;
 
   void dispose() {
-    titleController.dispose();
     tagsController.dispose();
     personalNotesController.dispose();
     coverPriceController.dispose();

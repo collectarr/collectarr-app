@@ -3,10 +3,14 @@ import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_fo
 
 /// Game Add state contains typed catalog values; the schema renderer owns inputs.
 final class GameAddManualDraft implements LibraryKindAddDraft {
-  GameAddManualDraft({GameCatalogFormValues? values})
-      : values = values ?? GameCatalogFormValues();
+  GameAddManualDraft({
+    GameCatalogFormValues? values,
+    this.catalogTitle = '',
+  }) : values = values ?? GameCatalogFormValues();
 
   final GameCatalogFormValues values;
+  @override
+  String catalogTitle;
 
   @override
   void dispose() {}

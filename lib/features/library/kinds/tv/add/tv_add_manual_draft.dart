@@ -2,10 +2,14 @@ import 'package:collectarr_app/features/library/add/models/library_kind_add_draf
 import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_values.dart';
 
 final class TvAddManualDraft implements LibraryKindAddDraft {
-  TvAddManualDraft({TvCatalogItemFormValues? values})
-      : values = values ?? TvCatalogItemFormValues();
+  TvAddManualDraft({
+    TvCatalogItemFormValues? values,
+    this.catalogTitle = '',
+  }) : values = values ?? TvCatalogItemFormValues();
 
   final TvCatalogItemFormValues values;
+  @override
+  String catalogTitle;
 
   @override
   void dispose() {}
