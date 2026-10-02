@@ -112,7 +112,12 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
       return const Center(child: Text('No add fields'));
     }
 
-    final schemaTitle = widget.title ?? widget.schema.title?.call(widget.draft);
+    // Embedded schemas live inside the shared Add/Edit dialog shell, whose
+    // header already owns the dialog title. Keep the schema's standalone title
+    // for the full renderer, and only show an embedded heading when one is
+    // explicitly requested.
+    final schemaTitle = widget.title ??
+        (widget._embedded ? null : widget.schema.title?.call(widget.draft));
     if (widget._embedded) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
