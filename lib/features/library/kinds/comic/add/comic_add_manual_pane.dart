@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dial
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
+import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/serial/serial_authority_dialog.dart';
@@ -206,6 +207,14 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       ),
       includeTitle: false,
     );
+    final mainSchema = AddSchema<ComicAddManualDraft>(
+      validate: schema.validate,
+      sections: [schema.sections.first],
+    );
+    final detailsSchema = AddSchema<ComicAddManualDraft>(
+      validate: schema.validate,
+      sections: [schema.sections.last],
+    );
     return LibraryAddManualPaneShell(
       request: request,
       identityDetails: SingleValuePickField(
@@ -216,13 +225,30 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
         onManage: _openManualSeriesPicker,
         manageTooltip: 'Select or manage series',
       ),
-      formContent: AddSchemaRenderer<ComicAddManualDraft>.embedded(
-        schema: schema,
-        draft: comicDraft,
-        mediaKind: request.kind.apiValue,
-        onVocabularyValueChanged: request.onVocabularyValueChanged,
-        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-      ),
+      tabs: [
+        LibraryAddManualPaneTab(
+          label: 'Main',
+          icon: Icons.article_outlined,
+          content: AddSchemaRenderer<ComicAddManualDraft>.embedded(
+            schema: mainSchema,
+            draft: comicDraft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          label: 'Details',
+          icon: Icons.search,
+          content: AddSchemaRenderer<ComicAddManualDraft>.embedded(
+            schema: detailsSchema,
+            draft: comicDraft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          ),
+        ),
+      ],
     );
   }
 }

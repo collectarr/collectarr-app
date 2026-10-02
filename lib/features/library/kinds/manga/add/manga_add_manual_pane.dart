@@ -175,6 +175,14 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
     final draft = widget.request.manualDraftAs<MangaAddManualDraft>();
     final request = widget.request;
     final schema = _schema();
+    final identitySchema = AddSchema<MangaAddManualDraft>(
+      validate: schema.validate,
+      sections: [schema.sections.first],
+    );
+    final publicationSchema = AddSchema<MangaAddManualDraft>(
+      validate: schema.validate,
+      sections: [schema.sections.last],
+    );
     return LibraryAddManualPaneShell(
       request: request,
       identityDetails: SingleValuePickField(
@@ -184,13 +192,30 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
         onChanged: _setManualSeries,
         onManage: _openManualSeriesPicker,
       ),
-      formContent: AddSchemaRenderer<MangaAddManualDraft>.embedded(
-        schema: schema,
-        draft: draft,
-        mediaKind: request.kind.apiValue,
-        onVocabularyValueChanged: request.onVocabularyValueChanged,
-        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-      ),
+      tabs: [
+        LibraryAddManualPaneTab(
+          label: 'Identity',
+          icon: Icons.title,
+          content: AddSchemaRenderer<MangaAddManualDraft>.embedded(
+            schema: identitySchema,
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          label: 'Publication',
+          icon: Icons.menu_book,
+          content: AddSchemaRenderer<MangaAddManualDraft>.embedded(
+            schema: publicationSchema,
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          ),
+        ),
+      ],
     );
   }
 }
