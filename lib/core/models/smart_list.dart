@@ -5,21 +5,14 @@ import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 enum SmartListEntityType {
-  catalogItem('catalog_item', LibraryEntityScope.work),
-  ownedCopy('owned_copy', LibraryEntityScope.copy);
+  catalogItem('catalog_item'),
+  ownedCopy('owned_copy');
 
-  const SmartListEntityType(this.apiValue, this.workspaceScope);
+  const SmartListEntityType(this.apiValue);
 
   final String apiValue;
-  final LibraryEntityScope workspaceScope;
-
-  static SmartListEntityType forWorkspaceScope(LibraryEntityScope? scope) =>
-      scope == LibraryEntityScope.copy
-          ? SmartListEntityType.ownedCopy
-          : SmartListEntityType.catalogItem;
 
   static SmartListEntityType parse(Object? value) {
     for (final type in values) {
@@ -474,9 +467,8 @@ class SmartList {
     if (parts.length >= 2 && parts.first != kind.apiValue) {
       return (value: candidate, degraded: true);
     }
-    final registry = libraryKindWorkspaceForKind(kind).fieldsForScope(
-      entityType.workspaceScope,
-    );
+    final registry = libraryKindWorkspaceForKind(kind)
+        .fieldsForEntityType(entityType.apiValue);
     final definition =
         registry.findSortDefinition(registry.decodeSortId(lookup));
     if (definition == null) {
@@ -499,9 +491,8 @@ class SmartList {
   ) {
     final kind = catalogMediaKindFromValue(mediaKind);
     if (kind.isUnknown) return false;
-    final registry = libraryKindWorkspaceForKind(kind).fieldsForScope(
-      entityType.workspaceScope,
-    );
+    final registry = libraryKindWorkspaceForKind(kind)
+        .fieldsForEntityType(entityType.apiValue);
     final normalized = _stableToken(token);
     return registry.fields.any((field) => field.id.value == normalized) ||
         registry.columns.any((column) => column.id.value == normalized);

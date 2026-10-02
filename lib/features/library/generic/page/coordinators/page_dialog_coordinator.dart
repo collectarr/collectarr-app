@@ -25,7 +25,9 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
+import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
@@ -184,7 +186,9 @@ class LibraryPageDialogCoordinator {
       currentSortAscending: _page.viewState?.sortAscending,
       currentSearchQuery:
           _page.searchQuery.isNotEmpty ? _page.searchQuery : null,
-      currentEntityScope: _page.activeEntityScope,
+      currentEntityType: _page.activeEntityScope == LibraryEntityScope.copy
+          ? SmartListEntityType.ownedCopy
+          : SmartListEntityType.catalogItem,
       customFieldDefinitions: customFieldCache.definitions,
     );
     if (result != null && _page.mounted && context.mounted) {
@@ -198,20 +202,24 @@ class LibraryPageDialogCoordinator {
         }
         final viewState = _page.viewState;
         if (viewState != null) {
+          final entityType = result.entityType ??
+              (_page.activeEntityScope == LibraryEntityScope.copy
+                  ? SmartListEntityType.ownedCopy
+                  : SmartListEntityType.catalogItem);
           if (result.sortRules != null && result.sortRules!.isNotEmpty) {
             _page.viewState = viewState.withSortRules(
               _page.viewProfile.decodeSortRules(
                 result.sortRules!,
-                scope: result.entityScope ?? _page.activeEntityScope,
+                scope: entityType == SmartListEntityType.ownedCopy
+                    ? LibraryEntityScope.copy
+                    : LibraryEntityScope.work,
               ),
               _page.viewProfile,
             );
           } else if (result.sortColumn != null) {
             _page.viewState = viewState.copyWith(
               sortId: libraryKindWorkspaceForKind(registration.kind)
-                  .fieldsForScope(
-                    result.entityScope ?? _page.activeEntityScope,
-                  )
+                  .fieldsForEntityType(entityType.apiValue)
                   .decodeSortId(result.sortColumn!),
               sortAscending: result.sortAscending ?? true,
             );

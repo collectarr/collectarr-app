@@ -66,6 +66,16 @@ abstract interface class LibraryKindWorkspace {
   LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForScope(
     LibraryEntityScope scope,
   );
+
+  /// Resolves a v1 Catalog Item or Owned Copy field schema.
+  ///
+  /// This is the migration boundary for callers that already store the v1
+  /// entity type while the generic workspace still indexes schemas by its
+  /// transitional scope enum.
+  LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForEntityType(
+    String entityType,
+  );
+
   LibraryFieldRegistry<LibraryWorkspaceDto>? fieldsForGroupModeAcrossScopes(
       String raw);
   Object? groupValueAcrossScopes(
@@ -254,6 +264,18 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     LibraryEntityScope scope,
   ) =>
       workspaceForScope(scope).fields;
+
+  @override
+  LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForEntityType(
+    String entityType,
+  ) =>
+      switch (entityType) {
+        'catalog_item' => fieldsForScope(LibraryEntityScope.work),
+        'owned_copy' => fieldsForScope(LibraryEntityScope.copy),
+        _ => throw FormatException(
+            'Unsupported workspace entity type: $entityType.',
+          ),
+      };
 
   @override
   LibraryFieldRegistry<LibraryWorkspaceDto>? fieldsForGroupModeAcrossScopes(

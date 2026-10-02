@@ -68,6 +68,7 @@ void main() {
                   db: db,
                   mediaKind: 'book',
                   currentFilter: LibraryFilterSelection.none,
+                  currentEntityType: SmartListEntityType.catalogItem,
                   customFieldDefinitions: [
                     CustomFieldDefinition(
                       id: 'cf-location',

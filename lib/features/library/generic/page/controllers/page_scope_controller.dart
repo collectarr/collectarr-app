@@ -268,12 +268,16 @@ abstract final class _LibraryScopeControllerOps {
         state._searchControllerOps.clearSearch();
       }
       if (state._session.preferences.viewState != null) {
+        final workspaceScope =
+            smartList.entityType == SmartListEntityType.ownedCopy
+                ? LibraryEntityScope.copy
+                : LibraryEntityScope.work;
         if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
           state._session.preferences.viewState =
               state._session.preferences.viewState!.withSortRules(
             state._viewProfile.decodeSortRules(
               smartList.sortRules!,
-              scope: smartList.entityType.workspaceScope,
+              scope: workspaceScope,
             ),
             state._viewProfile,
           );
@@ -282,9 +286,7 @@ abstract final class _LibraryScopeControllerOps {
           state._session.preferences.viewState =
               state._session.preferences.viewState!.copyWith(
             sortId: libraryKindWorkspaceForKind(registration.kind)
-                .fieldsForScope(
-                  smartList.entityType.workspaceScope,
-                )
+                .fieldsForEntityType(smartList.entityType.apiValue)
                 .decodeSortId(smartList.sortColumn!),
             sortAscending: smartList.sortAscending ?? true,
           );

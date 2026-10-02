@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_sort_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -20,7 +19,7 @@ class SmartListLoadResult {
     this.sortColumn,
     this.sortAscending,
     this.searchQuery,
-    this.entityScope,
+    this.entityType,
   });
 
   final LibraryFilterSelection filterSelection;
@@ -29,7 +28,7 @@ class SmartListLoadResult {
   final String? sortColumn;
   final bool? sortAscending;
   final String? searchQuery;
-  final LibraryEntityScope? entityScope;
+  final SmartListEntityType? entityType;
 }
 
 /// Shows the smart lists dialog and returns a [SmartListLoadResult] if the user
@@ -44,7 +43,7 @@ Future<SmartListLoadResult?> showSmartListsDialog({
   String? currentSortColumn,
   bool? currentSortAscending,
   String? currentSearchQuery,
-  LibraryEntityScope? currentEntityScope,
+  required SmartListEntityType currentEntityType,
   List<CustomFieldDefinition> customFieldDefinitions = const [],
 }) {
   return showDialog<SmartListLoadResult>(
@@ -58,7 +57,7 @@ Future<SmartListLoadResult?> showSmartListsDialog({
       currentSortColumn: currentSortColumn,
       currentSortAscending: currentSortAscending,
       currentSearchQuery: currentSearchQuery,
-      currentEntityScope: currentEntityScope,
+      currentEntityType: currentEntityType,
       customFieldDefinitions: customFieldDefinitions,
     ),
   );
@@ -74,7 +73,7 @@ class _SmartListsDialog extends StatefulWidget {
     this.currentSortColumn,
     this.currentSortAscending,
     this.currentSearchQuery,
-    this.currentEntityScope,
+    required this.currentEntityType,
     this.customFieldDefinitions = const [],
   });
 
@@ -86,7 +85,7 @@ class _SmartListsDialog extends StatefulWidget {
   final String? currentSortColumn;
   final bool? currentSortAscending;
   final String? currentSearchQuery;
-  final LibraryEntityScope? currentEntityScope;
+  final SmartListEntityType currentEntityType;
   final List<CustomFieldDefinition> customFieldDefinitions;
 
   @override
@@ -171,8 +170,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
       id: id ?? '',
       name: name,
       mediaKind: widget.mediaKind,
-      entityType:
-          SmartListEntityType.forWorkspaceScope(widget.currentEntityScope),
+      entityType: widget.currentEntityType,
       filterSelection: widget.currentFilter,
       quickView: widget.currentQuickView,
       sortRules: widget.currentSortRules,
@@ -279,7 +277,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
         sortColumn: list.sortColumn,
         sortAscending: list.sortAscending,
         searchQuery: list.searchQuery,
-        entityScope: list.entityType.workspaceScope,
+        entityType: list.entityType,
       ),
     );
   }
