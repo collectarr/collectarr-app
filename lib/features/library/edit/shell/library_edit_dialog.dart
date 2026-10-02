@@ -559,7 +559,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       final targetOptions = widget.wishlistTargetOptions;
       CatalogTargetOption? selectedTarget;
       for (final option in targetOptions) {
-        if (option.ref == wishlistRef) {
+        if (option.ref.toCatalogItemRef() == wishlistRef) {
           selectedTarget = option;
           break;
         }
@@ -598,7 +598,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                     onChanged: (option) {
                       if (option == null) return;
                       setState(() {
-                        _draft.personal.selectedWishlistCatalogRef = option.ref;
+                        _draft.personal.selectedWishlistCatalogRef =
+                            option.ref.toCatalogItemRef();
                       });
                     },
                   ),

@@ -57,11 +57,18 @@ final class LibraryWorkspaceSource {
   /// search may index these values but never inspects the transport payload.
   final List<String> catalogSearchTokens;
 
-  CatalogEntityRef? get catalogRef =>
-      catalogSummary?.ref ??
-      catalogData?.ref ??
-      ownedSummary?.catalogRef ??
-      wishlistItem?.catalogRef;
+  CatalogEntityRef? get catalogRef {
+    final sourceRef =
+        catalogSummary?.ref ?? catalogData?.ref ?? ownedSummary?.catalogRef;
+    if (sourceRef != null) return sourceRef;
+    final wishlistRef = wishlistItem?.catalogRef;
+    if (wishlistRef == null) return null;
+    return CatalogEntityRef(
+      kind: wishlistRef.kind,
+      entityType: CatalogEntityTypeId.catalogItem,
+      id: wishlistRef.id,
+    );
+  }
 
   CatalogMediaKind get mediaKind =>
       catalogSummary?.kind ??

@@ -115,13 +115,11 @@ class LibraryPageEditCoordinator {
       WishlistItem? wishlist = target.source.wishlistItem;
       if (wishlist == null ||
           wishlist.isDeleted ||
-          (wishlist.catalogRef.rootId ?? wishlist.catalogRef.id) !=
-              catalogItem.reference.id) {
+          wishlist.catalogRef.id != catalogItem.reference.id) {
         wishlist = null;
         for (final candidate in wishlistItems) {
           if (!candidate.isDeleted &&
-              (candidate.catalogRef.rootId ?? candidate.catalogRef.id) ==
-                  catalogItem.reference.id) {
+              candidate.catalogRef.id == catalogItem.reference.id) {
             wishlist = candidate;
             break;
           }

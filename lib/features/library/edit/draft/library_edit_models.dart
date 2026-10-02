@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/edit/sections/item_images_edit_s
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 
@@ -73,7 +74,7 @@ class LibraryWishlistEditSelection {
     required this.notes,
   });
 
-  final CatalogEntityRef catalogRef;
+  final CatalogItemRef catalogRef;
   final int? targetPriceCents;
   final String? currency;
   final String? notes;

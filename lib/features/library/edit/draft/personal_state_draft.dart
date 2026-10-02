@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:flutter/material.dart';
 
@@ -59,7 +60,7 @@ class PersonalStateDraft {
   /// transports this opaque reference and never interprets entity types.
   CatalogEntityRef? selectedOwnedTargetRef;
 
-  CatalogEntityRef? selectedWishlistCatalogRef;
+  CatalogItemRef? selectedWishlistCatalogRef;
 
   bool locationChanged;
   DateTime? soldAt;

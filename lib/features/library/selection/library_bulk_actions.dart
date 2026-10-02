@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -89,7 +90,7 @@ class LibraryBulkActions {
     for (var index = 0; index < entriesToOwn.length; index++) {
       final entry = entriesToOwn[index];
       final resolvedKind = entry.mediaKind == CatalogMediaKind.unknown
-          ? entry.wishlistItem?.catalogRef.mediaKind ??
+          ? entry.wishlistItem?.catalogRef.kind ??
               entry.trackingSummary?.catalogRef.mediaKind ??
               CatalogMediaKind.unknown
           : entry.mediaKind;
@@ -113,13 +114,21 @@ class LibraryBulkActions {
           '${entry.itemId}',
         );
       }
+      final wishlistTarget = entry.wishlistItem?.catalogRef;
+      final addTarget = entry.ownedSummary?.targetRef ??
+          (wishlistTarget == null
+              ? null
+              : CatalogEntityRef(
+                  kind: wishlistTarget.kind,
+                  entityType: CatalogEntityTypeId.catalogItem,
+                  id: wishlistTarget.id,
+                )) ??
+          entry.catalogRef;
       final addCmd = libraryAddForKind(resolvedKind).buildCommand(
         catalogItem,
         common,
         libraryAddForKind(resolvedKind).createInitialDraft(),
-        targetRef: entry.ownedSummary?.targetRef ??
-            entry.wishlistItem?.catalogRef ??
-            entry.catalogRef,
+        targetRef: addTarget,
         tracking: LibraryAddTrackingDraft(
           readStatus: defaultReadStatus,
         ),
@@ -132,18 +141,18 @@ class LibraryBulkActions {
       List<LibraryWorkspaceSource> entries) async {
     for (var index = 0; index < entries.length; index++) {
       final entry = entries[index];
-      final catalogRef = entry.catalogRef ??
-          entry.ownedSummary?.catalogRef ??
+      final catalogItemRef = entry.catalogRef?.toCatalogItemRef() ??
+          entry.ownedSummary?.catalogRef?.toCatalogItemRef() ??
           entry.wishlistItem?.catalogRef ??
-          entry.trackingSummary?.catalogRef;
-      if (catalogRef == null) {
+          entry.trackingSummary?.catalogRef.toCatalogItemRef();
+      if (catalogItemRef == null) {
         throw StateError(
           'Cannot move selected item to wishlist without a catalog reference: '
           '${entry.itemId}',
         );
       }
       await wishlistMutations.addToWishlist(
-        catalogRef,
+        catalogItemRef,
       );
     }
     final ownedEntries = [

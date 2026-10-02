@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -25,11 +26,12 @@ final class WishlistMutations {
   final IdGenerator idGenerator;
 
   Future<void> addToWishlist(
-    CatalogEntityRef catalogRef, {
+    CatalogItemRef catalogRef, {
     bool notify = true,
   }) async {
-    if (!catalogRef.isKnown ||
-        catalogRef.mediaKind == CatalogMediaKind.unknown) {
+    try {
+      requireKnownCatalogItemRef(catalogRef, 'wishlist.catalogRef');
+    } on ArgumentError {
       throw StateError(
         'Cannot add wishlist item without a registered catalog kind: '
         '${catalogRef.id}',
@@ -60,7 +62,7 @@ final class WishlistMutations {
 
   Future<WishlistItem> updateWishlistItem(
     WishlistItem item, {
-    CatalogEntityRef? catalogRef,
+    CatalogItemRef? catalogRef,
     int? targetPriceCents,
     String? currency,
     String? notes,
@@ -91,7 +93,7 @@ final class WishlistMutations {
 
   Future<void> removeFromWishlist({
     String? wishlistItemId,
-    CatalogEntityRef? catalogRef,
+    CatalogItemRef? catalogRef,
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
@@ -124,7 +126,7 @@ final class WishlistMutations {
   }
 
   Future<void> toggleWishlist(
-    CatalogEntityRef catalogRef,
+    CatalogItemRef catalogRef,
   ) async {
     final existing = await wishlist.findActiveByCatalogRef(catalogRef);
     if (existing == null) {
@@ -143,7 +145,7 @@ final class WishlistMutations {
 
   Future<List<WishlistItem>> _wishlistItemsForMutation({
     String? wishlistItemId,
-    CatalogEntityRef? catalogRef,
+    CatalogItemRef? catalogRef,
   }) async {
     if (wishlistItemId != null) {
       final item = await wishlist.findById(wishlistItemId);

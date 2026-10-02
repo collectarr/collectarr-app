@@ -49,7 +49,7 @@ final class LibraryEditSessionController {
           ? null
           : LibraryWishlistEditSelection(
               catalogRef: state.personal.selectedWishlistCatalogRef ??
-                  state.kindItem.reference,
+                  state.kindItem.reference.toCatalogItemRef(),
               targetPriceCents: parseMoneyCents(
                 state.personal.wishlistPriceController.text,
               ),

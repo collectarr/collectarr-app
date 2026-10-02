@@ -87,7 +87,9 @@ final class CollectionImportOrchestrator {
 
     final now = DateTime.now().toUtc();
     final existingWishlist = {
-      for (final item in await wishlist.findActiveByCatalogRefs(rowRefs))
+      for (final item in await wishlist.findActiveByCatalogRefs(
+        rowRefs.map((ref) => ref.toCatalogItemRef()),
+      ))
         item.catalogRef: item,
     };
     final existingOwned = _ownedSummariesByTarget(
@@ -108,13 +110,14 @@ final class CollectionImportOrchestrator {
       if (!row.isOwned && !row.isWishlisted) continue;
       final rowRef = _catalogRefForRow(row);
       if (rowRef == null) continue;
+      final wishlistRef = rowRef.toCatalogItemRef();
 
       imported++;
       final catalogKind = importedCatalogItemsByRef[rowRef]?.ref.kind ??
           existingCatalogSummaries[rowRef]?.kind ??
           row.mediaKind;
 
-      final existingWishlistItem = existingWishlist[rowRef];
+      final existingWishlistItem = existingWishlist[wishlistRef];
       if (row.isOwned) {
         final existingOwnedSummary = existingOwned[rowRef];
         final existingOwnedPayload = existingOwnedSummary == null
@@ -149,7 +152,7 @@ final class CollectionImportOrchestrator {
         }
 
         if (existingWishlistItem != null &&
-            activeWishlistRefs.contains(rowRef)) {
+            activeWishlistRefs.contains(wishlistRef)) {
           final deleted = existingWishlistItem.copyWith(
             updatedAt: now,
             deletedAt: now,
@@ -165,14 +168,14 @@ final class CollectionImportOrchestrator {
               clientChangedAt: now,
             ),
           );
-          activeWishlistRefs.remove(rowRef);
+          activeWishlistRefs.remove(wishlistRef);
         }
       }
 
-      if (row.isWishlisted && !activeWishlistRefs.contains(rowRef)) {
+      if (row.isWishlisted && !activeWishlistRefs.contains(wishlistRef)) {
         final wishlistItem = WishlistItem(
           id: idGenerator(),
-          catalogRef: rowRef,
+          catalogRef: wishlistRef,
           createdAt: now,
           updatedAt: now,
         );
@@ -187,7 +190,7 @@ final class CollectionImportOrchestrator {
             clientChangedAt: now,
           ),
         );
-        activeWishlistRefs.add(rowRef);
+        activeWishlistRefs.add(wishlistRef);
       }
     }
 
@@ -363,7 +366,7 @@ final class CollectionImportOrchestrator {
     }
     return CatalogEntityRef(
       kind: row.mediaKind,
-      entityType: CatalogEntityTypeId.root,
+      entityType: CatalogEntityTypeId.catalogItem,
       id: row.itemId,
     );
   }
@@ -421,7 +424,7 @@ final class CollectionImportOrchestrator {
         row.catalogRef ??
         CatalogEntityRef(
           kind: kind,
-          entityType: CatalogEntityTypeId.root,
+          entityType: CatalogEntityTypeId.catalogItem,
           id: row.itemId,
         );
     final personal = row.personal;

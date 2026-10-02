@@ -243,6 +243,14 @@ class LibraryEditShellState {
     Map<String, String?> customFieldEdits,
     List<ItemImageEdit> itemImageEdits,
   }) cloneDialogState() {
+    final wishlistRef = wishlistItem?.catalogRef;
+    final wishlistEntityRef = wishlistRef == null
+        ? null
+        : CatalogEntityRef(
+            kind: wishlistRef.kind,
+            entityType: CatalogEntityTypeId.catalogItem,
+            id: wishlistRef.id,
+          );
     return (
       selectedLocationId: personal.selectedLocationId,
       startedAt: tracking.startedAt,
@@ -250,7 +258,7 @@ class LibraryEditShellState {
       soldAt: personal.soldAt,
       selectedTargetRef: personal.selectedOwnedTargetRef ??
           trackingSummary?.catalogRef ??
-          wishlistItem?.catalogRef ??
+          wishlistEntityRef ??
           kindItem.reference,
       customFieldEdits: Map<String, String?>.from(customFieldEdits),
       itemImageEdits: List<ItemImageEdit>.from(itemImageEdits),

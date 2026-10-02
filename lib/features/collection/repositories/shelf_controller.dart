@@ -45,7 +45,12 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final catalogRefs = <CatalogEntityRef>{
     for (final item in ownedSummaries)
       if (item.catalogRef != null) item.catalogRef!.rootScope,
-    for (final item in wishlist) item.catalogRef.rootScope,
+    for (final item in wishlist)
+      CatalogEntityRef(
+        kind: item.catalogRef.kind,
+        entityType: CatalogEntityTypeId.catalogItem,
+        id: item.catalogRef.id,
+      ),
     for (final item in trackingSummaries) item.catalogRef.rootScope,
   };
   final catalogSummaries =
@@ -134,7 +139,12 @@ class ShelfState {
     };
     final wishlistByCatalogRef = <CatalogEntityRef, WishlistItem>{
       for (final item in wishlistItems)
-        if (!item.isDeleted) item.catalogRef.rootScope: item,
+        if (!item.isDeleted)
+          CatalogEntityRef(
+            kind: item.catalogRef.kind,
+            entityType: CatalogEntityTypeId.catalogItem,
+            id: item.catalogRef.id,
+          ): item,
     };
     final trackingByCatalogRef = <CatalogEntityRef, List<TrackingSummary>>{};
     for (final entry in resolvedTrackingSummaries) {

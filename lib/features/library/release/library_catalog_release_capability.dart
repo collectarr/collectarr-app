@@ -106,7 +106,7 @@ final class LibraryCatalogReleaseProjectionCapability<
     final releaseState = LibraryReleaseState(
       isOwned: _targetMatches(source.ownedSummary?.targetRef, rootRef, summary),
       isWishlisted:
-          _targetMatches(source.wishlistItem?.catalogRef, rootRef, summary),
+          source.wishlistItem?.catalogRef == rootRef.toCatalogItemRef(),
       isTracked: source.trackingSummaryFor(releaseTarget) != null,
       trackingSummary: source.trackingSummaryFor(releaseTarget),
     );
@@ -192,5 +192,5 @@ bool _targetMatches(
   if (target == null || target.kind != rootRef.kind) return false;
   if (target.rootScope != rootRef.rootScope) return false;
   if (target.id == summary.id || target.parentId == summary.id) return true;
-  return target.entityType == CatalogEntityTypeId.root;
+  return target.entityType == CatalogEntityTypeId.catalogItem;
 }

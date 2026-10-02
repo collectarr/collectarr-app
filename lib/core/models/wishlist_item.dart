@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 
 const Object _wishlistItemUnset = Object();
 
@@ -15,7 +15,7 @@ class WishlistItem {
   });
 
   final String id;
-  final CatalogEntityRef catalogRef;
+  final CatalogItemRef catalogRef;
   final int? targetPriceCents;
   final String? currency;
   final String? notes;
@@ -40,7 +40,7 @@ class WishlistItem {
         Map<String, Object?>.from(json['catalog_ref'] as Map);
     return WishlistItem(
       id: json['id'] as String,
-      catalogRef: CatalogEntityRef.fromJson(catalogRefJson),
+      catalogRef: CatalogItemRef.fromJson(catalogRefJson),
       targetPriceCents: json['target_price_cents'] as int?,
       currency: json['currency'] as String?,
       notes: json['notes'] as String?,
@@ -54,7 +54,7 @@ class WishlistItem {
 
   WishlistItem copyWith({
     String? id,
-    CatalogEntityRef? catalogRef,
+    CatalogItemRef? catalogRef,
     Object? targetPriceCents = _wishlistItemUnset,
     Object? currency = _wishlistItemUnset,
     Object? notes = _wishlistItemUnset,

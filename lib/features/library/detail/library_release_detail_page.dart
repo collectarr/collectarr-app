@@ -106,7 +106,7 @@ class _LibraryReleaseDetailPageState
       return;
     }
     await ref.read(wishlistMutationsProvider).addToWishlist(
-          release.option.targetRef,
+          release.option.targetRef.toCatalogItemRef(),
         );
   }
 
@@ -151,8 +151,7 @@ class _LibraryReleaseDetailPageState
           .where(
             (item) =>
                 !item.isDeleted &&
-                (item.catalogRef.rootId ?? item.catalogRef.id) ==
-                    request.item.source.itemId,
+                item.catalogRef.id == request.item.source.itemId,
           )
           .toList(growable: false),
       orElse: () => const <WishlistItem>[],
@@ -382,7 +381,7 @@ _ResolvedLibraryRelease _buildResolvedLibraryRelease(
     );
   WishlistItem? matchedWishlist;
   for (final wish in wishlistItems) {
-    if (wish.catalogRef == option.targetRef) {
+    if (wish.catalogRef == option.targetRef.toCatalogItemRef()) {
       matchedWishlist = wish;
       break;
     }

@@ -147,7 +147,7 @@ final class LibraryAddCoordinator {
           break;
         case LibraryAddTarget.wishlist:
           await wishlistMutations.addToWishlist(
-            reference,
+            reference.toCatalogItemRef(),
           );
           break;
         case LibraryAddTarget.track:

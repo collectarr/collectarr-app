@@ -261,7 +261,7 @@ class SyncApplyService {
       throw FormatException('Expected wishlist_item entity, got $type');
     }
     return WishlistItem.fromJson({
-      ..._withInternalCatalogRef(payload),
+      ...payload,
       'id': entity['entity_id'],
       'created_at': payload['created_at'] ?? entity['client_changed_at'],
       'updated_at': entity['client_changed_at'],

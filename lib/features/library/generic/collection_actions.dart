@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -26,9 +27,17 @@ class LibraryCollectionActions {
     final catalogItem =
         await catalogSnapshots.findCandidateByRef(catalogRef.rootScope);
     if (catalogItem == null) return;
-    final registration = libraryKindRegistrationForKind(catalogItem.summary.kind);
+    final registration =
+        libraryKindRegistrationForKind(catalogItem.summary.kind);
+    final wishlistRef = item.source.wishlistItem?.catalogRef;
     final targetRef = item.source.ownedSummary?.targetRef ??
-        item.source.wishlistItem?.catalogRef ??
+        (wishlistRef == null
+            ? null
+            : CatalogEntityRef(
+                kind: wishlistRef.kind,
+                entityType: CatalogEntityTypeId.catalogItem,
+                id: wishlistRef.id,
+              )) ??
         item.source.catalogRef ??
         catalogItem.reference;
     await coordinator.addOwnedItem(
@@ -55,7 +64,8 @@ class LibraryCollectionActions {
       ownedItem: item.source.ownedSummary,
       wishlistItem: item.source.wishlistItem,
     );
-    final catalogRef = targetRef ?? item.source.catalogRef;
+    final catalogRef = targetRef?.toCatalogItemRef() ??
+        item.source.catalogRef?.toCatalogItemRef();
     if (catalogRef == null) return Future<void>.value();
     return wishlistMutations.addToWishlist(catalogRef);
   }
@@ -66,9 +76,11 @@ class LibraryCollectionActions {
       ownedItem: item.source.ownedSummary,
       wishlistItem: item.source.wishlistItem,
     );
+    final catalogRef = targetRef?.toCatalogItemRef() ??
+        item.source.catalogRef?.toCatalogItemRef();
     return wishlistMutations.removeFromWishlist(
       wishlistItemId: item.source.wishlistItem?.id,
-      catalogRef: targetRef ?? item.source.catalogRef,
+      catalogRef: catalogRef,
     );
   }
 }

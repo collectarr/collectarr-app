@@ -70,7 +70,7 @@ final class CatalogItemChanged extends CollectionEvent {
 
 final class WishlistChanged extends CollectionEvent {
   const WishlistChanged(this.catalogRef);
-  final CatalogEntityRef catalogRef;
+  final CatalogItemRef catalogRef;
 
   @override
   bool operator ==(Object other) =>

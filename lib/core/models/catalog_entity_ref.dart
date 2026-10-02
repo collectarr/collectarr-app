@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:flutter/foundation.dart';
 
 export 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -14,10 +15,8 @@ const Object _catalogEntityRefUnset = Object();
 final class CatalogEntityTypeId {
   const CatalogEntityTypeId(this.apiValue);
 
-  /// Structural root identifier used by mixed-kind projections. The wire
-  /// value remains `work` for the schema-v1/API contract, but generic code
-  /// should refer to the structural role rather than a media ontology term.
-  static const root = CatalogEntityTypeId('work');
+  /// Identifies a concrete, kind-owned Catalog Item.
+  static const catalogItem = CatalogEntityTypeId('catalog_item');
 
   /// Sentinel for a missing or malformed transport value.
   static const unknown = CatalogEntityTypeId('unknown');
@@ -85,11 +84,34 @@ class CatalogEntityRef {
     if (root != null && root.isNotEmpty) {
       return CatalogEntityRef(
         kind: kind,
-        entityType: CatalogEntityTypeId.root,
+        entityType: CatalogEntityTypeId.catalogItem,
         id: root,
       );
     }
     return this;
+  }
+
+  /// Converts a transitional workspace target to its concrete Catalog Item.
+  ///
+  /// The workspace still exposes structural refs while it is being flattened;
+  /// personal catalog features should persist only the root item's identity.
+  CatalogItemRef toCatalogItemRef() {
+    if (!isKnown) {
+      throw ArgumentError.value(
+        this,
+        'catalogEntityRef',
+        'Expected a known catalog reference.',
+      );
+    }
+    final root = rootScope;
+    if (root.entityType != CatalogEntityTypeId.catalogItem) {
+      throw ArgumentError.value(
+        this,
+        'catalogEntityRef',
+        'Expected a reference rooted at a Catalog Item.',
+      );
+    }
+    return CatalogItemRef(kind: root.kind, id: root.id);
   }
 
   bool get isKnown =>

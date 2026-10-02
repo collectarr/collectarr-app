@@ -112,11 +112,11 @@ final trackingUnitsByCatalogRefProvider =
 });
 
 final wishlistByCatalogRefProvider =
-    Provider<Map<CatalogEntityRef, List<WishlistItem>>>((ref) {
+    Provider<Map<CatalogItemRef, List<WishlistItem>>>((ref) {
   final wishlist = ref.watch(wishlistProvider);
   return wishlist.maybeWhen(
     data: (items) {
-      final grouped = <CatalogEntityRef, List<WishlistItem>>{};
+      final grouped = <CatalogItemRef, List<WishlistItem>>{};
       for (final item in items) {
         if (item.isDeleted) {
           continue;
@@ -128,11 +128,11 @@ final wishlistByCatalogRefProvider =
       }
       return grouped;
     },
-    orElse: () => const <CatalogEntityRef, List<WishlistItem>>{},
+    orElse: () => const <CatalogItemRef, List<WishlistItem>>{},
   );
 });
 
-final wishlistRefsProvider = FutureProvider<Set<CatalogEntityRef>>((ref) async {
+final wishlistRefsProvider = FutureProvider<Set<CatalogItemRef>>((ref) async {
   final cache = WishlistItemsCacheRepository(ref.watch(localDatabaseProvider));
   final items = await cache.listActive();
   return {

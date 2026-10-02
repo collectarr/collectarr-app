@@ -65,7 +65,8 @@ final class OwnedItemMutations {
   ) async {
     final now = DateTime.now().toUtc();
     final catalogRef = command.catalogRef;
-    final wishlistTargetRef = command.targetRef ?? catalogRef;
+    final wishlistTargetRef =
+        (command.targetRef ?? catalogRef).toCatalogItemRef();
     final catalogLookupRef = command.targetRef ?? catalogRef;
 
     final existingWishlist =

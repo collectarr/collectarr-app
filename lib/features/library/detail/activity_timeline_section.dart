@@ -82,9 +82,9 @@ class _ActivityTimelineSectionState
             const <TrackingSummary>[];
     final watchSessions =
         ref.watch(watchSessionsByCatalogRefProvider(widget.itemRef));
-    final wishlistItems =
-        ref.watch(wishlistByCatalogRefProvider)[widget.itemRef] ??
-            const <WishlistItem>[];
+    final wishlistItems = ref.watch(
+            wishlistByCatalogRefProvider)[widget.itemRef.toCatalogItemRef()] ??
+        const <WishlistItem>[];
 
     final events = ActivityEventAggregator.aggregate(
       ownedItems: ownedItems,
