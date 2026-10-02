@@ -4,10 +4,8 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:flutter/foundation.dart';
@@ -19,8 +17,6 @@ class LibraryProjectionRequest {
     required this.shelf,
     required this.type,
     required this.viewState,
-    required this.browserMode,
-    required this.releaseFolderWorkId,
     required this.query,
     required this.linkedMetadataFilter,
     required this.selectedBucket,
@@ -42,8 +38,6 @@ class LibraryProjectionRequest {
   final ShelfState shelf;
   final LibraryKindRegistration type;
   final LibraryWorkspaceViewState viewState;
-  final LibraryWorkspaceBrowserMode browserMode;
-  final String? releaseFolderWorkId;
   final String query;
   final LibraryLinkedMetadataFilter? linkedMetadataFilter;
   final String? selectedBucket;
@@ -67,8 +61,6 @@ class LibraryProjectionRequest {
         shelf == other.shelf &&
         type == other.type &&
         viewState == other.viewState &&
-        browserMode == other.browserMode &&
-        releaseFolderWorkId == other.releaseFolderWorkId &&
         query == other.query &&
         linkedMetadataFilter == other.linkedMetadataFilter &&
         selectedBucket == other.selectedBucket &&
@@ -98,8 +90,6 @@ class LibraryProjectionRequest {
         shelf,
         type,
         viewState,
-        browserMode,
-        releaseFolderWorkId,
         query,
         linkedMetadataFilter,
         selectedBucket,
@@ -188,8 +178,6 @@ final libraryProjectionProvider = Provider.autoDispose
     shelf: request.shelf,
     type: request.type,
     viewState: request.viewState,
-    browserMode: request.browserMode,
-    releaseFolderWorkId: request.releaseFolderWorkId,
     query: request.query,
     linkedMetadataFilter: request.linkedMetadataFilter,
     selectedBucket: request.selectedBucket,

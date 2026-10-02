@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 abstract interface class LibraryProjectionView<
@@ -88,34 +87,9 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
       const {},
   Map<String, List<String>> customFieldValuesByItem = const {},
-  LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.work,
-  String? releaseFolderWorkId,
 }) {
   final kind = type.kind;
   final workspace = libraryKindWorkspaceForKind(kind);
-  if (browserMode == LibraryWorkspaceBrowserMode.release) {
-    final releaseCap = libraryReleaseCapabilityForKind(type.kind);
-    if (releaseCap == null) {
-      throw UnsupportedError(
-        'Release projection capability is not supported for ${kind.apiValue}',
-      );
-    }
-    return [
-      for (final source in shelf.entries)
-        if (source.catalogRef?.mediaKind == kind &&
-            source.catalogData?.kind == kind)
-          ...releaseCap.projectReleases(
-            source: source,
-            type: type,
-            projector: workspace.projectorForScope(LibraryEntityScope.release),
-            customFieldDefinitions: customFieldDefinitions,
-            customFieldValuesByDefinitionByItem:
-                customFieldValuesByDefinitionByItem,
-            customFieldValuesByItem: customFieldValuesByItem,
-            requestedWorkId: releaseFolderWorkId,
-          ),
-    ];
-  }
   return [
     for (final source in shelf.entries)
       if (source.catalogRef?.mediaKind == kind &&

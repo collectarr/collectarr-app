@@ -9,22 +9,14 @@ abstract final class _LibraryViewStateControllerOps {
       if (state.mounted &&
           token == state._session.preferences.viewStateLoadToken &&
           state.widget.type.kind == expectedKind) {
-        final normalized =
-            libraryReleaseCapabilityForKind(expectedKind) == null &&
-                    loaded.browserMode == LibraryWorkspaceBrowserMode.release
-                ? loaded.copyWith(browserMode: LibraryWorkspaceBrowserMode.work)
-                : loaded;
         if (viewStateEquals(
-            state, state._session.preferences.viewState, normalized)) {
+            state, state._session.preferences.viewState, loaded)) {
           return;
         }
         state._mutateState(() {
-          state._session.preferences.viewState = normalized;
+          state._session.preferences.viewState = loaded;
           state._applyRouteStateFromUri(state.widget.routeUri);
         });
-        if (normalized != loaded) {
-          scheduleViewStateSave(state, normalized);
-        }
       }
     } catch (error, stackTrace) {
       logRecoverableError(

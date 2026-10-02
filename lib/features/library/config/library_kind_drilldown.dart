@@ -24,9 +24,7 @@ Widget? buildLibraryKindDrilldown({
   required Future<void> Function() onRefreshFromCore,
   required VoidCallback onOpenTitleDetails,
   required List<OwnedCopySummary> ownedCopies,
-  required List<WishlistItem> wishlistItems,
-  required String? selectedReleaseId,
-  required void Function(String releaseId) onSelectRelease,
+    required List<WishlistItem> wishlistItems,
 }) {
   return libraryPresentationForKind(type.kind).builder.buildKindDrilldown(
         context: context,
@@ -38,8 +36,6 @@ Widget? buildLibraryKindDrilldown({
         onOpenTitleDetails: onOpenTitleDetails,
         ownedCopies: ownedCopies,
         wishlistItems: wishlistItems,
-        selectedReleaseId: selectedReleaseId,
-        onSelectRelease: onSelectRelease,
         projector: libraryKindWorkspaceForKind(type.kind)
             .projectorForScope(LibraryEntityScope.work),
       );

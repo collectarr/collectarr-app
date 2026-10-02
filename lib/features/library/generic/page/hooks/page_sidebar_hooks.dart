@@ -77,7 +77,6 @@ extension _PageSidebarHooks on GenericLibraryPageState {
           LibraryCollectionStatusScope.all ||
       _session.facets.quickView != null ||
       _session.preferences.activeSmartListId != null ||
-      activeReleaseFolderTitleItemId != null ||
       _session.selection.filterSelection.hasActiveFilters;
 
   void _setGroupMode(String mode) {

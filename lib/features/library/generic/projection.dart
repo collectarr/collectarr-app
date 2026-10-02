@@ -11,12 +11,10 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:flutter/material.dart';
 
@@ -347,8 +345,6 @@ class LibraryProjection {
     required ShelfState shelf,
     required LibraryKindRegistration type,
     required LibraryWorkspaceViewState viewState,
-    LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.work,
-    String? releaseFolderWorkId,
     required String query,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
     required String? selectedBucket,
@@ -372,8 +368,6 @@ class LibraryProjection {
       shelf: shelf,
       type: type,
       viewState: viewState,
-      browserMode: browserMode,
-      releaseFolderWorkId: releaseFolderWorkId,
       query: query,
       linkedMetadataFilter: linkedMetadataFilter,
       selectedBucket: selectedBucket,

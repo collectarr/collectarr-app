@@ -7,43 +7,16 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter/material.dart';
 
 abstract class LibraryKindBrowserDelegate {
-  String? get releaseFolderWorkId;
-
-  set releaseFolderWorkId(String? value);
-
-  bool get hasReleaseFolderTitleItemId => releaseFolderWorkId != null;
-
-  void openReleaseFolder(String? workId) {
-    releaseFolderWorkId = workId;
-  }
-
-  void closeReleaseFolder() {
-    releaseFolderWorkId = null;
-  }
-
   LibraryDrilldownState? get itemDrilldownState;
 
   set itemDrilldownState(LibraryDrilldownState? value);
 
   String? get drilldownRootItemId => itemDrilldownState?.rootItemId;
 
-  String? get drilldownSelectedChildId => itemDrilldownState?.selectedChildId;
-
-  String? get drilldownSelectedReleaseId =>
-      itemDrilldownState?.selectedReleaseId;
-
   bool get hasItemDrilldown => itemDrilldownState != null;
 
-  void openItemDrilldown(
-    String rootItemId, {
-    String? selectedChildId,
-    String? selectedReleaseId,
-  }) {
-    itemDrilldownState = LibraryDrilldownState(
-      rootItemId: rootItemId,
-      selectedChildId: selectedChildId,
-      selectedReleaseId: selectedReleaseId,
-    );
+  void openItemDrilldown(String rootItemId) {
+    itemDrilldownState = LibraryDrilldownState(rootItemId: rootItemId);
   }
 
   void closeItemDrilldown() {
@@ -100,41 +73,18 @@ abstract class LibraryKindBrowserDelegate {
       onOpenTitleDetails: onOpenTitleDetails,
       ownedCopies: ownedCopies,
       wishlistItems: wishlistItems,
-      selectedReleaseId: drilldownSelectedReleaseId,
-      onSelectRelease: (releaseId) => openItemDrilldown(
-        selectedItem.node.workId,
-        selectedReleaseId: releaseId,
-      ),
     );
   }
 }
 
 class LibraryDrilldownState {
-  const LibraryDrilldownState({
-    required this.rootItemId,
-    this.selectedChildId,
-    this.selectedReleaseId,
-  });
+  const LibraryDrilldownState({required this.rootItemId});
 
   final String rootItemId;
-  final String? selectedChildId;
-  final String? selectedReleaseId;
 }
 
 class LibraryNoopBrowserDelegate extends LibraryKindBrowserDelegate {
-  LibraryNoopBrowserDelegate({String? initialReleaseFolderTitleItemId})
-      : _releaseFolderWorkId = initialReleaseFolderTitleItemId;
-
-  String? _releaseFolderWorkId;
   LibraryDrilldownState? _itemDrilldownState;
-
-  @override
-  String? get releaseFolderWorkId => _releaseFolderWorkId;
-
-  @override
-  set releaseFolderWorkId(String? value) {
-    _releaseFolderWorkId = value;
-  }
 
   @override
   LibraryDrilldownState? get itemDrilldownState => _itemDrilldownState;
@@ -143,33 +93,4 @@ class LibraryNoopBrowserDelegate extends LibraryKindBrowserDelegate {
   set itemDrilldownState(LibraryDrilldownState? value) {
     _itemDrilldownState = value;
   }
-}
-
-class LibraryReleaseFolderBrowserDelegate extends LibraryKindBrowserDelegate {
-  LibraryReleaseFolderBrowserDelegate({
-    String? initialReleaseFolderTitleItemId,
-  }) : _releaseFolderWorkId = initialReleaseFolderTitleItemId;
-
-  String? _releaseFolderWorkId;
-  LibraryDrilldownState? _itemDrilldownState;
-
-  @override
-  String? get releaseFolderWorkId => _releaseFolderWorkId;
-
-  @override
-  set releaseFolderWorkId(String? value) {
-    _releaseFolderWorkId = value;
-  }
-
-  @override
-  LibraryDrilldownState? get itemDrilldownState => _itemDrilldownState;
-
-  @override
-  set itemDrilldownState(LibraryDrilldownState? value) {
-    _itemDrilldownState = value;
-  }
-}
-
-LibraryKindBrowserDelegate buildReleaseFolderBrowserDelegate() {
-  return LibraryReleaseFolderBrowserDelegate();
 }

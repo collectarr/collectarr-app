@@ -267,8 +267,6 @@ abstract class LibraryMediaPresentationBuilder {
     required VoidCallback onOpenTitleDetails,
     required List<OwnedCopySummary> ownedCopies,
     required List<WishlistItem> wishlistItems,
-    required String? selectedReleaseId,
-    required void Function(String releaseId) onSelectRelease,
     required LibraryEntityWorkspaceProjector projector,
   }) =>
       null;

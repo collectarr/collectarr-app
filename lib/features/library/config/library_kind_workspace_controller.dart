@@ -7,12 +7,9 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
-class LibraryKindWorkspaceController
-    extends LibraryReleaseFolderBrowserDelegate {
-  LibraryKindWorkspaceController({super.initialReleaseFolderTitleItemId});
+class LibraryKindWorkspaceController extends LibraryNoopBrowserDelegate {
 
   void closeAllKindDrilldowns() {
-    closeReleaseFolder();
     closeItemDrilldown();
   }
 
@@ -67,11 +64,6 @@ class LibraryKindWorkspaceController
       onOpenTitleDetails: onOpenTitleDetails,
       ownedCopies: allOwnedCopies,
       wishlistItems: allWishlistItems,
-      selectedReleaseId: drilldownState.selectedReleaseId,
-      onSelectRelease: (releaseId) => openItemDrilldown(
-        drilldownState.rootItemId,
-        selectedReleaseId: releaseId,
-      ),
     );
   }
 }

@@ -43,16 +43,12 @@ abstract final class _LibraryProjectionControllerOps {
     final activeLoanOwnedCopyIds = state._activeLoanOwnedCopyIds;
     final query = searchState.query;
     final searchTarget = state._effectiveSearchTarget;
-    final browserMode = state._activeBrowserMode;
-    final releaseFolderWorkId = state.activeReleaseFolderTitleItemId;
     return state.ref.watch(
       libraryProjectionProvider(
         LibraryProjectionRequest(
           shelf: shelf,
           type: state.widget.type,
           viewState: viewState,
-          browserMode: browserMode,
-          releaseFolderWorkId: releaseFolderWorkId,
           query: query,
           linkedMetadataFilter: linkedMetadataFilter,
           selectedBucket: selectedBucket,

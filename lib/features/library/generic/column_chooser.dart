@@ -13,9 +13,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
   Set<String> pinnedFavoriteKeys = const {},
   ValueChanged<LibraryTableColumnPreset>? onTogglePinnedFavorite,
 }) async {
-  final scope = viewState.browserMode == LibraryWorkspaceBrowserMode.release
-      ? LibraryEntityScope.release
-      : LibraryEntityScope.work;
+  const scope = LibraryEntityScope.work;
   final store = LibraryColumnPresetStore(type, scope: scope);
   final savedPresets = await store.read();
   if (!context.mounted) {

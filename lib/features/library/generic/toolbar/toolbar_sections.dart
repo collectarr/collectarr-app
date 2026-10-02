@@ -36,11 +36,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.pinnedColumnFavoriteKeys = const {},
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
-    this.browserMode = LibraryWorkspaceBrowserMode.work,
-    this.onBrowserModeChanged,
-    this.showReleaseFolderBack = false,
-    this.releaseFolderLabel,
-    this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
     this.onDensityPresetChanged = _noopDensityPresetChanged,
     required this.onCoverSizeChanged,
@@ -98,11 +93,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final Set<String> pinnedColumnFavoriteKeys;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
-  final LibraryWorkspaceBrowserMode browserMode;
-  final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
-  final bool showReleaseFolderBack;
-  final String? releaseFolderLabel;
-  final VoidCallback? onReleaseFolderBack;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
@@ -152,11 +142,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final mediaScopeLabel =
-        libraryPresentationForKind(type.kind).groupLabels.labelFor(
-              'media_scope',
-              fallback: 'Media',
-            );
     final pinnedColumnPresets = [
       for (final preset in columnFavoritePresets)
         if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset)))
@@ -245,42 +230,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 onChanged: onGroupPresentationChanged!,
                               ),
                             ],
-                            if (libraryReleaseCapabilityForKind(type.kind) !=
-                                null) ...[
-                              const _LibraryDesktopToolbarSeparator(),
-                              _LibraryDesktopToolbarSection(
-                                label: 'Scope',
-                                child: PopupMenuButton<
-                                    LibraryWorkspaceBrowserMode>(
-                                  tooltip: 'Browser scope',
-                                  initialValue: browserMode,
-                                  onSelected: onBrowserModeChanged,
-                                  itemBuilder: (context) => [
-                                    PopupMenuItem(
-                                      value: LibraryWorkspaceBrowserMode.work,
-                                      height: kLibraryToolbarPopupItemHeight,
-                                      child: Text(mediaScopeLabel),
-                                    ),
-                                    const PopupMenuItem(
-                                      value:
-                                          LibraryWorkspaceBrowserMode.release,
-                                      height: kLibraryToolbarPopupItemHeight,
-                                      child: Text('Releases'),
-                                    ),
-                                  ],
-                                  child: _LibraryToolbarSecondaryTrigger(
-                                    icon: browserMode ==
-                                            LibraryWorkspaceBrowserMode.work
-                                        ? Icons.layers_outlined
-                                        : Icons.inventory_2_outlined,
-                                    tooltip: browserMode ==
-                                            LibraryWorkspaceBrowserMode.work
-                                        ? 'Scope: $mediaScopeLabel'
-                                        : 'Scope: Releases',
-                                  ),
-                                ),
-                              ),
-                            ],
                             if (viewState.detailsLayout ==
                                 LibraryDetailsLayout.hidden) ...[
                               const _LibraryDesktopToolbarSeparator(),
@@ -338,16 +287,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     total: counts.total,
                     pluralLabel: type.identity.pluralLabel,
                   ),
-                  if (showReleaseFolderBack && onReleaseFolderBack != null)
-                    TextButton.icon(
-                      onPressed: onReleaseFolderBack,
-                      icon: const Icon(Icons.arrow_back, size: 16),
-                      label: Text(
-                        releaseFolderLabel == null
-                            ? 'Back'
-                            : 'Back: ${releaseFolderLabel!}',
-                      ),
-                    ),
                   if (selectedBucket != null)
                     LibraryToolbarScopeChip(
                       label: selectedBucket!,
@@ -545,46 +484,6 @@ class _LibraryDesktopToolbarSeparator extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _LibraryToolbarSecondaryTrigger extends StatelessWidget {
-  const _LibraryToolbarSecondaryTrigger({
-    required this.icon,
-    this.tooltip,
-  });
-
-  final IconData icon;
-  final String? tooltip;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final trigger = DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panelRaised,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: palette.divider),
-      ),
-      child: SizedBox(
-        height: kLibraryToolbarTextDropdownHeight,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 16, color: palette.textPrimary),
-              const SizedBox(width: 6),
-              const Icon(Icons.arrow_drop_down, size: 16),
-            ],
-          ),
-        ),
-      ),
-    );
-    if (tooltip == null || tooltip!.trim().isEmpty) {
-      return trigger;
-    }
-    return Tooltip(message: tooltip, child: trigger);
   }
 }
 

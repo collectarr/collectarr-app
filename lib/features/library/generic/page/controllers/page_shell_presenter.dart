@@ -85,9 +85,7 @@ abstract final class LibraryPageShellPresenter {
     final registration = state.widget.type;
     final activeScope = projection.allItems.isNotEmpty
         ? projection.allItems.first.node.scope
-        : libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
-            viewState.browserMode,
-          );
+        : LibraryEntityScope.work;
     final activeFields = libraryKindWorkspaceForKind(registration.kind)
         .fieldsForScope(activeScope);
     final workspaceOverride = state.buildWorkspaceOverride(
@@ -96,27 +94,6 @@ abstract final class LibraryPageShellPresenter {
       allOwnedCopies: allOwnedCopies,
       allWishlistItems: allWishlistItems,
     );
-    final releasePositionLabel =
-        state._releasePositionLabelForProjection(projection);
-    if (state.activeReleaseFolderTitleItemId != null &&
-        projection.filteredItems.isNotEmpty) {
-      final hasSelection = projection.filteredItems.any(
-        (item) => item.node.id == state._session.selection.selectedId,
-      );
-      if (!hasSelection) {
-        final firstReleaseId = projection.filteredItems.first.node.id;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!state.mounted ||
-              state._session.selection.selectedId == firstReleaseId) {
-            return;
-          }
-          state._activateItem(firstReleaseId);
-        });
-      }
-    }
-    // Switching Work/Release scope invalidates the previous node id. Keep the
-    // inspector attached to the active entity scope instead of leaving it on
-    // the previous Work projection while the browser shows Releases.
     if (state._session.selection.selectedId != null &&
         projection.filteredItems.isNotEmpty &&
         !projection.filteredItems.any(
@@ -188,14 +165,7 @@ abstract final class LibraryPageShellPresenter {
       onApplySelection: state._applySelection,
       onActivateItem: state._activateItem,
       onToggleSelectionItem: state._toggleSelectionItem,
-      onOpenItem: (item) {
-        final isMediaTitle = item.node.scope == LibraryEntityScope.work;
-        if (state._shouldOpenReleaseFolder(item) && isMediaTitle) {
-          state._openReleaseFolder(item);
-          return;
-        }
-        state._editCoordinator.showDetailPage(item);
-      },
+      onOpenItem: (item) => state._editCoordinator.showDetailPage(item),
       onBoxSelectionChanged: (ids) => state._rebuild(() {
         state._session.selection.value =
             state._session.selection.value.replace(ids);
@@ -319,7 +289,6 @@ abstract final class LibraryPageShellPresenter {
       onFolderDisplayModeChanged: state._setFolderDisplayMode,
       onFolderTreeNodeSelected: state._selectFolderTreePath,
       onFolderTreeNodeExpandedToggled: state._toggleFolderTreeNodeExpanded,
-      inspectorContextLabel: releasePositionLabel,
       desktopToolbarBand: LibraryDesktopSecondaryToolbar(
         type: state.widget.type,
         viewState: viewState,
@@ -335,21 +304,6 @@ abstract final class LibraryPageShellPresenter {
         onViewModeChanged: (mode) => state._updateViewState(
           (stateValue) => stateValue.copyWith(viewMode: mode),
         ),
-        browserMode: state._activeBrowserMode,
-        onBrowserModeChanged: state._setBrowserMode,
-        showReleaseFolderBack:
-            libraryBrowserNavigationPolicy.shouldShowReleaseFolderBack(
-          browserMode: state._activeBrowserMode,
-          releaseFolderWorkId: state.activeReleaseFolderTitleItemId,
-        ),
-        releaseFolderLabel: state._releaseFolderLabelForProjection(projection),
-        onReleaseFolderBack:
-            libraryBrowserNavigationPolicy.shouldShowReleaseFolderBack(
-          browserMode: state._activeBrowserMode,
-          releaseFolderWorkId: state.activeReleaseFolderTitleItemId,
-        )
-                ? state._closeReleaseFolder
-                : null,
         onDetailsLayoutChanged: (layout) => state._updateViewState(
           (stateValue) => stateValue.copyWith(detailsLayout: layout),
         ),

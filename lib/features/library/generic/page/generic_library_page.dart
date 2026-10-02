@@ -18,13 +18,11 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hydration_service.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
-import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/generic/body.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_route_state.dart';
@@ -146,10 +144,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   final _searchController = TextEditingController();
   WidgetRef get _pageRef => ref;
 
-  LibraryEntityScope get activeEntityScope =>
-      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
-        _activeBrowserMode,
-      );
+  LibraryEntityScope get activeEntityScope => LibraryEntityScope.work;
 
   final _detailHydrationInFlight = <String>{};
   final _detailHydrationService = const LibraryDetailHydrationService();
@@ -165,21 +160,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   ProviderSubscription<LibraryViewConfigState>? _viewConfigSubscription;
   LibraryKindBrowserDelegate _kindBrowserDelegate =
       LibraryNoopBrowserDelegate();
-
-  bool get ownsKindReleaseFolderState => true;
-
-  String? get kindReleaseFolderTitleItemId =>
-      _kindBrowserDelegate.releaseFolderWorkId;
-
-  set kindReleaseFolderTitleItemId(String? value) {
-    _kindBrowserDelegate.releaseFolderWorkId = value;
-  }
-
-  String? get activeReleaseFolderTitleItemId => kindReleaseFolderTitleItemId;
-
-  void setActiveReleaseFolderTitleItemId(String? value) {
-    kindReleaseFolderTitleItemId = value;
-  }
 
   @override
   void initState() {
@@ -853,10 +833,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _handleKeyboardEscape() {
-    if (activeReleaseFolderTitleItemId != null) {
-      _closeReleaseFolder();
-      return;
-    }
     if (_kindBrowserDelegate.hasItemDrilldown) {
       setState(_kindBrowserDelegate.closeItemDrilldown);
       return;

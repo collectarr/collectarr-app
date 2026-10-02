@@ -248,7 +248,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._session.preferences.groupPresentationOverride = null;
       state._session.preferences.collapsedGroupBuckets = const <String>{};
       state._session.selection.anchorId = null;
-      state._kindBrowserDelegate.closeReleaseFolder();
+      state._kindBrowserDelegate.closeItemDrilldown();
       state.ref
           .read(
             libraryFacetControllerProvider(

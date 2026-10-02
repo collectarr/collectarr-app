@@ -48,11 +48,6 @@ class LibraryToolbar extends StatelessWidget {
     this.onEditSort,
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
-    this.browserMode = LibraryWorkspaceBrowserMode.work,
-    this.onBrowserModeChanged,
-    this.showReleaseFolderBack = false,
-    this.releaseFolderLabel,
-    this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
     this.onDensityPresetChanged = _noopDensityPresetChanged,
     required this.onCoverSizeChanged,
@@ -145,11 +140,6 @@ class LibraryToolbar extends StatelessWidget {
         onEditSort = actions.onEditSort,
         onSidebarVisibilityChanged = actions.onSidebarVisibilityChanged,
         onViewModeChanged = actions.onViewModeChanged,
-        browserMode = config.browserMode,
-        onBrowserModeChanged = actions.onBrowserModeChanged,
-        showReleaseFolderBack = state.showReleaseFolderBack,
-        releaseFolderLabel = state.releaseFolderLabel,
-        onReleaseFolderBack = actions.onReleaseFolderBack,
         onDetailsLayoutChanged = actions.onDetailsLayoutChanged,
         onDensityPresetChanged = actions.onDensityPresetChanged,
         onCoverSizeChanged = actions.onCoverSizeChanged,
@@ -235,11 +225,6 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onEditSort;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
-  final LibraryWorkspaceBrowserMode browserMode;
-  final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
-  final bool showReleaseFolderBack;
-  final String? releaseFolderLabel;
-  final VoidCallback? onReleaseFolderBack;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
@@ -444,11 +429,6 @@ class LibraryToolbar extends StatelessWidget {
                       onEditSort: onEditSort,
                       onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                       onViewModeChanged: onViewModeChanged,
-                      browserMode: browserMode,
-                      onBrowserModeChanged: onBrowserModeChanged,
-                      showReleaseFolderBack: showReleaseFolderBack,
-                      releaseFolderLabel: releaseFolderLabel,
-                      onReleaseFolderBack: onReleaseFolderBack,
                       onDetailsLayoutChanged: onDetailsLayoutChanged,
                       onDensityPresetChanged: onDensityPresetChanged,
                       onCoverSizeChanged: onCoverSizeChanged,

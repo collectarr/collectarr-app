@@ -3,11 +3,9 @@ import 'package:collectarr_app/core/models/owned_copy_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 
 class LibraryProjectionEngine {
   LibraryProjectionEngine({
@@ -35,8 +33,6 @@ class LibraryProjectionEngine {
     required LibraryKindRegistration type,
     required LibraryWorkspaceViewState viewState,
     required LibraryProjectionQuery query,
-    LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.work,
-    String? releaseFolderWorkId,
     List<LibraryBucket>? overrideBuckets,
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<String>> customFieldValuesByItem = const {},
@@ -46,17 +42,13 @@ class LibraryProjectionEngine {
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
-    final fields = workspace.fieldsForScope(
-      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(browserMode),
-    );
+    final fields = workspace.fields;
     final allItems = libraryItemsForShelf(
       shelf,
       type,
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
       customFieldValuesByItem: customFieldValuesByItem,
-      browserMode: browserMode,
-      releaseFolderWorkId: releaseFolderWorkId,
     );
 
     final scopedBucketItems = <LibraryProjectionItem>[];

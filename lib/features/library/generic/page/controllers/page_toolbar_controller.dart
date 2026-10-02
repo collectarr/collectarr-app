@@ -81,7 +81,6 @@ class LibraryPageToolbarController {
     final presentation = LibraryToolbarPresentation(
       config: LibraryToolbarConfig(
         type: _s.widget.type,
-        browserMode: _s._activeBrowserMode,
         includeDesktopSecondaryBand: false,
       ),
       state: LibraryToolbarState(
@@ -131,13 +130,6 @@ class LibraryPageToolbarController {
             ? 0
             : _s._session.selection.value.selectedCount,
         totalSelectableCount: projection?.filteredItems.length ?? 0,
-        showReleaseFolderBack:
-            _s._kindBrowserDelegate.hasReleaseFolderTitleItemId &&
-                libraryBrowserNavigationPolicy.shouldShowReleaseFolderBack(
-                  browserMode: _s._activeBrowserMode,
-                  releaseFolderWorkId: _s.activeReleaseFolderTitleItemId,
-                ),
-        releaseFolderLabel: _s._releaseFolderLabelForProjection(projection),
       ),
       actions: const LibraryToolbarActionRegistry().build(
         buildContext: context,
@@ -156,8 +148,6 @@ class LibraryPageToolbarController {
           ),
           view: LibraryToolbarViewContext(
             type: _s.widget.type,
-            activeBrowserMode: _s._activeBrowserMode,
-            activeReleaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
             onShowAddDialogFlow: _s._dialogCoordinator.showAddDialogFlow,
             onShowColumnChooserFlow:
                 _s._dialogCoordinator.showColumnChooserFlow,
@@ -165,8 +155,6 @@ class LibraryPageToolbarController {
             onSetGroupingPanelVisibility: _s._setGroupingPanelVisibility,
             onSetGroupPresentation: _s._setGroupPresentation,
             onUpdateViewState: _s._updateViewState,
-            onSetBrowserMode: _s._setBrowserMode,
-            onCloseReleaseFolder: _s._closeReleaseFolder,
             onClearToolbarSearchChip: _s._clearToolbarSearchChip,
             onQuickViewSelected: (value) => _s._setQuickView(
               _s._session.facets.quickView == value ? null : value,

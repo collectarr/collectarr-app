@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
-import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
@@ -92,7 +91,6 @@ class LibraryWorkspaceViewProfile {
           LibraryWorkspacePreferences.cachedChromeFor(registration));
     }
     final defaults = LibraryWorkspaceViewState(
-      browserMode: LibraryWorkspaceBrowserMode.work,
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       isSidebarVisible: defaultSidebarVisible,
@@ -115,13 +113,8 @@ class LibraryWorkspaceViewProfile {
   ) {
     final registration = registrationResolver();
     final workspace = libraryKindWorkspaceForKind(registration.kind);
-    final fields = workspace.fieldsForScope(
-      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
-        preferences.browserMode,
-      ),
-    );
+    final fields = workspace.fields;
     return LibraryWorkspaceViewState(
-      browserMode: preferences.browserMode,
       viewMode: preferences.viewMode,
       detailsLayout: preferences.detailsLayout,
       isSidebarVisible: preferences.isSidebarVisible,
@@ -203,7 +196,6 @@ class LibraryWorkspaceViewProfile {
 
 class LibraryWorkspaceViewState {
   LibraryWorkspaceViewState({
-    this.browserMode = LibraryWorkspaceBrowserMode.work,
     required this.viewMode,
     required this.detailsLayout,
     required this.isSidebarVisible,
@@ -227,7 +219,6 @@ class LibraryWorkspaceViewState {
         visibleColumnIds = Set.unmodifiable(visibleColumnIds),
         columnWidths = Map.unmodifiable(columnWidths);
 
-  final LibraryWorkspaceBrowserMode browserMode;
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final bool isSidebarVisible;
@@ -248,7 +239,6 @@ class LibraryWorkspaceViewState {
 
   LibraryWorkspacePreferenceSnapshot toPreferenceSnapshot() {
     return LibraryWorkspacePreferenceSnapshot(
-      browserMode: browserMode,
       viewMode: viewMode,
       detailsLayout: detailsLayout,
       isSidebarVisible: isSidebarVisible,
@@ -276,7 +266,6 @@ class LibraryWorkspaceViewState {
   }
 
   LibraryWorkspaceViewState copyWith({
-    LibraryWorkspaceBrowserMode? browserMode,
     LibraryViewMode? viewMode,
     LibraryDetailsLayout? detailsLayout,
     bool? isSidebarVisible,
@@ -303,7 +292,6 @@ class LibraryWorkspaceViewState {
               ]
             : this.sortRules);
     return LibraryWorkspaceViewState(
-      browserMode: browserMode ?? this.browserMode,
       viewMode: viewMode ?? this.viewMode,
       detailsLayout: detailsLayout ?? this.detailsLayout,
       isSidebarVisible: isSidebarVisible ?? this.isSidebarVisible,

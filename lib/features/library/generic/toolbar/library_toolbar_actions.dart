@@ -22,8 +22,6 @@ class LibraryToolbarActions {
     this.onEditSort,
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
-    this.onBrowserModeChanged,
-    this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
     required this.onDensityPresetChanged,
     required this.onCoverSizeChanged,
@@ -75,8 +73,6 @@ class LibraryToolbarActions {
   final VoidCallback? onEditSort;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
-  final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
-  final VoidCallback? onReleaseFolderBack;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;

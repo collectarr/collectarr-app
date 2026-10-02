@@ -44,8 +44,6 @@ class LibraryToolbarState {
     this.selectionEnabled = false,
     this.selectedCount = 0,
     this.totalSelectableCount = 0,
-    this.showReleaseFolderBack = false,
-    this.releaseFolderLabel,
   });
 
   final TextEditingController searchController;
@@ -81,6 +79,4 @@ class LibraryToolbarState {
   final bool selectionEnabled;
   final int selectedCount;
   final int totalSelectableCount;
-  final bool showReleaseFolderBack;
-  final String? releaseFolderLabel;
 }
