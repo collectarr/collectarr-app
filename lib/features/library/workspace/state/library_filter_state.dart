@@ -9,7 +9,6 @@ class LibraryFilterState {
     this.sortId,
     this.sortAscending = true,
     this.visibleColumnIds = const {},
-    this.presentationLevelId,
   });
 
   final String searchQuery;
@@ -19,7 +18,6 @@ class LibraryFilterState {
   final LibrarySortIdRuntime? sortId;
   final bool sortAscending;
   final Set<LibraryFieldIdRuntime> visibleColumnIds;
-  final String? presentationLevelId;
 
   LibraryFilterState copyWith({
     String? searchQuery,
@@ -29,7 +27,6 @@ class LibraryFilterState {
     LibrarySortIdRuntime? Function()? sortId,
     bool? sortAscending,
     Set<LibraryFieldIdRuntime>? visibleColumnIds,
-    String? Function()? presentationLevelId,
   }) {
     return LibraryFilterState(
       searchQuery: searchQuery ?? this.searchQuery,
@@ -39,9 +36,6 @@ class LibraryFilterState {
       sortId: sortId != null ? sortId() : this.sortId,
       sortAscending: sortAscending ?? this.sortAscending,
       visibleColumnIds: visibleColumnIds ?? this.visibleColumnIds,
-      presentationLevelId: presentationLevelId != null
-          ? presentationLevelId()
-          : this.presentationLevelId,
     );
   }
 
@@ -56,8 +50,7 @@ class LibraryFilterState {
           groupId == other.groupId &&
           sortId == other.sortId &&
           sortAscending == other.sortAscending &&
-          _setEquals(visibleColumnIds, other.visibleColumnIds) &&
-          presentationLevelId == other.presentationLevelId;
+          _setEquals(visibleColumnIds, other.visibleColumnIds);
 
   @override
   int get hashCode =>
@@ -67,8 +60,7 @@ class LibraryFilterState {
       groupId.hashCode ^
       sortId.hashCode ^
       sortAscending.hashCode ^
-      visibleColumnIds.hashCode ^
-      presentationLevelId.hashCode;
+      visibleColumnIds.hashCode;
 }
 
 bool _setEquals<T>(Set<T> a, Set<T> b) {

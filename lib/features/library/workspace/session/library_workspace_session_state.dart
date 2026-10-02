@@ -20,7 +20,6 @@ final class LibrarySessionFilterState {
     this.sortId,
     this.sortAscending = true,
     this.visibleColumnIds = const {},
-    this.presentationLevelId,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.bucketCompletionScope = LibraryBucketCompletionScope.all,
     this.selectedLetter,
@@ -36,7 +35,6 @@ final class LibrarySessionFilterState {
   final LibrarySortIdRuntime? sortId;
   final bool sortAscending;
   final Set<LibraryFieldIdRuntime> visibleColumnIds;
-  final String? presentationLevelId;
   final LibraryCollectionStatusScope collectionStatusScope;
   final LibraryBucketCompletionScope bucketCompletionScope;
   final String? selectedLetter;
@@ -52,7 +50,6 @@ final class LibrarySessionFilterState {
     LibrarySortIdRuntime? Function()? sortId,
     bool? sortAscending,
     Set<LibraryFieldIdRuntime>? visibleColumnIds,
-    String? Function()? presentationLevelId,
     LibraryCollectionStatusScope? collectionStatusScope,
     LibraryBucketCompletionScope? bucketCompletionScope,
     String? Function()? selectedLetter,
@@ -68,9 +65,6 @@ final class LibrarySessionFilterState {
       sortId: sortId != null ? sortId() : this.sortId,
       sortAscending: sortAscending ?? this.sortAscending,
       visibleColumnIds: visibleColumnIds ?? this.visibleColumnIds,
-      presentationLevelId: presentationLevelId != null
-          ? presentationLevelId()
-          : this.presentationLevelId,
       collectionStatusScope:
           collectionStatusScope ?? this.collectionStatusScope,
       bucketCompletionScope:
@@ -97,7 +91,6 @@ final class LibrarySessionFilterState {
           sortId == other.sortId &&
           sortAscending == other.sortAscending &&
           setEquals(visibleColumnIds, other.visibleColumnIds) &&
-          presentationLevelId == other.presentationLevelId &&
           collectionStatusScope == other.collectionStatusScope &&
           bucketCompletionScope == other.bucketCompletionScope &&
           selectedLetter == other.selectedLetter &&
@@ -115,7 +108,6 @@ final class LibrarySessionFilterState {
         sortId,
         sortAscending,
         Object.hashAll(visibleColumnIds),
-        presentationLevelId,
         collectionStatusScope,
         bucketCompletionScope,
         selectedLetter,

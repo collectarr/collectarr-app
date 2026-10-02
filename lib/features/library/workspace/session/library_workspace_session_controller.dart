@@ -34,7 +34,6 @@ class LibraryWorkspaceSessionController
         groupId: () => workspace.fields.defaultGroup,
         sortId: () => workspace.fields.defaultSort,
         visibleColumnIds: workspace.fields.defaultVisibleColumns.toSet(),
-        presentationLevelId: () => _key.presentationLevelId,
       ),
     );
   }

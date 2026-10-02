@@ -63,7 +63,6 @@ Future<LibraryFilterState> loadPersistedFilterState(
     sortAscending: sortAscending,
     groupId: groupId,
     visibleColumnIds: visibleColumnIds,
-    presentationLevelId: key.presentationLevelId,
     // searchQuery and facetValues are intentionally not persisted —
     // they are transient session state.
   );
@@ -160,7 +159,6 @@ final libraryWorkspaceHydrationProvider = FutureProvider.autoDispose
           sortId: filterState.sortId,
           sortAscending: filterState.sortAscending,
           visibleColumnIds: filterState.visibleColumnIds,
-          presentationLevelId: filterState.presentationLevelId,
         ),
         view: LibrarySessionViewState(
           coverSize: viewConfig.coverSize,
@@ -191,7 +189,6 @@ final libraryWorkspacePersistenceProvider =
               sortAscending: next.filters.sortAscending,
               groupId: next.filters.groupId,
               visibleColumnIds: next.filters.visibleColumnIds,
-              presentationLevelId: next.filters.presentationLevelId,
             ),
           );
           persistViewConfig(

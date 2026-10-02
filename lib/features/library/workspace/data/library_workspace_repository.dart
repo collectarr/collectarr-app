@@ -67,12 +67,6 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       }).toList();
     }
 
-    if (query.scopeId != null) {
-      filtered = filtered.where((item) {
-        return item.node.workId == query.scopeId;
-      }).toList();
-    }
-
     if (query.facetValues.isNotEmpty) {
       filtered = filtered.where((item) {
         for (final facetEntry in query.facetValues.entries) {
@@ -92,19 +86,6 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
           if (!hasMatch) {
             return false;
           }
-        }
-        return true;
-      }).toList();
-    }
-
-    if (query.presentationLevelId != null) {
-      filtered = filtered.where((item) {
-        if (query.presentationLevelId == 'title') {
-          return item.node.scope == LibraryEntityScope.work;
-        } else if (query.presentationLevelId == 'release') {
-          return item.node.scope == LibraryEntityScope.release;
-        } else if (query.presentationLevelId == 'copy') {
-          return item.node.scope == LibraryEntityScope.copy;
         }
         return true;
       }).toList();
