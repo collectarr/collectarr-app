@@ -31,8 +31,10 @@ enum BoardGameCanonicalEditField {
 }
 
 class BoardGameEditDraft
-    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
-    implements LibraryReleaseEditSession, LibraryCopyEditSession {
+    with
+        LibraryCatalogItemEditSessionLinkDefaults,
+        LibraryCopyEditSessionDefaults
+    implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
   BoardGameEditDraft({
     this.ownedItem,
     this.editionLanguage,
@@ -497,12 +499,12 @@ class BoardGameEditDraft
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .kindMetadata is BoardGameMetadata
-        ? (selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .kindMetadata as BoardGameMetadata)
+    final meta = selection.kindItem.kindCapability.mapTransport(
+                (transport) => BoardGameMetadata.fromJson(transport.kindData))
+            is BoardGameMetadata
+        ? (selection.kindItem.kindCapability.mapTransport(
+                (transport) => BoardGameMetadata.fromJson(transport.kindData))
+            as BoardGameMetadata)
         : null;
     if (meta != null) {
       final transport =
@@ -612,7 +614,7 @@ class BoardGameEditDraft
       return selection.copyWith(
         kindItem: selection.kindItem.kindCapability.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
-            transport.withKindMetadata(updatedMeta),
+            transport.withKindData(updatedMeta),
           ),
         ),
       );
@@ -734,10 +736,11 @@ LibraryEditSessionBundle createBoardGameEditDraft({
 }) {
   final owned = BoardGameOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final bg = owned?.details;
-  final meta = item.kindCapability
-          .mapTransport((transport) => transport)
-          .kindMetadata is BoardGameMetadata
-      ? item.kindCapability.mapTransport((transport) => transport).kindMetadata
+  final meta = item.kindCapability.mapTransport(
+              (transport) => BoardGameMetadata.fromJson(transport.kindData))
+          is BoardGameMetadata
+      ? item.kindCapability.mapTransport(
+              (transport) => BoardGameMetadata.fromJson(transport.kindData))
           as BoardGameMetadata
       : null;
   final draft = BoardGameEditDraft(
@@ -893,8 +896,7 @@ LibraryEditSessionBundle createBoardGameEditDraft({
     ),
   );
   return LibraryEditSessionBundle(
-    workSession: draft,
-    releaseSession: draft,
+    catalogItemSession: draft,
     copySession: draft,
     disposeSession: draft.dispose,
   );

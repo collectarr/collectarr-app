@@ -31,8 +31,10 @@ enum GameCanonicalEditField {
 }
 
 class GameEditDraft
-    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
-    implements LibraryReleaseEditSession, LibraryCopyEditSession {
+    with
+        LibraryCatalogItemEditSessionLinkDefaults,
+        LibraryCopyEditSessionDefaults
+    implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
   GameEditDraft({
     this.ownedItem,
     required this.gameCompleteness,
@@ -299,10 +301,11 @@ LibraryEditSessionBundle createGameEditDraft({
 }) {
   final owned = GameOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final game = owned?.details;
-  final meta = item.kindCapability
-          .mapTransport((transport) => transport)
-          .kindMetadata is GameCatalogMetadata
-      ? item.kindCapability.mapTransport((transport) => transport).kindMetadata
+  final meta = item.kindCapability.mapTransport(
+              (transport) => GameCatalogMetadata.fromJson(transport.kindData))
+          is GameCatalogMetadata
+      ? item.kindCapability.mapTransport(
+              (transport) => GameCatalogMetadata.fromJson(transport.kindData))
           as GameCatalogMetadata
       : null;
   final developerNames = (meta?.creators ?? const <Map<String, dynamic>>[])
@@ -338,8 +341,7 @@ LibraryEditSessionBundle createGameEditDraft({
     gameEdit: gameEdit,
   );
   return LibraryEditSessionBundle(
-    workSession: draft,
-    releaseSession: draft,
+    catalogItemSession: draft,
     copySession: draft,
     disposeSession: draft.dispose,
   );

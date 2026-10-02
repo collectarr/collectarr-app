@@ -14,33 +14,27 @@ import 'package:collectarr_app/features/library/workspace/entry/library_entity_r
 ///
 /// The shell is responsible for rendering tabs and managing the form. This
 /// controller is responsible for turning that form into domain selections and
-/// kind-owned mutation commands. Kind-specific details remain in the
-/// registered Work/Release/Copy sessions; this class only composes the
-/// structural boundary around them.
+/// kind-owned mutation commands. The kind owns one canonical Catalog Item
+/// session and one separate Owned Copy session.
 final class LibraryEditSessionController {
   const LibraryEditSessionController({
-    required LibraryWorkEditSession workSession,
-    required LibraryReleaseEditSession releaseSession,
+    required LibraryCatalogItemEditSession catalogItemSession,
     required LibraryCopyEditSession copySession,
     required void Function() disposeSession,
-  })  : _workSession = workSession,
-        _releaseSession = releaseSession,
+  })  : _catalogItemSession = catalogItemSession,
         _copySession = copySession,
         _disposeSession = disposeSession;
 
-  final LibraryWorkEditSession _workSession;
-  final LibraryReleaseEditSession _releaseSession;
+  final LibraryCatalogItemEditSession _catalogItemSession;
   final LibraryCopyEditSession _copySession;
   final void Function() _disposeSession;
 
-  LibraryWorkEditSession get workSession => _workSession;
-
-  LibraryReleaseEditSession get releaseSession => _releaseSession;
+  LibraryCatalogItemEditSession get catalogItemSession => _catalogItemSession;
 
   LibraryCopyEditSession get copySession => _copySession;
 
   void setExternalLinks(List<TrailerLinkDto> links) {
-    workSession.setExternalLinks(links);
+    catalogItemSession.setExternalLinks(links);
   }
 
   LibraryEditSelection save(
@@ -114,17 +108,8 @@ final class LibraryEditSessionController {
           kindItem: state.kindItem,
           scope: state.scope,
         );
-    return switch (state.scope) {
-      LibraryEntityScope.work => workSession.applyCanonicalEdits(
-          source,
-          state.formFields,
-        ),
-      LibraryEntityScope.release => releaseSession.applyCanonicalEdits(
-          source,
-          state.formFields,
-        ),
-      LibraryEntityScope.copy => source,
-    };
+    if (state.scope == LibraryEntityScope.copy) return source;
+    return catalogItemSession.applyCanonicalEdits(source, state.formFields);
   }
 
   LibraryEditSelection buildCorrectionSelection(
@@ -138,12 +123,8 @@ final class LibraryEditSessionController {
     LibraryEditShellState state,
     LibraryEditSelection selection,
   ) {
-    return switch (state.scope) {
-      LibraryEntityScope.work => workSession.applySelectionEdits(selection),
-      LibraryEntityScope.release =>
-        releaseSession.applySelectionEdits(selection),
-      LibraryEntityScope.copy => selection,
-    };
+    if (state.scope == LibraryEntityScope.copy) return selection;
+    return catalogItemSession.applySelectionEdits(selection);
   }
 
   LibraryAddCommonDraft buildCommonCopyDraft(LibraryEditShellState state) {

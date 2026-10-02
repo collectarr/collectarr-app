@@ -18,7 +18,7 @@ Widget? buildBookCustomTabView({
   required VoidCallback markDirty,
 }) {
   if (tabId != 'owned') return null;
-  final kindDraft = draft.session.workSession;
+  final kindDraft = draft.session.catalogItemSession;
   if (kindDraft is! BookEditDraft) {
     throw StateError('Expected BookEditDraft for Book owned editing');
   }

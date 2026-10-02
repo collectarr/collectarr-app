@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
@@ -32,8 +31,10 @@ enum MangaCanonicalEditField {
 }
 
 class MangaEditDraft
-    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
-    implements LibraryReleaseEditSession, LibraryCopyEditSession {
+    with
+        LibraryCatalogItemEditSessionLinkDefaults,
+        LibraryCopyEditSessionDefaults
+    implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
   MangaEditDraft({
     this.ownedItem,
     this.rawOrSlabbed,
@@ -434,7 +435,7 @@ class MangaEditDraft
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindMetadata(
+        transport.withKindData(
           mangaEditKindMetadataForCandidate(
             selection.kindItem,
             updatedMetadata,
@@ -545,56 +546,23 @@ LibraryEditSessionBundle createMangaEditDraft({
     ),
   );
   return LibraryEditSessionBundle(
-    workSession: draft,
-    releaseSession: draft,
+    catalogItemSession: draft,
     copySession: draft,
     disposeSession: draft.dispose,
   );
 }
 
-/// Normalizes the two concrete Manga transport representations that can reach
-/// an edit flow: provider/API candidates carry [MangaMetadata], while local
-/// catalog candidates carry the canonical [MangaMedia] aggregate.
+/// Decodes the flat Manga Catalog Item payload for editing.
 MangaMetadata mangaEditMetadataFromCandidate(CatalogSearchCandidate item) {
   final transport = item.kindCapability.mapTransport((transport) => transport);
-  final rawMetadata = transport.kindMetadata;
-  return switch (rawMetadata) {
-    MangaMetadata metadata => metadata,
-    MangaMedia media => MangaMetadata.fromJson({
-        ...media.rawPayload,
-        'id': media.id,
-        'title': media.title,
-        if (media.originalLanguage != null &&
-            !media.rawPayload.containsKey('language'))
-          'language': media.originalLanguage,
-        if (media.status != null &&
-            !media.rawPayload.containsKey('publication_status'))
-          'publication_status': media.status,
-        if (media.originalPublicationDate != null &&
-            !media.rawPayload.containsKey('original_publication_date'))
-          'original_publication_date':
-              media.originalPublicationDate!.toIso8601String(),
-      }),
-    null => MangaMetadata.fromJson(transport.payload),
-    _ => throw StateError(
-        'Expected MangaMetadata or MangaMedia for Manga editing, '
-        'got ${rawMetadata.runtimeType}',
-      ),
-  };
+  return MangaMetadata.fromJson(transport.payload);
 }
 
-Object mangaEditKindMetadataForCandidate(
+MangaMetadata mangaEditKindMetadataForCandidate(
   CatalogSearchCandidate item,
   MangaMetadata metadata,
 ) {
-  final rawMetadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (rawMetadata is! MangaMedia) return metadata;
-
-  return MangaMedia.fromJson({
-    ...rawMetadata.toJson(),
-    ...metadata.toJson(),
-  });
+  return metadata;
 }
 
 List<String> _splitValues(String value, {required List<String> fallback}) {

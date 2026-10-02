@@ -23,7 +23,7 @@ Widget? buildGameCustomTabView({
   required VoidCallback markDirty,
 }) {
   if (tabId == 'owned') {
-    final kindDraft = draft.session.workSession;
+    final kindDraft = draft.session.catalogItemSession;
     if (kindDraft is! GameEditDraft) {
       throw StateError('Expected GameEditDraft for Game owned editing');
     }
@@ -61,12 +61,12 @@ Widget? buildGameCustomTabView({
                 variantController: TextEditingController(),
                 barcodeController: TextEditingController(),
                 releaseDateController:
-                    (draft.session.workSession as GameEditDraft?)
+                    (draft.session.catalogItemSession as GameEditDraft?)
                             ?.gameEdit
                             .releaseDateController ??
                         TextEditingController(),
                 releaseYearController:
-                    (draft.session.workSession as GameEditDraft?)
+                    (draft.session.catalogItemSession as GameEditDraft?)
                             ?.gameEdit
                             .releaseYearController ??
                         TextEditingController(),
@@ -85,8 +85,8 @@ Widget? buildGameCustomTabView({
     );
   }
   if (tabId != 'main') return null;
-  final gameDraft = draft.session.workSession is GameEditDraft
-      ? draft.session.workSession as GameEditDraft
+  final gameDraft = draft.session.catalogItemSession is GameEditDraft
+      ? draft.session.catalogItemSession as GameEditDraft
       : null;
 
   return EditTabShell(

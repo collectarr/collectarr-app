@@ -108,7 +108,7 @@ Widget? buildBoardGameCustomTabView({
   required VoidCallback markDirty,
 }) {
   if (tabId == 'owned') {
-    final kindDraft = draft.session.workSession;
+    final kindDraft = draft.session.catalogItemSession;
     if (kindDraft is! BoardGameEditDraft) {
       throw StateError(
           'Expected BoardGameEditDraft for BoardGame owned editing');
@@ -128,7 +128,7 @@ Widget? buildBoardGameCustomTabView({
     );
   }
   if (tabId == 'release') {
-    final kindDraft = draft.session.workSession;
+    final kindDraft = draft.session.catalogItemSession;
     if (kindDraft is! BoardGameEditDraft) {
       throw StateError(
         'Expected BoardGameEditDraft for BoardGame release editing',

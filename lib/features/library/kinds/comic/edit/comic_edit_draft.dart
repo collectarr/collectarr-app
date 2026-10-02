@@ -35,8 +35,10 @@ enum ComicCanonicalEditField {
 }
 
 class ComicEditDraft
-    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
-    implements LibraryReleaseEditSession, LibraryCopyEditSession {
+    with
+        LibraryCatalogItemEditSessionLinkDefaults,
+        LibraryCopyEditSessionDefaults
+    implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
   ComicEditDraft({
     this.ownedItem,
     required this.rawOrSlabbedController,
@@ -321,9 +323,9 @@ LibraryEditSessionBundle createComicEditDraft({
     comic ?? const ComicOwnedDetails(),
   );
   final comicEdit = ComicEditController(
-    item: item.kindCapability
-        .mapTransport((transport) => transport)
-        .kindMetadata as ComicCatalogItem,
+    item: item.kindCapability.mapTransport(
+            (transport) => ComicCatalogItem.fromJson(transport.kindData))
+        as ComicCatalogItem,
     itemImages: const [],
   );
   comicEdit.initialize();
@@ -356,8 +358,7 @@ LibraryEditSessionBundle createComicEditDraft({
     comicEdit: comicEdit,
   );
   return LibraryEditSessionBundle(
-    workSession: draft,
-    releaseSession: draft,
+    catalogItemSession: draft,
     copySession: draft,
     disposeSession: draft.dispose,
   );

@@ -147,11 +147,7 @@ LibraryEditShellState createLibraryEditShellState({
     trackingSummary: trackingSummary,
     textControllers: textControllers,
   );
-  final canonicalSession = switch (scope) {
-    LibraryEntityScope.work => kindSessions.workSession,
-    LibraryEntityScope.release => kindSessions.releaseSession,
-    LibraryEntityScope.copy => kindSessions.workSession,
-  };
+  final canonicalSession = kindSessions.catalogItemSession;
   final builtCanonicalFormSchema = canonicalSession.buildCanonicalFormSchema(
     formFields,
     item,
@@ -199,8 +195,7 @@ LibraryEditShellState createLibraryEditShellState({
     personal: personal,
     tracking: tracking,
     session: LibraryEditSessionController(
-      workSession: kindSessions.workSession,
-      releaseSession: kindSessions.releaseSession,
+      catalogItemSession: kindSessions.catalogItemSession,
       copySession: kindSessions.copySession,
       disposeSession: kindSessions.disposeSession,
     ),

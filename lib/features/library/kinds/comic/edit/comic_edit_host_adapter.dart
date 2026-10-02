@@ -38,9 +38,10 @@ class ComicEditHostAdapter implements ComicEditHost {
   final LibraryEntityScope scope;
   final VoidCallback markDirty;
 
-  ComicEditDraft? get _comicDraft => draft.session.workSession is ComicEditDraft
-      ? draft.session.workSession as ComicEditDraft
-      : null;
+  ComicEditDraft? get _comicDraft =>
+      draft.session.catalogItemSession is ComicEditDraft
+          ? draft.session.catalogItemSession as ComicEditDraft
+          : null;
 
   Widget _comicDropdown({
     required TextEditingController controller,

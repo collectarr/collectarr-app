@@ -35,7 +35,9 @@ enum MovieCanonicalEditField {
 }
 
 class MovieEditDraft
-    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
+    with
+        LibraryCatalogItemEditSessionLinkDefaults,
+        LibraryCopyEditSessionDefaults
     implements MovieEditDraftContract {
   MovieEditDraft({
     this.ownedItem,
@@ -315,9 +317,8 @@ class MovieEditDraft
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     var result = selection;
-    final meta = result.kindItem.kindCapability
-        .mapTransport((transport) => transport)
-        .kindMetadata;
+    final meta = result.kindItem.kindCapability.mapTransport(
+        (transport) => MovieCatalogMetadata.fromJson(transport.kindData));
     if (meta is MovieCatalogMetadata) {
       final parsedGenres = movieEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -365,7 +366,7 @@ class MovieEditDraft
       result = result.copyWith(
         kindItem: result.kindItem.kindCapability.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
-            transport.withKindMetadata(updatedMeta),
+            transport.withKindData(updatedMeta),
           ),
         ),
       );
@@ -394,8 +395,8 @@ LibraryEditSessionBundle createMovieEditDraft({
 }) {
   final owned = MovieOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final video = owned?.details;
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
+  final metadata = item.kindCapability.mapTransport(
+      (transport) => MovieCatalogMetadata.fromJson(transport.kindData));
   final movie = metadata is MovieCatalogMetadata ? metadata : null;
   final movieEdit = MovieEditController(
     itemId: item.reference.id,
@@ -455,8 +456,7 @@ LibraryEditSessionBundle createMovieEditDraft({
     movieEdit: movieEdit,
   );
   return LibraryEditSessionBundle(
-    workSession: draft,
-    releaseSession: draft,
+    catalogItemSession: draft,
     copySession: draft,
     disposeSession: draft.dispose,
   );

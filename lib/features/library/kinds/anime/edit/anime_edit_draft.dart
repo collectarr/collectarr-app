@@ -36,7 +36,9 @@ enum AnimeCanonicalEditField {
 }
 
 class AnimeEditDraft
-    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
+    with
+        LibraryCatalogItemEditSessionLinkDefaults,
+        LibraryCopyEditSessionDefaults
     implements AnimeEditDraftContract {
   AnimeEditDraft({
     this.ownedItem,
@@ -324,9 +326,8 @@ class AnimeEditDraft
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     var result = selection;
-    final metadata = result.kindItem.kindCapability
-        .mapTransport((transport) => transport)
-        .kindMetadata;
+    final metadata = result.kindItem.kindCapability.mapTransport(
+        (transport) => AnimeMetadata.fromJson(transport.kindData));
     if (metadata is AnimeMetadata) {
       final parsedGenres = animeEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -336,7 +337,7 @@ class AnimeEditDraft
       result = result.copyWith(
         kindItem: result.kindItem.kindCapability.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
-            transport.withKindMetadata(
+            transport.withKindData(
               metadata.copyWith(
                 episodeRuntimeMinutes:
                     int.tryParse(animeEdit.runtimeController.text),
@@ -405,8 +406,8 @@ LibraryEditSessionBundle createAnimeEditDraft({
 }) {
   final owned = AnimeOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final video = owned?.details;
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
+  final metadata = item.kindCapability
+      .mapTransport((transport) => AnimeMetadata.fromJson(transport.kindData));
   final anime = metadata is AnimeMetadata ? metadata : null;
   final animeEdit = AnimeEditController(
     itemId: item.reference.id,
@@ -468,8 +469,7 @@ LibraryEditSessionBundle createAnimeEditDraft({
     animeEdit: animeEdit,
   );
   return LibraryEditSessionBundle(
-    workSession: draft,
-    releaseSession: draft,
+    catalogItemSession: draft,
     copySession: draft,
     disposeSession: draft.dispose,
   );

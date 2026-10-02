@@ -19,8 +19,9 @@ class MovieEditEditionTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final movieEdit = (draft.session.workSession is MovieEditDraftContract)
-        ? (draft.session.workSession as MovieEditDraftContract).movieEdit
+    final movieEdit = (draft.session.catalogItemSession
+            is MovieEditDraftContract)
+        ? (draft.session.catalogItemSession as MovieEditDraftContract).movieEdit
         : null;
 
     final editionTitleController =

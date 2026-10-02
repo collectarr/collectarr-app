@@ -21,9 +21,10 @@ Widget? buildAnimeMediaCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final animeEdit = (draft.session.workSession is AnimeEditDraftContract)
-      ? (draft.session.workSession as AnimeEditDraftContract).animeEdit
-      : AnimeEditController(itemId: item.reference.id, catalogRef: item.reference);
+  final animeEdit = (draft.session.catalogItemSession is AnimeEditDraftContract)
+      ? (draft.session.catalogItemSession as AnimeEditDraftContract).animeEdit
+      : AnimeEditController(
+          itemId: item.reference.id, catalogRef: item.reference);
 
   return switch (tabId) {
     'edition' => AnimeEditEditionTab(

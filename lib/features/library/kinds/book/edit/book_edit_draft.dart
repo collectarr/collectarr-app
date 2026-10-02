@@ -31,8 +31,10 @@ enum BookCanonicalEditField {
 }
 
 class BookEditDraft
-    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
-    implements LibraryReleaseEditSession, LibraryCopyEditSession {
+    with
+        LibraryCatalogItemEditSessionLinkDefaults,
+        LibraryCopyEditSessionDefaults
+    implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
   BookEditDraft({
     this.ownedItem,
     this.signedBy,
@@ -330,9 +332,8 @@ class BookEditDraft
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final rawMetadata = selection.kindItem.kindCapability
-        .mapTransport((transport) => transport)
-        .kindMetadata;
+    final rawMetadata = selection.kindItem.kindCapability.mapTransport(
+        (transport) => BookCatalogMetadata.fromJson(transport.kindData));
     final meta = rawMetadata is BookCatalogMetadata
         ? rawMetadata
         : BookCatalogMetadata.fromJson(selection.kindItem.kindCapability
@@ -388,7 +389,7 @@ class BookEditDraft
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindMetadata(updatedMetadata),
+        transport.withKindData(updatedMetadata),
       ),
     );
     return selection.copyWith(kindItem: updatedItem);
@@ -403,8 +404,8 @@ LibraryEditSessionBundle createBookEditDraft({
 }) {
   final owned = BookOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final book = owned?.details;
-  final rawMetadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
+  final rawMetadata = item.kindCapability.mapTransport(
+      (transport) => BookCatalogMetadata.fromJson(transport.kindData));
   final BookCatalogMetadata metadata = rawMetadata is BookCatalogMetadata
       ? rawMetadata
       : BookCatalogMetadata.fromJson(
@@ -463,8 +464,7 @@ LibraryEditSessionBundle createBookEditDraft({
     ),
   );
   return LibraryEditSessionBundle(
-    workSession: draft,
-    releaseSession: draft,
+    catalogItemSession: draft,
     copySession: draft,
     disposeSession: draft.dispose,
   );

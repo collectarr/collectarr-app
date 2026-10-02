@@ -19,8 +19,8 @@ Widget? buildComicCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
+  final metadata = item.kindCapability.mapTransport(
+      (transport) => ComicCatalogItem.fromJson(transport.kindData));
   if (metadata is! ComicCatalogItem) {
     throw StateError('Expected ComicCatalogItem for comic edit tabs');
   }
@@ -36,7 +36,7 @@ Widget? buildComicCustomTabView({
     markDirty: markDirty,
   );
   if (tabId == 'owned') {
-    final kindDraft = draft.session.workSession;
+    final kindDraft = draft.session.catalogItemSession;
     if (kindDraft is! ComicEditDraft) {
       throw StateError('Expected ComicEditDraft for Comic owned editing');
     }

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_cont
 import 'package:flutter/material.dart';
 
 abstract class MovieEditDraftContract
-    implements LibraryReleaseEditSession, LibraryCopyEditSession {
+    implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
   TextEditingController get audioTracksController;
   TextEditingController get subtitlesController;
   TextEditingController get layersController;

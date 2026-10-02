@@ -37,7 +37,9 @@ enum TvCanonicalEditField {
 }
 
 class TvEditDraft
-    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
+    with
+        LibraryCatalogItemEditSessionLinkDefaults,
+        LibraryCopyEditSessionDefaults
     implements TvEditDraftContract {
   TvEditDraft({
     this.ownedItem,
@@ -325,9 +327,8 @@ class TvEditDraft
     var result = selection;
     final seasonNumber = int.tryParse(seasonNumberController.text);
     final episodeNumber = int.tryParse(episodeNumberController.text);
-    final metadata = result.kindItem.kindCapability
-        .mapTransport((transport) => transport)
-        .kindMetadata;
+    final metadata = result.kindItem.kindCapability.mapTransport(
+        (transport) => TvSeriesMetadata.fromJson(transport.kindData));
     if (metadata is TvSeriesMetadata) {
       final parsedGenres = tvEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -337,7 +338,7 @@ class TvEditDraft
       result = result.copyWith(
         kindItem: result.kindItem.kindCapability.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
-            transport.withKindMetadata(
+            transport.withKindData(
               metadata.copyWith(
                 episodeRuntimeMinutes:
                     int.tryParse(tvEdit.runtimeController.text),
@@ -419,8 +420,8 @@ LibraryEditSessionBundle createTvEditDraft({
 }) {
   final owned = TvOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final video = owned?.details;
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
+  final metadata = item.kindCapability.mapTransport(
+      (transport) => TvSeriesMetadata.fromJson(transport.kindData));
   final tv = metadata is TvSeriesMetadata ? metadata : null;
   final tvEdit = TvEditController(
     itemId: item.reference.id,
@@ -488,8 +489,7 @@ LibraryEditSessionBundle createTvEditDraft({
     releaseMediaEdit: releaseMediaEdit,
   );
   return LibraryEditSessionBundle(
-    workSession: draft,
-    releaseSession: draft,
+    catalogItemSession: draft,
     copySession: draft,
     disposeSession: draft.dispose,
   );
