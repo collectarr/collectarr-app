@@ -54,10 +54,7 @@ final class CatalogMusicItemDto implements JsonEncodable {
   }) : studios = List<String>.unmodifiable(studios);
 
   factory CatalogMusicItemDto.fromJson(Map<String, dynamic> json) {
-    // This marker belongs to the transport, not the Music Catalog Item.
-    // Discard it at ingress while keeping all actual catalog fields strict.
     final catalogJson = Map<String, dynamic>.from(json);
-    catalogJson.remove('snapshot_version');
     const allowedKeys = {
       'id',
       'kind',
