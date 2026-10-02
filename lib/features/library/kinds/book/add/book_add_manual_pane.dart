@@ -91,31 +91,35 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
     final request = widget.request;
     return LibraryAddManualPaneShell(
       request: request,
-      formContent: AddSchemaRenderer<BookAddManualDraft>.embedded(
-        schema: bookAddSchemaFor(
-          publisherOptions: _publisherOptions.isEmpty
-              ? BookVocabularies.publisher.builtIns
-              : _publisherOptions,
-          formatOptions: _physicalFormatOptions.isEmpty
-              ? BookVocabularies.format.builtIns
-              : _physicalFormatOptions,
-          onManagePublisher: () => _manageSingleValuePickList(
-            listName: BookVocabularyIds.publisher.value,
-            label: 'Publishers',
-          ),
-          onManageFormat: () => _manageSingleValuePickList(
-            listName: BookVocabularyIds.format.value,
-            label: 'Physical Formats',
-            builtInValues: [
-              for (final format in _currentPhysicalFormats()) format.label,
-            ],
+      tabs: [
+        LibraryAddManualPaneTab.main(
+          content: AddSchemaRenderer<BookAddManualDraft>.embedded(
+            schema: bookAddSchemaFor(
+              publisherOptions: _publisherOptions.isEmpty
+                  ? BookVocabularies.publisher.builtIns
+                  : _publisherOptions,
+              formatOptions: _physicalFormatOptions.isEmpty
+                  ? BookVocabularies.format.builtIns
+                  : _physicalFormatOptions,
+              onManagePublisher: () => _manageSingleValuePickList(
+                listName: BookVocabularyIds.publisher.value,
+                label: 'Publishers',
+              ),
+              onManageFormat: () => _manageSingleValuePickList(
+                listName: BookVocabularyIds.format.value,
+                label: 'Physical Formats',
+                builtInValues: [
+                  for (final format in _currentPhysicalFormats()) format.label,
+                ],
+              ),
+            ),
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
           ),
         ),
-        draft: draft,
-        mediaKind: request.kind.apiValue,
-        onVocabularyValueChanged: request.onVocabularyValueChanged,
-        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-      ),
+      ],
     );
   }
 }

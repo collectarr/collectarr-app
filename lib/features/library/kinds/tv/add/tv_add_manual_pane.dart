@@ -15,13 +15,17 @@ class TvAddManualPane extends StatelessWidget {
     final draft = request.manualDraftAs<TvAddManualDraft>();
     return LibraryAddManualPaneShell(
       request: request,
-      formContent: AddSchemaRenderer<TvAddManualDraft>.embedded(
-        schema: tvAddSchema,
-        draft: draft,
-        mediaKind: request.kind.apiValue,
-        onVocabularyValueChanged: request.onVocabularyValueChanged,
-        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-      ),
+      tabs: [
+        LibraryAddManualPaneTab.main(
+          content: AddSchemaRenderer<TvAddManualDraft>.embedded(
+            schema: tvAddSchema,
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          ),
+        ),
+      ],
     );
   }
 }

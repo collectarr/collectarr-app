@@ -16,17 +16,15 @@ class LibraryAddManualPaneShell extends StatefulWidget {
   const LibraryAddManualPaneShell({
     super.key,
     required this.request,
+    required this.tabs,
     this.identityDetails,
-    this.formContent,
-    this.tabs,
-  });
+  }) : assert(tabs.length > 0);
 
   final LibraryAddManualPaneRequest request;
 
   /// Optional kind-specific fields shown below the shared Catalog Item title.
   final Widget? identityDetails;
-  final Widget? formContent;
-  final List<LibraryAddManualPaneTab>? tabs;
+  final List<LibraryAddManualPaneTab> tabs;
 
   @override
   State<LibraryAddManualPaneShell> createState() =>
@@ -45,18 +43,6 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
     _tabController = TabController(length: _tabCount(widget), vsync: this);
   }
 
-  List<LibraryAddManualPaneTab> get _resolvedTabs {
-    if (widget.tabs?.isNotEmpty ?? false) return widget.tabs!;
-    assert(widget.formContent != null);
-    return [
-      LibraryAddManualPaneTab(
-        label: 'Main',
-        icon: Icons.edit_note_outlined,
-        content: widget.formContent!,
-      ),
-    ];
-  }
-
   @override
   void didUpdateWidget(covariant LibraryAddManualPaneShell oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -71,7 +57,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
   }
 
   int _tabCount(LibraryAddManualPaneShell shell) =>
-      (shell.tabs?.isNotEmpty ?? false ? shell.tabs!.length : 1) +
+      shell.tabs.length +
       (shell.request.customFieldDefinitions.isNotEmpty ? 1 : 0) +
       1;
 
@@ -85,7 +71,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
   Widget build(BuildContext context) {
     final request = widget.request;
     final tabs = [
-      ..._resolvedTabs,
+      ...widget.tabs,
       if (request.customFieldDefinitions.isNotEmpty)
         LibraryAddManualPaneTab(
           label: 'Custom Fields',
@@ -192,6 +178,13 @@ final class LibraryAddManualPaneTab {
     required this.icon,
     required this.content,
   });
+
+  factory LibraryAddManualPaneTab.main({required Widget content}) =>
+      LibraryAddManualPaneTab(
+        label: 'Main',
+        icon: Icons.edit_note_outlined,
+        content: content,
+      );
 
   final String label;
   final IconData icon;

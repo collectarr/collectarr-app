@@ -15,13 +15,17 @@ class GameAddManualPane extends StatelessWidget {
     final draft = request.manualDraftAs<GameAddManualDraft>();
     return LibraryAddManualPaneShell(
       request: request,
-      formContent: AddSchemaRenderer<GameAddManualDraft>.embedded(
-        schema: gameAddSchema,
-        draft: draft,
-        mediaKind: request.kind.apiValue,
-        onVocabularyValueChanged: request.onVocabularyValueChanged,
-        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-      ),
+      tabs: [
+        LibraryAddManualPaneTab.main(
+          content: AddSchemaRenderer<GameAddManualDraft>.embedded(
+            schema: gameAddSchema,
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          ),
+        ),
+      ],
     );
   }
 }

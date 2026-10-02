@@ -15,13 +15,17 @@ class AnimeAddManualPane extends StatelessWidget {
     final draft = request.manualDraftAs<AnimeAddManualDraft>();
     return LibraryAddManualPaneShell(
       request: request,
-      formContent: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
-        schema: animeAddSchema,
-        draft: draft,
-        mediaKind: request.kind.apiValue,
-        onVocabularyValueChanged: request.onVocabularyValueChanged,
-        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-      ),
+      tabs: [
+        LibraryAddManualPaneTab.main(
+          content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
+            schema: animeAddSchema,
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          ),
+        ),
+      ],
     );
   }
 }
