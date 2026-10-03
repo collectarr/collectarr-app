@@ -40,6 +40,11 @@ slice. This is progress, not completion of this plan:
   wire/domain naming differences. It excludes App-local track headers and
   playback fields, along with disc TOC/count/device details, from the Core
   payload; the canonical disc/track fields match the saved Music ledger.
+- The unused Add-side `sameTracks`/normalization helper file has been removed;
+  the active Music inspector uses its kind-owned track widget and models. The
+  generic inspector widget remains temporarily because an existing widget
+  test still imports it; its migration belongs in the deferred final test and
+  compatibility review.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
