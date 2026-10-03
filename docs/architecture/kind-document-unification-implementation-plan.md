@@ -375,6 +375,9 @@ slice. This is progress, not completion of this plan:
 - Removed the App-only `MusicAlbumLabel` rows. Core exposes one item-level
   `label` value, so Music no longer serializes a second label/catalog-number
   representation that the canonical document cannot preserve.
+- Music now stores each catalog date once as a `PartialDate` through its
+  metadata model, Add draft, and Edit form values. Full `DateTime` values used
+  by calendars and workspace projections are derived views.
 
 Still outstanding: replacing the universal `PersonalStateDraft` with
 kind-owned edit drafts/bindings and moving validation/serialization out of the
@@ -437,9 +440,10 @@ The earlier Music discrepancy list is partly stale. The parallel generic
 track/disc DTOs have been removed. Artist credits are a distinct display-order
 credit from role-based personnel; the latter are normalized as typed
 contributions in App and encoded into Core's kind-owned role lists. Matrix
-numbers now live only on the contained Music disc. The App model still exposes
-both full-date and partial-date views of the same canonical date; audit their
-consumers before simplifying that representation. Core limits Music discs and
+numbers now live only on the contained Music disc. The domain stores one
+`PartialDate` for each catalog date; the Core wire shape may expose its
+date-only and precision-preserving forms together, while App derives a
+`DateTime` projection for date-based consumers. Core limits Music discs and
 tracks to the fields recorded in the ledger. Track headers and playback/file
 metadata remain App-local where used; they are not part of Core's canonical
 contract.
