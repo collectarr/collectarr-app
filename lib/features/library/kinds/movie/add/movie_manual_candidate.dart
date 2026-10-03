@@ -22,6 +22,7 @@ CatalogSearchCandidate? buildMovieManualCandidate(
   final item = CatalogItemDto.raw(
     id: id,
     mediaKind: CatalogMediaKind.movie,
+    origin: CatalogItemOrigin.privateLocal,
     kindData: {
       'title': title.trim(),
       if (_text(values.sortTitle) case final value?) 'sort_title': value,

@@ -1,12 +1,12 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 
@@ -19,7 +19,7 @@ final class MusicInspectorViewModel {
     required this.music,
     required this.mediums,
     required this.tracks,
-    this.owned,
+    this.entry,
   });
 
   factory MusicInspectorViewModel.from(LibraryProjectionView item) {
@@ -49,40 +49,32 @@ final class MusicInspectorViewModel {
       music: music,
       mediums: List<MusicMedium>.unmodifiable(mediums),
       tracks: List<MusicTrackListEntry>.unmodifiable(tracks),
-      owned:
-          MusicCollectionItemProjection.fromDispatch(item.source.collectionItemDispatch),
+      entry: MusicLibraryEntryProjection.fromDispatch(
+          item.source.libraryEntryDispatch),
     );
   }
 
   final MusicAlbum music;
   final List<MusicMedium> mediums;
   final List<MusicTrackListEntry> tracks;
-  final MusicCollectionItem? owned;
+  final MusicLibraryEntry? entry;
 
-  MusicOwnedMediumStorageView storageForMedium(int mediumNumber) {
-    final ownedDetails = owned?.details;
-    final scoped = ownedDetails?.medium(mediumNumber);
+  MusicEntryMediumStorageView storageForMedium(int mediumNumber) {
+    final entryDetails = entry?.details;
+    final mediumId = mediums
+        .where((medium) => medium.mediumNumber == mediumNumber)
+        .firstOrNull
+        ?.id
+        .value;
+    final scoped = mediumId == null ? null : entryDetails?.medium(mediumId);
     if (scoped != null) {
-      return MusicOwnedMediumStorageView(
+      return MusicEntryMediumStorageView(
         mediumNumber: mediumNumber,
         storageDevice: scoped.storageDevice,
         storageSlot: scoped.storageSlot,
       );
     }
-    return MusicOwnedMediumStorageView(mediumNumber: mediumNumber);
-  }
-
-  List<MusicMatrixRunoutView> matrixForMedium(int mediumNumber) {
-    final runouts = owned?.details.matrixRunoutsForMedium(mediumNumber) ??
-        const <MusicMatrixRunout>[];
-    return [
-      for (final runout in runouts)
-        MusicMatrixRunoutView(
-          mediumNumber: mediumNumber,
-          side: runout.side,
-          text: runout.runoutText,
-        ),
-    ];
+    return MusicEntryMediumStorageView(mediumNumber: mediumNumber);
   }
 }
 
@@ -109,8 +101,8 @@ MusicWorkspaceCatalogData _fallbackMusicCatalog(
   );
 }
 
-final class MusicOwnedMediumStorageView {
-  const MusicOwnedMediumStorageView({
+final class MusicEntryMediumStorageView {
+  const MusicEntryMediumStorageView({
     required this.mediumNumber,
     this.storageDevice,
     this.storageSlot,
@@ -127,16 +119,4 @@ final class MusicOwnedMediumStorageView {
     ];
     return values.isEmpty ? '-' : values.join(' / ');
   }
-}
-
-final class MusicMatrixRunoutView {
-  const MusicMatrixRunoutView({
-    required this.mediumNumber,
-    required this.side,
-    required this.text,
-  });
-
-  final int mediumNumber;
-  final String side;
-  final String text;
 }

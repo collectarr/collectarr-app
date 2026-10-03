@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -12,73 +12,41 @@ class LibraryDetailHero extends StatelessWidget {
     super.key,
     required this.type,
     required this.item,
-    required this.collectionItem,
-    this.ownedCopies = const [],
+    required this.libraryEntry,
     required this.accent,
-    this.isOwned,
-    this.kindOwnedContent,
+    this.isEntry,
+    this.kindEntryContent,
   });
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final CollectionItemSummary? collectionItem;
-  final List<CollectionItemSummary> ownedCopies;
+  final LibraryEntrySummary? libraryEntry;
   final Color accent;
-  final bool? isOwned;
-  final Widget? kindOwnedContent;
+  final bool? isEntry;
+  final Widget? kindEntryContent;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
     final presentation = libraryCardPresentationForEntry(item);
-    final resolvedCollectionItemRef = resolveLibraryCollectionItemSummaryRef(item, collectionItem);
-    final resolvedIsOwned =
-        isOwned ?? (collectionItem != null || item.source.isOwned);
+    final resolvedLibraryEntryRef = resolveLibraryEntrySummaryRef(item, libraryEntry);
+    final resolvedIsEntry =
+        isEntry ?? (libraryEntry != null || item.source.isEntry);
     final referenceLabel = presentation.format;
-    final totalCopies =
-        ownedCopies.isEmpty ? (collectionItem == null ? 0 : 1) : ownedCopies.length;
-    final totalPaidCents = _sumOwnedValueCents(
-      ownedCopies,
-      (item) => item.pricePaidCents,
-    );
-    final totalMarketValueCents = _sumOwnedValueCents(
-      ownedCopies,
-      (item) => item.marketValueCents,
-    );
-    final totalsCurrency =
-        _detailHeroValueCurrency(ownedCopies, collectionItem, item);
-    final selectedCopyIndex = collectionItem == null || ownedCopies.isEmpty
-        ? null
-        : ownedCopies.indexWhere(
-            (i) => i.ref == collectionItem!.ref,
-          );
     final summaryFacts = <({String label, String value})>[
-      (label: 'Status', value: resolvedIsOwned ? 'Owned' : 'Not owned'),
-      if (totalCopies > 1) (label: 'Copies', value: totalCopies.toString()),
-      if (totalCopies > 1 && totalPaidCents != null)
-        (
-          label: 'Total paid',
-          value: formatMoney(totalPaidCents, totalsCurrency),
-        ),
-      if (totalCopies > 1 && totalMarketValueCents != null)
-        (
-          label: 'Total value',
-          value: formatMoney(totalMarketValueCents, totalsCurrency),
-        ),
-      if (selectedCopyIndex != null && selectedCopyIndex >= 0)
-        (label: 'Selected', value: 'Copy ${selectedCopyIndex + 1}'),
+      (label: 'Status', value: resolvedIsEntry ? 'In collection' : 'Not collected'),
       (
         label: 'Updated',
         value:
-            formatNullableDate(collectionItem?.updatedAt ?? item.source.updatedAt) ??
+            formatNullableDate(libraryEntry?.updatedAt ?? item.source.updatedAt) ??
                 '-',
       ),
     ];
     final primaryChips = <Widget>[
       LibraryInfoChip(
         icon: Icons.inventory_2,
-        label: resolvedIsOwned ? 'Owned' : 'Not owned',
+        label: resolvedIsEntry ? 'In collection' : 'Not collected',
         foreground: accent,
         background: palette.surfaceSubtle
             .withValues(alpha: palette.isDark ? 0.42 : 0.72),
@@ -131,7 +99,7 @@ class LibraryDetailHero extends StatelessWidget {
                     context,
                     coverWidth: 140,
                   ),
-                  collectionItemRef: resolvedCollectionItemRef,
+                  libraryEntryRef: resolvedLibraryEntryRef,
                   enableHoverCue: false,
                 ),
               ),
@@ -181,9 +149,9 @@ class LibraryDetailHero extends StatelessWidget {
               ),
             ],
           ),
-          if (kindOwnedContent != null) ...[
+          if (kindEntryContent != null) ...[
             const SizedBox(height: 20),
-            kindOwnedContent!,
+            kindEntryContent!,
           ],
         ],
       ),
@@ -201,45 +169,6 @@ class LibraryDetailHero extends StatelessWidget {
     final rawWidth = coverWidth * pixelRatio;
     return ((rawWidth / 64).ceil() * 64).toInt();
   }
-}
-
-int? _sumOwnedValueCents(
-  List<CollectionItemSummary> items,
-  int? Function(CollectionItemSummary item) selector,
-) {
-  var hasValue = false;
-  var total = 0;
-  for (final item in items) {
-    final value = selector(item);
-    if (value == null) {
-      continue;
-    }
-    hasValue = true;
-    total += value;
-  }
-  return hasValue ? total : null;
-}
-
-String? _detailHeroValueCurrency(
-  List<CollectionItemSummary> ownedCopies,
-  CollectionItemSummary? collectionItem,
-  LibraryProjectionView item,
-) {
-  for (final copy in ownedCopies) {
-    final currency = copy.currency?.trim();
-    if (currency != null && currency.isNotEmpty) {
-      return currency;
-    }
-  }
-  final ownedCurrency = collectionItem?.currency?.trim();
-  if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
-    return ownedCurrency;
-  }
-  final itemCurrency = libraryCardPresentationForEntry(item).currency?.trim();
-  if (itemCurrency != null && itemCurrency.isNotEmpty) {
-    return itemCurrency;
-  }
-  return null;
 }
 
 class _DetailSummaryFact extends StatelessWidget {

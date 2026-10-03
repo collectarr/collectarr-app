@@ -134,7 +134,7 @@ Iterable<ActivityEvent> libraryActivityEventsForWatchSessions(
   final sessionList = sessions.toList(growable: false);
   final byKind = <CatalogMediaKind, List<WatchSession>>{};
   for (final session in sessionList) {
-    byKind.putIfAbsent(session.targetRef.mediaKind, () => []).add(session);
+    byKind.putIfAbsent(session.libraryEntryRef.kind, () => []).add(session);
   }
 
   for (final entry in byKind.entries) {
@@ -182,7 +182,7 @@ String? resolveLibraryBarcodeForKind(
   return libraryBarcodeResolverForKind(kind)?.resolve(code);
 }
 
-/// Returns the kind-owned semantic CSV contribution for a serialization
+/// Returns the kind-entry semantic CSV contribution for a serialization
 /// boundary. The generic Collection feature receives cells only; it never
 /// inspects Comic or another kind's domain fields.
 CollectionCsvKindProfile? collectionCsvKindProfileFor(
@@ -191,7 +191,7 @@ CollectionCsvKindProfile? collectionCsvKindProfileFor(
   return _collectionCsvProjections[kind];
 }
 
-/// Composition-root dispatch for kind-owned extensions on the mixed Shelf.
+/// Composition-root dispatch for kind-entry extensions on the mixed Shelf.
 ///
 /// The Collection feature owns the slot and row lifecycle. The kind registry
 /// only looks up a structural contributor; it does not encode kind branches.
@@ -236,7 +236,7 @@ LibraryKindWorkspace libraryKindWorkspaceForKind(CatalogMediaKind kind) {
   return workspace;
 }
 
-/// Composition-root dispatch for kind-owned facet extraction and remote facet
+/// Composition-root dispatch for kind-entry facet extraction and remote facet
 /// loading. The generic library only receives the structural facet contract;
 /// it does not read facet semantics from [LibraryKindRegistration].
 LibraryFacetModule? libraryKindFacetModuleForKind(CatalogMediaKind kind) {

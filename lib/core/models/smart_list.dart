@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 enum SmartListEntityType {
   catalogItem('catalog_item'),
-  collectionItem('collection_item');
+  libraryEntry('library_entry');
 
   const SmartListEntityType(this.apiValue);
 
@@ -237,7 +237,7 @@ class SmartList {
       }
       final filter = Map<String, dynamic>.from(rawFilter);
       for (final key in const [
-        'ownership',
+        'entries',
         'tracking_status',
         'loan_status',
         'date_field',
@@ -289,8 +289,8 @@ class SmartList {
 
   static Map<String, dynamic> _filterToJson(LibraryFilterSelection f) {
     return {
-      if (f.ownershipFilter != LibraryOwnershipFilter.all)
-        'ownership': f.ownershipFilter.name,
+      if (f.entriesFilter != LibraryEntryPolicyFilter.all)
+        'entries': f.entriesFilter.name,
       if (f.trackingStatusFilter != LibraryTrackingStatusFilter.all)
         'tracking_status': f.trackingStatusFilter.name,
       if (f.loanStatusFilter != LibraryLoanStatusFilter.all)
@@ -330,11 +330,11 @@ class SmartList {
     }
     return (
       selection: LibraryFilterSelection(
-        ownershipFilter: _enumByNameOrNull(
-              LibraryOwnershipFilter.values.asNameMap(),
-              json['ownership'],
+        entriesFilter: _enumByNameOrNull(
+              LibraryEntryPolicyFilter.values.asNameMap(),
+              json['entries'],
             ) ??
-            LibraryOwnershipFilter.all,
+            LibraryEntryPolicyFilter.all,
         trackingStatusFilter: _enumByNameOrNull(
               LibraryTrackingStatusFilter.values.asNameMap(),
               json['tracking_status'],

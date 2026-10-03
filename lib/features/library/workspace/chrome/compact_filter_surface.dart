@@ -94,20 +94,20 @@ class CompactFilterSurface extends StatelessWidget {
               },
             ),
 
-            // Quick Filter: Owned
+            // Quick Filter: Entry
             _buildQuickChip(
-              key: const ValueKey('quick_filter_owned'),
-              label: 'Owned',
+              key: const ValueKey('quick_filter_entry'),
+              label: 'Entry',
               selected:
-                  selection.ownershipFilter == LibraryOwnershipFilter.owned,
+                  selection.entriesFilter == LibraryEntryPolicyFilter.entry,
               accent: accentData.accent,
               palette: palette,
               onSelected: (selected) {
                 onFilterChanged(
                   selection.copyWith(
-                    ownershipFilter: selected
-                        ? LibraryOwnershipFilter.owned
-                        : LibraryOwnershipFilter.all,
+                    entriesFilter: selected
+                        ? LibraryEntryPolicyFilter.entry
+                        : LibraryEntryPolicyFilter.all,
                   ),
                 );
               },
@@ -118,15 +118,15 @@ class CompactFilterSurface extends StatelessWidget {
               key: const ValueKey('quick_filter_wishlist'),
               label: 'Wishlist',
               selected:
-                  selection.ownershipFilter == LibraryOwnershipFilter.wishlist,
+                  selection.entriesFilter == LibraryEntryPolicyFilter.wishlist,
               accent: accentData.accent,
               palette: palette,
               onSelected: (selected) {
                 onFilterChanged(
                   selection.copyWith(
-                    ownershipFilter: selected
-                        ? LibraryOwnershipFilter.wishlist
-                        : LibraryOwnershipFilter.all,
+                    entriesFilter: selected
+                        ? LibraryEntryPolicyFilter.wishlist
+                        : LibraryEntryPolicyFilter.all,
                   ),
                 );
               },

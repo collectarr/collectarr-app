@@ -34,12 +34,10 @@ final class GenericWorkspaceProjector
   GenericWorkspaceDto project({
     required LibraryWorkspaceSource source,
     required LibraryEntityRef entity,
-    LibraryReleaseState? releaseState,
   }) {
     return GenericWorkspaceDto(
       common: WorkspaceCommonProjection.fromStructuralShelf(source, entity),
-      personal:
-          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
+      personal: PersonalCopyProjection.fromShelf(source),
     );
   }
 }

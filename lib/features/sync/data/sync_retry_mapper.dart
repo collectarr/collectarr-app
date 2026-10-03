@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/models/watch_session_ref.dart';
@@ -13,8 +13,9 @@ import 'package:collectarr_app/features/library/tracking/library_tracking_regist
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_collection_item_persistence.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_entry_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
@@ -30,18 +31,13 @@ class SyncRetryMapper {
     required Uuid uuid,
   }) async {
     switch (change.entityType) {
-      case 'collection_item':
-        final rawCatalogRef = change.localPayload?['catalog_ref'];
-        if (rawCatalogRef is! Map) return null;
-        final catalogRef = CatalogItemRef.fromJson(
-          Map<String, dynamic>.from(rawCatalogRef),
-        );
-        final collectionItemRef = CollectionItemRef(
-          kind: catalogRef.kind,
-          id: CollectionItemId(change.entityId),
-        );
+      case 'library_entry':
+        final payload = change.localPayload ?? change.servicePayload;
+        final kind = catalogMediaKindFromApiValue(payload?['kind'] as String?);
+        if (kind.isUnknown) return null;
+        final libraryEntryRef = LibraryEntryRef(kind: kind, id: LibraryEntryId(change.entityId));
         final serialized =
-            await CollectarrCollectionItemPersistence(db).syncPayloadByRef(collectionItemRef);
+            await CollectarrLibraryEntryPersistence(db).syncPayloadByRef(libraryEntryRef);
         if (serialized == null) {
           return null;
         }
@@ -70,17 +66,17 @@ class SyncRetryMapper {
         );
       case 'tracking_entry':
         final trackingPayload = change.localPayload ?? change.servicePayload;
-        final rawCatalogRef = trackingPayload?['catalog_ref'];
-        if (rawCatalogRef is! Map) return null;
-        final trackingCatalogRef = CatalogItemRef.fromJson(
-          Map<String, dynamic>.from(rawCatalogRef),
+        final rawEntryRef = trackingPayload?['library_entry_ref'];
+        if (rawEntryRef is! Map) return null;
+        final trackingEntryRef = LibraryEntryRef.fromJson(
+          Map<String, Object?>.from(rawEntryRef),
         );
         final tracking = await TrackingStorageRepository(
           db,
           codecs: libraryTrackingStorageCodecs,
         ).syncPayloadByRef(
           TrackingStateRef(
-            kind: trackingCatalogRef.kind,
+            kind: trackingEntryRef.kind,
             id: change.entityId,
           ),
         );
@@ -97,17 +93,17 @@ class SyncRetryMapper {
         );
       case 'tracking_unit':
         final unitPayload = change.localPayload ?? change.servicePayload;
-        final rawCatalogRef = unitPayload?['catalog_ref'];
-        if (rawCatalogRef is! Map) return null;
-        final catalogRef = CatalogItemRef.fromJson(
-          Map<String, dynamic>.from(rawCatalogRef),
+        final rawEntryRef = unitPayload?['library_entry_ref'];
+        if (rawEntryRef is! Map) return null;
+        final entryRef = LibraryEntryRef.fromJson(
+          Map<String, Object?>.from(rawEntryRef),
         );
         final unit = await TrackingUnitStorageRepository(
           db,
           codecs: libraryTrackingUnitCodecs,
         ).findByRef(
           TrackingUnitRef(
-            kind: catalogRef.kind,
+            kind: entryRef.kind,
             id: change.entityId,
           ),
         );
@@ -123,17 +119,17 @@ class SyncRetryMapper {
       case 'watch_session':
         final watchSessionPayload =
             change.localPayload ?? change.servicePayload;
-        final rawTargetRef = watchSessionPayload?['catalog_ref'];
-        if (rawTargetRef is! Map) return null;
-        final targetRef = CatalogItemRef.fromJson(
-          Map<String, dynamic>.from(rawTargetRef),
+        final rawEntryRef = watchSessionPayload?['library_entry_ref'];
+        if (rawEntryRef is! Map) return null;
+        final entryRef = LibraryEntryRef.fromJson(
+          Map<String, Object?>.from(rawEntryRef),
         );
         final session = await WatchSessionsRepository(
           db,
           codecs: libraryWatchSessionCodecs,
         ).findByRef(
           WatchSessionRef(
-            kind: targetRef.kind,
+            kind: entryRef.kind,
             id: change.entityId,
           ),
         );
@@ -183,10 +179,10 @@ class SyncRetryMapper {
       case 'custom_episode':
         final customEpisodePayload =
             change.localPayload ?? change.servicePayload;
-        final rawSeriesRef = customEpisodePayload?['catalog_ref'];
+        final rawSeriesRef = customEpisodePayload?['library_entry_ref'];
         if (rawSeriesRef is! Map) return null;
-        final seriesRef = CatalogItemRef.fromJson(
-          Map<String, dynamic>.from(rawSeriesRef),
+        final seriesRef = LibraryEntryRef.fromJson(
+          Map<String, Object?>.from(rawSeriesRef),
         );
         final codec = _customEpisodeCodecFor(seriesRef.kind);
         final record = await codec.readSyncRecord(db, change.entityId);
@@ -221,6 +217,29 @@ class SyncRetryMapper {
             entityId: change.entityId,
             action: 'delete',
             payload: change.localPayload ?? const {},
+            clientChangedAt: changedAt,
+          );
+        }
+        return null;
+      case 'user_folder':
+        final folder = await UserFolderRepository(db).findById(change.entityId);
+        if (folder != null) {
+          return SyncChange(
+            id: uuid.v4(),
+            entityType: change.entityType,
+            entityId: folder.id,
+            action: 'upsert',
+            payload: folder.toSyncPayload(),
+            clientChangedAt: changedAt,
+          );
+        }
+        if (change.localAction == 'delete') {
+          return SyncChange(
+            id: uuid.v4(),
+            entityType: change.entityType,
+            entityId: change.entityId,
+            action: 'delete',
+            payload: const {},
             clientChangedAt: changedAt,
           );
         }
@@ -267,7 +286,7 @@ class SyncRetryMapper {
       if (codec.kind == kind) return codec;
     }
     throw UnsupportedError(
-      'No kind-owned custom-episode codec is registered for ${kind.apiValue}',
+      'No kind-entry custom-episode codec is registered for ${kind.apiValue}',
     );
   }
 }

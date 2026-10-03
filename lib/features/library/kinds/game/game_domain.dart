@@ -1,11 +1,11 @@
-export 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
+export 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 export 'package:collectarr_app/features/library/kinds/game/data/local/game_local_tables.dart';
-export 'package:collectarr_app/features/library/kinds/game/data/local/game_collection_item_local_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
+export 'package:collectarr_app/features/library/kinds/game/data/local/game_library_entry_local_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/game/data/game_entry_repository.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
-export 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
-export 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
+export 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
+export 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_mapper.dart';

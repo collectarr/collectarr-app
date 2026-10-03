@@ -88,7 +88,7 @@ class LibraryAddBottomBar extends StatelessWidget {
                 ),
               ],
             ),
-            if (addTarget == LibraryAddTarget.owned && !isWideLayout) ...[
+            if (addTarget == LibraryAddTarget.entry && !isWideLayout) ...[
               const SizedBox(height: 8),
               _AddTargetDefaultsBar(
                 accent: accent,
@@ -128,7 +128,7 @@ class LibraryAddBottomBar extends StatelessWidget {
 
   String _wideLayoutAddLabel() {
     return switch (addTarget) {
-      LibraryAddTarget.owned => 'Add to Collection',
+      LibraryAddTarget.entry => 'Add to Collection',
       LibraryAddTarget.wishlist => 'Add to Wishlist',
       LibraryAddTarget.track => 'Track in Library',
     };
@@ -168,7 +168,7 @@ class _AddTargetDefaultsBar extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         const Text(
-          'Owned defaults',
+          'Entry defaults',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         CompactDropdown(
@@ -265,9 +265,9 @@ class _LibraryAddTargetMenu extends StatelessWidget {
       onSelected: onChanged,
       itemBuilder: (context) => [
         compactPopupMenuItem(
-          value: LibraryAddTarget.owned,
-          label: LibraryAddTarget.owned.actionLabel,
-          selected: value == LibraryAddTarget.owned,
+          value: LibraryAddTarget.entry,
+          label: LibraryAddTarget.entry.actionLabel,
+          selected: value == LibraryAddTarget.entry,
           accent: accent,
         ),
         compactPopupMenuItem(

@@ -1,5 +1,5 @@
 import '../comic_module_dependencies.dart';
-import '../ownership/comic_transfer_collection_item.dart';
+import '../entries/comic_transfer_library_entry.dart';
 
 final comicKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [
@@ -8,7 +8,7 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
       builder: buildComicLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.collectionItem,
+      scope: LibraryEntityScope.libraryEntry,
       builder: buildComicCatalogItemLibraryEditDialog,
     ),
   ]),
@@ -17,8 +17,8 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
   coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: ComicVocabularies.condition.builtIns,
   collectionValueOptions: ComicVocabularies.grade.builtIns,
-  ownedCollectionValueReader: (collectionItem) => switch (collectionItem?.value) {
-    ComicCollectionItem item => item.grade,
+  entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
+    ComicLibraryEntry item => item.grade,
     _ => null,
   },
   defaultCondition: 'Near Mint',
@@ -29,20 +29,20 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
     showsPhysicalFormatBadge: true,
   ),
   createSession: createComicEditDraft,
-  ownedDigitalFlagResolver: resolveComicOwnedDigitalFlag,
-  ownedFormatHintResolver: resolveComicOwnedFormatHint,
-  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-      ComicCollectionItemUpdatePayload.partial(
+  entryDigitalFlagResolver: resolveComicEntryDigitalFlag,
+  entryFormatHintResolver: resolveComicEntryFormatHint,
+  entryIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      ComicLibraryEntryUpdatePayload.partial(
     indexNumber: Patch.set(indexNumber),
   ),
-  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-      ComicCollectionItemUpdatePayload.partial(
+  entryConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      ComicLibraryEntryUpdatePayload.partial(
     condition: Patch.set(condition),
     grade: Patch.set(collectionValue),
   ),
-  ownedBulkUpdatePayloadBuilder:
+  entryBulkUpdatePayloadBuilder:
       (_, condition, collectionValue, locationId, tags) =>
-          ComicCollectionItemUpdatePayload.partial(
+          ComicLibraryEntryUpdatePayload.partial(
     condition:
         condition == null ? const Patch.unchanged() : Patch.set(condition),
     grade: collectionValue == null
@@ -52,7 +52,7 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
         locationId == null ? const Patch.unchanged() : Patch.set(locationId),
     tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
   ),
-  ownedPersonalDetailsUpdatePayloadBuilder: (
+  entryPersonalDetailsUpdatePayloadBuilder: (
     _,
     purchaseDate,
     pricePaidCents,
@@ -62,7 +62,7 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
     locationChanged,
     locationId,
   ) =>
-      ComicCollectionItemUpdatePayload.partial(
+      ComicLibraryEntryUpdatePayload.partial(
     purchaseDate: Patch.set(purchaseDate),
     pricePaidCents: Patch.set(pricePaidCents),
     currency: Patch.set(currency),
@@ -71,9 +71,9 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
     locationId:
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
-  ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = comicTransferCollectionItem(updated);
-    return ComicCollectionItemUpdatePayload.partial(
+  entryTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = comicTransferLibraryEntry(updated);
+    return ComicLibraryEntryUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
       personalNotes: Patch.set(typed.personalNotes),
@@ -88,12 +88,12 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
       purchaseDate: Patch.set(typed.purchaseDate),
       soldAt: Patch.set(typed.soldAt),
       details: Patch.set(
-        const ComicOwnedDetailsCodec().draftFromDetails(
+        const ComicEntryDetailsCodec().draftFromDetails(
           typed.details,
         ),
       ),
     );
   },
-  ownedDetailsResetPayloadBuilder: () =>
-      ComicCollectionItemUpdatePayload.partial(details: const Patch.clear()),
+  entryDetailsResetPayloadBuilder: () =>
+      ComicLibraryEntryUpdatePayload.partial(details: const Patch.clear()),
 );

@@ -17,7 +17,7 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.results,
     required this.selectedResultId,
     required this.checkedResultIds,
-    required this.ownedCatalogRefs,
+    required this.entryCatalogRefs,
     this.coreMatchSummary,
     required this.resultPolicy,
     required this.resultPolicyState,
@@ -37,7 +37,7 @@ class LibraryAddSearchPane extends StatelessWidget {
   final List<CatalogSearchCandidate> results;
   final String? selectedResultId;
   final Set<String> checkedResultIds;
-  final Set<CatalogEntityRef> ownedCatalogRefs;
+  final Set<CatalogEntityRef> entryCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
   final LibraryAddResultPolicy resultPolicy;
   final LibraryAddResultPolicyState resultPolicyState;
@@ -72,7 +72,7 @@ class LibraryAddSearchPane extends StatelessWidget {
               results: results,
               selectedResultId: selectedResultId,
               checkedResultIds: checkedResultIds,
-              ownedCatalogRefs: ownedCatalogRefs,
+              entryCatalogRefs: entryCatalogRefs,
               coreMatchSummary: coreMatchSummary,
               onSelectResult: onSelectResult,
               onToggleResultCheck: onToggleResultCheck,
@@ -286,7 +286,7 @@ class _SearchResultsList extends StatelessWidget {
     required this.results,
     required this.selectedResultId,
     required this.checkedResultIds,
-    required this.ownedCatalogRefs,
+    required this.entryCatalogRefs,
     this.coreMatchSummary,
     required this.onSelectResult,
     required this.onToggleResultCheck,
@@ -300,7 +300,7 @@ class _SearchResultsList extends StatelessWidget {
   final List<CatalogSearchCandidate> results;
   final String? selectedResultId;
   final Set<String> checkedResultIds;
-  final Set<CatalogEntityRef> ownedCatalogRefs;
+  final Set<CatalogEntityRef> entryCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onToggleResultCheck;
@@ -334,7 +334,7 @@ class _SearchResultsList extends StatelessWidget {
         results: results,
         selectedResultId: selectedResultId,
         checkedResultIds: checkedResultIds,
-        ownedCatalogRefs: ownedCatalogRefs,
+        entryCatalogRefs: entryCatalogRefs,
         coreMatchSummary: coreMatchSummary,
         onSelectResult: onSelectResult,
         onToggleResultCheck: onToggleResultCheck,
@@ -351,7 +351,7 @@ class _SearchResultsList extends StatelessWidget {
             accent: accent,
             selected: results[i].reference.id == selectedResultId,
             checked: checkedResultIds.contains(results[i].reference.id),
-            isOwned: ownedCatalogRefs.contains(results[i].reference),
+            isEntry: entryCatalogRefs.contains(results[i].reference),
             matchSummary: coreMatchSummary,
             onSelect: () => onSelectResult(results[i].reference.id),
             onToggleCheck: () => onToggleResultCheck(results[i].reference.id),
@@ -371,7 +371,7 @@ class _SearchResultsGrid extends StatelessWidget {
     required this.results,
     required this.selectedResultId,
     required this.checkedResultIds,
-    required this.ownedCatalogRefs,
+    required this.entryCatalogRefs,
     this.coreMatchSummary,
     required this.onSelectResult,
     required this.onToggleResultCheck,
@@ -382,7 +382,7 @@ class _SearchResultsGrid extends StatelessWidget {
   final List<CatalogSearchCandidate> results;
   final String? selectedResultId;
   final Set<String> checkedResultIds;
-  final Set<CatalogEntityRef> ownedCatalogRefs;
+  final Set<CatalogEntityRef> entryCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onToggleResultCheck;
@@ -404,7 +404,7 @@ class _SearchResultsGrid extends StatelessWidget {
       itemCount: results.length,
       itemBuilder: (context, index) {
         final item = results[index];
-        final isOwned = ownedCatalogRefs.contains(item.reference);
+        final isEntry = entryCatalogRefs.contains(item.reference);
         final selected = item.reference.id == selectedResultId;
         final checked = checkedResultIds.contains(item.reference.id);
         final coreDisplay = libraryPresentationForKind(type.kind)
@@ -415,18 +415,18 @@ class _SearchResultsGrid extends StatelessWidget {
         final subtitle =
             coreDisplay?.secondaryLine ?? item.summary.subtitle ?? '';
         final matchSummary = coreMatchSummary?.call(item);
-        final ownedTone = Theme.of(context).colorScheme.tertiary;
-        final ownedFill = Color.alphaBlend(
-          ownedTone.withValues(alpha: 0.16),
+        final entryTone = Theme.of(context).colorScheme.tertiary;
+        final entryFill = Color.alphaBlend(
+          entryTone.withValues(alpha: 0.16),
           palette.tableEvenRow,
         );
-        final ownedBorder = ownedTone.withValues(alpha: 0.6);
-        final ownedBadgeBackground = Color.alphaBlend(
-          ownedTone.withValues(alpha: palette.isDark ? 0.34 : 0.16),
+        final entryBorder = entryTone.withValues(alpha: 0.6);
+        final entryBadgeBackground = Color.alphaBlend(
+          entryTone.withValues(alpha: palette.isDark ? 0.34 : 0.16),
           palette.surfaceDim,
         );
-        final ownedBadgeForeground =
-            appContrastingTextColor(ownedBadgeBackground);
+        final entryBadgeForeground =
+            appContrastingTextColor(entryBadgeBackground);
         return Material(
           color: Colors.transparent,
           child: InkWell(
@@ -438,15 +438,15 @@ class _SearchResultsGrid extends StatelessWidget {
                 color: selected
                     ? Color.alphaBlend(
                         accent.withValues(alpha: 0.22), palette.selection)
-                    : isOwned
-                        ? ownedFill
+                    : isEntry
+                        ? entryFill
                         : palette.tableEvenRow,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: selected
                       ? accent
-                      : isOwned
-                          ? ownedBorder
+                      : isEntry
+                          ? entryBorder
                           : palette.divider,
                   width: selected ? 1.6 : 1,
                 ),
@@ -468,18 +468,18 @@ class _SearchResultsGrid extends StatelessWidget {
                               ),
                             ),
                           ),
-                          if (isOwned)
+                          if (isEntry)
                             Positioned(
                               left: 6,
                               top: 6,
                               child: LibraryAddResultBadge(
                                 'In collection',
                                 key: ValueKey(
-                                    'library-add-owned-badge-${item.reference.id}'),
+                                    'library-add-entry-badge-${item.reference.id}'),
                                 icon: Icons.playlist_add_check_rounded,
-                                backgroundColor: ownedBadgeBackground,
-                                borderColor: ownedBorder,
-                                foregroundColor: ownedBadgeForeground,
+                                backgroundColor: entryBadgeBackground,
+                                borderColor: entryBorder,
+                                foregroundColor: entryBadgeForeground,
                               ),
                             ),
                           Positioned(
@@ -559,14 +559,14 @@ class _SearchResultsGrid extends StatelessWidget {
                         ),
                       ),
                     ],
-                    if (isOwned) ...[
+                    if (isEntry) ...[
                       SizedBox(height: 5 * densityScale),
                       LibraryAddResultBadge(
                         'Already in collection',
                         icon: Icons.playlist_add_check_rounded,
-                        backgroundColor: ownedBadgeBackground,
-                        borderColor: ownedBorder,
-                        foregroundColor: ownedBadgeForeground,
+                        backgroundColor: entryBadgeBackground,
+                        borderColor: entryBorder,
+                        foregroundColor: entryBadgeForeground,
                       ),
                     ],
                   ],
@@ -688,7 +688,7 @@ class SearchResultTile extends StatelessWidget {
     this.matchSummary,
     required this.selected,
     required this.checked,
-    this.isOwned = false,
+    this.isEntry = false,
     required this.onSelect,
     required this.onToggleCheck,
   });
@@ -699,7 +699,7 @@ class SearchResultTile extends StatelessWidget {
   final String? Function(CatalogSearchCandidate item)? matchSummary;
   final bool selected;
   final bool checked;
-  final bool isOwned;
+  final bool isEntry;
   final VoidCallback onSelect;
   final VoidCallback onToggleCheck;
 
@@ -716,17 +716,17 @@ class SearchResultTile extends StatelessWidget {
             );
     final subtitle = resultDisplay?.secondaryLine ?? '';
     final detailLine = resultDisplay?.detailLine;
-    final ownedTone = Theme.of(context).colorScheme.tertiary;
-    final ownedFill = Color.alphaBlend(
-      ownedTone.withValues(alpha: 0.16),
+    final entryTone = Theme.of(context).colorScheme.tertiary;
+    final entryFill = Color.alphaBlend(
+      entryTone.withValues(alpha: 0.16),
       palette.tableEvenRow,
     );
-    final ownedBorder = ownedTone.withValues(alpha: 0.6);
-    final ownedBadgeBackground = Color.alphaBlend(
-      ownedTone.withValues(alpha: palette.isDark ? 0.34 : 0.16),
+    final entryBorder = entryTone.withValues(alpha: 0.6);
+    final entryBadgeBackground = Color.alphaBlend(
+      entryTone.withValues(alpha: palette.isDark ? 0.34 : 0.16),
       palette.surfaceDim,
     );
-    final ownedBadgeForeground = appContrastingTextColor(ownedBadgeBackground);
+    final entryBadgeForeground = appContrastingTextColor(entryBadgeBackground);
     return InkWell(
       mouseCursor: WidgetStateMouseCursor.clickable,
       key: ValueKey('library-add-search-result-${item.reference.id}'),
@@ -736,15 +736,15 @@ class SearchResultTile extends StatelessWidget {
           color: selected
               ? Color.alphaBlend(
                   accent.withValues(alpha: 0.46), palette.selection)
-              : isOwned
-                  ? ownedFill
+              : isEntry
+                  ? entryFill
                   : palette.tableEvenRow,
           border: Border(
             left: BorderSide(
               color: selected
                   ? accent
-                  : isOwned
-                      ? ownedBorder
+                  : isEntry
+                      ? entryBorder
                       : Colors.transparent,
               width: 4,
             ),
@@ -789,13 +789,13 @@ class SearchResultTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (isOwned) ...[
+                        if (isEntry) ...[
                           LibraryAddResultBadge(
                             'Already in collection',
                             icon: Icons.playlist_add_check_rounded,
-                            backgroundColor: ownedBadgeBackground,
-                            borderColor: ownedBorder,
-                            foregroundColor: ownedBadgeForeground,
+                            backgroundColor: entryBadgeBackground,
+                            borderColor: entryBorder,
+                            foregroundColor: entryBadgeForeground,
                           ),
                           const SizedBox(height: 4),
                         ],

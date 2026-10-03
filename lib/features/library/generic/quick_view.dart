@@ -5,7 +5,7 @@ class LibraryToolbarCounts {
   const LibraryToolbarCounts({
     this.shown = 0,
     this.total = 0,
-    this.owned = 0,
+    this.entry = 0,
     this.wishlist = 0,
     this.missingCover = 0,
     this.missingMetadata = 0,
@@ -17,7 +17,7 @@ class LibraryToolbarCounts {
 
   final int shown;
   final int total;
-  final int owned;
+  final int entry;
   final int wishlist;
   final int missingCover;
   final int missingMetadata;
@@ -28,7 +28,7 @@ class LibraryToolbarCounts {
 }
 
 enum LibraryQuickView {
-  owned,
+  entry,
   wishlist,
   missingCovers,
   missingMetadata,
@@ -38,7 +38,7 @@ enum LibraryQuickView {
 extension LibraryQuickViewUi on LibraryQuickView {
   String get label {
     return switch (this) {
-      LibraryQuickView.owned => 'Owned',
+      LibraryQuickView.entry => 'Entry',
       LibraryQuickView.wishlist => 'Wishlist',
       LibraryQuickView.missingCovers => 'Missing covers',
       LibraryQuickView.missingMetadata => 'Missing metadata',
@@ -48,7 +48,7 @@ extension LibraryQuickViewUi on LibraryQuickView {
 
   IconData get icon {
     return switch (this) {
-      LibraryQuickView.owned => Icons.check_box,
+      LibraryQuickView.entry => Icons.check_box,
       LibraryQuickView.wishlist => Icons.star,
       LibraryQuickView.missingCovers => Icons.image_not_supported_outlined,
       LibraryQuickView.missingMetadata => Icons.manage_search,

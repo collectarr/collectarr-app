@@ -75,7 +75,7 @@ class _AnimeTrackingEditorExtensionState
     final lifecycle = ref
         .watch(
           animeTrackingStateBySeriesIdProvider(
-            widget.summary.catalogRef.rootScope.id,
+            widget.summary.libraryEntryRef.id.value,
           ),
         )
         .asData

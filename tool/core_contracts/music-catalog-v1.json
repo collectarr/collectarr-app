@@ -3,6 +3,7 @@
     "CatalogMusicDiscResponse": {
       "properties": {
         "disc_number": {
+          "minimum": 1.0,
           "title": "Disc Number",
           "type": "integer"
         },
@@ -529,6 +530,7 @@
         "duration_ms": {
           "anyOf": [
             {
+              "minimum": 0.0,
               "type": "integer"
             },
             {
@@ -543,14 +545,19 @@
           "type": "string"
         },
         "position": {
+          "maxLength": 16,
+          "minLength": 1,
           "title": "Position",
           "type": "string"
         },
         "position_order": {
+          "minimum": 0.0,
           "title": "Position Order",
           "type": "integer"
         },
         "title": {
+          "maxLength": 255,
+          "minLength": 1,
           "title": "Title",
           "type": "string"
         }
@@ -568,8 +575,8 @@
   "$id": "https://schemas.collectarr.app/music-catalog/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "c443f3569d186e7226fe1851ee63198dc9c6bca5",
-  "generatedAt": "2026-10-01T23:55:27.357676Z",
+  "coreCommit": "a57c087fef9dcceae5430dc5ea464e91b33f99d8",
+  "generatedAt": "2026-10-02T14:53:05.381161Z",
   "roots": {
     "disc": {
       "$ref": "#/$defs/CatalogMusicDiscResponse"

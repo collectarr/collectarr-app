@@ -32,25 +32,25 @@ TransferableField movieTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(MovieCollectionItem item) read,
-  required MovieCollectionItem Function(MovieCollectionItem item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.collectionItem,
+  required String? Function(MovieLibraryEntry item) read,
+  required MovieLibraryEntry Function(MovieLibraryEntry item, String? value) write,
+  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
-  return TransferableField.typed<MovieCollectionItem>(
+  return TransferableField.typed<MovieLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
     scope: scope,
-    decode: (value) => value as MovieCollectionItem,
+    decode: (value) => value as MovieLibraryEntry,
     read: read,
     write: write,
   );
 }
 
 final movieUniversalTransferableFields =
-    TransferableField.universalForTyped<MovieCollectionItem>(
-  decode: (value) => value as MovieCollectionItem,
+    TransferableField.universalForTyped<MovieLibraryEntry>(
+  decode: (value) => value as MovieLibraryEntry,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,
@@ -101,7 +101,7 @@ final movieTransferableFields = <TransferableField>[
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.features,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(features: value));
@@ -112,7 +112,7 @@ final movieTransferableFields = <TransferableField>[
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.boxSetName,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(boxSetName: value));
@@ -123,7 +123,7 @@ final movieTransferableFields = <TransferableField>[
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.packaging,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(packaging: value));

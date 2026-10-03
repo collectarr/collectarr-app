@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:flutter/material.dart';
@@ -16,18 +16,18 @@ class InspectorBackdrop extends StatelessWidget {
   const InspectorBackdrop({
     super.key,
     required this.item,
-    this.collectionItem,
+    this.libraryEntry,
   });
 
   final LibraryProjectionView item;
-  final CollectionItemSummary? collectionItem;
+  final LibraryEntrySummary? libraryEntry;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
     final card = libraryCardPresentationForEntry(item);
-    final collectionItemRef = resolveLibraryCollectionItemRef(item, collectionItem);
+    final libraryEntryRef = resolveLibraryEntryRef(item, libraryEntry);
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -37,7 +37,7 @@ class InspectorBackdrop extends StatelessWidget {
             title: dto.primaryLabel,
             itemNumber: card.itemNumber,
             imageUrl: dto.imageUrl,
-            collectionItemRef: collectionItemRef,
+            libraryEntryRef: libraryEntryRef,
           ),
         ),
         DecoratedBox(
@@ -76,7 +76,7 @@ class InspectorActionBar extends StatelessWidget {
     super.key,
     required this.type,
     required this.item,
-    required this.onToggleOwned,
+    required this.onToggleEntry,
     required this.onToggleWishlist,
     required this.onEdit,
     required this.onOpenDetails,
@@ -86,7 +86,7 @@ class InspectorActionBar extends StatelessWidget {
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final VoidCallback? onToggleOwned;
+  final VoidCallback? onToggleEntry;
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
   final VoidCallback onOpenDetails;
@@ -118,10 +118,10 @@ class InspectorActionBar extends StatelessWidget {
                   ),
             ),
             LibraryStatusChip(
-              icon: item.source.isOwned
+              icon: item.source.isEntry
                   ? Icons.check_circle_outline
                   : Icons.inventory_2_outlined,
-              label: item.source.isOwned ? 'Owned' : 'Catalog only',
+              label: item.source.isEntry ? 'Entry' : 'Catalog only',
               foreground: palette.textPrimary,
               background: palette.surface,
               borderColor: palette.divider,
@@ -137,16 +137,16 @@ class InspectorActionBar extends StatelessWidget {
                 borderColor: palette.divider,
               ),
             _InspectorActionPillButton(
-              tooltip: item.source.isOwned
+              tooltip: item.source.isEntry
                   ? 'Remove from collection'
                   : item.source.isWishlisted
                       ? 'Convert wishlist to collection'
                       : 'Add to collection',
-              onPressed: onToggleOwned,
-              icon: item.source.isOwned
+              onPressed: onToggleEntry,
+              icon: item.source.isEntry
                   ? Icons.remove_circle_outline
                   : Icons.add_circle_outline,
-              label: item.source.isOwned ? 'Remove' : 'Collect',
+              label: item.source.isEntry ? 'Remove' : 'Collect',
             ),
             _InspectorActionPillButton(
               tooltip: item.source.isWishlisted
@@ -257,7 +257,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
     this.onEdit,
     this.onShare,
     this.onDuplicate,
-    this.onToggleOwned,
+    this.onToggleEntry,
     this.onLoan,
     this.onRefreshMetadata,
     this.onUnlinkFromCore,
@@ -271,7 +271,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onShare;
   final VoidCallback? onDuplicate;
-  final VoidCallback? onToggleOwned;
+  final VoidCallback? onToggleEntry;
   final VoidCallback? onLoan;
   final VoidCallback? onRefreshMetadata;
   final VoidCallback? onUnlinkFromCore;
@@ -332,13 +332,13 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                 onPressed: onDuplicate,
                 icon: Icons.copy_all_outlined,
               ),
-            if (!compactActions && onToggleOwned != null)
+            if (!compactActions && onToggleEntry != null)
               InspectorToolIconButton(
-                tooltip: item.source.isOwned
+                tooltip: item.source.isEntry
                     ? 'Remove from collection'
                     : 'Add to collection',
-                onPressed: onToggleOwned,
-                icon: item.source.isOwned
+                onPressed: onToggleEntry,
+                icon: item.source.isEntry
                     ? Icons.delete_outline
                     : Icons.add_circle_outline,
               ),
@@ -349,7 +349,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                   case InspectorToolbarMenuAction.duplicate:
                     onDuplicate?.call();
                   case InspectorToolbarMenuAction.removeOrCollect:
-                    onToggleOwned?.call();
+                    onToggleEntry?.call();
                   case InspectorToolbarMenuAction.loan:
                     onLoan?.call();
                   case InspectorToolbarMenuAction.refreshMetadata:
@@ -369,20 +369,20 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                       ),
                     ),
                   ),
-                if (compactActions && onToggleOwned != null)
+                if (compactActions && onToggleEntry != null)
                   PopupMenuItem<InspectorToolbarMenuAction>(
                     value: InspectorToolbarMenuAction.removeOrCollect,
-                    enabled: onToggleOwned != null,
+                    enabled: onToggleEntry != null,
                     child: Material(
                       type: MaterialType.transparency,
                       child: ListTile(
                         dense: true,
                         leading: Icon(
-                          item.source.isOwned
+                          item.source.isEntry
                               ? Icons.delete_outline
                               : Icons.add_circle_outline,
                         ),
-                        title: Text(item.source.isOwned ? 'Remove' : 'Collect'),
+                        title: Text(item.source.isEntry ? 'Remove' : 'Collect'),
                       ),
                     ),
                   ),

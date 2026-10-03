@@ -64,8 +64,8 @@ class LibraryMetaChip extends StatelessWidget {
 String genericLibraryStatusLabel(LibraryProjectionView item) {
   final kind = item.source.catalogRef?.mediaKind ?? CatalogMediaKind.unknown;
   final labels = libraryPresentationForKind(kind).statusLabels;
-  if (item.source.isOwned) {
-    return labels.labelFor('owned', fallback: 'Owned');
+  if (item.source.isEntry) {
+    return labels.labelFor('entry', fallback: 'Entry');
   }
   if (item.source.isTracked) {
     return labels.labelFor('tracked', fallback: 'Tracked');

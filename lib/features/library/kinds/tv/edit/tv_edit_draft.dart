@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_collection_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -12,11 +12,11 @@ import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_collection_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/entries/tv_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -39,10 +39,10 @@ enum TvCanonicalEditField {
 class TvEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
-        LibraryCopyEditSessionDefaults
+        LibraryEntryEditSessionDefaults
     implements TvEditDraftContract {
   TvEditDraft({
-    this.collectionItem,
+    this.libraryEntry,
     required this.featuresController,
     required this.boxSetNameController,
     required this.regionController,
@@ -62,7 +62,7 @@ class TvEditDraft
     required this.releaseMediaEdit,
   });
 
-  final TvCollectionItem? collectionItem;
+  final TvLibraryEntry? libraryEntry;
 
   @override
   final TextEditingController featuresController;
@@ -97,7 +97,7 @@ class TvEditDraft
   final TvReleaseMediaEditController releaseMediaEdit;
 
   @override
-  JsonEncodable toDetailsDraft() => TvOwnedDetailsDraft(
+  JsonEncodable toDetailsDraft() => TvEntryDetailsDraft(
         features: emptyToNull(featuresController.text),
         hdrFormats: hdrFormats,
         boxSetName: emptyToNull(boxSetNameController.text),
@@ -108,7 +108,7 @@ class TvEditDraft
 
   @override
   void initializePersonalState(PersonalStateDraft personal) {
-    final item = collectionItem;
+    final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.ownerLabel ?? '';
     personal.conditionController.text = item.condition ?? '';
@@ -136,11 +136,11 @@ class TvEditDraft
   }
 
   @override
-  TvCollectionItemUpdatePayload buildOwnedUpdatePayload({
-    required CollectionItemRef collectionItemRef,
+  TvLibraryEntryUpdatePayload buildEntryUpdatePayload({
+    required LibraryEntryRef libraryEntryRef,
     required PersonalStateDraft personal,
   }) {
-    return TvCollectionItemUpdatePayload(
+    return TvLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -183,7 +183,7 @@ class TvEditDraft
       soldTo: personal.soldToController.text.trim().isEmpty
           ? const Patch.clear()
           : Patch.set(personal.soldToController.text.trim()),
-      details: Patch.set(toDetailsDraft() as TvOwnedDetailsDraft),
+      details: Patch.set(toDetailsDraft() as TvEntryDetailsDraft),
     );
   }
 
@@ -410,12 +410,12 @@ class TvEditDraft
 
 LibraryEditSessionBundle createTvEditDraft({
   required CatalogSearchCandidate item,
-  LibraryCollectionItemDispatch? collectionItemDispatch,
+  LibraryEntryDispatch? libraryEntryDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = TvCollectionItemProjection.fromDispatch(collectionItemDispatch);
-  final video = owned?.details;
+  final entry = TvLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
+  final video = entry?.details;
   final metadata = item.kindCapability.mapTransport(
       (transport) => TvSeriesMetadata.fromJson(transport.kindData));
   final tv = metadata is TvSeriesMetadata ? metadata : null;
@@ -460,7 +460,7 @@ LibraryEditSessionBundle createTvEditDraft({
   tvEdit.initializeTvEditors();
 
   final draft = TvEditDraft(
-    collectionItem: owned,
+    libraryEntry: entry,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
     regionController: textControllers.create(text: video?.region ?? ''),
@@ -486,7 +486,7 @@ LibraryEditSessionBundle createTvEditDraft({
   );
   return LibraryEditSessionBundle(
     catalogItemSession: draft,
-    copySession: draft,
+    entrySession: draft,
     disposeSession: draft.dispose,
   );
 }

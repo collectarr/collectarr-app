@@ -41,7 +41,7 @@ final class GroupShelfEntry extends ShelfPresentationEntry {
 
   int get count => items.length;
 
-  int get ownedCount => items.where((item) => item.source.isOwned).length;
+  int get entryCount => items.where((item) => item.source.isEntry).length;
 }
 
 final class FolderShelfEntry extends ShelfPresentationEntry {
@@ -62,5 +62,5 @@ final class FolderShelfEntry extends ShelfPresentationEntry {
   List<LibraryProjectionItem> get items => group.items;
   LibraryProjectionItem get representativeItem => group.representativeItem;
   int get count => group.count;
-  int get ownedCount => group.ownedCount;
+  int get entryCount => group.entryCount;
 }

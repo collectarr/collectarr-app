@@ -8,27 +8,27 @@ import 'package:flutter/material.dart';
 abstract class LibraryEditPresentationBuilderBase
     extends LibraryEditPresentationBuilder {
   const LibraryEditPresentationBuilderBase({
-    required this.useOwnedMainArtworkLayout,
+    required this.useEntryMainArtworkLayout,
     required this.useDetailsTab,
     required this.useArtworkCoverTab,
     required this.useArtworkPhotosTab,
     required this.trackingSectionTitle,
-    required this.ownedDigitalTrackingSectionTitle,
-    required this.ownedDigitalTrackingHint,
-    required this.ownedTabs,
+    required this.entryDigitalTrackingSectionTitle,
+    required this.entryDigitalTrackingHint,
+    required this.entryTabs,
     required this.trackedTabs,
     required this.catalogTabs,
     this.customTabBuilder,
   });
 
-  final bool useOwnedMainArtworkLayout;
+  final bool useEntryMainArtworkLayout;
   final bool useDetailsTab;
   final bool useArtworkCoverTab;
   final bool useArtworkPhotosTab;
   final String trackingSectionTitle;
-  final String ownedDigitalTrackingSectionTitle;
-  final String ownedDigitalTrackingHint;
-  final List<LibraryEditTabSpec> ownedTabs;
+  final String entryDigitalTrackingSectionTitle;
+  final String entryDigitalTrackingHint;
+  final List<LibraryEditTabSpec> entryTabs;
   final List<LibraryEditTabSpec> trackedTabs;
   final List<LibraryEditTabSpec> catalogTabs;
   final Widget? Function({
@@ -76,8 +76,8 @@ abstract class LibraryEditPresentationBuilderBase
                 label: 'Custom',
               ),
           ]
-        : context.isOwned
-            ? ownedTabs
+        : context.isEntry
+            ? entryTabs
             : context.isTrackingOnly || context.hasWishlistContext
                 ? trackedTabs
                 : catalogTabs;
@@ -106,17 +106,17 @@ abstract class LibraryEditPresentationBuilderBase
     required LibraryEditPresentationContext context,
   }) {
     return LibraryEditPresentationState(
-      usesOwnedMainArtworkLayout: useOwnedMainArtworkLayout && context.isOwned,
+      usesEntryMainArtworkLayout: useEntryMainArtworkLayout && context.isEntry,
       usesDetailsTab: useDetailsTab,
       usesArtworkCoverTab: useArtworkCoverTab,
-      usesArtworkPhotosTab: useArtworkPhotosTab && context.isOwned,
-      trackingSectionTitle: context.isOwned
+      usesArtworkPhotosTab: useArtworkPhotosTab && context.isEntry,
+      trackingSectionTitle: context.isEntry
           ? context.isDigitalFormat
-              ? ownedDigitalTrackingSectionTitle
+              ? entryDigitalTrackingSectionTitle
               : trackingSectionTitle
           : trackingSectionTitle,
-      trackingSectionHint: context.isOwned && context.isDigitalFormat
-          ? ownedDigitalTrackingHint
+      trackingSectionHint: context.isEntry && context.isDigitalFormat
+          ? entryDigitalTrackingHint
           : null,
     );
   }

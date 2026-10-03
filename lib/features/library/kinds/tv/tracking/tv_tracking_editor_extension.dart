@@ -74,7 +74,7 @@ class _TvTrackingEditorExtensionState
     final lifecycle = ref
         .watch(
           tvTrackingStateBySeriesIdProvider(
-            widget.summary.catalogRef.rootScope.id,
+            widget.summary.libraryEntryRef.id.value,
           ),
         )
         .asData

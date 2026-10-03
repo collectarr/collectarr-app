@@ -1,20 +1,20 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/owned/comic_owned_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_collection_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/entry/comic_entry_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -37,10 +37,10 @@ enum ComicCanonicalEditField {
 class ComicEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
-        LibraryCopyEditSessionDefaults
-    implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
+        LibraryEntryEditSessionDefaults
+    implements LibraryCatalogItemEditSession, LibraryEntryEditSession {
   ComicEditDraft({
-    this.collectionItem,
+    this.libraryEntry,
     required this.rawOrSlabbedController,
     required this.gradingCompanyController,
     required this.graderNotesController,
@@ -53,11 +53,11 @@ class ComicEditDraft
     required this.keyCategoryController,
     required this.keyComic,
     required this.lastBagBoardDate,
-    required this.ownedEdit,
+    required this.entryEdit,
     required this.comicEdit,
   });
 
-  final ComicCollectionItem? collectionItem;
+  final ComicLibraryEntry? libraryEntry;
 
   final TextEditingController rawOrSlabbedController;
   final TextEditingController gradingCompanyController;
@@ -73,16 +73,16 @@ class ComicEditDraft
   bool keyComic;
   DateTime? lastBagBoardDate;
 
-  final ComicOwnedEditDraft ownedEdit;
+  final ComicEntryEditDraft entryEdit;
   final ComicEditController comicEdit;
   Future<List<SerialAuthorityEntry>>? seriesEntriesFuture;
 
   @override
-  JsonEncodable toDetailsDraft() => ownedEdit.toDetailsDraft();
+  JsonEncodable toDetailsDraft() => entryEdit.toDetailsDraft();
 
   @override
   void initializePersonalState(PersonalStateDraft personal) {
-    final item = collectionItem;
+    final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.ownerLabel ?? '';
     personal.conditionController.text = item.condition ?? '';
@@ -110,11 +110,11 @@ class ComicEditDraft
   }
 
   @override
-  ComicCollectionItemUpdatePayload buildOwnedUpdatePayload({
-    required CollectionItemRef collectionItemRef,
+  ComicLibraryEntryUpdatePayload buildEntryUpdatePayload({
+    required LibraryEntryRef libraryEntryRef,
     required PersonalStateDraft personal,
   }) {
-    return ComicCollectionItemUpdatePayload(
+    return ComicLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -157,7 +157,7 @@ class ComicEditDraft
       soldTo: personal.soldToController.text.trim().isEmpty
           ? const Patch.clear()
           : Patch.set(personal.soldToController.text.trim()),
-      details: Patch.set(toDetailsDraft() as ComicOwnedDetailsDraft),
+      details: Patch.set(toDetailsDraft() as ComicEntryDetailsDraft),
     );
   }
 
@@ -302,21 +302,21 @@ class ComicEditDraft
   }
 
   void dispose() {
-    ownedEdit.dispose();
+    entryEdit.dispose();
     comicEdit.dispose();
   }
 }
 
 LibraryEditSessionBundle createComicEditDraft({
   required CatalogSearchCandidate item,
-  LibraryCollectionItemDispatch? collectionItemDispatch,
+  LibraryEntryDispatch? libraryEntryDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = ComicCollectionItemProjection.fromDispatch(collectionItemDispatch);
-  final comic = owned?.details;
-  final ownedEdit = ComicOwnedEditDraft.fromDetails(
-    comic ?? const ComicOwnedDetails(),
+  final entry = ComicLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
+  final comic = entry?.details;
+  final entryEdit = ComicEntryEditDraft.fromDetails(
+    comic ?? const ComicEntryDetails(),
   );
   final comicEdit = ComicEditController(
     item: item.kindCapability.mapTransport(
@@ -327,7 +327,7 @@ LibraryEditSessionBundle createComicEditDraft({
   comicEdit.initialize();
 
   final draft = ComicEditDraft(
-    collectionItem: owned,
+    libraryEntry: entry,
     rawOrSlabbedController:
         textControllers.create(text: comic?.rawOrSlabbed ?? ''),
     gradingCompanyController:
@@ -350,12 +350,12 @@ LibraryEditSessionBundle createComicEditDraft({
         textControllers.create(text: comic?.keyCategory ?? ''),
     keyComic: comic?.keyComic ?? false,
     lastBagBoardDate: comic?.lastBagBoardDate,
-    ownedEdit: ownedEdit,
+    entryEdit: entryEdit,
     comicEdit: comicEdit,
   );
   return LibraryEditSessionBundle(
     catalogItemSession: draft,
-    copySession: draft,
+    entrySession: draft,
     disposeSession: draft.dispose,
   );
 }

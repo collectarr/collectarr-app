@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/foundation.dart';
 
@@ -18,7 +17,7 @@ final class MetadataFieldId {
 
   String get serializedValue => value;
 
-  bool appliesTo(CatalogItemRef target) => target.kind == kind;
+  bool appliesTo(CatalogMediaKind target) => target == kind;
 
   @override
   bool operator ==(Object other) {

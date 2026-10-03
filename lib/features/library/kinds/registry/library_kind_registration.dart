@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 /// The intentionally small composition boundary for one concrete kind.
 ///
-/// Feature registries own Add, Edit, Owned, tracking, provider and other
+/// Feature registries own Add, Edit, Entry, tracking, provider and other
 /// semantic contributors. Registration only identifies a kind and builds its
 /// library page.
 abstract interface class LibraryKindRegistration {

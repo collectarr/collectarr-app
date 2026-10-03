@@ -315,15 +315,15 @@ class _DuplicateEntryRow extends StatelessWidget {
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color:
-                    (entry.isOwned ? colorScheme.primary : colorScheme.tertiary)
+                    (entry.isEntry ? colorScheme.primary : colorScheme.tertiary)
                         .withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Icon(
-                entry.isOwned ? Icons.inventory_2 : Icons.star_border,
+                entry.isEntry ? Icons.inventory_2 : Icons.star_border,
                 size: 15,
                 color:
-                    entry.isOwned ? colorScheme.primary : colorScheme.tertiary,
+                    entry.isEntry ? colorScheme.primary : colorScheme.tertiary,
               ),
             ),
             const SizedBox(width: 10),
@@ -428,8 +428,8 @@ List<LibraryDuplicateGroup> _duplicateGroups(
 
 int _duplicateConfidenceScore(_DuplicateBucket bucket) {
   var score = bucket.confidenceScore;
-  final ownedCount = bucket.entries.where((entry) => entry.isOwned).length;
-  if (ownedCount > 0 && ownedCount < bucket.entries.length) {
+  final entryCount = bucket.entries.where((entry) => entry.isEntry).length;
+  if (entryCount > 0 && entryCount < bucket.entries.length) {
     score += 2;
   }
 
@@ -451,7 +451,7 @@ List<LibraryWorkspaceSource> _sortedEntries(
 
 String _entrySubtitle(LibraryWorkspaceSource entry) {
   final pieces = <String>[
-    if (entry.isOwned) 'Owned',
+    if (entry.isEntry) 'Entry',
     if (entry.isWishlisted) 'Wishlist',
     'ID ${entry.itemId}',
   ];

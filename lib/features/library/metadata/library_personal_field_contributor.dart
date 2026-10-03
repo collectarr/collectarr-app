@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/foundation.dart';
 
-import 'library_field_ownership.dart';
+import 'library_field_entries.dart';
 
 /// Personal-field vocabulary contributed by one library kind.
 ///

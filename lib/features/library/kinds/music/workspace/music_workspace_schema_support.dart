@@ -16,7 +16,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     getValue: field.getValue,
     cellValue: (context) => Text(context.source.isWishlisted
         ? 'Wishlist'
-        : (context.source.isOwned ? 'Owned' : '')),
+        : (context.source.isEntry ? 'Entry' : '')),
     sortable: false,
     groupable: false,
     entityScope: field.entityScope,
@@ -210,7 +210,7 @@ LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicStatusSort() {
     id: MusicSortIds.status,
     compare: (left, right) {
       int rank(LibraryProjectionContext<MusicWorkspaceProjection> context) {
-        if (context.source.isOwned) return 0;
+        if (context.source.isEntry) return 0;
         if (context.source.isWishlisted) return 1;
         return 2;
       }

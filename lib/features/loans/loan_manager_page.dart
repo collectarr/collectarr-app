@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/barcode/barcode_batch_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -32,9 +32,9 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   var _filter = _LoanFilter.active;
   var _loading = true;
   List<Loan> _loans = const [];
-  Map<CollectionItemRef, CollectionItemSummary> _ownedByRef = const {};
-  Map<CollectionItemRef, CatalogDisplaySummary> _catalogByOwnedRef = const {};
-  Map<CatalogEntityRef, List<CollectionItemSummary>> _ownedByCatalogRef =
+  Map<LibraryEntryRef, LibraryEntrySummary> _entryByRef = const {};
+  Map<LibraryEntryRef, CatalogDisplaySummary> _catalogByEntryRef = const {};
+  Map<CatalogEntityRef, List<LibraryEntrySummary>> _entryByCatalogRef =
       const {};
 
   @override
@@ -56,14 +56,12 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     });
     final db = ref.read(localDatabaseProvider);
     final loansRepo = LoanRepository(db);
-    final ownedRepo = CollectionItemsRepository(db);
+    final entryRepo = LibraryEntriesRepository(db);
     final locationRepo = LocationRepository(db);
 
     final loans = await loansRepo.getAllLoans();
-    final collectionItems = await ownedRepo.listActiveSummaries();
-    final catalogRefs = collectionItems
-        .map((item) => item.catalogRef)
-        .whereType<CatalogEntityRef>();
+    final libraryEntries = await entryRepo.listActiveSummaries();
+    final catalogRefs = libraryEntries.map((item) => item.ref.localCatalogItemRef);
     final catalogByRef =
         await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
     final locations = await locationRepo.getAll();
@@ -72,36 +70,34 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
         location.id: location.fullPath(locations),
     };
     final summaries = [
-      for (final item in collectionItems)
+      for (final item in libraryEntries)
         item.copyWith(
           locationLabel: item.locationLabel == null
               ? null
               : locationLabelsById[item.locationLabel!],
         ),
     ];
-    final ownedByCatalogRef = <CatalogEntityRef, List<CollectionItemSummary>>{};
+    final entryByCatalogRef = <CatalogEntityRef, List<LibraryEntrySummary>>{};
     for (final item in summaries) {
-      final catalogRef = item.catalogRef;
-      if (catalogRef != null) {
-        ownedByCatalogRef
-            .putIfAbsent(catalogRef, () => <CollectionItemSummary>[])
-            .add(item);
-      }
+      final localItemRef = item.ref.localCatalogItemRef;
+      entryByCatalogRef
+          .putIfAbsent(localItemRef, () => <LibraryEntrySummary>[])
+          .add(item);
     }
     if (!mounted) {
       return;
     }
     setState(() {
       _loans = loans;
-      _ownedByRef = {
+      _entryByRef = {
         for (final item in summaries) item.ref: item,
       };
-      _catalogByOwnedRef = {
+      _catalogByEntryRef = {
         for (final item in summaries)
-          if (item.catalogRef case final catalogRef?)
+          if (item.ref.localCatalogItemRef case final catalogRef)
             if (catalogByRef[catalogRef] case final summary?) item.ref: summary,
       };
-      _ownedByCatalogRef = ownedByCatalogRef;
+      _entryByCatalogRef = entryByCatalogRef;
       _loading = false;
     });
   }
@@ -124,11 +120,11 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       if (query.isEmpty) {
         return true;
       }
-      final owned = _ownedByRef[loan.collectionItemRef];
-      final title = owned == null ? '' : _catalogTitleFor(owned);
+      final entry = _entryByRef[loan.libraryEntryRef];
+      final title = entry == null ? '' : _catalogTitleFor(entry);
       return loan.borrowerName.toLowerCase().contains(query) ||
           (loan.notes ?? '').toLowerCase().contains(query) ||
-          loan.collectionItemRef.id.value.toLowerCase().contains(query) ||
+          loan.libraryEntryRef.id.value.toLowerCase().contains(query) ||
           title.toLowerCase().contains(query);
     }).toList(growable: false);
     filtered.sort((a, b) {
@@ -160,7 +156,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     });
   }
 
-  Future<CollectionItemSummary?> _resolveCollectionItemFromBarcode(
+  Future<LibraryEntrySummary?> _resolveLibraryEntryFromBarcode(
       String barcode) async {
     final catalog = await CatalogLookupRepository(
       ref.read(localDatabaseProvider),
@@ -168,23 +164,23 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     if (catalog == null) {
       return null;
     }
-    final collectionItems = _ownedByCatalogRef[catalog.ref] ?? const [];
-    if (collectionItems.isEmpty) {
+    final libraryEntries = _entryByCatalogRef[catalog.ref] ?? const [];
+    if (libraryEntries.isEmpty) {
       return null;
     }
-    if (collectionItems.length == 1) {
-      return collectionItems.single;
+    if (libraryEntries.length == 1) {
+      return libraryEntries.single;
     }
-    return _pickCollectionItem(collectionItems, catalog.title);
+    return _pickLibraryEntry(libraryEntries, catalog.title);
   }
 
-  Future<CollectionItemSummary?> _pickCollectionItem(
-      List<CollectionItemSummary> collectionItems, String title) async {
-    return showDialog<CollectionItemSummary>(
+  Future<LibraryEntrySummary?> _pickLibraryEntry(
+      List<LibraryEntrySummary> libraryEntries, String title) async {
+    return showDialog<LibraryEntrySummary>(
       context: context,
-      builder: (context) => _CollectionItemPickerDialog(
+      builder: (context) => _LibraryEntryPickerDialog(
         title: title,
-        collectionItems: collectionItems,
+        libraryEntries: libraryEntries,
       ),
     );
   }
@@ -196,16 +192,16 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
           tone: AppToastTone.info);
       return;
     }
-    final collectionItem = await _resolveCollectionItemFromBarcode(barcode);
+    final libraryEntry = await _resolveLibraryEntryFromBarcode(barcode);
     if (!mounted) {
       return;
     }
-    if (collectionItem == null) {
+    if (libraryEntry == null) {
       showAppToast(context, 'No collection item found for barcode $barcode.',
           tone: AppToastTone.error);
       return;
     }
-    await _createLoan(collectionItem);
+    await _createLoan(libraryEntry);
   }
 
   Future<void> _returnByBarcode() async {
@@ -215,18 +211,18 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
           tone: AppToastTone.info);
       return;
     }
-    final collectionItem = await _resolveCollectionItemFromBarcode(barcode);
+    final libraryEntry = await _resolveLibraryEntryFromBarcode(barcode);
     if (!mounted) {
       return;
     }
-    if (collectionItem == null) {
+    if (libraryEntry == null) {
       showAppToast(context, 'No collection item found for barcode $barcode.',
           tone: AppToastTone.error);
       return;
     }
     final activeLoans = _loans
         .where((loan) =>
-            loan.collectionItemRef == collectionItem.ref && loan.isActive)
+            loan.libraryEntryRef == libraryEntry.ref && loan.isActive)
         .toList();
     if (activeLoans.isEmpty) {
       showAppToast(context, 'No active loan found for that item.',
@@ -235,7 +231,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     }
     final loan = activeLoans.length == 1
         ? activeLoans.single
-        : await _pickLoan(activeLoans, _catalogTitleFor(collectionItem));
+        : await _pickLoan(activeLoans, _catalogTitleFor(libraryEntry));
     if (loan == null || !mounted) {
       return;
     }
@@ -253,8 +249,8 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     );
   }
 
-  Future<void> _createLoan(CollectionItemSummary collectionItem) async {
-    final catalogTitle = _catalogTitleFor(collectionItem);
+  Future<void> _createLoan(LibraryEntrySummary libraryEntry) async {
+    final catalogTitle = _catalogTitleFor(libraryEntry);
     final draft = await showDialog<_LoanDraft>(
       context: context,
       builder: (context) => _LoanCreateDialog(
@@ -269,7 +265,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     await repo.create(
       Loan(
         id: DateTime.now().microsecondsSinceEpoch.toString(),
-        collectionItemRef: collectionItem.ref,
+        libraryEntryRef: libraryEntry.ref,
         borrowerName: draft.borrowerName,
         lentDate: draft.lentDate,
         dueDate: draft.dueDate,
@@ -365,12 +361,12 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   }
 
   String _loanTitle(Loan loan) {
-    final owned = _ownedByRef[loan.collectionItemRef];
-    return owned == null ? 'Unknown item' : _catalogTitleFor(owned);
+    final entry = _entryByRef[loan.libraryEntryRef];
+    return entry == null ? 'Unknown item' : _catalogTitleFor(entry);
   }
 
-  String _catalogTitleFor(CollectionItemSummary item) =>
-      _catalogByOwnedRef[item.ref]?.primaryLabel ??
+  String _catalogTitleFor(LibraryEntrySummary item) =>
+      _catalogByEntryRef[item.ref]?.primaryLabel ??
       'Catalog item ${item.ref.id.value}';
 }
 
@@ -730,14 +726,14 @@ class _LoanRow extends StatelessWidget {
   }
 }
 
-class _CollectionItemPickerDialog extends StatelessWidget {
-  const _CollectionItemPickerDialog({
+class _LibraryEntryPickerDialog extends StatelessWidget {
+  const _LibraryEntryPickerDialog({
     required this.title,
-    required this.collectionItems,
+    required this.libraryEntries,
   });
 
   final String title;
-  final List<CollectionItemSummary> collectionItems;
+  final List<LibraryEntrySummary> libraryEntries;
 
   @override
   Widget build(BuildContext context) {
@@ -747,10 +743,10 @@ class _CollectionItemPickerDialog extends StatelessWidget {
         width: 520,
         child: ListView.separated(
           shrinkWrap: true,
-          itemCount: collectionItems.length,
+          itemCount: libraryEntries.length,
           separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
-            final item = collectionItems[index];
+            final item = libraryEntries[index];
             return ListTile(
               title: Text(item.ownerLabel ?? 'Copy ${item.ref.id.value}'),
               subtitle: Text([

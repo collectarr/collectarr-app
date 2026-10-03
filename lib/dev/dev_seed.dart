@@ -1,7 +1,7 @@
 /// Development seed data for the local database.
 ///
 /// Populates the shared Catalog Item cache and all kind-collection items,
-/// kind-owned tracking entries, PickListValues, SerialAuthority, and
+/// kind-entry tracking entries, PickListValues, SerialAuthority, and
 /// CustomFieldDefinitions/Values with rich entries for every library kind.
 ///
 /// Usage: call `seedLocalDatabase(db)` from main.dart or a debug menu.
@@ -11,7 +11,7 @@ library;
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -26,7 +26,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_rep
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
-import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
@@ -82,19 +82,19 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'music.track': 15,
 };
 
-/// Minimum rows expected in each kind-owned physical-copy details table.
+/// Minimum rows expected in each kind-entry physical-copy details table.
 ///
 /// Every kind is measured from its complete kind-collection item table.
-const devSeedTypedOwnedMinimumCounts = <String, int>{
-  'comic.owned': 15,
-  'manga.owned': 15,
-  'book.owned': 15,
-  'game.owned': 15,
-  'boardgame.owned': 15,
-  'movie.owned': 15,
-  'tv.owned': 15,
-  'anime.owned': 15,
-  'music.owned': 15,
+const devSeedTypedEntryMinimumCounts = <String, int>{
+  'comic.entry': 15,
+  'manga.entry': 15,
+  'book.entry': 15,
+  'game.entry': 15,
+  'boardgame.entry': 15,
+  'movie.entry': 15,
+  'tv.entry': 15,
+  'anime.entry': 15,
+  'music.entry': 15,
 };
 
 /// Minimum typed tracking rows expected from episodic fixtures.
@@ -115,7 +115,7 @@ const devSeedTypedTrackingMinimumCounts = <String, int>{
   'boardgame.play_sessions': 15,
 };
 
-/// Minimum kind-owned coordinate rows expected from the typed tracking-unit
+/// Minimum kind-entry coordinate rows expected from the typed tracking-unit
 /// fixture. These rows exercise the per-kind tracking-unit codecs in addition
 /// to the TV/Anime progress repositories above.
 const devSeedTypedTrackingUnitMinimumCounts = <String, int>{
@@ -407,21 +407,21 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
   return issues;
 }
 
-/// Returns ownership relationship errors in the kind-owned tables written by
+/// Returns entries relationship errors in the kind-entry tables written by
 /// the development fixture. Only deterministic seed rows are inspected so a
 /// developer can run this against a database that also contains local data.
 ///
-/// Every kind-owned table must agree on the same copy IDs. Counts alone are
+/// Every kind-entry table must agree on the same copy IDs. Counts alone are
 /// not enough: a wrongly typed row can keep
 /// the totals green while disconnecting one catalog kind from its copy data.
-Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
+Future<List<String>> devSeedTypedEntryIntegrityIssues(LocalDatabase db) async {
   final issues = <String>[];
-  final ownedRows = await CollectionItemsRepository(db).listActiveSummaries();
-  final ownedById = <String, CollectionItemSummary>{
-    for (final row in ownedRows) row.ref.id.value: row,
+  final entryRows = await LibraryEntriesRepository(db).listActiveSummaries();
+  final entryById = <String, LibraryEntrySummary>{
+    for (final row in entryRows) row.ref.id.value: row,
   };
   final expectedByKind = <String, Set<String>>{};
-  for (final row in ownedRows.where(
+  for (final row in entryRows.where(
     (row) => row.ref.id.value.startsWith('seed-'),
   )) {
     expectedByKind
@@ -437,71 +437,120 @@ Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
     final typedIds = rawIds.where((id) => id.startsWith('seed-')).toSet();
     final expectedIds = expectedByKind[kind] ?? const <String>{};
     for (final id in typedIds) {
-      final owned = ownedById[id];
-      if (owned == null) {
-        issues.add('$table row $id has no owned repository row');
+      final entry = entryById[id];
+      if (entry == null) {
+        issues.add('$table row $id has no entry repository row');
         continue;
       }
-      if (owned.ref.kind.apiValue != kind) {
+      if (entry.ref.kind.apiValue != kind) {
         issues.add(
-          '$table row $id belongs to kind ${owned.ref.kind.apiValue}, '
+          '$table row $id belongs to kind ${entry.ref.kind.apiValue}, '
           'expected $kind',
         );
       }
-      if (!(owned.catalogRef?.id.startsWith('seed-$kind-') ?? false)) {
+      if (!(entry.sourceCatalogRef?.id.startsWith('seed-$kind-') ?? false)) {
         issues.add(
-          '$table row $id points to ${owned.catalogRef?.id}, '
+          '$table row $id points to ${entry.sourceCatalogRef?.id}, '
           'expected a $kind seed',
         );
       }
     }
     for (final id in expectedIds) {
       if (!typedIds.contains(id)) {
-        issues.add('$table is missing seed owned row $id');
+        issues.add('$table is missing seed entry row $id');
       }
     }
   }
 
-  final comicRows = await db.select(db.comicCollectionItemsRows).get();
-  checkTypedRows('comic_collection_items', 'comic', comicRows.map((row) => row.id));
-  final mangaRows = await db.select(db.mangaCollectionItemsRows).get();
-  checkTypedRows('manga_collection_items', 'manga', mangaRows.map((row) => row.id));
-  final bookRows = await db.select(db.bookCollectionItemsRows).get();
-  checkTypedRows('book_collection_items', 'book', bookRows.map((row) => row.id));
-  final gameRows = await db.select(db.gameCollectionItemsRows).get();
-  checkTypedRows('game_collection_items', 'game', gameRows.map((row) => row.id));
-  final boardGameRows = await db.select(db.boardGameCollectionItemsRows).get();
+  final comicRows = await (db.select(db.libraryEntries)
+        ..where((t) => t.kind.equals('comic')))
+      .get();
   checkTypedRows(
-      'boardgame_collection_items', 'boardgame', boardGameRows.map((row) => row.id));
-  final movieRows = await db.select(db.movieCollectionItemsRows).get();
-  checkTypedRows('movie_collection_items', 'movie', movieRows.map((row) => row.id));
-  final tvRows = await db.select(db.tvCollectionItemsRows).get();
-  checkTypedRows('tv_collection_items', 'tv', tvRows.map((row) => row.id));
-  final animeRows = await db.select(db.animeCollectionItemsRows).get();
-  checkTypedRows('anime_collection_items', 'anime', animeRows.map((row) => row.id));
-  final musicRows = await db.select(db.musicCollectionItemsRows).get();
-  checkTypedRows('music_collection_items', 'music', musicRows.map((row) => row.id));
+      'comic_library_entries', 'comic', comicRows.map((row) => row.id));
+  final mangaRows = await (db.select(db.libraryEntries)
+        ..where((t) => t.kind.equals('manga')))
+      .get();
+  checkTypedRows(
+      'manga_library_entries', 'manga', mangaRows.map((row) => row.id));
+  final bookRows = await (db.select(db.libraryEntries)
+        ..where((t) => t.kind.equals('book')))
+      .get();
+  checkTypedRows('book_library_entries', 'book', bookRows.map((row) => row.id));
+  final gameRows = await (db.select(db.libraryEntries)
+        ..where((t) => t.kind.equals('game')))
+      .get();
+  checkTypedRows('game_library_entries', 'game', gameRows.map((row) => row.id));
+  final boardGameRows = await (db.select(db.libraryEntries)
+        ..where((t) => t.kind.equals('boardgame')))
+      .get();
+  checkTypedRows('boardgame_library_entries', 'boardgame',
+      boardGameRows.map((row) => row.id));
+  final movieRows = await (db.select(db.libraryEntries)
+        ..where((t) => t.kind.equals('movie')))
+      .get();
+  checkTypedRows(
+      'movie_library_entries', 'movie', movieRows.map((row) => row.id));
+  final tvRows = await (db.select(db.libraryEntries)
+        ..where((t) => t.kind.equals('tv')))
+      .get();
+  checkTypedRows('tv_library_entries', 'tv', tvRows.map((row) => row.id));
+  final animeRows = await (db.select(db.libraryEntries)
+        ..where((t) => t.kind.equals('anime')))
+      .get();
+  checkTypedRows(
+      'anime_library_entries', 'anime', animeRows.map((row) => row.id));
+  final musicRows = await (db.select(db.libraryEntries)
+        ..where((t) => t.kind.equals('music')))
+      .get();
+  checkTypedRows(
+      'music_library_entries', 'music', musicRows.map((row) => row.id));
 
   return issues;
 }
 
-/// Counts kind-owned ownership rows written by the development seed.
-Future<Map<String, int>> devSeedTypedOwnedCounts(LocalDatabase db) async {
+/// Counts kind-entry entries rows written by the development seed.
+Future<Map<String, int>> devSeedTypedEntryCounts(LocalDatabase db) async {
   return {
-    'comic.owned': (await db.select(db.comicCollectionItemsRows).get()).length,
-    'manga.owned': (await db.select(db.mangaCollectionItemsRows).get()).length,
-    'book.owned': (await db.select(db.bookCollectionItemsRows).get()).length,
-    'game.owned': (await db.select(db.gameCollectionItemsRows).get()).length,
-    'boardgame.owned':
-        (await db.select(db.boardGameCollectionItemsRows).get()).length,
-    'movie.owned': (await db.select(db.movieCollectionItemsRows).get()).length,
-    'tv.owned': (await db.select(db.tvCollectionItemsRows).get()).length,
-    'anime.owned': (await db.select(db.animeCollectionItemsRows).get()).length,
-    'music.owned': (await db.select(db.musicCollectionItemsRows).get()).length,
+    'comic.entry': (await (db.select(db.libraryEntries)
+              ..where((t) => t.kind.equals('comic')))
+            .get())
+        .length,
+    'manga.entry': (await (db.select(db.libraryEntries)
+              ..where((t) => t.kind.equals('manga')))
+            .get())
+        .length,
+    'book.entry': (await (db.select(db.libraryEntries)
+              ..where((t) => t.kind.equals('book')))
+            .get())
+        .length,
+    'game.entry': (await (db.select(db.libraryEntries)
+              ..where((t) => t.kind.equals('game')))
+            .get())
+        .length,
+    'boardgame.entry': (await (db.select(db.libraryEntries)
+              ..where((t) => t.kind.equals('boardgame')))
+            .get())
+        .length,
+    'movie.entry': (await (db.select(db.libraryEntries)
+              ..where((t) => t.kind.equals('movie')))
+            .get())
+        .length,
+    'tv.entry': (await (db.select(db.libraryEntries)
+              ..where((t) => t.kind.equals('tv')))
+            .get())
+        .length,
+    'anime.entry': (await (db.select(db.libraryEntries)
+              ..where((t) => t.kind.equals('anime')))
+            .get())
+        .length,
+    'music.entry': (await (db.select(db.libraryEntries)
+              ..where((t) => t.kind.equals('music')))
+            .get())
+        .length,
   };
 }
 
-/// Counts kind-owned tracking rows written by the development seed.
+/// Counts kind-entry tracking rows written by the development seed.
 Future<Map<String, int>> devSeedTypedTrackingCounts(LocalDatabase db) async {
   return {
     'comic.tracking': (await db.select(db.comicTrackingRows).get()).length,
@@ -512,8 +561,6 @@ Future<Map<String, int>> devSeedTypedTrackingCounts(LocalDatabase db) async {
         (await db.select(db.boardGameTrackingRows).get()).length,
     'movie.tracking': (await db.select(db.movieTrackingRows).get()).length,
     'tv.tracking': (await db.select(db.tvTrackingRows).get()).length,
-    'tv.episode_progress':
-        (await db.select(db.tvEpisodeProgressRows).get()).length,
     'anime.tracking': (await db.select(db.animeTrackingRows).get()).length,
     'tv.watch_sessions': (await db.select(db.tvWatchSessionRows).get()).length,
     'tv.custom_episodes':
@@ -527,7 +574,7 @@ Future<Map<String, int>> devSeedTypedTrackingCounts(LocalDatabase db) async {
   };
 }
 
-/// Counts kind-owned tracking-unit coordinate rows written by the seed.
+/// Counts kind-entry tracking-unit coordinate rows written by the seed.
 Future<Map<String, int>> devSeedTypedTrackingUnitCounts(
   LocalDatabase db,
 ) async {
@@ -544,7 +591,7 @@ Future<Map<String, int>> devSeedTypedTrackingUnitCounts(
   };
 }
 
-/// Counts universal seed fixtures that are not owned by one catalog kind.
+/// Counts universal seed fixtures that are not entry by one catalog kind.
 Future<Map<String, int>> devSeedAuxiliaryCounts(LocalDatabase db) async {
   final images = await db.select(db.itemImagesCache).get();
   final customFieldDefinitions =
@@ -564,7 +611,7 @@ Future<Map<String, int>> devSeedAuxiliaryCounts(LocalDatabase db) async {
   };
 }
 
-/// Counts each kind-owned vocabulary independently so a missing list cannot
+/// Counts each kind-entry vocabulary independently so a missing list cannot
 /// be hidden by the aggregate pick-list total.
 Future<Map<String, int>> devSeedVocabularyCounts(LocalDatabase db) async {
   final repository = PickListRepository(db);
@@ -585,17 +632,17 @@ Future<Map<String, int>> devSeedVocabularyCounts(LocalDatabase db) async {
 /// Summary returned after validating the complete development fixture graph.
 ///
 /// The CLI seed script and the Flutter seed test intentionally call the same
-/// verifier. Keeping the checks here prevents a new kind-owned table or seed
+/// verifier. Keeping the checks here prevents a new kind-entry table or seed
 /// invariant from being added to one entry point and forgotten by the other.
 final class DevSeedVerificationReport {
   const DevSeedVerificationReport({
     required this.catalogCount,
     required this.seededCatalogCount,
-    required this.ownedCount,
+    required this.entryCount,
     required this.trackingCount,
     required this.imageCount,
     required this.typedGraphCounts,
-    required this.typedOwnedCounts,
+    required this.typedEntryCounts,
     required this.typedTrackingCounts,
     required this.typedTrackingUnitCounts,
     required this.vocabularyCounts,
@@ -604,11 +651,11 @@ final class DevSeedVerificationReport {
 
   final int catalogCount;
   final int seededCatalogCount;
-  final int ownedCount;
+  final int entryCount;
   final int trackingCount;
   final int imageCount;
   final Map<String, int> typedGraphCounts;
-  final Map<String, int> typedOwnedCounts;
+  final Map<String, int> typedEntryCounts;
   final Map<String, int> typedTrackingCounts;
   final Map<String, int> typedTrackingUnitCounts;
   final Map<String, int> vocabularyCounts;
@@ -618,29 +665,24 @@ final class DevSeedVerificationReport {
 /// Verifies the complete persisted development fixture graph.
 ///
 /// This is deliberately a composition-root/dev helper. It may enumerate all
-/// kind-owned tables to verify the fixture, while runtime library code must
+/// kind-entry tables to verify the fixture, while runtime library code must
 /// continue to use the owning kind repositories and codecs.
 Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     LocalDatabase db) async {
   final catalogRows = await CatalogSnapshotRepository(db).findAll();
-  final ownedRows = await CollectionItemsRepository(db).listActiveSummaries();
+  final entryRows = await LibraryEntriesRepository(db).listActiveSummaries();
   final trackingRows = await TrackingStorageRepository(
     db,
     codecs: libraryTrackingStorageCodecs,
   ).listActiveStorageRecords();
   final imageRows = await db.select(db.itemImagesCache).get();
   final typedGraphCounts = await devSeedTypedGraphCounts(db);
-  final typedOwnedCounts = await devSeedTypedOwnedCounts(db);
+  final typedEntryCounts = await devSeedTypedEntryCounts(db);
   final typedTrackingCounts = await devSeedTypedTrackingCounts(db);
   final typedTrackingUnitCounts = await devSeedTypedTrackingUnitCounts(db);
   final vocabularyCounts = await devSeedVocabularyCounts(db);
   final auxiliaryCounts = await devSeedAuxiliaryCounts(db);
   final issues = <String>[];
-  final trackingRequiresCollectionItemRef = {
-    for (final contributor in collectarrDevSeedContributors)
-      if (contributor.trackingRequiresCollectionItemRef) contributor.kind,
-  };
-
   void require(bool condition, String message) {
     if (!condition) issues.add(message);
   }
@@ -650,11 +692,11 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   final seededCatalogRows = catalogRows
       .where((row) => row.id.startsWith('seed-'))
       .toList(growable: false);
-  final seededOwnedRows = ownedRows
+  final seededEntryRows = entryRows
       .where((row) => row.ref.id.value.startsWith('seed-'))
       .toList(growable: false);
   final seededTrackingRows = trackingRows
-      .where((row) => row.catalogRef.id.startsWith('seed-'))
+      .where((row) => row.libraryEntryRef.id.value.startsWith('seed-'))
       .toList(growable: false);
 
   require(
@@ -663,9 +705,9 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     '${seededCatalogRows.length}',
   );
   require(
-    seededOwnedRows.length == expectedSeedCount,
-    'expected $expectedSeedCount seed owned rows, found '
-    '${seededOwnedRows.length}',
+    seededEntryRows.length == expectedSeedCount,
+    'expected $expectedSeedCount seed entry rows, found '
+    '${seededEntryRows.length}',
   );
   require(
     seededTrackingRows.length == expectedSeedCount,
@@ -678,9 +720,9 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     'seed catalog IDs are not unique',
   );
   require(
-    seededOwnedRows.map((row) => row.ref.id.value).toSet().length ==
-        seededOwnedRows.length,
-    'seed owned IDs are not unique',
+    seededEntryRows.map((row) => row.ref.id.value).toSet().length ==
+        seededEntryRows.length,
+    'seed entry IDs are not unique',
   );
   require(
     seededTrackingRows.map((row) => row.id).toSet().length ==
@@ -692,23 +734,18 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     final catalogCount = seededCatalogRows
         .where((row) => catalogMediaKindFromApiValue(row.kind) == entry.key)
         .length;
-    final ownedCount = seededOwnedRows
-        .where((row) =>
-            row.catalogRef?.id.startsWith('seed-${entry.key.apiValue}-') ??
-            false)
-        .length;
+    final entryCount =
+        seededEntryRows.where((row) => row.ref.kind == entry.key).length;
     final trackingCount = seededTrackingRows
-        .where((row) => row.catalogRef.id.startsWith(
-              'seed-${entry.key.apiValue}-',
-            ))
+        .where((row) => row.libraryEntryRef.kind == entry.key)
         .length;
     require(
       catalogCount == entry.value,
       '${entry.key}: expected ${entry.value} catalog rows, found $catalogCount',
     );
     require(
-      ownedCount == entry.value,
-      '${entry.key}: expected ${entry.value} owned rows, found $ownedCount',
+      entryCount == entry.value,
+      '${entry.key}: expected ${entry.value} entry rows, found $entryCount',
     );
     require(
       trackingCount == entry.value,
@@ -719,8 +756,8 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   final catalogById = {
     for (final row in seededCatalogRows) row.id: row,
   };
-  final ownedById = {
-    for (final row in seededOwnedRows) row.ref.id.value: row,
+  final entryById = {
+    for (final row in seededEntryRows) row.ref.key: row,
   };
   for (final row in seededCatalogRows) {
     final kind = catalogMediaKindFromApiValue(row.kind);
@@ -742,25 +779,30 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
       );
     }
   }
-  for (final row in seededOwnedRows) {
-    final catalog =
-        row.catalogRef == null ? null : catalogById[row.catalogRef!.id];
-    require(catalog != null,
-        'owned ${row.ref.id.value} references missing ${row.catalogRef?.id}');
-    require(
-      row.catalogRef?.kind.apiValue == catalog?.kind,
-      'owned ${row.ref.id.value} kind ${row.catalogRef?.kind} does not match '
-      'catalog ${row.catalogRef?.id}',
-    );
+  for (final row in seededEntryRows) {
+    final sourceRef = row.sourceCatalogRef;
+    if (sourceRef != null) {
+      final catalog = catalogById[sourceRef.id];
+      require(
+        catalog != null,
+        'entry ${row.ref.id.value} references missing source catalog ${sourceRef.id}',
+      );
+      require(
+        sourceRef.kind.apiValue == catalog?.kind &&
+            sourceRef.kind == row.ref.kind,
+        'entry ${row.ref.id.value} has a mismatched source catalog ref',
+      );
+    }
   }
   for (final row in seededTrackingRows) {
-    final collectionItemRef = row.collectionItemRef;
     require(
-      !trackingRequiresCollectionItemRef.contains(
-            row.catalogRef.kind,
-          ) ||
-          collectionItemRef != null && ownedById.containsKey(collectionItemRef.id.value),
-      'tracking ${row.id} references missing collection item',
+      entryById.containsKey(row.libraryEntryRef.key),
+      'tracking ${row.id} references missing library entry ${row.libraryEntryRef.key}',
+    );
+    require(
+      entryById[row.libraryEntryRef.key]?.ref.kind == row.libraryEntryRef.kind,
+      'tracking ${row.id} kind ${row.libraryEntryRef.kind} does not match '
+      'library entry ${row.libraryEntryRef.key}',
     );
     require(
       row.statusStorageValue != null &&
@@ -777,11 +819,11 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
       '${typedGraphCounts[entry.key] ?? 0}',
     );
   }
-  for (final entry in devSeedTypedOwnedMinimumCounts.entries) {
+  for (final entry in devSeedTypedEntryMinimumCounts.entries) {
     require(
-      (typedOwnedCounts[entry.key] ?? 0) >= entry.value,
-      'typed owned ${entry.key}: expected at least ${entry.value}, found '
-      '${typedOwnedCounts[entry.key] ?? 0}',
+      (typedEntryCounts[entry.key] ?? 0) >= entry.value,
+      'typed entry ${entry.key}: expected at least ${entry.value}, found '
+      '${typedEntryCounts[entry.key] ?? 0}',
     );
   }
   for (final entry in devSeedTypedTrackingMinimumCounts.entries) {
@@ -814,9 +856,9 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   }
 
   final graphIssues = await devSeedTypedGraphIntegrityIssues(db);
-  final ownedIssues = await devSeedTypedOwnedIntegrityIssues(db);
+  final entryIssues = await devSeedTypedEntryIntegrityIssues(db);
   issues.addAll(graphIssues);
-  issues.addAll(ownedIssues);
+  issues.addAll(entryIssues);
 
   final comicTrackingUnits = (await db.select(db.comicTrackingUnitRows).get())
       .where((row) => row.id.startsWith('seed-'));
@@ -927,8 +969,8 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
 
   final seedImages = imageRows
       .where(
-        (row) =>
-            ownedById.values.any((owned) => owned.ref.key == row.collectionItemRefKey),
+        (row) => entryById.values
+            .any((entry) => entry.ref.key == row.libraryEntryRefKey),
       )
       .toList(growable: false);
   for (final entry in devSeedAuxiliaryMinimumCounts.entries.where(
@@ -943,11 +985,11 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   }
 
   final customFieldValues = await db.select(db.customFieldValuesCache).get();
-  final ownedKeys = ownedRows.map((row) => row.ref.key).toSet();
+  final entryKeys = entryRows.map((row) => row.ref.key).toSet();
   require(
     customFieldValues
         .where((row) => row.targetId.startsWith('seed-'))
-        .every((row) => ownedKeys.contains(row.targetId)),
+        .every((row) => entryKeys.contains(row.targetId)),
     'a seed custom-field value targets a missing collection item',
   );
 
@@ -961,11 +1003,11 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   return DevSeedVerificationReport(
     catalogCount: catalogRows.length,
     seededCatalogCount: seededCatalogRows.length,
-    ownedCount: ownedRows.length,
+    entryCount: entryRows.length,
     trackingCount: trackingRows.length,
     imageCount: imageRows.length,
     typedGraphCounts: typedGraphCounts,
-    typedOwnedCounts: typedOwnedCounts,
+    typedEntryCounts: typedEntryCounts,
     typedTrackingCounts: typedTrackingCounts,
     typedTrackingUnitCounts: typedTrackingUnitCounts,
     vocabularyCounts: vocabularyCounts,
@@ -973,7 +1015,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   );
 }
 
-/// Validates the source coverage emitted by every kind-owned seed script.
+/// Validates the source coverage emitted by every kind-entry seed script.
 ///
 /// The persisted verifier checks the complete database graph. This source
 /// guard runs before persistence and reports an incomplete contributor at its
@@ -1031,33 +1073,33 @@ void validateDevSeedContributorCoverage({
       }
     }
 
-    final collectionItems = contributor.ownedSummaries(effectiveNow);
-    if (collectionItems.length != expectedCount) {
+    final libraryEntries = contributor.entrySummaries(effectiveNow);
+    if (libraryEntries.length != expectedCount) {
       issues.add(
         '${kind.apiValue}: expected $expectedCount source Collection items, '
-        'found ${collectionItems.length}',
+        'found ${libraryEntries.length}',
       );
     }
-    final ownedIds = <String>{};
-    for (final item in collectionItems) {
+    final entryIds = <String>{};
+    for (final item in libraryEntries) {
       final id = item.ref.id.value;
-      if (!ownedIds.add(id)) {
-        issues.add('${kind.apiValue}: duplicate source Owned id $id');
+      if (!entryIds.add(id)) {
+        issues.add('${kind.apiValue}: duplicate source Entry id $id');
       }
       if (item.ref.kind != kind) {
         issues.add(
-          '${kind.apiValue}: source Owned $id emits kind '
+          '${kind.apiValue}: source Entry $id emits kind '
           '${item.ref.kind.apiValue}',
         );
       }
       if (!id.startsWith('seed-')) {
         issues
-            .add('${kind.apiValue}: source Owned id $id is not deterministic');
+            .add('${kind.apiValue}: source Entry id $id is not deterministic');
       }
-      final catalogRef = item.catalogRef;
-      if (catalogRef == null || catalogRef.mediaKind != kind) {
+      final sourceCatalogRef = item.sourceCatalogRef;
+      if (sourceCatalogRef != null && sourceCatalogRef.kind != kind) {
         issues.add(
-          '${kind.apiValue}: source Owned $id has no matching catalog ref',
+          '${kind.apiValue}: source Entry $id has a mismatched source catalog ref',
         );
       }
     }
@@ -1079,17 +1121,17 @@ void validateDevSeedContributorCoverage({
           '${kind.apiValue}: source tracking id ${item.id} is not deterministic',
         );
       }
-      if (item.catalogRef.mediaKind != kind) {
+      if (item.libraryEntryRef.kind != kind) {
         issues.add(
-          '${kind.apiValue}: source tracking ${item.id} emits catalog kind '
-          '${item.catalogRef.mediaKind.apiValue}',
+          '${kind.apiValue}: source tracking ${item.id} emits entry kind '
+          '${item.libraryEntryRef.kind.apiValue}',
         );
       }
-      final collectionItemRef = item.collectionItemRef;
-      if (collectionItemRef != null && collectionItemRef.kind != kind) {
+      final libraryEntryRef = item.libraryEntryRef;
+      if (libraryEntryRef.kind != kind) {
         issues.add(
-          '${kind.apiValue}: source tracking ${item.id} emits Owned kind '
-          '${collectionItemRef.kind.apiValue}',
+          '${kind.apiValue}: source tracking ${item.id} emits Entry kind '
+          '${libraryEntryRef.kind.apiValue}',
         );
       }
     }
@@ -1147,12 +1189,12 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   // is missing rows or emits a cross-kind reference.
   validateDevSeedContributorCoverage(now: now);
 
-  // --- Owned summaries ---
+  // --- Entry summaries ---
   // The central seed runner only carries the deliberately small structural
-  // projection. Complete Owned aggregates stay inside each kind contributor.
-  final ownedSummaries = <CollectionItemSummary>[
+  // projection. Complete Entry aggregates stay inside each kind contributor.
+  final entrySummaries = <LibraryEntrySummary>[
     for (final contributor in collectarrDevSeedContributors)
-      ...contributor.ownedSummaries(now),
+      ...contributor.entrySummaries(now),
   ];
 
   // --- Tracking Entries ---
@@ -1175,12 +1217,8 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
   _validateSeedFixtures(
     catalogItems: allItems,
-    ownedSummaries: ownedSummaries,
+    entrySummaries: entrySummaries,
     trackingRecords: trackingRecords,
-    trackingRequiresCollectionItemRef: {
-      for (final contributor in collectarrDevSeedContributors)
-        if (contributor.trackingRequiresCollectionItemRef) contributor.kind,
-    },
   );
   validateSeedCatalogQuality(
     allItems,
@@ -1197,15 +1235,15 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
         contributor.kind: contributor.validateBarcode,
     },
   );
-  validateSeedOwnedQuality(ownedSummaries);
-  final ownedQualityIssues = [
+  validateSeedEntryQuality(entrySummaries);
+  final entryQualityIssues = [
     for (final contributor in collectarrDevSeedContributors)
-      ...contributor.validateOwned(now),
+      ...contributor.validateEntry(now),
   ];
-  if (ownedQualityIssues.isNotEmpty) {
+  if (entryQualityIssues.isNotEmpty) {
     throw StateError(
-      'Development seed typed Owned validation failed:\n'
-      '${ownedQualityIssues.map((issue) => '- $issue').join('\n')}',
+      'Development seed typed Entry validation failed:\n'
+      '${entryQualityIssues.map((issue) => '- $issue').join('\n')}',
     );
   }
   validateSeedTrackingQuality(trackingRecords);
@@ -1221,7 +1259,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
   await catalogRepo.upsertTransportItems(allItems);
   for (final contributor in collectarrDevSeedContributors) {
-    await contributor.seedOwned(db, now);
+    await contributor.seedEntry(db, now);
   }
   for (final contributor in collectarrDevSeedContributors) {
     final databaseSeeder = contributor.seedDatabase;
@@ -1235,7 +1273,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     codecs: libraryWatchSessionCodecs,
   ).upsertAll(watchSessions);
   // --- Item Images (front/back + extras) ---
-  await _seedItemImages(imagesRepo, ownedSummaries);
+  await _seedItemImages(imagesRepo, entrySummaries);
 
   await trackingRepo.upsertStorageRecords(trackingRecords);
 
@@ -1251,32 +1289,33 @@ void _validateSeedTrackingUnits(
   Iterable<CatalogItemDto> catalogItems, {
   required Set<String> supportedKinds,
 }) {
-  final catalogById = {
-    for (final item in catalogItems) item.id: item,
+  final entryRefs = {
+    for (final item in catalogItems)
+      seedLibraryEntryRef(item.mediaKind, 'seed-entry-${item.id}').key:
+          seedLibraryEntryRef(item.mediaKind, 'seed-entry-${item.id}'),
   };
   final ids = <String>{};
   for (final unit in units) {
     if (!ids.add(unit.id)) {
       throw StateError('Duplicate seed tracking-unit id: ${unit.id}');
     }
-    final catalog = catalogById[unit.targetRef.id];
-    if (catalog == null) {
+    final entryRef = entryRefs[unit.libraryEntryRef.key];
+    if (entryRef == null) {
       throw StateError(
-        'Seed tracking unit ${unit.id} references missing catalog '
-        '${unit.targetRef.id}',
+        'Seed tracking unit ${unit.id} references missing local entry '
+        '${unit.libraryEntryRef.key}',
       );
     }
-    if (unit.targetRef.kind.apiValue != catalog.kind ||
-        unit.targetRef.entityType != CatalogEntityTypeId.catalogItem) {
+    if (unit.libraryEntryRef.kind != entryRef.kind) {
       throw StateError(
-        'Seed tracking unit ${unit.id} has invalid catalog reference '
-        '${unit.targetRef.toJson()}',
+        'Seed tracking unit ${unit.id} has invalid local entry reference '
+        '${unit.libraryEntryRef.key}',
       );
     }
-    if (!supportedKinds.contains(unit.targetRef.kind.apiValue)) {
+    if (!supportedKinds.contains(unit.libraryEntryRef.kind.apiValue)) {
       throw StateError(
         'Seed tracking unit ${unit.id} has no typed coordinate codec for '
-        '${unit.targetRef.kind}',
+        '${unit.libraryEntryRef.kind}',
       );
     }
   }
@@ -1284,11 +1323,11 @@ void _validateSeedTrackingUnits(
 
 void _validateSeedFixtures({
   required List<CatalogItemDto> catalogItems,
-  required List<CollectionItemSummary> ownedSummaries,
+  required List<LibraryEntrySummary> entrySummaries,
   required List<TrackingStorageRecord> trackingRecords,
-  required Set<CatalogMediaKind> trackingRequiresCollectionItemRef,
 }) {
-  final catalogById = <String, CatalogItemDto>{};
+  final catalogByRef = <String, CatalogItemDto>{};
+  String catalogKey(CatalogMediaKind kind, String id) => '${kind.apiValue}/$id';
   for (final item in catalogItems) {
     if (item.id.trim().isEmpty || item.title.trim().isEmpty) {
       throw StateError(
@@ -1301,10 +1340,11 @@ void _validateSeedFixtures({
       throw StateError(
           'Seed catalog item ${item.id} has unknown kind ${item.kind}');
     }
-    if (catalogById.containsKey(item.id)) {
-      throw StateError('Duplicate seed catalog id: ${item.id}');
+    final key = catalogKey(kind, item.id);
+    if (catalogByRef.containsKey(key)) {
+      throw StateError('Duplicate seed catalog ref: $key');
     }
-    catalogById[item.id] = item;
+    catalogByRef[key] = item;
   }
 
   final actualCounts = <CatalogMediaKind, int>{};
@@ -1321,130 +1361,64 @@ void _validateSeedFixtures({
     );
   }
 
-  final ownedCatalogIds = <String>{};
-  final ownedById = <String, CollectionItemSummary>{};
-  for (final item in ownedSummaries) {
+  final entryByRef = <String, LibraryEntrySummary>{};
+  for (final item in entrySummaries) {
     final ref = item.ref;
-    final catalogRef = item.catalogRef;
-    if (catalogRef == null) {
-      throw StateError(
-        'Owned seed ${ref.id.value} is missing catalog_ref',
-      );
+    if (ref.id.value.trim().isEmpty || ref.kind == CatalogMediaKind.unknown) {
+      throw StateError('Entry seed has invalid local identity: ${ref.key}');
     }
-    if (!catalogRef.isKnown) {
-      throw StateError(
-        'Owned seed ${ref.id.value} has an incomplete catalog_ref: '
-        '${catalogRef.toJson()}',
-      );
+    if (entryByRef.containsKey(ref.key)) {
+      throw StateError('Duplicate entry seed ref: ${ref.key}');
     }
-    if (ref.kind != catalogRef.kind) {
-      throw StateError(
-        'Owned seed ${ref.id.value} kind ${ref.kind} does not match '
-        'catalog_ref kind ${catalogRef.kind}',
-      );
+    entryByRef[ref.key] = item;
+    final sourceRef = item.sourceCatalogRef;
+    if (sourceRef != null) {
+      final catalog = catalogByRef[catalogKey(sourceRef.kind, sourceRef.id)];
+      if (catalog == null) {
+        throw StateError('Entry seed ${ref.key} references missing source '
+            'catalog ${sourceRef.key}');
+      }
+      if (sourceRef.kind != ref.kind ||
+          sourceRef.kind.apiValue != catalog.kind) {
+        throw StateError('Entry seed ${ref.key} has mismatched source catalog '
+            '${sourceRef.key}');
+      }
     }
-    if (ownedById.containsKey(ref.id.value)) {
-      throw StateError('Duplicate owned seed id: ${ref.id.value}');
-    }
-    ownedById[ref.id.value] = item;
-    final catalog = catalogById[catalogRef.id];
-    if (catalog == null) {
-      throw StateError('Owned seed ${ref.id.value} references missing catalog '
-          '${catalogRef.id}');
-    }
-    if (catalogRef.mediaKind != catalog.mediaKind) {
-      throw StateError('Owned seed ${ref.id.value} kind ${catalogRef.kind} '
-          'does not match catalog ${catalog.id} kind ${catalog.kind}');
-    }
-    if (!ownedCatalogIds.add(catalogRef.id)) {
-      throw StateError('Duplicate owned seed catalog reference: '
-          '${catalogRef.id}');
-    }
-  }
-  if (ownedCatalogIds.length != catalogById.length) {
-    throw StateError(
-      'Seed owned coverage is incomplete: ${ownedCatalogIds.length}/'
-      '${catalogById.length} catalog items',
-    );
   }
 
-  final trackingCatalogIds = <String>{};
+  final trackingEntryRefs = <String>{};
   final trackingIds = <String>{};
   for (final entry in trackingRecords) {
     if (!trackingIds.add(entry.id)) {
       throw StateError('Duplicate tracking seed id: ${entry.id}');
     }
-    if (entry.collectionItemRef == null &&
-        trackingRequiresCollectionItemRef.contains(entry.catalogRef.kind)) {
-      throw StateError(
-        'Tracking seed ${entry.id} must reference its owned seed item',
-      );
+    final libraryEntryRef = entry.libraryEntryRef;
+    final target = entryByRef[libraryEntryRef.key];
+    if (target == null) {
+      throw StateError('Tracking seed ${entry.id} references missing library '
+          'entry ${libraryEntryRef.key}');
     }
-    if (!entry.catalogRef.isKnown) {
-      throw StateError(
-        'Tracking seed ${entry.id} has an incomplete catalog_ref: '
-        '${entry.catalogRef.toJson()}',
-      );
+    if (target.ref.kind != libraryEntryRef.kind) {
+      throw StateError('Tracking seed ${entry.id} kind ${libraryEntryRef.kind} '
+          'does not match library entry kind ${target.ref.kind}');
     }
-    final trackingCatalogRef = entry.catalogRef.rootScope;
-    final catalog = catalogById[trackingCatalogRef.id];
-    if (catalog == null) {
-      throw StateError(
-        'Tracking seed ${entry.id} references missing catalog ${trackingCatalogRef.id}',
-      );
+    if (!trackingEntryRefs.add(libraryEntryRef.key)) {
+      throw StateError('Duplicate tracking seed library entry: '
+          '${libraryEntryRef.key}');
     }
-    if (entry.catalogRef.kind.apiValue != catalog.kind) {
-      throw StateError(
-        'Tracking seed ${entry.id} kind ${entry.catalogRef.kind} does not '
-        'match catalog ${catalog.id} kind ${catalog.kind}',
-      );
-    }
-    if (entry.collectionItemRef case final collectionItemRef?) {
-      final ownedId = collectionItemRef.id.value;
-      final owned = ownedById[ownedId];
-      if (owned == null) {
-        throw StateError(
-          'Tracking seed ${entry.id} references missing collection item $ownedId',
-        );
-      }
-      if (owned.catalogRef?.id != trackingCatalogRef.id) {
-        throw StateError(
-          'Tracking seed ${entry.id} links collection item $ownedId to '
-          'catalog ${trackingCatalogRef.id}, but it belongs to '
-          '${owned.catalogRef?.id}',
-        );
-      }
-      if (collectionItemRef.kind != entry.catalogRef.kind) {
-        throw StateError(
-          'Tracking seed ${entry.id} kind ${collectionItemRef.kind} does not match '
-          'catalog kind ${entry.catalogRef.kind}',
-        );
-      }
-    }
-    if (!trackingCatalogIds.add(trackingCatalogRef.id)) {
-      throw StateError(
-        'Duplicate tracking seed catalog reference: ${trackingCatalogRef.id}',
-      );
-    }
-  }
-  if (trackingCatalogIds.length != catalogById.length) {
-    throw StateError(
-      'Seed tracking coverage is incomplete: ${trackingCatalogIds.length}/'
-      '${catalogById.length} catalog items',
-    );
   }
 }
 
 Future<void> _seedItemImages(
   ItemImagesCacheRepository repo,
-  List<CollectionItemSummary> ownedSummaries,
+  List<LibraryEntrySummary> entrySummaries,
 ) async {
-  for (var i = 0; i < ownedSummaries.length; i++) {
-    final collectionItemRef = ownedSummaries[i].ref;
-    final ownedId = collectionItemRef.id.value;
+  for (var i = 0; i < entrySummaries.length; i++) {
+    final libraryEntryRef = entrySummaries[i].ref;
+    final entryId = libraryEntryRef.id.value;
     await repo.upsert(
-      id: 'seed-img-front-$ownedId',
-      collectionItemRef: collectionItemRef,
+      id: 'seed-img-front-$entryId',
+      libraryEntryRef: libraryEntryRef,
       imageType: 'front_cover',
       imageData: seedTinyPngBytes,
       caption: 'Seed front cover',
@@ -1452,8 +1426,8 @@ Future<void> _seedItemImages(
     );
     if (i.isEven) {
       await repo.upsert(
-        id: 'seed-img-back-$ownedId',
-        collectionItemRef: collectionItemRef,
+        id: 'seed-img-back-$entryId',
+        libraryEntryRef: libraryEntryRef,
         imageType: 'back_cover',
         imageData: seedTinyPngBytes,
         caption: 'Seed back cover',
@@ -1462,8 +1436,8 @@ Future<void> _seedItemImages(
     }
     if (i % 3 == 0) {
       await repo.upsert(
-        id: 'seed-img-extra-$ownedId',
-        collectionItemRef: collectionItemRef,
+        id: 'seed-img-extra-$entryId',
+        libraryEntryRef: libraryEntryRef,
         imageType: 'detail_photo',
         imageData: seedTinyPngBytes,
         caption: 'Seed extra image',

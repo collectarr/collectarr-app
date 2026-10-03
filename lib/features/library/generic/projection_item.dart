@@ -28,7 +28,7 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
   }) {
     final node = LibraryCatalogItemNodeRef(
       catalogItemId: source.catalogRef?.id ?? source.itemId,
-      collectionItemRef: source.collectionItemRef,
+      libraryEntryRef: source.libraryEntryRef,
     );
     final dto = libraryKindWorkspaceForKind(type.kind)
         .projectorForScope(LibraryEntityScope.catalogItem)
@@ -59,20 +59,19 @@ Set<String> customFieldTargetIds({
   required LibraryEntityRef node,
 }) {
   return {
-    if (source.collectionItemSummary case final owned?) ...[
-      owned.ref.key,
-      owned.ref.id.value,
+    if (source.libraryEntrySummary case final entry?) ...[
+      entry.ref.key,
+      entry.ref.id.value,
     ],
-    if (source.collectionItemRef case final owned?) ...[
-      owned.key,
-      owned.id.value,
+    if (source.libraryEntryRef case final entry?) ...[
+      entry.key,
+      entry.id.value,
     ],
     if (source.catalogRef case final catalog?) catalog.id,
     node.catalogItemId,
-    if (node case LibraryReleaseRef(:final releaseId)) releaseId,
-    if (node case LibraryCollectionItemNodeRef(:final collectionItemRef)) ...[
-      collectionItemRef.key,
-      collectionItemRef.id.value,
+    if (node case LibraryEntryNodeRef(:final libraryEntryRef)) ...[
+      libraryEntryRef.key,
+      libraryEntryRef.id.value,
     ],
   };
 }
@@ -86,24 +85,18 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   Map<String, List<String>> customFieldValuesByItem = const {},
 }) {
   final kind = type.kind;
-  final workspace = libraryKindWorkspaceForKind(kind);
   return [
     for (final source in shelf.entries)
       if (source.catalogRef?.mediaKind == kind &&
           source.catalogData?.kind == kind)
-        libraryWorkCapabilityForKind(type.kind).projectWork(
-          source: source,
-          node: LibraryCatalogItemNodeRef(
-            catalogItemId: source.catalogRef?.id ?? source.itemId,
-            collectionItemRef: source.collectionItemRef,
-          ),
-          projector:
-              workspace.projectorForScope(LibraryEntityScope.catalogItem),
+        LibraryProjectionItem.fromShelf(
+          source,
+          type,
           customFieldBadges: customFieldBadgesForNode(
             source: source,
             node: LibraryCatalogItemNodeRef(
               catalogItemId: source.catalogRef?.id ?? source.itemId,
-              collectionItemRef: source.collectionItemRef,
+              libraryEntryRef: source.libraryEntryRef,
             ),
             customFieldDefinitions: customFieldDefinitions,
             customFieldValuesByDefinitionByItem:

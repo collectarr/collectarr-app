@@ -80,7 +80,7 @@ class LibraryAddManualActionBar extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: FilledButton.icon(
-              onPressed: _validatedAction(request.onAddOwned),
+              onPressed: _validatedAction(request.onAddEntry),
               style: libraryAddFilledButtonStyle(request.accent),
               icon: request.isAdding
                   ? const SizedBox.square(
@@ -92,7 +92,7 @@ class LibraryAddManualActionBar extends StatelessWidget {
                 LibraryAddCopy.addToTargetLabel(
                   count: 1,
                   type: request.type,
-                  target: LibraryAddTarget.owned,
+                  target: LibraryAddTarget.entry,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),

@@ -11,6 +11,7 @@ class LibraryAddCommonDraft {
     this.tags,
     this.locationId,
     this.purchaseStore,
+    this.ownerLabel,
     this.collectionStatus,
     this.isDigital,
   });
@@ -23,6 +24,7 @@ class LibraryAddCommonDraft {
   final String? tags;
   final String? locationId;
   final String? purchaseStore;
+  final String? ownerLabel;
   final String? collectionStatus;
   final bool? isDigital;
 
@@ -35,6 +37,7 @@ class LibraryAddCommonDraft {
     String? tags,
     String? locationId,
     String? purchaseStore,
+    String? ownerLabel,
     String? collectionStatus,
     bool? isDigital,
   }) {
@@ -47,6 +50,7 @@ class LibraryAddCommonDraft {
       tags: tags ?? this.tags,
       locationId: locationId ?? this.locationId,
       purchaseStore: purchaseStore ?? this.purchaseStore,
+      ownerLabel: ownerLabel ?? this.ownerLabel,
       collectionStatus: collectionStatus ?? this.collectionStatus,
       isDigital: isDigital ?? this.isDigital,
     );

@@ -50,10 +50,6 @@ final movieKindPhysicalMediaFormats = moviePhysicalMediaFormats;
 
 final movieKindTrackingProfile = movieTrackingProfile;
 
-final movieKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final movieKindCatalogTarget = const RootCatalogTargetCapability();
-
 final LibraryRelationCapability? movieKindRelations = null;
 
 final movieKindToolbar = null;
@@ -93,21 +89,19 @@ final movieKindHierarchy = LibraryHierarchyCapability(
 );
 
 final movieKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Movie', plural: 'Movies'),
-  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+  catalogItem: LibraryEntityLabel(singular: 'Movie', plural: 'Movies'),
+  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final movieKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.watch,
-  writableTargets: {LibraryTrackingTargetScope.work},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
+  writableTargets: {LibraryTrackingTargetScope.catalogItem},
+  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
 );
 
 final movieKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet(),
-  copy: LibraryEntityActionSet.copy,
+  catalogItem: LibraryEntityActionSet.catalogItem,
+  libraryEntry: LibraryEntityActionSet.libraryEntry,
 );
 
 final movieKindInspector = LibraryInspectorCapability(
@@ -119,7 +113,7 @@ final movieKindInspector = LibraryInspectorCapability(
         sectionsBuilder: buildMovieInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.collectionItem,
+        scope: LibraryEntityScope.libraryEntry,
         heroBuilder: buildMovieCopyInspectorHero,
         sectionsBuilder: buildMovieCopyInspectorSections,
       ),

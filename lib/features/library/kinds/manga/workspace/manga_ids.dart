@@ -58,7 +58,7 @@ abstract final class MangaFieldIds {
   static const genres = LibraryFieldId<MangaKind, List<String>>('manga.genres');
   static const themes = LibraryFieldId<MangaKind, List<String>>('manga.themes');
 
-  // Rich Manga Ownership Fields
+  // Rich Manga EntryPolicy Fields
   static const obiStripPresent =
       LibraryFieldId<MangaKind, bool>('manga.obi_strip_present');
   static const slipcoverPresent =

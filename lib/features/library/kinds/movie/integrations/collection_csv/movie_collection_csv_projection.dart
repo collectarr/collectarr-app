@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
@@ -14,8 +14,8 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 /// physical format, and UPC values. Collection receives only positional cells
 /// at this serialization boundary.
 final class MovieCollectionCsvProjection
-    with CollectionCsvKindOwnedImportSupport
-    implements CollectionCsvKindProfile, CollectionCsvOwnedCellsDecoder {
+    with CollectionCsvKindEntryImportSupport
+    implements CollectionCsvKindProfile, CollectionCsvEntryCellsDecoder {
   const MovieCollectionCsvProjection();
 
   @override
@@ -71,13 +71,13 @@ final class MovieCollectionCsvProjection
   }
 
   @override
-  List<String>? importOwnedCells({
+  List<String>? importEntryCells({
     required List<String> header,
     required List<String> values,
   }) {
     return const MovieCollectionCsvImportProfile()
         .parseRow(header: header, values: values)
-        ?.ownedCells;
+        ?.entryCells;
   }
 
   @override
@@ -85,11 +85,11 @@ final class MovieCollectionCsvProjection
       MovieCollectionCsvImportProfile.columnAliases;
 
   @override
-  JsonEncodable? decodeOwnedCells(List<String> cells) {
+  JsonEncodable? decodeEntryCells(List<String> cells) {
     if (cells.isEmpty || cells.first.trim().isEmpty) {
       return null;
     }
-    return _MovieCollectionCsvOwnedImportPayload(cells.first.trim());
+    return _MovieCollectionCsvEntryImportPayload(cells.first.trim());
   }
 
   @override
@@ -137,35 +137,35 @@ final class MovieCollectionCsvProjection
   }
 
   @override
-  String? ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final owned =
-        MovieCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is MovieCollectionItem ? owned.grade : null;
+  String? entryCollectionValue(LibraryWorkspaceSource entry) {
+    final personalState =
+        MovieLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is MovieLibraryEntry ? personalState.grade : null;
   }
 
   @override
-  String? ownedCondition(LibraryWorkspaceSource entry) {
-    final owned =
-        MovieCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is MovieCollectionItem ? owned.condition : null;
+  String? entryCondition(LibraryWorkspaceSource entry) {
+    final personalState =
+        MovieLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is MovieLibraryEntry ? personalState.condition : null;
   }
 
   @override
-  int? ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final owned =
-        MovieCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is MovieCollectionItem ? owned.indexNumber : null;
+  int? entryIndexNumber(LibraryWorkspaceSource entry) {
+    final personalState =
+        MovieLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is MovieLibraryEntry ? personalState.indexNumber : null;
   }
 
   @override
-  String? ownedTags(LibraryWorkspaceSource entry) {
-    final owned =
-        MovieCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is MovieCollectionItem ? owned.tags : null;
+  String? entryTags(LibraryWorkspaceSource entry) {
+    final personalState =
+        MovieLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is MovieLibraryEntry ? personalState.tags : null;
   }
 
   @override
-  List<String> ownedCellsBeforeLocation(
+  List<String> entryCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
@@ -173,12 +173,12 @@ final class MovieCollectionCsvProjection
   }
 
   @override
-  List<String> ownedCellsAfterIndex(
+  List<String> entryCellsAfterIndex(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(
-      collectionCsvV1OwnedCellCount,
+      collectionCsvV1EntryCellCount,
       '',
     );
   }
@@ -192,8 +192,8 @@ final class MovieCollectionCsvProjection
   }
 }
 
-final class _MovieCollectionCsvOwnedImportPayload implements JsonEncodable {
-  const _MovieCollectionCsvOwnedImportPayload(this.grade);
+final class _MovieCollectionCsvEntryImportPayload implements JsonEncodable {
+  const _MovieCollectionCsvEntryImportPayload(this.grade);
 
   final String grade;
 

@@ -9,11 +9,11 @@ final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceProjection>(
       fields: musicCatalogItemWorkspaceSchema.toRegistry(),
       projector: const MusicCatalogItemWorkspaceProjector(),
     ),
-    LibraryEntityScope.collectionItem:
+    LibraryEntityScope.libraryEntry:
         TypedLibraryEntityWorkspace<MusicWorkspaceProjection>(
-      scope: LibraryEntityScope.collectionItem,
-      fields: musicCollectionItemWorkspaceSchema.toRegistry(),
-      projector: const MusicCollectionItemWorkspaceProjector(),
+      scope: LibraryEntityScope.libraryEntry,
+      fields: musicLibraryEntryWorkspaceSchema.toRegistry(),
+      projector: const MusicLibraryEntryWorkspaceProjector(),
     ),
   },
   hierarchy: musicKindHierarchy,

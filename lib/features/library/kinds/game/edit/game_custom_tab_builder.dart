@@ -5,9 +5,9 @@ import 'package:collectarr_app/features/library/edit/fields/library_edit_field_g
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/owned/game_owned_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/entry/game_entry_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 
@@ -22,15 +22,15 @@ Widget? buildGameCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  if (tabId == 'owned') {
+  if (tabId == 'entry') {
     final kindDraft = draft.session.catalogItemSession;
     if (kindDraft is! GameEditDraft) {
-      throw StateError('Expected GameEditDraft for Game owned editing');
+      throw StateError('Expected GameEditDraft for Game entry editing');
     }
-    final detailsDraft = kindDraft.toDetailsDraft() as GameOwnedDetailsDraft;
+    final detailsDraft = kindDraft.toDetailsDraft() as GameEntryDetailsDraft;
     final details = detailsDraft.toDetails();
-    return EditSchemaRenderer<GameOwnedDetails, GameEditDraft>(
-      schema: gameOwnedEditSchema,
+    return EditSchemaRenderer<GameEntryDetails, GameEditDraft>(
+      schema: gameEntryEditSchema,
       model: details,
       draft: kindDraft,
       mediaKind: draft.type.kind.apiValue,
@@ -40,11 +40,11 @@ Widget? buildGameCustomTabView({
       onCancel: () {},
     );
   }
-  if (tabId == 'release') {
+  if (tabId == 'edition') {
     return EditTabShell(
       children: [
         EditSection(
-          title: 'Release Details',
+          title: 'Edition Details',
           accent: accent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

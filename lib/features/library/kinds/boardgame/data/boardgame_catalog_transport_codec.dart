@@ -15,9 +15,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 
 final class BoardGameCatalogTransportCodec
-    implements
-        CatalogKindTransportCodec<BoardGameCatalogItem>,
-        CatalogSharedCachePrimaryStore {
+    implements CatalogKindTransportCodec<BoardGameCatalogItem> {
   const BoardGameCatalogTransportCodec();
 
   @override
@@ -110,11 +108,6 @@ final class BoardGameCatalogTransportCodec
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
-
-  @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return CatalogItemCacheRepository(db).upsert(item);
-  }
 
   @override
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {

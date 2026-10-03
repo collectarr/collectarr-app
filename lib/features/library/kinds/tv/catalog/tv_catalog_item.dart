@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
-/// TV-owned catalog snapshot used by the TV workspace and release browser.
+/// TV-entry catalog snapshot used by the TV workspace and release browser.
 ///
 /// This is intentionally separate from the Movie and Anime snapshots. The
 /// release projection is still a lightweight catalog view; TV's canonical

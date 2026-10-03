@@ -27,7 +27,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selected = selectedLibraryHomeType(types, selectedKind);
-    final count = counts[selected.kind]?.owned ?? 0;
+    final count = counts[selected.kind]?.entry ?? 0;
     final icon = registry.tryGet(selected.mediaKind)?.identity.icon ??
         libraryIconForKind(selected.mediaKind);
     final palette = appPalette(context);
@@ -147,7 +147,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
                       final icon =
                           registry.tryGet(itemType.mediaKind)?.identity.icon ??
                               libraryIconForKind(itemType.mediaKind);
-                      final count = counts[itemType.kind]?.owned ?? 0;
+                      final count = counts[itemType.kind]?.entry ?? 0;
                       final kindAccent =
                           libraryAccentForKind(itemType.mediaKind);
 

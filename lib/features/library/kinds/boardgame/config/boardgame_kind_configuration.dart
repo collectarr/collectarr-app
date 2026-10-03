@@ -10,28 +10,28 @@ TransferableField boardGameTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(BoardGameCollectionItem item) read,
-  required BoardGameCollectionItem Function(
-    BoardGameCollectionItem item,
+  required String? Function(BoardGameLibraryEntry item) read,
+  required BoardGameLibraryEntry Function(
+    BoardGameLibraryEntry item,
     String? value,
   ) write,
-  LibraryEntityScope scope = LibraryEntityScope.collectionItem,
+  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
-  return TransferableField.typed<BoardGameCollectionItem>(
+  return TransferableField.typed<BoardGameLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
     scope: scope,
-    decode: (value) => value as BoardGameCollectionItem,
+    decode: (value) => value as BoardGameLibraryEntry,
     read: read,
     write: write,
   );
 }
 
 final boardgameUniversalTransferableFields =
-    TransferableField.universalForTyped<BoardGameCollectionItem>(
-  decode: (value) => value as BoardGameCollectionItem,
+    TransferableField.universalForTyped<BoardGameLibraryEntry>(
+  decode: (value) => value as BoardGameLibraryEntry,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,

@@ -14,7 +14,7 @@ class LibraryBucket {
     required this.count,
     this.coverUrl,
     this.startYear,
-    this.ownedCount,
+    this.entryCount,
     this.missingNumbers = const <int>[],
   });
 
@@ -22,15 +22,15 @@ class LibraryBucket {
   final int count;
   final String? coverUrl;
   final int? startYear;
-  final int? ownedCount;
+  final int? entryCount;
   final List<int> missingNumbers;
 
   int? get completionPercent {
-    final owned = ownedCount;
-    if (owned == null || count <= 0) {
+    final entry = entryCount;
+    if (entry == null || count <= 0) {
       return null;
     }
-    final percent = ((owned / count) * 100).round();
+    final percent = ((entry / count) * 100).round();
     if (percent < 0) {
       return 0;
     }

@@ -1,4 +1,5 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,16 +13,15 @@ import 'anime_tracking_state_codec.dart';
 final animeTrackingStateBySeriesIdProvider =
     FutureProvider.autoDispose.family<AnimeTrackingState?, String>(
   (ref, seriesId) async {
-    final catalogRef = CatalogEntityRef(
+    final libraryEntryRef = LibraryEntryRef(
       kind: CatalogMediaKind.anime,
-      entityType: CatalogEntityTypeId.catalogItem,
-      id: seriesId,
+      id: LibraryEntryId(seriesId),
     );
     final entries = await AnimeTrackingStateCodec().listFromStorage(
       ref.watch(localDatabaseProvider),
     );
     for (final entry in entries) {
-      if (entry.catalogRef.rootScope != catalogRef) continue;
+      if (entry.libraryEntryRef != libraryEntryRef) continue;
       if (entry case final AnimeTrackingState typedEntry) {
         return typedEntry;
       }

@@ -10,9 +10,9 @@ class BookStatsCapability implements LibraryStatsCapability {
   const BookStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+  LibraryEntryFinancialSummary buildEntryFinancialSummary(
       LibraryWorkspaceSource entry) {
-    return LibraryOwnedFinancialSummary(
+    return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
       currency: entry.currency,
@@ -85,7 +85,7 @@ class BookStatsCapability implements LibraryStatsCapability {
     _MissingNumberSummary? best;
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
-      if (!entry.isOwned) continue;
+      if (!entry.isEntry) continue;
       final metadata = _metadata(entry);
       final seriesTitle =
           (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();

@@ -14,9 +14,7 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.d
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 
 final class MangaCatalogTransportCodec
-    implements
-        CatalogKindTransportCodec<MangaMedia>,
-        CatalogSharedCachePrimaryStore {
+    implements CatalogKindTransportCodec<MangaMedia> {
   const MangaCatalogTransportCodec();
 
   @override
@@ -109,11 +107,6 @@ final class MangaCatalogTransportCodec
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
-
-  @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return CatalogItemCacheRepository(db).upsert(item);
-  }
 
   @override
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {

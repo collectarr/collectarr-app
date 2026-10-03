@@ -18,7 +18,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
 
   LibraryBulkActions bulkActions() => LibraryBulkActions(
         coordinator: ref.read(collectionCommandCoordinatorProvider),
-        ownedMutations: ref.read(collectionItemMutationsProvider),
+        entryMutations: ref.read(libraryEntryMutationsProvider),
         wishlistMutations: ref.read(wishlistMutationsProvider),
         trackingMutations: ref.read(trackingMutationsProvider),
         catalogSnapshots: CatalogSnapshotRepository(

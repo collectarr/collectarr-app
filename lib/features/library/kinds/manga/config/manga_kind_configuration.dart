@@ -11,25 +11,25 @@ TransferableField mangaTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(MangaCollectionItem item) read,
-  required MangaCollectionItem Function(MangaCollectionItem item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.collectionItem,
+  required String? Function(MangaLibraryEntry item) read,
+  required MangaLibraryEntry Function(MangaLibraryEntry item, String? value) write,
+  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
-  return TransferableField.typed<MangaCollectionItem>(
+  return TransferableField.typed<MangaLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
     scope: scope,
-    decode: (value) => value as MangaCollectionItem,
+    decode: (value) => value as MangaLibraryEntry,
     read: read,
     write: write,
   );
 }
 
 final mangaUniversalTransferableFields =
-    TransferableField.universalForTyped<MangaCollectionItem>(
-  decode: (value) => value as MangaCollectionItem,
+    TransferableField.universalForTyped<MangaLibraryEntry>(
+  decode: (value) => value as MangaLibraryEntry,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,
@@ -112,7 +112,7 @@ final mangaTransferableFields = <TransferableField>[
     label: 'Dust jacket',
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
@@ -125,7 +125,7 @@ final mangaTransferableFields = <TransferableField>[
     label: 'Obi strip',
     icon: Icons.bookmark_border,
     type: TransferableFieldType.boolean,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.obiStripPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(

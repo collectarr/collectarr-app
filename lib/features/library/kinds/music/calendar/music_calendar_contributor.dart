@@ -20,8 +20,9 @@ final class MusicCalendarContributor implements LibraryCalendarContributor {
     LibraryCalendarContext context,
   ) async {
     final events = <CalendarEvent>[];
-    for (final ref in context.catalogRefs) {
-      final id = ref.id;
+    for (final ref in context.libraryEntryRefs) {
+      if (ref.kind != kind) continue;
+      final id = ref.id.value;
       final album = loadAlbum != null
           ? await loadAlbum!(id)
           : await _loadAlbum(context, id);
@@ -33,7 +34,7 @@ final class MusicCalendarContributor implements LibraryCalendarContributor {
         date: DateTime.utc(date.year, date.month, date.day),
         title: album.title,
         eventId: 'music-album:${album.id.value}',
-        catalogRef: ref,
+        libraryEntryRef: ref,
       ));
     }
     return events;

@@ -156,7 +156,7 @@ class ApiClient {
     return _catalogApi.searchMetadata(query, cancelToken: cancelToken);
   }
 
-  /// Fetches an untyped JSON object for a kind-owned remote data source.
+  /// Fetches an untyped JSON object for a kind-entry remote data source.
   ///
   /// The owning feature is responsible for decoding the response into its
   /// typed transport model.
@@ -177,7 +177,7 @@ class ApiClient {
     return data;
   }
 
-  /// Fetches a JSON list for a kind-owned remote data source.
+  /// Fetches a JSON list for a kind-entry remote data source.
   Future<List<Map<String, dynamic>>> getJsonList(
     String path, {
     Map<String, Object?>? queryParameters,
@@ -301,7 +301,7 @@ class ApiClient {
     );
   }
 
-  /// Sends a kind-owned correction patch without interpreting its fields in
+  /// Sends a kind-entry correction patch without interpreting its fields in
   /// the generic Library orchestration layer.
   Future<AdminMetadataItem> adminUpdateCatalogItemFields({
     required String kind,
@@ -425,7 +425,7 @@ class ApiClient {
   }
 
   /// Sends a GET request for a JSON list without assigning domain meaning to
-  /// its fields. Kind-owned repositories map the returned rows.
+  /// its fields. Kind-entry repositories map the returned rows.
   Future<List<Map<String, dynamic>>> getJsonRows(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -438,7 +438,7 @@ class ApiClient {
   }
 
   /// Sends a POST request for a JSON list without assigning domain meaning to
-  /// its fields. Kind-owned repositories map the returned rows.
+  /// its fields. Kind-entry repositories map the returned rows.
   Future<List<Map<String, dynamic>>> postJsonRows(
     String path, {
     required Object data,

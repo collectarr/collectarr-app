@@ -1,14 +1,17 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/watch_session_ref.dart';
 
 class WatchSession {
   WatchSession({
     required this.id,
-    required this.targetRef,
+    required this.libraryEntryRef,
     required this.watchedAt,
     required this.updatedAt,
     this.trackingEntryId,
+    this.seasonNumber,
+    this.episodeNumber,
     Object? sourceType,
     this.seenWhere,
     this.rating,
@@ -19,8 +22,12 @@ class WatchSession {
             : trackingSourceTypeFromValue(sourceType);
 
   final String id;
-  final CatalogEntityRef targetRef;
+
+  /// The local library entry that owns this activity record.
+  final LibraryEntryRef libraryEntryRef;
   final String? trackingEntryId;
+  final int? seasonNumber;
+  final int? episodeNumber;
   final TrackingSourceType? sourceType;
   final String? seenWhere;
   final DateTime watchedAt;
@@ -32,18 +39,18 @@ class WatchSession {
   bool get isDeleted => deletedAt != null;
 
   WatchSessionRef get ref => WatchSessionRef(
-        kind: targetRef.mediaKind,
+        kind: libraryEntryRef.kind,
         id: id,
       );
 
   String? get sourceTypeApiValue => sourceType?.apiValue;
 
   Map<String, dynamic> toSyncPayload() {
-    // Hierarchy coordinates are owned by TV/Anime watch-session codecs. This
+    // Hierarchy coordinates are entry by TV/Anime watch-session codecs. This
     // common fallback intentionally carries only lifecycle fields so an
     // unregistered kind cannot leak video semantics through the host.
     return {
-      'catalog_ref': targetRef.toJson(),
+      'library_entry_ref': libraryEntryRef.toJson(),
       'tracking_entry_id': trackingEntryId,
       'source_type': sourceTypeApiValue,
       'watched_at': watchedAt.toUtc().toIso8601String(),
@@ -55,8 +62,10 @@ class WatchSession {
 
   WatchSession copyWith({
     String? id,
-    CatalogEntityRef? targetRef,
+    LibraryEntryRef? libraryEntryRef,
     String? trackingEntryId,
+    int? seasonNumber,
+    int? episodeNumber,
     Object? sourceType,
     String? seenWhere,
     DateTime? watchedAt,
@@ -67,8 +76,10 @@ class WatchSession {
   }) {
     return WatchSession(
       id: id ?? this.id,
-      targetRef: targetRef ?? this.targetRef,
+      libraryEntryRef: libraryEntryRef ?? this.libraryEntryRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
       sourceType: sourceType ?? this.sourceType,
       seenWhere: seenWhere ?? this.seenWhere,
       watchedAt: watchedAt ?? this.watchedAt,

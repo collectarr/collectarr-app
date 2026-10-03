@@ -1,5 +1,5 @@
 import '../manga_module_dependencies.dart';
-import '../ownership/manga_transfer_collection_item.dart';
+import '../entries/manga_transfer_library_entry.dart';
 
 final mangaKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [
@@ -8,15 +8,15 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
       builder: buildMangaLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.collectionItem,
+      scope: LibraryEntityScope.libraryEntry,
       builder: buildMangaLibraryEditDialog,
     ),
   ]),
   presentation: mangaLibraryEditPresentation,
   coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: MangaVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (collectionItem) => switch (collectionItem?.value) {
-    MangaCollectionItem item => item.grade,
+  entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
+    MangaLibraryEntry item => item.grade,
     _ => null,
   },
   vocabularies: StandardKindVocabularyCapability(MangaVocabularies.all),
@@ -28,20 +28,20 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
     showsPhysicalFormatBadge: true,
   ),
   createSession: createMangaEditDraft,
-  ownedDigitalFlagResolver: resolveMangaOwnedDigitalFlag,
-  ownedFormatHintResolver: resolveMangaOwnedFormatHint,
-  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-      MangaCollectionItemUpdatePayload.partial(
+  entryDigitalFlagResolver: resolveMangaEntryDigitalFlag,
+  entryFormatHintResolver: resolveMangaEntryFormatHint,
+  entryIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      MangaLibraryEntryUpdatePayload.partial(
     indexNumber: Patch.set(indexNumber),
   ),
-  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-      MangaCollectionItemUpdatePayload.partial(
+  entryConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      MangaLibraryEntryUpdatePayload.partial(
     condition: Patch.set(condition),
     grade: Patch.set(collectionValue),
   ),
-  ownedBulkUpdatePayloadBuilder:
+  entryBulkUpdatePayloadBuilder:
       (_, condition, collectionValue, locationId, tags) =>
-          MangaCollectionItemUpdatePayload.partial(
+          MangaLibraryEntryUpdatePayload.partial(
     condition:
         condition == null ? const Patch.unchanged() : Patch.set(condition),
     grade: collectionValue == null
@@ -51,7 +51,7 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
         locationId == null ? const Patch.unchanged() : Patch.set(locationId),
     tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
   ),
-  ownedPersonalDetailsUpdatePayloadBuilder: (
+  entryPersonalDetailsUpdatePayloadBuilder: (
     _,
     purchaseDate,
     pricePaidCents,
@@ -61,7 +61,7 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
     locationChanged,
     locationId,
   ) =>
-      MangaCollectionItemUpdatePayload.partial(
+      MangaLibraryEntryUpdatePayload.partial(
     purchaseDate: Patch.set(purchaseDate),
     pricePaidCents: Patch.set(pricePaidCents),
     currency: Patch.set(currency),
@@ -70,9 +70,9 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
     locationId:
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
-  ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = mangaTransferCollectionItem(updated);
-    return MangaCollectionItemUpdatePayload.partial(
+  entryTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = mangaTransferLibraryEntry(updated);
+    return MangaLibraryEntryUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
       personalNotes: Patch.set(typed.personalNotes),
@@ -87,14 +87,14 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
       purchaseDate: Patch.set(typed.purchaseDate),
       soldAt: Patch.set(typed.soldAt),
       details: Patch.set(
-        const MangaOwnedDetailsCodec().draftFromDetails(
+        const MangaEntryDetailsCodec().draftFromDetails(
           typed.details,
         ),
       ),
     );
   },
-  ownedDetailsResetPayloadBuilder: () =>
-      MangaCollectionItemUpdatePayload.partial(details: const Patch.clear()),
+  entryDetailsResetPayloadBuilder: () =>
+      MangaLibraryEntryUpdatePayload.partial(details: const Patch.clear()),
 );
 
 Iterable<String> getMangaFacetValues(

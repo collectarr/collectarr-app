@@ -21,16 +21,12 @@ class WorkspaceCommonProjection {
     DateTime? overrideReleaseDate,
     String? overrideCoverImageUrl,
   }) {
-    final release = node is LibraryReleaseRef ? node.release : null;
-
     return WorkspaceCommonProjection(
       title: overrideTitle ?? source.title,
       synopsis: overrideSynopsis ??
           libraryWorkspaceCatalogSynopsis(source.catalogData),
-      releaseDate: overrideReleaseDate ??
-          release?.releaseDate ??
-          source.catalogData?.releaseDate,
-      currency: source.collectionItemSummary?.currency,
+      releaseDate: overrideReleaseDate ?? source.catalogData?.releaseDate,
+      currency: source.libraryEntrySummary?.currency,
       coverImageUrl: overrideCoverImageUrl ??
           source.catalogSummary?.imageUrl ??
           source.catalogData?.coverImageUrl,
@@ -46,7 +42,7 @@ class WorkspaceCommonProjection {
 
 class PersonalCopyProjection {
   PersonalCopyProjection({
-    this.isOwned = false,
+    this.isEntry = false,
     this.isWishlisted = false,
     this.isTracked = false,
     this.condition,
@@ -62,30 +58,27 @@ class PersonalCopyProjection {
   }) : updatedAt = updatedAt ?? DateTime.utc(1970);
 
   factory PersonalCopyProjection.fromShelf(
-    LibraryWorkspaceSource source, {
-    LibraryReleaseState? releaseState,
-  }) {
-    final tracking = releaseState == null
-        ? source.trackingSummary
-        : releaseState.trackingSummary;
+    LibraryWorkspaceSource source,
+  ) {
+    final tracking = source.trackingSummary;
     return PersonalCopyProjection(
-      isOwned: releaseState?.isOwned ?? source.isOwned,
-      isWishlisted: releaseState?.isWishlisted ?? source.isWishlisted,
-      isTracked: releaseState?.isTracked ?? source.isTracked,
+      isEntry: source.isEntry,
+      isWishlisted: source.isWishlisted,
+      isTracked: source.isTracked,
       condition: null,
       locationPath: source.locationPath,
       trackingStatus: mediaTrackingStatusToStorageValue(tracking?.status),
       rating: tracking?.rating,
-      pricePaidCents: source.collectionItemSummary?.pricePaidCents,
+      pricePaidCents: source.libraryEntrySummary?.pricePaidCents,
       addedAt: source.addedAt,
       updatedAt: source.updatedAt,
       tags: null,
       collectionStatus: null,
-      notes: source.collectionItemSummary?.notes,
+      notes: source.libraryEntrySummary?.notes,
     );
   }
 
-  final bool isOwned;
+  final bool isEntry;
   final bool isWishlisted;
   final bool isTracked;
   final String? condition;

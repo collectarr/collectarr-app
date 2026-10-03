@@ -1,11 +1,12 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/watch_session_ref.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 
-/// Aggregates kind-owned watch-session tables at the tracking boundary.
+/// Aggregates kind-entry watch-session tables at the tracking boundary.
 ///
 /// The shared host only aggregates lifecycle projections. TV/Anime mapping and
 /// persistence are supplied through their explicit codecs.
@@ -21,12 +22,15 @@ class WatchSessionsRepository {
   final Map<CatalogMediaKind, WatchSessionCodec> _codecs;
 
   WatchSession create(WatchSessionCreateRequest request) {
-    requireKnownCatalogRef(request.targetRef, 'watchSession.targetRef');
-    final codec = _codecs[request.targetRef.mediaKind];
+    requireKnownLibraryEntryRef(
+      request.libraryEntryRef,
+      'watchSession.libraryEntryRef',
+    );
+    final codec = _codecs[request.libraryEntryRef.kind];
     if (codec == null) {
       throw ArgumentError.value(
-        request.targetRef.kind,
-        'request.targetRef.kind',
+        request.libraryEntryRef.kind,
+        'request.libraryEntryRef.kind',
         'No watch-session codec is registered for this kind',
       );
     }
@@ -42,26 +46,17 @@ class WatchSessionsRepository {
     return sessions;
   }
 
-  Future<List<WatchSession>> listActiveByCatalogRefs(
-    Iterable<CatalogEntityRef> catalogRefs,
+  Future<List<WatchSession>> listActiveByLibraryEntryRefs(
+    Iterable<LibraryEntryRef> libraryEntryRefs,
   ) async {
-    final scopes = catalogRefs.toSet();
-    if (scopes.isEmpty) return const [];
-    for (final scope in scopes) {
-      requireKnownCatalogRef(scope, 'watchSession.catalogRef');
+    final wanted = libraryEntryRefs.toSet();
+    for (final ref in wanted) {
+      requireKnownLibraryEntryRef(ref, 'watchSession.libraryEntryRef');
     }
-    final sessions = <WatchSession>[];
-    for (final codec in _codecs.values) {
-      final candidates = await codec.listActive(_db);
-      sessions.addAll(
-        candidates.where(
-          (session) => scopes.any(
-            (scope) => codec.matchesCatalogScope(session, scope),
-          ),
-        ),
-      );
-    }
-    sessions.sort(_compareSessions);
+    if (wanted.isEmpty) return const [];
+    final sessions = await listActive();
+    sessions
+        .removeWhere((session) => !wanted.contains(session.libraryEntryRef));
     return sessions;
   }
 
@@ -87,12 +82,15 @@ class WatchSessionsRepository {
   }
 
   Future<void> _upsert(WatchSession session) {
-    requireKnownCatalogRef(session.targetRef, 'watchSession.targetRef');
-    return _codecForKind(session.targetRef.mediaKind).upsert(_db, session);
+    requireKnownLibraryEntryRef(
+      session.libraryEntryRef,
+      'watchSession.libraryEntryRef',
+    );
+    return _codecForKind(session.libraryEntryRef.kind).upsert(_db, session);
   }
 
   Map<String, dynamic> toSyncPayload(WatchSession session) {
-    return _codecForKind(session.targetRef.mediaKind).toSyncPayload(session);
+    return _codecForKind(session.libraryEntryRef.kind).toSyncPayload(session);
   }
 
   WatchSessionCodec _codecForKind(CatalogMediaKind kind) {

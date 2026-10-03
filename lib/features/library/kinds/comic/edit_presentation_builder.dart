@@ -115,23 +115,23 @@ const _comicCombinedTabs = [
     label: 'Personal',
     sectionIds: [
       'tracking_personal',
-      'ownership_fields',
+      'entries_fields',
       'purchase_fields',
       'sold_fields',
       'wishlist_reference',
-      'owned_notes',
+      'entry_notes',
       'collection_fields_info',
     ],
   ),
 ];
 
-const _comicOwnedTabs = [
+const _comicEntryTabs = [
   ..._comicCombinedTabs,
   LibraryEditTabSpec(
-    id: 'owned',
+    id: 'entry',
     icon: Icons.inventory_2,
-    label: 'Owned',
-    sectionIds: ['comic_owned'],
+    label: 'Entry',
+    sectionIds: ['comic_entry'],
   ),
 ];
 
@@ -139,15 +139,15 @@ class ComicLibraryCombinedEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const ComicLibraryCombinedEditPresentationBuilder()
       : super(
-          useOwnedMainArtworkLayout: true,
+          useEntryMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
           trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _comicOwnedTabs,
+          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _comicEntryTabs,
           trackedTabs: _comicCombinedTabs,
           catalogTabs: _comicCombinedTabs,
           customTabBuilder: buildComicCustomTabView,
@@ -158,15 +158,15 @@ class ComicLibraryCatalogItemEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const ComicLibraryCatalogItemEditPresentationBuilder()
       : super(
-          useOwnedMainArtworkLayout: true,
+          useEntryMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
           trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _comicMediaTabs,
+          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _comicMediaTabs,
           trackedTabs: _comicMediaTabs,
           catalogTabs: _comicMediaTabs,
           customTabBuilder: buildComicCustomTabView,
@@ -175,5 +175,5 @@ class ComicLibraryCatalogItemEditPresentationBuilder
 
 const comicsLibraryEditPresentation = LibraryEditPresentation(
   builder: ComicLibraryCombinedEditPresentationBuilder(),
-  workBuilder: ComicLibraryCatalogItemEditPresentationBuilder(),
+  catalogItemBuilder: ComicLibraryCatalogItemEditPresentationBuilder(),
 );

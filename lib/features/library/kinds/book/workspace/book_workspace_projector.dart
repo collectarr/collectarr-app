@@ -15,7 +15,6 @@ final class BookWorkspaceProjector
   BookWorkspaceDto project({
     required LibraryWorkspaceSource source,
     required LibraryEntityRef entity,
-    LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
     requireEntityScope(entity, expectedScope ?? entity.scope);
@@ -31,7 +30,6 @@ final class BookWorkspaceProjector
       ),
       personal: PersonalCopyProjection.fromShelf(
         source,
-        releaseState: releaseState,
       ),
       book: catalog.book,
       metadata: catalog.metadata,

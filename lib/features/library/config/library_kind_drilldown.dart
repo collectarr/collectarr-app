@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -23,7 +23,7 @@ Widget? buildLibraryKindDrilldown({
   required VoidCallback onBack,
   required Future<void> Function() onRefreshFromCore,
   required VoidCallback onOpenTitleDetails,
-  required List<CollectionItemSummary> ownedCopies,
+  required List<LibraryEntrySummary> libraryEntries,
     required List<WishlistItem> wishlistItems,
 }) {
   return libraryPresentationForKind(type.kind).builder.buildKindDrilldown(
@@ -34,7 +34,7 @@ Widget? buildLibraryKindDrilldown({
         onBack: onBack,
         onRefreshFromCore: onRefreshFromCore,
         onOpenTitleDetails: onOpenTitleDetails,
-        ownedCopies: ownedCopies,
+        libraryEntries: libraryEntries,
         wishlistItems: wishlistItems,
         projector: libraryKindWorkspaceForKind(type.kind)
             .projectorForScope(LibraryEntityScope.catalogItem),

@@ -1,39 +1,38 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:drift/drift.dart';
 
-/// Persistence mechanics for opaque, kind-owned metadata corrections.
+/// Persistence mechanics for opaque, kind-entry metadata corrections.
 class UserMetadataOverridesCacheRepository {
   UserMetadataOverridesCacheRepository(this._db);
 
   final LocalDatabase _db;
 
   Future<List<UserMetadataOverride>> listActiveByTarget(
-    CatalogItemRef catalogRef,
+    LibraryEntryRef libraryEntryRef,
   ) async {
-    requireKnownCatalogItemRef(catalogRef, 'metadataOverride.catalogRef');
+    requireKnownLibraryEntryRef(libraryEntryRef, 'metadataOverride.libraryEntryRef');
     final overrides = await listActive();
     return overrides
-        .where((override) => override.catalogRef == catalogRef)
+        .where((override) => override.libraryEntryRef == libraryEntryRef)
         .toList(growable: false);
   }
 
   Future<List<UserMetadataOverride>> listActiveByTargets(
-    Iterable<CatalogItemRef> catalogRefs,
+    Iterable<LibraryEntryRef> libraryEntryRefs,
   ) async {
-    final catalogRefSet = catalogRefs.toSet();
-    if (catalogRefSet.isEmpty) return const <UserMetadataOverride>[];
-    for (final catalogRef in catalogRefSet) {
-      requireKnownCatalogItemRef(catalogRef, 'metadataOverride.catalogRef');
+    final entryRefSet = libraryEntryRefs.toSet();
+    if (entryRefSet.isEmpty) return const <UserMetadataOverride>[];
+    for (final entryRef in entryRefSet) {
+      requireKnownLibraryEntryRef(entryRef, 'metadataOverride.libraryEntryRef');
     }
     final overrides = await listActive();
     return overrides
-        .where((override) => catalogRefSet.contains(override.catalogRef))
+        .where((override) => entryRefSet.contains(override.libraryEntryRef))
         .toList(growable: false);
   }
 
@@ -41,7 +40,7 @@ class UserMetadataOverridesCacheRepository {
     final rows = await (_db.select(_db.userMetadataOverridesCache)
           ..where((tbl) => tbl.deletedAt.isNull())
           ..orderBy([
-            (tbl) => OrderingTerm.asc(tbl.catalogRefJson),
+            (tbl) => OrderingTerm.asc(tbl.libraryEntryRefKey),
             (tbl) => OrderingTerm.asc(tbl.fieldKey),
           ]))
         .get();
@@ -56,10 +55,10 @@ class UserMetadataOverridesCacheRepository {
   }
 
   Future<UserMetadataOverride?> findByField(
-    CatalogItemRef catalogRef,
+    LibraryEntryRef libraryEntryRef,
     MetadataFieldId fieldId,
   ) async {
-    final overrides = await listActiveByTarget(catalogRef);
+    final overrides = await listActiveByTarget(libraryEntryRef);
     for (final override in overrides) {
       if (override.fieldId == fieldId) return override;
     }
@@ -106,7 +105,7 @@ class UserMetadataOverridesCacheRepository {
   ) {
     return UserMetadataOverridesCacheCompanion(
       id: Value(override.id),
-      catalogRefJson: Value(jsonEncode(override.catalogRef.toJson())),
+      libraryEntryRefKey: Value(override.libraryEntryRef.key),
       fieldKey: Value(override.fieldId.serializedValue),
       originalValue: Value(override.originalValue),
       overrideValue: Value(override.overrideValue),
@@ -116,22 +115,19 @@ class UserMetadataOverridesCacheRepository {
   }
 
   UserMetadataOverride _toModel(UserMetadataOverridesCacheData row) {
-    final rawCatalogRef = jsonDecode(row.catalogRefJson);
-    if (rawCatalogRef is! Map) {
-      throw const FormatException('Metadata override catalog_ref is invalid');
-    }
-    final catalogRef = CatalogItemRef.fromJson(
-      Map<String, Object?>.from(rawCatalogRef),
+    final libraryEntryRef = LibraryEntryRef.fromKey(row.libraryEntryRefKey);
+    requireKnownLibraryEntryRef(
+      libraryEntryRef,
+      'metadataOverride.libraryEntryRef',
     );
-    requireKnownCatalogItemRef(catalogRef, 'metadataOverride.catalogRef');
     final fieldId = MetadataFieldId(
-      kind: catalogRef.kind,
+      kind: libraryEntryRef.kind,
       value: row.fieldKey,
     );
-    _validateField(catalogRef, fieldId);
+    _validateField(libraryEntryRef.kind, fieldId);
     return UserMetadataOverride(
       id: row.id,
-      catalogRef: catalogRef,
+      libraryEntryRef: libraryEntryRef,
       fieldId: fieldId,
       originalValue: row.originalValue,
       overrideValue: row.overrideValue,
@@ -141,11 +137,11 @@ class UserMetadataOverridesCacheRepository {
   }
 
   void _validate(UserMetadataOverride override) {
-    requireKnownCatalogItemRef(
-      override.catalogRef,
-      'metadataOverride.catalogRef',
+    requireKnownLibraryEntryRef(
+      override.libraryEntryRef,
+      'metadataOverride.libraryEntryRef',
     );
-    _validateField(override.catalogRef, override.fieldId);
+    _validateField(override.libraryEntryRef.kind, override.fieldId);
     if (override.id.trim().isEmpty) {
       throw ArgumentError.value(
         override.id,
@@ -162,7 +158,7 @@ class UserMetadataOverridesCacheRepository {
     }
   }
 
-  void _validateField(CatalogItemRef target, MetadataFieldId fieldId) {
+  void _validateField(CatalogMediaKind targetKind, MetadataFieldId fieldId) {
     if (fieldId.kind.isUnknown || fieldId.value.trim().isEmpty) {
       throw ArgumentError.value(
         fieldId,
@@ -170,10 +166,10 @@ class UserMetadataOverridesCacheRepository {
         'Metadata override field id must have a known kind and non-empty key.',
       );
     }
-    if (!fieldId.appliesTo(target)) {
+    if (!fieldId.appliesTo(targetKind)) {
       throw ArgumentError(
         'Metadata override field kind ${fieldId.kind.apiValue} does not '
-        'match target kind ${target.kind.apiValue}.',
+        'match target kind ${targetKind.apiValue}.',
       );
     }
   }

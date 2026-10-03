@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
@@ -10,7 +10,7 @@ import 'package:drift/drift.dart';
 
 import 'manga_tracking_state.dart';
 
-/// Manga-owned lifecycle tracking mapping. Chapter progress uses typed
+/// Manga-entry lifecycle tracking mapping. Chapter progress uses typed
 /// tracking units, so this entry carries only lifecycle fields.
 final class MangaTrackingStateCodec
     with TrackingStorageCodecSupport
@@ -33,8 +33,7 @@ final class MangaTrackingStateCodec
         TrackingStorageRead(
           trackingStorageRowFromColumns(
             id: row.id,
-            catalogRefJson: row.catalogRefJson,
-            collectionItemRefKey: row.collectionItemRefKey,
+                        libraryEntryRefKey: row.libraryEntryRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -57,12 +56,11 @@ final class MangaTrackingStateCodec
   @override
   Future<void> writeStorageRecord(
       LocalDatabase db, TrackingStorageRecord entry) async {
-    _validateKind(entry.catalogRef);
+    validateTrackingEntryKind(entry.libraryEntryRef);
     await db.into(db.mangaTrackingRows).insertOnConflictUpdate(
           MangaTrackingRowsCompanion.insert(
             id: entry.id,
-            catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
-            collectionItemRefKey: Value(entry.collectionItemRef?.key),
+                        libraryEntryRefKey: entry.libraryEntryRef.key,
             sourceType: Value(entry.sourceTypeApiValue),
             status: Value(entry.statusStorageValue),
             rating: Value(entry.rating),
@@ -81,7 +79,7 @@ final class MangaTrackingStateCodec
   @override
   Future<void> deleteStorageRecord(
       LocalDatabase db, TrackingStorageRecord entry, DateTime deletedAt) async {
-    _validateKind(entry.catalogRef);
+    validateTrackingEntryKind(entry.libraryEntryRef);
     await (db.update(db.mangaTrackingRows)
           ..where((row) => row.id.equals(entry.id)))
         .write(MangaTrackingRowsCompanion(
@@ -93,8 +91,7 @@ final class MangaTrackingStateCodec
   @override
   MangaTrackingState create({
     required String id,
-    required CatalogEntityRef catalogRef,
-    CollectionItemRef? collectionItemRef,
+    required LibraryEntryRef libraryEntryRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -107,11 +104,10 @@ final class MangaTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    _validateKind(catalogRef);
+    validateTrackingEntryKind(libraryEntryRef);
     return MangaTrackingState(
       id: id,
-      catalogRef: catalogRef,
-      collectionItemRef: collectionItemRef,
+      libraryEntryRef: libraryEntryRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -135,7 +131,7 @@ final class MangaTrackingStateCodec
 
   @override
   Map<String, dynamic> toSyncPayload(TrackingStorageRecord entry) {
-    _validateKind(entry.catalogRef);
+    validateTrackingEntryKind(entry.libraryEntryRef);
     return entry.toSyncPayload()
       ..addAll({
         'progress_current': entry.progress.current,
@@ -151,12 +147,10 @@ final class MangaTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    final catalogRef = _catalogRefFromPayload(payload);
-    _validateKind(catalogRef);
+    final libraryEntryRef = trackingLibraryEntryRefFromPayload(payload, kind);
     return MangaTrackingState(
       id: id,
-      catalogRef: catalogRef,
-      collectionItemRef: collectionItemRefFromSerialized(payload['collection_item_ref']),
+      libraryEntryRef: libraryEntryRef,
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -176,11 +170,10 @@ final class MangaTrackingStateCodec
     TrackingStorageRow row,
     Object? coordinates,
   ) {
-    _validateKind(row.catalogRef);
+    validateTrackingEntryKind(row.libraryEntryRef);
     return MangaTrackingState(
       id: row.id,
-      catalogRef: row.catalogRef,
-      collectionItemRef: row.collectionItemRef,
+      libraryEntryRef: row.libraryEntryRef,
       sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,
@@ -195,24 +188,6 @@ final class MangaTrackingStateCodec
     );
   }
 
-  CatalogEntityRef _catalogRefFromPayload(Map<String, dynamic> payload) {
-    final raw = payload['catalog_ref'];
-    if (raw is! Map) {
-      throw const FormatException(
-          'Manga tracking entry is missing catalog_ref');
-    }
-    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
-  }
-
-  void _validateKind(CatalogEntityRef ref) {
-    if (ref.mediaKind != kind) {
-      throw ArgumentError.value(
-        ref.mediaKind,
-        'catalogRef.kind',
-        'Expected Manga tracking entry',
-      );
-    }
-  }
 }
 
 int? _int(Object? value) {

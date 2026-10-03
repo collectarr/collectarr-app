@@ -10,15 +10,15 @@ const _gameMainTab = LibraryEditTabSpec(
   sectionIds: [
     'catalog_snapshot',
     'tracking_context',
-    'ownership_reference',
-    'owned_grading',
+    'entries_reference',
+    'entry_grading',
   ],
 );
 
-const _gameOwnedTab = LibraryEditTabSpec(
-  id: 'owned',
+const _gameEntryTab = LibraryEditTabSpec(
+  id: 'entry',
   icon: Icons.inventory_2,
-  label: 'Owned',
+  label: 'Personal',
   sectionIds: [],
 );
 
@@ -49,12 +49,7 @@ const _gameMediaSecondaryTabs = [
   ),
 ];
 
-const _gameMediaTabs = [
-  _gameMainTab,
-  ..._gameMediaSecondaryTabs,
-];
-
-const _gameReleaseTabs = [
+const _gamePersonalAndValueTabs = [
   LibraryEditTabSpec(
     id: 'value',
     icon: Icons.attach_money,
@@ -68,7 +63,7 @@ const _gameReleaseTabs = [
     sectionIds: [
       'tracking_personal',
       'wishlist_reference',
-      'owned_notes',
+      'entry_notes',
       'collection_fields_info',
     ],
   ),
@@ -78,94 +73,42 @@ const _gameReleaseTabs = [
     label: 'Custom Fields',
     sectionIds: ['custom_fields'],
   ),
-  LibraryEditTabSpec(
-    id: 'cover',
-    icon: Icons.photo_camera_outlined,
-    label: 'Covers',
-    sectionIds: ['cover_images'],
-  ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.image_outlined,
-    label: 'My Images',
-    sectionIds: ['photos'],
-  ),
 ];
 
-const _gameReleaseIdentityTab = LibraryEditTabSpec(
-  id: 'release',
+const _gameEditionDetailsTab = LibraryEditTabSpec(
+  id: 'edition',
   icon: Icons.album_outlined,
-  label: 'Release',
+  label: 'Edition Details',
   sectionIds: ['release_identity'],
 );
 
 const _gameCombinedTabs = [
   _gameMainTab,
-  _gameOwnedTab,
-  _gameReleaseIdentityTab,
+  _gameEntryTab,
+  _gameEditionDetailsTab,
   ..._gameMediaSecondaryTabs,
-  ..._gameReleaseTabs,
+  ..._gamePersonalAndValueTabs,
 ];
 
 class GameLibraryCombinedEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const GameLibraryCombinedEditPresentationBuilder()
       : super(
-          useOwnedMainArtworkLayout: false,
+          useEntryMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _gameCombinedTabs,
+          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _gameCombinedTabs,
           trackedTabs: _gameCombinedTabs,
           catalogTabs: _gameCombinedTabs,
           customTabBuilder: buildGameCustomTabView,
         );
 }
 
-class GameLibraryMediaEditPresentationBuilder
-    extends LibraryEditPresentationBuilderBase {
-  const GameLibraryMediaEditPresentationBuilder()
-      : super(
-          useOwnedMainArtworkLayout: false,
-          useDetailsTab: false,
-          useArtworkCoverTab: false,
-          useArtworkPhotosTab: false,
-          trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _gameMediaTabs,
-          trackedTabs: _gameMediaTabs,
-          catalogTabs: _gameMediaTabs,
-          customTabBuilder: buildGameCustomTabView,
-        );
-}
-
-class GameLibraryReleaseEditPresentationBuilder
-    extends LibraryEditPresentationBuilderBase {
-  const GameLibraryReleaseEditPresentationBuilder()
-      : super(
-          useOwnedMainArtworkLayout: false,
-          useDetailsTab: false,
-          useArtworkCoverTab: false,
-          useArtworkPhotosTab: false,
-          trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _gameReleaseTabs,
-          trackedTabs: _gameReleaseTabs,
-          catalogTabs: _gameReleaseTabs,
-          customTabBuilder: buildGameCustomTabView,
-        );
-}
-
 const gameLibraryEditPresentation = LibraryEditPresentation(
   builder: GameLibraryCombinedEditPresentationBuilder(),
-  workBuilder: GameLibraryMediaEditPresentationBuilder(),
-  releaseBuilder: GameLibraryReleaseEditPresentationBuilder(),
 );

@@ -28,10 +28,10 @@ class LibraryValueSnapshot {
     int? purchasePriceCents,
     int? soldPriceCents,
     int? manualEstimatedValueCents,
-    String? ownedCurrency,
+    String? entryCurrency,
   }) {
-    final currency = ownedCurrency?.trim().isNotEmpty == true
-        ? ownedCurrency!.trim()
+    final currency = entryCurrency?.trim().isNotEmpty == true
+        ? entryCurrency!.trim()
         : item.source.currency?.trim().isNotEmpty == true
             ? item.source.currency!.trim()
             : null;
@@ -54,7 +54,7 @@ class LibraryValueSnapshot {
   int? get displayPrimaryValueCents =>
       manualEstimatedValueCents ?? purchasePriceCents ?? soldPriceCents;
 
-  int? get totalOwnedCostBasisCents => purchasePriceCents;
+  int? get totalEntryCostBasisCents => purchasePriceCents;
 
   int? get unrealizedGainLossCents {
     final current = displayPrimaryValueCents;

@@ -24,25 +24,25 @@ TransferableField animeTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(AnimeCollectionItem item) read,
-  required AnimeCollectionItem Function(AnimeCollectionItem item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.collectionItem,
+  required String? Function(AnimeLibraryEntry item) read,
+  required AnimeLibraryEntry Function(AnimeLibraryEntry item, String? value) write,
+  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
-  return TransferableField.typed<AnimeCollectionItem>(
+  return TransferableField.typed<AnimeLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
     scope: scope,
-    decode: (value) => value as AnimeCollectionItem,
+    decode: (value) => value as AnimeLibraryEntry,
     read: read,
     write: write,
   );
 }
 
 final animeUniversalTransferableFields =
-    TransferableField.universalForTyped<AnimeCollectionItem>(
-  decode: (value) => value as AnimeCollectionItem,
+    TransferableField.universalForTyped<AnimeLibraryEntry>(
+  decode: (value) => value as AnimeLibraryEntry,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,
@@ -93,7 +93,7 @@ final animeTransferableFields = <TransferableField>[
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.features,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(features: value));
@@ -104,7 +104,7 @@ final animeTransferableFields = <TransferableField>[
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.boxSetName,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(boxSetName: value));
@@ -115,7 +115,7 @@ final animeTransferableFields = <TransferableField>[
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.packaging,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(packaging: value));

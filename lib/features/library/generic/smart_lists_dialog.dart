@@ -581,8 +581,8 @@ class _SmartListDetailsPane extends StatelessWidget {
   List<String> _criteriaChips(SmartList list) {
     final filter = list.filterSelection;
     return [
-      if (filter.ownershipFilter != LibraryOwnershipFilter.all)
-        'Ownership: ${libraryOwnershipFilterLabel(filter.ownershipFilter, mediaType: list.mediaKind)}',
+      if (filter.entriesFilter != LibraryEntryPolicyFilter.all)
+        'EntryPolicy: ${libraryEntryPolicyFilterLabel(filter.entriesFilter, mediaType: list.mediaKind)}',
       if (filter.trackingStatusFilter != LibraryTrackingStatusFilter.all)
         'Tracking: ${libraryTrackingStatusFilterLabel(filter.trackingStatusFilter, mediaType: list.mediaKind)}',
       if (filter.loanStatusFilter != LibraryLoanStatusFilter.all)

@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
@@ -46,14 +46,14 @@ CatalogEntityRef seedCatalogRef(CatalogMediaKind kind, String itemId) {
   );
 }
 
-CollectionItemRef seedCollectionItemRef(CatalogMediaKind kind, String id) {
-  return CollectionItemRef(
+LibraryEntryRef seedLibraryEntryRef(CatalogMediaKind kind, String id) {
+  return LibraryEntryRef(
     kind: kind,
-    id: CollectionItemId(id),
+    id: LibraryEntryId(id),
   );
 }
 
-/// Rebuilds a transport fixture while preserving its kind-owned fields.
+/// Rebuilds a transport fixture while preserving its kind-entry fields.
 /// Kind seeders use this only to add their own Core graph fields.
 CatalogItemDto withSeedPayload(
   CatalogItemDto item,
@@ -425,17 +425,15 @@ void seedValidateStandardBarcode(
   seedValidateBarcode(issues, prefix, barcode);
 }
 
-void validateSeedOwnedQuality(Iterable<CollectionItemSummary> items) {
+void validateSeedEntryQuality(Iterable<LibraryEntrySummary> items) {
   final issues = <String>[];
   for (final item in items) {
     final prefix = '${item.ref.kind.apiValue}/${item.ref.id.value}';
-    final catalogRef = item.catalogRef;
-    if (catalogRef == null) {
-      issues.add('$prefix: catalog_ref is required');
-    } else if (catalogRef.mediaKind != item.ref.kind) {
+    final sourceCatalogRef = item.sourceCatalogRef;
+    if (sourceCatalogRef != null && sourceCatalogRef.kind != item.ref.kind) {
       issues.add(
-        '$prefix: catalog_ref kind ${catalogRef.kind} does not match '
-        'owned kind ${item.ref.kind}',
+        '$prefix: source_catalog_ref kind ${sourceCatalogRef.kind.apiValue} does not match '
+        'entry kind ${item.ref.kind}',
       );
     }
     if (!item.hasNotes || item.notes?.trim().isNotEmpty != true) {
@@ -452,10 +450,10 @@ void validateSeedOwnedQuality(Iterable<CollectionItemSummary> items) {
       issues.add('$prefix: currency is required when a purchase price exists');
     }
   }
-  _throwSeedQualityIssues('owned', issues);
+  _throwSeedQualityIssues('entry', issues);
 }
 
-/// Adds the standard non-empty text issue used by kind-owned seed validators.
+/// Adds the standard non-empty text issue used by kind-entry seed validators.
 ///
 /// The validator itself stays with the owning kind; this helper only keeps the
 /// error wording and primitive check consistent across fixtures.
@@ -471,7 +469,7 @@ void seedRequireText(
 void validateSeedTrackingQuality(Iterable<TrackingStorageRecord> entries) {
   final issues = <String>[];
   for (final entry in entries) {
-    final prefix = '${entry.catalogRef.kind}/${entry.id}';
+    final prefix = '${entry.libraryEntryRef.kind.apiValue}/${entry.id}';
     if (entry.status == null) {
       issues.add('$prefix: status is required');
     }
@@ -630,7 +628,7 @@ void _requirePlayerStats(List<String> issues, String prefix, Object? value) {
   }
 }
 
-/// Primitive catalog-fixture checks exposed to kind-owned quality validators.
+/// Primitive catalog-fixture checks exposed to kind-entry quality validators.
 void seedRequirePublishingQuality(
   List<String> issues,
   String prefix,

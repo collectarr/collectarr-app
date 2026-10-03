@@ -1,9 +1,9 @@
 import 'catalog_entity_ref.dart';
 import 'catalog_item_ref.dart';
-import 'collection_item_projection.dart';
+import 'library_entry_projection.dart';
 
 /// Validates a structural catalog target before it crosses a persistence or
-/// feature boundary. The target's entity semantics remain owned by its kind.
+/// feature boundary. The target's entity semantics remain entry by its kind.
 void requireKnownCatalogRef(
   CatalogEntityRef ref, [
   String name = 'catalogRef',
@@ -19,9 +19,9 @@ void requireKnownCatalogRef(
 
 /// Validates a personal collection entry before it is persisted by a global
 /// feature. A bare string id is never a valid cross-kind target.
-void requireKnownCollectionItemRef(
-  CollectionItemRef ref, [
-  String name = 'collectionItemRef',
+void requireKnownLibraryEntryRef(
+  LibraryEntryRef ref, [
+  String name = 'libraryEntryRef',
 ]) {
   if (ref.kind.isUnknown || ref.id.value.trim().isEmpty) {
     throw ArgumentError.value(
@@ -34,17 +34,17 @@ void requireKnownCollectionItemRef(
 
 /// Ensures a collection item and its optional catalog target belong to the same
 /// kind before a global feature stores both references together.
-void requireMatchingCatalogAndCollectionItemKinds(
+void requireMatchingCatalogAndLibraryEntryKinds(
   CatalogEntityRef catalogRef,
-  CollectionItemRef collectionItemRef, {
+  LibraryEntryRef libraryEntryRef, {
   String catalogName = 'catalogRef',
-  String collectionItemName = 'collectionItemRef',
+  String libraryEntryName = 'libraryEntryRef',
 }) {
   requireKnownCatalogRef(catalogRef, catalogName);
-  requireKnownCollectionItemRef(collectionItemRef, collectionItemName);
-  if (catalogRef.kind != collectionItemRef.kind) {
+  requireKnownLibraryEntryRef(libraryEntryRef, libraryEntryName);
+  if (catalogRef.kind != libraryEntryRef.kind) {
     throw ArgumentError(
-      'The $collectionItemName kind (${collectionItemRef.kind.apiValue}) must match '
+      'The $libraryEntryName kind (${libraryEntryRef.kind.apiValue}) must match '
       'the $catalogName kind (${catalogRef.kind.apiValue}).',
     );
   }

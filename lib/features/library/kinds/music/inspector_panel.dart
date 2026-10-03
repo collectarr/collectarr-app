@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -22,10 +22,10 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_album_ima
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart'
-    show CollectionItemRef;
+import 'package:collectarr_app/core/models/library_entry_projection.dart'
+    show LibraryEntryRef;
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -66,7 +66,7 @@ class MusicInspectorPanel extends StatelessWidget {
         onEdit: request.onEdit,
         onShare: request.onShare,
         onDuplicate: request.onDuplicate,
-        onToggleOwned: request.onToggleOwned,
+        onToggleEntry: request.onToggleEntry,
         onLoan: request.onLoan,
         onRefreshMetadata: request.onRefreshMetadata,
         onUnlinkFromCore: request.onUnlinkFromCore,
@@ -167,18 +167,14 @@ class _MusicListeningSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final model = _musicModel(inspector.item);
-    final sourceRef = (inspector.item.source.catalogRef ??
-            libraryTrackingTargetForItem(inspector.type, inspector.item))
-        ?.rootScope;
-    if (sourceRef == null || !sourceRef.isKnown) {
-      return const SizedBox.shrink();
-    }
-    final catalogRef = CatalogItemRef(
+    final entry = model.entry;
+    if (entry == null) return const SizedBox.shrink();
+    final libraryEntryRef = LibraryEntryRef(
       kind: CatalogMediaKind.music,
-      id: sourceRef.id,
+      id: LibraryEntryId(entry.id.value),
     );
     final summary = ref.watch(
-      musicCatalogItemListeningSummaryProvider(catalogRef),
+      musicCatalogItemListeningSummaryProvider(libraryEntryRef),
     );
     return summary.when(
       loading: () => const LinearProgressIndicator(minHeight: 2),
@@ -204,7 +200,8 @@ class _MusicListeningSection extends ConsumerWidget {
                   ),
                 ),
                 OutlinedButton.icon(
-                  onPressed: () => _logListen(context, ref, model, catalogRef),
+                  onPressed: () =>
+                      _logListen(context, ref, model, libraryEntryRef),
                   icon: const Icon(Icons.headphones_outlined, size: 16),
                   label: const Text('Log listen'),
                 ),
@@ -225,7 +222,7 @@ class _MusicListeningSection extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     MusicInspectorViewModel model,
-    CatalogItemRef catalogRef,
+    LibraryEntryRef libraryEntryRef,
   ) async {
     final notesController = TextEditingController();
     try {
@@ -257,17 +254,10 @@ class _MusicListeningSection extends ConsumerWidget {
       );
       if (shouldSave != true || !context.mounted) return;
       final now = DateTime.now().toUtc();
-      final owned = model.owned;
       await ref.read(musicListeningMutationsProvider).upsert(
             MusicListenEvent(
               id: 'listen-${now.microsecondsSinceEpoch}',
-              catalogRef: catalogRef,
-              collectionItemRef: owned == null
-                  ? null
-                  : CollectionItemRef(
-                      kind: CatalogMediaKind.music,
-                      id: CollectionItemId(owned.id.value),
-                    ),
+              libraryEntryRef: libraryEntryRef,
               listenedAt: now,
               notes: notesController.text.trim().isEmpty
                   ? null
@@ -276,8 +266,8 @@ class _MusicListeningSection extends ConsumerWidget {
               updatedAt: now,
             ),
           );
-      ref.invalidate(musicListeningEventsProvider(catalogRef));
-      ref.invalidate(musicCatalogItemListeningSummaryProvider(catalogRef));
+      ref.invalidate(musicListeningEventsProvider(libraryEntryRef));
+      ref.invalidate(musicCatalogItemListeningSummaryProvider(libraryEntryRef));
       ref.invalidate(shelfProvider);
     } finally {
       notesController.dispose();
@@ -379,8 +369,7 @@ class _MusicListenEventTile extends ConsumerWidget {
       await ref.read(musicListeningMutationsProvider).upsert(
             MusicListenEvent(
               id: event.id,
-              catalogRef: event.catalogRef,
-              collectionItemRef: event.collectionItemRef,
+              libraryEntryRef: event.libraryEntryRef,
               listenedAt: event.listenedAt,
               startedAt: event.startedAt,
               finishedAt: event.finishedAt,
@@ -426,9 +415,9 @@ class _MusicListenEventTile extends ConsumerWidget {
 
   void _invalidate(WidgetRef ref) {
     ref.invalidate(shelfProvider);
-    ref.invalidate(musicListeningEventsProvider(event.catalogRef));
+    ref.invalidate(musicListeningEventsProvider(event.libraryEntryRef));
     ref.invalidate(
-      musicCatalogItemListeningSummaryProvider(event.catalogRef),
+      musicCatalogItemListeningSummaryProvider(event.libraryEntryRef),
     );
   }
 }
@@ -744,9 +733,7 @@ class _MusicDiscDetails extends StatelessWidget {
           _MusicMediumDetailsCard(
             medium: model.mediums[index],
             storage: model.storageForMedium(model.mediums[index].mediumNumber),
-            matrixRunouts:
-                model.matrixForMedium(model.mediums[index].mediumNumber),
-            showOwnedDetails: model.owned != null,
+            showEntryDetails: model.entry != null,
           ),
           if (index < model.mediums.length - 1) const SizedBox(height: 8),
         ],
@@ -759,14 +746,12 @@ class _MusicMediumDetailsCard extends StatelessWidget {
   const _MusicMediumDetailsCard({
     required this.medium,
     required this.storage,
-    required this.matrixRunouts,
-    required this.showOwnedDetails,
+    required this.showEntryDetails,
   });
 
   final MusicMedium medium;
-  final MusicOwnedMediumStorageView storage;
-  final List<MusicMatrixRunoutView> matrixRunouts;
-  final bool showOwnedDetails;
+  final MusicEntryMediumStorageView storage;
+  final bool showEntryDetails;
 
   @override
   Widget build(BuildContext context) {
@@ -774,10 +759,6 @@ class _MusicMediumDetailsCard extends StatelessWidget {
     final playableTracks = medium.effectiveTrackCount;
     final expectedTracks =
         medium.expectedTrackCount ?? medium.trackCount ?? playableTracks;
-    final matrix = matrixRunouts
-        .where((runout) => runout.text.trim().isNotEmpty)
-        .map((runout) => '${runout.side}: ${runout.text.trim()}')
-        .join(' | ');
     final rows = <(String, String)>[
       ('Tracks', '$playableTracks / $expectedTracks'),
       if (medium.mediumType?.trim().isNotEmpty == true)
@@ -793,8 +774,11 @@ class _MusicMediumDetailsCard extends StatelessWidget {
         ('Vinyl color', medium.vinylColor!.trim()),
       if (medium.vinylWeight?.trim().isNotEmpty == true)
         ('Vinyl weight', medium.vinylWeight!.trim()),
-      if (showOwnedDetails && storage.label != '-') ('Storage', storage.label),
-      if (showOwnedDetails && matrix.isNotEmpty) ('Matrix / runout', matrix),
+      if (medium.matrixNumberSideA?.trim().isNotEmpty == true)
+        ('Matrix side A', medium.matrixNumberSideA!.trim()),
+      if (medium.matrixNumberSideB?.trim().isNotEmpty == true)
+        ('Matrix side B', medium.matrixNumberSideB!.trim()),
+      if (showEntryDetails && storage.label != '-') ('Storage', storage.label),
     ];
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -1050,39 +1034,39 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final source = inspector.item.source;
-    final owned = MusicCollectionItemProjection.fromDispatch(
-      inspector.collectionItemDispatch,
+    final entry = MusicLibraryEntryProjection.fromDispatch(
+      inspector.libraryEntryDispatch,
     );
     final personalRows = <(String, String)>[
-      ('Index', owned?.indexNumber?.toString() ?? '-'),
-      if (owned?.isDigital != null)
-        ('Media ownership', owned!.isDigital! ? 'Digital' : 'Physical'),
-      if (owned?.condition?.trim().isNotEmpty == true)
-        ('Condition', owned!.condition!),
-      if (owned?.grade?.trim().isNotEmpty == true) ('Grade', owned!.grade!),
+      ('Index', entry?.indexNumber?.toString() ?? '-'),
+      if (entry?.isDigital != null)
+        ('Media entries', entry!.isDigital! ? 'Digital' : 'Physical'),
+      if (entry?.condition?.trim().isNotEmpty == true)
+        ('Condition', entry!.condition!),
+      if (entry?.grade?.trim().isNotEmpty == true) ('Grade', entry!.grade!),
       if (source.locationPath?.trim().isNotEmpty == true)
         ('Location', source.locationPath!),
-      if (owned?.collectionStatus?.trim().isNotEmpty == true)
-        ('Collection status', owned!.collectionStatus!),
-      if (owned?.pricePaidCents != null)
-        ('Price paid', formatMoney(owned!.pricePaidCents, owned.currency)),
-      if (owned?.sellPriceCents != null)
-        ('Sell price', formatMoney(owned!.sellPriceCents, owned.currency)),
-      if (owned?.marketValueCents != null)
-        ('Market value', formatMoney(owned!.marketValueCents, owned.currency)),
-      if (owned?.purchaseDate != null)
-        ('Purchase date', formatDate(owned!.purchaseDate!)),
-      if (owned?.purchaseStore?.trim().isNotEmpty == true)
-        ('Purchase store', owned!.purchaseStore!),
-      if (owned?.details.signedBy?.trim().isNotEmpty == true)
-        ('Signed by', owned!.details.signedBy!),
-      if (owned?.details.lastCleanedDate != null)
-        ('Last cleaned', formatDate(owned!.details.lastCleanedDate!)),
-      if (owned?.tags?.trim().isNotEmpty == true) ('Tags', owned!.tags!),
-      if (owned?.personalNotes?.trim().isNotEmpty == true)
-        ('Notes', owned!.personalNotes!),
-      if (owned?.createdAt != null) ('Added', formatDate(owned!.createdAt!)),
-      ('Modified', formatNullableDate(owned?.updatedAt) ?? '-'),
+      if (entry?.collectionStatus?.trim().isNotEmpty == true)
+        ('Collection status', entry!.collectionStatus!),
+      if (entry?.pricePaidCents != null)
+        ('Price paid', formatMoney(entry!.pricePaidCents, entry.currency)),
+      if (entry?.sellPriceCents != null)
+        ('Sell price', formatMoney(entry!.sellPriceCents, entry.currency)),
+      if (entry?.marketValueCents != null)
+        ('Market value', formatMoney(entry!.marketValueCents, entry.currency)),
+      if (entry?.purchaseDate != null)
+        ('Purchase date', formatDate(entry!.purchaseDate!)),
+      if (entry?.purchaseStore?.trim().isNotEmpty == true)
+        ('Purchase store', entry!.purchaseStore!),
+      if (entry?.details.signedBy?.trim().isNotEmpty == true)
+        ('Signed by', entry!.details.signedBy!),
+      if (entry?.details.lastCleanedDate != null)
+        ('Last cleaned', formatDate(entry!.details.lastCleanedDate!)),
+      if (entry?.tags?.trim().isNotEmpty == true) ('Tags', entry!.tags!),
+      if (entry?.personalNotes?.trim().isNotEmpty == true)
+        ('Notes', entry!.personalNotes!),
+      if (entry?.createdAt != null) ('Added', formatDate(entry!.createdAt!)),
+      ('Modified', formatNullableDate(entry?.updatedAt) ?? '-'),
     ];
     List<LibraryDetailField> asFacts(List<(String, String)> rows) {
       return [

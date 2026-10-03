@@ -17,15 +17,19 @@ abstract final class MusicAlbumFormAdapter {
         sortTitle: _text(values.sortTitle),
         subtitle: _text(values.subtitle),
         artist: _text(values.artist),
+        artistCredits: List.unmodifiable(values.artistCredits),
         originalTitle: _text(values.originalTitle),
         originalReleaseDate: values.originalReleaseDate,
+        originalReleaseDateParts: values.originalReleaseDateParts,
         recordingDate: values.recordingDate,
+        recordingDateParts: values.recordingDateParts,
         studios: List.unmodifiable(values.studios),
         isLive: values.isLive,
         genres: List.unmodifiable(values.genres),
         releaseType: _text(values.releaseType),
         releaseStatus: _text(values.releaseStatus),
         releaseDate: values.releaseDate,
+        releaseDateParts: values.releaseDateParts,
         publisher: _text(values.publisher),
         countryCode: _text(values.countryCode),
         language: _text(values.language),
@@ -33,6 +37,7 @@ abstract final class MusicAlbumFormAdapter {
         upc: _text(values.upc),
         catalogNumber: _text(values.catalogNumber),
         packaging: _text(values.packaging),
+        format: _formFormat(values),
         soundTypes: List.unmodifiable(values.soundTypes),
         vinylColor: _text(values.vinylColor),
         vinylWeight: _text(values.vinylWeight),
@@ -41,6 +46,7 @@ abstract final class MusicAlbumFormAdapter {
         extra: _text(values.extra),
         boxSetName: _text(values.boxSetName),
         coverImageUrl: _text(values.coverImageUrl),
+        backCoverImageUrl: _text(values.backCoverImageUrl),
         boxSetMembership: values.boxSetMembership,
         mediums: List.unmodifiable(mediums),
       );
@@ -60,23 +66,16 @@ abstract final class MusicAlbumFormAdapter {
         artist: _text(values.artist),
         originalTitle: _text(values.originalTitle),
         originalReleaseDate: values.originalReleaseDate,
-        originalReleaseDateParts:
-            values.originalReleaseDate == original.originalReleaseDate
-                ? original.originalReleaseDateParts
-                : null,
+        originalReleaseDateParts: values.originalReleaseDateParts,
         recordingDate: values.recordingDate,
-        recordingDateParts: values.recordingDate == original.recordingDate
-            ? original.recordingDateParts
-            : null,
+        recordingDateParts: values.recordingDateParts,
         studios: List.unmodifiable(values.studios),
         isLive: values.isLive,
         genres: List.unmodifiable(values.genres),
         releaseType: _text(values.releaseType),
         releaseStatus: _text(values.releaseStatus),
         releaseDate: values.releaseDate,
-        releaseDateParts: values.releaseDate == original.releaseDate
-            ? original.releaseDateParts
-            : null,
+        releaseDateParts: values.releaseDateParts,
         publisher: _text(values.publisher),
         countryCode: _text(values.countryCode),
         language: _text(values.language),
@@ -84,10 +83,11 @@ abstract final class MusicAlbumFormAdapter {
         upc: _text(values.upc),
         catalogNumber: _text(values.catalogNumber),
         packaging: _text(values.packaging),
+        format: _formFormat(values),
         boxSetName: _text(values.boxSetName),
         coverImageUrl: _text(values.coverImageUrl),
         coverImageKey: original.coverImageKey,
-        backCoverImageUrl: original.backCoverImageUrl,
+        backCoverImageUrl: _text(values.backCoverImageUrl),
         thumbnailImageUrl: original.thumbnailImageUrl,
         localCoverImagePath: original.localCoverImagePath,
         localBackImagePath: original.localBackImagePath,
@@ -101,16 +101,23 @@ abstract final class MusicAlbumFormAdapter {
         externalLinks:
             List.unmodifiable(externalLinks ?? original.externalLinks),
         boxSetMembership: values.boxSetMembership,
+        revision: original.revision,
         createdAt: original.createdAt,
         updatedAt: original.updatedAt,
         contributions:
             List.unmodifiable(contributions ?? original.contributions),
-        artistCredits: original.artistCredits,
+        artistCredits: List.unmodifiable(values.artistCredits),
         labels: original.labels,
         identifiers: original.identifiers,
         mediums: List.unmodifiable(mediums ?? original.mediums),
       );
 }
+
+String? _formFormat(MusicAlbumFormValues values) => _text(
+      values.physicalFormatLabel.isNotEmpty
+          ? values.physicalFormatLabel
+          : values.physicalFormat,
+    );
 
 String? _text(String? value) {
   final normalized = value?.trim();

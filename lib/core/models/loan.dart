@@ -1,10 +1,10 @@
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 class Loan {
   const Loan({
     required this.id,
-    required this.collectionItemRef,
+    required this.libraryEntryRef,
     required this.borrowerName,
     required this.lentDate,
     this.dueDate,
@@ -16,7 +16,7 @@ class Loan {
 
   /// Structural reference to the lent copy. Loan code never interprets the
   /// referenced kind's domain details.
-  final CollectionItemRef collectionItemRef;
+  final LibraryEntryRef libraryEntryRef;
   final String borrowerName;
   final DateTime lentDate;
   final DateTime? dueDate;
@@ -30,17 +30,17 @@ class Loan {
   }
 
   factory Loan.fromJson(Map<String, Object?> json) {
-    final ownedPayload = json['collection_item_ref'];
-    if (ownedPayload is! Map) {
-      throw const FormatException('Loan.collection_item_ref is required');
+    final entryPayload = json['library_entry_ref'];
+    if (entryPayload is! Map) {
+      throw const FormatException('Loan.library_entry_ref is required');
     }
-    final collectionItemRef = CollectionItemRef.fromJson(
-      Map<String, Object?>.from(ownedPayload),
+    final libraryEntryRef = LibraryEntryRef.fromJson(
+      Map<String, Object?>.from(entryPayload),
     );
-    requireKnownCollectionItemRef(collectionItemRef, 'loan.collectionItemRef');
+    requireKnownLibraryEntryRef(libraryEntryRef, 'loan.libraryEntryRef');
     return Loan(
       id: _requiredString(json, 'id'),
-      collectionItemRef: collectionItemRef,
+      libraryEntryRef: libraryEntryRef,
       borrowerName: _requiredString(json, 'borrower_name'),
       lentDate: _requiredDate(json, 'lent_date'),
       dueDate: _optionalDate(json, 'due_date'),
@@ -75,7 +75,8 @@ class Loan {
 
   Map<String, Object?> toJson() {
     return {
-      'collection_item_ref': collectionItemRef.toJson(),
+      'id': id,
+      'library_entry_ref': libraryEntryRef.toJson(),
       'borrower_name': borrowerName,
       'lent_date':
           '${lentDate.year}-${lentDate.month.toString().padLeft(2, '0')}-${lentDate.day.toString().padLeft(2, '0')}',
@@ -87,7 +88,7 @@ class Loan {
   }
 
   Loan copyWith({
-    CollectionItemRef? collectionItemRef,
+    LibraryEntryRef? libraryEntryRef,
     String? borrowerName,
     DateTime? dueDate,
     DateTime? returnedDate,
@@ -95,7 +96,7 @@ class Loan {
   }) {
     return Loan(
       id: id,
-      collectionItemRef: collectionItemRef ?? this.collectionItemRef,
+      libraryEntryRef: libraryEntryRef ?? this.libraryEntryRef,
       borrowerName: borrowerName ?? this.borrowerName,
       lentDate: lentDate,
       dueDate: dueDate ?? this.dueDate,

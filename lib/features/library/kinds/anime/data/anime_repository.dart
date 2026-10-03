@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_episode.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
@@ -173,26 +174,18 @@ final class AnimeRepository
     await updateMedia(_withReleases(media, releases));
   }
 
-  Future<AnimeTracking?> getTracking(String trackingId) async {
-    final row = await (_db.select(_db.animeTrackingRows)
-          ..where(
-            (table) => table.id.equals(trackingId) & table.deletedAt.isNull(),
-          ))
-        .getSingleOrNull();
-    return row == null ? null : AnimeLocalMapper.fromTrackingRow(row);
-  }
-
-  Future<void> updateTracking(AnimeTracking tracking) {
-    return _db.into(_db.animeTrackingRows).insertOnConflictUpdate(
-          AnimeLocalMapper.toTrackingRow(tracking),
-        );
-  }
-
   Future<void> upsertCustomEpisode(AnimeCustomEpisode episode) {
+    if (episode.libraryEntryRef.kind != CatalogMediaKind.anime) {
+      throw ArgumentError.value(
+        episode.libraryEntryRef.kind,
+        'episode.libraryEntryRef.kind',
+        'Anime custom episodes must belong to an Anime library entry.',
+      );
+    }
     return _db.into(_db.animeCustomEpisodeRows).insertOnConflictUpdate(
           AnimeCustomEpisodeRowsCompanion.insert(
             id: episode.id.value,
-            seriesId: episode.seriesId.value,
+            libraryEntryId: episode.libraryEntryRef.id.value,
             seasonNumber: episode.seasonNumber,
             episodeNumber: episode.episodeNumber,
             title: episode.title,
@@ -215,7 +208,10 @@ final class AnimeRepository
     if (row == null) return null;
     return AnimeCustomEpisode(
       id: AnimeEpisodeId(row.id),
-      seriesId: AnimeMediaId(row.seriesId),
+      libraryEntryRef: LibraryEntryRef(
+        kind: CatalogMediaKind.anime,
+        id: LibraryEntryId(row.libraryEntryId),
+      ),
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
       title: row.title,
@@ -227,17 +223,6 @@ final class AnimeRepository
       thumbnailImageUrl: row.thumbnailImageUrl,
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
-    );
-  }
-
-  Future<void> markTrackingDeleted(String trackingId, DateTime deletedAt) {
-    return (_db.update(_db.animeTrackingRows)
-          ..where((table) => table.id.equals(trackingId)))
-        .write(
-      AnimeTrackingRowsCompanion(
-        deletedAt: Value(deletedAt),
-        updatedAt: Value(deletedAt),
-      ),
     );
   }
 

@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:flutter/material.dart';
 
-abstract final class MangaCatalogItemWorkspaceFields {
+abstract final class MangaAdditionalCatalogItemWorkspaceFields {
   static final publisher = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.publisher,
     label: 'Publisher',
@@ -28,15 +28,15 @@ abstract final class MangaCatalogItemWorkspaceFields {
   );
 }
 
-final mangaCatalogItemWorkspaceFieldDefinitions = [
-  MangaCatalogItemWorkspaceFields.publisher,
-  MangaCatalogItemWorkspaceFields.releaseDate,
-  MangaCatalogItemWorkspaceFields.barcode,
+final mangaAdditionalCatalogItemWorkspaceFieldDefinitions = [
+  MangaAdditionalCatalogItemWorkspaceFields.publisher,
+  MangaAdditionalCatalogItemWorkspaceFields.releaseDate,
+  MangaAdditionalCatalogItemWorkspaceFields.barcode,
 ];
 
-final mangaCatalogItemWorkspaceGroupDefinitions = [
+final mangaAdditionalCatalogItemWorkspaceGroupDefinitions = [
   groupFromField<MangaKind, MangaWorkspaceDto, String?>(
-    MangaCatalogItemWorkspaceFields.publisher,
+    MangaAdditionalCatalogItemWorkspaceFields.publisher,
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
@@ -46,7 +46,7 @@ final mangaCatalogItemWorkspaceGroupDefinitions = [
   ),
 ];
 
-final mangaCatalogItemWorkspaceSortDefinitions = [
+final mangaAdditionalCatalogItemWorkspaceSortDefinitions = [
   LibrarySortDefinition<MangaKind, MangaWorkspaceDto>(
     id: MangaSortIds.releaseTitle,
     label: 'Release title',
@@ -54,29 +54,29 @@ final mangaCatalogItemWorkspaceSortDefinitions = [
     compare: (left, right) => left.dto.title.compareTo(right.dto.title),
   ),
   sortFromField<MangaKind, MangaWorkspaceDto, String>(
-      MangaCatalogItemWorkspaceFields.publisher),
+      MangaAdditionalCatalogItemWorkspaceFields.publisher),
   sortFromField<MangaKind, MangaWorkspaceDto, DateTime>(
-      MangaCatalogItemWorkspaceFields.releaseDate,
+      MangaAdditionalCatalogItemWorkspaceFields.releaseDate,
       defaultAscending: false),
 ];
 
-final mangaCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+final mangaAdditionalCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
   MangaFieldIds.publisher,
   MangaFieldIds.releaseDate,
   MangaFieldIds.barcode,
 };
 
-final mangaCatalogItemWorkspaceColumnDefinitions = [
+final mangaAdditionalCatalogItemWorkspaceColumnDefinitions = [
   columnFromField<MangaKind, MangaWorkspaceDto, String?>(
-      MangaCatalogItemWorkspaceFields.publisher,
+      MangaAdditionalCatalogItemWorkspaceFields.publisher,
       defaultWidth: 140),
   columnFromField<MangaKind, MangaWorkspaceDto, DateTime?>(
-    MangaCatalogItemWorkspaceFields.releaseDate,
+    MangaAdditionalCatalogItemWorkspaceFields.releaseDate,
     cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
     defaultWidth: 118,
   ),
   columnFromField<MangaKind, MangaWorkspaceDto, String?>(
-    MangaCatalogItemWorkspaceFields.barcode,
+    MangaAdditionalCatalogItemWorkspaceFields.barcode,
     group: 'Edition',
     defaultWidth: 160,
     maxWidth: 260,

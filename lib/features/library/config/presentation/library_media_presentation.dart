@@ -61,7 +61,7 @@ class LibraryMediaPresentation {
   final LibraryPresentationLabels statusLabels;
   final LibraryPresentationLabels bucketLabelOverrides;
 
-  /// Builds the kind-owned card contribution for a projected item.
+  /// Builds the kind-entry card contribution for a projected item.
   ///
   /// The media presentation is the presentation boundary; the kind contributor
   /// registration remains limited to navigation and capability dispatch.

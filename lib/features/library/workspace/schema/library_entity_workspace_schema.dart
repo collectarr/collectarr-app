@@ -2,9 +2,9 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
 
-/// Strongly typed field and table schema owned by one library entity level.
+/// Strongly typed field and table schema entry by one library entity level.
 ///
-/// A kind may register one of these per work, release, and copy. The generic
+/// A kind register one schema for the canonical item and one for local entry fields. The generic
 /// host only receives the selected entity schema and never combines fields
 /// from different levels.
 class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
@@ -40,11 +40,11 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   ///
   /// The schema definitions are immutable inputs, but the registry is the
   /// runtime boundary consumed by one structural entity scope. Returning a
-  /// fresh instance prevents work/release/copy workspaces from sharing the
+  /// fresh instance prevents catalog and entry workspaces from sharing the
   /// same registry object by accident.
   LibraryFieldRegistry<TDto> toRegistry() {
-    // Scope is semantic ownership, not presentation metadata. A registry
-    // must fail if a caller hands it a definition owned by another entity;
+    // Scope is semantic entries, not presentation metadata. A registry
+    // must fail if a caller hands it a definition entry by another entity;
     // silently rebinding it hides broken kind registrations.
     for (final field in fields) {
       if (field.entityScope != entityScope) {

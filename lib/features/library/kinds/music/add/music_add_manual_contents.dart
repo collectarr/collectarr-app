@@ -1,19 +1,22 @@
-/// Editable, kind-owned child values for a manual Music Catalog Item.
+/// Editable, kind-entry child values for a manual Music Catalog Item.
 ///
 /// These drafts contain disc and track data for the selected concrete Music
 /// Catalog Item. Their sequence in the parent list defines catalog order.
 final class MusicAddManualNamedCredit {
   MusicAddManualNamedCredit({
     this.name = '',
+    this.sortName = '',
     this.instrument = '',
   }) : id = _nextId('credit');
 
   final String id;
   String name;
+  String sortName;
   String instrument;
 
   Map<String, Object?> toCatalogData() => {
         'name': name.trim(),
+        if (sortName.trim().isNotEmpty) 'sort_name': sortName.trim(),
         if (instrument.trim().isNotEmpty) 'instrument': instrument.trim(),
       };
 }

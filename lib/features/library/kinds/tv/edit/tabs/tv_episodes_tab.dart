@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -37,12 +38,16 @@ class TvEpisodesTab extends ConsumerWidget {
       entityType: CatalogEntityTypeId.catalogItem,
       id: item.id,
     );
+    final entryRef = LibraryEntryRef(
+      kind: seriesRef.kind,
+      id: LibraryEntryId(seriesRef.rootScope.id),
+    );
     final customEpisodesAsync =
-        ref.watch(tvCustomEpisodesByCatalogRefProvider(seriesRef));
+        ref.watch(tvCustomEpisodesByLibraryEntryRefProvider(entryRef));
     final trackedUnits =
-        ref.watch(trackingUnitsByCatalogRefProvider(seriesRef));
+        ref.watch(trackingUnitsByLibraryEntryRefProvider(entryRef));
     final watchSessions =
-        ref.watch(watchSessionsByCatalogRefProvider(seriesRef));
+        ref.watch(watchSessionsByLibraryEntryRefProvider(entryRef));
     final future = releaseMediaEdit.tvSeriesFuture ??=
         releaseMediaEdit.loadTvSeriesSnapshot();
 
@@ -97,7 +102,7 @@ class TvEpisodesTab extends ConsumerWidget {
                         onPressed: () => showTvCustomEpisodeDialog(
                           context,
                           ref: ref,
-                          itemId: item.id,
+                          libraryEntryRef: entryRef,
                         ),
                         icon: const Icon(Icons.add),
                         label: const Text('Add episode'),
@@ -334,7 +339,10 @@ Widget _buildSeasonCard(
                   onEdit: () => showTvCustomEpisodeDialog(
                     context,
                     ref: ref,
-                    itemId: itemId,
+                    libraryEntryRef: LibraryEntryRef(
+                      kind: CatalogMediaKind.tv,
+                      id: LibraryEntryId(itemId),
+                    ),
                     existingEpisode: episode.customEpisode,
                     seasonNumber: episode.seasonNumber,
                     episodeNumber: episode.episodeNumber,

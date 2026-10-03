@@ -220,15 +220,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
 
   String _scopeLabel(CustomFieldTargetScope scope) {
     return switch (scope) {
-      CustomFieldTargetScope.work => 'Work',
-      CustomFieldTargetScope.edition => 'Edition',
-      CustomFieldTargetScope.release => 'Release',
-      CustomFieldTargetScope.issue => 'Issue',
-      CustomFieldTargetScope.episode => 'Episode',
-      CustomFieldTargetScope.track => 'Track',
-      CustomFieldTargetScope.collectionItem => 'Collection item',
-      CustomFieldTargetScope.trackingRecord => 'Tracking entry',
-      CustomFieldTargetScope.media => 'Media',
+      CustomFieldTargetScope.libraryEntry => 'Collection item',
       CustomFieldTargetScope.all => 'All',
     };
   }

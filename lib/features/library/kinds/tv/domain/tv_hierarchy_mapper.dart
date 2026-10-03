@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 
-/// Projects the TV-owned season/episode graph into the generic renderer node.
+/// Projects the TV-entry season/episode graph into the generic renderer node.
 ///
 /// The renderer remains kind-agnostic; all TV semantics and labels are kept in
 /// this mapper at the TV boundary.

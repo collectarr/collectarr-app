@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 
 abstract final class BookVocabularyIds {
   static const publisher = VocabularyId<String>('book.publisher');
@@ -15,50 +15,50 @@ abstract final class BookVocabularyIds {
 }
 
 abstract final class BookVocabularies {
-  static Future<int> countOwnedValue(
+  static Future<int> countEntryValue(
     LocalDatabase db,
     String semanticName,
     String normalizedValue,
   ) {
-    return countPickListOwnedValues(
-      items: BookOwnedRepository(db).listActive(),
+    return countPickListEntryValues(
+      items: BookEntryRepository(db).listActive(),
       normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
     );
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: BookOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: BookEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: BookOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: BookEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: BookOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: BookEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static BookCollectionItem _replaceOwnedValue(
-    BookCollectionItem item,
+  static BookLibraryEntry _replaceEntryValue(
+    BookLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -90,8 +90,8 @@ abstract final class BookVocabularies {
     return item;
   }
 
-  static Iterable<String?> _ownedValues(
-    BookCollectionItem item,
+  static Iterable<String?> _entryValues(
+    BookLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

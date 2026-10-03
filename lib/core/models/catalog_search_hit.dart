@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 /// The intentionally small result shape used when a search crosses kinds.
 ///
 /// A hit is enough to render a result and route a click. Full catalog payloads
-/// must be loaded by the repository owned by [kind] after dispatch.
+/// must be loaded by the repository entry by [kind] after dispatch.
 @immutable
 final class CatalogSearchHit {
   const CatalogSearchHit({

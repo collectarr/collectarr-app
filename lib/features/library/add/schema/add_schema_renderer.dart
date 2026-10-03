@@ -28,6 +28,7 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
         mediaKind: mediaKind,
         onVocabularyValueChanged: null,
         onVocabularyValuesChanged: null,
+        onChanged: null,
         embedded: false,
       );
 
@@ -39,6 +40,7 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
     String? mediaKind,
     LibraryVocabularyValueChanged? onVocabularyValueChanged,
     LibraryVocabularyValuesChanged? onVocabularyValuesChanged,
+    VoidCallback? onChanged,
   }) : this._(
           key: key,
           schema: schema,
@@ -49,6 +51,7 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
           mediaKind: mediaKind,
           onVocabularyValueChanged: onVocabularyValueChanged,
           onVocabularyValuesChanged: onVocabularyValuesChanged,
+          onChanged: onChanged,
           submitLabel: 'Add',
           embedded: true,
         );
@@ -63,6 +66,7 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
     required this.mediaKind,
     required this.onVocabularyValueChanged,
     required this.onVocabularyValuesChanged,
+    required this.onChanged,
     required this.submitLabel,
     required bool embedded,
   }) : _embedded = embedded;
@@ -76,6 +80,7 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
   final String? mediaKind;
   final LibraryVocabularyValueChanged? onVocabularyValueChanged;
   final LibraryVocabularyValuesChanged? onVocabularyValuesChanged;
+  final VoidCallback? onChanged;
   final bool _embedded;
 
   @override
@@ -278,6 +283,7 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
         onVocabularyValuesChanged: widget.onVocabularyValuesChanged,
         onChanged: () {
           if (mounted) setState(() => _validationError = null);
+          widget.onChanged?.call();
         },
       ).build(field);
 

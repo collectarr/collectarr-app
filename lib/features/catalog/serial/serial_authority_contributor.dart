@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-/// Structural series candidate produced by a kind-owned metadata projection.
+/// Structural series candidate produced by a kind-entry metadata projection.
 ///
 /// Serial authority stores and indexes these values, but never interprets a
 /// kind payload map itself on this path.
@@ -38,13 +38,13 @@ final class SerialAuthorityCatalogRecord {
   final String? coreSeriesId;
 }
 
-/// Kind-owned projection into the structural serial-authority store.
+/// Kind-entry projection into the structural serial-authority store.
 abstract interface class SerialAuthorityContributor {
   CatalogMediaKind get kind;
 
   Iterable<SerialAuthorityCandidate> candidates(Iterable<Object?> metadata);
 
-  /// Reads the kind-owned catalog repository into a structural serial view.
+  /// Reads the kind-entry catalog repository into a structural serial view.
   Future<List<SerialAuthorityCatalogRecord>> catalogRecords(
     LocalDatabase db,
   );

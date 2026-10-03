@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
@@ -45,43 +45,43 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final item = request.item;
     final dto = item.dto;
     final comic = dto is ComicWorkspaceDto ? dto.comic : null;
-    final collectionItem =
-        ComicCollectionItemProjection.fromDispatch(request.collectionItemDispatch);
+    final libraryEntry =
+        ComicLibraryEntryProjection.fromDispatch(request.libraryEntryDispatch);
     final surface = palette.surface;
     final border =
         palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);
     final ink = palette.textPrimary;
     final muted = palette.textMuted;
-    final collectionItemSummary = request.collectionItem;
-    final collectionItemRef = resolveLibraryCollectionItemRef(item, collectionItemSummary);
-    final localFront = collectionItemRef == null
+    final libraryEntrySummary = request.libraryEntry;
+    final libraryEntryRef = resolveLibraryEntryRef(item, libraryEntrySummary);
+    final localFront = libraryEntryRef == null
         ? null
         : ref
             .watch(
               localItemImageProvider((
-                collectionItemRef: collectionItemRef,
+                libraryEntryRef: libraryEntryRef,
                 imageType: 'front_cover',
               )),
             )
             .value;
-    final localBack = collectionItemRef == null
+    final localBack = libraryEntryRef == null
         ? null
         : ref
             .watch(
               localItemImageProvider((
-                collectionItemRef: collectionItemRef,
+                libraryEntryRef: libraryEntryRef,
                 imageType: 'back_cover',
               )),
             )
             .value;
-    final db = collectionItemRef == null ? null : ref.watch(localDatabaseProvider);
+    final db = libraryEntryRef == null ? null : ref.watch(localDatabaseProvider);
     final adapter = dto is ComicWorkspaceDto ? dto : null;
     final comicDto = dto is ComicWorkspaceDto ? dto : null;
     final referenceLabel = (adapter?.itemNumber?.trim().isNotEmpty == true
             ? '#${adapter!.itemNumber!.trim()}'
             : null) ??
         adapter?.referenceFormatLabel ??
-        libraryCollectionItemReferenceLabel(collectionItemSummary,
+        libraryLibraryEntryReferenceLabel(libraryEntrySummary,
             mediaType: (item.source.catalogData?.kind ?? request.type.kind)
                 .apiValue) ??
         request.type.identity.singularLabel.toUpperCase();
@@ -114,30 +114,30 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
       if (adapter?.variant?.trim().isNotEmpty == true) adapter!.variant!.trim(),
     ];
     final subtitleLabel = subtitleParts.join(' • ');
-    final isOwned = item.source.isOwned || collectionItem != null;
-    final statusLabel = isOwned
-        ? 'Owned'
+    final isEntry = item.source.isEntry || libraryEntry != null;
+    final statusLabel = isEntry
+        ? 'Entry'
         : item.source.isWishlisted
             ? 'Wishlist'
-            : 'Not owned';
+            : 'Not entry';
     final synopsis = comic?.synopsis?.trim();
     const String? plotDescription = null;
-    final comicDetails = collectionItem?.details;
+    final comicDetails = libraryEntry?.details;
     final slabLabel = librarySlabMarkerLabel(
       comicDetails?.rawOrSlabbed,
       comicDetails?.gradingCompany,
     );
-    final slabGrade = collectionItem?.grade?.trim();
+    final slabGrade = libraryEntry?.grade?.trim();
     final showSlabOverlay =
         comicDetails?.rawOrSlabbed?.trim().toLowerCase() == 'slabbed' &&
             slabLabel != null &&
             slabGrade != null &&
             slabGrade.isNotEmpty;
-    final currentValue = collectionItem?.marketValueCents != null
-        ? formatMoney(collectionItem!.marketValueCents, collectionItem.currency)
+    final currentValue = libraryEntry?.marketValueCents != null
+        ? formatMoney(libraryEntry!.marketValueCents, libraryEntry.currency)
         : null;
     final gradeValueLabel = [
-      if (collectionItem?.grade?.trim().isNotEmpty == true) collectionItem!.grade!.trim(),
+      if (libraryEntry?.grade?.trim().isNotEmpty == true) libraryEntry!.grade!.trim(),
       if (currentValue != null) currentValue,
     ].join('  •  ');
     final keyReason = comicDetails?.keyReason?.trim().isNotEmpty == true
@@ -149,7 +149,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
       if (seriesLabel != null) seriesLabel,
       if (referenceLabel.trim().isNotEmpty) referenceLabel,
       if (editionLabel.trim().isNotEmpty) editionLabel,
-      if (collectionItem?.grade?.trim().isNotEmpty == true) collectionItem!.grade!.trim(),
+      if (libraryEntry?.grade?.trim().isNotEmpty == true) libraryEntry!.grade!.trim(),
     ].join(' ');
 
     return LayoutBuilder(
@@ -190,26 +190,26 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                           ? null
                           : (dto.imageUrl ?? comic?.coverImageUrl),
                       localBytes: back ? localBack : localFront,
-                      collectionItemRef: back ? null : collectionItemRef,
+                      libraryEntryRef: back ? null : libraryEntryRef,
                       accentColor: request.accent,
                       fit: BoxFit.cover,
                       enableHoverCue: true,
                       enableSecondaryControl: false,
                       onMissingSecondaryPressed:
-                          back || collectionItemRef == null || db == null
+                          back || libraryEntryRef == null || db == null
                               ? null
                               : () async {
                                   final savedType =
-                                      await pickAndStoreCollectionItemImage(
+                                      await pickAndStoreLibraryEntryImage(
                                     context: context,
                                     db: db,
-                                    collectionItemRef: collectionItemRef,
+                                    libraryEntryRef: libraryEntryRef,
                                     imageType: 'back_cover',
                                   );
                                   if (savedType == 'back_cover') {
                                     ref.invalidate(
                                       localItemImageProvider((
-                                        collectionItemRef: collectionItemRef,
+                                        libraryEntryRef: libraryEntryRef,
                                         imageType: 'back_cover',
                                       )),
                                     );
@@ -313,7 +313,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                   label: 'Status',
                   value: statusLabel,
                   icon: _ComicCollectionStatusIcon(
-                    owned: isOwned,
+                    entry: isEntry,
                     wishlisted: item.source.isWishlisted,
                     accent: request.accent,
                     muted: muted,
@@ -846,25 +846,25 @@ class _ComicEbayCard extends StatelessWidget {
 
 class _ComicCollectionStatusIcon extends StatelessWidget {
   const _ComicCollectionStatusIcon({
-    required this.owned,
+    required this.entry,
     required this.wishlisted,
     required this.accent,
     required this.muted,
   });
 
-  final bool owned;
+  final bool entry;
   final bool wishlisted;
   final Color accent;
   final Color muted;
 
   @override
   Widget build(BuildContext context) {
-    final icon = owned
+    final icon = entry
         ? Icons.check_circle
         : wishlisted
             ? Icons.favorite
             : Icons.remove_circle_outline;
-    final color = owned
+    final color = entry
         ? accent
         : wishlisted
             ? Colors.red.shade400

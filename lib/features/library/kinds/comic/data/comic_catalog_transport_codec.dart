@@ -15,9 +15,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 
 final class ComicCatalogTransportCodec
-    implements
-        CatalogKindTransportCodec<ComicCatalogItem>,
-        CatalogSharedCachePrimaryStore {
+    implements CatalogKindTransportCodec<ComicCatalogItem> {
   const ComicCatalogTransportCodec();
 
   @override
@@ -104,11 +102,6 @@ final class ComicCatalogTransportCodec
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
-
-  @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return CatalogItemCacheRepository(db).upsert(item);
-  }
 
   @override
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db) =>

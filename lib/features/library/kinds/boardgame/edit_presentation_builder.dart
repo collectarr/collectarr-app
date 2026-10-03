@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/edit/fields/library_edit_field_g
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/owned/boardgame_owned_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit/entry/boardgame_entry_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
@@ -20,8 +20,8 @@ const _boardGameTabs0 = LibraryEditTabSpec(
   sectionIds: [
     'catalog_snapshot',
     'tracking_context',
-    'ownership_reference',
-    'owned_grading',
+    'entries_reference',
+    'entry_grading',
   ],
 );
 
@@ -52,48 +52,25 @@ const _boardGameSecondaryTabs = [
   ),
 ];
 
-const _boardGameTabs = [
-  _boardGameTabs0,
-  ..._boardGameSecondaryTabs,
-];
-
 const _boardGameReleaseIdentityTab = LibraryEditTabSpec(
-  id: 'release',
+  id: 'edition',
   icon: Icons.album_outlined,
-  label: 'Release',
+  label: 'Edition Details',
   sectionIds: ['release_identity'],
 );
 
-const _boardGameOwnedTab = LibraryEditTabSpec(
-  id: 'owned',
+const _boardGameEntryTab = LibraryEditTabSpec(
+  id: 'entry',
   icon: Icons.inventory_2,
-  label: 'Owned',
+  label: 'Personal',
 );
 
 const _boardGameCombinedTabs = [
   _boardGameTabs0,
-  _boardGameOwnedTab,
+  _boardGameEntryTab,
   _boardGameReleaseIdentityTab,
   ..._boardGameSecondaryTabs,
 ];
-
-class BoardGameLibraryEditPresentationBuilder
-    extends LibraryEditPresentationBuilderBase {
-  const BoardGameLibraryEditPresentationBuilder()
-      : super(
-          useOwnedMainArtworkLayout: false,
-          useDetailsTab: false,
-          useArtworkCoverTab: false,
-          useArtworkPhotosTab: false,
-          trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _boardGameTabs,
-          trackedTabs: _boardGameTabs,
-          catalogTabs: _boardGameTabs,
-        );
-}
 
 Widget? buildBoardGameCustomTabView({
   required String tabId,
@@ -104,17 +81,17 @@ Widget? buildBoardGameCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  if (tabId == 'owned') {
+  if (tabId == 'entry') {
     final kindDraft = draft.session.catalogItemSession;
     if (kindDraft is! BoardGameEditDraft) {
       throw StateError(
-          'Expected BoardGameEditDraft for BoardGame owned editing');
+          'Expected BoardGameEditDraft for BoardGame entry editing');
     }
     final detailsDraft =
-        kindDraft.toDetailsDraft() as BoardgameOwnedDetailsDraft;
+        kindDraft.toDetailsDraft() as BoardgameEntryDetailsDraft;
     final details = detailsDraft.toDetails();
-    return EditSchemaRenderer<BoardgameOwnedDetails, BoardGameEditDraft>(
-      schema: boardGameOwnedEditSchema,
+    return EditSchemaRenderer<BoardgameEntryDetails, BoardGameEditDraft>(
+      schema: boardGameEntryEditSchema,
       model: details,
       draft: kindDraft,
       mediaKind: draft.type.kind.apiValue,
@@ -124,11 +101,11 @@ Widget? buildBoardGameCustomTabView({
       onCancel: () {},
     );
   }
-  if (tabId == 'release') {
+  if (tabId == 'edition') {
     final kindDraft = draft.session.catalogItemSession;
     if (kindDraft is! BoardGameEditDraft) {
       throw StateError(
-        'Expected BoardGameEditDraft for BoardGame release editing',
+        'Expected BoardGameEditDraft for Board Game edition editing',
       );
     }
     final physicalFormatOptions = <String>{
@@ -138,7 +115,7 @@ Widget? buildBoardGameCustomTabView({
     return EditTabShell(
       children: [
         EditSection(
-          title: 'Release Details',
+          title: 'Edition Details',
           accent: accent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,15 +150,15 @@ class BoardGameLibraryCombinedEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const BoardGameLibraryCombinedEditPresentationBuilder()
       : super(
-          useOwnedMainArtworkLayout: false,
+          useEntryMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _boardGameCombinedTabs,
+          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _boardGameCombinedTabs,
           trackedTabs: _boardGameCombinedTabs,
           catalogTabs: _boardGameCombinedTabs,
           customTabBuilder: buildBoardGameCustomTabView,
@@ -190,6 +167,4 @@ class BoardGameLibraryCombinedEditPresentationBuilder
 
 const boardGamesLibraryEditPresentation = LibraryEditPresentation(
   builder: BoardGameLibraryCombinedEditPresentationBuilder(),
-  workBuilder: BoardGameLibraryEditPresentationBuilder(),
-  releaseBuilder: BoardGameLibraryEditPresentationBuilder(),
 );

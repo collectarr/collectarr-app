@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
@@ -74,7 +75,7 @@ final class TvVideoDetailContribution extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         LibraryDetailUserLinksSection(
-          catalogRef: catalogRef,
+          libraryEntryRef: request.libraryEntrySummary?.ref,
           accent: request.accent,
         ),
         const SizedBox(height: 16),
@@ -84,9 +85,12 @@ final class TvVideoDetailContribution extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         WatchHistorySection(
-          catalogRef: catalogRef,
+          libraryEntryRef: request.libraryEntrySummary?.ref ??
+              LibraryEntryRef(
+                kind: catalogRef.mediaKind,
+                id: LibraryEntryId(request.item.source.itemId),
+              ),
           accent: request.accent,
-          defaultTargetRef: catalogRef,
           targetOptions: watchTargets,
         ),
       ],
@@ -101,33 +105,23 @@ List<WatchHistoryTargetOption> _watchHistoryTargets({
 }) =>
     [
       WatchHistoryTargetOption(
-        ref: catalogRef,
-        label: 'Catalog Item',
+        label: 'This item',
         subtitle: request.item.source.title,
       ),
       ...seasonsAsync.maybeWhen(
         data: (seasons) => [
           for (final season in seasons) ...[
             WatchHistoryTargetOption(
-              ref: CatalogEntityRef(
-                kind: catalogRef.kind,
-                entityType: const CatalogEntityTypeId('season'),
-                id: '${catalogRef.id}:season:${season.seasonNumber}',
-                rootId: catalogRef.id,
-              ),
               label: season.title ?? 'Season ${season.seasonNumber ?? 0}',
               subtitle: 'Season ${season.seasonNumber ?? 0}',
+              seasonNumber: season.seasonNumber,
             ),
             for (final episode in season.episodes)
               WatchHistoryTargetOption(
-                ref: CatalogEntityRef(
-                  kind: catalogRef.kind,
-                  entityType: const CatalogEntityTypeId('episode'),
-                  id: '${catalogRef.id}:season:${season.seasonNumber}:episode:${episode.episodeNumber}',
-                  rootId: catalogRef.id,
-                  parentId: '${catalogRef.id}:season:${season.seasonNumber}',
-                ),
                 label: episode.title ?? 'Episode ${episode.episodeNumber ?? 0}',
+                seasonNumber: season.seasonNumber,
+                episodeNumber: episode.episodeNumber?.toInt(),
+                episodeId: episode.id,
                 subtitle:
                     'Season ${season.seasonNumber} • Episode ${episode.episodeNumber}',
               ),

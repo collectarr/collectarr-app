@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
-/// Exact canonical target selected by a kind-owned edit boundary.
+/// Exact canonical target selected by a kind-entry edit boundary.
 ///
 /// The generic edit host may transport this value, but it must not infer a
 /// kind's canonical identity from a catalog candidate or a browser mode.
@@ -47,7 +47,7 @@ LibraryCoreCorrectionTarget resolveStructuralLibraryCoreCorrectionTarget({
   final entityId = switch (scope) {
     LibraryEntityScope.catalogItem =>
       (catalogRef.rootId ?? catalogRef.id).trim(),
-    LibraryEntityScope.release || LibraryEntityScope.collectionItem => '',
+    LibraryEntityScope.libraryEntry => '',
   };
   if (entityId.isEmpty) {
     throw StateError(

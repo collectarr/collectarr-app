@@ -48,14 +48,14 @@ class MissingComicSeriesReport {
     required this.seriesTitle,
     required this.coverUrl,
     required this.issueGroups,
-    required this.ownedIssueCount,
+    required this.entryIssueCount,
   });
 
   final String seriesKey;
   final String seriesTitle;
   final String? coverUrl;
   final List<MissingComicIssueGroup> issueGroups;
-  final int ownedIssueCount;
+  final int entryIssueCount;
 
   int get missingIssueCount => issueGroups.length;
 }
@@ -92,7 +92,7 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
             ? series!.seriesTitle!.trim()
             : metadata.title,
         coverUrl: coverUrl,
-        ownedIssueNumbers: <int>{},
+        entryIssueNumbers: <int>{},
         candidateVariants: <int, List<MissingComicIssueVariant>>{},
       ),
     );
@@ -101,12 +101,12 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
       accumulator.coverUrl = coverUrl;
     }
 
-    if (dto.collectionItem != null) {
-      accumulator.ownedIssueNumbers.add(issueNumber);
+    if (dto.libraryEntry != null) {
+      accumulator.entryIssueNumbers.add(issueNumber);
       continue;
     }
     if (options.excludeOnOrder &&
-        dto.collectionItem?.collectionStatus?.trim().toLowerCase() == 'on_order') {
+        dto.libraryEntry?.collectionStatus?.trim().toLowerCase() == 'on_order') {
       continue;
     }
     if (options.excludeUnreleased &&
@@ -127,7 +127,7 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
   final reports = <MissingComicSeriesReport>[];
   for (final accumulator in bySeries.values) {
     final missingNumbers = accumulator.candidateVariants.keys
-        .where((issue) => !accumulator.ownedIssueNumbers.contains(issue))
+        .where((issue) => !accumulator.entryIssueNumbers.contains(issue))
         .toList(growable: false)
       ..sort();
     if (missingNumbers.isEmpty) {
@@ -153,7 +153,7 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
         seriesTitle: accumulator.seriesTitle,
         coverUrl: accumulator.coverUrl,
         issueGroups: issueGroups,
-        ownedIssueCount: accumulator.ownedIssueNumbers.length,
+        entryIssueCount: accumulator.entryIssueNumbers.length,
       ),
     );
   }
@@ -301,13 +301,13 @@ class _MissingComicSeriesAccumulator {
     required this.seriesKey,
     required this.seriesTitle,
     required this.coverUrl,
-    required this.ownedIssueNumbers,
+    required this.entryIssueNumbers,
     required this.candidateVariants,
   });
 
   final String seriesKey;
   final String seriesTitle;
   String? coverUrl;
-  final Set<int> ownedIssueNumbers;
+  final Set<int> entryIssueNumbers;
   final Map<int, List<MissingComicIssueVariant>> candidateVariants;
 }

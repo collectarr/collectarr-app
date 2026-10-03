@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -14,13 +14,13 @@ Future<void> showAdaptiveItemDetail({
   required BuildContext context,
   required LibraryKindRegistration type,
   required LibraryProjectionView item,
-  required CollectionItemSummary? collectionItemSummary,
+  required LibraryEntrySummary? libraryEntrySummary,
   required Color accent,
-  required VoidCallback? onAddOwned,
-  required VoidCallback? onRemoveOwned,
+  required VoidCallback? onAddEntry,
+  required VoidCallback? onRemoveEntry,
   required VoidCallback? onAddWishlist,
   required VoidCallback? onRemoveWishlist,
-  required void Function(CollectionItemSummary? collectionItem)? onEdit,
+  required void Function(LibraryEntrySummary? libraryEntry)? onEdit,
   ValueChanged<String>? onFilterByValue,
 }) {
   final windowClass = AppWindowClass.of(context);
@@ -57,17 +57,17 @@ Future<void> showAdaptiveItemDetail({
                   IconButton(
                     icon: const Icon(Icons.edit_outlined),
                     tooltip: 'Edit item',
-                    onPressed: () => onEdit(collectionItemSummary),
+                    onPressed: () => onEdit(libraryEntrySummary),
                   ),
               ],
             ),
             body: LibraryDetailPage(
               type: type,
               item: item,
-              collectionItemSummary: collectionItemSummary,
+              libraryEntrySummary: libraryEntrySummary,
               accent: accent,
-              onAddOwned: onAddOwned,
-              onRemoveOwned: onRemoveOwned,
+              onAddEntry: onAddEntry,
+              onRemoveEntry: onRemoveEntry,
               onAddWishlist: onAddWishlist,
               onRemoveWishlist: onRemoveWishlist,
               onEdit: onEdit,
@@ -121,10 +121,10 @@ Future<void> showAdaptiveItemDetail({
                 child: LibraryDetailPage(
                   type: type,
                   item: item,
-                  collectionItemSummary: collectionItemSummary,
+                  libraryEntrySummary: libraryEntrySummary,
                   accent: accent,
-                  onAddOwned: onAddOwned,
-                  onRemoveOwned: onRemoveOwned,
+                  onAddEntry: onAddEntry,
+                  onRemoveEntry: onRemoveEntry,
                   onAddWishlist: onAddWishlist,
                   onRemoveWishlist: onRemoveWishlist,
                   onEdit: onEdit,

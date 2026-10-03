@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/watch_session_ref.dart';
@@ -17,20 +16,19 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
 
   @override
   WatchSession create(WatchSessionCreateRequest request) {
-    if (request.targetRef.mediaKind != kind) {
+    if (request.libraryEntryRef.kind != kind) {
       throw ArgumentError.value(
-        request.targetRef.mediaKind,
-        'request.targetRef.kind',
+        request.libraryEntryRef.kind,
+        'request.libraryEntryRef.kind',
         'Expected Anime watch session',
       );
     }
-    final coordinates = _coordinatesForTarget(request.targetRef);
     return AnimeWatchSession(
       id: request.id,
-      targetRef: request.targetRef,
+      libraryEntryRef: request.libraryEntryRef,
       trackingEntryId: request.trackingEntryId,
-      seasonNumber: coordinates.seasonNumber,
-      episodeNumber: coordinates.episodeNumber,
+      seasonNumber: request.seasonNumber,
+      episodeNumber: request.episodeNumber,
       sourceType: request.sourceType,
       seenWhere: request.seenWhere,
       watchedAt: request.watchedAt ?? request.updatedAt,
@@ -41,37 +39,9 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
   }
 
   @override
-  bool matchesCatalogScope(WatchSession session, CatalogEntityRef scope) {
-    if (session.targetRef.mediaKind != kind || scope.mediaKind != kind) {
-      return false;
-    }
-    final target = session.targetRef;
-    if (target == scope) return true;
-
-    final scopeId = scope.id;
-    final targetRootId = target.rootId ?? target.id;
-    if (targetRootId != (scope.rootId ?? scopeId)) return false;
-
-    return switch (scope.entityType.apiValue) {
-      'work' => true,
-      'season' =>
-        target.parentId == scopeId || target.id.startsWith('$scopeId:episode:'),
-      'episode' => target.id == scopeId || target.parentId == scopeId,
-      _ => target.rootId == scopeId,
-    };
-  }
-
-  @override
-  Future<List<WatchSession>> listActive(
-    LocalDatabase db, {
-    CatalogEntityRef? catalogRef,
-  }) async {
+  Future<List<WatchSession>> listActive(LocalDatabase db) async {
     final query = db.select(db.animeWatchSessionRows)
       ..where((row) => row.deletedAt.isNull());
-    if (catalogRef != null) {
-      if (catalogRef.mediaKind != kind) return const [];
-      query.where((row) => row.seriesId.equals(catalogRef.id));
-    }
     final rows = await query.get();
     return rows.map(_fromRow).toList(growable: false);
   }
@@ -90,18 +60,12 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
 
   @override
   Future<void> upsert(LocalDatabase db, WatchSession session) async {
-    if (session is! AnimeWatchSession || session.targetRef.mediaKind != kind) {
-      throw ArgumentError.value(
-        session.targetRef.mediaKind,
-        'session.targetRef.kind',
-        'Expected Anime watch session',
-      );
-    }
+    _validateKind(session);
     await db.into(db.animeWatchSessionRows).insertOnConflictUpdate(
           AnimeWatchSessionRowsCompanion.insert(
             id: session.id,
-            seriesId: session.targetRef.rootId ?? session.targetRef.id,
-            targetRefJson: Value(jsonEncode(session.targetRef.toJson())),
+            libraryEntryId: session.libraryEntryRef.id.value,
+            libraryEntryRefKey: session.libraryEntryRef.key,
             trackingEntryId: Value(session.trackingEntryId),
             seasonNumber: Value(session.seasonNumber),
             episodeNumber: Value(session.episodeNumber),
@@ -134,20 +98,22 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    final targetRef = _targetRefFromPayload(payload);
-    if (targetRef.mediaKind != kind) {
+    final libraryEntryRef = _libraryEntryRefFromPayload(payload);
+    if (libraryEntryRef.kind != kind) {
       throw ArgumentError.value(
-        targetRef.mediaKind,
-        'payload.catalog_ref.kind',
+        libraryEntryRef.kind,
+        'payload.library_entry_ref.kind',
         'Expected Anime watch session',
       );
     }
+    final seasonNumber = _int(payload['season_number']);
+    final episodeNumber = _int(payload['episode_number']);
     return AnimeWatchSession(
       id: id,
-      targetRef: targetRef,
+      libraryEntryRef: libraryEntryRef,
       trackingEntryId: payload['tracking_entry_id'] as String?,
-      seasonNumber: _int(payload['season_number']),
-      episodeNumber: _int(payload['episode_number']),
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
       sourceType: payload['source_type'] as String?,
       seenWhere: payload['seen_where'] as String?,
       watchedAt: DateTime.parse(payload['watched_at'] as String),
@@ -159,13 +125,16 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
   }
 
   AnimeWatchSession _fromRow(AnimeWatchSessionRow row) {
-    final targetRef = _targetRef(
-      row.targetRefJson,
-      itemId: row.seriesId,
-    );
+    final libraryEntryRef = LibraryEntryRef.fromKey(row.libraryEntryRefKey);
+    if (libraryEntryRef.kind != kind ||
+        libraryEntryRef.id.value != row.libraryEntryId) {
+      throw FormatException(
+        'Anime watch session ${row.id} has a mismatched library entry reference.',
+      );
+    }
     return AnimeWatchSession(
       id: row.id,
-      targetRef: targetRef,
+      libraryEntryRef: libraryEntryRef,
       trackingEntryId: row.trackingEntryId,
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
@@ -179,60 +148,31 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
     );
   }
 
-  CatalogEntityRef _targetRef(String? rawJson, {required String itemId}) {
-    if (rawJson == null || rawJson.isEmpty) {
-      throw StateError('Anime watch session $itemId is missing target_ref.');
-    }
-    final decoded = jsonDecode(rawJson);
-    if (decoded is! Map) {
-      throw FormatException(
-        'Anime watch session $itemId has invalid target_ref.',
-      );
-    }
-    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(decoded));
-  }
-
   void _validateKind(WatchSession session) {
-    if (session is! AnimeWatchSession || session.targetRef.mediaKind != kind) {
+    if (session is! AnimeWatchSession || session.libraryEntryRef.kind != kind) {
       throw ArgumentError.value(
-        session.targetRef.mediaKind,
-        'session.targetRef.kind',
+        session.libraryEntryRef.kind,
+        'session.libraryEntryRef.kind',
         'Expected Anime watch session',
       );
     }
   }
 
-  CatalogEntityRef _targetRefFromPayload(Map<String, dynamic> payload) {
-    final raw = payload['catalog_ref'];
+  LibraryEntryRef _libraryEntryRefFromPayload(Map<String, dynamic> payload) {
+    final raw = payload['library_entry_ref'];
     if (raw is! Map) {
       throw const FormatException(
-        'Anime watch session is missing catalog_ref',
+        'Anime watch session is missing library_entry_ref',
       );
     }
-    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
+    final ref = LibraryEntryRef.fromJson(Map<String, dynamic>.from(raw));
+    if (ref.kind != kind) {
+      throw const FormatException(
+        'Anime watch session library_entry_ref must be an Anime entry.',
+      );
+    }
+    return ref;
   }
-
-  _AnimeWatchCoordinates _coordinatesForTarget(CatalogEntityRef target) {
-    return _AnimeWatchCoordinates(
-      seasonNumber: _numberAfter(target.id, ':season:'),
-      episodeNumber: _numberAfter(target.id, ':episode:'),
-    );
-  }
-
-  int? _numberAfter(String value, String marker) {
-    final markerIndex = value.indexOf(marker);
-    if (markerIndex < 0) return null;
-    final start = markerIndex + marker.length;
-    final end = value.indexOf(':', start);
-    return int.tryParse(value.substring(start, end < 0 ? value.length : end));
-  }
-}
-
-final class _AnimeWatchCoordinates {
-  const _AnimeWatchCoordinates({this.seasonNumber, this.episodeNumber});
-
-  final int? seasonNumber;
-  final int? episodeNumber;
 }
 
 int? _int(Object? value) {

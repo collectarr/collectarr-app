@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_fields.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/hierarchy/ui/hierarchy_children_section.dart';
@@ -95,18 +95,6 @@ class BookLibraryMediaPresentationBuilder
       ),
     ];
   }
-
-  @override
-  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
-    LibraryWorkspaceSource entry,
-  ) =>
-      const [];
-
-  @override
-  List<LibraryAddReleaseOption> buildReleaseOptions({
-    required CatalogSearchCandidate item,
-  }) =>
-      const [];
 
   @override
   CatalogSearchCandidate mergeHydratedAddItem({
@@ -204,8 +192,6 @@ class BookLibraryMediaPresentationBuilder
     final metadata = _bookMetadata(item);
     final series = metadata?.series;
     final publishing = metadata?.publishing;
-    final referenceRelease = _bookReferenceRelease(item);
-    final referenceVariant = referenceRelease.variant;
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
@@ -285,19 +271,6 @@ class BookLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Country', value: country),
         if (language != null)
           LibraryDetailField(label: 'Language', value: language),
-        if (referenceVariant?.formatLabel case final variantType?
-            when variantType.trim().isNotEmpty)
-          LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
-        if (referenceVariant?.sku case final sku? when sku.trim().isNotEmpty)
-          LibraryDetailField(label: 'SKU', value: sku.trim()),
-        if (referenceRelease.release != null)
-          LibraryDetailField(
-              label: 'Primary release',
-              value: [
-                referenceRelease.release!.title,
-                if (referenceVariant?.name.trim().isNotEmpty == true)
-                  referenceVariant!.name.trim(),
-              ].join(' Â· ')),
         LibraryDetailField(
             label: 'Cover',
             value: dto.imageUrl == null || dto.imageUrl!.isEmpty
@@ -438,24 +411,24 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final source = item.source;
-    final typedOwned =
-        BookCollectionItemProjection.fromDispatch(source.collectionItemDispatch);
-    final owned = typedOwned is BookCollectionItem ? typedOwned : null;
+    final typedEntry =
+        BookLibraryEntryProjection.fromDispatch(source.libraryEntryDispatch);
+    final entry = typedEntry is BookLibraryEntry ? typedEntry : null;
     final rating = source.trackingSummary?.rating;
     final personalFacts = <LibraryDetailField>[
-      if (owned?.condition?.trim().isNotEmpty == true)
+      if (entry?.condition?.trim().isNotEmpty == true)
         LibraryDetailField(
           label: 'Condition',
-          value: owned!.condition!.trim(),
+          value: entry!.condition!.trim(),
         ),
-      if (owned?.grade?.trim().isNotEmpty == true)
+      if (entry?.grade?.trim().isNotEmpty == true)
         LibraryDetailField(
           label: 'Grade',
-          value: owned!.grade!.trim(),
+          value: entry!.grade!.trim(),
         ),
-      if (owned?.collectionStatus?.trim().isNotEmpty == true)
+      if (entry?.collectionStatus?.trim().isNotEmpty == true)
         LibraryDetailField(
-            label: 'Collection Status', value: owned!.collectionStatus!.trim()),
+            label: 'Collection Status', value: entry!.collectionStatus!.trim()),
       if (rating != null)
         LibraryDetailField(label: 'Rating', value: rating.toString()),
       if (source.locationPath?.trim().isNotEmpty == true)
@@ -464,15 +437,15 @@ class BookLibraryMediaPresentationBuilder
       if (source.pricePaidCents != null)
         LibraryDetailField(
             label: 'Price Paid', value: source.pricePaidCents!.toString()),
-      if (source.collectionItemSummary?.notes?.trim().isNotEmpty == true)
+      if (source.libraryEntrySummary?.notes?.trim().isNotEmpty == true)
         LibraryDetailField(
           label: 'Notes',
-          value: source.collectionItemSummary!.notes!.trim(),
+          value: source.libraryEntrySummary!.notes!.trim(),
         ),
-      if (owned?.tags?.trim().isNotEmpty == true)
+      if (entry?.tags?.trim().isNotEmpty == true)
         LibraryDetailField(
           label: 'Tags',
-          value: owned!.tags!.trim(),
+          value: entry!.tags!.trim(),
         ),
     ];
     if (showPersonalDetails && personalFacts.isNotEmpty) {
@@ -496,26 +469,6 @@ class BookLibraryMediaPresentationBuilder
     }
     return sections;
   }
-}
-
-({
-  LibraryWorkspaceReleaseSummary? release,
-  LibraryWorkspaceVariantSummary? variant
-}) _bookReferenceRelease(LibraryProjectionView item) {
-  final node = item.node;
-  if (node is! LibraryReleaseRef || node.release.id != node.releaseId) {
-    return (release: null, variant: null);
-  }
-  LibraryWorkspaceVariantSummary? variant;
-  for (final candidate in node.release.variants) {
-    if (candidate.isPrimary) {
-      variant = candidate;
-      break;
-    }
-  }
-  variant ??=
-      node.release.variants.isEmpty ? null : node.release.variants.first;
-  return (release: node.release, variant: variant);
 }
 
 LibraryAddSearchResultDisplay _buildBookSearchResultDisplay(

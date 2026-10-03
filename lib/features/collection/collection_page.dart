@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
@@ -27,7 +27,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 part 'collection_page_import.dart';
 part 'collection_page_shelf.dart';
 
-enum _ShelfFilter { all, owned, wishlist, overdue, notes }
+enum _ShelfFilter { all, entry, wishlist, overdue, notes }
 
 class CollectionPage extends ConsumerStatefulWidget {
   const CollectionPage({
@@ -53,10 +53,10 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
-    final overdueCollectionItemRefs =
-        ref.watch(overdueLoanCollectionItemIdsProvider).maybeWhen(
+    final overdueLibraryEntryRefs =
+        ref.watch(overdueLoanLibraryEntryIdsProvider).maybeWhen(
               data: (value) => value,
-              orElse: () => const <CollectionItemRef>{},
+              orElse: () => const <LibraryEntryRef>{},
             );
     final accent = LibraryAccentScope.accentOf(context);
     final animationDuration = LibraryAccentScope.animationDurationOf(context);
@@ -96,14 +96,14 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
       ),
       body: shelf.when(
         data: (state) {
-          final entries = _filteredEntries(state.entries, overdueCollectionItemRefs);
+          final entries = _filteredEntries(state.entries, overdueLibraryEntryRefs);
           return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
                 child: _ShelfHeader(
                   state: state,
                   filter: filter,
-                  overdueCount: overdueCollectionItemRefs.length,
+                  overdueCount: overdueLibraryEntryRefs.length,
                   onFilterChanged: (value) => setState(() => filter = value),
                 ),
               ),
@@ -121,7 +121,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
                     itemBuilder: (context, index) {
                       return _LibraryWorkspaceSourceRow(
                         entry: entries[index],
-                        onRemoveOwned: () => _removeOwned(entries[index]),
+                        onRemoveEntry: () => _removeEntry(entries[index]),
                         onRemoveWishlist: () => _removeWishlist(entries[index]),
                       );
                     },
@@ -140,29 +140,29 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
 
   List<LibraryWorkspaceSource> _filteredEntries(
     List<LibraryWorkspaceSource> entries,
-    Set<CollectionItemRef> overdueCollectionItemRefs,
+    Set<LibraryEntryRef> overdueLibraryEntryRefs,
   ) {
     return switch (filter) {
       _ShelfFilter.all => entries,
-      _ShelfFilter.owned =>
-        entries.where((entry) => entry.isOwned).toList(growable: false),
+      _ShelfFilter.entry =>
+        entries.where((entry) => entry.isEntry).toList(growable: false),
       _ShelfFilter.wishlist =>
         entries.where((entry) => entry.isWishlisted).toList(growable: false),
       _ShelfFilter.overdue => entries.where((entry) {
-          final ref = entry.collectionItemSummary?.ref;
-          return ref != null && overdueCollectionItemRefs.contains(ref);
+          final ref = entry.libraryEntrySummary?.ref;
+          return ref != null && overdueLibraryEntryRefs.contains(ref);
         }).toList(growable: false),
       _ShelfFilter.notes =>
         entries.where((entry) => entry.hasNotes).toList(growable: false),
     };
   }
 
-  Future<void> _removeOwned(LibraryWorkspaceSource entry) async {
-    final collectionItemRef = entry.collectionItemSummary?.ref;
-    if (collectionItemRef == null) {
+  Future<void> _removeEntry(LibraryWorkspaceSource entry) async {
+    final libraryEntryRef = entry.libraryEntrySummary?.ref;
+    if (libraryEntryRef == null) {
       return;
     }
-    await ref.read(collectionItemMutationsProvider).removeItem(collectionItemRef);
+    await ref.read(libraryEntryMutationsProvider).removeItem(libraryEntryRef);
     ref.invalidate(shelfProvider);
   }
 

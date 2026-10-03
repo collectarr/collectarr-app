@@ -1,56 +1,56 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 
 @immutable
 sealed class CollectionEvent {
   const CollectionEvent();
 }
 
-final class CollectionItemAdded extends CollectionEvent {
-  const CollectionItemAdded(this.collectionItemRef);
-  final CollectionItemRef collectionItemRef;
+final class LibraryEntryAdded extends CollectionEvent {
+  const LibraryEntryAdded(this.libraryEntryRef);
+  final LibraryEntryRef libraryEntryRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CollectionItemAdded &&
+      other is LibraryEntryAdded &&
           runtimeType == other.runtimeType &&
-          collectionItemRef == other.collectionItemRef;
+          libraryEntryRef == other.libraryEntryRef;
 
   @override
-  int get hashCode => collectionItemRef.hashCode;
+  int get hashCode => libraryEntryRef.hashCode;
 }
 
-final class CollectionItemUpdated extends CollectionEvent {
-  const CollectionItemUpdated(this.collectionItemRef);
-  final CollectionItemRef collectionItemRef;
+final class LibraryEntryUpdated extends CollectionEvent {
+  const LibraryEntryUpdated(this.libraryEntryRef);
+  final LibraryEntryRef libraryEntryRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CollectionItemUpdated &&
+      other is LibraryEntryUpdated &&
           runtimeType == other.runtimeType &&
-          collectionItemRef == other.collectionItemRef;
+          libraryEntryRef == other.libraryEntryRef;
 
   @override
-  int get hashCode => collectionItemRef.hashCode;
+  int get hashCode => libraryEntryRef.hashCode;
 }
 
-final class CollectionItemRemoved extends CollectionEvent {
-  const CollectionItemRemoved(this.collectionItemRef);
-  final CollectionItemRef collectionItemRef;
+final class LibraryEntryRemoved extends CollectionEvent {
+  const LibraryEntryRemoved(this.libraryEntryRef);
+  final LibraryEntryRef libraryEntryRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CollectionItemRemoved &&
+      other is LibraryEntryRemoved &&
           runtimeType == other.runtimeType &&
-          collectionItemRef == other.collectionItemRef;
+          libraryEntryRef == other.libraryEntryRef;
 
   @override
-  int get hashCode => collectionItemRef.hashCode;
+  int get hashCode => libraryEntryRef.hashCode;
 }
 
 final class CatalogItemChanged extends CollectionEvent {
@@ -108,18 +108,18 @@ final class WatchSessionChanged extends CollectionEvent {
 }
 
 final class MetadataOverrideChanged extends CollectionEvent {
-  const MetadataOverrideChanged(this.catalogRef);
-  final CatalogItemRef catalogRef;
+  const MetadataOverrideChanged(this.libraryEntryRef);
+  final LibraryEntryRef libraryEntryRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MetadataOverrideChanged &&
           runtimeType == other.runtimeType &&
-          catalogRef == other.catalogRef;
+          libraryEntryRef == other.libraryEntryRef;
 
   @override
-  int get hashCode => catalogRef.hashCode;
+  int get hashCode => libraryEntryRef.hashCode;
 }
 
 final class CustomEpisodeChanged extends CollectionEvent {

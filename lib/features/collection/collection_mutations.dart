@@ -6,7 +6,7 @@ export 'package:collectarr_app/features/collection/mutations/collection_import_o
 export 'package:collectarr_app/features/collection/mutations/catalog_transport_mutations.dart';
 export 'package:collectarr_app/features/collection/mutations/metadata_override_mutations.dart'
     hide IdGenerator;
-export 'package:collectarr_app/features/collection/mutations/collection_item_mutations.dart'
+export 'package:collectarr_app/features/collection/mutations/library_entry_mutations.dart'
     hide IdGenerator;
 export 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart'
     hide IdGenerator;

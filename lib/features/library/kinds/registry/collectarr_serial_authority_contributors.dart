@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_contribu
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 
-/// Generated composition of kind-owned serial identity contributors.
+/// Generated composition of kind-entry serial identity contributors.
 const collectarrSerialAuthorityContributors = <SerialAuthorityContributor>[
   ComicSerialAuthorityContributor(),
   MangaSerialAuthorityContributor(),

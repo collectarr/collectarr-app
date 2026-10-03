@@ -1,7 +1,11 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
@@ -24,13 +28,10 @@ final class CollectionCsvImporter {
       return const [];
     }
     final parsedHeader = rows.first.toList(growable: false);
-    if (parsedHeader.any((column) {
-      final normalized = _normalizeColumn(column);
-      return normalized == 'quantity' || normalized == 'qty';
-    })) {
+    if (parsedHeader.any((column) => _normalizeColumn(column) == 'catalog_ref')) {
       throw const FormatException(
-        'Collection CSV rows represent one physical copy; remove the '
-        'Quantity column and import one row per copy.',
+        'This CSV uses the removed catalog_ref entry format. Export it again '
+        'with the current Collectarr schema-v1 format.',
       );
     }
     final index = _headerIndex(parsedHeader);
@@ -76,7 +77,7 @@ final class CollectionCsvImporter {
     List<String> values, {
     Map<String, int> cfColumns = const {},
     bool structuralOnly = false,
-    ({List<String> catalog, List<String> owned})? kindImportCells,
+    ({List<String> catalog, List<String> entry})? kindImportCells,
   }) {
     final cfValues = <String, String?>{};
     for (final entry in cfColumns.entries) {
@@ -85,13 +86,16 @@ final class CollectionCsvImporter {
         cfValues[entry.key] = v;
       }
     }
-    final catalogRef = _parseCatalogRef(_value(index, values, 'catalog_ref'));
+    final catalogItemRef =
+        _parseCatalogItemRef(_value(index, values, 'catalog_item_ref'));
+    final completeEntry = _parseCompleteEntry(
+      _value(index, values, 'library_entry_json'),
+    );
     final catalogCells = kindImportCells?.catalog ??
-        _genericCatalogCells(index, values, catalogRef);
-    final ownedCells = kindImportCells?.owned ?? const <String>[];
-    final mediaKind = catalogRef?.isKnown == true
-        ? catalogRef!.kind
-        : catalogMediaKindFromValue(catalogCells[1]);
+        _genericCatalogCells(index, values, catalogItemRef);
+    final entryCells = kindImportCells?.entry ?? const <String>[];
+    final mediaKind = completeEntry?.kind ??
+        (catalogItemRef?.kind ?? catalogMediaKindFromApiValue(catalogCells[1]));
     final profile = _profileForKind(mediaKind);
     if (catalogCells.length != collectionCsvV1CatalogCellCount) {
       throw StateError(
@@ -100,15 +104,17 @@ final class CollectionCsvImporter {
         '$collectionCsvV1CatalogCellCount.',
       );
     }
-    if (ownedCells.isEmpty && !structuralOnly) {
+    if (entryCells.isEmpty && !structuralOnly) {
       throw StateError(
-        'Collection CSV import owned projection returned no cells.',
+        'Collection CSV import entry projection returned no cells.',
       );
     }
     return CollectionImportRow(
-      itemId: catalogRef?.id ?? catalogCells[0],
+      // The complete envelope identifies the local entry. Its source catalog
+      // reference is provenance only and must not be used as the entry ID.
+      itemId: completeEntry?.id ?? catalogItemRef?.id ?? catalogCells[0],
       status: _normalizedStatus(_value(index, values, 'status')),
-      catalogRef: catalogRef,
+      catalogItemRef: catalogItemRef,
       mediaKind: mediaKind,
       title: _optionalCell(catalogCells[2]),
       kindDisplayTitle: profile?.importDisplayTitle(catalogCells),
@@ -126,6 +132,7 @@ final class CollectionCsvImporter {
         soldAt: _parseDate(_value(index, values, 'sold_at')),
         sellPriceCents: _moneyCents(_value(index, values, 'sell_price_cents')),
         soldTo: _optionalValue(index, values, 'sold_to'),
+        quantity: int.tryParse(_value(index, values, 'quantity').trim()),
       ),
       tracking: CollectionImportTrackingValues(
         rating: int.tryParse(_value(index, values, 'rating')),
@@ -134,12 +141,29 @@ final class CollectionCsvImporter {
         finishedAt: _parseDate(_value(index, values, 'finished_at')),
       ),
       kindCatalogCells: catalogCells,
-      kindOwnedCells: ownedCells,
+      kindEntryCells: entryCells,
       customFieldValues: cfValues,
+      fullEntryPayload: completeEntry?.toJson(),
     );
   }
 
-  ({List<String> catalog, List<String> owned})? _kindImportCells(
+  LibraryEntryRecord? _parseCompleteEntry(String value) {
+    if (value.trim().isEmpty) return null;
+    final decoded = jsonDecode(value);
+    if (decoded is! Map) {
+      throw const FormatException('library_entry_json must be a JSON object.');
+    }
+    final record = LibraryEntryRecord.fromJson(
+      Map<String, dynamic>.from(decoded),
+    );
+    requireKnownLibraryEntryRef(
+      LibraryEntryRef(kind: record.kind, id: LibraryEntryId(record.id)),
+      'library_entry_json.id',
+    );
+    return record;
+  }
+
+  ({List<String> catalog, List<String> entry})? _kindImportCells(
     List<String> header,
     List<String> values,
   ) {
@@ -149,12 +173,12 @@ final class CollectionCsvImporter {
         values: values,
       );
       if (catalog == null) continue;
-      final owned = projection.importOwnedCells(
+      final entry = projection.importEntryCells(
             header: header,
             values: values,
           ) ??
           const <String>[];
-      return (catalog: catalog, owned: owned);
+      return (catalog: catalog, entry: entry);
     }
     return null;
   }
@@ -169,11 +193,11 @@ final class CollectionCsvImporter {
   List<String> _genericCatalogCells(
     Map<String, int> index,
     List<String> values,
-    CatalogEntityRef? catalogRef,
+    CatalogItemRef? catalogItemRef,
   ) {
     return [
-      catalogRef?.id ?? _value(index, values, 'item_id'),
-      catalogRef?.kind.apiValue ?? _value(index, values, 'kind'),
+      catalogItemRef?.id ?? _value(index, values, 'item_id'),
+      catalogItemRef?.kind.apiValue ?? _value(index, values, 'kind'),
       _value(index, values, 'title'),
       ...List<String>.filled(
         collectionCsvV1CatalogCellCount - 3,
@@ -184,19 +208,18 @@ final class CollectionCsvImporter {
 
   bool _isStructuralHeader(List<String> header) {
     final columns = header.map(_normalizeColumn).toSet();
-    return columns.contains('catalog_ref');
+    return columns.contains('catalog_item_ref') ||
+        columns.contains('library_entry_json');
   }
 
-  CatalogEntityRef? _parseCatalogRef(String value) {
+  CatalogItemRef? _parseCatalogItemRef(String value) {
     final trimmed = value.trim();
     if (trimmed.isEmpty) return null;
     final decoded = jsonDecode(trimmed);
     if (decoded is! Map) {
-      throw const FormatException('catalog_ref must be a JSON object');
+      throw const FormatException('catalog_item_ref must be a JSON object');
     }
-    final ref = CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
-    requireKnownCatalogRef(ref, 'catalog_ref');
-    return ref;
+    return CatalogItemRef.fromJson(Map<String, Object?>.from(decoded));
   }
 
   String? _optionalCell(String value) {
@@ -224,7 +247,8 @@ final class CollectionCsvImporter {
         (row.title?.trim().isNotEmpty ?? false) ||
         (row.personal.locationId?.trim().isNotEmpty ?? false) ||
         row.kindCatalogCells.any((cell) => cell.trim().isNotEmpty) ||
-        row.kindOwnedCells.any((cell) => cell.trim().isNotEmpty);
+        row.kindEntryCells.any((cell) => cell.trim().isNotEmpty) ||
+        row.fullEntryPayload != null;
   }
 
   Map<String, int> _headerIndex(List<String> header) {
@@ -253,8 +277,8 @@ final class CollectionCsvImporter {
   String _normalizedStatus(String value) {
     final normalized = value.trim().toLowerCase();
     return switch (normalized) {
-      'in collection + wishlist' || 'owned + wishlist' => 'both',
-      'in collection' || 'collection' || 'owned' => 'owned',
+      'in collection + wishlist' || 'entry + wishlist' => 'both',
+      'in collection' || 'collection' || 'entry' => 'entry',
       'wanted' || 'wish list' || 'wishlist' => 'wishlist',
       'both' => 'both',
       _ => normalized,
@@ -415,7 +439,7 @@ final class CollectionCsvImporter {
   }
 
   static const Map<String, List<String>> _columnAliases = {
-    'catalog_ref': ['Catalog Ref', 'Catalog Reference', 'Entity Ref'],
+    'catalog_item_ref': ['Catalog Item Ref', 'Catalog Item Reference'],
     'kind': ['Media Type', 'Kind', 'Type', 'Library', 'Media Kind'],
     'title': ['Title', 'Full Title'],
     'status': ['Collection Status', 'Status'],

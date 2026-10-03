@@ -38,10 +38,10 @@ class LibraryAddChromeConfig {
     this.canScanCover = true,
     this.mediaReferenceLabel = 'Media',
     this.trackScopeSummary =
-        'Tracking stays item-centric here. Edition and bundle scope are only available for owned or wishlist entries.',
+        'Tracking stays item-centric here. Edition and bundle scope are only available for entry or wishlist entries.',
     this.mediaReferenceHelperLabel = 'Track or save the canonical item itself.',
     this.editionReferenceHelperLabel =
-        'Attach ownership to a specific edition. Pick a variant only if you want one exact physical version.',
+        'Attach entries to a specific edition. Pick a variant only if you want one exact physical version.',
     this.kindFilterOptions = const [],
     this.defaultKindFilters = const {},
   });

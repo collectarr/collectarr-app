@@ -9,10 +9,9 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
   manualDraftBuilder: AnimeAddManualDraft.new,
   manualCandidateBuilder: buildAnimeManualCandidate,
   manualProposalBuilder: buildAnimeManualProposalData,
-  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      AnimeCollectionItemCreatePayload(
-    catalogRef: item.reference,
-    details: details as AnimeOwnedDetailsDraft,
+  entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      AnimeLibraryEntryCreatePayload(
+    details: details as AnimeEntryDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
@@ -22,6 +21,7 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
+    ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),

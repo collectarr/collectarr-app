@@ -34,12 +34,12 @@ class LibraryAddResultPolicyState {
 class LibraryAddResultPolicyContext {
   const LibraryAddResultPolicyContext({
     required this.state,
-    required this.ownedCatalogRefs,
+    required this.entryCatalogRefs,
     required this.defaultValues,
   });
 
   final LibraryAddResultPolicyState state;
-  final Set<CatalogEntityRef> ownedCatalogRefs;
+  final Set<CatalogEntityRef> entryCatalogRefs;
   final Map<String, bool> defaultValues;
 
   bool optionIsEnabled(String id) =>
@@ -63,11 +63,11 @@ class LibraryAddResultPolicy {
 
   LibraryAddResultPolicyContext context({
     required LibraryAddResultPolicyState state,
-    Set<CatalogEntityRef> ownedCatalogRefs = const {},
+    Set<CatalogEntityRef> entryCatalogRefs = const {},
   }) =>
       LibraryAddResultPolicyContext(
         state: state,
-        ownedCatalogRefs: ownedCatalogRefs,
+        entryCatalogRefs: entryCatalogRefs,
         defaultValues: {
           for (final option in options) option.id: option.initialValue,
         },
@@ -76,11 +76,11 @@ class LibraryAddResultPolicy {
   List<CatalogSearchCandidate> filterCoreResults({
     required List<CatalogSearchCandidate> items,
     required LibraryAddResultPolicyState state,
-    Set<CatalogEntityRef> ownedCatalogRefs = const {},
+    Set<CatalogEntityRef> entryCatalogRefs = const {},
   }) {
     final resultContext = context(
       state: state,
-      ownedCatalogRefs: ownedCatalogRefs,
+      entryCatalogRefs: entryCatalogRefs,
     );
     final predicate = coreResultVisibility;
     if (predicate == null) return items;

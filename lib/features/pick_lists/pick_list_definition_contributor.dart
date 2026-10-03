@@ -4,27 +4,27 @@ import 'package:collectarr_app/features/pick_lists/models/pick_list_definition.d
 import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 
-typedef PickListOwnedValueCounter = Future<int> Function(
+typedef PickListEntryValueCounter = Future<int> Function(
   LocalDatabase db,
   String semanticName,
   String normalizedValue,
 );
 
-typedef PickListOwnedMergePreviewer = Future<PickListOwnedMergeResult> Function(
+typedef PickListEntryMergePreviewer = Future<PickListEntryMergeResult> Function(
   LocalDatabase db,
   String semanticName,
   Set<String> normalizedSourceValues,
 );
 
-typedef PickListOwnedMerger = Future<void> Function(
+typedef PickListEntryMerger = Future<void> Function(
   LocalDatabase db,
   String semanticName,
   Set<String> normalizedSourceValues,
   String targetValue,
 );
 
-final class PickListOwnedMergeResult {
-  const PickListOwnedMergeResult({
+final class PickListEntryMergeResult {
+  const PickListEntryMergeResult({
     required this.affectedCount,
     required this.sampleValues,
   });
@@ -33,12 +33,12 @@ final class PickListOwnedMergeResult {
   final List<String> sampleValues;
 }
 
-/// Counts a semantic value from a kind-owned collection.
+/// Counts a semantic value from a kind-entry collection.
 ///
 /// The host owns only matching mechanics. The [valuesFrom] callback remains
-/// inside the kind and is the only code that knows how its owned model stores
+/// inside the kind and is the only code that knows how its entry model stores
 /// a value.
-Future<int> countPickListOwnedValues<T>({
+Future<int> countPickListEntryValues<T>({
   required Future<List<T>> items,
   required String normalizedValue,
   required Iterable<String?> Function(T item) valuesFrom,
@@ -56,7 +56,7 @@ Future<int> countPickListOwnedValues<T>({
   return count;
 }
 
-Future<PickListOwnedMergeResult> previewPickListOwnedMerge<T>({
+Future<PickListEntryMergeResult> previewPickListEntryMerge<T>({
   required Future<List<T>> items,
   required String Function(T item) idFrom,
   required Iterable<String?> Function(T item) valuesFrom,
@@ -74,13 +74,13 @@ Future<PickListOwnedMergeResult> previewPickListOwnedMerge<T>({
     affectedCount++;
     if (sampleValues.length < 5) sampleValues.add(idFrom(item));
   }
-  return PickListOwnedMergeResult(
+  return PickListEntryMergeResult(
     affectedCount: affectedCount,
     sampleValues: sampleValues,
   );
 }
 
-Future<void> applyPickListOwnedMerge<T>({
+Future<void> applyPickListEntryMerge<T>({
   required Future<List<T>> items,
   required Iterable<String?> Function(T item) valuesFrom,
   required T Function(
@@ -139,7 +139,7 @@ Iterable<String?> pickListTextValues(Object? value) sync* {
   }
 }
 
-/// Kind-owned vocabulary definitions exposed to the generic pick-list host.
+/// Kind-entry vocabulary definitions exposed to the generic pick-list host.
 ///
 /// The host only receives structural pick-list definitions. It never imports a
 /// concrete kind or reads the kind's metadata model.
@@ -148,19 +148,19 @@ abstract interface class PickListDefinitionContributor {
 
   Iterable<PickListDefinition> get definitions;
 
-  Future<int> countOwnedValue(
+  Future<int> countEntryValue(
     LocalDatabase db,
     String semanticName,
     String normalizedValue,
   );
 
-  Future<PickListOwnedMergeResult> previewOwnedMerge(
+  Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   );
 
-  Future<void> applyOwnedMerge(
+  Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
@@ -172,7 +172,7 @@ abstract interface class PickListDefinitionContributor {
   Iterable<PickListCatalogValues> catalogValues(Iterable<Object?> metadata);
 }
 
-/// Counts catalog records whose kind-owned projection uses pick-list values.
+/// Counts catalog records whose kind-entry projection uses pick-list values.
 /// Each record contributes at most one use per value, even when its metadata
 /// contains the same value more than once.
 Map<String, int> countPickListCatalogValuesByValue({
@@ -204,7 +204,7 @@ Map<String, int> countPickListCatalogValuesByValue({
   return counts;
 }
 
-/// Structural output of a kind-owned catalog vocabulary projection.
+/// Structural output of a kind-entry catalog vocabulary projection.
 final class PickListCatalogValues {
   const PickListCatalogValues({required this.listName, required this.values});
 
@@ -217,9 +217,9 @@ final class VocabularyPickListDefinitionContributor
   const VocabularyPickListDefinitionContributor({
     required this.kind,
     required this.vocabularies,
-    this.ownedValueCounter,
-    required this.ownedMergePreviewer,
-    required this.ownedMerger,
+    this.entryValueCounter,
+    required this.entryMergePreviewer,
+    required this.entryMerger,
   });
 
   @override
@@ -227,37 +227,37 @@ final class VocabularyPickListDefinitionContributor
 
   final List<VocabularyDefinition<dynamic>> vocabularies;
 
-  final PickListOwnedValueCounter? ownedValueCounter;
-  final PickListOwnedMergePreviewer ownedMergePreviewer;
-  final PickListOwnedMerger ownedMerger;
+  final PickListEntryValueCounter? entryValueCounter;
+  final PickListEntryMergePreviewer entryMergePreviewer;
+  final PickListEntryMerger entryMerger;
 
   @override
-  Future<int> countOwnedValue(
+  Future<int> countEntryValue(
     LocalDatabase db,
     String semanticName,
     String normalizedValue,
   ) {
-    return ownedValueCounter?.call(db, semanticName, normalizedValue) ??
+    return entryValueCounter?.call(db, semanticName, normalizedValue) ??
         Future.value(0);
   }
 
   @override
-  Future<PickListOwnedMergeResult> previewOwnedMerge(
+  Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return ownedMergePreviewer(db, semanticName, normalizedSourceValues);
+    return entryMergePreviewer(db, semanticName, normalizedSourceValues);
   }
 
   @override
-  Future<void> applyOwnedMerge(
+  Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return ownedMerger(db, semanticName, normalizedSourceValues, targetValue);
+    return entryMerger(db, semanticName, normalizedSourceValues, targetValue);
   }
 
   @override

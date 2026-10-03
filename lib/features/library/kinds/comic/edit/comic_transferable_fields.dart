@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:flutter/material.dart';
 
-/// Comic-owned transfer semantics stay typed until the generic transfer
+/// Comic-entry transfer semantics stay typed until the generic transfer
 /// dialog boundary. The adapter is deliberately created here, inside Comic.
 final class ComicTransferableField {
   const ComicTransferableField({
@@ -13,7 +13,7 @@ final class ComicTransferableField {
     required this.type,
     required this.read,
     required this.write,
-    this.scope = LibraryEntityScope.collectionItem,
+    this.scope = LibraryEntityScope.libraryEntry,
   });
 
   final String key;
@@ -21,17 +21,17 @@ final class ComicTransferableField {
   final IconData icon;
   final TransferableFieldType type;
   final LibraryEntityScope scope;
-  final String? Function(ComicCollectionItem item) read;
-  final ComicCollectionItem Function(ComicCollectionItem item, String? value) write;
+  final String? Function(ComicLibraryEntry item) read;
+  final ComicLibraryEntry Function(ComicLibraryEntry item, String? value) write;
 
   TransferableField toTransferableField() {
-    return TransferableField.typed<ComicCollectionItem>(
+    return TransferableField.typed<ComicLibraryEntry>(
       key: key,
       label: label,
       icon: icon,
       type: type,
       scope: scope,
-      decode: (value) => value as ComicCollectionItem,
+      decode: (value) => value as ComicLibraryEntry,
       read: read,
       write: write,
     );
@@ -112,7 +112,7 @@ final comicTransferableFields = <ComicTransferableField>[
     label: 'Cover price',
     icon: Icons.price_check,
     type: TransferableFieldType.integer,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.coverPriceCents?.toString(),
     write: (item, value) => item.copyWith(
       details: item.details.copyWith(

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
@@ -11,16 +11,16 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session.dart';
 
-final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeCollectionItem>(
+final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeLibraryEntry>(
   kind: CatalogMediaKind.anime,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -38,11 +38,9 @@ final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeCollectionItem>
   validateCatalog: validateAnimeSeedCatalog,
   validateCatalogGraph: validateAnimeSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  collectionItemsTyped: animeSeedCollectionItems,
-  collectionItemSummaryTyped: AnimeCollectionItemProjection.toSummary,
-  validateOwnedTyped: validateAnimeSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      AnimeOwnedRepository(db).upsertAll(animeSeedCollectionItems(now)),
+  libraryEntriesTyped: animeSeedLibraryEntries,
+  libraryEntrySummaryTyped: AnimeLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateAnimeSeedEntry,
   trackingRecords: animeSeedTrackingStates,
   trackingUnits: animeSeedTrackingUnits,
   watchSessions: animeSeedWatchSessions,
@@ -108,9 +106,9 @@ List<String> validateAnimeSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateAnimeSeedOwned(AnimeCollectionItem item) {
+List<String> validateAnimeSeedEntry(AnimeLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final prefix = '${item.catalogItem.kind}/${item.id}';
   final details = item.details;
   seedRequireText(issues, prefix, 'anime.region', details.region);
   seedRequireText(issues, prefix, 'anime.packaging', details.packaging);
@@ -124,35 +122,6 @@ Future<void> seedAnimeDatabase(
   DateTime now,
 ) async {
   final repository = AnimeRepository(db);
-  for (final item in items.where(
-    (item) => item.mediaKind == CatalogMediaKind.anime,
-  )) {
-    final mediaId = AnimeMediaId(item.id);
-    final episodes = await repository.episodesFor(mediaId);
-    for (final episode in episodes) {
-      final completed = episode.episodeNumber == 1;
-      await repository.updateTracking(
-        AnimeTracking(
-          id: 'seed-anime-tracking-${item.id}-${episode.id.value}',
-          mediaId: mediaId,
-          episodeId: episode.id,
-          status: completed ? 'Completed' : 'In progress',
-          sourceType: TrackingSourceType.physical,
-          rating: completed ? 9 : null,
-          notes: completed ? 'Seed episode replay history.' : null,
-          startedAt: now.subtract(const Duration(days: 30)),
-          finishedAt: completed ? now : null,
-          progressCurrent: completed ? 1 : 0,
-          progressTotal: 1,
-          timesCompleted: completed ? 2 : 0,
-          seasonNumber: 1,
-          episodeNumber: episode.episodeNumber,
-          episodeRatings: completed ? {episode.id.value: 9} : const {},
-          updatedAt: now,
-        ),
-      );
-    }
-  }
   final customEpisodes = animeSeedCustomEpisodes(now);
   for (final episode in customEpisodes) {
     await repository.upsertCustomEpisode(episode);
@@ -176,10 +145,9 @@ Iterable<AnimeTrackingUnit> animeSeedTrackingUnits(
           'episode-${episodeNumber.toString().padLeft(2, '0')}';
       yield AnimeTrackingUnit(
         id: 'seed-unit-anime-${item.id}-$episodeId',
-        targetRef: CatalogEntityRef(
-          kind: item.mediaKind,
-          entityType: CatalogEntityTypeId.catalogItem,
-          id: item.id,
+        libraryEntryRef: seedLibraryEntryRef(
+          item.mediaKind,
+          'seed-entry-${item.id}',
         ),
         seasonNumber: 1,
         episodeNumber: episodeNumber,
@@ -877,16 +845,17 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
     ];
 
-List<AnimeCollectionItem> animeSeedCollectionItems(DateTime now) => [
+List<AnimeLibraryEntry> animeSeedLibraryEntries(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.anime, 15))
-        AnimeCollectionItem(
-          id: CollectionItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.anime, itemId),
+        AnimeLibraryEntry(
+          id: LibraryEntryId('seed-entry-$itemId'),
+          sourceCatalogRef:
+              seedCatalogRef(CatalogMediaKind.anime, itemId).toCatalogItemRef(),
           createdAt: now.subtract(const Duration(days: 180)),
           updatedAt: now,
           isDigital: false,
           condition: 'Mint',
-          details: const AnimeOwnedDetails(
+          details: const AnimeEntryDetails(
             features: 'Artbook, soundtrack CD, bonus episodes',
             hdrFormats: ['HDR10'],
             boxSetName: 'Collector Edition Box',
@@ -908,10 +877,6 @@ List<TrackingStorageRecord> animeSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         AnimeTrackingState(
           id: 'seed-track-anime-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
-            CatalogMediaKind.anime,
-            'seed-anime-${seedOrdinal2(i)}',
-          ),
           coordinates: AnimeTrackingCoordinates(
             seasonNumber: 1,
             episodeNumber: i.isEven ? 2 : 1,
@@ -919,9 +884,9 @@ List<TrackingStorageRecord> animeSeedTrackingStates(DateTime now) => [
               '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
             },
           ),
-          collectionItemRef: seedCollectionItemRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.anime,
-            'seed-owned-seed-anime-${seedOrdinal2(i)}',
+            'seed-entry-seed-anime-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i <= 12
@@ -940,9 +905,9 @@ List<WatchSession> animeSeedWatchSessions(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         AnimeWatchSession(
           id: 'seed-watch-anime-${seedOrdinal2(i)}',
-          targetRef: seedCatalogRef(
-            CatalogMediaKind.anime,
-            'seed-anime-${seedOrdinal2(i)}',
+          libraryEntryRef: LibraryEntryRef(
+            kind: CatalogMediaKind.anime,
+            id: LibraryEntryId('seed-entry-seed-anime-${seedOrdinal2(i)}'),
           ),
           seasonNumber: 1,
           episodeNumber: i.isEven ? 2 : 1,
@@ -959,7 +924,10 @@ List<AnimeCustomEpisode> animeSeedCustomEpisodes(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         AnimeCustomEpisode(
           id: AnimeEpisodeId('seed-custom-anime-${seedOrdinal2(i)}'),
-          seriesId: AnimeMediaId('seed-anime-${seedOrdinal2(i)}'),
+          libraryEntryRef: seedLibraryEntryRef(
+            CatalogMediaKind.anime,
+            'seed-entry-seed-anime-${seedOrdinal2(i)}',
+          ),
           seasonNumber: 1,
           episodeNumber: 3,
           title: 'Seed special episode ${seedOrdinal2(i)}',

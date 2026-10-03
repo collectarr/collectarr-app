@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -9,13 +9,13 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 
-final bookDevSeedContributor = TypedDevSeedKindContributor<BookCollectionItem>(
+final bookDevSeedContributor = TypedDevSeedKindContributor<BookLibraryEntry>(
   kind: CatalogMediaKind.book,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -33,11 +33,9 @@ final bookDevSeedContributor = TypedDevSeedKindContributor<BookCollectionItem>(
   validateCatalog: validateBookSeedCatalog,
   validateCatalogGraph: validateBookSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  collectionItemsTyped: bookSeedCollectionItems,
-  collectionItemSummaryTyped: BookCollectionItemProjection.toSummary,
-  validateOwnedTyped: validateBookSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      BookOwnedRepository(db).upsertAll(bookSeedCollectionItems(now)),
+  libraryEntriesTyped: bookSeedLibraryEntries,
+  libraryEntrySummaryTyped: BookLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateBookSeedEntry,
   trackingRecords: bookSeedTrackingStates,
   trackingUnits: bookSeedTrackingUnits,
 );
@@ -90,9 +88,9 @@ List<String> validateBookSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateBookSeedOwned(BookCollectionItem item) {
+List<String> validateBookSeedEntry(BookLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final prefix = '${item.catalogItem.kind}/${item.id}';
   final details = item.details;
   seedRequireText(issues, prefix, 'book.signed_by', details.signedBy);
   if (!details.dustJacketPresent) {
@@ -111,10 +109,9 @@ Iterable<BookTrackingUnit> bookSeedTrackingUnits(
     final volumeNumber = _seedBookInt(item.itemNumber) ?? 1;
     yield BookTrackingUnit(
       id: 'seed-unit-book-${item.id}',
-      targetRef: CatalogEntityRef(
-        kind: item.mediaKind,
-        entityType: CatalogEntityTypeId.catalogItem,
-        id: item.id,
+      libraryEntryRef: seedLibraryEntryRef(
+        item.mediaKind,
+        'seed-entry-${item.id}',
       ),
       volumeNumber: volumeNumber,
       chapterNumber: 1,
@@ -764,16 +761,17 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
     ];
 
-List<BookCollectionItem> bookSeedCollectionItems(DateTime now) => [
+List<BookLibraryEntry> bookSeedLibraryEntries(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.book, 15))
-        BookCollectionItem(
-          id: CollectionItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.book, itemId),
+        BookLibraryEntry(
+          id: LibraryEntryId('seed-entry-$itemId'),
+          sourceCatalogRef:
+              seedCatalogRef(CatalogMediaKind.book, itemId).toCatalogItemRef(),
           createdAt: now.subtract(const Duration(days: 300)),
           updatedAt: now,
           isDigital: false,
           condition: 'Near Mint',
-          details: const BookOwnedDetails(
+          details: const BookEntryDetails(
             signedBy: 'Facsimile author signature',
             dustJacketPresent: true,
             dustJacketCondition: 'Fine',
@@ -791,13 +789,9 @@ List<TrackingStorageRecord> bookSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         BookTrackingState(
           id: 'seed-track-book-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.book,
-            'seed-book-${seedOrdinal2(i)}',
-          ),
-          collectionItemRef: seedCollectionItemRef(
-            CatalogMediaKind.book,
-            'seed-owned-seed-book-${seedOrdinal2(i)}',
+            'seed-entry-seed-book-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i <= 10

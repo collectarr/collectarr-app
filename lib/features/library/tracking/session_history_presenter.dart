@@ -43,7 +43,9 @@ class SessionHistoryPresenter {
       );
     }
     active.sort((a, b) => a.watchedAt.compareTo(b.watchedAt));
-    final uniqueTargetRefs = active.map((session) => session.targetRef).toSet();
+    final uniqueTargetRefs = active
+        .map((session) => '${session.seasonNumber}:${session.episodeNumber}')
+        .toSet();
     return SessionHistorySummary(
       sessionCount: active.length,
       uniqueTargetCount: uniqueTargetRefs.length,

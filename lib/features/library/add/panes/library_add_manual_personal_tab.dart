@@ -1,10 +1,15 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
+import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// Shared personal-copy fields supported by the manual Add submission path.
+/// Shared personal fields supported by the manual Add submission path.
 final class LibraryAddManualPersonalTab extends StatelessWidget {
   const LibraryAddManualPersonalTab({
     super.key,
@@ -63,25 +68,78 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
           }
         },
       ),
-      TextFormField(
-        key: const ValueKey('manual-currency'),
-        initialValue: current.currency ?? '',
-        decoration: const InputDecoration(labelText: 'Currency'),
-        onChanged: (value) => _updateCommon(currency: value.trim()),
+      LibraryFormField(
+        label: 'Currency',
+        child: LibraryDropdownPickField<String>(
+          label: 'Currency',
+          value: (current.currency ?? 'USD').toUpperCase(),
+          options: [
+            for (final code in kLibraryCurrencyCodes)
+              LibraryFieldOption(value: code, label: code),
+          ],
+          onChanged: (value) => _updateCommon(currency: value),
+        ),
       ),
-      TextFormField(
-        key: const ValueKey('manual-store'),
-        initialValue: current.purchaseStore ?? '',
-        decoration: const InputDecoration(labelText: 'Purchase Store'),
-        onChanged: (value) => _updateCommon(purchaseStore: value),
+      LibraryDropdownPickField<String>(
+        label: 'Purchase Store',
+        value: request.purchaseStoreController.text.trim().isNotEmpty
+            ? request.purchaseStoreController.text.trim()
+            : current.purchaseStore,
+        options: [
+          for (final value in request.purchaseStoreOptions)
+            LibraryFieldOption(value: value, label: value),
+        ],
+        allowCustomValue: true,
+        onChanged: (value) {
+          request.purchaseStoreController.text = value ?? '';
+          _updateCommon(purchaseStore: value);
+          request.onVocabularyValueChanged?.call(
+            fieldId: 'purchase_store',
+            listName: UniversalVocabularies.purchaseStore.key,
+            value: value,
+          );
+        },
       ),
-      TextField(
-        controller: request.tagsController,
-        decoration: InputDecoration(
-          labelText: 'Tags',
-          helperText: request.defaultTags == null
-              ? null
-              : 'Default: ${request.defaultTags}',
+      LibraryDropdownPickField<String>(
+        label: 'Owner',
+        value: request.ownerLabelController.text.trim().isNotEmpty
+            ? request.ownerLabelController.text.trim()
+            : current.ownerLabel,
+        options: [
+          for (final value in request.ownerOptions)
+            LibraryFieldOption(value: value, label: value),
+        ],
+        allowCustomValue: true,
+        onChanged: (value) {
+          request.ownerLabelController.text = value ?? '';
+          _updateCommon(ownerLabel: value);
+          request.onVocabularyValueChanged?.call(
+            fieldId: 'owner_label',
+            listName: UniversalVocabularies.owners.key,
+            value: value,
+          );
+        },
+      ),
+      LibraryFormField(
+        label: 'Tags',
+        child: MultiSelectPickListField(
+          label: 'Tags',
+          values: splitPickListValues(
+            request.tagsController.text.trim().isNotEmpty
+                ? request.tagsController.text
+                : current.tags ?? request.defaultTags,
+          ),
+          options: request.tagOptions,
+          onChanged: (values) {
+            final joined = joinPickListValues(values) ?? '';
+            request.tagsController.text = joined;
+            _updateCommon(tags: joined);
+            request.onVocabularyValuesChanged?.call(
+              fieldId: 'tags',
+              listName: UniversalVocabularies.tags.key,
+              values: values.toSet(),
+            );
+          },
         ),
       ),
       TextField(
@@ -178,10 +236,12 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
 
   void _updateCommon({
     String? condition,
+    Object? tags = _unchanged,
     Object? purchaseDate = _unchanged,
     Object? pricePaidCents = _unchanged,
     Object? currency = _unchanged,
     Object? purchaseStore = _unchanged,
+    Object? ownerLabel = _unchanged,
     String? locationId,
   }) {
     final current = request.commonDraft ?? const LibraryAddCommonDraft();
@@ -198,11 +258,14 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
             ? current.currency
             : currency as String?,
         personalNotes: current.personalNotes,
-        tags: current.tags,
+        tags: identical(tags, _unchanged) ? current.tags : tags as String?,
         locationId: locationId ?? current.locationId,
         purchaseStore: identical(purchaseStore, _unchanged)
             ? current.purchaseStore
             : purchaseStore as String?,
+        ownerLabel: identical(ownerLabel, _unchanged)
+            ? current.ownerLabel
+            : ownerLabel as String?,
         collectionStatus: current.collectionStatus,
         isDigital: current.isDigital,
       ),

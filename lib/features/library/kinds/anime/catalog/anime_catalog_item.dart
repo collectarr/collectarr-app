@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
-/// Anime-owned catalog snapshot used by the Anime workspace and release
+/// Anime-entry catalog snapshot used by the Anime workspace and release
 /// browser. Anime keeps this projection independent from TV even where the
 /// physical video fields have the same wire representation.
 final class AnimeCatalogWorkMetadata {

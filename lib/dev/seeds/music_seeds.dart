@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -7,16 +7,15 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/music_seed_catalog_details.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 
-final musicDevSeedContributor = TypedDevSeedKindContributor<MusicCollectionItem>(
+final musicDevSeedContributor = TypedDevSeedKindContributor<MusicLibraryEntry>(
   kind: CatalogMediaKind.music,
-  trackingRequiresCollectionItemRef: false,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
     paperType: null,
@@ -33,11 +32,9 @@ final musicDevSeedContributor = TypedDevSeedKindContributor<MusicCollectionItem>
   validateCatalog: validateMusicSeedCatalog,
   validateCatalogGraph: validateMusicSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  collectionItemsTyped: musicSeedCollectionItems,
-  collectionItemSummaryTyped: MusicCollectionItemProjection.toSummary,
-  validateOwnedTyped: validateMusicSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      MusicOwnedRepository(db).upsertAll(musicSeedCollectionItems(now)),
+  libraryEntriesTyped: musicSeedLibraryEntries,
+  libraryEntrySummaryTyped: MusicLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateMusicSeedEntry,
   trackingRecords: musicSeedTrackingStates,
 );
 
@@ -72,7 +69,8 @@ List<String> validateMusicSeedCatalog(CatalogItemDto item) {
     issues.add('$prefix: music payload is required');
     return issues;
   }
-  seedRequireText(issues, prefix, 'music.catalog_number', music['catalog_number']);
+  seedRequireText(
+      issues, prefix, 'music.catalog_number', music['catalog_number']);
   final discs = music['discs'];
   if (discs is! List || discs.isEmpty) {
     issues.add('$prefix: music.discs must contain at least one disc');
@@ -136,44 +134,26 @@ List<String> validateMusicSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateMusicSeedOwned(MusicCollectionItem item) {
+List<String> validateMusicSeedEntry(MusicLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final prefix = '${item.catalogItem.kind}/${item.id}';
   final details = item.details;
   if (details.media.isEmpty) {
     issues.add('$prefix: music.media must not be empty');
   }
   for (final medium in details.media) {
-    if (medium.mediumIndex < 1) {
-      issues.add('$prefix: music.media.medium_index must be positive');
-    }
     seedRequireText(
       issues,
       prefix,
-      'music.media[${medium.mediumIndex}].storage_device',
+      'music.media[${medium.mediumId}].storage_device',
       medium.storageDevice,
     );
     seedRequireText(
       issues,
       prefix,
-      'music.media[${medium.mediumIndex}].storage_slot',
+      'music.media[${medium.mediumId}].storage_slot',
       medium.storageSlot,
     );
-    for (var index = 0; index < medium.matrixRunouts.length; index++) {
-      final runout = medium.matrixRunouts[index];
-      seedRequireText(
-        issues,
-        prefix,
-        'music.media[${medium.mediumIndex}].matrix_runouts[$index].side',
-        runout.side,
-      );
-      seedRequireText(
-        issues,
-        prefix,
-        'music.media[${medium.mediumIndex}].matrix_runouts[$index].runout_text',
-        runout.runoutText,
-      );
-    }
   }
   return issues;
 }
@@ -196,9 +176,8 @@ CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
     final disc = rawDisc is Map
         ? Map<String, dynamic>.from(rawDisc)
         : const <String, dynamic>{};
-    final discNumber = disc['disc_number'] is int
-        ? disc['disc_number'] as int
-        : discIndex + 1;
+    final discNumber =
+        disc['disc_number'] is int ? disc['disc_number'] as int : discIndex + 1;
     final discId = '${item.id}:disc:$discNumber';
     final sourceTracks = disc['tracks'] is Iterable
         ? (disc['tracks'] as Iterable).toList(growable: false)
@@ -215,10 +194,10 @@ CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
       'id': discId,
       'disc_number': discNumber,
       if (disc['name'] is String) 'title': disc['name'],
-      if (disc['matrix_number_side_a'] is String)
-        'matrix_number_side_a': disc['matrix_number_side_a'],
-      if (disc['matrix_number_side_b'] is String)
-        'matrix_number_side_b': disc['matrix_number_side_b'],
+      'matrix_number_side_a':
+          disc['matrix_number_side_a'] ?? 'SEED-${item.id.toUpperCase()}-A',
+      'matrix_number_side_b':
+          disc['matrix_number_side_b'] ?? 'SEED-${item.id.toUpperCase()}-B',
       'tracks': tracks,
     });
   }
@@ -240,6 +219,7 @@ CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
     },
   });
 }
+
 String? _seedMusicArtist(CatalogItemDto item) {
   final rawCreators = item.payload['creators'];
   final creators = rawCreators is Iterable
@@ -275,6 +255,7 @@ Map<String, dynamic> _musicSeedTrack(
       'duration_ms': durationSeconds.toInt() * 1000,
   };
 }
+
 List<CatalogItemDto> musicSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-music-01',
@@ -1399,27 +1380,22 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
     ];
 
-List<MusicCollectionItem> musicSeedCollectionItems(DateTime now) => [
+List<MusicLibraryEntry> musicSeedLibraryEntries(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.music, 15))
-        MusicCollectionItem(
-          id: CollectionItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.music, itemId),
+        MusicLibraryEntry(
+          id: LibraryEntryId('seed-entry-$itemId'),
+          sourceCatalogRef:
+              seedCatalogRef(CatalogMediaKind.music, itemId).toCatalogItemRef(),
           createdAt: now.subtract(const Duration(days: 220)),
           updatedAt: now,
           isDigital: false,
           condition: 'Mint',
-          details: MusicOwnedDetails(
+          details: MusicEntryDetails(
             media: [
-              MusicOwnedMediumDetails(
-                mediumIndex: 1,
+              MusicEntryMediumDetails(
+                mediumId: '$itemId:disc:1',
                 storageDevice: 'Vinyl shelf',
                 storageSlot: 'M-${itemId.substring(itemId.length - 2)}',
-                matrixRunouts: [
-                  MusicMatrixRunout(
-                    side: 'A',
-                    runoutText: 'SEED-${itemId.toUpperCase()}-A',
-                  ),
-                ],
               ),
             ],
             lastCleanedDate: DateTime.utc(2024, 4, 20),
@@ -1437,9 +1413,9 @@ List<TrackingStorageRecord> musicSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         MusicTrackingState(
           id: 'seed-track-music-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.music,
-            'seed-music-${seedOrdinal2(i)}',
+            'seed-entry-seed-music-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: MediaTrackingStatus.completed,

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/generic/transferable_field.dart'
 
 const kTransferableMediaFieldKeys = <String>[];
 
-const kTransferableReleaseFieldKeys = <String>[
+const kTransferableCatalogItemFieldKeys = <String>[
   'features',
   'boxSetName',
   'packaging',
@@ -26,11 +26,11 @@ const kTransferablePersonalFieldKeys = <String>[
 ];
 
 const kDefaultTransferableFieldKeys = <String>[
-  ...kTransferableReleaseFieldKeys,
+  ...kTransferableCatalogItemFieldKeys,
   ...kTransferablePersonalFieldKeys,
 ];
 
-/// Encapsulates transferable field logic when moving copies between editions or media items.
+/// Encapsulates transferable field logic between independent local entries.
 class LibraryTransferCapability {
   const LibraryTransferCapability({
     this.transferableFieldKeys = kDefaultTransferableFieldKeys,
@@ -51,20 +51,16 @@ class LibraryTransferCapability {
   }
 
   List<String> fieldKeysForScope(
-      [LibraryEntityScope scope = LibraryEntityScope.collectionItem]) {
+      [LibraryEntityScope scope = LibraryEntityScope.libraryEntry]) {
     return switch (scope) {
       LibraryEntityScope.catalogItem => kTransferableMediaFieldKeys,
-      LibraryEntityScope.release => [
-          for (final f in allFields())
-            if (f.scope == LibraryEntityScope.release) f.key,
-        ],
-      LibraryEntityScope.collectionItem => transferableFieldKeys,
+      LibraryEntityScope.libraryEntry => transferableFieldKeys,
     };
   }
 
   List<TransferableField> fieldsWithCustomFields(
     List<CustomFieldDefinition> definitions, {
-    LibraryEntityScope scope = LibraryEntityScope.collectionItem,
+    LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
   }) {
     return TransferableField.withCustomFields(
       definitions,

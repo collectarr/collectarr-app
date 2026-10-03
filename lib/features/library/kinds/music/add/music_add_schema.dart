@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
 
 final AddSchema<MusicAddManualDraft> musicAddSchema = musicAddSchemaFor();
 
@@ -44,6 +47,12 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
           label: 'Album details',
           fields: [
             LibraryTextFieldSpec<MusicAddManualDraft>(
+              id: 'title',
+              label: 'Title',
+              value: (draft) => draft.catalogTitle,
+              setValue: (draft, value) => draft.catalogTitle = value,
+            ),
+            LibraryTextFieldSpec<MusicAddManualDraft>(
               id: 'sort_title',
               label: 'Sort Title',
               value: (draft) => draft.sortTitle,
@@ -55,11 +64,52 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
               value: (draft) => draft.subtitle,
               setValue: (draft, value) => draft.subtitle = value,
             ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
+            LibraryCustomFieldSpec<MusicAddManualDraft>(
               id: 'artist',
               label: 'Artist',
-              value: (draft) => draft.artist,
-              setValue: (draft, value) => draft.artist = value,
+              builder: (context, draft) => StatefulBuilder(
+                builder: (context, refresh) {
+                  final credits = draft.artistCredits.isNotEmpty
+                      ? draft.artistCredits
+                      : [
+                          if (draft.artist.trim().isNotEmpty)
+                            MusicArtistCredit(
+                              id: 'artist-main',
+                              creditedName: draft.artist,
+                            ),
+                        ];
+                  return LibraryOrderedNamesField(
+                    label: 'Artist',
+                    values: [
+                      for (final credit in credits)
+                        LibraryNamedValue(
+                          id: credit.id,
+                          name: credit.creditedName,
+                          sortName: credit.sortName,
+                        ),
+                    ],
+                    onChanged: (names) => refresh(() {
+                      draft.artistCredits = [
+                        for (var index = 0; index < names.length; index++)
+                          MusicArtistCredit(
+                            id: names[index].id,
+                            creditedName: names[index].name,
+                            sortName: names[index].sortName,
+                            artistId: credits
+                                .where((credit) => credit.id == names[index].id)
+                                .firstOrNull
+                                ?.artistId,
+                            sequence: index + 1,
+                          ),
+                      ];
+                      draft.artist = names
+                          .map((value) => value.name.trim())
+                          .where((name) => name.isNotEmpty)
+                          .join(' / ');
+                    }),
+                  );
+                },
+              ),
             ),
             LibraryMultiVocabularyFieldSpec<MusicAddManualDraft, String>(
               id: 'genres',

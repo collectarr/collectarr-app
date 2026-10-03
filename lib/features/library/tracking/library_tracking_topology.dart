@@ -56,38 +56,25 @@ final class LibraryTrackingSessionLabels {
   );
 }
 
-/// Structural targets understood by a kind's tracking integration.
-///
-/// `work`, `release`, and `copy` are the common library entity scopes. The
-/// `content` target is intentionally separate because kinds such as TV,
-/// Anime, Comic, and Manga track seasons, episodes, volumes, or chapters
-/// inside the work/release shell.
-enum LibraryTrackingTargetScope { work, release, copy, content }
+/// Tracking may target a complete catalog item or one of its contained pieces.
+enum LibraryTrackingTargetScope { catalogItem, content }
 
 enum LibraryTrackingLookupScope {
   exactCatalog,
   rootCatalog,
 }
 
-enum LibraryOwnedTrackingTarget {
-  catalog,
-  owned,
-}
-
 extension LibraryTrackingTargetScopeLabels on LibraryTrackingTargetScope {
   String get apiValue => switch (this) {
-        LibraryTrackingTargetScope.work => 'work',
-        LibraryTrackingTargetScope.release => 'release',
-        LibraryTrackingTargetScope.copy => 'copy',
+        LibraryTrackingTargetScope.catalogItem => 'catalog_item',
         LibraryTrackingTargetScope.content => 'content',
       };
 }
 
-/// Kind-owned tracking topology.
+/// Kind-entry tracking topology.
 ///
-/// Tracking is deliberately not folded into the work/release/copy workspace
-/// contract. A kind may expose a writable release state, a derived work
-/// aggregate, and a separate content timeline at the same time.
+/// Tracking state belongs to a local library entry. Contained repeated content
+/// can keep its own progress, aggregated under that entry's Catalog Item.
 @immutable
 final class LibraryTrackingTopology {
   const LibraryTrackingTopology({
@@ -95,7 +82,6 @@ final class LibraryTrackingTopology {
     this.aggregateTargets = const <LibraryTrackingTargetScope>{},
     this.contentTargets = const <LibraryTrackingTargetScope>{},
     this.lookupScope = LibraryTrackingLookupScope.rootCatalog,
-    this.ownedTrackingTarget = LibraryOwnedTrackingTarget.owned,
     this.sessionLabels = LibraryTrackingSessionLabels.watch,
   });
 
@@ -103,11 +89,7 @@ final class LibraryTrackingTopology {
   final Set<LibraryTrackingTargetScope> aggregateTargets;
   final Set<LibraryTrackingTargetScope> contentTargets;
   final LibraryTrackingLookupScope lookupScope;
-  final LibraryOwnedTrackingTarget ownedTrackingTarget;
   final LibraryTrackingSessionLabels sessionLabels;
-
-  bool get usesCatalogTargetForOwnedTracking =>
-      ownedTrackingTarget == LibraryOwnedTrackingTarget.catalog;
 
   CatalogEntityRef lookupReferenceFor(CatalogEntityRef ref) =>
       lookupScope == LibraryTrackingLookupScope.exactCatalog

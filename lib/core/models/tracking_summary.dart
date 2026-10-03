@@ -1,5 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -7,17 +6,16 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 
 /// Structural lifecycle projection for mixed/global hosts.
 ///
-/// Kind-owned hierarchy coordinates and provider-specific state stay in the
+/// Kind-entry hierarchy coordinates and provider-specific state stay in the
 /// concrete kind tracking aggregate. This projection is sufficient for
 /// global joins, status badges, activity, and queue displays.
 final class TrackingSummary {
   const TrackingSummary({
     required this.id,
-    required this.catalogRef,
     required this.status,
     required this.updatedAt,
     this.progress = const TrackingProgressSnapshot(),
-    this.collectionItemRef,
+    required this.libraryEntryRef,
     this.sourceType,
     this.rating,
     this.startedAt,
@@ -27,9 +25,8 @@ final class TrackingSummary {
   });
 
   final String id;
-  final CatalogEntityRef catalogRef;
   final MediaTrackingStatus status;
-  final CollectionItemRef? collectionItemRef;
+  final LibraryEntryRef libraryEntryRef;
   final TrackingSourceType? sourceType;
   final int? rating;
   final DateTime? startedAt;
@@ -40,7 +37,7 @@ final class TrackingSummary {
   final TrackingProgressSnapshot progress;
 
   TrackingStateRef get ref => TrackingStateRef(
-        kind: catalogRef.mediaKind,
+        kind: libraryEntryRef.kind,
         id: id,
       );
 

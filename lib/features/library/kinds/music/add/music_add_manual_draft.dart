@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 
 /// Editable values for one concrete Music catalog item.
 ///
@@ -44,6 +45,7 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
     List<MusicAddManualNamedCredit> producers = const [],
     List<MusicAddManualNamedCredit> engineers = const [],
     List<MusicAddManualNamedCredit> musicians = const [],
+    List<MusicArtistCredit> artistCredits = const [],
     List<MusicAddManualDisc> discs = const [],
     List<MusicAddManualExternalLink> externalLinks = const [],
   })  : genres = List<String>.of(genres),
@@ -58,6 +60,7 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
         producers = List.of(producers),
         engineers = List.of(engineers),
         musicians = List.of(musicians),
+        artistCredits = List.of(artistCredits),
         discs = List.of(discs),
         externalLinks = List.of(externalLinks);
 
@@ -99,6 +102,7 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
   final List<MusicAddManualNamedCredit> producers;
   final List<MusicAddManualNamedCredit> engineers;
   final List<MusicAddManualNamedCredit> musicians;
+  List<MusicArtistCredit> artistCredits;
   final List<MusicAddManualDisc> discs;
   final List<MusicAddManualExternalLink> externalLinks;
 

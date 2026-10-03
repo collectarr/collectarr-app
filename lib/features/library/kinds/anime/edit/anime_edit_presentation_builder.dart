@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_edit
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
-const _animeOwnedTabs = [
+const _animeEntryTabs = [
   LibraryEditTabSpec(
     id: 'main',
     icon: Icons.article,
@@ -11,8 +11,8 @@ const _animeOwnedTabs = [
     sectionIds: [
       'catalog_snapshot',
       'tracking_context',
-      'ownership_reference',
-      'owned_grading',
+      'entries_reference',
+      'entry_grading',
     ],
   ),
   LibraryEditTabSpec(
@@ -28,7 +28,7 @@ const _animeOwnedTabs = [
     sectionIds: [
       'tracking_personal',
       'wishlist_reference',
-      'owned_notes',
+      'entry_notes',
       'collection_fields_info',
     ],
   ),
@@ -116,15 +116,15 @@ class AnimeLibraryEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const AnimeLibraryEditPresentationBuilder()
       : super(
-          useOwnedMainArtworkLayout: false,
+          useEntryMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _animeOwnedTabs,
+          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _animeEntryTabs,
           trackedTabs: _animeTrackedTabs,
           catalogTabs: _animeCatalogTabs,
           customTabBuilder: buildAnimeMediaCustomTabView,

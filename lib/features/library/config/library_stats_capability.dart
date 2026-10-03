@@ -16,10 +16,10 @@ class LibraryStatsTileDescriptor {
 
 /// Small financial projection used by the generic toolbar host.
 ///
-/// The host renders totals, while each kind decides how its Owned model
+/// The host renders totals, while each kind decides how its Entry model
 /// contributes the values.
-class LibraryOwnedFinancialSummary {
-  const LibraryOwnedFinancialSummary({
+class LibraryEntryFinancialSummary {
+  const LibraryEntryFinancialSummary({
     this.pricePaidCents,
     this.sellPriceCents,
     this.currency,
@@ -56,10 +56,10 @@ class LibraryStatsMetadataProjection {
 }
 
 abstract interface class LibraryStatsCapability {
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+  LibraryEntryFinancialSummary buildEntryFinancialSummary(
       LibraryWorkspaceSource entry);
 
-  /// Projects kind-owned metadata into structural facts for the generic stats
+  /// Projects kind-entry metadata into structural facts for the generic stats
   /// renderer. No kind field names or domain objects cross this boundary.
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry);
@@ -80,9 +80,9 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
   const DefaultLibraryStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+  LibraryEntryFinancialSummary buildEntryFinancialSummary(
       LibraryWorkspaceSource entry) {
-    return LibraryOwnedFinancialSummary(
+    return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
       currency: entry.currency,

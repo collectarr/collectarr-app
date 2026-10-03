@@ -74,7 +74,7 @@ class LibraryBucketStatusSummary {
   const LibraryBucketStatusSummary({
     required this.title,
     required this.totalCount,
-    required this.ownedCount,
+    required this.entryCount,
     required this.wishlistCount,
     required this.forSaleCount,
     required this.onOrderCount,
@@ -85,7 +85,7 @@ class LibraryBucketStatusSummary {
 
   final String title;
   final int totalCount;
-  final int ownedCount;
+  final int entryCount;
   final int wishlistCount;
   final int forSaleCount;
   final int onOrderCount;

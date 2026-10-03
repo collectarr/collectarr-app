@@ -19,15 +19,6 @@ final bookKindPhysicalMediaFormats = bookPhysicalMediaFormats;
 
 final bookKindTrackingProfile = bookTrackingProfile;
 
-final bookKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final ReleaseProjectionCapability<BookWorkspaceDto>? bookKindReleaseCapability =
-    null;
-
-final bookKindReleaseDetailSource = null;
-
-final bookKindCatalogTarget = const RootCatalogTargetCapability();
-
 final bookKindUiPolicy = const LibraryUiPolicy();
 
 final LibraryValueCapability? bookKindValue = null;
@@ -67,21 +58,19 @@ final bookKindMetadata = const LibraryMetadataCapability(
 final bookKindHierarchy = const LibraryHierarchyCapability();
 
 final bookKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Book', plural: 'Books'),
-  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+  catalogItem: LibraryEntityLabel(singular: 'Book', plural: 'Books'),
+  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final bookKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.read,
-  writableTargets: {LibraryTrackingTargetScope.work},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
+  writableTargets: {LibraryTrackingTargetScope.catalogItem},
+  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
 );
 
 final bookKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet(),
-  copy: LibraryEntityActionSet.copy,
+  catalogItem: LibraryEntityActionSet.catalogItem,
+  libraryEntry: LibraryEntityActionSet.libraryEntry,
 );
 
 final bookKindInspector = LibraryInspectorCapability(
@@ -93,14 +82,14 @@ final bookKindInspector = LibraryInspectorCapability(
         sectionsBuilder: buildBookWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.collectionItem,
+        scope: LibraryEntityScope.libraryEntry,
         heroBuilder: buildBookCopyInspectorHero,
         sectionsBuilder: buildBookCopyInspectorSections,
       ),
     ],
   ),
   showsDefaultPersonalSection: true,
-  supportsCollectionItemImages: false,
+  supportsLibraryEntryImages: false,
 );
 
 final bookKindLinkedMetadata =

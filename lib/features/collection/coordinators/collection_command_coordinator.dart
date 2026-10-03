@@ -1,27 +1,26 @@
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
-import 'package:collectarr_app/features/collection/mutations/collection_item_mutations.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
+import 'package:collectarr_app/features/collection/mutations/library_entry_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 
 final class CollectionCommandCoordinator {
   const CollectionCommandCoordinator({
-    required this.ownedMutations,
+    required this.entryMutations,
     required this.trackingMutations,
   });
 
-  final CollectionItemMutations ownedMutations;
+  final LibraryEntryMutations entryMutations;
   final TrackingMutations trackingMutations;
 
-  Future<CollectionItemRef> addCollectionItem(
-    AddCollectionItemCommand command, {
+  Future<LibraryEntryRef> addLibraryEntry(
+    AddLibraryEntryCommand command, {
     bool syncTracking = true,
   }) async {
-    final item = await ownedMutations.addCollectionItem(command);
+    final item = await entryMutations.addLibraryEntry(command);
     if (syncTracking) {
       final tracking = command.tracking;
-      await trackingMutations.syncOwnedTrackingState(
+      await trackingMutations.syncEntryTrackingState(
         item,
-        targetRef: command.catalogRef,
         status: tracking?.status,
         rating: tracking?.rating,
         startedAt: tracking?.startedAt,
@@ -32,13 +31,13 @@ final class CollectionCommandCoordinator {
     return item;
   }
 
-  Future<CollectionItemRef> updateCollectionItem(
-    CollectionItemUpdateRequest command, {
+  Future<LibraryEntryRef> updateLibraryEntry(
+    LibraryEntryUpdateRequest command, {
     bool syncTracking = true,
   }) async {
-    final item = await ownedMutations.updateCollectionItem(command);
+    final item = await entryMutations.updateLibraryEntry(command);
     if (syncTracking) {
-      await trackingMutations.syncOwnedTrackingState(item);
+      await trackingMutations.syncEntryTrackingState(item);
     }
     return item;
   }

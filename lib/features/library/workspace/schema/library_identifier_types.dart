@@ -44,7 +44,7 @@ abstract interface class LibraryFieldIdRuntime {
 }
 
 /// Controlled runtime interface for group identifiers to allow heterogeneous collection handling without type erasure to dynamic.
-enum LibraryGroupSemantic { value, title, location, ownership, unknown }
+enum LibraryGroupSemantic { value, title, location, entries, unknown }
 
 abstract interface class LibraryGroupIdRuntime {
   String get value;
@@ -215,9 +215,9 @@ abstract final class LibraryStandardGroupIds {
     'location',
     semantic: LibraryGroupSemantic.location,
   );
-  static const ownership = LibraryGroupId<LibrarySharedKind, String>(
-    'ownership',
-    semantic: LibraryGroupSemantic.ownership,
+  static const entries = LibraryGroupId<LibrarySharedKind, String>(
+    'entries',
+    semantic: LibraryGroupSemantic.entries,
   );
 }
 

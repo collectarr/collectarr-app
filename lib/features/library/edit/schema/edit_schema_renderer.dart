@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -11,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'edit_schema.dart';
 
-/// A kind-owned tab mounted alongside schema tabs without widening the edit
+/// A kind-entry tab mounted alongside schema tabs without widening the edit
 /// draft model. The tab content may manage its own independent mutations.
 final class EditSchemaExtraTab {
   const EditSchemaExtraTab({
@@ -108,7 +110,7 @@ class EditSchemaRendererState<TModel, TDraft>
       return;
     }
 
-    // Preserve an existing schema-only order when kind-owned tabs were added
+    // Preserve an existing schema-only order when kind-entry tabs were added
     // later; place those new tabs after the saved schema tabs.
     if (widget.extraTabs.isEmpty) return;
     final schemaOrder = await loadLibraryEditTabOrder(
@@ -224,7 +226,7 @@ class EditSchemaRendererState<TModel, TDraft>
       _rememberSelectedTab();
     }
 
-    // This renderer is also used directly by kind-owned dialogs. `showDialog`
+    // This renderer is also used directly by kind-entry dialogs. `showDialog`
     // supplies the route and barrier, but it does not add a Material surface
     // for arbitrary builder output. Keep the renderer self-contained so its
     // TextFields, dropdowns, and input decorators are valid in every host.
@@ -565,6 +567,8 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   Future<void> _save() async {
+    if (_isSaving) return;
+    if (Form.maybeOf(context)?.validate() == false) return;
     final schemaError = widget.schema.validate?.call(
       widget.model,
       widget.draft,
@@ -583,8 +587,18 @@ class EditSchemaRendererState<TModel, TDraft>
     });
     try {
       final repository = _pendingVocabularyRepository();
-      await widget.onSave(widget.draft);
-      await _savePendingVocabularyValues(repository);
+      final entry = LibraryEntryEditScope.maybeOf(context);
+      if (entry != null) {
+        entry.pendingChanges[this] = LibraryVocabularyEditChange([
+          for (final fields in _pendingVocabularyValues.values)
+            for (final pending in fields.values)
+              (listName: pending.listName, value: pending.value, mediaKind: widget.mediaKind),
+        ]);
+        await widget.onSave(widget.draft);
+      } else {
+        await widget.onSave(widget.draft);
+        await _savePendingVocabularyValues(repository);
+      }
     } catch (error) {
       if (!mounted) return;
       setState(() {

@@ -15,7 +15,7 @@ const Object _catalogEntityRefUnset = Object();
 final class CatalogEntityTypeId {
   const CatalogEntityTypeId(this.apiValue);
 
-  /// Identifies a concrete, kind-owned Catalog Item.
+  /// Identifies a concrete, kind-entry Catalog Item.
   static const catalogItem = CatalogEntityTypeId('catalog_item');
 
   /// Sentinel for a missing or malformed transport value.
@@ -28,7 +28,7 @@ final class CatalogEntityTypeId {
     if (normalized == null || normalized.isEmpty) {
       return CatalogEntityTypeId.unknown;
     }
-    // Entity types are owned by the kind that interprets them. Core must keep
+    // Entity types are entry by the kind that interprets them. Core must keep
     // unknown/future identifiers opaque so a newer server can round-trip
     // through an older v1 client without silently changing the target.
     return CatalogEntityTypeId(normalized);
@@ -78,7 +78,7 @@ class CatalogEntityRef {
   ///
   /// Child references retain their complete identity at kind boundaries.
   /// Mixed infrastructure only needs this stable root when grouping global
-  /// projections. Entity-type interpretation remains owned by the kind.
+  /// projections. Entity-type interpretation remains entry by the kind.
   CatalogEntityRef get rootScope {
     final root = rootId?.trim();
     if (root != null && root.isNotEmpty) {

@@ -7,14 +7,6 @@ final boardGameKindPhysicalMediaFormats = boardGamePhysicalMediaFormats;
 
 final boardGameKindTrackingProfile = boardGameTrackingProfile;
 
-final boardGameKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final boardGameKindReleaseCapability = null;
-
-final boardGameKindReleaseDetailSource = null;
-
-final boardGameKindCatalogTarget = const RootCatalogTargetCapability();
-
 final boardGameKindUiPolicy = const LibraryUiPolicy();
 
 final LibraryValueCapability? boardGameKindValue = null;
@@ -53,21 +45,19 @@ final boardGameKindHierarchy = const LibraryHierarchyCapability(
 );
 
 final boardGameKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Game', plural: 'Games'),
-  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+  catalogItem: LibraryEntityLabel(singular: 'Game', plural: 'Games'),
+  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final boardGameKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.play,
-  writableTargets: {LibraryTrackingTargetScope.work},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
+  writableTargets: {LibraryTrackingTargetScope.catalogItem},
+  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
 );
 
 final boardGameKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
-  copy: LibraryEntityActionSet.copy,
+  catalogItem: LibraryEntityActionSet.catalogItem,
+  libraryEntry: LibraryEntityActionSet.libraryEntry,
 );
 
 final boardGameKindInspector = LibraryInspectorCapability(
@@ -79,7 +69,7 @@ final boardGameKindInspector = LibraryInspectorCapability(
         sectionsBuilder: buildBoardGameCatalogItemInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.collectionItem,
+        scope: LibraryEntityScope.libraryEntry,
         heroBuilder: buildBoardGameCopyInspectorHero,
         sectionsBuilder: buildBoardGameCopyInspectorSections,
       ),

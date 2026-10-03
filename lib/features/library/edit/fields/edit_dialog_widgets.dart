@@ -77,7 +77,7 @@ ThemeData editDialogTheme({
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: palette.surface,
+      fillColor: palette.isDark ? const Color(0xFF444444) : palette.surface,
       isDense: true,
       contentPadding: EdgeInsets.symmetric(
         horizontal: compactDesktop ? 8 : 9,
@@ -139,6 +139,7 @@ ThemeData editDialogTheme({
       style: ButtonStyle(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     textTheme: base.textTheme.apply(
+      fontFamily: 'Inter',
       bodyColor: palette.textPrimary,
       displayColor: palette.textPrimary,
     ),

@@ -362,8 +362,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   }
 
   @override
-  bool get comicShowPhysicalOwnedFields =>
-      draft.isOwned &&
+  bool get comicShowPhysicalEntryFields =>
+      draft.isEntry &&
       (_comicDraft?.comicEdit.physicalFormatLabelController.text
               .trim()
               .toLowerCase() !=

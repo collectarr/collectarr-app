@@ -14,10 +14,9 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   manualPaneBuilder: buildMovieAddManualPane,
   chrome: movieAddChrome,
   previewPaneBuilder: buildMovieAddPreviewPane,
-  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      MovieCollectionItemCreatePayload(
-    catalogRef: item.reference,
-    details: details as MovieOwnedDetailsDraft,
+  entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      MovieLibraryEntryCreatePayload(
+    details: details as MovieEntryDetailsDraft,
     condition: common.condition,
     grade: common.isDigital == true ? null : kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
@@ -27,6 +26,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
+    ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),

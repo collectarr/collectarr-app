@@ -80,7 +80,7 @@ SharedMetadataFieldInputType _inputTypeFromName(String name) {
   };
 }
 
-/// App-owned presentation nuances overlaid on the generated field set. Keyed by
+/// App-entry presentation nuances overlaid on the generated field set. Keyed by
 /// field key; fields not listed render as single-line inputs with no hint.
 const Map<String, ({String? hint, int minLines, int maxLines})>
     _kFieldPresentation = {
@@ -97,7 +97,7 @@ const Map<String, ({String? hint, int minLines, int maxLines})>
 };
 
 /// The admin/edit scalar fields, projected from the core registry
-/// ([kGeneratedMetadataFields]) plus the app-owned presentation overlay above.
+/// ([kGeneratedMetadataFields]) plus the app-entry presentation overlay above.
 /// This is the single source of truth shared by the app edit dialog and the
 /// admin metadata correction panel; re-run
 /// `python -m scripts.export_app_edit_fields` in collectarr-core to refresh.
@@ -116,7 +116,7 @@ final List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     ),
 ];
 
-/// Canonical metadata fields owned by Core.
+/// Canonical metadata fields entry by Core.
 final List<SharedMetadataFieldDescriptor> kCanonicalMetadataFields =
     kAdminMetadataScalarFields;
 

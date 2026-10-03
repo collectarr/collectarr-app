@@ -19,8 +19,8 @@ const comicTransferableFieldKeys = <String>[
 ];
 
 final comicUniversalTransferableFields =
-    TransferableField.universalForTyped<ComicCollectionItem>(
-  decode: (value) => value as ComicCollectionItem,
+    TransferableField.universalForTyped<ComicLibraryEntry>(
+  decode: (value) => value as ComicLibraryEntry,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,

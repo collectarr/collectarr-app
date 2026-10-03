@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -37,7 +37,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   LibraryAddSessionController({
     required this.kind,
     LibraryKindRegistration? type,
-    required this.ownedMutations,
+    required this.entryMutations,
     required this.wishlistMutations,
     required this.trackingMutations,
     this.api,
@@ -52,7 +52,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
           initialState ??
               LibraryAddSessionState(
                 mode: LibraryAddDialogMode.search,
-                target: LibraryAddTarget.owned,
+                target: LibraryAddTarget.entry,
                 search: LibraryAddSearchState.initial(
                   advancedFilters: libraryAddForKind(kind)
                       .search
@@ -77,7 +77,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   @override
   final CatalogMediaKind kind;
   final LibraryKindRegistration? _registration;
-  final CollectionItemMutations ownedMutations;
+  final LibraryEntryMutations entryMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
 
@@ -91,6 +91,10 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   final Future<bool> Function(Object error, String action)?
       onAuthSessionExpired;
 
+  List<String> _lastSubmittedItemIds = const [];
+
+  List<String> get lastSubmittedItemIds => _lastSubmittedItemIds;
+
   @override
   LibraryKindRegistration get type =>
       _registration ?? libraryKindRegistrationForKind(kind);
@@ -103,8 +107,9 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   LibraryAddSubmissionRequest _submissionRequest(
     List<CatalogSearchCandidate> candidates, {
     bool upsertCatalogItems = true,
-    FutureOr<void> Function(CollectionItemRef collectionItemRef)?
-        onCollectionItemCreated,
+    FutureOr<void> Function(LibraryEntryRef libraryEntryRef)?
+        onLibraryEntryCreated,
+    FutureOr<void> Function()? onSubmissionCommitted,
   }) {
     return LibraryAddSubmissionRequest(
       items: [
@@ -119,11 +124,12 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       kindDraft: state.manualDraft,
       trackingDraft: state.trackingDraft,
       catalog: catalog,
-      ownedMutations: ownedMutations,
+      entryMutations: entryMutations,
       wishlistMutations: wishlistMutations,
       trackingMutations: trackingMutations,
       upsertCatalogItems: upsertCatalogItems,
-      onCollectionItemCreated: onCollectionItemCreated,
+      onLibraryEntryCreated: onLibraryEntryCreated,
+      onSubmissionCommitted: onSubmissionCommitted,
     );
   }
 
@@ -388,10 +394,12 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
 
   Future<bool> submitSelectedItem(
     CatalogSearchCandidate item, {
-    FutureOr<void> Function(CollectionItemRef collectionItemRef)?
-        onCollectionItemCreated,
+    FutureOr<void> Function(LibraryEntryRef libraryEntryRef)?
+        onLibraryEntryCreated,
+    FutureOr<void> Function()? onSubmissionCommitted,
   }) async {
     if (state.isAdding || state.submitState.isLoading) return false;
+    _lastSubmittedItemIds = const [];
     clearSubmissionError();
     state = state.copyWith(
       isAdding: true,
@@ -401,7 +409,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       final result = await submissionService.submit(
         _submissionRequest(
           [item],
-          onCollectionItemCreated: onCollectionItemCreated,
+          onLibraryEntryCreated: onLibraryEntryCreated,
+          onSubmissionCommitted: onSubmissionCommitted,
         ),
       );
       if (result.submittedCount == 0) {
@@ -412,6 +421,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         reportSubmissionError('The item was not added. Please try again.');
         return false;
       }
+
+      _lastSubmittedItemIds = result.itemIds;
 
       state = state.copyWith(
         isAdding: false,
@@ -432,20 +443,52 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   Future<int> _submitCoreCandidates(Set<String> checkedResultIds) async {
     if (checkedResultIds.isEmpty) return 0;
 
-    final itemsToAdd = state.search.results
+    final searchItems = state.search.results
         .where((item) => checkedResultIds.contains(item.reference.id))
         .toList(growable: false);
-    if (itemsToAdd.isEmpty) return 0;
+    if (searchItems.isEmpty) return 0;
     final catalogRepository = catalog;
     if (catalogRepository == null) {
       throw StateError('Catalog storage is unavailable for Core results.');
+    }
+
+    final itemsToAdd = <CatalogSearchCandidate>[];
+    for (final fallback in searchItems) {
+      final hydrated = state.preview.hydratedResultFor(fallback.reference);
+      if (hydrated != null || api == null) {
+        itemsToAdd.add(hydrated ?? fallback);
+        continue;
+      }
+      try {
+        final response = await hydrationService.hydrateCatalogCandidate(
+          api: api!,
+          type: type,
+          fallback: fallback,
+          itemId: fallback.reference.id,
+        );
+        itemsToAdd.add(
+          libraryPresentationForKind(type.kind).builder.mergeHydratedAddItem(
+                hydrated: response,
+                fallback: fallback,
+              ),
+        );
+      } catch (error, stackTrace) {
+        logRecoverableError(
+          source: 'library_add',
+          message:
+              'Could not hydrate checked catalog result ${fallback.reference.id}; using its search payload.',
+          error: error,
+          stackTrace: stackTrace,
+        );
+        itemsToAdd.add(fallback);
+      }
     }
 
     final result = await submissionService.submitCoreBatch(
       LibraryAddBatchRequest(
         dependencies: LibraryAddMutationDependencies(
           catalog: catalogRepository,
-          ownedMutations: ownedMutations,
+          entryMutations: entryMutations,
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
         ),
@@ -466,11 +509,13 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         ),
       ),
     );
+    _lastSubmittedItemIds = result.itemIds;
     return result.submittedCount;
   }
 
   Future<bool> submitCurrentSelection() async {
     if (state.isAdding || state.submitState.isLoading) return false;
+    _lastSubmittedItemIds = const [];
 
     final selectedResult = state.selectedItem;
     final checkedResults = state.selection.checkedResultIds
@@ -498,10 +543,11 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         final result = await submissionService.submit(
           _submissionRequest(
             [selectedResult],
-            upsertCatalogItems: false,
+            upsertCatalogItems: true,
           ),
         );
         submittedCount = result.submittedCount;
+        _lastSubmittedItemIds = result.itemIds;
       }
 
       if (submittedCount == 0) {
@@ -563,7 +609,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     cancelSearch();
     state = LibraryAddSessionState(
       mode: LibraryAddDialogMode.search,
-      target: LibraryAddTarget.owned,
+      target: LibraryAddTarget.entry,
       search: LibraryAddSearchState.initial(
         advancedFilters: _searchCapability.input.initialAdvancedFilters,
       ),

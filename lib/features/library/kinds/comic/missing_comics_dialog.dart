@@ -214,7 +214,7 @@ class _MissingComicsSeriesCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
-          '${report.missingIssueCount} missing · ${report.ownedIssueCount} owned',
+          '${report.missingIssueCount} missing · ${report.entryIssueCount} entry',
         ),
         children: [
           Padding(

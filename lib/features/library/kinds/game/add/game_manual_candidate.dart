@@ -22,6 +22,7 @@ CatalogSearchCandidate? buildGameManualCandidate(
     CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.game),
       kindData: metadata,
+      origin: CatalogItemOrigin.privateLocal,
     ),
   );
 }

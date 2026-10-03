@@ -28,6 +28,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     this.body,
     this.footerContent,
     this.footerOverride,
+    this.isBusy = false,
     required this.onClose,
     required this.onCancel,
     required this.onSave,
@@ -59,9 +60,10 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   /// Replaces the standard Edit actions while retaining the shared dialog
   /// footer slot and layout.
   final Widget? footerOverride;
+  final bool isBusy;
   final VoidCallback onClose;
   final VoidCallback onCancel;
-  final VoidCallback onSave;
+  final VoidCallback? onSave;
   final VoidCallback? onProposeToCore;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
@@ -206,6 +208,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
           onClose: widget.onClose,
           chromeVariant: widget.chromeVariant,
           accent: widget.accent,
+          isBusy: widget.isBusy,
         ),
         footer: widget.footerOverride ??
             _LibraryEditFooter(
@@ -216,6 +219,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
               onNext: widget.onNext,
               chromeVariant: widget.chromeVariant,
               accent: widget.accent,
+              isBusy: widget.isBusy,
             ),
         maxWidth: maxWidth,
         minHeight: 0,
@@ -242,7 +246,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                       tabController: widget.tabController!,
                       tabs: orderedTabs,
                       accent: widget.accent,
-                      allowReorder: widget.allowTabReorder,
+                      allowReorder: widget.allowTabReorder && !widget.isBusy,
                       onReorderItem: _onReorderItem,
                     ),
                   ),
@@ -295,6 +299,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
     required this.onClose,
     required this.chromeVariant,
     required this.accent,
+    required this.isBusy,
   });
 
   final IconData icon;
@@ -303,24 +308,23 @@ class _LibraryEditTitleBar extends StatelessWidget {
   final VoidCallback onClose;
   final LibraryEditChromeVariant chromeVariant;
   final Color accent;
+  final bool isBusy;
 
   @override
   Widget build(BuildContext context) {
     final isWideDesktop =
         chromeVariant == LibraryEditChromeVariant.movieDesktop;
-    final headerMinHeight = isWideDesktop ? 46.0 : 48.0;
+    final headerMinHeight = 38.0;
     final foreground = appContrastingTextColor(accent);
     return LibraryPanelHeader(
       backgroundColor: accent,
       foregroundColor: foreground,
       borderColor: accent.withValues(alpha: 0.92),
-      onClose: onClose,
+      onClose: isBusy ? null : onClose,
       minHeight: headerMinHeight,
       padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
       child: Row(
         children: [
-          Icon(icon, size: 16),
-          const SizedBox(width: 8),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -332,7 +336,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    fontSize: isWideDesktop ? 13 : 14,
+                    fontSize: isWideDesktop ? 16 : 18,
                     color: foreground,
                   ),
                 ),
@@ -362,14 +366,16 @@ class _LibraryEditFooter extends StatelessWidget {
     this.onNext,
     required this.chromeVariant,
     required this.accent,
+    required this.isBusy,
   });
   final VoidCallback onCancel;
-  final VoidCallback onSave;
+  final VoidCallback? onSave;
   final VoidCallback? onProposeToCore;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
   final Color accent;
+  final bool isBusy;
 
   @override
   Widget build(BuildContext context) {
@@ -378,7 +384,7 @@ class _LibraryEditFooter extends StatelessWidget {
     final navButtonStyle = OutlinedButton.styleFrom(
       shape: kLibraryDialogFooterButtonShape,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-      minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
+      minimumSize: const Size(100, kLibraryDialogFooterButtonHeight),
       visualDensity: VisualDensity.compact,
     );
     final compactIconButtonStyle = OutlinedButton.styleFrom(
@@ -400,7 +406,7 @@ class _LibraryEditFooter extends StatelessWidget {
       children: [
         if (showNav) ...[
           SizedBox(
-            width: isWideDesktop || windowClass.isCompact ? 44 : 112,
+            width: isWideDesktop || windowClass.isCompact ? 44 : 100,
             child: isWideDesktop || windowClass.isCompact
                 ? OutlinedButton(
                     style: compactIconButtonStyle,
@@ -416,7 +422,7 @@ class _LibraryEditFooter extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           SizedBox(
-            width: isWideDesktop || windowClass.isCompact ? 44 : 112,
+            width: isWideDesktop || windowClass.isCompact ? 44 : 100,
             child: isWideDesktop || windowClass.isCompact
                 ? OutlinedButton(
                     style: compactIconButtonStyle,
@@ -446,14 +452,14 @@ class _LibraryEditFooter extends StatelessWidget {
               minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
               visualDensity: VisualDensity.compact,
             ),
-            onPressed: onProposeToCore,
+            onPressed: isBusy ? null : onProposeToCore,
             icon: const Icon(Icons.cloud_upload_outlined, size: 17),
             label: const Text('Propose to Core'),
           ),
           const SizedBox(width: 8),
         ],
         SizedBox(
-          width: isWideDesktop ? 44 : (windowClass.isCompact ? 92 : 112),
+          width: isWideDesktop ? 44 : (windowClass.isCompact ? 92 : 100),
           child: OutlinedButton(
             style: isWideDesktop
                 ? compactIconButtonStyle
@@ -461,11 +467,11 @@ class _LibraryEditFooter extends StatelessWidget {
                     shape: kLibraryDialogFooterButtonShape,
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-                    minimumSize: Size(windowClass.isCompact ? 92 : 112,
+                    minimumSize: Size(windowClass.isCompact ? 92 : 100,
                         kLibraryDialogFooterButtonHeight),
                     visualDensity: VisualDensity.compact,
                   ),
-            onPressed: onCancel,
+            onPressed: isBusy ? null : onCancel,
             child: isWideDesktop
                 ? const Icon(Icons.close, size: 16)
                 : const Text('Cancel'),
@@ -473,10 +479,10 @@ class _LibraryEditFooter extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         SizedBox(
-          width: windowClass.isCompact ? 96 : 112,
-          child: FilledButton.icon(
+          width: windowClass.isCompact ? 96 : 100,
+          child: FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: isWideDesktop ? proposalBackground : accent,
+              backgroundColor: const Color(0xFF5EB1DE),
               foregroundColor: isWideDesktop
                   ? appContrastingTextColor(proposalBackground)
                   : null,
@@ -487,9 +493,8 @@ class _LibraryEditFooter extends StatelessWidget {
               textStyle: const TextStyle(fontWeight: FontWeight.w700),
               visualDensity: VisualDensity.compact,
             ),
-            onPressed: onSave,
-            icon: const Icon(Icons.save_outlined, size: 18),
-            label: const Text('Save'),
+            onPressed: isBusy ? null : onSave,
+            child: const Text('Save'),
           ),
         ),
       ],

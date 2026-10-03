@@ -59,15 +59,15 @@ class LibraryGroupingEngine {
     final allBucketLabel = genericAllBucketLabel(type);
     final counts = <String, int>{allBucketLabel: items.length};
     final hasSequence = workspace.groupModeSupportsCompletion(groupId);
-    final ownedCounts = hasSequence
+    final entryCounts = hasSequence
         ? <String, int>{
-            allBucketLabel: items.where((item) => item.source.isOwned).length,
+            allBucketLabel: items.where((item) => item.source.isEntry).length,
           }
         : null;
     final coverUrls = <String, String?>{};
     final startYears = <String, int?>{};
     final bucketNumbers = hasSequence ? <String, Set<int>>{} : null;
-    final ownedNumbers = hasSequence ? <String, Set<int>>{} : null;
+    final entryNumbers = hasSequence ? <String, Set<int>>{} : null;
 
     for (final item in items) {
       final bucket = index != null
@@ -87,10 +87,10 @@ class LibraryGroupingEngine {
       if (number != null) {
         bucketNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
       }
-      if (hasSequence && item.source.isOwned) {
-        ownedCounts![bucket] = (ownedCounts[bucket] ?? 0) + 1;
+      if (hasSequence && item.source.isEntry) {
+        entryCounts![bucket] = (entryCounts[bucket] ?? 0) + 1;
         if (number != null) {
-          ownedNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
+          entryNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
         }
       }
       if (!coverUrls.containsKey(bucket)) {
@@ -106,12 +106,12 @@ class LibraryGroupingEngine {
     }
 
     final gapNumbers = <String, List<int>>{};
-    if (ownedNumbers != null && bucketNumbers != null) {
-      for (final entry in ownedNumbers.entries) {
+    if (entryNumbers != null && bucketNumbers != null) {
+      for (final entry in entryNumbers.entries) {
         final existing = bucketNumbers[entry.key];
         if (existing != null) {
           final missing = gapAnalyzer.calculateGapsForBucket(
-            ownedNumbers: entry.value,
+            entryNumbers: entry.value,
             bucketNumbers: existing,
           );
           if (missing.isNotEmpty) {
@@ -128,7 +128,7 @@ class LibraryGroupingEngine {
           count: entry.value,
           coverUrl: coverUrls[entry.key],
           startYear: startYears[entry.key],
-          ownedCount: ownedCounts?[entry.key],
+          entryCount: entryCounts?[entry.key],
           missingNumbers: gapNumbers[entry.key] ?? const <int>[],
         ),
     ];

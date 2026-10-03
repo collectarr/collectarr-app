@@ -16,7 +16,6 @@ final class GameWorkspaceProjector
   GameWorkspaceDto project({
     required LibraryWorkspaceSource source,
     required LibraryEntityRef entity,
-    LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
     requireEntityScope(entity, expectedScope ?? entity.scope);
@@ -32,7 +31,6 @@ final class GameWorkspaceProjector
       ),
       personal: PersonalCopyProjection.fromShelf(
         source,
-        releaseState: releaseState,
       ),
       game: catalog.game,
       metadata: catalog.metadata,

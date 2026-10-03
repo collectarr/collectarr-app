@@ -10,11 +10,11 @@ final bookKindWorkspace = TypedLibraryKindWorkspace<BookWorkspaceDto>(
         expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
-      scope: LibraryEntityScope.collectionItem,
-      fields: bookCopyWorkspaceSchema.toRegistry(),
+    LibraryEntityScope.libraryEntry: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
+      scope: LibraryEntityScope.libraryEntry,
+      fields: bookLibraryEntryWorkspaceSchema.toRegistry(),
       projector: const BookWorkspaceProjector(
-        expectedScope: LibraryEntityScope.collectionItem,
+        expectedScope: LibraryEntityScope.libraryEntry,
       ),
     ),
   },

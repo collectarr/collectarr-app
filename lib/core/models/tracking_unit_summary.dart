@@ -1,27 +1,24 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 
-/// Structural mixed-feature projection of a kind-owned tracking unit.
+/// Structural mixed-feature projection of a kind-entry tracking unit.
 ///
-/// A unit's domain coordinates are owned by the concrete kind model. This
+/// A unit's domain coordinates are entry by the concrete kind model. This
 /// summary carries only references and lifecycle fields required by shared
 /// sync, persistence orchestration, and event infrastructure. It is not a
 /// canonical tracking-domain aggregate.
 class TrackingUnitSummary {
   const TrackingUnitSummary({
     required this.id,
-    required this.targetRef,
+    required this.libraryEntryRef,
     required this.completedAt,
     required this.updatedAt,
     this.trackingEntryId,
-    this.collectionItemRef,
     this.deletedAt,
   });
 
   final String id;
-  final CatalogEntityRef targetRef;
   final String? trackingEntryId;
-  final CollectionItemRef? collectionItemRef;
+  final LibraryEntryRef libraryEntryRef;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -31,27 +28,24 @@ class TrackingUnitSummary {
 
   Map<String, dynamic> toSyncPayload() {
     return {
-      'catalog_ref': targetRef.toJson(),
+      'library_entry_ref': libraryEntryRef.toJson(),
       'tracking_entry_id': trackingEntryId,
-      'collection_item_ref': collectionItemRef?.toJson(),
       'completed_at': completedAt.toUtc().toIso8601String(),
     };
   }
 
   TrackingUnitSummary copyWith({
     String? id,
-    CatalogEntityRef? targetRef,
     String? trackingEntryId,
-    CollectionItemRef? collectionItemRef,
+    LibraryEntryRef? libraryEntryRef,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
   }) {
     return TrackingUnitSummary(
       id: id ?? this.id,
-      targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      collectionItemRef: collectionItemRef ?? this.collectionItemRef,
+      libraryEntryRef: libraryEntryRef ?? this.libraryEntryRef,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,

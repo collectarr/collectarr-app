@@ -10,25 +10,26 @@ TransferableField musicTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(MusicCollectionItem item) read,
-  required MusicCollectionItem Function(MusicCollectionItem item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.collectionItem,
+  required String? Function(MusicLibraryEntry item) read,
+  required MusicLibraryEntry Function(MusicLibraryEntry item, String? value)
+      write,
+  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
-  return TransferableField.typed<MusicCollectionItem>(
+  return TransferableField.typed<MusicLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
     scope: scope,
-    decode: (value) => value as MusicCollectionItem,
+    decode: (value) => value as MusicLibraryEntry,
     read: read,
     write: write,
   );
 }
 
 final musicUniversalTransferableFields =
-    TransferableField.universalForTyped<MusicCollectionItem>(
-  decode: (value) => value as MusicCollectionItem,
+    TransferableField.universalForTyped<MusicLibraryEntry>(
+  decode: (value) => value as MusicLibraryEntry,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,
@@ -80,7 +81,7 @@ const musicAddChrome = LibraryAddChromeConfig(
   mediaReferenceLabel: 'Album',
   trackScopeSummary: 'Tracks and listening activity belong to this album.',
   mediaReferenceHelperLabel: 'Track or save the album itself.',
-  editionReferenceHelperLabel: 'Add a personal copy of this album.',
+  editionReferenceHelperLabel: 'Add this album to your library.',
 );
 
 Iterable<String?> musicLinkedMetadataValues(MusicAlbum music) => [

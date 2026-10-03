@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 Future<void> showTvCustomEpisodeDialog(
   BuildContext context, {
   required WidgetRef ref,
-  required String itemId,
+  required LibraryEntryRef libraryEntryRef,
   TvCustomEpisode? existingEpisode,
   int seasonNumber = 1,
   int episodeNumber = 1,
@@ -145,7 +146,7 @@ Future<void> showTvCustomEpisodeDialog(
     final parsedRuntime = int.tryParse(runtimeController.text.trim());
     await ref.read(tvCustomEpisodeMutationsProvider).upsertCustomEpisode(
           id: existingEpisode?.id.value,
-          seriesId: TvSeriesId(itemId),
+          libraryEntryRef: libraryEntryRef,
           seasonNumber: parsedSeason,
           episodeNumber: parsedEpisode,
           title: titleController.text.trim().isEmpty

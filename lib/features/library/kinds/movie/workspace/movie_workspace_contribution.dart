@@ -11,11 +11,11 @@ final movieKindWorkspace = TypedLibraryKindWorkspace<MovieWorkspaceDto>(
         expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
-      scope: LibraryEntityScope.collectionItem,
-      fields: movieCopyWorkspaceSchema.toRegistry(),
+    LibraryEntityScope.libraryEntry: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
+      scope: LibraryEntityScope.libraryEntry,
+      fields: movieLibraryEntryWorkspaceSchema.toRegistry(),
       projector: const MovieWorkspaceProjector(
-        expectedScope: LibraryEntityScope.collectionItem,
+        expectedScope: LibraryEntityScope.libraryEntry,
       ),
     ),
   },

@@ -261,7 +261,11 @@ class LibraryWorkspacePreferences {
     );
   }
 
-  String _key(String suffix) => registration.identity.preferenceKey(suffix);
+  // The v1 cutover intentionally starts from a fresh preference namespace.
+  // Older layout and scope formats remain untouched and are never decoded by
+  // this release.
+  String _key(String suffix) =>
+      'library.workspace.v1.${registration.identity.preferenceKey(suffix)}';
 
   Set<String> _decodeVisibleColumns(
     List<String>? values,

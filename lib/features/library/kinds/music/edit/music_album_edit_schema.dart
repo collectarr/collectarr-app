@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_details_pane.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_header_title.dart';
@@ -59,29 +60,16 @@ final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
       icon: Icons.info_outline,
       sections: [
         EditSectionSpec<MusicAlbumEditDraft>(
-          id: 'additional_details',
-          label: 'Additional details',
-          fields: _fields([
-            'original_title',
-            'is_live',
-            'studios',
-            'country',
-            'language',
-            'release_type',
-            'release_status',
-            'packaging',
-            'box_set_ref',
-            'box_set_name',
-            'box_set_position',
-            'upc',
-            'cover_image_url',
-            'sound_types',
-            'vinyl_color',
-            'vinyl_weight',
-            'rpm',
-            'extra',
-            'spars',
-          ]),
+          id: 'details_layout',
+          label: '',
+          maxColumns: 1,
+          fields: [
+            LibraryCustomFieldSpec<MusicAlbumEditDraft>(
+              id: 'music_details',
+              label: '',
+              builder: (context, draft) => MusicAlbumDetailsPane(draft: draft),
+            )
+          ],
         ),
       ],
     ),

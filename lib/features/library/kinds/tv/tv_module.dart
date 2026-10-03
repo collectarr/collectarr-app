@@ -10,7 +10,7 @@ export 'calendar/tv_calendar_contributor.dart';
 export 'data/tv_catalog_transport_codec.dart';
 export 'integrations/catalog/tv_catalog_lookup.dart';
 export 'integrations/collection_csv/tv_collection_csv_projection.dart';
-export 'ownership/tv_owned_contributor.dart';
+export 'entries/tv_entry_contributor.dart';
 export 'page.dart';
 export 'tracking/tv_custom_episode_codec.dart';
 export 'tracking/tv_tracking_state_codec.dart';

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:flutter/foundation.dart';
@@ -114,9 +115,9 @@ class _LibraryMultiValuePickFieldState<TValue>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return InputDecorator(
+    return LibraryFormField(label: widget.label, child: InputDecorator(
       decoration: InputDecoration(
-        labelText: widget.label,
+
         errorText: widget.errorText,
         enabled: widget.enabled,
         constraints: const BoxConstraints(
@@ -215,6 +216,6 @@ class _LibraryMultiValuePickFieldState<TValue>
           ],
         ),
       ),
-    );
+    ));
   }
 }

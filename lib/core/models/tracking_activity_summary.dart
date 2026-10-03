@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
@@ -9,7 +9,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 /// lifecycle timestamps and rating data.
 final class TrackingActivitySummary {
   const TrackingActivitySummary({
-    required this.catalogRef,
+    required this.libraryEntryRef,
     required this.status,
     required this.updatedAt,
     this.rating,
@@ -21,7 +21,7 @@ final class TrackingActivitySummary {
 
   factory TrackingActivitySummary.fromSummary(TrackingSummary summary) {
     return TrackingActivitySummary(
-      catalogRef: summary.catalogRef,
+      libraryEntryRef: summary.libraryEntryRef,
       status: summary.status,
       rating: summary.rating,
       startedAt: summary.startedAt,
@@ -32,7 +32,7 @@ final class TrackingActivitySummary {
     );
   }
 
-  final CatalogEntityRef catalogRef;
+  final LibraryEntryRef libraryEntryRef;
   final MediaTrackingStatus status;
   final int? rating;
   final DateTime? startedAt;

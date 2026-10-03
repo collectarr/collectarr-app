@@ -1,60 +1,12 @@
 import 'package:drift/drift.dart';
 
 /// Complete Manga-collection item state.
-class MangaCollectionItemsRows extends Table {
-  TextColumn get id => text()();
-  TextColumn get itemId => text()();
-  DateTimeColumn get createdAt => dateTime().nullable()();
-  BoolColumn get isDigital => boolean().nullable()();
-  TextColumn get condition => text().nullable()();
-  TextColumn get grade => text().nullable()();
-  DateTimeColumn get purchaseDate => dateTime().nullable()();
-  IntColumn get pricePaidCents => integer().nullable()();
-  TextColumn get currency => text().nullable()();
-  TextColumn get personalNotes => text().nullable()();
-  IntColumn get indexNumber => integer().nullable()();
-  TextColumn get tags => text().nullable()();
-  DateTimeColumn get updatedAt => dateTime()();
-  DateTimeColumn get deletedAt => dateTime().nullable()();
-  DateTimeColumn get soldAt => dateTime().nullable()();
-  IntColumn get sellPriceCents => integer().nullable()();
-  TextColumn get soldTo => text().nullable()();
-  TextColumn get ownerUserId => text().nullable()();
-  TextColumn get ownerLabel => text().nullable()();
-  TextColumn get locationId => text().nullable()();
-  TextColumn get purchaseStore => text().nullable()();
-  TextColumn get collectionStatus => text().nullable()();
-  IntColumn get marketValueCents => integer().nullable()();
-  TextColumn get rawOrSlabbed => text().nullable()();
-  TextColumn get gradingCompany => text().nullable()();
-  TextColumn get graderNotes => text().nullable()();
-  TextColumn get labelType => text().nullable()();
-  TextColumn get customLabel => text().nullable()();
-  TextColumn get pageQuality => text().nullable()();
-  TextColumn get certificationNumber => text().nullable()();
-  TextColumn get signedBy => text().nullable()();
-  BoolColumn get obiStripPresent =>
-      boolean().withDefault(const Constant(false))();
-  BoolColumn get slipcoverPresent =>
-      boolean().withDefault(const Constant(false))();
-  BoolColumn get dustJacketPresent =>
-      boolean().withDefault(const Constant(false))();
-  TextColumn get dustJacketCondition => text().nullable()();
-  TextColumn get boxSetOuterCondition => text().nullable()();
-  BoolColumn get insertsPresent =>
-      boolean().withDefault(const Constant(false))();
-  TextColumn get printing => text().nullable()();
-  TextColumn get localizedEdition => text().nullable()();
 
-  @override
-  Set<Column> get primaryKey => {id};
-}
 
 class MangaTrackingUnitRows extends Table {
   TextColumn get id => text()();
-  TextColumn get targetRefJson => text()();
   TextColumn get trackingEntryId => text().nullable()();
-  TextColumn get collectionItemRefKey => text().nullable()();
+  TextColumn get libraryEntryRefKey => text()();
   DateTimeColumn get completedAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
@@ -67,8 +19,7 @@ class MangaTrackingUnitRows extends Table {
 
 class MangaTrackingRows extends Table {
   TextColumn get id => text()();
-  TextColumn get catalogRefJson => text()();
-  TextColumn get collectionItemRefKey => text().nullable()();
+  TextColumn get libraryEntryRefKey => text()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
   IntColumn get rating => integer().nullable()();

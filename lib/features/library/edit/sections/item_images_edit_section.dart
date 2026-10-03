@@ -22,7 +22,7 @@ class ItemImagesEditSection extends StatefulWidget {
     required this.onChanged,
   });
 
-  final List<ItemImage> images;
+  final List<ItemImageContent> images;
   final Color accent;
   final ValueChanged<List<ItemImageEdit>> onChanged;
 

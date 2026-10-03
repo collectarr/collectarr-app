@@ -12,7 +12,7 @@ enum ReportColumn {
   title('Title', 2.5),
   kind('Kind', 0.9),
   reference('Reference', 1.8),
-  owned('Owned', 0.7),
+  entry('Entry', 0.7),
   wishlist('Wishlist', 0.8),
   location('Location', 1.0);
 
@@ -28,7 +28,7 @@ enum ReportColumn {
       ReportColumn.reference => ref == null
           ? item.node.id
           : '${ref.kind.apiValue}:${ref.entityType.apiValue}:${ref.id}',
-      ReportColumn.owned => item.source.isOwned ? 'yes' : 'no',
+      ReportColumn.entry => item.source.isEntry ? 'yes' : 'no',
       ReportColumn.wishlist => item.source.isWishlisted ? 'yes' : 'no',
       ReportColumn.location => item.source.locationPath ?? '',
     };
@@ -39,7 +39,7 @@ const _defaultReportColumns = [
   ReportColumn.title,
   ReportColumn.kind,
   ReportColumn.reference,
-  ReportColumn.owned,
+  ReportColumn.entry,
   ReportColumn.location,
 ];
 

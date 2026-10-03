@@ -214,7 +214,7 @@ class _DefinitionTile extends StatelessWidget {
             builder: (context, constraints) {
               final stacked = constraints.maxWidth < 640;
               final kindLabel = _mediaKindLabel(definition.mediaKind);
-              final scopeLabel = _editScopeLabel(definition.editScope);
+              const scopeLabel = 'Library item';
               final typeLabel = definition.valueTypeLabel;
               final rowChildren = <Widget>[
                 ReorderableDragStartListener(
@@ -343,7 +343,6 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
   late final TextEditingController _optionsController;
   late CustomFieldValueType _fieldType;
   String? _mediaKind;
-  String? _editScope;
 
   static final List<CustomFieldValueType> _fieldTypes =
       CustomFieldValueType.values;
@@ -355,7 +354,6 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
     _nameController = TextEditingController(text: existing?.name ?? '');
     _fieldType = existing?.valueType ?? CustomFieldValueType.text;
     _mediaKind = existing?.mediaKind;
-    _editScope = existing?.editScope;
     _optionsController = TextEditingController(
       text: _decodeOptions(existing?.options),
     );
@@ -452,31 +450,6 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
                 ],
                 onChanged: (value) => setState(() => _mediaKind = value),
               ),
-              const SizedBox(height: 12),
-              CompactSearchDropdownFormField<String?>(
-                initialValue: _editScope,
-                dropdownColor: appPalette(context).panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Applies in',
-                  hintText: 'All scopes',
-                ),
-                items: const [
-                  DropdownMenuItem<String?>(
-                    value: null,
-                    child: Text('All scopes'),
-                  ),
-                  DropdownMenuItem<String?>(
-                    value: 'media',
-                    child: Text('Media'),
-                  ),
-                  DropdownMenuItem<String?>(
-                    value: 'release',
-                    child: Text('Release'),
-                  ),
-                ],
-                onChanged: (value) => setState(() => _editScope = value),
-              ),
               if (_fieldType.supportsOptions) ...[
                 const SizedBox(height: 12),
                 TextFormField(
@@ -512,7 +485,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
       name: _nameController.text.trim(),
       fieldType: _fieldType.apiValue,
       mediaKind: _mediaKind,
-      editScope: _editScope,
+      editScope: CustomFieldTargetScope.libraryEntry.apiValue,
       sortOrder: widget.existing?.sortOrder ?? 0,
       options: _encodeOptions(),
       createdAt: widget.existing?.createdAt ?? DateTime.now(),
@@ -549,11 +522,3 @@ String _mediaKindLabel(String? kind) {
   return kind.trim();
 }
 
-String _editScopeLabel(String? scope) {
-  return switch (scope) {
-    null => 'All scopes',
-    'media' => 'Media',
-    'release' => 'Release',
-    _ => scope,
-  };
-}

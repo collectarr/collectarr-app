@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -11,9 +11,9 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   const MusicStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+  LibraryEntryFinancialSummary buildEntryFinancialSummary(
       LibraryWorkspaceSource entry) {
-    return LibraryOwnedFinancialSummary(
+    return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
       currency: entry.currency,
@@ -48,7 +48,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     final tracks = totalTracks(state.entries);
     final media = totalMedia(state.entries);
     final catalogItems = totalCatalogItems(state.entries);
-    final ownedCopies = totalOwnedCopies(state.entries);
+    final libraryEntries = totalEntryCopies(state.entries);
     final signedCopies = totalSignedCopies(state.entries);
     final listens = totalListens(state.entries);
     return [
@@ -58,16 +58,16 @@ final class MusicStatsCapability implements LibraryStatsCapability {
           label: 'Catalog Items',
           value: catalogItems.toString(),
         ),
-      if (ownedCopies > 0)
+      if (libraryEntries > 0)
         LibraryStatsTileDescriptor(
           icon: Icons.inventory_2_outlined,
           label: 'Collection items',
-          value: ownedCopies.toString(),
+          value: libraryEntries.toString(),
         ),
       if (signedCopies > 0)
         LibraryStatsTileDescriptor(
           icon: Icons.draw_outlined,
-          label: 'Signed copies',
+          label: 'Signed items',
           value: signedCopies.toString(),
         ),
       if (tracks > 0)
@@ -193,10 +193,10 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     return entries.where((entry) => _music(entry) != null).length;
   }
 
-  static int totalOwnedCopies(Iterable<LibraryWorkspaceSource> entries) {
+  static int totalEntryCopies(Iterable<LibraryWorkspaceSource> entries) {
     return entries.fold<int>(
       0,
-      (total, entry) => total + (entry.collectionItemSummary == null ? 0 : 1),
+      (total, entry) => total + (entry.libraryEntrySummary == null ? 0 : 1),
     );
   }
 
@@ -211,11 +211,11 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     return entries.fold<int>(
       0,
       (total, entry) {
-        final owned = MusicCollectionItemProjection.fromDispatch(
-          entry.collectionItemDispatch,
+        final personalState = MusicLibraryEntryProjection.fromDispatch(
+          entry.libraryEntryDispatch,
         );
         return total +
-            (owned?.details.signedBy?.trim().isNotEmpty == true
+            (personalState?.details.signedBy?.trim().isNotEmpty == true
                 ? 1
                 : 0);
       },

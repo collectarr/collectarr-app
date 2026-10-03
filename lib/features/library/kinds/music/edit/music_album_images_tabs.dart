@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -13,7 +12,6 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import 'package:uuid/uuid.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 final Dio _coverImageClient = Dio(
   BaseOptions(
@@ -51,33 +49,35 @@ final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
             final front = _cover('front_cover');
             final back = _cover('back_cover');
             final children = [
-              Expanded(
-                  child: _CoverEditor(
+              _CoverEditor(
                 title: 'Front Cover',
                 albumId: widget.albumId,
                 image: front,
                 coreCoverUrl: widget.draft.values.coverImageUrl,
                 restoreCoreCoverUrl: widget.draft.original.coverImageUrl,
-                onRestoreCoreCover: _restoreCoreCover,
-                onRemoveCoreCover: _removeCoreCover,
+                onRestoreCoreCover: () => _restoreCoreCover(false),
+                onRemoveCoreCover: () => _removeCoreCover(false),
                 onChanged: (value) => _replaceCover('front_cover', value),
-              )),
-              Expanded(
-                  child: _CoverEditor(
+              ),
+              _CoverEditor(
                 title: 'Back Cover',
                 albumId: widget.albumId,
                 image: back,
-                coreCoverUrl: null,
-                restoreCoreCoverUrl: null,
-                onRestoreCoreCover: _restoreCoreCover,
-                onRemoveCoreCover: _removeCoreCover,
+                coreCoverUrl: widget.draft.values.backCoverImageUrl,
+                restoreCoreCoverUrl: widget.draft.original.backCoverImageUrl,
+                onRestoreCoreCover: () => _restoreCoreCover(true),
+                onRemoveCoreCover: () => _removeCoreCover(true),
                 onChanged: (value) => _replaceCover('back_cover', value),
-              )),
+              ),
             ];
             if (constraints.maxWidth >= 680) {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [children[0], const SizedBox(width: 12), children[1]],
+                children: [
+                  Expanded(child: children[0]),
+                  const SizedBox(width: 12),
+                  Expanded(child: children[1])
+                ],
               );
             }
             return Column(
@@ -110,16 +110,25 @@ final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
     widget.onImagesChanged(next);
   }
 
-  void _restoreCoreCover() {
+  void _restoreCoreCover(bool back) {
     setState(() {
-      final original = widget.draft.original.coverImageUrl;
-      widget.draft.values.coverImageUrl = original ?? '';
+      if (back) {
+        widget.draft.values.backCoverImageUrl =
+            widget.draft.original.backCoverImageUrl ?? '';
+      } else {
+        widget.draft.values.coverImageUrl =
+            widget.draft.original.coverImageUrl ?? '';
+      }
     });
   }
 
-  void _removeCoreCover() {
+  void _removeCoreCover(bool back) {
     setState(() {
-      widget.draft.values.coverImageUrl = '';
+      if (back) {
+        widget.draft.values.backCoverImageUrl = '';
+      } else {
+        widget.draft.values.coverImageUrl = '';
+      }
     });
   }
 }
@@ -190,10 +199,10 @@ final class _CoverEditorState extends State<_CoverEditor> {
         widget.restoreCoreCoverUrl?.trim().isNotEmpty == true;
     final removeActionLabel = image != null
         ? canRestoreCoreCover
-            ? 'Restore Core Cover'
+            ? 'Restore'
             : 'Remove'
         : hasCurrentCoreCover
-            ? 'Remove Core Cover'
+            ? 'Remove'
             : null;
     final colors = Theme.of(context).colorScheme;
     return DecoratedBox(
@@ -225,20 +234,6 @@ final class _CoverEditorState extends State<_CoverEditor> {
                     children: [
                       _toolbarAction(
                         context,
-                        icon: Icons.search,
-                        label: 'Find Online',
-                        onPressed: () => unawaited(
-                          launchUrl(
-                            Uri.https(
-                              'musicbrainz.org',
-                              '/release/${widget.albumId}',
-                            ),
-                            mode: LaunchMode.externalApplication,
-                          ),
-                        ),
-                      ),
-                      _toolbarAction(
-                        context,
                         icon: Icons.file_upload_outlined,
                         label: 'Upload',
                         onPressed: _upload,
@@ -246,7 +241,7 @@ final class _CoverEditorState extends State<_CoverEditor> {
                       if (removeActionLabel != null)
                         _toolbarAction(
                           context,
-                          icon: removeActionLabel == 'Restore Core Cover'
+                          icon: removeActionLabel == 'Restore'
                               ? Icons.restore
                               : Icons.delete_outline,
                           label: removeActionLabel,
@@ -377,12 +372,12 @@ final class _CoverEditorState extends State<_CoverEditor> {
     final coverUrl = widget.coreCoverUrl?.trim();
     final uri = coverUrl == null ? null : Uri.tryParse(coverUrl);
     if (uri == null || !(uri.isScheme('http') || uri.isScheme('https'))) {
-      throw const FormatException('The Core cover URL is invalid.');
+      throw const FormatException('The cover URL is invalid.');
     }
     final response = await _coverImageClient.getUri<List<int>>(uri);
     final bytes = response.data;
     if (response.statusCode != 200 || bytes == null || bytes.isEmpty) {
-      throw StateError('The Core cover could not be downloaded.');
+      throw StateError('The cover could not be downloaded.');
     }
     return Uint8List.fromList(bytes);
   }
@@ -515,7 +510,8 @@ final class _MusicAlbumMyImagesEditorState
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 18),
                     child: Center(
-                        child: Text('Drop, paste or click to add an image.')),
+                      child: Text('Choose an image file to add it here.'),
+                    ),
                   ),
                 if (_images.isNotEmpty)
                   ReorderableListView.builder(

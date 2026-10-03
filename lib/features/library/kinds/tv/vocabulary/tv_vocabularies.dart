@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
 
 abstract final class TvVocabularyIds {
   static const condition = VocabularyId<String>('tv.condition');
@@ -20,50 +20,50 @@ abstract final class TvVocabularyIds {
 }
 
 abstract final class TvVocabularies {
-  static Future<int> countOwnedValue(
+  static Future<int> countEntryValue(
     LocalDatabase db,
     String semanticName,
     String normalizedValue,
   ) {
-    return countPickListOwnedValues(
-      items: TvOwnedRepository(db).listActive(),
+    return countPickListEntryValues(
+      items: TvEntryRepository(db).listActive(),
       normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
     );
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: TvOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: TvEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: TvOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: TvEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: TvOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: TvEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static TvCollectionItem _replaceOwnedValue(
-    TvCollectionItem item,
+  static TvLibraryEntry _replaceEntryValue(
+    TvLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -97,11 +97,11 @@ abstract final class TvVocabularies {
     };
     if (key == null) return item;
     final details = item.details.toJson()..[key] = targetValue;
-    return item.copyWith(details: TvOwnedDetails.fromJson(details));
+    return item.copyWith(details: TvEntryDetails.fromJson(details));
   }
 
-  static Iterable<String?> _ownedValues(
-    TvCollectionItem item,
+  static Iterable<String?> _entryValues(
+    TvLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

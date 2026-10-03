@@ -53,7 +53,7 @@ class CollectarrApiClient {
         .toList(growable: false);
   }
 
-  /// Fetches one flattened, kind-owned Catalog Item response.
+  /// Fetches one flattened, kind-entry Catalog Item response.
   ///
   /// This is the canonical read path for Add/Edit catalog data. It does not
   /// route through Work or Release endpoints.

@@ -158,10 +158,9 @@ class LibraryRouteState {
     }
     final registration = type;
     final workspace = libraryKindWorkspaceForKind(registration.kind);
-    // Route state predates the scoped workspace node, so a persisted group
-    // mode may target a release/copy even when the current page starts at the
-    // work scope. Keep route normalization structural without collapsing
-    // those scoped group identities back into the work registry.
+    // A persisted group mode may target local entry fields even when the
+    // current page starts with canonical Catalog Item fields. Resolve against
+    // both field registries without collapsing their identities.
     final allowedGroupModes = workspace.availableGroupIdsForAllScopes
         .map((group) => group.value)
         .toSet();
@@ -282,8 +281,8 @@ class LibraryRouteState {
       return null;
     }
     final payload = JsonMap.from({
-      if (selection.ownershipFilter != LibraryOwnershipFilter.all)
-        'ownership': selection.ownershipFilter.name,
+      if (selection.entriesFilter != LibraryEntryPolicyFilter.all)
+        'entries': selection.entriesFilter.name,
       if (selection.trackingStatusFilter != LibraryTrackingStatusFilter.all)
         'tracking': selection.trackingStatusFilter.name,
       if (selection.loanStatusFilter != LibraryLoanStatusFilter.all)
@@ -351,9 +350,9 @@ class LibraryRouteState {
         }
       }
       return LibraryFilterSelection(
-        ownershipFilter:
-            _enumByName(LibraryOwnershipFilter.values, map['ownership']) ??
-                LibraryOwnershipFilter.all,
+        entriesFilter:
+            _enumByName(LibraryEntryPolicyFilter.values, map['entries']) ??
+                LibraryEntryPolicyFilter.all,
         trackingStatusFilter: _enumByName(
               LibraryTrackingStatusFilter.values,
               map['tracking'],

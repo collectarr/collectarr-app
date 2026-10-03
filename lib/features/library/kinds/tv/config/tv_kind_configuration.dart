@@ -24,25 +24,25 @@ TransferableField tvTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(TvCollectionItem item) read,
-  required TvCollectionItem Function(TvCollectionItem item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.collectionItem,
+  required String? Function(TvLibraryEntry item) read,
+  required TvLibraryEntry Function(TvLibraryEntry item, String? value) write,
+  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
-  return TransferableField.typed<TvCollectionItem>(
+  return TransferableField.typed<TvLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
     scope: scope,
-    decode: (value) => value as TvCollectionItem,
+    decode: (value) => value as TvLibraryEntry,
     read: read,
     write: write,
   );
 }
 
 final tvUniversalTransferableFields =
-    TransferableField.universalForTyped<TvCollectionItem>(
-  decode: (value) => value as TvCollectionItem,
+    TransferableField.universalForTyped<TvLibraryEntry>(
+  decode: (value) => value as TvLibraryEntry,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,
@@ -93,7 +93,7 @@ final tvTransferableFields = <TransferableField>[
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.features,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(features: value));
@@ -104,7 +104,7 @@ final tvTransferableFields = <TransferableField>[
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.boxSetName,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(boxSetName: value));
@@ -115,7 +115,7 @@ final tvTransferableFields = <TransferableField>[
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.packaging,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(packaging: value));

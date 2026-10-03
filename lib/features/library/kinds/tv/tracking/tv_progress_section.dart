@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -24,10 +25,14 @@ class VideoProgressSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonsAsync = ref.watch(tvSeasonsByCatalogRefProvider(seriesRef));
+    final entryRef = LibraryEntryRef(
+      kind: seriesRef.kind,
+      id: LibraryEntryId(seriesRef.rootScope.id),
+    );
     final trackedUnits =
-        ref.watch(trackingUnitsByCatalogRefProvider(seriesRef));
+        ref.watch(trackingUnitsByLibraryEntryRefProvider(entryRef));
     final watchSessions =
-        ref.watch(watchSessionsByCatalogRefProvider(seriesRef));
+        ref.watch(watchSessionsByLibraryEntryRefProvider(entryRef));
     return seasonsAsync.when(
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 import 'anime_episode.dart';
 import 'anime_media.dart';
 
-/// Projects the Anime-owned episode graph into generic renderer nodes.
+/// Projects the Anime-entry episode graph into generic renderer nodes.
 final class AnimeHierarchyMapper {
   const AnimeHierarchyMapper._();
 

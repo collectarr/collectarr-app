@@ -5,16 +5,16 @@ final animeKindWorkspace = TypedLibraryKindWorkspace<AnimeWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.catalogItem: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
       scope: LibraryEntityScope.catalogItem,
-      fields: animeWorkWorkspaceSchema.toRegistry(),
+      fields: animeCatalogItemWorkspaceSchema.toRegistry(),
       projector: const AnimeWorkspaceProjector(
         expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
-      scope: LibraryEntityScope.collectionItem,
-      fields: animeCopyWorkspaceSchema.toRegistry(),
+    LibraryEntityScope.libraryEntry: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
+      scope: LibraryEntityScope.libraryEntry,
+      fields: animeLibraryEntryWorkspaceSchema.toRegistry(),
       projector: const AnimeWorkspaceProjector(
-        expectedScope: LibraryEntityScope.collectionItem,
+        expectedScope: LibraryEntityScope.libraryEntry,
       ),
     ),
   },

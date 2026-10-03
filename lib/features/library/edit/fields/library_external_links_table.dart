@@ -1,7 +1,7 @@
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
-/// The kind-owned row data shown by [LibraryExternalLinksTable].
+/// The kind-entry row data shown by [LibraryExternalLinksTable].
 ///
 /// The owning kind keeps the controllers and domain model. This row only gives
 /// the shared editor a stable identity and the two editable values it displays.

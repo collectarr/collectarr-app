@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:drift/drift.dart';
 
@@ -72,13 +74,47 @@ class SyncQueueRepository {
     if (changes.isEmpty) {
       return;
     }
+    final eligible = <SyncChange>[];
+    for (final change in changes) {
+      final payload = _catalogItemPayload(
+        change.entityType,
+        change.action,
+        change.payload,
+      );
+      if (await _isPrivateLocalCatalogReference(payload['catalog_ref'])) {
+        continue;
+      }
+      eligible.add(
+        SyncChange(
+          id: change.id,
+          entityType: change.entityType,
+          entityId: change.entityId,
+          action: change.action,
+          payload: payload,
+          clientChangedAt: change.clientChangedAt,
+        ),
+      );
+    }
+    if (eligible.isEmpty) return;
     await _db.batch((batch) {
       batch.insertAll(
         _db.syncQueue,
-        changes.map(_toCompanion),
+        eligible.map(_toCompanion),
         mode: InsertMode.insertOrReplace,
       );
     });
+  }
+
+  Future<bool> _isPrivateLocalCatalogReference(Object? rawReference) async {
+    if (rawReference is! Map) return false;
+    final kind = rawReference['kind'];
+    final id = rawReference['id'];
+    if (kind is! String || id is! String) return false;
+    final row = await (_db.select(_db.catalogItemsCache)
+          ..where(
+              (item) => item.catalogKind.equals(kind) & item.itemId.equals(id)))
+        .getSingleOrNull();
+    return row?.origin == 'privateLocal';
   }
 
   Future<void> deleteMany(Iterable<String> ids) async {
@@ -152,19 +188,15 @@ class SyncQueueRepository {
     final payload = Map<String, dynamic>.from(source);
     final rawReference = payload['catalog_ref'];
     if (rawReference is Map) {
-      final referenceJson = Map<String, Object?>.from(rawReference);
-      final catalogItemRef = referenceJson.containsKey('entity_type')
-          ? CatalogEntityRef.fromJson(referenceJson).toCatalogItemRef()
-          : CatalogItemRef.fromJson(referenceJson);
+      final catalogItemRef =
+          CatalogItemRef.fromJson(Map<String, Object?>.from(rawReference));
       payload['catalog_ref'] = catalogItemRef.toJson();
     } else if (rawReference != null) {
       throw const FormatException(
         'Sync Catalog Item reference must be a JSON object.',
       );
     }
-    if (entityType == 'collection_item' && payload.containsKey('target_ref')) {
-      payload.remove('target_ref');
-    } else if (payload.containsKey('target_ref')) {
+    if (payload.containsKey('target_ref')) {
       throw FormatException(
         'Sync $entityType payload cannot contain target_ref.',
       );
@@ -183,16 +215,60 @@ class SyncQueueRepository {
         'Sync $entityType payload cannot contain target_ref.',
       );
     }
+    if (entityType == 'library_entry') {
+      LibraryEntryRecord.fromJson(payload);
+      return;
+    }
     if (action == 'delete' && entityType != 'music_listen_event') return;
+    if (entityType == 'music_listen_event') {
+      final rawEntryRef = payload['library_entry_ref'];
+      if (rawEntryRef is! Map) {
+        throw const FormatException(
+          'Music listen event requires its local library_entry_ref.',
+        );
+      }
+      final libraryEntryRef = LibraryEntryRef.fromJson(
+        Map<String, Object?>.from(rawEntryRef),
+      );
+      if (libraryEntryRef.kind != CatalogMediaKind.music) {
+        throw const FormatException(
+          'Music listen event library_entry_ref must be Music.',
+        );
+      }
+      if (payload.containsKey('catalog_ref')) {
+        throw const FormatException(
+          'Music listen event cannot duplicate its local identity as catalog_ref.',
+        );
+      }
+      return;
+    }
+    if (entityType == 'tracking_entry' ||
+        entityType == 'tracking_unit' ||
+        entityType == 'watch_session' ||
+        entityType == 'metadata_override' ||
+        entityType == 'custom_episode') {
+      final rawEntryRef = payload['library_entry_ref'];
+      if (rawEntryRef is! Map) {
+        throw FormatException(
+          'Sync $entityType requires its local library_entry_ref.',
+        );
+      }
+      LibraryEntryRef.fromJson(Map<String, Object?>.from(rawEntryRef));
+      if (payload.containsKey('catalog_ref')) {
+        throw FormatException(
+          'Sync $entityType cannot duplicate its local identity as catalog_ref.',
+        );
+      }
+      return;
+    }
     final required = switch (entityType) {
-      'collection_item' ||
+      'library_entry' ||
       'wishlist_item' ||
       'tracking_entry' ||
       'tracking_unit' ||
       'watch_session' ||
       'music_listen_event' ||
-      'custom_episode' ||
-      'metadata_override' =>
+      'custom_episode' =>
         true,
       _ => false,
     };

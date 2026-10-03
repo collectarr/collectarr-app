@@ -1,25 +1,18 @@
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
-/// Kind-owned names for the universal Work -> Release -> Copy structure.
-///
-/// The structure itself is shared by every library kind. Only the words shown
-/// to users vary by kind, so this vocabulary deliberately contains no topology
-/// or navigation behavior.
+/// User-facing names for a kind's canonical catalog item and local entry.
 final class LibraryEntityVocabulary {
   const LibraryEntityVocabulary({
-    required this.work,
-    required this.release,
-    required this.copy,
+    required this.catalogItem,
+    required this.libraryEntry,
   });
 
-  final LibraryEntityLabel work;
-  final LibraryEntityLabel release;
-  final LibraryEntityLabel copy;
+  final LibraryEntityLabel catalogItem;
+  final LibraryEntityLabel libraryEntry;
 
   LibraryEntityLabel forScope(LibraryEntityScope scope) => switch (scope) {
-        LibraryEntityScope.catalogItem => work,
-        LibraryEntityScope.release => release,
-        LibraryEntityScope.collectionItem => copy,
+        LibraryEntityScope.catalogItem => catalogItem,
+        LibraryEntityScope.libraryEntry => libraryEntry,
       };
 }
 

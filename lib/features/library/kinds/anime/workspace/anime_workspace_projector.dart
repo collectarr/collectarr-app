@@ -18,7 +18,6 @@ final class AnimeWorkspaceProjector
   AnimeWorkspaceDto project({
     required LibraryWorkspaceSource source,
     required LibraryEntityRef entity,
-    LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
     requireEntityScope(entity, expectedScope ?? entity.scope);
@@ -33,7 +32,6 @@ final class AnimeWorkspaceProjector
       ),
       personal: PersonalCopyProjection.fromShelf(
         source,
-        releaseState: releaseState,
       ),
       video: catalog.video,
       media: catalog.media,

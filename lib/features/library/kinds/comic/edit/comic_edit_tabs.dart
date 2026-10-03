@@ -19,7 +19,7 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 
 extension ComicEditTabBuilders on ComicEditHost {
-  Widget buildComicOwnedDetailsTab() {
+  Widget buildComicEntryDetailsTab() {
     return EditTabShell(
       children: [
         EditSection(
@@ -430,14 +430,14 @@ extension ComicEditTabBuilders on ComicEditHost {
   Widget buildComicMainTab() {
     return EditTabShell(
       children: [
-        _ownedComicMainOverviewCard(),
+        _entryComicMainOverviewCard(),
         EditSection(
           title: 'Storage & Notes',
           accent: comicAccent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (comicShowPhysicalOwnedFields) ...[
+              if (comicShowPhysicalEntryFields) ...[
                 LibraryEditResponsiveRow(children: [
                   buildComicCollectionStatusPickField(),
                   buildComicLocationPickerField(),
@@ -458,7 +458,7 @@ extension ComicEditTabBuilders on ComicEditHost {
                 const SizedBox(height: 10),
               ] else ...[
                 Text(
-                  'Digital copies do not expose physical storage fields.',
+                  'Digital items do not expose physical storage fields.',
                   style: TextStyle(color: appPalette(comicContext).textMuted),
                 ),
                 const SizedBox(height: 10),
@@ -760,7 +760,7 @@ extension ComicEditTabBuilders on ComicEditHost {
     );
   }
 
-  Widget _ownedComicMainOverviewCard() {
+  Widget _entryComicMainOverviewCard() {
     final palette = appPalette(comicContext);
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),

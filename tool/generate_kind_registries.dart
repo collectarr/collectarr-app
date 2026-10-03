@@ -87,7 +87,7 @@ Future<List<_DevSeedDescriptor>> _discoverDevSeeds() async {
         !contributor.declaredType!.startsWith('TypedDevSeedKindContributor<')) {
       throw StateError(
         'Dev seed ${entity.path} must declare a '
-        'TypedDevSeedKindContributor<TOwned>; found '
+        'TypedDevSeedKindContributor<TEntry>; found '
         '${contributor.declaredType}',
       );
     }

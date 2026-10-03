@@ -1,12 +1,12 @@
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
@@ -15,59 +15,25 @@ String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   return libraryHierarchyForKind(kind).contractDiagnosticLabel(item);
 }
 
-/// Returns the opaque lifecycle target represented by a workspace item.
-///
-/// The generic library does not interpret kind-owned node ids. It delegates
-/// the refinement to the registered workspace and only uses the resulting
-/// structural reference as a map key or mutation input.
-CatalogEntityRef? libraryTrackingTargetForItem(
-  LibraryKindRegistration type,
-  LibraryProjectionView item,
-) {
-  final rootRef = item.source.catalogRef;
-  if (rootRef == null) return null;
-  return libraryKindWorkspaceForKind(type.kind).trackingTargetForNode(
-    item.node,
-    rootRef,
-  );
-}
-
+/// Returns tracking state owned by the local entry represented by [item].
 List<TrackingSummary> libraryTrackingSummariesForItem(
-  LibraryKindRegistration type,
   LibraryProjectionView item,
-  Map<CatalogEntityRef, List<TrackingSummary>> summariesByRef, {
-  CollectionItemSummary? collectionItem,
+  Map<LibraryEntryRef, List<TrackingSummary>> summariesByRef, {
+  LibraryEntrySummary? libraryEntry,
 }) {
-  final targets = <CatalogEntityRef>[
-    if (collectionItem?.catalogRef case final target?) target,
-    if (libraryTrackingTargetForItem(type, item) case final target?) target,
-    if (item.source.catalogRef case final target?) target,
-  ];
-  final seen = <CatalogEntityRef>{};
-  for (final target in targets) {
-    if (!seen.add(target)) continue;
-    final entries = summariesByRef[target];
-    if (entries != null && entries.isNotEmpty) return entries;
-  }
-  return const <TrackingSummary>[];
+  final entryRef = libraryEntry?.ref ?? item.source.libraryEntryRef;
+  if (entryRef == null) return const <TrackingSummary>[];
+  return summariesByRef[entryRef] ??
+      const <TrackingSummary>[];
 }
 
-String? libraryCollectionItemReferenceLabel(
-  CollectionItemSummary? collectionItem, {
+String? libraryLibraryEntryReferenceLabel(
+  LibraryEntrySummary? libraryEntry, {
   String? mediaType,
 }) {
+  if (libraryEntry == null) return null;
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
-  return _libraryReferenceLabel(
-    libraryTargetScopeForCatalogRef(collectionItem?.catalogRef),
-    itemLabel:
-        'Owned as ${labels.labelFor('item', fallback: 'Media').toLowerCase()}',
-    editionLabel:
-        'Owned as ${labels.labelFor('edition', fallback: 'Edition').toLowerCase()}',
-    variantLabel:
-        'Owned as ${labels.labelFor('variant', fallback: 'Physical release').toLowerCase()}',
-    bundleLabel:
-        'Owned as ${labels.labelFor('bundle', fallback: 'Bundle').toLowerCase()}',
-  );
+  return 'Owned ${labels.labelFor('item', fallback: 'item').toLowerCase()}';
 }
 
 String? libraryWishlistReferenceLabel(
@@ -80,7 +46,7 @@ String? libraryWishlistReferenceLabel(
       '${labels.labelFor('item', fallback: 'Media').toLowerCase()}';
 }
 
-/// Returns the kind-owned card projection consumed by shared workspace chrome.
+/// Returns the kind-entry card projection consumed by shared workspace chrome.
 /// The host renders only these structural values; it never reads semantic
 /// fields from an erased workspace DTO.
 LibraryCardPresentation libraryCardPresentationForEntry(
@@ -94,72 +60,27 @@ LibraryCardPresentation libraryCardPresentationForEntry(
   );
 }
 
-List<String> libraryWorkspaceReferenceHierarchySegments({
-  required CatalogMediaKind kind,
-  required List<LibraryWorkspaceReleaseSummary> releases,
-  String? editionId,
-  String? variantId,
-  String? bundleReleaseId,
-}) {
-  final labels = _libraryReferenceLabelsForKind(kind);
-  final segments = <String>[labels.labelFor('item', fallback: 'Media')];
-  final normalizedBundleId = bundleReleaseId?.trim();
-  if (normalizedBundleId != null && normalizedBundleId.isNotEmpty) {
-    segments.add(
-      labels.labelFor('bundle_hierarchy', fallback: 'Bundle release'),
-    );
-    return segments;
-  }
-  final normalizedEditionId = editionId?.trim();
-  LibraryWorkspaceReleaseSummary? release;
-  if (normalizedEditionId != null && normalizedEditionId.isNotEmpty) {
-    for (final candidate in releases) {
-      if (candidate.id == normalizedEditionId) {
-        release = candidate;
-        break;
-      }
-    }
-  }
-  if (release != null && release.title.trim().isNotEmpty) {
-    segments.add(
-      '${labels.labelFor('edition_hierarchy', fallback: 'Edition')}: ${release.title.trim()}',
-    );
-  }
-  final normalizedVariantId = variantId?.trim();
-  if (normalizedVariantId != null && normalizedVariantId.isNotEmpty) {
-    final variant = release?.variants
-        .where((candidate) => candidate.id == normalizedVariantId)
-        .firstOrNull;
-    final variantName = variant?.name.trim();
-    segments.add(
-      '${labels.labelFor('variant_hierarchy', fallback: 'Physical')}: ${variantName?.isNotEmpty == true ? variantName : normalizedVariantId}',
-    );
-  }
-  return segments;
+LibraryEntryRef? resolveLibraryEntryRef(
+  LibraryProjectionView item,
+  LibraryEntrySummary? libraryEntry,
+) {
+  return libraryEntry?.ref ?? item.source.libraryEntryRef;
 }
 
-CollectionItemRef? resolveLibraryCollectionItemRef(
+LibraryEntryRef? resolveLibraryEntrySummaryRef(
   LibraryProjectionView item,
-  CollectionItemSummary? collectionItem,
+  LibraryEntrySummary? libraryEntry,
 ) {
-  return collectionItem?.ref ?? item.source.collectionItemRef;
-}
-
-CollectionItemRef? resolveLibraryCollectionItemSummaryRef(
-  LibraryProjectionView item,
-  CollectionItemSummary? collectionItem,
-) {
-  return collectionItem?.ref ?? item.source.collectionItemRef;
+  return libraryEntry?.ref ?? item.source.libraryEntryRef;
 }
 
 CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
   LibraryProjectionView? item,
-  CollectionItemSummary? collectionItem,
+  LibraryEntrySummary? libraryEntry,
   WishlistItem? wishlistItem,
 }) {
-  final ownedTarget = collectionItem?.catalogRef;
-  if (ownedTarget != null) {
-    return ownedTarget;
+  if (libraryEntry != null) {
+    return libraryEntry.ref.localCatalogItemRef;
   }
   final wishlistTarget = wishlistItem?.catalogRef;
   if (wishlistTarget != null) {
@@ -169,141 +90,25 @@ CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
       id: wishlistTarget.id,
     );
   }
-  final releaseNode = item?.node is LibraryReleaseRef
-      ? (item!.node as LibraryReleaseRef)
-      : null;
-  if (releaseNode == null) return null;
-  final sourceRef = item?.source.catalogRef;
-  if (sourceRef == null) return null;
-  return libraryCatalogTargetForKind(sourceRef.kind).resolve(
-    sourceRef,
-    LibraryCatalogTargetSelection(
-      referenceType: LibraryAddReferenceType.edition,
-      firstId: _normalizedEntryAnchorId(releaseNode.releaseId),
-      secondId: _normalizedEntryAnchorId(
-        _preferredReleaseVariantId(releaseNode.release),
-      ),
-    ),
-  );
-}
-
-LibraryCatalogTargetLevel? libraryTargetScopeForCatalogRef(
-  CatalogEntityRef? ref,
-) {
-  if (ref == null) {
-    return null;
-  }
-  final parts = libraryCatalogTargetForKind(ref.kind).parts(ref);
-  if (parts.groupId != null) return LibraryCatalogTargetLevel.group;
-  if (parts.secondId != null) return LibraryCatalogTargetLevel.second;
-  if (parts.firstId != null) return LibraryCatalogTargetLevel.first;
-  return LibraryCatalogTargetLevel.root;
+  return item?.source.catalogRef;
 }
 
 TrackingSummary? resolveActiveTrackingSummary(
   List<TrackingSummary> entries,
-  CollectionItemSummary? activeCollectionItem,
+  LibraryEntrySummary? activeLibraryEntry,
 ) {
-  if (entries.isEmpty) {
-    return null;
-  }
-  if (activeCollectionItem != null) {
-    for (final entry in entries) {
-      if (entry.collectionItemRef == activeCollectionItem.ref) {
-        return entry;
-      }
-    }
-  }
+  if (activeLibraryEntry == null) return null;
   for (final entry in entries) {
-    if (entry.collectionItemRef == null) {
-      return entry;
-    }
+    if (entry.libraryEntryRef == activeLibraryEntry.ref) return entry;
   }
-  return entries.first;
-}
-
-class LibraryCollectionItemSummaryResolution {
-  const LibraryCollectionItemSummaryResolution({
-    required this.collectionItem,
-    this.nextSelectedCollectionItemRef,
-    this.clearNewest = false,
-  });
-
-  final CollectionItemSummary? collectionItem;
-  final CollectionItemRef? nextSelectedCollectionItemRef;
-  final bool clearNewest;
-}
-
-LibraryCollectionItemSummaryResolution resolveActiveCollectionItemSummary(
-  List<CollectionItemSummary> ownedCopies, {
-  CollectionItemSummary? fallback,
-  CollectionItemRef? selectedCollectionItemRef,
-  bool selectNewest = false,
-}) {
-  if (ownedCopies.isEmpty) {
-    return LibraryCollectionItemSummaryResolution(collectionItem: fallback);
-  }
-  if (selectNewest) {
-    final newest = ownedCopies.first;
-    return LibraryCollectionItemSummaryResolution(
-      collectionItem: newest,
-      nextSelectedCollectionItemRef: newest.ref,
-      clearNewest: true,
-    );
-  }
-  if (selectedCollectionItemRef != null) {
-    for (final item in ownedCopies) {
-      if (item.ref == selectedCollectionItemRef) {
-        return LibraryCollectionItemSummaryResolution(collectionItem: item);
-      }
-    }
-  }
-  final resolved = fallback == null
-      ? ownedCopies.first
-      : ownedCopies.firstWhere(
-          (item) => item.ref == fallback.ref,
-          orElse: () => ownedCopies.first,
-        );
-  return LibraryCollectionItemSummaryResolution(
-    collectionItem: resolved,
-    nextSelectedCollectionItemRef: resolved.ref,
-  );
-}
-
-String buildCollectionItemSummaryLabel(CollectionItemSummary item, int index) {
-  final parts = <String>[
-    item.isDigital == true ? 'Digital copy' : 'Copy ${index + 1}',
-  ];
-  final location = item.locationLabel?.trim();
-  if (location != null && location.isNotEmpty) {
-    parts.add(location);
-  }
-  final purchaseLabel = formatNullableDate(item.purchaseDate);
-  if (purchaseLabel != null) {
-    parts.add(purchaseLabel);
-  }
-  return parts.join('  ·  ');
-}
-
-String? _libraryReferenceLabel(
-  LibraryCatalogTargetLevel? level, {
-  required String itemLabel,
-  required String editionLabel,
-  required String variantLabel,
-  required String bundleLabel,
-}) {
-  return switch (level) {
-    LibraryCatalogTargetLevel.root => itemLabel,
-    LibraryCatalogTargetLevel.first => editionLabel,
-    LibraryCatalogTargetLevel.second => variantLabel,
-    LibraryCatalogTargetLevel.group => bundleLabel,
-    null => null,
-  };
+  return null;
 }
 
 LibraryPresentationLabels _libraryReferenceLabelsForMediaType(
     String? mediaType) {
-  return _libraryReferenceLabelsForKind(catalogMediaKindFromValue(mediaType));
+  return _libraryReferenceLabelsForKind(
+    catalogMediaKindFromApiValue(mediaType),
+  );
 }
 
 LibraryPresentationLabels _libraryReferenceLabelsForKind(
@@ -311,22 +116,12 @@ LibraryPresentationLabels _libraryReferenceLabelsForKind(
   return libraryPresentationForKind(kind).referenceLabels;
 }
 
-String? _preferredReleaseVariantId(LibraryWorkspaceReleaseSummary release) {
-  for (final variant in release.variants) {
-    if (variant.isPrimary) {
-      return variant.id;
-    }
-  }
-  return release.variants.isEmpty ? null : release.variants.first.id;
-}
-
-String? buildCollectionItemLabel(
-  CollectionItemSummary? item,
-  int index, {
+String? buildLibraryEntryContextLabel(
+  LibraryEntrySummary? item, {
   String? collectionValue,
 }) {
   if (item == null) return null;
-  final parts = <String>['Copy ${index + 1}'];
+  final parts = <String>[];
   if (item.isDigital == true) parts.add('Digital');
   final collectionLabel = collectionValue?.trim();
   if (collectionLabel != null && collectionLabel.isNotEmpty) {
@@ -337,12 +132,6 @@ String? buildCollectionItemLabel(
   }
   return parts.where((value) => value.isNotEmpty).join('  ·  ');
 }
-
-String? _normalizedEntryAnchorId(String? value) {
-  final trimmed = value?.trim();
-  return trimmed == null || trimmed.isEmpty ? null : trimmed;
-}
-
 String formatMoney(int? cents, String? currency) {
   if (cents == null) {
     return '';

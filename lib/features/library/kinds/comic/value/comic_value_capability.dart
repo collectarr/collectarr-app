@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_value_capability.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 
 class ComicValueCapability implements LibraryValueCapability {
   const ComicValueCapability();
@@ -12,22 +12,22 @@ class ComicValueCapability implements LibraryValueCapability {
   ) {
     final valuedEntries = [
       for (final entry in entries)
-        if (entry.isOwned)
+        if (entry.isEntry)
           (
             entry: entry,
-            owned: _comicCollectionItem(entry),
+            personalState: _comicLibraryEntry(entry),
           ),
     ].where((candidate) {
-      final collectionItem = candidate.owned;
-      return collectionItem != null &&
-          collectionItem.details.coverPriceCents != null &&
-          collectionItem.currency != null;
+      final libraryEntry = candidate.personalState;
+      return libraryEntry != null &&
+          libraryEntry.details.coverPriceCents != null &&
+          libraryEntry.currency != null;
     }).toList(growable: false);
     if (valuedEntries.isEmpty) {
       return null;
     }
     final currencies = {
-      for (final candidate in valuedEntries) candidate.owned!.currency!,
+      for (final candidate in valuedEntries) candidate.personalState!.currency!,
     };
     return LibraryCollectionValueSummary(
       valuedCount: valuedEntries.length,
@@ -36,7 +36,7 @@ class ComicValueCapability implements LibraryValueCapability {
           : valuedEntries.fold<int>(
               0,
               (total, candidate) {
-                return total + candidate.owned!.details.coverPriceCents!;
+                return total + candidate.personalState!.details.coverPriceCents!;
               },
             ),
       currency: currencies.length == 1 ? currencies.single : null,
@@ -44,7 +44,7 @@ class ComicValueCapability implements LibraryValueCapability {
     );
   }
 
-  static ComicCollectionItem? _comicCollectionItem(LibraryWorkspaceSource entry) {
-    return ComicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+  static ComicLibraryEntry? _comicLibraryEntry(LibraryWorkspaceSource entry) {
+    return ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
   }
 }

@@ -6670,6 +6670,7 @@
       "CatalogMusicDiscResponse": {
         "properties": {
           "disc_number": {
+            "minimum": 1.0,
             "title": "Disc Number",
             "type": "integer"
           },
@@ -7196,6 +7197,7 @@
           "duration_ms": {
             "anyOf": [
               {
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -7210,14 +7212,19 @@
             "type": "string"
           },
           "position": {
+            "maxLength": 16,
+            "minLength": 1,
             "title": "Position",
             "type": "string"
           },
           "position_order": {
+            "minimum": 0.0,
             "title": "Position Order",
             "type": "integer"
           },
           "title": {
+            "maxLength": 255,
+            "minLength": 1,
             "title": "Title",
             "type": "string"
           }

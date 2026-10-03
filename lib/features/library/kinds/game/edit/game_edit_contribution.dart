@@ -1,5 +1,5 @@
 import '../game_module_dependencies.dart';
-import '../ownership/game_transfer_collection_item.dart';
+import '../entries/game_transfer_library_entry.dart';
 
 final gameKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [
@@ -8,14 +8,14 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
       builder: buildGameLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.collectionItem,
+      scope: LibraryEntityScope.libraryEntry,
       builder: buildGameLibraryEditDialog,
     ),
   ]),
   vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
   conditions: GameVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (collectionItem) => switch (collectionItem?.value) {
-    GameCollectionItem item => item.grade,
+  entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
+    GameLibraryEntry item => item.grade,
     _ => null,
   },
   defaultCondition: 'Near Mint',
@@ -23,20 +23,20 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
   presentation: gameLibraryEditPresentation,
   coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   createSession: createGameEditDraft,
-  ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
-  ownedFormatHintResolver: resolveGameOwnedFormatHint,
-  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-      GameCollectionItemUpdatePayload.partial(
+  entryDigitalFlagResolver: resolveGameEntryDigitalFlag,
+  entryFormatHintResolver: resolveGameEntryFormatHint,
+  entryIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      GameLibraryEntryUpdatePayload.partial(
     indexNumber: Patch.set(indexNumber),
   ),
-  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-      GameCollectionItemUpdatePayload.partial(
+  entryConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      GameLibraryEntryUpdatePayload.partial(
     condition: Patch.set(condition),
     grade: Patch.set(collectionValue),
   ),
-  ownedBulkUpdatePayloadBuilder:
+  entryBulkUpdatePayloadBuilder:
       (_, condition, collectionValue, locationId, tags) =>
-          GameCollectionItemUpdatePayload.partial(
+          GameLibraryEntryUpdatePayload.partial(
     condition:
         condition == null ? const Patch.unchanged() : Patch.set(condition),
     grade: collectionValue == null
@@ -46,7 +46,7 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
         locationId == null ? const Patch.unchanged() : Patch.set(locationId),
     tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
   ),
-  ownedPersonalDetailsUpdatePayloadBuilder: (
+  entryPersonalDetailsUpdatePayloadBuilder: (
     _,
     purchaseDate,
     pricePaidCents,
@@ -56,7 +56,7 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
     locationChanged,
     locationId,
   ) =>
-      GameCollectionItemUpdatePayload.partial(
+      GameLibraryEntryUpdatePayload.partial(
     purchaseDate: Patch.set(purchaseDate),
     pricePaidCents: Patch.set(pricePaidCents),
     currency: Patch.set(currency),
@@ -65,9 +65,9 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
     locationId:
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
-  ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = gameTransferCollectionItem(updated);
-    return GameCollectionItemUpdatePayload.partial(
+  entryTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = gameTransferLibraryEntry(updated);
+    return GameLibraryEntryUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
       personalNotes: Patch.set(typed.personalNotes),
@@ -82,14 +82,14 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
       purchaseDate: Patch.set(typed.purchaseDate),
       soldAt: Patch.set(typed.soldAt),
       details: Patch.set(
-        const GameOwnedDetailsCodec().draftFromDetails(
+        const GameEntryDetailsCodec().draftFromDetails(
           typed.details,
         ),
       ),
     );
   },
-  ownedDetailsResetPayloadBuilder: () =>
-      GameCollectionItemUpdatePayload.partial(details: const Patch.clear()),
+  entryDetailsResetPayloadBuilder: () =>
+      GameLibraryEntryUpdatePayload.partial(details: const Patch.clear()),
 );
 
 Iterable<String> getGameFacetValues(

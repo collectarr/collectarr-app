@@ -1,9 +1,22 @@
+import 'dart:async';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 
 typedef SyncScheduler = void Function();
 typedef CollectionProjectionInvalidator = void Function();
+
+final Object _mutationContextKey = Object();
+
+final class _MutationContext {
+  _MutationContext(this.runner);
+
+  final CollectionMutationRunner runner;
+  final events = <CollectionEvent>[];
+  bool triggerSync = false;
+  bool invalidateProjection = false;
+}
 
 class CollectionMutationRunner {
   const CollectionMutationRunner({
@@ -23,18 +36,35 @@ class CollectionMutationRunner {
     List<CollectionEvent> eventsToEmit = const [],
     bool triggerSync = true,
   }) async {
-    final result = await database.transaction(() async {
-      return await action();
-    });
+    final nestedContext = Zone.current[_mutationContextKey];
+    if (nestedContext is _MutationContext &&
+        identical(nestedContext.runner, this)) {
+      final result = await action();
+      nestedContext.events.addAll(eventsToEmit);
+      nestedContext.triggerSync = nestedContext.triggerSync || triggerSync;
+      nestedContext.invalidateProjection = true;
+      return result;
+    }
 
-    for (final event in eventsToEmit) {
+    final context = _MutationContext(this);
+    final result = await database.transaction(
+      () => runZoned(
+        action,
+        zoneValues: {_mutationContextKey: context},
+      ),
+    );
+    context.events.addAll(eventsToEmit);
+
+    for (final event in context.events) {
       events.emit(event);
     }
 
     // The local transaction is authoritative for the desktop collection.
-    projectionInvalidator?.call();
+    if (context.invalidateProjection || context.events.isNotEmpty) {
+      projectionInvalidator?.call();
+    }
 
-    if (triggerSync && syncScheduler != null) {
+    if ((context.triggerSync || triggerSync) && syncScheduler != null) {
       try {
         syncScheduler!();
       } catch (_) {

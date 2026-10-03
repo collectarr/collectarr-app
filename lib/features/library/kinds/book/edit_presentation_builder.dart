@@ -9,15 +9,15 @@ class BookCatalogItemEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const BookCatalogItemEditPresentationBuilder()
       : super(
-          useOwnedMainArtworkLayout: false,
+          useEntryMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Tracking book',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: const [
+          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: const [
             LibraryEditTabSpec(
               id: 'main',
               icon: Icons.menu_book,
@@ -202,11 +202,11 @@ class BookCatalogItemEditPresentationBuilder
         label: 'Links',
         sectionIds: ['book_identifiers_links'],
       ),
-      if (context.isOwned)
+      if (context.isEntry)
         const LibraryEditTabSpec(
-          id: 'owned',
+          id: 'entry',
           icon: Icons.inventory_2,
-          label: 'Owned',
+          label: 'Entry',
         ),
     ];
   }

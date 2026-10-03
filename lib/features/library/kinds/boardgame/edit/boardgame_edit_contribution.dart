@@ -1,5 +1,5 @@
 import '../boardgame_module_dependencies.dart';
-import '../ownership/boardgame_transfer_collection_item.dart';
+import '../entries/boardgame_transfer_library_entry.dart';
 
 final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [
@@ -8,7 +8,7 @@ final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
       builder: buildBoardGameLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
-      scope: LibraryEntityScope.collectionItem,
+      scope: LibraryEntityScope.libraryEntry,
       builder: buildBoardGameLibraryEditDialog,
     ),
   ]),
@@ -16,27 +16,27 @@ final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
   presentation: boardGamesLibraryEditPresentation,
   coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: BoardGameVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (collectionItem) => switch (collectionItem?.value) {
-    BoardGameCollectionItem item => item.grade,
+  entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
+    BoardGameLibraryEntry item => item.grade,
     _ => null,
   },
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   createSession: createBoardGameEditDraft,
-  ownedDigitalFlagResolver: resolveBoardGameOwnedDigitalFlag,
-  ownedFormatHintResolver: resolveBoardGameOwnedFormatHint,
-  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-      BoardgameCollectionItemUpdatePayload.partial(
+  entryDigitalFlagResolver: resolveBoardGameEntryDigitalFlag,
+  entryFormatHintResolver: resolveBoardGameEntryFormatHint,
+  entryIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      BoardgameLibraryEntryUpdatePayload.partial(
     indexNumber: Patch.set(indexNumber),
   ),
-  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-      BoardgameCollectionItemUpdatePayload.partial(
+  entryConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      BoardgameLibraryEntryUpdatePayload.partial(
     condition: Patch.set(condition),
     grade: Patch.set(collectionValue),
   ),
-  ownedBulkUpdatePayloadBuilder:
+  entryBulkUpdatePayloadBuilder:
       (_, condition, collectionValue, locationId, tags) =>
-          BoardgameCollectionItemUpdatePayload.partial(
+          BoardgameLibraryEntryUpdatePayload.partial(
     condition:
         condition == null ? const Patch.unchanged() : Patch.set(condition),
     grade: collectionValue == null
@@ -46,7 +46,7 @@ final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
         locationId == null ? const Patch.unchanged() : Patch.set(locationId),
     tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
   ),
-  ownedPersonalDetailsUpdatePayloadBuilder: (
+  entryPersonalDetailsUpdatePayloadBuilder: (
     _,
     purchaseDate,
     pricePaidCents,
@@ -56,7 +56,7 @@ final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
     locationChanged,
     locationId,
   ) =>
-      BoardgameCollectionItemUpdatePayload.partial(
+      BoardgameLibraryEntryUpdatePayload.partial(
     purchaseDate: Patch.set(purchaseDate),
     pricePaidCents: Patch.set(pricePaidCents),
     currency: Patch.set(currency),
@@ -65,9 +65,9 @@ final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
     locationId:
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
-  ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = boardGameTransferCollectionItem(updated);
-    return BoardgameCollectionItemUpdatePayload.partial(
+  entryTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = boardGameTransferLibraryEntry(updated);
+    return BoardgameLibraryEntryUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
       personalNotes: Patch.set(typed.personalNotes),
@@ -82,12 +82,12 @@ final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
       purchaseDate: Patch.set(typed.purchaseDate),
       soldAt: Patch.set(typed.soldAt),
       details: Patch.set(
-        const BoardgameOwnedDetailsCodec().draftFromDetails(
+        const BoardgameEntryDetailsCodec().draftFromDetails(
           typed.details,
         ),
       ),
     );
   },
-  ownedDetailsResetPayloadBuilder: () =>
-      BoardgameCollectionItemUpdatePayload.partial(details: const Patch.clear()),
+  entryDetailsResetPayloadBuilder: () =>
+      BoardgameLibraryEntryUpdatePayload.partial(details: const Patch.clear()),
 );

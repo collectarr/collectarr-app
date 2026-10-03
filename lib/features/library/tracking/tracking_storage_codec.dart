@@ -1,11 +1,9 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
-import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -20,8 +18,7 @@ import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 final class TrackingStorageRow {
   const TrackingStorageRow({
     required this.id,
-    required this.catalogRef,
-    required this.collectionItemRef,
+    required this.libraryEntryRef,
     required this.sourceType,
     required this.status,
     required this.rating,
@@ -34,8 +31,7 @@ final class TrackingStorageRow {
   });
 
   final String id;
-  final CatalogEntityRef catalogRef;
-  final CollectionItemRef? collectionItemRef;
+  final LibraryEntryRef libraryEntryRef;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -57,7 +53,7 @@ final class TrackingStorageRead {
 /// Opaque sync input accepted at the persistence boundary.
 ///
 /// Generic sync orchestration may carry this transport value, but it never
-/// reconstructs or inspects a kind-owned tracking aggregate.
+/// reconstructs or inspects a kind-entry tracking aggregate.
 final class TrackingStorageSyncInput {
   const TrackingStorageSyncInput({
     required this.ref,
@@ -85,7 +81,7 @@ final class TrackingStorageSyncRecord {
   final bool isDeleted;
 }
 
-/// Kind-owned lifecycle storage and reconstruction behavior.
+/// Kind-entry lifecycle storage and reconstruction behavior.
 ///
 /// The generic repository owns transaction and query mechanics only. A codec
 /// semantic columns and their interpretation live in the kind adapter.
@@ -93,6 +89,16 @@ abstract interface class TrackingStorageCodec {
   const TrackingStorageCodec();
 
   CatalogMediaKind get kind;
+
+  void validateTrackingEntryKind(LibraryEntryRef ref) {
+    if (ref.kind != kind) {
+      throw ArgumentError.value(
+        ref.kind,
+        'libraryEntryRef.kind',
+        'Expected ${kind.apiValue} tracking entry',
+      );
+    }
+  }
 
   Future<List<TrackingStorageRead>> readStorageRecords(
     LocalDatabase db, {
@@ -118,7 +124,7 @@ abstract interface class TrackingStorageCodec {
     DateTime deletedAt,
   );
 
-  /// Applies a kind-owned patch after the common lifecycle fields have been
+  /// Applies a kind-entry patch after the common lifecycle fields have been
   /// resolved. This is the only place where an opaque patch becomes typed.
   TrackingStorageRecord applyKindPatch(
     TrackingStorageRecord entry,
@@ -127,8 +133,7 @@ abstract interface class TrackingStorageCodec {
 
   TrackingStorageRecord create({
     required String id,
-    required CatalogEntityRef catalogRef,
-    CollectionItemRef? collectionItemRef,
+    required LibraryEntryRef libraryEntryRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -168,13 +173,23 @@ abstract interface class TrackingStorageCodec {
   TrackingSummary summaryFromStorageRow(TrackingStorageRow row);
 }
 
-/// Shared persistence mechanics for kind-owned lifecycle codecs.
+/// Shared persistence mechanics for kind-entry lifecycle codecs.
 ///
 /// The mixin owns only filtering/reconstruction mechanics. Each kind supplies
 /// its row query and its own Drift companion, so no semantic table definition
 /// or field interpretation crosses the kind boundary.
 mixin TrackingStorageCodecSupport {
   CatalogMediaKind get kind;
+
+  void validateTrackingEntryKind(LibraryEntryRef ref) {
+    if (ref.kind != kind) {
+      throw ArgumentError.value(
+        ref.kind,
+        'libraryEntryRef.kind',
+        'Expected ${kind.apiValue} tracking entry',
+      );
+    }
+  }
 
   TrackingStorageRecord fromStorageRow(
     TrackingStorageRow row,
@@ -193,17 +208,16 @@ mixin TrackingStorageCodecSupport {
       );
     }
     throw UnsupportedError(
-      'Tracking kind ${kind.apiValue} does not define kind-owned patches.',
+      'Tracking kind ${kind.apiValue} does not define kind-entry patches.',
     );
   }
 
   TrackingSummary summaryFromStorageRow(TrackingStorageRow row) {
     return TrackingSummary(
       id: row.id,
-      catalogRef: row.catalogRef,
       status:
           mediaTrackingStatusFromValue(row.status) ?? MediaTrackingStatus.none,
-      collectionItemRef: row.collectionItemRef,
+      libraryEntryRef: row.libraryEntryRef,
       sourceType: trackingSourceTypeFromValue(row.sourceType),
       rating: row.rating,
       startedAt: row.startedAt,
@@ -273,8 +287,7 @@ mixin TrackingStorageCodecSupport {
 
 TrackingStorageRow trackingStorageRowFromColumns({
   required String id,
-  required String catalogRefJson,
-  required String? collectionItemRefKey,
+  required String libraryEntryRefKey,
   required String? sourceType,
   required String? status,
   required int? rating,
@@ -285,23 +298,10 @@ TrackingStorageRow trackingStorageRowFromColumns({
   required DateTime updatedAt,
   required DateTime? deletedAt,
 }) {
-  final decoded = jsonDecode(catalogRefJson);
-  if (decoded is! Map) {
-    throw FormatException(
-        'Tracking entry catalog_ref is invalid: $catalogRefJson');
-  }
-  final catalogRef = CatalogEntityRef.fromJson(
-    Map<String, Object?>.from(decoded),
-  );
-  requireKnownCatalogRef(catalogRef, 'tracking.catalogRef');
-  final collectionItemRef = collectionItemRefFromSerialized(collectionItemRefKey);
-  if (collectionItemRef != null) {
-    requireMatchingCatalogAndCollectionItemKinds(catalogRef, collectionItemRef);
-  }
+  final libraryEntryRef = LibraryEntryRef.fromKey(libraryEntryRefKey);
   return TrackingStorageRow(
     id: id,
-    catalogRef: catalogRef,
-    collectionItemRef: collectionItemRef,
+    libraryEntryRef: libraryEntryRef,
     sourceType: sourceType,
     status: status,
     rating: rating,
@@ -312,4 +312,17 @@ TrackingStorageRow trackingStorageRowFromColumns({
     updatedAt: updatedAt,
     deletedAt: deletedAt,
   );
+}
+
+LibraryEntryRef trackingLibraryEntryRefFromPayload(
+  Map<String, dynamic> payload,
+  CatalogMediaKind expectedKind,
+) {
+  final ref = libraryEntryRefFromSerialized(payload['library_entry_ref']);
+  if (ref == null || ref.kind != expectedKind) {
+    throw FormatException(
+      'Tracking payload requires a ${expectedKind.apiValue} library_entry_ref.',
+    );
+  }
+  return ref;
 }

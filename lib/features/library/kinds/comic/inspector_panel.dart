@@ -27,7 +27,7 @@ class ComicInspectorPanel extends StatelessWidget {
         onEdit: request.onEdit,
         onShare: request.onShare,
         onDuplicate: request.onDuplicate,
-        onToggleOwned: request.onToggleOwned,
+        onToggleEntry: request.onToggleEntry,
         onLoan: request.onLoan,
         onRefreshMetadata: request.onRefreshMetadata,
         onUnlinkFromCore: request.onUnlinkFromCore,
@@ -39,7 +39,6 @@ class ComicInspectorPanel extends StatelessWidget {
           slot: LibraryDetailSectionSlot.identity,
           title: 'Details',
           children: [
-            if (request.ownedCopiesSection != null) request.ownedCopiesSection!,
             if (request.bundleSection != null) request.bundleSection!,
             if (request.conditionGradeSection != null)
               request.conditionGradeSection!,

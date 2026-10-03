@@ -28,7 +28,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
   final VoidCallback onOpenTitleDetails;
 
   /// Optional typed TV season data used by deterministic widget tests and
-  /// callers that already have a TV-owned hierarchy snapshot.
+  /// callers that already have a TV-entry hierarchy snapshot.
   final List<TvSeason>? seasonsOverride;
 
   @override

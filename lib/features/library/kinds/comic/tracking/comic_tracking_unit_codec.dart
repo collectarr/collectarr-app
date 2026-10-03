@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
@@ -28,9 +26,8 @@ final class ComicTrackingUnitCodec implements TrackingUnitStorageCodec {
         fromStorageRow(
           trackingUnitStorageRowFromColumns(
             id: row.id,
-            targetRefJson: row.targetRefJson,
-            trackingEntryId: row.trackingEntryId,
-            collectionItemRefKey: row.collectionItemRefKey,
+                        trackingEntryId: row.trackingEntryId,
+            libraryEntryRefKey: row.libraryEntryRefKey,
             completedAt: row.completedAt,
             updatedAt: row.updatedAt,
             deletedAt: row.deletedAt,
@@ -54,9 +51,8 @@ final class ComicTrackingUnitCodec implements TrackingUnitStorageCodec {
     return fromStorageRow(
       trackingUnitStorageRowFromColumns(
         id: row.id,
-        targetRefJson: row.targetRefJson,
-        trackingEntryId: row.trackingEntryId,
-        collectionItemRefKey: row.collectionItemRefKey,
+                trackingEntryId: row.trackingEntryId,
+        libraryEntryRefKey: row.libraryEntryRefKey,
         completedAt: row.completedAt,
         updatedAt: row.updatedAt,
         deletedAt: row.deletedAt,
@@ -71,9 +67,8 @@ final class ComicTrackingUnitCodec implements TrackingUnitStorageCodec {
       return db.into(db.comicTrackingUnitRows).insertOnConflictUpdate(
             ComicTrackingUnitRowsCompanion.insert(
               id: unit.id,
-              targetRefJson: jsonEncode(unit.targetRef.toJson()),
-              trackingEntryId: Value(unit.trackingEntryId),
-              collectionItemRefKey: Value(unit.collectionItemRef?.key),
+                            trackingEntryId: Value(unit.trackingEntryId),
+              libraryEntryRefKey: unit.libraryEntryRef.key,
               completedAt: unit.completedAt,
               updatedAt: unit.updatedAt,
               deletedAt: Value(unit.deletedAt),
@@ -129,9 +124,8 @@ final class ComicTrackingUnitCodec implements TrackingUnitStorageCodec {
         : const _ComicCoordinates(null);
     return ComicTrackingUnit(
       id: row.id,
-      targetRef: row.targetRef,
-      trackingEntryId: row.trackingEntryId,
-      collectionItemRef: row.collectionItemRef,
+            trackingEntryId: row.trackingEntryId,
+      libraryEntryRef: row.libraryEntryRef,
       issueNumber: typedCoordinates.issueNumber,
       completedAt: row.completedAt,
       updatedAt: row.updatedAt,
@@ -153,7 +147,7 @@ final class ComicTrackingUnitCodec implements TrackingUnitStorageCodec {
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
-    if (row.targetRef.mediaKind != kind) {
+    if (row.libraryEntryRef.kind != kind) {
       throw const FormatException('Comic tracking unit has a non-Comic ref');
     }
     return fromStorageRow(

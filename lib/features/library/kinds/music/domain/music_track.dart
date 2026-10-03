@@ -9,6 +9,7 @@ final class MusicTrack {
     required this.mediumId,
     required this.position,
     required this.title,
+    this.positionOrder,
     this.artist,
     this.composition,
     this.durationMs,
@@ -32,8 +33,11 @@ final class MusicTrack {
   final String position;
   final String title;
 
+  /// Numeric catalog order, independent of display positions such as A1/B2.
+  final int? positionOrder;
+
   /// Track-level artist credit. The Music mapper reads it at the Core
-  /// transport boundary and preserves it in Music-owned persistence.
+  /// transport boundary and preserves it in Music-entry persistence.
   final String? artist;
   final String? composition;
   final int? durationMs;
@@ -61,6 +65,7 @@ final class MusicTrack {
         mediumId: MusicMediumId(_text(json['medium_id']) ?? ''),
         position: _text(json['position']) ?? '',
         title: _text(json['title']) ?? 'Track',
+        positionOrder: _int(json['position_order']),
         artist: _text(json['artist']),
         composition: _text(json['composition']),
         durationMs: _int(json['duration_ms']),
@@ -84,6 +89,7 @@ final class MusicTrack {
         'updated_at': updatedAt.toIso8601String(),
         'position': position,
         'title': title,
+        if (positionOrder != null) 'position_order': positionOrder,
         if (artist != null) 'artist': artist,
         if (composition != null) 'composition': composition,
         if (durationMs != null) 'duration_ms': durationMs,

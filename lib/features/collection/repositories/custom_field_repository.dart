@@ -1,9 +1,7 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
@@ -104,9 +102,6 @@ class CustomFieldRepository {
             id: fieldValue.id,
             targetId: fieldValue.targetId,
             targetScope: fieldValue.targetScope.apiValue,
-            catalogRefJson: Value(fieldValue.catalogRef == null
-                ? null
-                : jsonEncode(fieldValue.catalogRef!.toJson())),
             fieldDefinitionId: fieldValue.fieldDefinitionId,
             value: Value(fieldValue.value),
             updatedAt: fieldValue.updatedAt,
@@ -128,9 +123,6 @@ class CustomFieldRepository {
             id: v.id,
             targetId: v.targetId,
             targetScope: v.targetScope.apiValue,
-            catalogRefJson: Value(v.catalogRef == null
-                ? null
-                : jsonEncode(v.catalogRef!.toJson())),
             fieldDefinitionId: v.fieldDefinitionId,
             value: Value(v.value),
             updatedAt: v.updatedAt,
@@ -170,24 +162,10 @@ class CustomFieldRepository {
   CustomFieldValue _valueFromRow(CustomFieldValuesCacheData row) {
     final targetScope = CustomFieldTargetScope.fromApiValue(row.targetScope);
     _requireTarget(row.targetId, targetScope);
-    final catalogRefJson = row.catalogRefJson;
-    CatalogEntityRef? catalogRef;
-    if (catalogRefJson != null) {
-      final decoded = jsonDecode(catalogRefJson);
-      if (decoded is! Map) {
-        throw const FormatException(
-            'catalogRefJson must contain a JSON object');
-      }
-      catalogRef = CatalogEntityRef.fromJson(
-        Map<String, dynamic>.from(decoded),
-      );
-      requireKnownCatalogRef(catalogRef, 'customField.catalogRef');
-    }
     return CustomFieldValue(
       id: row.id,
       targetId: row.targetId,
       targetScope: targetScope,
-      catalogRef: catalogRef,
       fieldDefinitionId: row.fieldDefinitionId,
       value: row.value,
       updatedAt: row.updatedAt,
@@ -200,9 +178,10 @@ class CustomFieldRepository {
         'Custom field target requires a non-empty id and an explicit scope.',
       );
     }
-    if (targetScope == CustomFieldTargetScope.collectionItem) {
-      final collectionItemRef = CollectionItemRef.fromKey(targetId);
-      requireKnownCollectionItemRef(collectionItemRef, 'customField.collectionItemRef');
+    if (targetScope == CustomFieldTargetScope.libraryEntry) {
+      final libraryEntryRef = LibraryEntryRef.fromKey(targetId);
+      requireKnownLibraryEntryRef(
+          libraryEntryRef, 'customField.libraryEntryRef');
     }
   }
 
@@ -239,9 +218,6 @@ class CustomFieldRepository {
         'fieldValue.fieldDefinitionId',
         'Custom field definition id must not be empty.',
       );
-    }
-    if (value.catalogRef != null) {
-      requireKnownCatalogRef(value.catalogRef!, 'fieldValue.catalogRef');
     }
   }
 }

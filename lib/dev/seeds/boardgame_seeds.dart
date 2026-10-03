@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -7,11 +7,11 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
@@ -61,7 +61,7 @@ String boardgameSeedCoverUrl(String title) {
 }
 
 final boardgameDevSeedContributor =
-    TypedDevSeedKindContributor<BoardGameCollectionItem>(
+    TypedDevSeedKindContributor<BoardGameLibraryEntry>(
   kind: CatalogMediaKind.boardgame,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
@@ -79,11 +79,9 @@ final boardgameDevSeedContributor =
   validateCatalog: validateBoardgameSeedCatalog,
   validateCatalogGraph: validateBoardgameSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  collectionItemsTyped: boardgameSeedCollectionItems,
-  collectionItemSummaryTyped: BoardGameCollectionItemProjection.toSummary,
-  validateOwnedTyped: validateBoardgameSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      BoardGameOwnedRepository(db).upsertAll(boardgameSeedCollectionItems(now)),
+  libraryEntriesTyped: boardgameSeedLibraryEntries,
+  libraryEntrySummaryTyped: BoardGameLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateBoardgameSeedEntry,
   trackingRecords: boardgameSeedTrackingStates,
   seedDatabase: seedBoardgameDatabase,
 );
@@ -163,9 +161,9 @@ List<String> validateBoardgameSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateBoardgameSeedOwned(BoardGameCollectionItem item) {
+List<String> validateBoardgameSeedEntry(BoardGameLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final prefix = '${item.catalogItem.kind}/${item.id}';
   final details = item.details;
   seedRequireText(
       issues, prefix, 'boardgame.edition_language', details.editionLanguage);
@@ -536,23 +534,23 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
     ];
 
-List<BoardGameCollectionItem> boardgameSeedCollectionItems(DateTime now) => [
+List<BoardGameLibraryEntry> boardgameSeedLibraryEntries(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        BoardGameCollectionItem(
+        BoardGameLibraryEntry(
           // Keep a deterministic first ID so repeated seed runs remain
           // idempotent.
-          id: CollectionItemId(
-            i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
+          id: LibraryEntryId(
+            i == 1 ? 'seed-entry-bg-01' : 'seed-entry-bg-${seedOrdinal2(i)}',
           ),
-          catalogRef: seedCatalogRef(
+          sourceCatalogRef: seedCatalogRef(
             CatalogMediaKind.boardgame,
             'seed-boardgame-${seedOrdinal2(i)}',
-          ),
+          ).toCatalogItemRef(),
           createdAt: now.subtract(Duration(days: 600 - (i * 25))),
           updatedAt: now,
           isDigital: false,
           condition: i.isEven ? 'Near Mint' : 'Very Good',
-          details: BoardgameOwnedDetails(
+          details: BoardgameEntryDetails(
             editionLanguage: 'English',
             editionRegion: 'US',
             componentCondition: i.isEven ? 'Near Mint' : 'Very Good',
@@ -582,13 +580,9 @@ List<TrackingStorageRecord> boardgameSeedTrackingStates(DateTime now) => [
           id: i == 1
               ? 'seed-track-06'
               : 'seed-track-boardgame-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.boardgame,
-            'seed-boardgame-${seedOrdinal2(i)}',
-          ),
-          collectionItemRef: seedCollectionItemRef(
-            CatalogMediaKind.boardgame,
-            i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
+            i == 1 ? 'seed-entry-bg-01' : 'seed-entry-bg-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i == 1

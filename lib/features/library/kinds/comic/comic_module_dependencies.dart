@@ -1,7 +1,7 @@
 export 'package:collectarr_app/core/api/api_client.dart';
 export 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 export 'package:collectarr_app/core/models/catalog_media_kind.dart';
-export 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+export 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 export 'package:collectarr_app/features/library/actions/ui_action.dart';
 export 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 export 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
@@ -27,7 +27,7 @@ export 'package:collectarr_app/features/library/kinds/comic/comic_physical_media
 export 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/comic/detail/comic_personal_detail_fields.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-export 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+export 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 export 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/comic/edit/comic_transferable_fields.dart';
 export 'package:collectarr_app/features/library/kinds/comic/edit/catalog_item/comic_catalog_item_edit_dialog.dart';
@@ -36,11 +36,11 @@ export 'package:collectarr_app/features/library/kinds/comic/edit_presentation_bu
 export 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 export 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 export 'package:collectarr_app/features/library/kinds/comic/metadata/comic_metadata_compare.dart';
-export 'package:collectarr_app/features/library/kinds/comic/ownership/comic_collection_item_semantics.dart';
-export 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
-export 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
-export 'package:collectarr_app/features/library/kinds/comic/ownership/comic_collection_item_create_payload.dart';
-export 'package:collectarr_app/features/library/kinds/comic/ownership/comic_collection_item_update_payload.dart';
+export 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_semantics.dart';
+export 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_codec.dart';
+export 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
+export 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_create_payload.dart';
+export 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 export 'package:collectarr_app/features/library/kinds/comic/relations/comic_relation_capability.dart';
 export 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
@@ -53,7 +53,6 @@ export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-export 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 export 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 export 'package:flutter/material.dart';

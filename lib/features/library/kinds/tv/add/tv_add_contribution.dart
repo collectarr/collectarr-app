@@ -10,10 +10,9 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   manualDraftBuilder: TvAddManualDraft.new,
   manualCandidateBuilder: buildTvManualCandidate,
   manualProposalBuilder: buildTvManualProposalData,
-  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      TvCollectionItemCreatePayload(
-    catalogRef: item.reference,
-    details: details as TvOwnedDetailsDraft,
+  entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      TvLibraryEntryCreatePayload(
+    details: details as TvEntryDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
@@ -23,6 +22,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
+    ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
@@ -42,7 +42,7 @@ class LibraryKindWorkspaceController extends LibraryNoopBrowserDelegate {
     required Color accent,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<CollectionItemSummary> allOwnedCopies,
+    required List<LibraryEntrySummary> allLibraryEntries,
     required List<WishlistItem> allWishlistItems,
   }) {
     if (!canOpenKindDrilldown(type, selectedItem)) {
@@ -62,7 +62,7 @@ class LibraryKindWorkspaceController extends LibraryNoopBrowserDelegate {
       onBack: closeItemDrilldown,
       onRefreshFromCore: onRefreshFromCore,
       onOpenTitleDetails: onOpenTitleDetails,
-      ownedCopies: allOwnedCopies,
+      libraryEntries: allLibraryEntries,
       wishlistItems: allWishlistItems,
     );
   }

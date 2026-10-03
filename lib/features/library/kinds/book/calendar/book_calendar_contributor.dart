@@ -16,8 +16,9 @@ final class BookCalendarContributor implements LibraryCalendarContributor {
     LibraryCalendarContext context,
   ) async {
     final events = <CalendarEvent>[];
-    for (final ref in context.catalogRefs) {
-      final item = await _loadItem(context, ref.id);
+    for (final ref in context.libraryEntryRefs) {
+      if (ref.kind != kind) continue;
+      final item = await _loadItem(context, ref.id.value);
       if (item == null) continue;
       final date = item.releaseDate;
       if (date == null) continue;
@@ -26,7 +27,7 @@ final class BookCalendarContributor implements LibraryCalendarContributor {
         date: DateTime.utc(date.year, date.month, date.day),
         title: item.resolvedDisplayTitle,
         eventId: 'book-catalog-item:${item.id}',
-        catalogRef: ref,
+        libraryEntryRef: ref,
       ));
     }
     return events;

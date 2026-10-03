@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
@@ -8,15 +10,19 @@ final class MusicAlbumFormValues {
     this.sortTitle = '',
     this.subtitle = '',
     this.artist = '',
+    this.artistCredits = const [],
     this.originalTitle = '',
     this.originalReleaseDate,
+    this.originalReleaseDateParts,
     this.recordingDate,
+    this.recordingDateParts,
     List<String> studios = const [],
     this.isLive,
     List<String> genres = const [],
     this.releaseType = '',
     this.releaseStatus = '',
     this.releaseDate,
+    this.releaseDateParts,
     this.publisher = '',
     this.countryCode = '',
     this.language = '',
@@ -34,6 +40,7 @@ final class MusicAlbumFormValues {
     this.extra = '',
     this.boxSetName = '',
     this.coverImageUrl = '',
+    this.backCoverImageUrl = '',
     this.boxSetMembership,
   })  : studios = List.of(studios),
         genres = List.of(genres),
@@ -45,15 +52,28 @@ final class MusicAlbumFormValues {
         sortTitle: album.sortTitle ?? '',
         subtitle: album.subtitle ?? '',
         artist: album.artist ?? '',
+        artistCredits: List.of(album.artistCredits),
         originalTitle: album.originalTitle ?? '',
         originalReleaseDate: album.originalReleaseDate,
+        originalReleaseDateParts: album.originalReleaseDateParts ??
+            (album.originalReleaseDate == null
+                ? null
+                : PartialDate.fromDateTime(album.originalReleaseDate!)),
         recordingDate: album.recordingDate,
+        recordingDateParts: album.recordingDateParts ??
+            (album.recordingDate == null
+                ? null
+                : PartialDate.fromDateTime(album.recordingDate!)),
         studios: album.studios,
         isLive: album.isLive,
         genres: album.genres,
         releaseType: album.releaseType ?? '',
         releaseStatus: album.releaseStatus ?? '',
         releaseDate: album.releaseDate,
+        releaseDateParts: album.releaseDateParts ??
+            (album.releaseDate == null
+                ? null
+                : PartialDate.fromDateTime(album.releaseDate!)),
         publisher: album.publisher ?? '',
         countryCode: album.countryCode ?? '',
         language: album.language ?? '',
@@ -61,8 +81,8 @@ final class MusicAlbumFormValues {
         upc: album.upc ?? '',
         catalogNumber: album.catalogNumber ?? '',
         packaging: album.packaging ?? '',
-        physicalFormat: album.physicalFormat ?? '',
-        physicalFormatLabel: album.physicalFormatLabel ?? '',
+        physicalFormat: album.format ?? album.physicalFormat ?? '',
+        physicalFormatLabel: album.format ?? album.physicalFormatLabel ?? '',
         soundTypes: album.soundTypes,
         vinylColor: album.vinylColor ?? '',
         vinylWeight: album.vinylWeight ?? '',
@@ -71,6 +91,7 @@ final class MusicAlbumFormValues {
         extra: album.extra ?? '',
         boxSetName: album.boxSetName ?? '',
         coverImageUrl: album.coverImageUrl ?? '',
+        backCoverImageUrl: album.backCoverImageUrl ?? '',
         boxSetMembership: album.boxSetMembership,
       );
 
@@ -78,15 +99,19 @@ final class MusicAlbumFormValues {
   String sortTitle;
   String subtitle;
   String artist;
+  List<MusicArtistCredit> artistCredits;
   String originalTitle;
   DateTime? originalReleaseDate;
+  PartialDate? originalReleaseDateParts;
   DateTime? recordingDate;
+  PartialDate? recordingDateParts;
   List<String> studios;
   bool? isLive;
   List<String> genres;
   String releaseType;
   String releaseStatus;
   DateTime? releaseDate;
+  PartialDate? releaseDateParts;
   String publisher;
   String countryCode;
   String language;
@@ -104,5 +129,6 @@ final class MusicAlbumFormValues {
   String extra;
   String boxSetName;
   String coverImageUrl;
+  String backCoverImageUrl;
   MusicBoxSetMembership? boxSetMembership;
 }

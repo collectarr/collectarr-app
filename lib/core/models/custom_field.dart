@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 
 enum CustomFieldValueType {
   text('text', 'Text'),
@@ -39,15 +38,7 @@ enum CustomFieldValueType {
 }
 
 enum CustomFieldTargetScope {
-  work('work'),
-  edition('edition'),
-  release('release'),
-  issue('issue'),
-  episode('episode'),
-  track('track'),
-  collectionItem('collectionItem'),
-  trackingRecord('trackingEntry'),
-  media('media'),
+  libraryEntry('libraryEntry'),
   all('all');
 
   const CustomFieldTargetScope(this.apiValue);
@@ -57,14 +48,14 @@ enum CustomFieldTargetScope {
   static CustomFieldTargetScope fromApiValue(String? value) {
     final normalized = value?.trim();
     if (normalized == null || normalized.isEmpty) {
-      return CustomFieldTargetScope.media;
+      return CustomFieldTargetScope.libraryEntry;
     }
     for (final scope in CustomFieldTargetScope.values) {
       if (scope.apiValue == normalized) {
         return scope;
       }
     }
-    return CustomFieldTargetScope.media;
+    throw FormatException('Unknown custom field target scope: $value');
   }
 }
 
@@ -253,7 +244,6 @@ class CustomFieldValue {
     required this.id,
     required this.targetId,
     required this.targetScope,
-    this.catalogRef,
     required this.fieldDefinitionId,
     this.value,
     required this.updatedAt,
@@ -262,7 +252,6 @@ class CustomFieldValue {
   final String id;
   final String targetId;
   final CustomFieldTargetScope targetScope;
-  final CatalogEntityRef? catalogRef;
   final String fieldDefinitionId;
   final String? value;
   final DateTime updatedAt;
@@ -273,10 +262,6 @@ class CustomFieldValue {
       targetId: json['target_id'] as String,
       targetScope:
           CustomFieldTargetScope.fromApiValue(json['target_scope'] as String?),
-      catalogRef: json['catalog_ref'] is Map
-          ? CatalogEntityRef.fromJson(
-              Map<String, Object?>.from(json['catalog_ref'] as Map))
-          : null,
       fieldDefinitionId: json['field_definition_id'] as String,
       value: json['value'] as String?,
       updatedAt: DateTime.parse(json['updated_at'] as String),
@@ -287,7 +272,6 @@ class CustomFieldValue {
     return {
       'target_id': targetId,
       'target_scope': targetScope.apiValue,
-      if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
       'field_definition_id': fieldDefinitionId,
       'value': value,
     };
@@ -297,7 +281,6 @@ class CustomFieldValue {
     String? id,
     String? targetId,
     CustomFieldTargetScope? targetScope,
-    CatalogEntityRef? catalogRef,
     String? fieldDefinitionId,
     String? value,
     DateTime? updatedAt,
@@ -306,7 +289,6 @@ class CustomFieldValue {
       id: id ?? this.id,
       targetId: targetId ?? this.targetId,
       targetScope: targetScope ?? this.targetScope,
-      catalogRef: catalogRef ?? this.catalogRef,
       fieldDefinitionId: fieldDefinitionId ?? this.fieldDefinitionId,
       value: value ?? this.value,
       updatedAt: updatedAt ?? this.updatedAt,

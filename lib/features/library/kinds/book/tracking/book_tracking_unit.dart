@@ -1,18 +1,16 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 
-/// Book-owned volume/chapter progress unit.
+/// Book-entry volume/chapter progress unit.
 final class BookTrackingUnit extends TrackingUnitSummary {
   const BookTrackingUnit({
     required super.id,
-    required super.targetRef,
+    required super.libraryEntryRef,
     required super.completedAt,
     required super.updatedAt,
     this.volumeNumber,
     this.chapterNumber,
     super.trackingEntryId,
-    super.collectionItemRef,
     super.deletedAt,
   });
 
@@ -34,18 +32,16 @@ final class BookTrackingUnit extends TrackingUnitSummary {
   @override
   BookTrackingUnit copyWith({
     String? id,
-    CatalogEntityRef? targetRef,
     String? trackingEntryId,
-    CollectionItemRef? collectionItemRef,
+    LibraryEntryRef? libraryEntryRef,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
   }) {
     return BookTrackingUnit(
       id: id ?? this.id,
-      targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      collectionItemRef: collectionItemRef ?? this.collectionItemRef,
+      libraryEntryRef: libraryEntryRef ?? this.libraryEntryRef,
       volumeNumber: volumeNumber,
       chapterNumber: chapterNumber,
       completedAt: completedAt ?? this.completedAt,

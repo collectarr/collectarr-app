@@ -18,6 +18,8 @@ class LibraryAddFormOptionsController {
     required LibraryKindRegistration type,
     required String selectedCondition,
     String? selectedTags,
+    String? selectedOwner,
+    String? selectedPurchaseStore,
   }) async {
     final conditionDefinition = libraryEditPresentationForKind(type.kind)
         .vocabularies
@@ -37,9 +39,23 @@ class LibraryAddFormOptionsController {
       mediaKind: type.kind.apiValue,
       selectedTags: splitPickListValues(selectedTags),
     );
+    final owners = await loadSingleValuePickListOptions(
+      database,
+      listName: UniversalVocabularies.owners.key,
+      mediaKind: type.kind.apiValue,
+      selectedValue: selectedOwner,
+    );
+    final purchaseStores = await loadSingleValuePickListOptions(
+      database,
+      listName: UniversalVocabularies.purchaseStore.key,
+      mediaKind: type.kind.apiValue,
+      selectedValue: selectedPurchaseStore,
+    );
     return LibraryAddFormPickListOptions(
       conditions: conditionOptions.conditions,
       tags: tags,
+      owners: owners,
+      purchaseStores: purchaseStores,
     );
   }
 }
@@ -48,8 +64,12 @@ class LibraryAddFormPickListOptions {
   const LibraryAddFormPickListOptions({
     required this.conditions,
     required this.tags,
+    required this.owners,
+    required this.purchaseStores,
   });
 
   final List<String> conditions;
   final List<String> tags;
+  final List<String> owners;
+  final List<String> purchaseStores;
 }

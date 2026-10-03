@@ -64,17 +64,6 @@ class MovieLibraryMediaPresentationBuilder
   }
 
   @override
-  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
-    LibraryWorkspaceSource entry,
-  ) {
-    final catalog = entry.catalogData;
-    if (catalog is! MovieWorkspaceCatalogData) return const [];
-    // This Catalog Item already represents the concrete Movie edition.
-    // Disc/media rows are contained children, not another release level.
-    return const [];
-  }
-
-  @override
   List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
     LibraryWorkspaceSource entry,
   ) {
@@ -97,28 +86,6 @@ class MovieLibraryMediaPresentationBuilder
             label: link['title']?.toString(),
             source: link['site']?.toString(),
           ),
-    ];
-  }
-
-  @override
-  List<LibraryAddReleaseOption> buildReleaseOptions({
-    required CatalogSearchCandidate item,
-  }) {
-    final itemDto = item.kindCapability.mapTransport((transport) => transport);
-    return [
-      LibraryAddReleaseOption(
-        id: itemDto.id,
-        title: itemDto.title,
-        formatId: itemDto.physicalFormat,
-        formatLabel: itemDto.physicalFormatLabel,
-        formatBadge: movieFormatBadge(
-          itemDto.physicalFormat,
-          label: itemDto.physicalFormatLabel,
-        ),
-        releaseDate: itemDto.releaseDate,
-        coverImageUrl: itemDto.coverImageUrl,
-        identifierCode: itemDto.barcode,
-      ),
     ];
   }
 

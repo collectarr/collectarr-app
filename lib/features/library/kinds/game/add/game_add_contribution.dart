@@ -10,10 +10,9 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   manualDraftBuilder: GameAddManualDraft.new,
   manualCandidateBuilder: buildGameManualCandidate,
   manualProposalBuilder: buildGameManualProposalData,
-  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      GameCollectionItemCreatePayload(
-    catalogRef: item.reference,
-    details: details as GameOwnedDetailsDraft,
+  entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      GameLibraryEntryCreatePayload(
+    details: details as GameEntryDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
@@ -23,6 +22,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
+    ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),

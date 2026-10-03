@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_import_transpo
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 
-/// Catalog transport mutations are kept separate from Owned mutations.
+/// Catalog transport mutations are kept separate from Entry mutations.
 final class CatalogTransportMutations {
   const CatalogTransportMutations({
     required this.catalogTransport,
@@ -18,7 +18,10 @@ final class CatalogTransportMutations {
   ) async {
     await mutationRunner.run(
       action: () async {
-        await catalogTransport.upsertTransports([item]);
+        await catalogTransport.upsertTransportItems(
+          [item.decodeItem()],
+          forceCacheUpdate: true,
+        );
       },
       eventsToEmit: [CatalogItemChanged(item.ref)],
     );
@@ -30,7 +33,10 @@ final class CatalogTransportMutations {
 
     await mutationRunner.run(
       action: () async {
-        await catalogTransport.upsertTransports(pending);
+        await catalogTransport.upsertTransportItems(
+          pending.map((item) => item.decodeItem()),
+          forceCacheUpdate: true,
+        );
       },
       eventsToEmit: [
         for (final item in pending) CatalogItemChanged(item.ref),

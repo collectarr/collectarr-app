@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
@@ -74,8 +74,8 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => MusicCollectionItemProjection.fromDispatch(
-      item.source.collectionItemDispatch,
+    value: (item) => MusicLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
     )?.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
@@ -98,8 +98,8 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => MusicCollectionItemProjection.fromDispatch(
-      item.source.collectionItemDispatch,
+    value: (item) => MusicLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
     )?.condition,
   ),
   LibraryFilterDefinition<Object?>(

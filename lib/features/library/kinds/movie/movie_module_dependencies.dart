@@ -1,7 +1,7 @@
 export 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 export 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 export 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-export 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+export 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 export 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 export 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 export 'package:collectarr_app/features/library/add/library_add_kind_filters.dart';
@@ -13,7 +13,6 @@ export 'package:collectarr_app/features/library/config/library_facet_module.dart
 export 'package:collectarr_app/features/library/config/library_kind_workspace_controller.dart';
 export 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 export 'package:collectarr_app/features/library/config/library_search_target.dart';
-export 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 export 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 export 'package:collectarr_app/features/library/generic/transferable_field.dart';
 export 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
@@ -22,16 +21,16 @@ export 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual
 export 'package:collectarr_app/features/library/kinds/movie/add/movie_catalog_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/movie/add_preview.dart';
 export 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-export 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
+export 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
 export 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 export 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
-export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_collection_item_semantics.dart';
-export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
-export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
-export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_collection_item_create_payload.dart';
-export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_collection_item_update_payload.dart';
+export 'package:collectarr_app/features/library/kinds/movie/entries/movie_library_entry_semantics.dart';
+export 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_codec.dart';
+export 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
+export 'package:collectarr_app/features/library/kinds/movie/entries/movie_library_entry_create_payload.dart';
+export 'package:collectarr_app/features/library/kinds/movie/entries/movie_library_entry_update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 export 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
@@ -43,7 +42,6 @@ export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-export 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 export 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 export 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';

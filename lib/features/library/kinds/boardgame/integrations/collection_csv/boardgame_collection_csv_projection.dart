@@ -1,17 +1,17 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 
 /// BoardGame's semantic contribution to the generic collection CSV host.
 final class BoardGameCollectionCsvProjection
-    with CollectionCsvKindOwnedImportSupport
-    implements CollectionCsvKindProfile, CollectionCsvOwnedCellsDecoder {
+    with CollectionCsvKindEntryImportSupport
+    implements CollectionCsvKindProfile, CollectionCsvEntryCellsDecoder {
   const BoardGameCollectionCsvProjection();
 
   @override
@@ -68,11 +68,11 @@ final class BoardGameCollectionCsvProjection
   }
 
   @override
-  List<String>? importOwnedCells({
+  List<String>? importEntryCells({
     required List<String> header,
     required List<String> values,
   }) {
-    return const BoardGameCollectionCsvImportProfile().importOwnedCells(
+    return const BoardGameCollectionCsvImportProfile().importEntryCells(
       header: header,
       values: values,
     );
@@ -83,11 +83,11 @@ final class BoardGameCollectionCsvProjection
       BoardGameCollectionCsvImportProfile.columnAliases;
 
   @override
-  JsonEncodable? decodeOwnedCells(List<String> cells) {
+  JsonEncodable? decodeEntryCells(List<String> cells) {
     if (cells.isEmpty || cells.first.trim().isEmpty) {
       return null;
     }
-    return _BoardGameCollectionCsvOwnedImportPayload(cells.first.trim());
+    return _BoardGameCollectionCsvEntryImportPayload(cells.first.trim());
   }
 
   @override
@@ -134,35 +134,35 @@ final class BoardGameCollectionCsvProjection
   }
 
   @override
-  String? ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final owned =
-        BoardGameCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is BoardGameCollectionItem ? owned.grade : null;
+  String? entryCollectionValue(LibraryWorkspaceSource entry) {
+    final personalState =
+        BoardGameLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is BoardGameLibraryEntry ? personalState.grade : null;
   }
 
   @override
-  String? ownedCondition(LibraryWorkspaceSource entry) {
-    final owned =
-        BoardGameCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is BoardGameCollectionItem ? owned.condition : null;
+  String? entryCondition(LibraryWorkspaceSource entry) {
+    final personalState =
+        BoardGameLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is BoardGameLibraryEntry ? personalState.condition : null;
   }
 
   @override
-  int? ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final owned =
-        BoardGameCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is BoardGameCollectionItem ? owned.indexNumber : null;
+  int? entryIndexNumber(LibraryWorkspaceSource entry) {
+    final personalState =
+        BoardGameLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is BoardGameLibraryEntry ? personalState.indexNumber : null;
   }
 
   @override
-  String? ownedTags(LibraryWorkspaceSource entry) {
-    final owned =
-        BoardGameCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is BoardGameCollectionItem ? owned.tags : null;
+  String? entryTags(LibraryWorkspaceSource entry) {
+    final personalState =
+        BoardGameLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is BoardGameLibraryEntry ? personalState.tags : null;
   }
 
   @override
-  List<String> ownedCellsBeforeLocation(
+  List<String> entryCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
@@ -170,12 +170,12 @@ final class BoardGameCollectionCsvProjection
   }
 
   @override
-  List<String> ownedCellsAfterIndex(
+  List<String> entryCellsAfterIndex(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(
-      collectionCsvV1OwnedCellCount,
+      collectionCsvV1EntryCellCount,
       '',
     );
   }
@@ -189,8 +189,8 @@ final class BoardGameCollectionCsvProjection
   }
 }
 
-final class _BoardGameCollectionCsvOwnedImportPayload implements JsonEncodable {
-  const _BoardGameCollectionCsvOwnedImportPayload(this.grade);
+final class _BoardGameCollectionCsvEntryImportPayload implements JsonEncodable {
+  const _BoardGameCollectionCsvEntryImportPayload(this.grade);
 
   final String grade;
 

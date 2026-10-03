@@ -9,10 +9,6 @@ final comicKindPhysicalMediaFormats = comicPhysicalMediaFormats;
 
 final comicKindTrackingProfile = comicTrackingProfile;
 
-final comicKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final comicKindCatalogTarget = const RootCatalogTargetCapability();
-
 final comicKindViewProfile = standardMediaWorkspaceViewProfile(
   CatalogMediaKind.comic,
   comicKindUiPolicy,
@@ -51,15 +47,14 @@ final comicKindMetadata = LibraryMetadataCapability(
 final comicKindHierarchy = const LibraryHierarchyCapability();
 
 final comicKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Issue', plural: 'Issues'),
-  release: LibraryEntityLabel(singular: 'Variant', plural: 'Variants'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+  catalogItem: LibraryEntityLabel(singular: 'Issue', plural: 'Issues'),
+  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final comicKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.read,
   writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
+  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
   contentTargets: {LibraryTrackingTargetScope.content},
 );
 
@@ -143,9 +138,8 @@ final comicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
 );
 
 final comicKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
-  copy: LibraryEntityActionSet.copy,
+  catalogItem: LibraryEntityActionSet.catalogItem,
+  libraryEntry: LibraryEntityActionSet.libraryEntry,
   semanticActions: {
     LibraryEntityScope.catalogItem: [
       LibraryEntitySemanticActionDefinition(
@@ -167,7 +161,7 @@ final comicKindInspector = LibraryInspectorCapability(
         sectionsBuilder: buildComicWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.collectionItem,
+        scope: LibraryEntityScope.libraryEntry,
         heroBuilder: buildComicCopyInspectorHero,
         sectionsBuilder: buildComicCopyInspectorSections,
       ),

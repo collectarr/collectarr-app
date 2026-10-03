@@ -1,10 +1,11 @@
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
@@ -15,7 +16,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
@@ -148,7 +149,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   final _detailHydrationInFlight = <String>{};
   final _detailHydrationService = const LibraryDetailHydrationService();
-  Set<CollectionItemRef> _activeLoanCollectionItemIds = const {};
+  Set<LibraryEntryRef> _activeLoanLibraryEntryIds = const {};
   bool _isEditDialogInFlight = false;
   bool _isScanningCover = false;
   int _activeLoanIdsLoadToken = 0;
@@ -169,8 +170,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _editCoordinator = LibraryPageEditCoordinator(this);
     _collectionActionCoordinator = LibraryPageCollectionActionCoordinator(
       coordinatorContext,
-      showEditDialog: (item, collectionItemOverride) =>
-          _editCoordinator.showEditDialog(item, collectionItemOverride),
+      showEditDialog: (item, libraryEntryOverride) =>
+          _editCoordinator.showEditDialog(item, libraryEntryOverride),
       compareMetadataWithServer: (projection, {item}) =>
           _metadataCoordinator.compareMetadataWithServerFlow(
         projection,
@@ -295,7 +296,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           _session.preferences.activeSmartListName = value,
       getScopeHistory: () => _session.preferences.scopeHistory,
       setScopeHistory: (value) => _session.preferences.scopeHistory = value,
-      getActiveLoanCollectionItemIds: () => _activeLoanCollectionItemIds,
+      getActiveLoanLibraryEntryIds: () => _activeLoanLibraryEntryIds,
       getPinnedSortFavoriteIds: () =>
           _session.preferences.pinnedSortFavoriteIds,
       setPinnedSortFavoriteIds: (value) =>
@@ -554,21 +555,22 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     );
   }
 
-  bool _hasCollectionItemsInProjection(LibraryProjection? projection) {
+  bool _hasLibraryEntriesInProjection(LibraryProjection? projection) {
     if (projection == null) {
       return false;
     }
-    return projection.filteredItems.any((item) => item.source.collectionItemRef != null);
+    return projection.filteredItems
+        .any((item) => item.source.libraryEntryRef != null);
   }
 
-  bool _hasCollectionItemsInSelection(LibraryProjection? projection) {
+  bool _hasLibraryEntriesInSelection(LibraryProjection? projection) {
     if (projection == null || _session.selection.value.itemIds.isEmpty) {
       return false;
     }
     return projection.filteredItems.any(
       (item) =>
           _session.selection.value.itemIds.contains(item.node.id) &&
-          item.source.collectionItemRef != null,
+          item.source.libraryEntryRef != null,
     );
   }
 
@@ -581,26 +583,26 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     );
   }
 
-  bool _hasLoanableCollectionItemsInSelection(LibraryProjection? projection) {
+  bool _hasLoanableLibraryEntriesInSelection(LibraryProjection? projection) {
     if (projection == null || _session.selection.value.itemIds.isEmpty) {
       return false;
     }
     return projection.filteredItems.any(
       (item) =>
           _session.selection.value.itemIds.contains(item.node.id) &&
-          item.source.collectionItemRef != null &&
-          !_activeLoanCollectionItemIds.contains(item.source.collectionItemRef),
+          item.source.libraryEntryRef != null &&
+          !_activeLoanLibraryEntryIds.contains(item.source.libraryEntryRef),
     );
   }
 
-  bool _hasMoveToOwnedEligibleItemsInSelection(LibraryProjection? projection) {
+  bool _hasMoveToEntryEligibleItemsInSelection(LibraryProjection? projection) {
     if (projection == null || _session.selection.value.itemIds.isEmpty) {
       return false;
     }
     return projection.filteredItems.any(
       (item) =>
           _session.selection.value.itemIds.contains(item.node.id) &&
-          !item.source.isOwned,
+          !item.source.isEntry,
     );
   }
 
@@ -624,7 +626,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return projection.filteredItems.any(
       (item) =>
           _session.selection.value.itemIds.contains(item.node.id) &&
-          (item.source.collectionItemRef != null ||
+          (item.source.libraryEntryRef != null ||
               item.source.isWishlisted ||
               item.source.isTracked),
     );
@@ -658,15 +660,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       this,
       projection,
     )) {
-      if (item.source.collectionItemSummary?.soldAt != null) {
+      if (item.source.libraryEntrySummary?.soldAt != null) {
         soldCount += 1;
         continue;
       }
-      if (item.source.isWishlisted && !item.source.isOwned) {
+      if (item.source.isWishlisted && !item.source.isEntry) {
         wishlistCount += 1;
         continue;
       }
-      if (!item.source.isOwned && !item.source.isWishlisted) {
+      if (!item.source.isEntry && !item.source.isWishlisted) {
         catalogOnlyCount += 1;
       }
     }
@@ -674,7 +676,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return LibraryBucketStatusSummary(
       title: selectedBucket.title,
       totalCount: selectedBucket.count,
-      ownedCount: selectedBucket.ownedCount ?? 0,
+      entryCount: selectedBucket.entryCount ?? 0,
       wishlistCount: wishlistCount,
       forSaleCount: forSaleCount,
       onOrderCount: onOrderCount,
@@ -876,7 +878,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   Widget? buildKindWorkspaceOverride(
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
-    required List<CollectionItemSummary> allOwnedCopies,
+    required List<LibraryEntrySummary> allLibraryEntries,
     required List<WishlistItem> allWishlistItems,
   }) {
     final selectedItem = projection.selectedItem;
@@ -897,15 +899,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         request: LibraryDetailPageRequest(
           type: widget.type,
           item: selectedItem,
-          collectionItemSummary: selectedItem.source.collectionItemSummary,
-          collectionItemDispatch: selectedItem.source.collectionItemDispatch,
+          libraryEntrySummary: selectedItem.source.libraryEntrySummary,
+          libraryEntryDispatch: selectedItem.source.libraryEntryDispatch,
           accent: widget.accent,
-          onAddOwned: () => _collectionActionCoordinator.runCollectionAction(
-            (actions) => actions.addOwned(selectedItem),
+          onAddEntry: () => _collectionActionCoordinator.runCollectionAction(
+            (actions) => actions.addEntry(selectedItem),
           ),
-          onRemoveOwned: selectedItem.source.isOwned != true
+          onRemoveEntry: selectedItem.source.isEntry != true
               ? null
-              : () => _collectionActionCoordinator.confirmAndRemoveOwned(
+              : () => _collectionActionCoordinator.confirmAndRemoveEntry(
                     selectedItem,
                   ),
           onAddWishlist: () => _collectionActionCoordinator.runCollectionAction(
@@ -925,7 +927,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           onFilterByValue: _toggleLinkedMetadataFilter,
         ),
       ),
-      allOwnedCopies: allOwnedCopies,
+      allLibraryEntries: allLibraryEntries,
       allWishlistItems: allWishlistItems,
     );
   }
@@ -934,7 +936,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   Widget? buildWorkspaceOverride(
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
-    required List<CollectionItemSummary> allOwnedCopies,
+    required List<LibraryEntrySummary> allLibraryEntries,
     required List<WishlistItem> allWishlistItems,
   }) {
     return null;
@@ -948,7 +950,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       final shelf = ref.read(shelfProvider).asData?.value;
       final selectedEntry = shelf?.entries
           .where(
-            (entry) => entry.collectionItemRef?.key == itemId || entry.itemId == itemId,
+            (entry) =>
+                entry.libraryEntryRef?.key == itemId || entry.itemId == itemId,
           )
           .firstOrNull;
       final catalogItemId = selectedEntry?.catalogRef?.id ?? itemId;

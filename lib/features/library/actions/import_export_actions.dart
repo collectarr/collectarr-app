@@ -2,7 +2,7 @@ import 'ui_action.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// A completed file export returned by a kind-owned serializer.
+/// A completed file export returned by a kind-entry serializer.
 ///
 /// File picking, saving, and sharing belong to the generic host. The owning
 /// kind supplies the filename, MIME type, and serialized bytes.
@@ -18,7 +18,7 @@ final class ExportArtifact {
   final Uint8List bytes;
 }
 
-/// Text export prepared by a kind-owned integration for a generic preview
+/// Text export prepared by a kind-entry integration for a generic preview
 /// host. The host may render and copy it without understanding its format.
 @immutable
 final class ExportPreviewArtifact {
@@ -65,7 +65,7 @@ final class ImportIssue {
 /// Structural import review data.
 ///
 /// Parsed rows and matching decisions remain in the concrete [TPreview]
-/// owned by a kind. This summary contains only what generic review UI needs.
+/// entry by a kind. This summary contains only what generic review UI needs.
 final class ImportPreview {
   const ImportPreview({
     this.status = ImportPreviewStatus.ready,

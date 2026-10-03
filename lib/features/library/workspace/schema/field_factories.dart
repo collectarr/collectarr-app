@@ -129,7 +129,7 @@ LibraryGroupDefinition<TKind, TDto, V>
   String? folderSetLabel,
   String? Function(LibraryProjectionContext<TDto> context)? subgroupKey,
   CatalogTransportBucketValueMutator? bucketValueMutator,
-  LibraryOwnedGroupBucketValueMutator? ownedBucketValueMutator,
+  LibraryEntryGroupBucketValueMutator? entryBucketValueMutator,
 }) {
   return LibraryGroupDefinition<TKind, TDto, V>(
     id: LibraryGroupId<TKind, V>(field.id.value),
@@ -146,7 +146,7 @@ LibraryGroupDefinition<TKind, TDto, V>
     folderSetLabel: folderSetLabel,
     subgroupKey: subgroupKey,
     bucketValueMutator: bucketValueMutator,
-    ownedBucketValueMutator: ownedBucketValueMutator,
+    entryBucketValueMutator: entryBucketValueMutator,
     entityScope: field.entityScope,
   );
 }

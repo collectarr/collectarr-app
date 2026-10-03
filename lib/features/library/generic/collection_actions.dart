@@ -10,17 +10,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class LibraryCollectionActions {
   const LibraryCollectionActions({
     required this.coordinator,
-    required this.ownedMutations,
+    required this.entryMutations,
     required this.wishlistMutations,
     required this.catalogSnapshots,
   });
 
   final CollectionCommandCoordinator coordinator;
-  final CollectionItemMutations ownedMutations;
+  final LibraryEntryMutations entryMutations;
   final WishlistMutations wishlistMutations;
   final CatalogSnapshotRepository catalogSnapshots;
 
-  Future<void> addOwned(LibraryProjectionItem item) async {
+  Future<void> addEntry(LibraryProjectionItem item) async {
     final catalogRef = item.source.catalogRef;
     if (catalogRef == null) return;
     final catalogItem =
@@ -28,7 +28,7 @@ class LibraryCollectionActions {
     if (catalogItem == null) return;
     final registration =
         libraryKindRegistrationForKind(catalogItem.summary.kind);
-    await coordinator.addCollectionItem(
+    await coordinator.addLibraryEntry(
       libraryAddForKind(registration.kind).buildCommand(
         catalogItem,
         const LibraryAddCommonDraft(),
@@ -37,18 +37,18 @@ class LibraryCollectionActions {
     );
   }
 
-  Future<void> removeOwned(LibraryProjectionItem item) async {
-    final collectionItemRef = item.source.collectionItemRef;
-    if (collectionItemRef == null) {
+  Future<void> removeEntry(LibraryProjectionItem item) async {
+    final libraryEntryRef = item.source.libraryEntryRef;
+    if (libraryEntryRef == null) {
       return;
     }
-    await ownedMutations.removeItem(collectionItemRef);
+    await entryMutations.removeItem(libraryEntryRef);
   }
 
   Future<void> addWishlist(LibraryProjectionItem item) {
     final targetRef = resolveLibraryMutationTargetFromSummary(
       item: item,
-      collectionItem: item.source.collectionItemSummary,
+      libraryEntry: item.source.libraryEntrySummary,
       wishlistItem: item.source.wishlistItem,
     );
     final catalogRef = targetRef?.toCatalogItemRef() ??
@@ -60,7 +60,7 @@ class LibraryCollectionActions {
   Future<void> removeWishlist(LibraryProjectionItem item) {
     final targetRef = resolveLibraryMutationTargetFromSummary(
       item: item,
-      collectionItem: item.source.collectionItemSummary,
+      libraryEntry: item.source.libraryEntrySummary,
       wishlistItem: item.source.wishlistItem,
     );
     final catalogRef = targetRef?.toCatalogItemRef() ??
@@ -76,7 +76,7 @@ final genericLibraryCollectionActionsProvider =
     Provider<LibraryCollectionActions>((ref) {
   return LibraryCollectionActions(
     coordinator: ref.watch(collectionCommandCoordinatorProvider),
-    ownedMutations: ref.watch(collectionItemMutationsProvider),
+    entryMutations: ref.watch(libraryEntryMutationsProvider),
     wishlistMutations: ref.watch(wishlistMutationsProvider),
     catalogSnapshots: CatalogSnapshotRepository(
       ref.watch(localDatabaseProvider),

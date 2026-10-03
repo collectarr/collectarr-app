@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
 
-/// Builds kind-owned values for the shared workspace card renderer.
+/// Builds kind-entry values for the shared workspace card renderer.
 LibraryCardPresentation buildMusicCardPresentation(
   LibraryProjectionView item, {
   required bool coverFocused,

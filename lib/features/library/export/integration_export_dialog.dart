@@ -116,7 +116,7 @@ class _IntegrationExportDialog extends StatelessWidget {
             'id': entry.catalogRef?.id ?? entry.itemId,
             'kind': entry.mediaKind.apiValue,
             'title': entry.title,
-            'owned': entry.isOwned,
+            'entry': entry.isEntry,
             'wishlist': entry.isWishlisted,
           },
         )
@@ -138,7 +138,7 @@ class _IntegrationExportDialog extends StatelessWidget {
       buffer.writeln(
           '  <item id="${_escapeXml(entry.catalogRef?.id ?? entry.itemId)}" kind="${entry.mediaKind.apiValue}">');
       buffer.writeln('    <title>${_escapeXml(entry.title)}</title>');
-      buffer.writeln('    <owned>${entry.isOwned}</owned>');
+      buffer.writeln('    <entry>${entry.isEntry}</entry>');
       buffer.writeln('    <wishlist>${entry.isWishlisted}</wishlist>');
       buffer.writeln('  </item>');
     }

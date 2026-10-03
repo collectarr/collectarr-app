@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.d
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
-/// Builds the Anime-owned workspace graph from the catalog snapshot.
+/// Builds the Anime-entry workspace graph from the catalog snapshot.
 ///
 /// Converts the catalog snapshot into typed Anime media and release values.
 final class AnimeWorkspaceMapper {

@@ -16,6 +16,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 
 import 'library_field_spec.dart';
 
@@ -50,7 +51,14 @@ final class LibraryFieldSpecControlBuilder<TDraft>
   final LibraryVocabularyValuesChanged? onVocabularyValuesChanged;
   final String? mediaKind;
 
-  Widget build(LibraryFieldSpec<TDraft> field) => field.accept(this);
+  Widget build(LibraryFieldSpec<TDraft> field) {
+    final child = field.accept(this);
+    final external = field is LibraryTextFieldSpec<TDraft> ||
+        field is LibraryNumberFieldSpec<TDraft> ||
+        field is LibraryMoneyFieldSpec<TDraft> ||
+        field is LibraryPartialDateFieldSpec<TDraft>;
+    return external ? LibraryFormField(label: field.label, child: child) : child;
+  }
 
   @override
   Widget visitText(LibraryTextFieldSpec<TDraft> field) {
@@ -120,32 +128,10 @@ final class LibraryFieldSpecControlBuilder<TDraft>
 
   @override
   Widget visitPartialDate(LibraryPartialDateFieldSpec<TDraft> field) {
-    final controller = controllerFor(
-      field.id,
-      field.value(draft)?.isoString ?? '',
-    );
-    final input = controller.text.trim();
-    final errorText = _partialDateError(input) ?? field.validate(draft);
-    return TextFormField(
-      controller: controller,
-      keyboardType: TextInputType.datetime,
-      validator: (value) =>
-          _partialDateError(value?.trim() ?? '') ?? field.validate(draft),
-      decoration: _controlDecoration(
-        InputDecoration(
-          labelText: field.label,
-          hintText: 'YYYY, YYYY-MM, or YYYY-MM-DD',
-          errorText: errorText,
-        ),
-      ),
+    return LibraryPartialDateInput(
+      value: field.value(draft),
       onChanged: (value) {
-        final normalized = value.trim();
-        if (normalized.isEmpty) {
-          field.updateValue(draft, null);
-        } else {
-          final next = _parsePartialDate(normalized);
-          if (next != null) field.updateValue(draft, next);
-        }
+        field.updateValue(draft, value);
         onChanged();
       },
     );
@@ -369,6 +355,8 @@ final class LibraryFieldSpecControlBuilder<TDraft>
 
   InputDecoration _controlDecoration(InputDecoration decoration) =>
       decoration.copyWith(
+        labelText: '',
+        floatingLabelBehavior: FloatingLabelBehavior.never,
         constraints: const BoxConstraints(
           minHeight: kLibraryFormControlHeight,
         ),

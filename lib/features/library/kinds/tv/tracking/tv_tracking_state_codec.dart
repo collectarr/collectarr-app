@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
@@ -10,7 +10,7 @@ import 'package:drift/drift.dart';
 
 import 'tv_tracking_state.dart';
 
-/// TV-owned tracking-entry coordinates.
+/// TV-entry tracking-entry coordinates.
 ///
 /// TV episode coordinates live in [TvTrackingRows] beside the TV lifecycle
 /// row; no cross-kind tracking table is involved.
@@ -60,8 +60,7 @@ final class TvTrackingStateCodec
         TrackingStorageRead(
           trackingStorageRowFromColumns(
             id: row.id,
-            catalogRefJson: row.catalogRefJson,
-            collectionItemRefKey: row.collectionItemRefKey,
+                        libraryEntryRefKey: row.libraryEntryRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -100,8 +99,7 @@ final class TvTrackingStateCodec
   @override
   TvTrackingState create({
     required String id,
-    required CatalogEntityRef catalogRef,
-    CollectionItemRef? collectionItemRef,
+    required LibraryEntryRef libraryEntryRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -114,18 +112,17 @@ final class TvTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    if (catalogRef.mediaKind != kind) {
+    if (libraryEntryRef.kind != kind) {
       throw ArgumentError.value(
-        catalogRef.mediaKind,
-        'catalogRef.kind',
+        libraryEntryRef.kind,
+        'libraryEntryRef.kind',
         'Expected TV tracking entry',
       );
     }
     return TvTrackingState(
       id: id,
-      catalogRef: catalogRef,
       coordinates: TvTrackingCoordinates(),
-      collectionItemRef: collectionItemRef,
+      libraryEntryRef: libraryEntryRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -167,10 +164,10 @@ final class TvTrackingStateCodec
     LocalDatabase db,
     TrackingStorageRecord entry,
   ) async {
-    if (entry.catalogRef.mediaKind != kind) {
+    if (entry.libraryEntryRef.kind != kind) {
       throw ArgumentError.value(
-        entry.catalogRef.mediaKind,
-        'entry.catalogRef.kind',
+        entry.libraryEntryRef.kind,
+        'entry.libraryEntryRef.kind',
         'Expected TV tracking entry',
       );
     }
@@ -178,8 +175,7 @@ final class TvTrackingStateCodec
     await db.into(db.tvTrackingRows).insertOnConflictUpdate(
           TvTrackingRowsCompanion.insert(
             id: entry.id,
-            catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
-            collectionItemRefKey: Value(entry.collectionItemRef?.key),
+                        libraryEntryRefKey: entry.libraryEntryRef.key,
             sourceType: Value(entry.sourceTypeApiValue),
             status: Value(entry.statusStorageValue),
             rating: Value(entry.rating),
@@ -202,10 +198,10 @@ final class TvTrackingStateCodec
 
   @override
   Map<String, dynamic> toSyncPayload(TrackingStorageRecord entry) {
-    if (entry.catalogRef.mediaKind != kind) {
+    if (entry.libraryEntryRef.kind != kind) {
       throw ArgumentError.value(
-        entry.catalogRef.mediaKind,
-        'entry.catalogRef.kind',
+        entry.libraryEntryRef.kind,
+        'entry.libraryEntryRef.kind',
         'Expected TV tracking entry',
       );
     }
@@ -229,25 +225,17 @@ final class TvTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    final catalogRef = _catalogRefFromPayload(payload);
-    if (catalogRef.mediaKind != kind) {
-      throw ArgumentError.value(
-        catalogRef.mediaKind,
-        'payload.catalog_ref.kind',
-        'Expected TV tracking entry',
-      );
-    }
+    final libraryEntryRef = trackingLibraryEntryRefFromPayload(payload, kind);
     final seasonNumber = _int(payload['season_number']);
     final episodeNumber = _int(payload['episode_number']);
     return TvTrackingState(
       id: id,
-      catalogRef: catalogRef,
       coordinates: TvTrackingCoordinates(
         seasonNumber: seasonNumber,
         episodeNumber: episodeNumber,
         episodeRatings: _decodeEpisodeRatingsValue(payload['episode_ratings']),
       ),
-      collectionItemRef: collectionItemRefFromSerialized(payload['collection_item_ref']),
+      libraryEntryRef: libraryEntryRef,
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -272,8 +260,7 @@ final class TvTrackingStateCodec
         : TvTrackingCoordinates();
     return TvTrackingState(
       id: row.id,
-      catalogRef: row.catalogRef,
-      collectionItemRef: row.collectionItemRef,
+      libraryEntryRef: row.libraryEntryRef,
       sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,
@@ -289,13 +276,6 @@ final class TvTrackingStateCodec
     );
   }
 
-  CatalogEntityRef _catalogRefFromPayload(Map<String, dynamic> payload) {
-    final raw = payload['catalog_ref'];
-    if (raw is! Map) {
-      throw const FormatException('TV tracking entry is missing catalog_ref');
-    }
-    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
-  }
 }
 
 Map<String, int> _decodeEpisodeRatings(String? raw) {

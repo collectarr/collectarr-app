@@ -13,7 +13,7 @@ export 'detail/book_routes.dart';
 export 'data/book_catalog_transport_codec.dart';
 export 'integrations/catalog/book_catalog_lookup.dart';
 export 'integrations/collection_csv/book_collection_csv_projection.dart';
-export 'ownership/book_owned_contributor.dart';
+export 'entries/book_entry_contributor.dart';
 export 'page.dart';
 export 'tracking/book_tracking_state_codec.dart';
 export 'tracking/book_tracking_unit_codec.dart';

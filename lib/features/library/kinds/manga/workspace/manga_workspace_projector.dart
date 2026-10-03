@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
@@ -18,24 +18,22 @@ final class MangaWorkspaceProjector
   MangaWorkspaceDto project({
     required LibraryWorkspaceSource source,
     required LibraryEntityRef entity,
-    LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
     requireEntityScope(entity, expectedScope ?? entity.scope);
     final catalog = _catalogFor(source);
     final metadata = catalog.metadata;
-    final owned =
-        MangaCollectionItemProjection.fromDispatch(source.collectionItemDispatch);
-    final ownedDetails = owned is MangaCollectionItem ? owned.details : null;
+    final entry =
+        MangaLibraryEntryProjection.fromDispatch(source.libraryEntryDispatch);
+    final entryDetails = entry is MangaLibraryEntry ? entry.details : null;
 
     return MangaWorkspaceDto(
       common: _mangaCommonProjection(source, entity, metadata),
       personal: PersonalCopyProjection.fromShelf(
         source,
-        releaseState: releaseState,
       ),
       metadata: metadata,
-      ownedDetails: ownedDetails,
+      entryDetails: entryDetails,
     );
   }
 }

@@ -1,17 +1,15 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 
-/// Comic-owned issue progress unit.
+/// Comic-entry issue progress unit.
 final class ComicTrackingUnit extends TrackingUnitSummary {
   const ComicTrackingUnit({
     required super.id,
-    required super.targetRef,
+    required super.libraryEntryRef,
     required super.completedAt,
     required super.updatedAt,
     this.issueNumber,
     super.trackingEntryId,
-    super.collectionItemRef,
     super.deletedAt,
   });
 
@@ -29,18 +27,16 @@ final class ComicTrackingUnit extends TrackingUnitSummary {
   @override
   ComicTrackingUnit copyWith({
     String? id,
-    CatalogEntityRef? targetRef,
     String? trackingEntryId,
-    CollectionItemRef? collectionItemRef,
+    LibraryEntryRef? libraryEntryRef,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
   }) {
     return ComicTrackingUnit(
       id: id ?? this.id,
-      targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      collectionItemRef: collectionItemRef ?? this.collectionItemRef,
+      libraryEntryRef: libraryEntryRef ?? this.libraryEntryRef,
       issueNumber: issueNumber,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,

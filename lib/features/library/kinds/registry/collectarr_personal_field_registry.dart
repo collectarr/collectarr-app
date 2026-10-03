@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
-import 'package:collectarr_app/features/library/metadata/library_field_ownership.dart';
+import 'package:collectarr_app/features/library/metadata/library_field_entries.dart';
 import 'package:collectarr_app/features/library/metadata/library_personal_field_contributor.dart';
 
 final Map<CatalogMediaKind, LibraryPersonalFieldContributor>

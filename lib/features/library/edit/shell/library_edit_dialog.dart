@@ -1,10 +1,13 @@
+import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -28,7 +31,6 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_status_f
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
-import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/pick_lists/vocabulary_repository.dart';
@@ -42,8 +44,8 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     super.key,
     required this.type,
     required this.kindItem,
-    required this.collectionItem,
-    this.collectionItemDispatch,
+    required this.libraryEntry,
+    this.libraryEntryDispatch,
     this.wishlistItem,
     this.trackingSummary,
     required this.accent,
@@ -68,8 +70,8 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         node = draft.node,
         type = draft.type,
         kindItem = draft.kindItem,
-        collectionItem = draft.collectionItem,
-        collectionItemDispatch = draft.collectionItemDispatch,
+        libraryEntry = draft.libraryEntry,
+        libraryEntryDispatch = draft.libraryEntryDispatch,
         wishlistItem = draft.wishlistItem,
         trackingSummary = draft.trackingSummary,
         accent = draft.accent,
@@ -81,12 +83,12 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
 
   final LibraryKindRegistration type;
 
-  /// Concrete candidate retained only for kind-owned draft/custom boundaries.
+  /// Concrete candidate retained only for kind-entry draft/custom boundaries.
   final CatalogSearchCandidate kindItem;
-  final CollectionItemSummary? collectionItem;
+  final LibraryEntrySummary? libraryEntry;
 
-  /// Concrete kind-owned aggregate passed through the typed edit boundary.
-  final LibraryCollectionItemDispatch? collectionItemDispatch;
+  /// Concrete kind-entry aggregate passed through the typed edit boundary.
+  final LibraryEntryDispatch? libraryEntryDispatch;
   final WishlistItem? wishlistItem;
   final TrackingSummary? trackingSummary;
   final Color accent;
@@ -129,15 +131,16 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late List<LibraryEditTabSpec> _tabSpecs;
   late final List<_LinkEntry> _links;
   bool _linksEdited = false;
+  bool _isSaving = false;
 
-  bool get _isOwned => _draft.isOwned;
+  bool get _isEntry => _draft.isEntry;
 
   LibraryEditPresentationCapability get _editCapability =>
       libraryEditPresentationForKind(widget.type.kind);
 
   LibraryEditPresentationContext get _editPresentationContext =>
       LibraryEditPresentationContext(
-        isOwned: _isOwned,
+        isEntry: _isEntry,
         isTrackingOnly: _draft.isTrackingOnly,
         hasTrackingContext: _draft.hasTrackingContext,
         hasWishlistContext: _draft.hasWishlistContext,
@@ -156,8 +159,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           scope: widget.scope,
           node: widget.node,
           item: widget.kindItem,
-          collectionItem: widget.collectionItem,
-          collectionItemDispatch: widget.collectionItemDispatch,
+          libraryEntry: widget.libraryEntry,
+          libraryEntryDispatch: widget.libraryEntryDispatch,
           wishlistItem: widget.wishlistItem,
           trackingSummary: widget.trackingSummary,
           accent: widget.accent,
@@ -238,43 +241,62 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Future<void> _submit(LibraryEditSubmitAction action) async {
+    if (_isSaving) return;
     if (_formKey.currentState?.validate() == false) return;
-    if (_linksEdited) {
-      final updatedLinks = <TrailerLinkDto>[
-        for (final l in _links)
-          if (l.urlController.text.trim().isNotEmpty)
-            TrailerLinkDto(
-              url: l.urlController.text.trim(),
-              title: emptyToNull(l.descriptionController.text.trim()),
-              description: emptyToNull(l.descriptionController.text.trim()),
-              source: 'manual',
-              isAutomatic: false,
-              kind: 'external',
-            ),
-      ];
-      _draft.session.setExternalLinks(updatedLinks);
-    }
-    final selection = _draft.session.save(
-      _draft,
-      submitAction: action,
-    );
-    await _persistPendingVocabularyValues();
-    if (!mounted) return;
-    _draft.markClean();
-    Navigator.of(context).pop(selection);
-  }
-
-  Future<void> _persistPendingVocabularyValues() async {
-    if (_draft.pendingVocabularyValues.isEmpty) return;
-    final repository = PickListRepository(ref.read(localDatabaseProvider));
-    for (final pending in _draft.pendingVocabularyValues.values) {
-      await repository.addValue(
-        pending.listName,
-        pending.value,
-        mediaKind: pending.mediaKind ?? widget.type.kind.apiValue,
+    setState(() => _isSaving = true);
+    try {
+      if (_linksEdited) {
+        final updatedLinks = <TrailerLinkDto>[
+          for (final l in _links)
+            if (l.urlController.text.trim().isNotEmpty)
+              TrailerLinkDto(
+                url: l.urlController.text.trim(),
+                title: emptyToNull(l.descriptionController.text.trim()),
+                description: emptyToNull(l.descriptionController.text.trim()),
+                source: 'manual',
+                isAutomatic: false,
+                kind: 'external',
+              ),
+        ];
+        _draft.session.setExternalLinks(updatedLinks);
+      }
+      final selection = _draft.session.save(
+        _draft,
+        submitAction: action,
       );
+      final prepared = selection.copyWith(
+        localChanges: [
+          ...selection.localChanges,
+          LibraryVocabularyEditChange([
+            for (final pending in _draft.pendingVocabularyValues.values)
+              (
+                listName: pending.listName,
+                value: pending.value,
+                mediaKind: pending.mediaKind ?? widget.type.kind.apiValue,
+              ),
+          ]),
+        ],
+      );
+      await commitLibraryEdit(context, prepared);
+      // Keep the draft dirty if the persistence transaction fails.
+      _draft.markClean();
+    } catch (error, stackTrace) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not save changes: $error')),
+        );
+      }
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'collectarr_app',
+          context: ErrorDescription('while saving a library entry'),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
-    _draft.pendingVocabularyValues.clear();
   }
 
   Future<void> _proposeToCore() async {
@@ -284,8 +306,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       type: widget.type,
       item: _draft.kindItem,
       node: _draft.node,
-      collectionItem: _draft.collectionItem,
-      collectionItemDispatch: _draft.collectionItemDispatch,
+      libraryEntry: _draft.libraryEntry,
+      libraryEntryDispatch: _draft.libraryEntryDispatch,
       accent: widget.accent,
       scope: widget.scope,
     );
@@ -319,7 +341,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
     return LibraryEditDialogScaffold(
       formKey: _formKey,
+      footerContent: LibraryEntryEditScope.maybeOf(context) == null
+          ? null
+          : LibraryEntryStatusStrip(
+              draft: LibraryEntryEditScope.maybeOf(context)!),
       accent: widget.accent,
+      isBusy: _isSaving,
       icon: widget.type.identity.icon,
       title: title,
       badges: const <Widget>[],
@@ -330,10 +357,19 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       views: _tabViews(),
       onClose: () => Navigator.of(context).pop(),
       onCancel: () => Navigator.of(context).pop(),
-      onSave: () => _submit(LibraryEditSubmitAction.save),
-      onProposeToCore: () => unawaited(_proposeToCore()),
-      onPrevious: widget.onPrevious,
-      onNext: widget.onNext,
+      onSave: _isSaving
+          ? null
+          : () => unawaited(_submit(LibraryEditSubmitAction.save)),
+      onProposeToCore: _isSaving ||
+              (LibraryEntryEditScope.maybeOf(context)
+                          ?.record
+                          .sourceCatalogRef ==
+                      null &&
+                  LibraryEntryEditScope.maybeOf(context) != null)
+          ? null
+          : () => unawaited(_proposeToCore()),
+      onPrevious: _isSaving ? null : widget.onPrevious,
+      onNext: _isSaving ? null : widget.onNext,
       tabOrderKey:
           'library_edit_tabs_${widget.type.kind.apiValue}_${widget.scope.name}',
     );
@@ -665,7 +701,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             children: [
               if (_draft.isDigitalFormat) ...[
                 Text(
-                  'Digital copies do not expose physical storage fields.',
+                  'Digital items do not expose physical storage fields.',
                   style: TextStyle(color: Theme.of(context).hintColor),
                 ),
                 const SizedBox(height: 10),

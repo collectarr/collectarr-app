@@ -15,6 +15,7 @@ final class MusicCatalogMapper {
     final music = <String, dynamic>{
       'id': album.id.value,
       'kind': 'music',
+      'revision': album.revision,
       'title': album.title,
       if (album.sortTitle != null) 'sort_title': album.sortTitle,
       if (album.subtitle != null) 'subtitle': album.subtitle,
@@ -25,6 +26,7 @@ final class MusicCatalogMapper {
             {
               'id': credit.id,
               'name': credit.creditedName,
+              if (credit.sortName != null) 'sort_name': credit.sortName,
               if (credit.artistId != null) 'artist_id': credit.artistId,
               if (credit.joinPhrase != null) 'join_phrase': credit.joinPhrase,
               if (credit.sequence != null) 'sequence': credit.sequence,
@@ -45,9 +47,10 @@ final class MusicCatalogMapper {
         'release_date_parts': album.releaseDateParts!.toJson(),
       } else if (album.releaseDate != null)
         'release_date': album.releaseDate!.toIso8601String(),
-      if (album.labels.isNotEmpty || album.publisher != null)
-        'label': album.labels.firstOrNull?.labelName ?? album.publisher,
-      if (album.mediumTypes.isNotEmpty) 'format': album.mediumTypes.first,
+      if (album.publisher != null || album.labels.isNotEmpty)
+        'label': album.publisher ?? album.labels.firstOrNull?.labelName,
+      if (album.format ?? album.mediumTypes.firstOrNull case final format?)
+        'format': format,
       if (album.barcode ?? album.upc case final barcode?) 'barcode': barcode,
       if (album.catalogNumber != null) 'catalog_number': album.catalogNumber,
       if (album.genres.isNotEmpty) 'genres': album.genres,
@@ -110,9 +113,8 @@ final class MusicCatalogMapper {
                   {
                     'id': medium.tracks[index].id.value,
                     'position': medium.tracks[index].position,
-                    'position_order': int.tryParse(
-                          medium.tracks[index].position,
-                        ) ??
+                    'position_order': medium.tracks[index].positionOrder ??
+                        int.tryParse(medium.tracks[index].position) ??
                         index + 1,
                     'title': medium.tracks[index].title,
                     if (medium.tracks[index].artist != null)
@@ -142,8 +144,12 @@ final class MusicCatalogMapper {
 
   static MusicAlbum _fromTypedDto(CatalogMusicItemDto item) {
     final discPayloads = <Map<String, dynamic>>[];
-    for (final disc in item.discs) {
-      final mediumId = '${item.id}:disc:${disc.discNumber}';
+    final orderedDiscs = [...item.discs]
+      ..sort((left, right) => left.discNumber.compareTo(right.discNumber));
+    for (final disc in orderedDiscs) {
+      final mediumId = disc.id;
+      final orderedTracks = [...disc.tracks]..sort(
+          (left, right) => left.positionOrder.compareTo(right.positionOrder));
       discPayloads.add({
         'id': mediumId,
         'album_id': item.id,
@@ -155,11 +161,12 @@ final class MusicCatalogMapper {
           'matrix_number_side_b': disc.matrixNumberSideB,
         if (item.format != null) 'medium_type': item.format,
         'tracks': [
-          for (final track in disc.tracks)
+          for (final track in orderedTracks)
             {
               'id': track.id,
               'medium_id': mediumId,
               'position': track.position,
+              'position_order': track.positionOrder,
               'title': track.title,
               if (track.artist != null) 'artist': track.artist,
               if (track.durationMs != null) 'duration_ms': track.durationMs,
@@ -171,6 +178,7 @@ final class MusicCatalogMapper {
     return MusicAlbum.fromJson({
       'id': item.id,
       'kind': 'music',
+      'revision': item.revision,
       'title': item.title,
       if (item.sortTitle != null) 'sort_title': item.sortTitle,
       if (item.subtitle != null) 'subtitle': item.subtitle,
@@ -186,6 +194,7 @@ final class MusicCatalogMapper {
       if (item.releaseDateParts != null)
         'release_date_parts': item.releaseDateParts,
       if (item.label != null) 'publisher': item.label,
+      if (item.format != null) 'format': item.format,
       if (item.format != null) 'medium_types': [item.format],
       if (item.barcode != null) 'barcode': item.barcode,
       if (item.catalogNumber != null) 'catalog_number': item.catalogNumber,
@@ -230,6 +239,8 @@ final class MusicCatalogMapper {
           'role': _text(person['role']) ?? role,
           'sequence': result.length + 1,
           if (name != null) 'name': name,
+          if (_text(person['sort_name']) case final sortName?)
+            'sort_name': sortName,
           if (_text(person['image_url']) case final imageUrl?)
             'image_url': imageUrl,
         });
@@ -266,6 +277,8 @@ List<Map<String, Object?>> _peopleForRole(MusicAlbum album, String role) => [
             'id': contribution.id.value,
             'person_id': contribution.personId,
             'name': contribution.displayName ?? contribution.personId,
+            if (contribution.sortName != null)
+              'sort_name': contribution.sortName,
             'role': contribution.role,
             if (contribution.imageUrl != null)
               'image_url': contribution.imageUrl,

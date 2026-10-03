@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/domain/library_entity_scope.dart
 
 class LibraryEditPresentationContext {
   const LibraryEditPresentationContext({
-    required this.isOwned,
+    required this.isEntry,
     required this.isTrackingOnly,
     required this.hasTrackingContext,
     required this.hasWishlistContext,
@@ -15,7 +15,7 @@ class LibraryEditPresentationContext {
     this.scope = LibraryEntityScope.catalogItem,
   });
 
-  final bool isOwned;
+  final bool isEntry;
   final bool isTrackingOnly;
   final bool hasTrackingContext;
   final bool hasWishlistContext;
@@ -46,7 +46,7 @@ class LibraryEditTabSpec {
 
 class LibraryEditPresentationState {
   const LibraryEditPresentationState({
-    required this.usesOwnedMainArtworkLayout,
+    required this.usesEntryMainArtworkLayout,
     required this.usesDetailsTab,
     required this.usesArtworkCoverTab,
     required this.usesArtworkPhotosTab,
@@ -54,7 +54,7 @@ class LibraryEditPresentationState {
     this.trackingSectionHint,
   });
 
-  final bool usesOwnedMainArtworkLayout;
+  final bool usesEntryMainArtworkLayout;
   final bool usesDetailsTab;
   final bool usesArtworkCoverTab;
   final bool usesArtworkPhotosTab;
@@ -99,22 +99,18 @@ abstract class LibraryEditPresentationBuilder {
 class LibraryEditPresentation {
   const LibraryEditPresentation({
     required this.builder,
-    this.workBuilder,
-    this.releaseBuilder,
-    this.copyBuilder,
+    this.catalogItemBuilder,
+    this.entryBuilder,
   });
 
   final LibraryEditPresentationBuilder builder;
-  final LibraryEditPresentationBuilder? workBuilder;
-  final LibraryEditPresentationBuilder? releaseBuilder;
-  final LibraryEditPresentationBuilder? copyBuilder;
+  final LibraryEditPresentationBuilder? catalogItemBuilder;
+  final LibraryEditPresentationBuilder? entryBuilder;
 
   LibraryEditPresentationBuilder builderForScope(LibraryEntityScope scope) {
     return switch (scope) {
-      LibraryEntityScope.catalogItem => workBuilder ?? builder,
-      LibraryEntityScope.release => releaseBuilder ?? builder,
-      LibraryEntityScope.collectionItem =>
-        copyBuilder ?? releaseBuilder ?? builder,
+      LibraryEntityScope.catalogItem => catalogItemBuilder ?? builder,
+      LibraryEntityScope.libraryEntry => entryBuilder ?? builder,
     };
   }
 }

@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_storage_record
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:flutter/material.dart';
 
-/// Opaque kind-owned patch emitted by a tracking editor.
+/// Opaque kind-entry patch emitted by a tracking editor.
 ///
 /// The host carries this value to the owning codec but never applies or
 /// inspects it. This keeps hierarchy coordinates and other semantic state
@@ -16,7 +16,7 @@ typedef TrackingEditorExtensionBuilder = Widget Function(
   required Color accent,
 });
 
-/// Optional kind-owned extension for the generic tracking editor shell.
+/// Optional kind-entry extension for the generic tracking editor shell.
 class LibraryTrackingEditorCapability {
   const LibraryTrackingEditorCapability({required this.builder});
 

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -12,12 +12,12 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 class InspectorLocationSection extends StatefulWidget {
   const InspectorLocationSection({
     super.key,
-    required this.collectionItemRef,
+    required this.libraryEntryRef,
     required this.db,
     required this.accent,
   });
 
-  final CollectionItemRef collectionItemRef;
+  final LibraryEntryRef libraryEntryRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -40,7 +40,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
   Future<void> _load() async {
     final repo = LocationRepository(widget.db);
     final all = await repo.getAll();
-    final currentId = await repo.getItemLocationId(widget.collectionItemRef);
+    final currentId = await repo.getItemLocationId(widget.libraryEntryRef);
     if (mounted) {
       setState(() {
         _allLocations = all;
@@ -68,7 +68,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
     if (newId == _currentLocationId) {
       return;
     }
-    await repo.assignItemToLocation(widget.collectionItemRef, newId);
+    await repo.assignItemToLocation(widget.libraryEntryRef, newId);
     unawaited(_load());
   }
 

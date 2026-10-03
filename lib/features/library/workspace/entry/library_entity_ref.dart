@@ -1,14 +1,10 @@
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 export 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
-/// Workspace identity for canonical catalog rows and App-owned collection rows.
-///
-/// The active workspace shape distinguishes a catalog item from a physical
-/// collection item that points to it. `LibraryReleaseRef` remains only for
-/// release-specific adapters that are still being removed.
+/// Workspace identity for a canonical Catalog Item or its independently
+/// editable local record.
 sealed class LibraryEntityRef {
   const LibraryEntityRef({required this.catalogItemId});
 
@@ -20,17 +16,14 @@ sealed class LibraryEntityRef {
 
 final class LibraryCatalogItemNodeRef extends LibraryEntityRef {
   const LibraryCatalogItemNodeRef(
-      {required super.catalogItemId, this.collectionItemRef});
+      {required super.catalogItemId, this.libraryEntryRef});
 
-  /// Distinguishes collection copies that share the same catalog item.
-  ///
-  /// The optional value is absent for catalog-only nodes. It lets the current
-  /// workspace render and select every collection item as its own entry while the
-  /// catalog target remains [catalogItemId].
-  final CollectionItemRef? collectionItemRef;
+  /// Identifies the local editable record when one has been attached to the
+  /// canonical catalog item. It is absent for catalog-only nodes.
+  final LibraryEntryRef? libraryEntryRef;
 
   @override
-  String get id => collectionItemRef?.key ?? catalogItemId;
+  String get id => libraryEntryRef?.key ?? catalogItemId;
 
   @override
   LibraryEntityScope get scope => LibraryEntityScope.catalogItem;
@@ -40,63 +33,35 @@ final class LibraryCatalogItemNodeRef extends LibraryEntityRef {
     return identical(this, other) ||
         other is LibraryCatalogItemNodeRef &&
             other.catalogItemId == catalogItemId &&
-            other.collectionItemRef == collectionItemRef;
+            other.libraryEntryRef == libraryEntryRef;
   }
 
   @override
-  int get hashCode => Object.hash(catalogItemId, collectionItemRef);
+  int get hashCode => Object.hash(catalogItemId, libraryEntryRef);
 }
 
-final class LibraryReleaseRef extends LibraryEntityRef {
-  const LibraryReleaseRef({
+final class LibraryEntryNodeRef extends LibraryEntityRef {
+  const LibraryEntryNodeRef({
     required super.catalogItemId,
-    required this.releaseId,
-    required this.release,
+    required this.libraryEntryRef,
   });
 
-  final String releaseId;
-  final LibraryWorkspaceReleaseSummary release;
+  final LibraryEntryRef libraryEntryRef;
 
   @override
-  String get id => '$catalogItemId:release:$releaseId';
+  String get id => libraryEntryRef.key;
 
   @override
-  LibraryEntityScope get scope => LibraryEntityScope.release;
+  LibraryEntityScope get scope => LibraryEntityScope.libraryEntry;
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is LibraryReleaseRef &&
+        other is LibraryEntryNodeRef &&
             other.catalogItemId == catalogItemId &&
-            other.releaseId == releaseId;
+            other.libraryEntryRef == libraryEntryRef;
   }
 
   @override
-  int get hashCode => Object.hash(catalogItemId, releaseId);
-}
-
-final class LibraryCollectionItemNodeRef extends LibraryEntityRef {
-  const LibraryCollectionItemNodeRef({
-    required super.catalogItemId,
-    required this.collectionItemRef,
-  });
-
-  final CollectionItemRef collectionItemRef;
-
-  @override
-  String get id => collectionItemRef.key;
-
-  @override
-  LibraryEntityScope get scope => LibraryEntityScope.collectionItem;
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        other is LibraryCollectionItemNodeRef &&
-            other.catalogItemId == catalogItemId &&
-            other.collectionItemRef == collectionItemRef;
-  }
-
-  @override
-  int get hashCode => Object.hash(catalogItemId, collectionItemRef);
+  int get hashCode => Object.hash(catalogItemId, libraryEntryRef);
 }

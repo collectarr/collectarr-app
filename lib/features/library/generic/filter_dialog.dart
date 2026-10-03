@@ -12,22 +12,22 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
-/// Ownership filter options used in the generic filter dialog.
-enum LibraryOwnershipFilter { all, owned, wishlist, forSale, onOrder }
+/// EntryPolicy filter options used in the generic filter dialog.
+enum LibraryEntryPolicyFilter { all, entry, wishlist, forSale, onOrder }
 
-String libraryOwnershipFilterLabel(
-  LibraryOwnershipFilter filter, {
+String libraryEntryPolicyFilterLabel(
+  LibraryEntryPolicyFilter filter, {
   LibraryKindRegistration? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
       type: type, mediaType: catalogMediaKindFromValue(mediaType));
   return switch (filter) {
-    LibraryOwnershipFilter.all => labels.ownershipAll,
-    LibraryOwnershipFilter.owned => labels.ownershipOwned,
-    LibraryOwnershipFilter.wishlist => labels.ownershipWishlist,
-    LibraryOwnershipFilter.forSale => labels.ownershipForSale,
-    LibraryOwnershipFilter.onOrder => labels.ownershipOnOrder,
+    LibraryEntryPolicyFilter.all => labels.entriesAll,
+    LibraryEntryPolicyFilter.entry => labels.entriesEntry,
+    LibraryEntryPolicyFilter.wishlist => labels.entriesWishlist,
+    LibraryEntryPolicyFilter.forSale => labels.entriesForSale,
+    LibraryEntryPolicyFilter.onOrder => labels.entriesOnOrder,
   };
 }
 
@@ -150,7 +150,7 @@ class LibraryCustomFieldFilterOption {
 /// filters regardless of item kind.
 class LibraryFilterSelection {
   const LibraryFilterSelection({
-    this.ownershipFilter = LibraryOwnershipFilter.all,
+    this.entriesFilter = LibraryEntryPolicyFilter.all,
     this.trackingStatusFilter = LibraryTrackingStatusFilter.all,
     this.loanStatusFilter = LibraryLoanStatusFilter.all,
     this.dateRangeField = LibraryDateRangeField.updated,
@@ -165,7 +165,7 @@ class LibraryFilterSelection {
 
   static const none = LibraryFilterSelection();
 
-  final LibraryOwnershipFilter ownershipFilter;
+  final LibraryEntryPolicyFilter entriesFilter;
   final LibraryTrackingStatusFilter trackingStatusFilter;
   final LibraryLoanStatusFilter loanStatusFilter;
   final LibraryDateRangeField dateRangeField;
@@ -182,7 +182,7 @@ class LibraryFilterSelection {
   bool get hasActiveDateRange => dateFrom != null || dateTo != null;
 
   bool get hasActiveFilters {
-    return ownershipFilter != LibraryOwnershipFilter.all ||
+    return entriesFilter != LibraryEntryPolicyFilter.all ||
         trackingStatusFilter != LibraryTrackingStatusFilter.all ||
         loanStatusFilter != LibraryLoanStatusFilter.all ||
         hasActiveDateRange ||
@@ -195,7 +195,7 @@ class LibraryFilterSelection {
 
   int get activeFilterCount {
     var count = 0;
-    if (ownershipFilter != LibraryOwnershipFilter.all) count++;
+    if (entriesFilter != LibraryEntryPolicyFilter.all) count++;
     if (trackingStatusFilter != LibraryTrackingStatusFilter.all) count++;
     if (loanStatusFilter != LibraryLoanStatusFilter.all) count++;
     if (hasActiveDateRange) count++;
@@ -207,7 +207,7 @@ class LibraryFilterSelection {
   }
 
   LibraryFilterSelection copyWith({
-    LibraryOwnershipFilter? ownershipFilter,
+    LibraryEntryPolicyFilter? entriesFilter,
     LibraryTrackingStatusFilter? trackingStatusFilter,
     LibraryLoanStatusFilter? loanStatusFilter,
     LibraryDateRangeField? dateRangeField,
@@ -224,7 +224,7 @@ class LibraryFilterSelection {
     bool? missingMetadata,
   }) {
     return LibraryFilterSelection(
-      ownershipFilter: ownershipFilter ?? this.ownershipFilter,
+      entriesFilter: entriesFilter ?? this.entriesFilter,
       trackingStatusFilter: trackingStatusFilter ?? this.trackingStatusFilter,
       loanStatusFilter: loanStatusFilter ?? this.loanStatusFilter,
       dateRangeField: dateRangeField ?? this.dateRangeField,
@@ -246,7 +246,7 @@ class LibraryFilterSelection {
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is LibraryFilterSelection &&
-            other.ownershipFilter == ownershipFilter &&
+            other.entriesFilter == entriesFilter &&
             other.trackingStatusFilter == trackingStatusFilter &&
             other.loanStatusFilter == loanStatusFilter &&
             other.dateRangeField == dateRangeField &&
@@ -261,7 +261,7 @@ class LibraryFilterSelection {
 
   @override
   int get hashCode => Object.hash(
-        ownershipFilter,
+        entriesFilter,
         trackingStatusFilter,
         loanStatusFilter,
         dateRangeField,
@@ -307,7 +307,7 @@ LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
   }
 
   return LibraryFilterSelection(
-    ownershipFilter: selection.ownershipFilter,
+    entriesFilter: selection.entriesFilter,
     trackingStatusFilter: selection.trackingStatusFilter,
     loanStatusFilter: selection.loanStatusFilter,
     dateRangeField: selection.dateRangeField,
@@ -374,9 +374,9 @@ class LibraryFilterOptions {
       if (source.locationPath?.trim().isNotEmpty == true) {
         addValue('location', source.locationPath);
       }
-      final collectionItemRefKey = source.collectionItemRef?.key;
-      if (collectionItemRefKey != null) {
-        final values = customFieldValuesByDefinitionByItem[collectionItemRefKey];
+      final libraryEntryRefKey = source.libraryEntryRef?.key;
+      if (libraryEntryRefKey != null) {
+        final values = customFieldValuesByDefinitionByItem[libraryEntryRefKey];
         if (values != null) {
           for (final fieldEntry in values.entries) {
             final normalizedValues = parseCustomFieldMultiValues(
@@ -436,11 +436,11 @@ bool libraryFilterMatches(
   Iterable<LibraryFilterDefinition<Object?>> filterDefinitions = const [],
 }) {
   final source = item.source;
-  if (filters.ownershipFilter == LibraryOwnershipFilter.owned &&
-      !source.isOwned) {
+  if (filters.entriesFilter == LibraryEntryPolicyFilter.entry &&
+      !source.isEntry) {
     return false;
   }
-  if (filters.ownershipFilter == LibraryOwnershipFilter.wishlist &&
+  if (filters.entriesFilter == LibraryEntryPolicyFilter.wishlist &&
       !source.isWishlisted) {
     return false;
   }
@@ -498,7 +498,7 @@ class _LibraryFilterDialog extends StatefulWidget {
 }
 
 class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
-  late LibraryOwnershipFilter _ownership;
+  late LibraryEntryPolicyFilter _entries;
   late LibraryTrackingStatusFilter _trackingStatus;
   late LibraryLoanStatusFilter _loanStatus;
   late LibraryDateRangeField _dateRangeField;
@@ -514,7 +514,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
   void initState() {
     super.initState();
     final i = widget.initial;
-    _ownership = i.ownershipFilter;
+    _entries = i.entriesFilter;
     _trackingStatus = i.trackingStatusFilter;
     _loanStatus = i.loanStatusFilter;
     _dateRangeField = i.dateRangeField;
@@ -533,27 +533,27 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     final accent = widget.type.identity.accent;
     final selectedCustomField = _selectedCustomFieldOption();
     final viewport = MediaQuery.sizeOf(context);
-    final ownershipValues = [
-      LibraryOwnershipFilter.all,
-      LibraryOwnershipFilter.owned,
-      LibraryOwnershipFilter.wishlist,
+    final entriesValues = [
+      LibraryEntryPolicyFilter.all,
+      LibraryEntryPolicyFilter.entry,
+      LibraryEntryPolicyFilter.wishlist,
     ];
 
     final generalFilters = <Widget>[
-      CompactSearchDropdownFormField<LibraryOwnershipFilter>(
-        initialValue: _ownership,
+      CompactSearchDropdownFormField<LibraryEntryPolicyFilter>(
+        initialValue: _entries,
         dropdownColor: palette.panelRaised,
         borderRadius: kAppMenuBorderRadius,
         decoration: _filterFieldDecoration(context, label: 'Shelf'),
         items: [
-          for (final f in ownershipValues)
+          for (final f in entriesValues)
             DropdownMenuItem(
               value: f,
-              child: Text(libraryOwnershipFilterLabel(f, type: widget.type)),
+              child: Text(libraryEntryPolicyFilterLabel(f, type: widget.type)),
             ),
         ],
         onChanged: (v) {
-          if (v != null) setState(() => _ownership = v);
+          if (v != null) setState(() => _entries = v);
         },
       ),
       const SizedBox(height: 10),
@@ -867,7 +867,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
 
   LibraryFilterSelection _buildSelection() {
     return LibraryFilterSelection(
-      ownershipFilter: _ownership,
+      entriesFilter: _entries,
       trackingStatusFilter: _trackingStatus,
       loanStatusFilter: _loanStatus,
       dateRangeField: _dateRangeField,

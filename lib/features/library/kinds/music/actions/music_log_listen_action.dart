@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
@@ -13,12 +13,11 @@ Future<void> runMusicLogListenAction(
 ) async {
   final projection = action.item.dto;
   if (projection is! MusicWorkspaceProjection) return;
-  final sourceRef = action.item.source.catalogRef?.rootScope;
-  if (sourceRef == null) return;
-  final catalogRef = CatalogItemRef(
-    kind: CatalogMediaKind.music,
-    id: sourceRef.id,
-  );
+  final libraryEntryRef = action.libraryEntry?.ref;
+  if (libraryEntryRef == null ||
+      libraryEntryRef.kind != CatalogMediaKind.music) {
+    return;
+  }
 
   final notesController = TextEditingController();
   try {
@@ -51,14 +50,11 @@ Future<void> runMusicLogListenAction(
     if (shouldSave != true || !action.buildContext.mounted) return;
 
     final now = DateTime.now().toUtc();
-    final collectionItemRef = action.collectionItem?.ref;
     final container = ProviderScope.containerOf(action.buildContext);
     await container.read(musicListeningMutationsProvider).upsert(
           MusicListenEvent(
             id: 'listen-${now.microsecondsSinceEpoch}',
-            catalogRef: catalogRef,
-            collectionItemRef:
-                collectionItemRef?.kind == CatalogMediaKind.music ? collectionItemRef : null,
+            libraryEntryRef: libraryEntryRef,
             listenedAt: now,
             notes: notesController.text.trim().isEmpty
                 ? null
@@ -67,8 +63,9 @@ Future<void> runMusicLogListenAction(
             updatedAt: now,
           ),
         );
-    container.invalidate(musicListeningEventsProvider(catalogRef));
-    container.invalidate(musicCatalogItemListeningSummaryProvider(catalogRef));
+    container.invalidate(musicListeningEventsProvider(libraryEntryRef));
+    container
+        .invalidate(musicCatalogItemListeningSummaryProvider(libraryEntryRef));
   } finally {
     notesController.dispose();
   }

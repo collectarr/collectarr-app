@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 
 abstract final class ComicVocabularyIds {
   static const publisher = VocabularyId<String>('comic.publisher');
@@ -21,50 +21,50 @@ abstract final class ComicVocabularyIds {
 }
 
 abstract final class ComicVocabularies {
-  static Future<int> countOwnedValue(
+  static Future<int> countEntryValue(
     LocalDatabase db,
     String semanticName,
     String normalizedValue,
   ) {
-    return countPickListOwnedValues(
-      items: ComicOwnedRepository(db).listActive(),
+    return countPickListEntryValues(
+      items: ComicEntryRepository(db).listActive(),
       normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
     );
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: ComicOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: ComicEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: ComicOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: ComicEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: ComicOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: ComicEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static ComicCollectionItem _replaceOwnedValue(
-    ComicCollectionItem item,
+  static ComicLibraryEntry _replaceEntryValue(
+    ComicLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -89,13 +89,13 @@ abstract final class ComicVocabularies {
           ),
         );
     }
-    final key = _ownedDetailsKey(semanticName);
+    final key = _entryDetailsKey(semanticName);
     if (key == null) return item;
     final details = item.details.toJson()..[key] = targetValue;
-    return item.copyWith(details: ComicOwnedDetails.fromJson(details));
+    return item.copyWith(details: ComicEntryDetails.fromJson(details));
   }
 
-  static String? _ownedDetailsKey(String semanticName) =>
+  static String? _entryDetailsKey(String semanticName) =>
       switch (semanticName) {
         'raw_or_slabbed' => 'raw_or_slabbed',
         'grading_company' => 'grading_company',
@@ -110,8 +110,8 @@ abstract final class ComicVocabularies {
         _ => null,
       };
 
-  static Iterable<String?> _ownedValues(
-    ComicCollectionItem item,
+  static Iterable<String?> _entryValues(
+    ComicLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

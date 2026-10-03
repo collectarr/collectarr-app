@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -21,8 +21,8 @@ LibraryEditShellState createLibraryEditShellState({
   LibraryEntityScope scope = LibraryEntityScope.catalogItem,
   LibraryEntityRef? node,
   required CatalogSearchCandidate item,
-  required CollectionItemSummary? collectionItem,
-  LibraryCollectionItemDispatch? collectionItemDispatch,
+  required LibraryEntrySummary? libraryEntry,
+  LibraryEntryDispatch? libraryEntryDispatch,
   required WishlistItem? wishlistItem,
   required TrackingSummary? trackingSummary,
   required Color accent,
@@ -37,26 +37,26 @@ LibraryEditShellState createLibraryEditShellState({
       textControllers.create(text: text);
 
   final formFields = LibraryEditFormFields(textControllers);
-  final ownerLabelController = create(collectionItem?.ownerLabel ?? '');
+  final ownerLabelController = create(libraryEntry?.ownerLabel ?? '');
   final conditionController = create();
   final gradeController = create(
-    libraryOwnedEditForKind(type.kind)
-            .readOwnedCollectionValue(collectionItemDispatch) ??
+    libraryEntryEditForKind(type.kind)
+            .readEntryCollectionValue(libraryEntryDispatch) ??
         '',
   );
   final purchaseDateController = create(
-    collectionItem?.purchaseDate == null
+    libraryEntry?.purchaseDate == null
         ? ''
-        : formatDate(collectionItem!.purchaseDate!),
+        : formatDate(libraryEntry!.purchaseDate!),
   );
   final priceController = create(
-    collectionItem?.pricePaidCents == null
+    libraryEntry?.pricePaidCents == null
         ? ''
-        : (collectionItem!.pricePaidCents! / 100).toStringAsFixed(2),
+        : (libraryEntry!.pricePaidCents! / 100).toStringAsFixed(2),
   );
-  final currencyController = create(collectionItem?.currency ?? '');
+  final currencyController = create(libraryEntry?.currency ?? '');
   final indexNumberController = create();
-  final notesController = create(collectionItem?.notes ?? '');
+  final notesController = create(libraryEntry?.notes ?? '');
   final wishlistPriceController = create(
     wishlistItem?.targetPriceCents == null
         ? ''
@@ -81,16 +81,16 @@ LibraryEditShellState createLibraryEditShellState({
   final trackingNotesController = create(trackingSummary?.notes ?? '');
   final tagsController = create();
   final sellPriceController = create(
-    collectionItem?.sellPriceCents == null
+    libraryEntry?.sellPriceCents == null
         ? ''
-        : (collectionItem!.sellPriceCents! / 100).toStringAsFixed(2),
+        : (libraryEntry!.sellPriceCents! / 100).toStringAsFixed(2),
   );
-  final soldToController = create(collectionItem?.soldTo ?? '');
-  final purchaseStoreController = create(collectionItem?.purchaseStore ?? '');
+  final soldToController = create(libraryEntry?.soldTo ?? '');
+  final purchaseStoreController = create(libraryEntry?.purchaseStore ?? '');
   final marketValueController = create(
-    collectionItem?.marketValueCents == null
+    libraryEntry?.marketValueCents == null
         ? ''
-        : (collectionItem!.marketValueCents! / 100).toStringAsFixed(2),
+        : (libraryEntry!.marketValueCents! / 100).toStringAsFixed(2),
   );
 
   final personal = PersonalStateDraft(
@@ -112,10 +112,10 @@ LibraryEditShellState createLibraryEditShellState({
     soldToController: soldToController,
     tagOptions: const [],
     availableLocations: const [],
-    selectedLocationId: collectionItem?.locationId,
+    selectedLocationId: libraryEntry?.locationId,
     selectedWishlistCatalogRef: wishlistItem?.catalogRef,
     locationChanged: false,
-    soldAt: collectionItem?.soldAt,
+    soldAt: libraryEntry?.soldAt,
     collectionStatus: null,
   );
 
@@ -126,7 +126,6 @@ LibraryEditShellState createLibraryEditShellState({
     progressTotalController: progressTotalController,
     timesCompletedController: timesCompletedController,
     trackingNotesController: trackingNotesController,
-    selectedTargetRef: trackingSummary?.catalogRef ?? item.reference,
     startedAt: trackingSummary?.startedAt,
     finishedAt: trackingSummary?.completedAt,
   );
@@ -142,7 +141,7 @@ LibraryEditShellState createLibraryEditShellState({
     // Kind edit schemas consume only the concrete aggregate supplied by the
     // typed Library boundary. The generic request value is never decoded by
     // a kind schema.
-    collectionItemDispatch: collectionItemDispatch,
+    libraryEntryDispatch: libraryEntryDispatch,
     trackingSummary: trackingSummary,
     textControllers: textControllers,
   );
@@ -151,19 +150,14 @@ LibraryEditShellState createLibraryEditShellState({
     formFields,
     item,
   );
-  final canonicalFormSchema = scope == LibraryEntityScope.collectionItem
-      ? LibraryEditFormSchema.empty
-      : builtCanonicalFormSchema;
-  kindSessions.copySession.initializePersonalState(personal);
+  final canonicalFormSchema = builtCanonicalFormSchema;
+  kindSessions.entrySession.initializePersonalState(personal);
 
   final formatHint =
-      libraryOwnedEditForKind(type.kind).resolveOwnedFormatHint(item);
+      libraryEntryEditForKind(type.kind).resolveEntryFormatHint(item);
   final isDigitalFormat =
-      libraryOwnedEditForKind(type.kind).resolveOwnedDigitalFlag(
-            collectionItem,
-            libraryPresentationForKind(type.kind)
-                .builder
-                .buildReleaseOptions(item: item),
+      libraryEntryEditForKind(type.kind).resolveEntryDigitalFlag(
+            libraryEntry,
             fallbackFormat: formatHint.format,
             fallbackLabel: formatHint.label,
             formats: physicalFormats,
@@ -176,8 +170,8 @@ LibraryEditShellState createLibraryEditShellState({
     scope: scope,
     node: node,
     kindItem: item,
-    collectionItem: collectionItem,
-    collectionItemDispatch: collectionItemDispatch,
+    libraryEntry: libraryEntry,
+    libraryEntryDispatch: libraryEntryDispatch,
     wishlistItem: wishlistItem,
     trackingSummary: trackingSummary,
     accent: accent,
@@ -195,7 +189,7 @@ LibraryEditShellState createLibraryEditShellState({
     tracking: tracking,
     session: LibraryEditSessionController(
       catalogItemSession: kindSessions.catalogItemSession,
-      copySession: kindSessions.copySession,
+      entrySession: kindSessions.entrySession,
       disposeSession: kindSessions.disposeSession,
     ),
     customFieldEdits: {

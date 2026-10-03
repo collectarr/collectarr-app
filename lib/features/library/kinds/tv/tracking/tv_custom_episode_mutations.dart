@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
@@ -13,7 +15,7 @@ typedef TvCustomEpisodeIdGenerator = String Function();
 
 String _defaultTvCustomEpisodeId() => const Uuid().v4();
 
-/// TV-owned custom episode mutations.
+/// TV-entry custom episode mutations.
 ///
 /// This deliberately lives under TV. Collection contributes only the generic
 /// mutation runner and sync queue; it does not construct episode coordinates.
@@ -32,7 +34,7 @@ final class TvCustomEpisodeMutations {
 
   Future<TvCustomEpisode> upsertCustomEpisode({
     String? id,
-    required TvSeriesId seriesId,
+    required LibraryEntryRef libraryEntryRef,
     required int seasonNumber,
     required int episodeNumber,
     required String title,
@@ -43,10 +45,17 @@ final class TvCustomEpisodeMutations {
     String? localImagePath,
     String? thumbnailImageUrl,
   }) async {
+    if (libraryEntryRef.kind != CatalogMediaKind.tv) {
+      throw ArgumentError.value(
+        libraryEntryRef.kind,
+        'libraryEntryRef.kind',
+        'TV custom episodes must belong to a TV library entry.',
+      );
+    }
     final now = DateTime.now().toUtc();
     final episode = TvCustomEpisode(
       id: TvEpisodeId(id ?? idGenerator()),
-      seriesId: seriesId,
+      libraryEntryRef: libraryEntryRef,
       seasonNumber: seasonNumber,
       episodeNumber: episodeNumber,
       title: title,
@@ -73,7 +82,7 @@ final class TvCustomEpisodeMutations {
     final now = DateTime.now().toUtc();
     final deleted = TvCustomEpisode(
       id: episode.id,
-      seriesId: episode.seriesId,
+      libraryEntryRef: episode.libraryEntryRef,
       seasonNumber: episode.seasonNumber,
       episodeNumber: episode.episodeNumber,
       title: episode.title,
@@ -107,11 +116,7 @@ final class TvCustomEpisodeMutations {
       entityId: episode.id.value,
       action: action,
       payload: {
-        'catalog_ref': {
-          'kind': 'tv',
-          'entity_type': 'catalog_item',
-          'id': episode.seriesId.value,
-        },
+        'library_entry_ref': episode.libraryEntryRef.toJson(),
         'season_number': episode.seasonNumber,
         'episode_number': episode.episodeNumber,
         'title': episode.title,

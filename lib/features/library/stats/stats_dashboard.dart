@@ -70,7 +70,7 @@ class _GenericStatsDashboard extends StatelessWidget {
         .length;
     final missingMetadata = _missingMetadataCount(state.entries, registration);
     final valueCoverage =
-        state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
+        state.entryCount == 0 ? 0.0 : state.pricedCount / state.entryCount;
     final metadataQualityBands =
         _metadataQualityBands(state.entries, registration);
     final metadataAlertCounts =
@@ -112,8 +112,8 @@ class _GenericStatsDashboard extends StatelessWidget {
                           ),
                           LibraryStatsTile(
                             icon: Icons.check_box,
-                            label: 'Owned',
-                            value: state.ownedCount.toString(),
+                            label: 'Entry',
+                            value: state.entryCount.toString(),
                           ),
                           for (final tile in kindSummaryTiles)
                             LibraryStatsTile(
@@ -148,7 +148,7 @@ class _GenericStatsDashboard extends StatelessWidget {
                           if (state.soldCount > 0)
                             LibraryStatsTile(
                               icon: Icons.local_offer_outlined,
-                              label: 'Sold copies',
+                            label: 'Sold entries',
                               value: state.soldCount.toString(),
                             ),
                           if (netValue != null)

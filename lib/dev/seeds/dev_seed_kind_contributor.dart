@@ -1,6 +1,10 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -22,11 +26,11 @@ typedef DevSeedCatalogBarcodeValidator = void Function(
 typedef DevSeedCatalogGraphValidator = List<String> Function(
   CatalogItemDto item,
 );
-typedef DevSeedCollectionItemSummaryFactory = List<CollectionItemSummary> Function(
+typedef DevSeedLibraryEntrySummaryFactory = List<LibraryEntrySummary> Function(
   DateTime now,
 );
-typedef DevSeedOwnedQualityValidator = List<String> Function(DateTime now);
-typedef DevSeedOwnedSeeder = Future<void> Function(
+typedef DevSeedEntryQualityValidator = List<String> Function(DateTime now);
+typedef DevSeedEntrySeeder = Future<void> Function(
   LocalDatabase db,
   DateTime now,
 );
@@ -43,7 +47,7 @@ typedef DevSeedDatabaseSeeder = Future<void> Function(
   DateTime now,
 );
 
-/// Kind-owned defaults used only while enriching development catalog fixtures.
+/// Kind-entry defaults used only while enriching development catalog fixtures.
 ///
 /// Keeping these values with each contributor prevents the generic seed
 /// runner from becoming a semantic switchboard for all kinds.
@@ -71,23 +75,22 @@ final class DevSeedCatalogDefaults {
   final DevSeedCatalogPayloadEnricher enrichPayload;
 }
 
-/// The complete development-fixture contribution owned by one library kind.
+/// The complete development-fixture contribution entry by one library kind.
 ///
 /// This is a dev-only composition contract. It keeps fixture construction
 /// typed while allowing the seed entry point to remain unaware of concrete
 /// kind repositories and tracking models.
 abstract interface class DevSeedKindContributor {
   CatalogMediaKind get kind;
-  bool get trackingRequiresCollectionItemRef;
   DevSeedCatalogDefaults get catalogDefaults;
   DevSeedCatalogFactory get catalogItems;
   DevSeedItemEnricher get enrichItem;
   DevSeedCatalogQualityValidator get validateCatalog;
   DevSeedCatalogGraphValidator get validateCatalogGraph;
   DevSeedCatalogBarcodeValidator get validateBarcode;
-  DevSeedCollectionItemSummaryFactory get ownedSummaries;
-  DevSeedOwnedQualityValidator get validateOwned;
-  DevSeedOwnedSeeder get seedOwned;
+  DevSeedLibraryEntrySummaryFactory get entrySummaries;
+  DevSeedEntryQualityValidator get validateEntry;
+  DevSeedEntrySeeder get seedEntry;
   DevSeedTrackingFactory get trackingRecords;
   DevSeedTrackingUnitFactory? get trackingUnits;
   DevSeedWatchSessionFactory? get watchSessions;
@@ -99,8 +102,8 @@ abstract interface class DevSeedKindContributor {
 /// The generated contributor registry is necessarily heterogeneous, so it
 /// exposes the small [DevSeedKindContributor] interface. The only erased
 /// boundary is this adapter; the seed declarations and validators remain
-/// concrete and cannot accidentally validate the wrong Owned model.
-final class TypedDevSeedKindContributor<TCollectionItem extends Object>
+/// concrete and cannot accidentally validate the wrong Entry model.
+final class TypedDevSeedKindContributor<TLibraryEntry extends Object>
     implements DevSeedKindContributor {
   const TypedDevSeedKindContributor({
     required this.kind,
@@ -110,12 +113,10 @@ final class TypedDevSeedKindContributor<TCollectionItem extends Object>
     required this.validateCatalog,
     required this.validateCatalogGraph,
     required this.validateBarcode,
-    required this.collectionItemsTyped,
-    required this.collectionItemSummaryTyped,
-    required this.validateOwnedTyped,
-    required this.seedOwnedTyped,
+    required this.libraryEntriesTyped,
+    required this.libraryEntrySummaryTyped,
+    required this.validateEntryTyped,
     required this.trackingRecords,
-    this.trackingRequiresCollectionItemRef = true,
     this.trackingUnits,
     this.watchSessions,
     this.seedDatabase,
@@ -123,8 +124,6 @@ final class TypedDevSeedKindContributor<TCollectionItem extends Object>
 
   @override
   final CatalogMediaKind kind;
-  @override
-  final bool trackingRequiresCollectionItemRef;
   @override
   final DevSeedCatalogDefaults catalogDefaults;
   @override
@@ -137,11 +136,10 @@ final class TypedDevSeedKindContributor<TCollectionItem extends Object>
   final DevSeedCatalogGraphValidator validateCatalogGraph;
   @override
   final DevSeedCatalogBarcodeValidator validateBarcode;
-  final List<TCollectionItem> Function(DateTime now) collectionItemsTyped;
-  final CollectionItemSummary Function(TCollectionItem item)
-      collectionItemSummaryTyped;
-  final List<String> Function(TCollectionItem item) validateOwnedTyped;
-  final DevSeedOwnedSeeder seedOwnedTyped;
+  final List<TLibraryEntry> Function(DateTime now) libraryEntriesTyped;
+  final LibraryEntrySummary Function(TLibraryEntry item)
+      libraryEntrySummaryTyped;
+  final List<String> Function(TLibraryEntry item) validateEntryTyped;
   @override
   final DevSeedTrackingFactory trackingRecords;
   @override
@@ -152,21 +150,58 @@ final class TypedDevSeedKindContributor<TCollectionItem extends Object>
   final DevSeedDatabaseSeeder? seedDatabase;
 
   @override
-  DevSeedCollectionItemSummaryFactory get ownedSummaries => (now) {
-        return collectionItemsTyped(now).map(collectionItemSummaryTyped).toList(
+  DevSeedLibraryEntrySummaryFactory get entrySummaries => (now) {
+        return libraryEntriesTyped(now).map(libraryEntrySummaryTyped).toList(
               growable: false,
             );
       };
 
   @override
-  DevSeedOwnedQualityValidator get validateOwned => (now) {
+  DevSeedEntryQualityValidator get validateEntry => (now) {
         final issues = <String>[];
-        for (final item in collectionItemsTyped(now)) {
-          issues.addAll(validateOwnedTyped(item));
+        for (final item in libraryEntriesTyped(now)) {
+          issues.addAll(validateEntryTyped(item));
         }
         return issues;
       };
 
   @override
-  DevSeedOwnedSeeder get seedOwned => seedOwnedTyped;
+  DevSeedEntrySeeder get seedEntry => (database, now) async {
+        final cache = CatalogItemCacheRepository(database);
+        final store = LibraryEntryStore(database);
+        for (final value in libraryEntriesTyped(now)) {
+          if (value is! JsonEncodable) {
+            throw StateError(
+              'The ${kind.apiValue} seed entry must expose its JSON record.',
+            );
+          }
+          final payload = value.toJson();
+          final rawSource = payload['source_catalog_ref'];
+          if (rawSource is! Map) {
+            throw FormatException(
+              'The ${kind.apiValue} seed entry is missing source_catalog_ref.',
+            );
+          }
+          final source = CatalogItemRef.fromJson(
+            Map<String, Object?>.from(rawSource),
+          );
+          if (source.kind != kind) {
+            throw FormatException(
+              'The ${kind.apiValue} seed entry references a different kind.',
+            );
+          }
+          final catalogItem = await cache.find(source);
+          if (catalogItem == null) {
+            throw StateError(
+              'The ${kind.apiValue} seed entry references missing catalog '
+              'item ${source.id}.',
+            );
+          }
+          await store.putKindJson(kind, {
+            ...payload,
+            'kind': kind.apiValue,
+            'catalog_data': catalogItem.kindData,
+          });
+        }
+      };
 }

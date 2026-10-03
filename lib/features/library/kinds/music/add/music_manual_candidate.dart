@@ -11,7 +11,7 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 /// Builds the typed flat catalog candidate used by Music's manual Add flow.
 ///
 /// The shared Add host only asks the registered kind capability for this
-/// candidate; the concrete edition stays a kind-owned Music item with
+/// candidate; the concrete edition stays a kind-entry Music item with
 /// contained discs and tracks.
 CatalogSearchCandidate? buildMusicManualCandidate(
   LibraryKindAddDraft draft, {
@@ -39,6 +39,7 @@ CatalogSearchCandidate? buildMusicManualCandidate(
   final item = CatalogItemDto.raw(
     id: id,
     mediaKind: CatalogMediaKind.music,
+    origin: CatalogItemOrigin.privateLocal,
     kindData: musicItem.toJson(),
   );
   return CatalogSearchCandidate.fromItem(item);
@@ -81,10 +82,25 @@ Map<String, Object?>? buildMusicManualProposalData(
       'original_release_date': originalReleaseDateParts.isoString,
     if (recordingDateParts != null)
       'recording_date': recordingDateParts.isoString,
-    if (artist != null)
-      'artist_credits': [
-        <String, Object?>{'name': artist}
-      ],
+    if (artist != null || draft.artistCredits.isNotEmpty)
+      'artist_credits': draft.artistCredits.isEmpty
+          ? [
+              <String, Object?>{'name': artist!}
+            ]
+          : [
+              for (var index = 0; index < draft.artistCredits.length; index++)
+                {
+                  'id': draft.artistCredits[index].id,
+                  'name': draft.artistCredits[index].creditedName,
+                  if (draft.artistCredits[index].sortName != null)
+                    'sort_name': draft.artistCredits[index].sortName,
+                  if (draft.artistCredits[index].artistId != null)
+                    'artist_id': draft.artistCredits[index].artistId,
+                  if (draft.artistCredits[index].joinPhrase != null)
+                    'join_phrase': draft.artistCredits[index].joinPhrase,
+                  'sequence': index + 1,
+                },
+            ],
     if (draft.genres.isNotEmpty) 'genres': List<String>.of(draft.genres),
     if (_textOrNull(draft.recordLabel) case final value?) 'label': value,
     if (format != null) 'format': format,

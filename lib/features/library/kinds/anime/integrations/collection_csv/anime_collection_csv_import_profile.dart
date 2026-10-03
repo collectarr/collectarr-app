@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-/// Anime-owned aliases for the collection CSV boundary.
+/// Anime-entry aliases for the collection CSV boundary.
 final class AnimeCollectionCsvImportProfile {
   const AnimeCollectionCsvImportProfile();
 
-  /// Canonical schema-v1 header owned by this kind's CSV integration.
+  /// Canonical schema-v1 header entry by this kind's CSV integration.
   ///
   /// The same wire positions may be duplicated between kinds intentionally;
   /// Collection never interprets these labels as a shared domain schema.
@@ -157,7 +157,7 @@ final class AnimeCollectionCsvImportProfile {
     ];
   }
 
-  List<String>? importOwnedCells({
+  List<String>? importEntryCells({
     required List<String> header,
     required List<String> values,
   }) {

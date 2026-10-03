@@ -25,6 +25,7 @@ CatalogSearchCandidate? buildTvManualCandidate(
     CatalogItemDto.raw(
       id: 'manual-tv-${DateTime.now().microsecondsSinceEpoch}',
       mediaKind: CatalogMediaKind.tv,
+      origin: CatalogItemOrigin.privateLocal,
       kindData: {
         'title': title.trim(),
         if (_nullable(values.sortKey) case final value?) 'sort_key': value,

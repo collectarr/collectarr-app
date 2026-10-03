@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -128,8 +128,8 @@ class LibraryBody extends StatelessWidget {
     required this.onDetailsWidthChanged,
     required this.onDetailsHeightChanged,
     this.onLayoutSnapshotChanged,
-    required this.onAddOwned,
-    required this.onRemoveOwned,
+    required this.onAddEntry,
+    required this.onRemoveEntry,
     required this.onAddWishlist,
     required this.onRemoveWishlist,
     required this.onEditItem,
@@ -212,11 +212,11 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<double> onDetailsWidthChanged;
   final ValueChanged<double> onDetailsHeightChanged;
   final ValueChanged<LibraryLayoutSnapshot>? onLayoutSnapshotChanged;
-  final ValueChanged<LibraryProjectionItem> onAddOwned;
-  final ValueChanged<LibraryProjectionItem> onRemoveOwned;
+  final ValueChanged<LibraryProjectionItem> onAddEntry;
+  final ValueChanged<LibraryProjectionItem> onRemoveEntry;
   final ValueChanged<LibraryProjectionItem> onAddWishlist;
   final ValueChanged<LibraryProjectionItem> onRemoveWishlist;
-  final void Function(LibraryProjectionItem item, CollectionItemSummary? collectionItem)
+  final void Function(LibraryProjectionItem item, LibraryEntrySummary? libraryEntry)
       onEditItem;
   final Widget? workspaceOverride;
   final LibraryItemContextMenuCallback? onItemContextMenu;
@@ -350,16 +350,16 @@ class LibraryBody extends StatelessWidget {
           type: type,
           projection: projection,
           item: selected,
-          collectionItem: null,
-          collectionItemDispatch: selected?.source.collectionItemDispatch,
+          libraryEntry: null,
+          libraryEntryDispatch: selected?.source.libraryEntryDispatch,
           detailsLayout: viewState.detailsLayout,
           densityPreset: viewState.densityPreset,
           accent: accent,
           contextLabel: inspectorContextLabel,
-          onAddOwned: selected == null ? null : () => onAddOwned(selected),
-          onRemoveOwned: selected?.source.isOwned != true
+          onAddEntry: selected == null ? null : () => onAddEntry(selected),
+          onRemoveEntry: selected?.source.isEntry != true
               ? null
-              : () => onRemoveOwned(selected!),
+              : () => onRemoveEntry(selected!),
           onAddWishlist:
               selected == null ? null : () => onAddWishlist(selected),
           onRemoveWishlist: selected?.source.isWishlisted != true

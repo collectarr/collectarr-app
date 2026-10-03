@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
@@ -12,9 +12,9 @@ class ComicStatsCapability implements LibraryStatsCapability {
   const ComicStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+  LibraryEntryFinancialSummary buildEntryFinancialSummary(
       LibraryWorkspaceSource entry) {
-    return LibraryOwnedFinancialSummary(
+    return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
       currency: entry.currency,
@@ -62,8 +62,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static int countKeyComics(Iterable<LibraryWorkspaceSource> entries) {
-    return entries.where((entry) => entry.isOwned).where((entry) {
-      return _comicCollectionItem(entry)?.details.keyComic == true;
+    return entries.where((entry) => entry.isEntry).where((entry) {
+      return _comicLibraryEntry(entry)?.details.keyComic == true;
     }).length;
   }
 
@@ -186,7 +186,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     _SeriesGapSummary? best;
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
-      if (!entry.isOwned) {
+      if (!entry.isEntry) {
         continue;
       }
       final metadata = _comicMetadata(entry);
@@ -228,7 +228,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     _MissingNumberSummary? best;
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
-      if (!entry.isOwned) {
+      if (!entry.isEntry) {
         continue;
       }
       final metadata = _comicMetadata(entry);
@@ -271,8 +271,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
     return match == null ? null : int.tryParse(match.group(1)!);
   }
 
-  static ComicCollectionItem? _comicCollectionItem(LibraryWorkspaceSource entry) {
-    return ComicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+  static ComicLibraryEntry? _comicLibraryEntry(LibraryWorkspaceSource entry) {
+    return ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
   }
 
   static ComicCatalogItem? _comicMetadata(LibraryWorkspaceSource entry) {

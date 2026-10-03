@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 
 export 'package:collectarr_app/features/library/domain/library_facet_row.dart';
 
-/// Kind-owned facet execution contract.
+/// Kind-entry facet execution contract.
 ///
 /// The generic host may render the structural definitions and ask the
 /// composition root for this contract, but it does not interpret facet values
@@ -24,7 +24,7 @@ final class LibraryFacetModule {
   final Map<String, LibraryFacetIdRuntime> externalFacetBucketIdsByMode;
 }
 
-/// Kind-owned facet execution with a concrete workspace DTO.
+/// Kind-entry facet execution with a concrete workspace DTO.
 ///
 /// The erased callback is created only at this composition boundary. Kind
 /// implementations and their tests use [typedGetFacetValues] directly and do

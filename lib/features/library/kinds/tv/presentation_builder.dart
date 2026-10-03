@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
@@ -78,29 +78,6 @@ class TvLibraryMediaPresentationBuilder
   }
 
   @override
-  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
-    LibraryWorkspaceSource entry,
-  ) {
-    final catalog = entry.catalogData;
-    if (catalog is! TvWorkspaceCatalogData) return const [];
-    return [
-      for (final release in catalog.video.releases)
-        LibraryWorkspaceReleaseSummary(
-          id: release.id,
-          title: release.title,
-          formatLabel: release.formatLabel,
-          formatBadge: tvFormatBadge(release.formatLabel),
-          releaseDate: release.releaseDate,
-          mediaLabels: [
-            for (var index = 0; index < release.media.length; index += 1)
-              release.media[index].title ?? 'Media \${index + 1}',
-          ],
-          runtimeMinutes: release.videoDetails?.runtimeMinutes,
-        ),
-    ];
-  }
-
-  @override
   List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
     LibraryWorkspaceSource entry,
   ) {
@@ -119,46 +96,6 @@ class TvLibraryMediaPresentationBuilder
                   value['kind']?.toString() != 'link',
               isAutomatic: value['is_automatic'] != false,
             ),
-    ];
-  }
-
-  @override
-  List<LibraryAddReleaseOption> buildReleaseOptions({
-    required CatalogSearchCandidate item,
-  }) {
-    return [
-      for (final edition in item.kindCapability
-          .mapTransport((transport) => transport)
-          .editions)
-        LibraryAddReleaseOption(
-          id: edition.id,
-          title: edition.title,
-          formatId: edition.physicalFormat,
-          formatLabel: edition.physicalFormatLabel,
-          formatBadge: tvFormatBadge(
-            edition.physicalFormat,
-            label: edition.physicalFormatLabel,
-          ),
-          releaseDate: edition.releaseDate,
-          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
-          identifierCode: edition.identifierCode,
-          variants: [
-            for (final variant in edition.variants)
-              LibraryAddVariantOption(
-                id: variant.id,
-                name: variant.name,
-                coverImageUrl: variant.coverImageUrl,
-                identifierCode: variant.identifierCode,
-                formatId: variant.physicalFormat,
-                formatLabel: variant.physicalFormatLabel,
-                formatBadge: tvFormatBadge(
-                  variant.physicalFormat,
-                  label: variant.physicalFormatLabel,
-                ),
-                isPrimary: variant.isPrimary,
-              ),
-          ],
-        ),
     ];
   }
 
@@ -361,7 +298,7 @@ class TvLibraryMediaPresentationBuilder
     required VoidCallback onBack,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<CollectionItemSummary> ownedCopies,
+    required List<LibraryEntrySummary> libraryEntries,
     required List<WishlistItem> wishlistItems,
     required LibraryEntityWorkspaceProjector projector,
   }) {

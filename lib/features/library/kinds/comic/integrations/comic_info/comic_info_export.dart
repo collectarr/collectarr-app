@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
@@ -20,7 +20,7 @@ final class ComicExportPreviewContributor
   }
 }
 
-/// Builds the Comic-owned export contribution consumed by a generic preview
+/// Builds the Comic-personalState export contribution consumed by a generic preview
 /// host. The generic host receives only a structural artifact.
 List<ExportPreviewArtifact> comicInfoExportPreviews(
   Iterable<LibraryWorkspaceSource> entries,
@@ -37,14 +37,14 @@ List<ExportPreviewArtifact> comicInfoExportPreviews(
     final catalog = entry.catalogData;
     if (catalog is! ComicWorkspaceCatalogData) continue;
     final comic = catalog.comic;
-    final owned =
-        ComicCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
+    final personalState =
+        ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     if (exportedCount > 0) {
       buffer.writeln();
       buffer.writeln('<!-- --- next issue --- -->');
       buffer.writeln();
     }
-    buffer.write(xml.serialize(comic, owned));
+    buffer.write(xml.serialize(comic, personalState));
     exportedCount++;
   }
   if (exportedCount == 0) return const [];

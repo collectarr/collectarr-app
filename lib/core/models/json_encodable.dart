@@ -2,7 +2,7 @@
 typedef JsonMap = Map<String, dynamic>;
 
 /// Minimal serialization contract shared by models that cross a JSON
-/// boundary. It carries no domain ownership or field semantics.
+/// boundary. It carries no domain entries or field semantics.
 abstract interface class JsonEncodable {
   JsonMap toJson();
 }

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 /// Typed Comic interpretation of a CSV row at the file boundary.
 ///
-/// This is intentionally not the canonical Comic media/owned model. It is a
+/// This is intentionally not the canonical Comic media/entry model. It is a
 /// wire-format DTO used by the Collection import host before the row is
 /// handed to the generic mutation pipeline.
 final class ComicCollectionCsvImportRow {
@@ -66,7 +66,7 @@ final class ComicCollectionCsvImportRow {
         barcode ?? '',
       ];
 
-  List<String> get ownedCells => [
+  List<String> get entryCells => [
         grade ?? '',
         coverPriceCents?.toString() ?? '',
         rawOrSlabbed ?? '',
@@ -96,7 +96,7 @@ final class ComicCollectionCsvImportRow {
 final class ComicCollectionCsvImportProfile {
   const ComicCollectionCsvImportProfile();
 
-  /// Canonical schema-v1 header owned by this kind's CSV integration.
+  /// Canonical schema-v1 header entry by this kind's CSV integration.
   ///
   /// The same wire positions may be duplicated between kinds intentionally;
   /// Collection never interprets these labels as a shared domain schema.

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -70,8 +70,7 @@ Widget buildGameWorkInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      collectionItem: request.collectionItem,
-      ownedCopies: request.ownedCopies,
+      libraryEntry: request.libraryEntry,
       accent: request.accent,
     );
 
@@ -82,10 +81,7 @@ Widget buildGameCopyInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      collectionItem: request.collectionItem,
-      ownedCopies: [
-        if (request.collectionItem != null) request.collectionItem!,
-      ],
+      libraryEntry: request.libraryEntry,
       accent: request.accent,
     );
 
@@ -107,7 +103,7 @@ class GameInspectorPanel extends StatelessWidget {
         onEdit: request.onEdit,
         onShare: request.onShare,
         onDuplicate: request.onDuplicate,
-        onToggleOwned: request.onToggleOwned,
+        onToggleEntry: request.onToggleEntry,
         onLoan: request.onLoan,
         onRefreshMetadata: request.onRefreshMetadata,
         onUnlinkFromCore: request.onUnlinkFromCore,
@@ -340,9 +336,9 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
     final adapter = dto is GameWorkspaceDto ? dto : null;
     final gameDto = dto is GameWorkspaceDto ? dto : null;
     final metadata = _gameMetadata(item);
-    final typedOwned =
-        GameCollectionItemProjection.fromDispatch(item.source.collectionItemDispatch);
-    final owned = typedOwned is GameCollectionItem ? typedOwned : null;
+    final typedEntry =
+        GameLibraryEntryProjection.fromDispatch(item.source.libraryEntryDispatch);
+    final entry = typedEntry is GameLibraryEntry ? typedEntry : null;
     final releaseYear = adapter?.releaseDate?.year;
     final detailRows = <(String, String)>[
       if (gameDto?.publisher?.trim().isNotEmpty == true)
@@ -371,26 +367,26 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Barcode', gameDto!.barcode!),
       if (metadata?.genres.isNotEmpty == true)
         ('Genres', metadata!.genres.join(', ')),
-      if (owned?.tags?.trim().isNotEmpty == true) ('Tags', owned!.tags!),
+      if (entry?.tags?.trim().isNotEmpty == true) ('Tags', entry!.tags!),
     ];
     final personalRows = <(String, String)>[
-      if (owned?.condition?.trim().isNotEmpty == true)
-        ('Condition', owned!.condition!),
-      if (owned?.collectionStatus?.trim().isNotEmpty == true)
-        ('Collection status', owned!.collectionStatus!),
+      if (entry?.condition?.trim().isNotEmpty == true)
+        ('Condition', entry!.condition!),
+      if (entry?.collectionStatus?.trim().isNotEmpty == true)
+        ('Collection status', entry!.collectionStatus!),
       if (item.source.locationPath?.trim().isNotEmpty == true)
         ('Location', item.source.locationPath!),
-      if (owned?.ownerLabel?.trim().isNotEmpty == true)
-        ('Owner', owned!.ownerLabel!),
-      if (owned?.pricePaidCents != null)
-        ('Price paid', formatMoney(owned!.pricePaidCents, owned.currency)),
-      if (owned?.marketValueCents != null)
-        ('Current value', formatMoney(owned!.marketValueCents, owned.currency)),
-      if (owned?.purchaseDate != null)
-        ('Purchase date', formatDate(owned!.purchaseDate!)),
-      if (owned?.purchaseStore?.trim().isNotEmpty == true)
-        ('Purchase store', owned!.purchaseStore!),
-      if (owned?.createdAt != null) ('Added', formatDate(owned!.createdAt!)),
+      if (entry?.ownerLabel?.trim().isNotEmpty == true)
+        ('Owner', entry!.ownerLabel!),
+      if (entry?.pricePaidCents != null)
+        ('Price paid', formatMoney(entry!.pricePaidCents, entry.currency)),
+      if (entry?.marketValueCents != null)
+        ('Current value', formatMoney(entry!.marketValueCents, entry.currency)),
+      if (entry?.purchaseDate != null)
+        ('Purchase date', formatDate(entry!.purchaseDate!)),
+      if (entry?.purchaseStore?.trim().isNotEmpty == true)
+        ('Purchase store', entry!.purchaseStore!),
+      if (entry?.createdAt != null) ('Added', formatDate(entry!.createdAt!)),
       ('Modified', formatDate(item.source.updatedAt)),
     ];
     final creditRows = libraryCreatorsGroupedByRole(metadata?.creators);

@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 
 abstract final class GameVocabularyIds {
   static const platform = VocabularyId<String>('game.platform');
@@ -16,50 +16,50 @@ abstract final class GameVocabularyIds {
 }
 
 abstract final class GameVocabularies {
-  static Future<int> countOwnedValue(
+  static Future<int> countEntryValue(
     LocalDatabase db,
     String semanticName,
     String normalizedValue,
   ) {
-    return countPickListOwnedValues(
-      items: GameOwnedRepository(db).listActive(),
+    return countPickListEntryValues(
+      items: GameEntryRepository(db).listActive(),
       normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
     );
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: GameOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: GameEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: GameOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: GameEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: GameOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: GameEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static GameCollectionItem _replaceOwnedValue(
-    GameCollectionItem item,
+  static GameLibraryEntry _replaceEntryValue(
+    GameLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -91,11 +91,11 @@ abstract final class GameVocabularies {
     };
     if (key == null) return item;
     final details = item.details.toJson()..[key] = targetValue;
-    return item.copyWith(details: GameOwnedDetails.fromJson(details));
+    return item.copyWith(details: GameEntryDetails.fromJson(details));
   }
 
-  static Iterable<String?> _ownedValues(
-    GameCollectionItem item,
+  static Iterable<String?> _entryValues(
+    GameLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

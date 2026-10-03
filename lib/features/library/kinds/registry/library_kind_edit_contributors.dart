@@ -28,5 +28,5 @@ LibraryCoreCorrectionTarget resolveLibraryCoreCorrectionTargetForKind({
       catalogRef: catalogRef,
     );
 
-LibraryOwnedEditCapability libraryOwnedEditForKind(CatalogMediaKind kind) =>
-    libraryEditCapabilitiesForKind(kind).owned;
+LibraryEntryEditCapability libraryEntryEditForKind(CatalogMediaKind kind) =>
+    libraryEditCapabilitiesForKind(kind).entry;

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// Manual Add editor for the ordered external links owned by a Music item.
+/// Manual Add editor for the ordered external links entry by a Music item.
 final class MusicAddManualLinksTab extends StatefulWidget {
   const MusicAddManualLinksTab({
     super.key,

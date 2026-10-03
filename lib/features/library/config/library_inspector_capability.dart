@@ -1,21 +1,21 @@
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryPersonalDetailFieldsBuilder = List<LibraryDetailField> Function({
   required BuildContext context,
   required LibraryProjectionView item,
-  required CollectionItemSummary? collectionItem,
-  required LibraryCollectionItemDispatch? collectionItemDispatch,
+  required LibraryEntrySummary? libraryEntry,
+  required LibraryEntryDispatch? libraryEntryDispatch,
   required String? currency,
 });
 
-/// Kind-owned inspector contribution for one structural entity boundary.
+/// Kind-entry inspector contribution for one structural entity boundary.
 final class LibraryEntityInspectorContributor {
   const LibraryEntityInspectorContributor({
     required this.scope,
@@ -53,7 +53,7 @@ class LibraryInspectorCapability {
     this.entityRegistry = const LibraryEntityInspectorRegistry(),
     this.mediaDetailContributionBuilder,
     this.showsDefaultPersonalSection = true,
-    this.supportsCollectionItemImages = true,
+    this.supportsLibraryEntryImages = true,
     this.trackingEditor,
     this.personalDetailFieldsBuilder,
   });
@@ -61,7 +61,7 @@ class LibraryInspectorCapability {
   final LibraryEntityInspectorRegistry entityRegistry;
   final LibraryMediaDetailContributionBuilder? mediaDetailContributionBuilder;
   final bool showsDefaultPersonalSection;
-  final bool supportsCollectionItemImages;
+  final bool supportsLibraryEntryImages;
   final LibraryTrackingEditorCapability? trackingEditor;
   final LibraryPersonalDetailFieldsBuilder? personalDetailFieldsBuilder;
 
@@ -76,15 +76,15 @@ class LibraryInspectorCapability {
   List<LibraryDetailField> buildPersonalDetailFields({
     required BuildContext context,
     required LibraryProjectionView item,
-    required CollectionItemSummary? collectionItem,
-    required LibraryCollectionItemDispatch? collectionItemDispatch,
+    required LibraryEntrySummary? libraryEntry,
+    required LibraryEntryDispatch? libraryEntryDispatch,
     required String? currency,
   }) {
     return personalDetailFieldsBuilder?.call(
           context: context,
           item: item,
-          collectionItem: collectionItem,
-          collectionItemDispatch: collectionItemDispatch,
+          libraryEntry: libraryEntry,
+          libraryEntryDispatch: libraryEntryDispatch,
           currency: currency,
         ) ??
         const [];

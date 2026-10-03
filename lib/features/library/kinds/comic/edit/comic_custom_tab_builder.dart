@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'comic_edit_host_adapter.dart';
 import 'comic_edit_draft.dart';
 import 'comic_edit_tabs.dart';
-import 'owned/comic_owned_edit_tab.dart';
+import 'entry/comic_entry_edit_tab.dart';
 
 Widget? buildComicCustomTabView({
   required String tabId,
@@ -35,12 +35,12 @@ Widget? buildComicCustomTabView({
     scope: scope,
     markDirty: markDirty,
   );
-  if (tabId == 'owned') {
+  if (tabId == 'entry') {
     final kindDraft = draft.session.catalogItemSession;
     if (kindDraft is! ComicEditDraft) {
-      throw StateError('Expected ComicEditDraft for Comic owned editing');
+      throw StateError('Expected ComicEditDraft for Comic entry editing');
     }
-    return buildComicOwnedEditSchemaTab(comicDraft: kindDraft);
+    return buildComicEntryEditSchemaTab(comicDraft: kindDraft);
   }
   return switch (tabId) {
     'main' => host.buildComicMainTab(),
@@ -49,7 +49,7 @@ Widget? buildComicCustomTabView({
     'links' => host.buildComicLinksTab(),
     'value' => host.buildComicValueTab(),
     'personal' => host.buildComicPersonalTab(),
-    'details' => host.buildComicOwnedDetailsTab(),
+    'details' => host.buildComicEntryDetailsTab(),
     'cover' => host.buildComicCoverTab(),
     'photos' => host.buildComicPhotosTab(),
     _ => null,

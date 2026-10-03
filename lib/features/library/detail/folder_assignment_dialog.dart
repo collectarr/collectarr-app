@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -11,22 +12,22 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 Future<void> showFolderAssignmentDialog({
   required BuildContext context,
   required LocalDatabase db,
-  required CollectionItemRef collectionItemRef,
+  required LibraryEntryRef libraryEntryRef,
 }) async {
   return showDialog<void>(
     context: context,
-    builder: (_) => _FolderAssignmentDialog(db: db, collectionItemRef: collectionItemRef),
+    builder: (_) => _FolderAssignmentDialog(db: db, libraryEntryRef: libraryEntryRef),
   );
 }
 
 class _FolderAssignmentDialog extends StatefulWidget {
   const _FolderAssignmentDialog({
     required this.db,
-    required this.collectionItemRef,
+    required this.libraryEntryRef,
   });
 
   final LocalDatabase db;
-  final CollectionItemRef collectionItemRef;
+  final LibraryEntryRef libraryEntryRef;
 
   @override
   State<_FolderAssignmentDialog> createState() =>
@@ -47,7 +48,7 @@ class _FolderAssignmentDialogState extends State<_FolderAssignmentDialog> {
   Future<void> _load() async {
     final repo = UserFolderRepository(widget.db);
     final folders = await repo.getAll();
-    final belonging = await repo.getFoldersForItem(widget.collectionItemRef);
+    final belonging = await repo.getFoldersForItem(widget.libraryEntryRef);
     if (mounted) {
       setState(() {
         _folders = folders;
@@ -60,12 +61,13 @@ class _FolderAssignmentDialogState extends State<_FolderAssignmentDialog> {
   Future<void> _toggle(String folderId) async {
     final repo = UserFolderRepository(widget.db);
     if (_memberOf.contains(folderId)) {
-      await repo.removeItemFromFolder(folderId, widget.collectionItemRef);
+      await repo.removeItemFromFolder(folderId, widget.libraryEntryRef);
       if (mounted) setState(() => _memberOf.remove(folderId));
     } else {
-      await repo.addItemToFolder(folderId, widget.collectionItemRef);
+      await repo.addItemToFolder(folderId, widget.libraryEntryRef);
       if (mounted) setState(() => _memberOf.add(folderId));
     }
+    await enqueueLibraryEntrySnapshot(widget.db, widget.libraryEntryRef);
   }
 
   @override

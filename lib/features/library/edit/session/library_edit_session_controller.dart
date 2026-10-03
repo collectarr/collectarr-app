@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -14,24 +14,24 @@ import 'package:collectarr_app/features/library/workspace/entry/library_entity_r
 ///
 /// The shell is responsible for rendering tabs and managing the form. This
 /// controller is responsible for turning that form into domain selections and
-/// kind-owned mutation commands. The kind owns one canonical Catalog Item
-/// session and one separate Collection Item session.
+/// kind-entry mutation commands. The kind owns one canonical Catalog Item
+/// session and the local-entry edit session.
 final class LibraryEditSessionController {
   const LibraryEditSessionController({
     required LibraryCatalogItemEditSession catalogItemSession,
-    required LibraryCopyEditSession copySession,
+    required LibraryEntryEditSession entrySession,
     required void Function() disposeSession,
   })  : _catalogItemSession = catalogItemSession,
-        _copySession = copySession,
+        _entrySession = entrySession,
         _disposeSession = disposeSession;
 
   final LibraryCatalogItemEditSession _catalogItemSession;
-  final LibraryCopyEditSession _copySession;
+  final LibraryEntryEditSession _entrySession;
   final void Function() _disposeSession;
 
   LibraryCatalogItemEditSession get catalogItemSession => _catalogItemSession;
 
-  LibraryCopyEditSession get copySession => _copySession;
+  LibraryEntryEditSession get entrySession => _entrySession;
 
   void setExternalLinks(List<TrailerLinkDto> links) {
     catalogItemSession.setExternalLinks(links);
@@ -41,7 +41,7 @@ final class LibraryEditSessionController {
     LibraryEditShellState state, {
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
-    final existingCollectionItem = state.collectionItem;
+    final existingLibraryEntry = state.libraryEntry;
     final baseSelection = LibraryEditSelection(
       kindItem: state.kindItem,
       scope: state.scope,
@@ -63,8 +63,6 @@ final class LibraryEditSessionController {
       tracking: !state.hasTrackingContext
           ? null
           : LibraryTrackingEditSelection(
-              targetRef:
-                  state.tracking.selectedTargetRef ?? state.kindItem.reference,
               rating: parseInt(state.tracking.ratingController.text),
               readStatus: emptyToNull(state.tracking.trackingController.text),
               startedAt: state.tracking.startedAt,
@@ -82,10 +80,10 @@ final class LibraryEditSessionController {
                 state.tracking.trackingNotesController.text,
               ),
             ),
-      ownedUpdatePayload: existingCollectionItem == null
+      entryUpdatePayload: existingLibraryEntry == null
           ? null
-          : copySession.buildOwnedUpdatePayload(
-              collectionItemRef: existingCollectionItem.ref,
+          : entrySession.buildEntryUpdatePayload(
+              libraryEntryRef: existingLibraryEntry.ref,
               personal: state.personal,
             ),
       customFieldEdits: state.customFieldEdits,
@@ -108,7 +106,6 @@ final class LibraryEditSessionController {
           kindItem: state.kindItem,
           scope: state.scope,
         );
-    if (state.scope == LibraryEntityScope.collectionItem) return source;
     return catalogItemSession.applyCanonicalEdits(source, state.formFields);
   }
 
@@ -123,11 +120,10 @@ final class LibraryEditSessionController {
     LibraryEditShellState state,
     LibraryEditSelection selection,
   ) {
-    if (state.scope == LibraryEntityScope.collectionItem) return selection;
     return catalogItemSession.applySelectionEdits(selection);
   }
 
-  LibraryAddCommonDraft buildCommonCopyDraft(LibraryEditShellState state) {
+  LibraryAddCommonDraft buildCommonEntryDraft(LibraryEditShellState state) {
     return LibraryAddCommonDraft(
       condition: emptyToNull(state.personal.conditionController.text),
       purchaseDate: parseDate(state.personal.purchaseDateController.text),
@@ -143,15 +139,15 @@ final class LibraryEditSessionController {
     );
   }
 
-  JsonEncodable buildCopyDetails(LibraryEditShellState state) {
-    return copySession.toDetailsDraft();
+  JsonEncodable buildEntryDetails(LibraryEditShellState state) {
+    return entrySession.toDetailsDraft();
   }
 
-  AddCollectionItemCommand buildCopyAddCommand(LibraryEditShellState state) {
+  AddLibraryEntryCommand buildEntryAddCommand(LibraryEditShellState state) {
     return libraryAddForKind(state.type.kind).buildCommandFromDetails(
       state.kindItem,
-      buildCommonCopyDraft(state),
-      buildCopyDetails(state),
+      buildCommonEntryDraft(state),
+      buildEntryDetails(state),
       kindValue: emptyToNull(state.personal.gradeController.text),
       tracking: LibraryAddTrackingDraft(
         readStatus: emptyToNull(state.tracking.trackingController.text),
@@ -163,14 +159,14 @@ final class LibraryEditSessionController {
     );
   }
 
-  CollectionItemUpdateRequest buildCopyUpdateCommand(
+  LibraryEntryUpdateRequest buildEntryUpdateCommand(
     LibraryEditShellState state,
-    CollectionItemRef collectionItemRef,
+    LibraryEntryRef libraryEntryRef,
   ) {
-    return UpdateCollectionItemCommand(
-      collectionItemRef: collectionItemRef,
-      payload: copySession.buildOwnedUpdatePayload(
-        collectionItemRef: collectionItemRef,
+    return UpdateLibraryEntryCommand(
+      libraryEntryRef: libraryEntryRef,
+      payload: entrySession.buildEntryUpdatePayload(
+        libraryEntryRef: libraryEntryRef,
         personal: state.personal,
       ),
     );

@@ -78,7 +78,7 @@ abstract class ComicEditHost {
   set comicFinishedAt(DateTime? value);
   DateTime? get comicSoldAt;
   set comicSoldAt(DateTime? value);
-  bool get comicShowPhysicalOwnedFields;
+  bool get comicShowPhysicalEntryFields;
   List<ItemImageEdit> get comicItemImageEdits;
   set comicItemImageEdits(List<ItemImageEdit> value);
 

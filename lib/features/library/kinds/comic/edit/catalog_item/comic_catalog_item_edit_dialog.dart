@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
@@ -62,7 +63,7 @@ class _ComicCatalogItemEditDialogState
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
-        onSave: (_) {
+        onSave: (_) async {
           final updatedMedia = comicCatalogItemFromFormValues(
             original: _media,
             values: _draft,
@@ -72,7 +73,7 @@ class _ComicCatalogItemEditDialogState
               transport.withKindData(updatedMedia),
             ),
           );
-          Navigator.of(context).pop(
+          await commitLibraryEdit(context,
             LibraryEditSelection(kindItem: updated),
           );
         },

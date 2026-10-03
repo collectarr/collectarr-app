@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 
 /// Composition-root dispatch from schema-v1 catalog transport into the
@@ -20,17 +21,30 @@ Future<LibraryWorkspaceCatalogData> enrichedWorkspaceCatalogDataFromTransport(
   LocalDatabase db,
   CatalogImportTransport item,
 ) async {
-  final decoded = item.decodeItem();
+  return enrichedWorkspaceCatalogDataFromItem(db, item.decodeItem());
+}
+
+Future<LibraryWorkspaceCatalogData> enrichedWorkspaceCatalogDataFromItem(
+  LocalDatabase db,
+  CatalogItemDto item, {
+  LibraryEntryRef? libraryEntryRef,
+}
+) async {
   for (final codec in libraryCatalogTransportCodecs) {
-    if (codec.kind != item.ref.kind) continue;
-    final data = codec.workspaceData(decoded);
+    if (codec.kind != item.mediaKind) continue;
+    final data = codec.workspaceData(item);
     if (codec case final CatalogWorkspaceDataEnricher enricher) {
-      return enricher.enrichWorkspaceData(db, decoded, data);
+      return enricher.enrichWorkspaceData(
+        db,
+        item,
+        data,
+        libraryEntryRef: libraryEntryRef,
+      );
     }
     return data;
   }
   throw StateError(
-    'No typed workspace catalog codec registered for ${item.ref.kind}',
+    'No typed workspace catalog codec registered for ${item.mediaKind}',
   );
 }
 

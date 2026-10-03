@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
@@ -9,7 +9,7 @@ export 'package:collectarr_app/features/library/workspace/schema/library_identif
 export 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 export 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
-typedef LibraryOwnedGroupBucketValueMutator = UpdateCollectionItemCommand? Function(
+typedef LibraryEntryGroupBucketValueMutator = UpdateLibraryEntryCommand? Function(
   Object item,
   String currentLabel, {
   String? replacement,
@@ -18,16 +18,16 @@ typedef LibraryOwnedGroupBucketValueMutator = UpdateCollectionItemCommand? Funct
 abstract interface class LibraryWorkspaceDto {
   const LibraryWorkspaceDto();
 
-  /// Kind-owned UI label. This is presentation, not a canonical catalog field.
+  /// Kind-entry UI label. This is presentation, not a canonical catalog field.
   String get primaryLabel;
 
-  /// Optional kind-owned secondary label for mixed workspace hosts.
+  /// Optional kind-entry secondary label for mixed workspace hosts.
   String? get secondaryLabel => null;
 
-  /// Kind-owned presentation image. This is not a canonical cover field.
+  /// Kind-entry presentation image. This is not a canonical cover field.
   String? get imageUrl;
 
-  /// Kind-owned searchable values exposed to generic index mechanics.
+  /// Kind-entry searchable values exposed to generic index mechanics.
   ///
   /// The host may tokenize these values, but it must not inspect a catalog
   /// payload to infer publisher/barcode/serial/video semantics.
@@ -118,7 +118,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.category,
     this.entityScope,
     this.bucketValueMutator,
-    this.ownedBucketValueMutator,
+    this.entryBucketValueMutator,
   })  : hasSequenceValue = sequenceValue != null,
         hasSubgroupKey = subgroupKey != null;
 
@@ -140,7 +140,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final String? category;
   final LibraryEntityScope? entityScope;
   final CatalogTransportBucketValueMutator? bucketValueMutator;
-  final LibraryOwnedGroupBucketValueMutator? ownedBucketValueMutator;
+  final LibraryEntryGroupBucketValueMutator? entryBucketValueMutator;
 
   String get resolvedSidebarTitle => sidebarTitle ?? label;
   String get resolvedCategory => category ?? 'Main';
@@ -165,7 +165,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     String? category,
     LibraryEntityScope? entityScope,
     CatalogTransportBucketValueMutator? bucketValueMutator,
-    LibraryOwnedGroupBucketValueMutator? ownedBucketValueMutator,
+    LibraryEntryGroupBucketValueMutator? entryBucketValueMutator,
   }) {
     return LibraryGroupDefinition<TKind, TDto, TValue>(
       id: id ?? this.id,
@@ -186,8 +186,8 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
       category: category ?? this.category,
       entityScope: entityScope ?? this.entityScope,
       bucketValueMutator: bucketValueMutator ?? this.bucketValueMutator,
-      ownedBucketValueMutator:
-          ownedBucketValueMutator ?? this.ownedBucketValueMutator,
+      entryBucketValueMutator:
+          entryBucketValueMutator ?? this.entryBucketValueMutator,
     );
   }
 }

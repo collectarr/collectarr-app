@@ -40,8 +40,8 @@ String _simpleLibraryBucketLabel(
     LibraryGroupSemantic.location =>
       _locationBucket(context.source.locationPath),
     LibraryGroupSemantic.title => _titleBucket(context),
-    LibraryGroupSemantic.ownership => context.source.isOwned
-        ? overrides.labelFor('owned', fallback: 'Owned')
+    LibraryGroupSemantic.entries => context.source.isEntry
+        ? overrides.labelFor('entry', fallback: 'Entry')
         : context.source.isWishlisted
             ? overrides.labelFor('wishlist', fallback: 'Wishlist')
             : overrides.labelFor('catalog_only', fallback: 'Catalog only'),

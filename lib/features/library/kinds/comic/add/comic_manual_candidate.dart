@@ -27,6 +27,7 @@ CatalogSearchCandidate? buildComicManualCandidate(
     CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.comic),
       kindData: metadata,
+      origin: CatalogItemOrigin.privateLocal,
     ),
   );
 }

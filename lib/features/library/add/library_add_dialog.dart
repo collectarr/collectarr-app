@@ -2,9 +2,8 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_cont
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -97,6 +96,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   List<StorageLocation> _availableLocations = const [];
   List<String> _conditionOptions = const [];
   List<String> _tagOptions = const [];
+  List<String> _ownerOptions = const [];
+  List<String> _purchaseStoreOptions = const [];
   List<CustomFieldDefinition> _manualCustomFieldDefinitions = const [];
 
   double? _dialogWidth;
@@ -128,26 +129,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           .toSet()
           .toList(growable: false),
     );
-  }
-
-  List<String> _currentSubmissionItemIds() {
-    final state = _controller.state;
-    final ids = <String>[];
-    final checkedResultIds = state.selection.checkedResultIds;
-    if (checkedResultIds.isNotEmpty) {
-      for (final item in state.search.results) {
-        if (checkedResultIds.contains(item.reference.id)) {
-          ids.add(item.reference.id);
-        }
-      }
-    }
-    if (ids.isEmpty) {
-      final selectedItem = state.selectedItem;
-      if (selectedItem != null) {
-        ids.add(selectedItem.reference.id);
-      }
-    }
-    return ids;
   }
 
   double _clampedResultsPaneWidth(double totalWidth) {
@@ -188,7 +169,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _controller = LibraryAddSessionController(
       kind: widget.type.kind,
       type: widget.type,
-      ownedMutations: ref.read(collectionItemMutationsProvider),
+      entryMutations: ref.read(libraryEntryMutationsProvider),
       wishlistMutations: ref.read(wishlistMutationsProvider),
       trackingMutations: ref.read(trackingMutationsProvider),
       api: ref.read(apiClientProvider),
@@ -291,11 +272,15 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       type: widget.type,
       selectedCondition: state.defaultCondition,
       selectedTags: state.defaultTags,
+      selectedOwner: _manualDraft.ownerLabelController.text,
+      selectedPurchaseStore: _manualDraft.purchaseStoreController.text,
     );
     if (!mounted) return;
     setState(() {
       _conditionOptions = options.conditions;
       _tagOptions = options.tags;
+      _ownerOptions = options.owners;
+      _purchaseStoreOptions = options.purchaseStores;
     });
   }
 
@@ -306,7 +291,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final result = await showDialog<String>(
         context: context,
         builder: (dialogCtx) => AccentAlertDialog(
-          title: const Text('Owned default tags'),
+          title: const Text('Entry default tags'),
           content: SizedBox(
             width: 440,
             child: TagPickListField(
@@ -391,14 +376,17 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       isAdding: state.isAdding || state.submitState.isLoading,
       defaultCondition: state.defaultCondition,
       conditions: _conditionOptions,
+      tagOptions: _tagOptions,
+      ownerOptions: _ownerOptions,
+      purchaseStoreOptions: _purchaseStoreOptions,
       locations: _availableLocations,
       defaultLocationId: state.defaultLocationId,
       defaultLocationLabel:
           locationPathForId(_availableLocations, state.defaultLocationId),
       defaultPurchaseDate: state.defaultPurchaseDate,
       defaultTags: state.defaultTags,
-      onAddOwned: () => _submitManualFromManualPane(
-        LibraryAddTarget.owned,
+      onAddEntry: () => _submitManualFromManualPane(
+        LibraryAddTarget.entry,
         manualDialogContext,
       ),
       onAddWishlist: () => _submitManualFromManualPane(
@@ -423,6 +411,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       },
       onVocabularyValueChanged: _recordManualVocabularyValue,
       onVocabularyValuesChanged: _recordManualVocabularyValues,
+      onManualDraftChanged: _notifyManualDraftChanged,
     );
   }
 
@@ -493,7 +482,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       ref.read(localDatabaseProvider),
     ).listDefinitions(
       mediaKind: widget.type.kind.apiValue,
-      targetScope: CustomFieldTargetScope.collectionItem,
+      targetScope: CustomFieldTargetScope.libraryEntry,
     );
     if (!mounted) return;
     setState(() => _manualCustomFieldDefinitions = definitions);
@@ -521,7 +510,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         catalogItem: catalogItem,
         source: 'Manual Add form',
       );
-      await _persistManualVocabularyValues();
       if (!mounted) return;
       showAppToast(
         context,
@@ -564,10 +552,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   Future<String?> _submitManual(LibraryAddTarget target) async {
     if (_controller.state.isAdding) return null;
-    final hasOwnedOnlyDetails = _manualDraft.customFieldValues.values
+    final hasEntryOnlyDetails = _manualDraft.customFieldValues.values
             .any((value) => value?.trim().isNotEmpty ?? false) ||
         _manualDraft.itemImages.isNotEmpty;
-    if (target != LibraryAddTarget.owned && hasOwnedOnlyDetails) {
+    if (target != LibraryAddTarget.entry && hasEntryOnlyDetails) {
       showAppToast(
         context,
         'Custom fields and personal images are saved with a collection item. '
@@ -606,6 +594,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             current.tags,
         locationId: current.locationId ?? _controller.state.defaultLocationId,
         purchaseStore: current.purchaseStore,
+        ownerLabel: _textOrNull(_manualDraft.ownerLabelController.text) ??
+            current.ownerLabel,
         collectionStatus: current.collectionStatus,
         isDigital: current.isDigital,
       ),
@@ -613,29 +603,23 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (!mounted) return null;
     final success = await _controller.submitSelectedItem(
       candidate,
-      onCollectionItemCreated: target == LibraryAddTarget.owned
-          ? (collectionItemRef) async {
-              try {
-                await _persistManualOwnedDetails(
-                  collectionItemRef: collectionItemRef,
-                  catalogRef: candidate.reference,
-                );
-              } catch (error) {
-                if (mounted) {
-                  showAppToast(
-                    context,
-                    'The item was added, but some personal details could not '
-                    'be saved. $error',
-                    tone: AppToastTone.error,
-                  );
-                }
-              }
+      onLibraryEntryCreated: target == LibraryAddTarget.entry
+          ? (libraryEntryRef) async {
+              await _persistManualEntryDetails(
+                libraryEntryRef: libraryEntryRef,
+              );
             }
           : null,
+      onSubmissionCommitted: _persistManualVocabularyValues,
     );
     if (success && mounted) {
-      await _persistManualVocabularyValues();
-      return candidate.reference.id;
+      final submittedIds = _controller.lastSubmittedItemIds;
+      if (submittedIds.isNotEmpty) return submittedIds.first;
+      if (target != LibraryAddTarget.entry) return candidate.reference.id;
+      _controller.reportSubmissionError(
+        'The item was saved but its local identity was not returned.',
+      );
+      return null;
     }
     if (mounted) {
       final error = _controller.state.submitState.error;
@@ -656,12 +640,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         if (!edit.deleted)
           if (edit.imageData ?? existingById[edit.id]?.imageData
               case final imageData?)
-            ItemImage(
+            ItemImageDraft(
               id: edit.id,
-              collectionItemRef: existingById[edit.id]?.collectionItemRef ??
-                  CollectionItemRef.fromKey(
-                    '${widget.type.kind.apiValue}:draft:draft',
-                  ),
               imageData: imageData,
               imageType: edit.imageType,
               caption: edit.caption,
@@ -672,9 +652,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     ];
   }
 
-  Future<void> _persistManualOwnedDetails({
-    required CollectionItemRef collectionItemRef,
-    required CatalogEntityRef catalogRef,
+  Future<void> _persistManualEntryDetails({
+    required LibraryEntryRef libraryEntryRef,
   }) async {
     final now = DateTime.now().toUtc();
     final definitionsById = {
@@ -690,9 +669,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       values.add(
         CustomFieldValue(
           id: const Uuid().v4(),
-          targetId: collectionItemRef.key,
-          targetScope: CustomFieldTargetScope.collectionItem,
-          catalogRef: catalogRef,
+          targetId: libraryEntryRef.key,
+          targetScope: CustomFieldTargetScope.libraryEntry,
           fieldDefinitionId: definition.id,
           value: value,
           updatedAt: now,
@@ -705,7 +683,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
     final imageRepository = ItemImageRepository(db);
     for (final image in _manualDraft.itemImages) {
-      await imageRepository.add(image.copyWith(collectionItemRef: collectionItemRef));
+      await imageRepository.add(image.toEntryImage(libraryEntryRef));
     }
   }
 
@@ -772,13 +750,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         LibraryAccentScope.accentOf(context,
             fallback: widget.type.identity.accent);
     final state = _controller.state;
-    final ownedByCatalogRef = ref.watch(collectionByCatalogRefProvider);
+    final entryByCatalogRef = ref.watch(collectionByCatalogRefProvider);
     final isWideLayout = libraryUiPolicyForKind(widget.type.kind).wideDialog;
     final resultPolicy = libraryAddForKind(widget.type.kind).resultPolicy;
     final visibleCore = state.visibleCoreResults(
       resultPolicy,
-      isOwnedCatalogItem: (item) =>
-          ownedByCatalogRef.containsKey(item.reference),
+      isEntryCatalogItem: (item) =>
+          entryByCatalogRef.containsKey(item.reference),
     );
     final selectedItem = state.selectedItem;
     final checkedCoreCount = state.search.results
@@ -967,7 +945,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 results: visibleCore,
                 selectedResultId: state.selection.selectedResultId,
                 checkedResultIds: state.selection.checkedResultIds,
-                ownedCatalogRefs: ownedByCatalogRef.keys.toSet(),
+                entryCatalogRefs: entryByCatalogRef.keys.toSet(),
                 coreMatchSummary: (item) => addCapability.search.presentation
                     .coreMatchSummary(item, searchContext),
                 resultPolicy: resultPolicy,
@@ -1045,7 +1023,16 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           onAdd: () async {
             final success = await _controller.submitCurrentSelection();
             if (success && mounted) {
-              _closeDialog(_addResult(_currentSubmissionItemIds()));
+              final submittedIds = _controller.lastSubmittedItemIds;
+              if (submittedIds.isEmpty) {
+                _controller.reportSubmissionError(
+                  'The items were saved but their local identities were not returned.',
+                );
+                return;
+              }
+              _closeDialog(
+                _addResult(submittedIds),
+              );
             }
           },
           isWideLayout: isWideLayout,

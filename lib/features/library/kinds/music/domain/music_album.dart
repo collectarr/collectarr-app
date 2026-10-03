@@ -40,6 +40,7 @@ final class MusicAlbum implements JsonEncodable {
     this.upc,
     this.catalogNumber,
     this.packaging,
+    this.format,
     this.coverImageUrl,
     this.coverImageKey,
     this.backCoverImageUrl,
@@ -61,6 +62,7 @@ final class MusicAlbum implements JsonEncodable {
     this.identifiers = const [],
     this.mediums = const [],
     this.mediumTypesSummary = const [],
+    this.revision = 1,
     this.boxSetName,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -98,6 +100,9 @@ final class MusicAlbum implements JsonEncodable {
   final String? upc;
   final String? catalogNumber;
   final String? packaging;
+
+  /// Catalog-level format label returned by Core, independent of disc rows.
+  final String? format;
   final String? coverImageUrl;
   final String? coverImageKey;
   final String? backCoverImageUrl;
@@ -122,6 +127,7 @@ final class MusicAlbum implements JsonEncodable {
   /// Medium types carried by release summaries when full medium rows are not
   /// loaded. When [mediums] are present, their values take precedence.
   final List<String> mediumTypesSummary;
+  final int revision;
   final String? boxSetName;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -206,6 +212,7 @@ final class MusicAlbum implements JsonEncodable {
       upc: _text(json['upc']),
       catalogNumber: _text(json['catalog_number']),
       packaging: _text(json['packaging']),
+      format: _text(json['format']),
       coverImageUrl: _text(json['cover_image_url']),
       coverImageKey: _text(json['cover_image_key']),
       backCoverImageUrl: _text(json['back_cover_image_url']),
@@ -239,6 +246,7 @@ final class MusicAlbum implements JsonEncodable {
       ],
       mediums: mediums,
       mediumTypesSummary: _strings(json['medium_types']),
+      revision: _int(json['revision']) ?? 1,
       boxSetName: _text(
         json['box_set_name'] ??
             json['box_set_title'] ??
@@ -254,6 +262,7 @@ final class MusicAlbum implements JsonEncodable {
   Map<String, dynamic> toJson() => {
         'id': id.value,
         'kind': 'music',
+        'revision': revision,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
         'title': title,
@@ -291,6 +300,7 @@ final class MusicAlbum implements JsonEncodable {
         if (upc != null) 'upc': upc,
         if (catalogNumber != null) 'catalog_number': catalogNumber,
         if (packaging != null) 'packaging': packaging,
+        if (format != null) 'format': format,
         if (mediumTypes.isNotEmpty) 'medium_types': mediumTypes,
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (coverImageKey != null) 'cover_image_key': coverImageKey,

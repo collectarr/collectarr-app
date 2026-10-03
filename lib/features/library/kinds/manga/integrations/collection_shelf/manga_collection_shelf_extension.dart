@@ -25,7 +25,7 @@ final shelfMangaHierarchyProvider =
   },
 );
 
-/// Manga-owned contribution to the generic Collection shelf row.
+/// Manga-entry contribution to the generic Collection shelf row.
 ///
 /// Collection supplies only the extension slot and its expanded state. The
 /// hierarchy model, provider hydration, and chapter/volume presentation stay

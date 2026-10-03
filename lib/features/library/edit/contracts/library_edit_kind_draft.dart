@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/features/library/config/collection_item_update_payload.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/config/library_entry_update_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 
-/// Kind-owned canonical edit operations for one Catalog Item.
+/// Kind-entry canonical edit operations for one Catalog Item.
 abstract interface class LibraryCatalogItemEditSession {
   LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
@@ -24,14 +24,14 @@ abstract interface class LibraryCatalogItemEditSession {
   void setExternalLinks(List<TrailerLinkDto> links);
 }
 
-/// Kind-owned personal edit operations for one Collection Item.
-abstract interface class LibraryCopyEditSession {
+/// Kind-entry personal edit operations for one Collection Item.
+abstract interface class LibraryEntryEditSession {
   JsonEncodable toDetailsDraft();
 
   void initializePersonalState(PersonalStateDraft personal);
 
-  CollectionItemUpdatePayload buildOwnedUpdatePayload({
-    required CollectionItemRef collectionItemRef,
+  LibraryEntryUpdatePayload buildEntryUpdatePayload({
+    required LibraryEntryRef libraryEntryRef,
     required PersonalStateDraft personal,
   });
 }
@@ -44,20 +44,20 @@ mixin LibraryCatalogItemEditSessionLinkDefaults
 }
 
 /// Default copy initialization for a kind with no additional personal fields.
-mixin LibraryCopyEditSessionDefaults implements LibraryCopyEditSession {
+mixin LibraryEntryEditSessionDefaults implements LibraryEntryEditSession {
   @override
   void initializePersonalState(PersonalStateDraft personal) {}
 }
 
-/// The kind-owned edit composition returned to the generic UI shell.
+/// The kind-entry edit composition returned to the generic UI shell.
 final class LibraryEditSessionBundle {
   const LibraryEditSessionBundle({
     required this.catalogItemSession,
-    required this.copySession,
+    required this.entrySession,
     required this.disposeSession,
   });
 
   final LibraryCatalogItemEditSession catalogItemSession;
-  final LibraryCopyEditSession copySession;
+  final LibraryEntryEditSession entrySession;
   final void Function() disposeSession;
 }

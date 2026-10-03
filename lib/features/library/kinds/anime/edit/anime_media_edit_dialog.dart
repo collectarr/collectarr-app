@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -60,7 +61,7 @@ class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
-        onSave: (_) {
+        onSave: (_) async {
           final updated = animeMediaFromFormValues(
             original: _media,
             values: _draft,
@@ -70,7 +71,7 @@ class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
               transport.withKindData(updated),
             ),
           );
-          Navigator.of(context).pop(
+          await commitLibraryEdit(context,
             LibraryEditSelection(
               kindItem: candidate,
             ),

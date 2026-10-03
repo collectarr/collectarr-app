@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
@@ -15,7 +16,7 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:dio/dio.dart';
 
 /// Raw edit values held until Core's canonical field schema resolves the
-/// exact field scope and entity type. No owned, tracking, or personal values
+/// exact field scope and entity type. No entry, tracking, or personal values
 /// are accepted here.
 final class LibraryCoreCorrectionSource {
   const LibraryCoreCorrectionSource({
@@ -23,12 +24,14 @@ final class LibraryCoreCorrectionSource {
     required this.originalFields,
     required this.proposedFields,
     this.description,
+    this.coreCatalogRef,
   });
 
   final LibraryEditDialogRequest request;
   final Map<String, Object?> originalFields;
   final Map<String, Object?> proposedFields;
   final String? description;
+  final CatalogEntityRef? coreCatalogRef;
 
   factory LibraryCoreCorrectionSource.fromTypedFields({
     required LibraryEditDialogRequest request,
@@ -71,18 +74,17 @@ final class LibraryResolvedCoreCorrection {
 
 /// Resolves an edit into one exact Core canonical target.
 ///
-/// A copy intentionally resolves to its parent Release. The source values
-/// still come from the release editor, and Core fields are selected from the
-/// field contract, so Copy-only values can never cross this boundary.
+/// Local entries resolve through their optional source Core reference.
+/// Personal fields are excluded by the Core field contract.
 Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
   required LibraryCoreCorrectionSource source,
   required ApiClient apiClient,
 }) async {
   final target = resolveLibraryCoreCorrectionTargetForKind(
     kind: source.request.type.kind,
-    node: source.request.node,
-    requestedScope: source.request.scope,
-    catalogRef: source.request.kindItem.reference,
+    node: source.coreCatalogRef == null ? source.request.node : null,
+    requestedScope: source.coreCatalogRef == null ? source.request.scope : LibraryEntityScope.catalogItem,
+    catalogRef: source.coreCatalogRef ?? source.request.kindItem.reference,
   );
   final snapshot = await apiClient.getCanonicalCorrectionTarget(
     kind: source.request.type.kind,
@@ -134,9 +136,17 @@ Future<bool?> showLibraryCoreCorrectionReview({
   required BuildContext context,
   required LibraryCoreCorrectionSource source,
 }) {
+  final entry = LibraryEntryEditScope.maybeOf(context);
+  final provenance = entry?.record.sourceCatalogRef;
+  if (entry != null && provenance == null) throw StateError('This local entry has no source Core item to correct.');
+  final resolved = provenance == null ? source : LibraryCoreCorrectionSource(
+    request: source.request, originalFields: source.originalFields, proposedFields: source.proposedFields,
+    description: source.description,
+    coreCatalogRef: CatalogEntityRef(kind: provenance.kind, entityType: CatalogEntityTypeId.catalogItem, id: provenance.id),
+  );
   return showDialog<bool>(
     context: context,
-    builder: (_) => _LibraryCoreCorrectionReviewDialog(source: source),
+    builder: (_) => _LibraryCoreCorrectionReviewDialog(source: resolved),
   );
 }
 
@@ -243,11 +253,11 @@ final class _LibraryCoreCorrectionReviewDialogState
             '${value.entityType} / ${value.entityId}',
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          if (request.node?.scope == LibraryEntityScope.collectionItem) ...[
+          if (request.node?.scope == LibraryEntityScope.libraryEntry) ...[
             const SizedBox(height: 8),
             const Chip(
               avatar: Icon(Icons.subdirectory_arrow_right, size: 16),
-              label: Text('Copy context → parent Release'),
+              label: Text('Entry context → Core Catalog Item'),
             ),
           ],
           const SizedBox(height: 16),

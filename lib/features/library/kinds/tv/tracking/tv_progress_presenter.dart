@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_identity.dart';
@@ -286,8 +288,7 @@ class VideoProgressPresenter {
       map.putIfAbsent(key, () => <WatchSession>[]).add(
             TvWatchSession(
               id: unit.id,
-              seriesId: TvSeriesId(unit.targetRef.rootId ?? unit.targetRef.id),
-              targetRef: unit.targetRef,
+              libraryEntryRef: unit.libraryEntryRef,
               watchedAt: unit.completedAt,
               updatedAt: unit.updatedAt,
               seasonNumber: seasonNumber,

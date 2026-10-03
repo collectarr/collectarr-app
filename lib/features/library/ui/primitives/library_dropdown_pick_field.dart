@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:flutter/material.dart';
@@ -135,9 +136,10 @@ class _LibraryDropdownPickFieldState<TValue>
 
   @override
   Widget build(BuildContext context) {
-    return SingleValuePickField(
+    return LibraryFormField(label: widget.label, child: SingleValuePickField(
       controller: _controller,
       label: widget.label,
+      showInlineLabel: false,
       options: _labels,
       validator: (_) => widget.errorText,
       helperText: widget.helperText,
@@ -147,6 +149,6 @@ class _LibraryDropdownPickFieldState<TValue>
       enabled: widget.enabled,
       onChanged: _selectLabel,
       onManage: _openPicker,
-    );
+    ));
   }
 }

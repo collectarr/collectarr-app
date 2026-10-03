@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:flutter/material.dart';
 
-abstract final class AnimeCatalogItemWorkspaceFields {
+abstract final class AnimeAdditionalCatalogItemWorkspaceFields {
   static final publisher = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.publisher,
     label: 'Publisher',
@@ -34,22 +34,22 @@ abstract final class AnimeCatalogItemWorkspaceFields {
   );
 }
 
-final animeCatalogItemWorkspaceFieldDefinitions = [
-  AnimeCatalogItemWorkspaceFields.publisher,
-  AnimeCatalogItemWorkspaceFields.releaseDate,
-  AnimeCatalogItemWorkspaceFields.releaseYear,
-  AnimeCatalogItemWorkspaceFields.barcode,
+final animeAdditionalCatalogItemWorkspaceFieldDefinitions = [
+  AnimeAdditionalCatalogItemWorkspaceFields.publisher,
+  AnimeAdditionalCatalogItemWorkspaceFields.releaseDate,
+  AnimeAdditionalCatalogItemWorkspaceFields.releaseYear,
+  AnimeAdditionalCatalogItemWorkspaceFields.barcode,
 ];
 
-final animeCatalogItemWorkspaceGroupDefinitions = [
+final animeAdditionalCatalogItemWorkspaceGroupDefinitions = [
   groupFromField<AnimeKind, AnimeWorkspaceDto, num?>(
-    AnimeCatalogItemWorkspaceFields.releaseYear,
+    AnimeAdditionalCatalogItemWorkspaceFields.releaseYear,
     sidebarTitle: 'Release Years',
     icon: Icons.calendar_today_outlined,
   ),
 ];
 
-final animeCatalogItemWorkspaceSortDefinitions = [
+final animeAdditionalCatalogItemWorkspaceSortDefinitions = [
   LibrarySortDefinition<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeSortIds.releaseTitle,
     label: 'Release title',
@@ -57,29 +57,29 @@ final animeCatalogItemWorkspaceSortDefinitions = [
     compare: (left, right) => left.dto.title.compareTo(right.dto.title),
   ),
   sortFromField<AnimeKind, AnimeWorkspaceDto, String>(
-      AnimeCatalogItemWorkspaceFields.publisher),
+      AnimeAdditionalCatalogItemWorkspaceFields.publisher),
   sortFromField<AnimeKind, AnimeWorkspaceDto, DateTime>(
-      AnimeCatalogItemWorkspaceFields.releaseDate,
+      AnimeAdditionalCatalogItemWorkspaceFields.releaseDate,
       defaultAscending: false),
 ];
 
-final animeCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+final animeAdditionalCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
   AnimeFieldIds.publisher,
   AnimeFieldIds.releaseDate,
   AnimeFieldIds.barcode,
 };
 
-final animeCatalogItemWorkspaceColumnDefinitions = [
+final animeAdditionalCatalogItemWorkspaceColumnDefinitions = [
   columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(
-      AnimeCatalogItemWorkspaceFields.publisher,
+      AnimeAdditionalCatalogItemWorkspaceFields.publisher,
       defaultWidth: 140),
   columnFromField<AnimeKind, AnimeWorkspaceDto, DateTime?>(
-    AnimeCatalogItemWorkspaceFields.releaseDate,
+    AnimeAdditionalCatalogItemWorkspaceFields.releaseDate,
     cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
     defaultWidth: 118,
   ),
   columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(
-    AnimeCatalogItemWorkspaceFields.barcode,
+    AnimeAdditionalCatalogItemWorkspaceFields.barcode,
     group: 'Edition',
     defaultWidth: 160,
     maxWidth: 260,

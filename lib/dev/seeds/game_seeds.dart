@@ -1,18 +1,18 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_entry_repository.dart';
 
-final gameDevSeedContributor = TypedDevSeedKindContributor<GameCollectionItem>(
+final gameDevSeedContributor = TypedDevSeedKindContributor<GameLibraryEntry>(
   kind: CatalogMediaKind.game,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
@@ -30,11 +30,9 @@ final gameDevSeedContributor = TypedDevSeedKindContributor<GameCollectionItem>(
   validateCatalog: validateGameSeedCatalog,
   validateCatalogGraph: validateGameSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  collectionItemsTyped: gameSeedCollectionItems,
-  collectionItemSummaryTyped: GameCollectionItemProjection.toSummary,
-  validateOwnedTyped: validateGameSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      GameOwnedRepository(db).upsertAll(gameSeedCollectionItems(now)),
+  libraryEntriesTyped: gameSeedLibraryEntries,
+  libraryEntrySummaryTyped: GameLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateGameSeedEntry,
   trackingRecords: gameSeedTrackingStates,
 );
 
@@ -84,9 +82,9 @@ List<String> validateGameSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateGameSeedOwned(GameCollectionItem item) {
+List<String> validateGameSeedEntry(GameLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final prefix = '${item.catalogItem.kind}/${item.id}';
   final details = item.details;
   seedRequireText(issues, prefix, 'game.completeness', details.completeness);
   seedRequireText(issues, prefix, 'game.core_region', details.coreRegion);
@@ -740,16 +738,16 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
     ];
 
-List<GameCollectionItem> gameSeedCollectionItems(DateTime now) => [
+List<GameLibraryEntry> gameSeedLibraryEntries(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.game, 15))
-        GameCollectionItem(
-          id: CollectionItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.game, itemId),
+        GameLibraryEntry(
+          id: LibraryEntryId('seed-entry-$itemId'),
+          sourceCatalogRef: seedCatalogRef(CatalogMediaKind.game, itemId).toCatalogItemRef(),
           createdAt: now.subtract(const Duration(days: 200)),
           updatedAt: now,
           isDigital: false,
           condition: 'Mint',
-          details: GameOwnedDetails(
+          details: GameEntryDetails(
             completeness: 'Complete',
             hasBox: true,
             hasManual: true,
@@ -770,13 +768,9 @@ List<TrackingStorageRecord> gameSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         GameTrackingState(
           id: 'seed-track-game-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.game,
-            'seed-game-${seedOrdinal2(i)}',
-          ),
-          collectionItemRef: seedCollectionItemRef(
-            CatalogMediaKind.game,
-            'seed-owned-seed-game-${seedOrdinal2(i)}',
+            'seed-entry-seed-game-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i <= 10

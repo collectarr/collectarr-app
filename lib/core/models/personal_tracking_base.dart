@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 
 /// The personal tracking state shared by every media kind.
 ///
-/// Hierarchy coordinates, ownership references, and provider/source details do
+/// Hierarchy coordinates, entries references, and provider/source details do
 /// not belong here. Those remain on the kind-specific tracking record until
 /// the tracking storage split is completed.
 class PersonalTrackingBase {

@@ -1,16 +1,15 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
-/// Music-owned tracking lifecycle entry.
+/// Music-entry tracking lifecycle entry.
 final class MusicTrackingState extends PersonalTrackingBase
     with TrackingStorageRecordBehavior {
   MusicTrackingState({
     required this.id,
-    required this.catalogRef,
+    required this.libraryEntryRef,
     Object? sourceType,
     super.status,
     super.rating,
@@ -29,9 +28,7 @@ final class MusicTrackingState extends PersonalTrackingBase
   @override
   final String id;
   @override
-  final CatalogEntityRef catalogRef;
-  @override
-  CollectionItemRef? get collectionItemRef => null;
+  final LibraryEntryRef libraryEntryRef;
   @override
   final TrackingSourceType? sourceType;
   @override
@@ -61,8 +58,7 @@ final class MusicTrackingState extends PersonalTrackingBase
   @override
   MusicTrackingState copyWith({
     String? id,
-    CatalogEntityRef? catalogRef,
-    Object? collectionItemRef = trackingStorageUnset,
+    Object? libraryEntryRef = trackingStorageUnset,
     Object? sourceType = trackingStorageUnset,
     Object? status = trackingStorageUnset,
     Object? rating = trackingStorageUnset,
@@ -75,16 +71,12 @@ final class MusicTrackingState extends PersonalTrackingBase
     DateTime? updatedAt,
     Object? deletedAt = trackingStorageUnset,
   }) {
-    final nextCatalogRef = catalogRef ?? this.catalogRef;
-    final nextCollectionItemRef = identical(collectionItemRef, trackingStorageUnset)
-        ? this.collectionItemRef
-        : collectionItemRef as CollectionItemRef?;
-    if (nextCollectionItemRef != null) {
-      throw StateError('Music tracking cannot be attached to a collection item.');
-    }
+    final nextLibraryEntryRef = identical(libraryEntryRef, trackingStorageUnset)
+        ? this.libraryEntryRef
+        : libraryEntryRef as LibraryEntryRef;
     return MusicTrackingState(
       id: id ?? this.id,
-      catalogRef: nextCatalogRef,
+      libraryEntryRef: nextLibraryEntryRef,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,

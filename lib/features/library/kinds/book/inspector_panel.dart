@@ -44,7 +44,7 @@ class BookInspectorPanel extends StatelessWidget {
         onEdit: request.onEdit,
         onShare: request.onShare,
         onDuplicate: request.onDuplicate,
-        onToggleOwned: request.onToggleOwned,
+        onToggleEntry: request.onToggleEntry,
         onLoan: request.onLoan,
         onRefreshMetadata: request.onRefreshMetadata,
         onUnlinkFromCore: request.onUnlinkFromCore,
@@ -56,9 +56,9 @@ class BookInspectorPanel extends StatelessWidget {
           LibraryDetailHero(
             type: request.inspector.type,
             item: item,
-            collectionItem: request.inspector.collectionItem,
+            libraryEntry: request.inspector.libraryEntry,
             accent: accent,
-            kindOwnedContent: buildBookAuthorSpotlight(
+            kindEntryContent: buildBookAuthorSpotlight(
               item: item,
               accent: accent,
             ),
@@ -73,7 +73,7 @@ class BookInspectorPanel extends StatelessWidget {
           InspectorActionBar(
             type: request.inspector.type,
             item: item,
-            onToggleOwned: request.onToggleOwned,
+            onToggleEntry: request.onToggleEntry,
             onToggleWishlist: request.onToggleWishlist,
             onEdit: request.onEdit,
             extraActions: request.extraActions,
@@ -89,7 +89,6 @@ class BookInspectorPanel extends StatelessWidget {
           children: [
             if (request.trailingSections.isNotEmpty)
               ...request.trailingSections,
-            if (request.ownedCopiesSection != null) request.ownedCopiesSection!,
             if (request.bundleSection != null) request.bundleSection!,
             if (request.conditionGradeSection != null)
               request.conditionGradeSection!,

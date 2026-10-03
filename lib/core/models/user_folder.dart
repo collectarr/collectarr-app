@@ -15,6 +15,29 @@ class UserFolder {
   final String? iconName;
   final int sortOrder;
 
+  Map<String, Object?> toSyncPayload() => {
+        'name': name,
+        'description': description,
+        'parent_id': parentId,
+        'icon_name': iconName,
+        'sort_order': sortOrder,
+      };
+
+  factory UserFolder.fromJson(Map<String, Object?> json) {
+    final name = json['name'];
+    if (name is! String || name.trim().isEmpty) {
+      throw const FormatException('User folder name is required.');
+    }
+    return UserFolder(
+      id: json['id'] as String,
+      name: name,
+      description: json['description'] as String?,
+      parentId: json['parent_id'] as String?,
+      iconName: json['icon_name'] as String?,
+      sortOrder: json['sort_order'] as int? ?? 0,
+    );
+  }
+
   UserFolder copyWith({
     String? name,
     String? description,

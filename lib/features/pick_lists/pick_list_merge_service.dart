@@ -54,7 +54,7 @@ class PickListMergeService {
       if (requestedKind != null && contributor.kind != requestedKind) {
         continue;
       }
-      final result = await contributor.previewOwnedMerge(
+      final result = await contributor.previewEntryMerge(
         _db,
         semanticName,
         normalizedSources,
@@ -102,7 +102,7 @@ class PickListMergeService {
     };
     final target = preview.targetValue.trim();
     await _db.transaction(() async {
-      await _mergeCollectionItems(
+      await _mergeLibraryEntries(
         preview.listName,
         preview.mediaKind,
         sourceSet,
@@ -127,7 +127,7 @@ class PickListMergeService {
     });
   }
 
-  Future<void> _mergeCollectionItems(
+  Future<void> _mergeLibraryEntries(
     String listName,
     String? mediaKind,
     Set<String> sourceSet,
@@ -140,7 +140,7 @@ class PickListMergeService {
       if (requestedKind != null && contributor.kind != requestedKind) {
         continue;
       }
-      await contributor.applyOwnedMerge(
+      await contributor.applyEntryMerge(
         _db,
         semanticName,
         sourceSet,

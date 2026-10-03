@@ -22,6 +22,7 @@ CatalogSearchCandidate? buildBookManualCandidate(
     CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.book),
       kindData: metadata,
+      origin: CatalogItemOrigin.privateLocal,
     ),
   );
 }

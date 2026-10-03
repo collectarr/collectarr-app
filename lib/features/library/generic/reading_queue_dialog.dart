@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ Future<void> showReadingQueueDialog({
   required BuildContext context,
   required LocalDatabase db,
   required String mediaKind,
-  required Iterable<CollectionItemSummary> collectionItems,
+  required Iterable<LibraryEntrySummary> libraryEntries,
   Iterable<TrackingSummary> trackingSummaries = const [],
   required Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef,
   ValueChanged<String>? onSelectItem,
@@ -24,7 +25,7 @@ Future<void> showReadingQueueDialog({
     builder: (_) => _ReadingQueueDialog(
       db: db,
       mediaKind: mediaKind,
-      collectionItems: collectionItems.toList(growable: false),
+      libraryEntries: libraryEntries.toList(growable: false),
       trackingSummaries: trackingSummaries.toList(growable: false),
       catalogSummariesByRef: catalogSummariesByRef,
       onSelectItem: onSelectItem,
@@ -36,7 +37,7 @@ class _ReadingQueueDialog extends StatefulWidget {
   const _ReadingQueueDialog({
     required this.db,
     required this.mediaKind,
-    required this.collectionItems,
+    required this.libraryEntries,
     required this.trackingSummaries,
     required this.catalogSummariesByRef,
     this.onSelectItem,
@@ -44,7 +45,7 @@ class _ReadingQueueDialog extends StatefulWidget {
 
   final LocalDatabase db;
   final String mediaKind;
-  final List<CollectionItemSummary> collectionItems;
+  final List<LibraryEntrySummary> libraryEntries;
   final List<TrackingSummary> trackingSummaries;
   final Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef;
   final ValueChanged<String>? onSelectItem;
@@ -73,24 +74,20 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
   Future<void> _load() async {
     final repo = ReadingQueueRepository(widget.db);
     final queueRefs = await repo.getQueue();
-    final ownedByRef = {
-      for (final item in widget.collectionItems) item.ref: item,
+    final entryByRef = {
+      for (final item in widget.libraryEntries) item.ref: item,
     };
-    final trackingByCollectionItemRef = {
+    final trackingByLibraryEntryRef = {
       for (final entry in widget.trackingSummaries)
-        if (!entry.isDeleted && entry.collectionItemRef != null) entry.collectionItemRef!: entry,
-    };
-    final trackingByCatalogRef = {
-      for (final entry in widget.trackingSummaries)
-        if (!entry.isDeleted) entry.catalogRef.rootScope: entry,
+        if (!entry.isDeleted) entry.libraryEntryRef: entry,
     };
     final entries = <_ReadingQueueDialogEntry>[];
     for (final queuedRef in queueRefs) {
-      final summary = ownedByRef[queuedRef];
+      final summary = entryByRef[queuedRef];
       if (summary == null) {
         continue;
       }
-      final catalogRef = summary.catalogRef;
+      final catalogRef = summary.ref.localCatalogItemRef;
       if (catalogRef == null) {
         continue;
       }
@@ -103,8 +100,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
         _ReadingQueueDialogEntry(
           summary: summary,
           catalogSummary: catalogSummary,
-          trackingSummary: trackingByCollectionItemRef[summary.ref] ??
-              trackingByCatalogRef[catalogRef.rootScope],
+          trackingSummary: trackingByLibraryEntryRef[summary.ref],
         ),
       );
     }
@@ -125,11 +121,13 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
       entry.summary.ref,
       newPosition,
     );
+    await enqueueReadingQueueSnapshots(widget.db, entry.summary.ref);
     await _load();
   }
 
   Future<void> _remove(_ReadingQueueDialogEntry entry) async {
     await ReadingQueueRepository(widget.db).removeFromQueue(entry.summary.ref);
+    await enqueueReadingQueueSnapshots(widget.db, entry.summary.ref);
     await _load();
   }
 
@@ -359,7 +357,7 @@ class _ReadingQueueDialogEntry {
     this.trackingSummary,
   });
 
-  final CollectionItemSummary summary;
+  final LibraryEntrySummary summary;
   final CatalogDisplaySummary catalogSummary;
   final TrackingSummary? trackingSummary;
 

@@ -310,7 +310,7 @@ String _formatAdminCorrectionValue(Object? value) {
   return value.toString();
 }
 
-/// Structural description of one kind-owned admin proposal field.
+/// Structural description of one kind-entry admin proposal field.
 ///
 /// The values object is a provider boundary representation. A kind owns the key,
 /// display semantics, and codec; the Admin feature only owns the editor host.
@@ -367,7 +367,7 @@ abstract interface class LibraryAdminContributor {
 }
 
 /// Resolves the editable correction form directly from Core's per-kind field
-/// schema. Kinds only override fields that need a kind-owned codec or writer.
+/// schema. Kinds only override fields that need a kind-entry codec or writer.
 List<LibraryAdminCorrectionField> adminCorrectionFieldsForKind({
   required MetadataFieldSchema schema,
   required CatalogMediaKind kind,
@@ -378,14 +378,14 @@ List<LibraryAdminCorrectionField> adminCorrectionFieldsForKind({
   };
   final fields = <LibraryAdminCorrectionField>[];
   for (final spec in schema.fieldsForKind(kind.apiValue)) {
-    final ownership = spec.ownershipByKind[kind.apiValue];
-    if (!spec.editable || ownership == null) continue;
-    if (ownership.writeTarget != MetadataWriteTarget.coreCanonical &&
-        ownership.writeTarget != MetadataWriteTarget.coreCanonicalRelation) {
+    final entries = spec.entriesByKind[kind.apiValue];
+    if (!spec.editable || entries == null) continue;
+    if (entries.writeTarget != MetadataWriteTarget.coreCanonical &&
+        entries.writeTarget != MetadataWriteTarget.coreCanonicalRelation) {
       continue;
     }
-    if (ownership.scope == MetadataFieldScope.collectionItem ||
-        ownership.scope == MetadataFieldScope.trackingRecord) {
+    if (entries.scope == MetadataFieldScope.libraryEntry ||
+        entries.scope == MetadataFieldScope.trackingRecord) {
       continue;
     }
     final presentation = _adminCorrectionPresentationFromSchema(spec);

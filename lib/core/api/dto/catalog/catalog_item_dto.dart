@@ -20,22 +20,30 @@ export 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/video_catalog_details_dto.dart';
 export 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
+enum CatalogItemOrigin {
+  core,
+  privateLocal,
+}
+
 @immutable
 final class CatalogItemDto {
   factory CatalogItemDto({
     required LibraryItemIdentity identity,
     required JsonEncodable kindData,
+    CatalogItemOrigin origin = CatalogItemOrigin.core,
   }) =>
       CatalogItemDto.raw(
         id: identity.id,
         mediaKind: identity.mediaKind,
         kindData: kindData.toJson(),
+        origin: origin,
       );
 
   factory CatalogItemDto.raw({
     required String id,
     required CatalogMediaKind mediaKind,
     Map<String, dynamic> kindData = const <String, dynamic>{},
+    CatalogItemOrigin origin = CatalogItemOrigin.core,
   }) {
     return CatalogItemDto._raw(
       id: id,
@@ -43,6 +51,7 @@ final class CatalogItemDto {
       kindData: Map<String, dynamic>.unmodifiable(
         _withoutEnvelopeFields(kindData),
       ),
+      origin: origin,
     );
   }
 
@@ -50,13 +59,17 @@ final class CatalogItemDto {
     required this.id,
     required this.mediaKind,
     required Map<String, dynamic> kindData,
+    required this.origin,
   }) : _kindData = kindData;
 
   final String id;
   final CatalogMediaKind mediaKind;
+
+  /// Local storage provenance. This value is never part of the Core contract.
+  final CatalogItemOrigin origin;
   final Map<String, dynamic> _kindData;
 
-  /// The flattened fields owned by this item's kind, without routing data.
+  /// The flattened fields entry by this item's kind, without routing data.
   ///
   /// This map is only a transport boundary. Semantic reads and writes belong
   /// to the kind's typed model and mapper.
@@ -78,7 +91,7 @@ final class CatalogItemDto {
 
   // These are read-only workspace conveniences derived from the flat payload.
   // They are never serialized separately: Core and the local cache retain
-  // every canonical value only in kindData, and kind-owned codecs remain the
+  // every canonical value only in kindData, and kind-entry codecs remain the
   // source for semantic behavior.
   String get title => _string(kindData['title'] ?? kindData['name']) ?? '';
   String? get displayTitle => _string(kindData['display_title']);
@@ -211,7 +224,7 @@ final class CatalogItemDto {
     );
   }
 
-  /// Emits the flat Core payload with its identity alongside kind-owned data.
+  /// Emits the flat Core payload with its identity alongside kind-entry data.
   Map<String, dynamic> toJson() => {
         'id': id,
         'kind': kind,
@@ -223,7 +236,7 @@ final class CatalogItemDto {
         kindData: kindData,
       );
 
-  /// Applies editor values directly to the flattened kind-owned data map.
+  /// Applies editor values directly to the flattened kind-entry data map.
   ///
   /// This convenience is used by the current kind editors while their typed
   /// draft adapters are being consolidated. It never creates a shared/common
@@ -284,6 +297,7 @@ final class CatalogItemDto {
       id: updatedIdentity.id,
       mediaKind: updatedIdentity.mediaKind,
       kindData: data,
+      origin: origin,
     );
   }
 
@@ -291,12 +305,20 @@ final class CatalogItemDto {
     return CatalogItemDto.raw(
       id: id,
       mediaKind: mediaKind,
+      origin: origin,
       kindData: {
         ...this.kindData,
         ...kindData.toJson(),
       },
     );
   }
+
+  CatalogItemDto withOrigin(CatalogItemOrigin origin) => CatalogItemDto.raw(
+        id: id,
+        mediaKind: mediaKind,
+        kindData: kindData,
+        origin: origin,
+      );
 }
 
 Map<String, dynamic> _withoutEnvelopeFields(Map<String, dynamic> value) => {

@@ -1,4 +1,5 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 
@@ -7,13 +8,12 @@ import 'tv_ids.dart';
 final class TvWatchSession extends WatchSession {
   TvWatchSession({
     required super.id,
-    required this.seriesId,
-    required super.targetRef,
+    required super.libraryEntryRef,
     required super.watchedAt,
     required super.updatedAt,
     this.episodeId,
-    this.seasonNumber,
-    this.episodeNumber,
+    super.seasonNumber,
+    super.episodeNumber,
     super.trackingEntryId,
     super.sourceType,
     super.seenWhere,
@@ -22,16 +22,15 @@ final class TvWatchSession extends WatchSession {
     super.deletedAt,
   });
 
-  final TvSeriesId seriesId;
   final TvEpisodeId? episodeId;
-  final int? seasonNumber;
-  final int? episodeNumber;
 
   @override
   TvWatchSession copyWith({
     String? id,
-    CatalogEntityRef? targetRef,
+    LibraryEntryRef? libraryEntryRef,
     String? trackingEntryId,
+    int? seasonNumber,
+    int? episodeNumber,
     Object? sourceType,
     String? seenWhere,
     DateTime? watchedAt,
@@ -42,13 +41,12 @@ final class TvWatchSession extends WatchSession {
   }) {
     return TvWatchSession(
       id: id ?? this.id,
-      seriesId: seriesId,
       episodeId: episodeId,
-      targetRef: targetRef ?? this.targetRef,
+      libraryEntryRef: libraryEntryRef ?? this.libraryEntryRef,
       watchedAt: watchedAt ?? this.watchedAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      seasonNumber: seasonNumber,
-      episodeNumber: episodeNumber,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
       sourceType: sourceType ?? this.sourceType,
       seenWhere: seenWhere ?? this.seenWhere,
@@ -60,9 +58,8 @@ final class TvWatchSession extends WatchSession {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'series_id': seriesId.value,
+        'library_entry_ref': libraryEntryRef.toJson(),
         if (episodeId != null) 'episode_id': episodeId!.value,
-        'target_ref': targetRef.toJson(),
         if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
         if (seasonNumber != null) 'season_number': seasonNumber,
         if (episodeNumber != null) 'episode_number': episodeNumber,
@@ -77,18 +74,26 @@ final class TvWatchSession extends WatchSession {
       };
 
   factory TvWatchSession.fromJson(Map<String, dynamic> json) {
-    final targetRef = json['target_ref'];
-    if (targetRef is! Map) {
-      throw const FormatException('TV watch session is missing target_ref');
+    final libraryEntryRef = json['library_entry_ref'];
+    if (libraryEntryRef is! Map) {
+      throw const FormatException(
+        'TV watch session is missing library_entry_ref',
+      );
+    }
+    final entryRef = LibraryEntryRef.fromJson(
+      Map<String, dynamic>.from(libraryEntryRef),
+    );
+    if (entryRef.kind != CatalogMediaKind.tv) {
+      throw const FormatException(
+        'TV watch session must reference a TV library entry.',
+      );
     }
     return TvWatchSession(
       id: _text(json['id']) ?? '',
-      seriesId: TvSeriesId(_text(json['series_id']) ?? ''),
+      libraryEntryRef: entryRef,
       episodeId: _text(json['episode_id']) == null
           ? null
           : TvEpisodeId(_text(json['episode_id'])!),
-      targetRef:
-          CatalogEntityRef.fromJson(Map<String, dynamic>.from(targetRef)),
       trackingEntryId: _text(json['tracking_entry_id']),
       seasonNumber: _int(json['season_number']),
       episodeNumber: _int(json['episode_number']),
@@ -105,80 +110,10 @@ final class TvWatchSession extends WatchSession {
   }
 }
 
-final class TvEpisodeProgress {
-  const TvEpisodeProgress({
-    required this.seriesId,
-    required this.seasonId,
-    required this.episodeId,
-    required this.updatedAt,
-    this.seasonNumber,
-    this.episodeNumber,
-    this.watchedCount = 0,
-    this.completed = false,
-    this.lastWatchedAt,
-    this.rating,
-    this.notes,
-    this.deletedAt,
-    this.rawPayload = const <String, dynamic>{},
-  });
-
-  final TvSeriesId seriesId;
-  final TvSeasonId seasonId;
-  final TvEpisodeId episodeId;
-  final int? seasonNumber;
-  final double? episodeNumber;
-  final int watchedCount;
-  final bool completed;
-  final DateTime? lastWatchedAt;
-  final int? rating;
-  final String? notes;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-  final Map<String, dynamic> rawPayload;
-
-  bool get isDeleted => deletedAt != null;
-
-  Map<String, dynamic> toJson() => {
-        ...rawPayload,
-        'series_id': seriesId.value,
-        'season_id': seasonId.value,
-        'episode_id': episodeId.value,
-        if (seasonNumber != null) 'season_number': seasonNumber,
-        if (episodeNumber != null) 'episode_number': episodeNumber,
-        'watched_count': watchedCount,
-        'completed': completed,
-        if (lastWatchedAt != null)
-          'last_watched_at': lastWatchedAt!.toUtc().toIso8601String(),
-        if (rating != null) 'rating': rating,
-        if (notes != null) 'notes': notes,
-        'updated_at': updatedAt.toUtc().toIso8601String(),
-        if (deletedAt != null)
-          'deleted_at': deletedAt!.toUtc().toIso8601String(),
-      };
-
-  factory TvEpisodeProgress.fromJson(Map<String, dynamic> json) {
-    return TvEpisodeProgress(
-      seriesId: TvSeriesId(_text(json['series_id']) ?? ''),
-      seasonId: TvSeasonId(_text(json['season_id']) ?? ''),
-      episodeId: TvEpisodeId(_text(json['episode_id']) ?? ''),
-      seasonNumber: _int(json['season_number']),
-      episodeNumber: _number(json['episode_number']),
-      watchedCount: _int(json['watched_count']) ?? 0,
-      completed: json['completed'] == true,
-      lastWatchedAt: _date(json['last_watched_at']),
-      rating: _int(json['rating']),
-      notes: _text(json['notes']),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-      deletedAt: _date(json['deleted_at']),
-      rawPayload: Map<String, dynamic>.from(json),
-    );
-  }
-}
-
 final class TvCustomEpisode {
   const TvCustomEpisode({
     required this.id,
-    required this.seriesId,
+    required this.libraryEntryRef,
     required this.seasonNumber,
     required this.episodeNumber,
     required this.title,
@@ -193,7 +128,7 @@ final class TvCustomEpisode {
   });
 
   final TvEpisodeId id;
-  final TvSeriesId seriesId;
+  final LibraryEntryRef libraryEntryRef;
   final int seasonNumber;
   final int episodeNumber;
   final String title;
@@ -210,7 +145,7 @@ final class TvCustomEpisode {
 
   Map<String, dynamic> toJson() => {
         'id': id.value,
-        'series_id': seriesId.value,
+        'library_entry_ref': libraryEntryRef.toJson(),
         'season_number': seasonNumber,
         'episode_number': episodeNumber,
         'title': title,
@@ -228,7 +163,9 @@ final class TvCustomEpisode {
   factory TvCustomEpisode.fromJson(Map<String, dynamic> json) {
     return TvCustomEpisode(
       id: TvEpisodeId(_text(json['id']) ?? ''),
-      seriesId: TvSeriesId(_text(json['series_id']) ?? ''),
+      libraryEntryRef: LibraryEntryRef.fromJson(
+        Map<String, dynamic>.from(json['library_entry_ref'] as Map),
+      ),
       seasonNumber: _int(json['season_number']) ?? 0,
       episodeNumber: _int(json['episode_number']) ?? 0,
       title: _text(json['title']) ?? 'Untitled episode',

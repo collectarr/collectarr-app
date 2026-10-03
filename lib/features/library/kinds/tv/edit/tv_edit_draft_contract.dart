@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller
 import 'package:flutter/material.dart';
 
 abstract class TvEditDraftContract
-    implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
+    implements LibraryCatalogItemEditSession, LibraryEntryEditSession {
   TextEditingController get audioTracksController;
   TextEditingController get subtitlesController;
   TextEditingController get layersController;

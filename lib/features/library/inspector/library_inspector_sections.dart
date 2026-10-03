@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -43,8 +43,8 @@ class InspectorPersonalSection extends StatelessWidget {
     super.key,
     required this.type,
     required this.item,
-    this.collectionItem,
-    this.collectionItemDispatch,
+    this.libraryEntry,
+    this.libraryEntryDispatch,
     this.trackingSummary,
     required this.accent,
     this.valueSnapshot,
@@ -53,8 +53,8 @@ class InspectorPersonalSection extends StatelessWidget {
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final CollectionItemSummary? collectionItem;
-  final LibraryCollectionItemDispatch? collectionItemDispatch;
+  final LibraryEntrySummary? libraryEntry;
+  final LibraryEntryDispatch? libraryEntryDispatch;
   final TrackingSummary? trackingSummary;
   final Color accent;
   final LibraryValueSnapshot? valueSnapshot;
@@ -62,28 +62,25 @@ class InspectorPersonalSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final existingCollectionItem = collectionItem;
+    final existingLibraryEntry = libraryEntry;
     final snapshot = valueSnapshot ??
         LibraryValueSnapshot.fromItem(
           item,
           purchasePriceCents: item.source.pricePaidCents,
           soldPriceCents: item.source.sellPriceCents,
           manualEstimatedValueCents: item.source.marketValueCents,
-          ownedCurrency: item.source.currency,
+          entryCurrency: item.source.currency,
         );
     final paid = formatMoney(
-        collectionItem?.pricePaidCents ?? item.source.pricePaidCents,
-        collectionItem?.currency ?? item.source.currency);
-    final collectionItemTypeLabel = existingCollectionItem?.isDigital == true
-        ? 'Digital copy'
-        : buildCollectionItemLabel(
-            existingCollectionItem,
-            0,
-            collectionValue:
-                libraryOwnedEditForKind(type.kind).readOwnedCollectionValue(
-              item.source.collectionItemDispatch,
-            ),
-          );
+        libraryEntry?.pricePaidCents ?? item.source.pricePaidCents,
+        libraryEntry?.currency ?? item.source.currency);
+    final libraryEntryTypeLabel = buildLibraryEntryContextLabel(
+      existingLibraryEntry,
+      collectionValue:
+          libraryEntryEditForKind(type.kind).readEntryCollectionValue(
+        item.source.libraryEntryDispatch,
+      ),
+    );
     final tracking = trackingSummary;
     final trackingRating = tracking?.rating;
     final trackingStatus = tracking?.statusStorageValue;
@@ -93,9 +90,9 @@ class InspectorPersonalSection extends StatelessWidget {
         libraryInspectorForKind(type.kind).buildPersonalDetailFields(
       context: context,
       item: item,
-      collectionItem: item.source.collectionItemSummary,
-      collectionItemDispatch: collectionItemDispatch ?? item.source.collectionItemDispatch,
-      currency: collectionItem?.currency ?? item.source.currency,
+      libraryEntry: item.source.libraryEntrySummary,
+      libraryEntryDispatch: libraryEntryDispatch ?? item.source.libraryEntryDispatch,
+      currency: libraryEntry?.currency ?? item.source.currency,
     );
     return LibraryDetailSection(
       title: 'Personal',
@@ -111,8 +108,8 @@ class InspectorPersonalSection extends StatelessWidget {
           fields: [
             LibraryDetailField(
                 label: 'Status', value: genericLibraryStatusLabel(item)),
-            if (collectionItemTypeLabel != null)
-              LibraryDetailField(label: 'Ownership', value: collectionItemTypeLabel),
+            if (libraryEntryTypeLabel != null)
+              LibraryDetailField(label: 'EntryPolicy', value: libraryEntryTypeLabel),
             if (trackingStatus != null && trackingStatus.trim().isNotEmpty)
               LibraryDetailField(label: 'Tracking', value: trackingStatus),
             if (trackingStartedAt != null)
@@ -135,37 +132,37 @@ class InspectorPersonalSection extends StatelessWidget {
                     snapshot.currency,
                   )),
             ...kindPersonalFields,
-            if (collectionItem?.soldAt != null)
+            if (libraryEntry?.soldAt != null)
               LibraryDetailField(
                 label: 'Sold',
-                value: formatNullableDate(collectionItem!.soldAt) ?? '-',
+                value: formatNullableDate(libraryEntry!.soldAt) ?? '-',
               ),
-            if (collectionItem?.soldTo != null &&
-                collectionItem!.soldTo!.trim().isNotEmpty)
+            if (libraryEntry?.soldTo != null &&
+                libraryEntry!.soldTo!.trim().isNotEmpty)
               LibraryDetailField(
                 label: 'Sold to',
-                value: collectionItem!.soldTo!,
+                value: libraryEntry!.soldTo!,
               ),
-            if (collectionItem?.sellPriceCents != null)
+            if (libraryEntry?.sellPriceCents != null)
               LibraryDetailField(
                 label: 'Sell price',
-                value: formatMoney(collectionItem!.sellPriceCents,
-                    collectionItem?.currency ?? item.source.currency),
+                value: formatMoney(libraryEntry!.sellPriceCents,
+                    libraryEntry?.currency ?? item.source.currency),
               ),
-            if (collectionItem?.sellPriceCents != null)
+            if (libraryEntry?.sellPriceCents != null)
               LibraryDetailField(
                 label: 'Profit / Loss',
                 value: formatMoney(
-                  collectionItem!.sellPriceCents! - (collectionItem!.pricePaidCents ?? 0),
-                  collectionItem?.currency ?? item.source.currency,
+                  libraryEntry!.sellPriceCents! - (libraryEntry!.pricePaidCents ?? 0),
+                  libraryEntry?.currency ?? item.source.currency,
                 ),
               ),
           ],
         ),
-        if (item.source.collectionItemSummary?.notes?.trim().isNotEmpty == true) ...[
+        if (item.source.libraryEntrySummary?.notes?.trim().isNotEmpty == true) ...[
           const SizedBox(height: 8),
           Text(
-            item.source.collectionItemSummary!.notes!,
+            item.source.libraryEntrySummary!.notes!,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: appPalette(context).textMuted,
                 ),

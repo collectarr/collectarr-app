@@ -30,7 +30,7 @@ class LibraryViewPreferenceStore {
 
   LibraryKindRegistration get _type => libraryKindRegistrationForKind(kind);
 
-  String _key(String suffix) => 'library.${kind.apiValue}.$suffix';
+  String _key(String suffix) => 'library.v1.${kind.apiValue}.$suffix';
 
   String get _cacheKey => _key('');
 
@@ -495,6 +495,6 @@ class LibraryViewPreferenceStore {
   }
 
   String _folderTreeKey(LibraryFolderPreset preset, String suffix) {
-    return 'library.${kind.apiValue}.folderTree.${preset.storageValue}.$suffix';
+    return 'library.v1.${kind.apiValue}.folderTree.${preset.storageValue}.$suffix';
   }
 }

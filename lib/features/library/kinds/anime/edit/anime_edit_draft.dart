@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_collection_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -11,11 +11,11 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_collection_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/entries/anime_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -38,10 +38,10 @@ enum AnimeCanonicalEditField {
 class AnimeEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
-        LibraryCopyEditSessionDefaults
+        LibraryEntryEditSessionDefaults
     implements AnimeEditDraftContract {
   AnimeEditDraft({
-    this.collectionItem,
+    this.libraryEntry,
     required this.featuresController,
     required this.boxSetNameController,
     required this.regionController,
@@ -60,7 +60,7 @@ class AnimeEditDraft
     required this.animeEdit,
   });
 
-  final AnimeCollectionItem? collectionItem;
+  final AnimeLibraryEntry? libraryEntry;
 
   @override
   final TextEditingController featuresController;
@@ -94,7 +94,7 @@ class AnimeEditDraft
   final AnimeEditController animeEdit;
 
   @override
-  JsonEncodable toDetailsDraft() => AnimeOwnedDetailsDraft(
+  JsonEncodable toDetailsDraft() => AnimeEntryDetailsDraft(
         features: emptyToNull(featuresController.text),
         hdrFormats: hdrFormats,
         boxSetName: emptyToNull(boxSetNameController.text),
@@ -105,7 +105,7 @@ class AnimeEditDraft
 
   @override
   void initializePersonalState(PersonalStateDraft personal) {
-    final item = collectionItem;
+    final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.ownerLabel ?? '';
     personal.conditionController.text = item.condition ?? '';
@@ -133,11 +133,11 @@ class AnimeEditDraft
   }
 
   @override
-  AnimeCollectionItemUpdatePayload buildOwnedUpdatePayload({
-    required CollectionItemRef collectionItemRef,
+  AnimeLibraryEntryUpdatePayload buildEntryUpdatePayload({
+    required LibraryEntryRef libraryEntryRef,
     required PersonalStateDraft personal,
   }) {
-    return AnimeCollectionItemUpdatePayload(
+    return AnimeLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -180,7 +180,7 @@ class AnimeEditDraft
       soldTo: personal.soldToController.text.trim().isEmpty
           ? const Patch.clear()
           : Patch.set(personal.soldToController.text.trim()),
-      details: Patch.set(toDetailsDraft() as AnimeOwnedDetailsDraft),
+      details: Patch.set(toDetailsDraft() as AnimeEntryDetailsDraft),
     );
   }
 
@@ -396,12 +396,12 @@ class AnimeEditDraft
 
 LibraryEditSessionBundle createAnimeEditDraft({
   required CatalogSearchCandidate item,
-  LibraryCollectionItemDispatch? collectionItemDispatch,
+  LibraryEntryDispatch? libraryEntryDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = AnimeCollectionItemProjection.fromDispatch(collectionItemDispatch);
-  final video = owned?.details;
+  final entry = AnimeLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
+  final video = entry?.details;
   final metadata = item.kindCapability
       .mapTransport((transport) => AnimeMetadata.fromJson(transport.kindData));
   final anime = metadata is AnimeMetadata ? metadata : null;
@@ -443,7 +443,7 @@ LibraryEditSessionBundle createAnimeEditDraft({
   animeEdit.initializeAnimeEditors();
 
   final draft = AnimeEditDraft(
-    collectionItem: owned,
+    libraryEntry: entry,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
     regionController: textControllers.create(text: video?.region ?? ''),
@@ -466,7 +466,7 @@ LibraryEditSessionBundle createAnimeEditDraft({
   );
   return LibraryEditSessionBundle(
     catalogItemSession: draft,
-    copySession: draft,
+    entrySession: draft,
     disposeSession: draft.dispose,
   );
 }

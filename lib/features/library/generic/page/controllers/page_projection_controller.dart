@@ -40,7 +40,7 @@ abstract final class _LibraryProjectionControllerOps {
             const <String, Map<String, String>>{};
     final customFieldDefinitions =
         projectionCache.asData?.value.definitions ?? const [];
-    final activeLoanCollectionItemIds = state._activeLoanCollectionItemIds;
+    final activeLoanLibraryEntryIds = state._activeLoanLibraryEntryIds;
     final query = searchState.query;
     final searchTarget = state._effectiveSearchTarget;
     return state.ref.watch(
@@ -63,7 +63,7 @@ abstract final class _LibraryProjectionControllerOps {
           customFieldValuesByItem: customFieldValues,
           customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
           customFieldDefinitions: customFieldDefinitions,
-          activeLoanCollectionItemIds: activeLoanCollectionItemIds,
+          activeLoanLibraryEntryIds: activeLoanLibraryEntryIds,
           searchTarget: searchTarget,
         ),
       ),

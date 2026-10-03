@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -9,15 +9,15 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_grading_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_signature_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 
-final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaCollectionItem>(
+final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaLibraryEntry>(
   kind: CatalogMediaKind.manga,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -35,11 +35,9 @@ final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaCollectionItem>
   validateCatalog: validateMangaSeedCatalog,
   validateCatalogGraph: validateMangaSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  collectionItemsTyped: mangaSeedCollectionItems,
-  collectionItemSummaryTyped: MangaCollectionItemProjection.toSummary,
-  validateOwnedTyped: validateMangaSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      MangaOwnedRepository(db).upsertAll(mangaSeedCollectionItems(now)),
+  libraryEntriesTyped: mangaSeedLibraryEntries,
+  libraryEntrySummaryTyped: MangaLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateMangaSeedEntry,
   trackingRecords: mangaSeedTrackingStates,
   trackingUnits: mangaSeedTrackingUnits,
 );
@@ -82,9 +80,9 @@ List<String> validateMangaSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateMangaSeedOwned(MangaCollectionItem item) {
+List<String> validateMangaSeedEntry(MangaLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final prefix = '${item.catalogItem.kind}/${item.id}';
   final details = item.details;
   seedRequireText(issues, prefix, 'manga.printing', details.printing);
   seedRequireText(
@@ -113,10 +111,9 @@ Iterable<MangaTrackingUnit> mangaSeedTrackingUnits(
     final chapterId = chapterMap['id']?.toString() ?? 'chapter-01';
     yield MangaTrackingUnit(
       id: 'seed-unit-manga-${item.id}-$chapterId',
-      targetRef: CatalogEntityRef(
-        kind: item.mediaKind,
-        entityType: CatalogEntityTypeId.catalogItem,
-        id: item.id,
+      libraryEntryRef: seedLibraryEntryRef(
+        item.mediaKind,
+        'seed-entry-${item.id}',
       ),
       volumeNumber: volumeNumber,
       chapterNumber: chapterNumber,
@@ -221,7 +218,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         title: 'Monster',
         displayTitle: 'Monster: The Perfect Edition Vol. 1',
         synopsis:
-            'Dr. Kenzo Tenma is a renowned Japanese brain surgeon working in Düsseldorf. When he disobeys his hospital director\'s orders to operate on a critically wounded boy rather than the city\'s mayor, his career unravels.',
+            'Dr. Kenzo Tenma is a renentry Japanese brain surgeon working in Düsseldorf. When he disobeys his hospital director\'s orders to operate on a critically wounded boy rather than the city\'s mayor, his career unravels.',
         publisher: 'Shogakukan / Viz Media',
         releaseYear: 1994,
         releaseDate: DateTime.utc(1994, 12, 1),
@@ -694,16 +691,17 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
     ];
 
-List<MangaCollectionItem> mangaSeedCollectionItems(DateTime now) => [
+List<MangaLibraryEntry> mangaSeedLibraryEntries(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.manga, 15))
-        MangaCollectionItem(
-          id: CollectionItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.manga, itemId),
+        MangaLibraryEntry(
+          id: LibraryEntryId('seed-entry-$itemId'),
+          sourceCatalogRef:
+              seedCatalogRef(CatalogMediaKind.manga, itemId).toCatalogItemRef(),
           createdAt: now.subtract(const Duration(days: 210)),
           updatedAt: now,
           isDigital: false,
           condition: 'Mint',
-          details: const MangaOwnedDetails(
+          details: const MangaEntryDetails(
             grading: MangaGradingDetails(
               rawOrSlabbed: 'Slabbed',
               gradingCompany: 'CGC',
@@ -736,13 +734,9 @@ List<TrackingStorageRecord> mangaSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         MangaTrackingState(
           id: 'seed-track-manga-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.manga,
-            'seed-manga-${seedOrdinal2(i)}',
-          ),
-          collectionItemRef: seedCollectionItemRef(
-            CatalogMediaKind.manga,
-            'seed-owned-seed-manga-${seedOrdinal2(i)}',
+            'seed-entry-seed-manga-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i <= 11

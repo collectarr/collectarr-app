@@ -11,7 +11,7 @@ export 'data/comic_catalog_browse_api.dart';
 export 'integrations/catalog/comic_catalog_lookup.dart';
 export 'integrations/collection_csv/comic_collection_csv_projection.dart';
 export 'integrations/comic_info/comic_info_export.dart';
-export 'ownership/comic_owned_contributor.dart';
+export 'entries/comic_entry_contributor.dart';
 export 'detail/comic_route_contributor.dart';
 export 'detail/character_detail_page.dart';
 export 'detail/creator_detail_page.dart';

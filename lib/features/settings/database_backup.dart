@@ -11,23 +11,30 @@ class DatabaseBackup {
 
   final LocalDatabase db;
 
+  static const _format = 'collectarr-library-backup-v1';
+
   /// Export every table as a JSON-encodable map keyed by table name.
   Future<Map<String, dynamic>> export() async {
-    final result = <String, dynamic>{
-      '_version': db.schemaVersion,
-      '_exportedAt': DateTime.now().toUtc().toIso8601String(),
-    };
-    for (final table in db.allTables) {
-      final rows = await db
-          .customSelect(
-            'SELECT * FROM ${_quoteIdentifier(table.actualTableName)}',
-          )
-          .get();
-      result[table.actualTableName] = [
-        for (final row in rows) row.data,
-      ];
-    }
-    return result;
+    return db.transaction(() async {
+      final tables = db.allTables.toList(growable: false);
+      final result = <String, dynamic>{
+        '_format': _format,
+        '_version': db.schemaVersion,
+        '_schemaFingerprint': await _schemaFingerprint(tables),
+        '_exportedAt': DateTime.now().toUtc().toIso8601String(),
+      };
+      for (final table in tables) {
+        final rows = await db
+            .customSelect(
+              'SELECT * FROM ${_quoteIdentifier(table.actualTableName)}',
+            )
+            .get();
+        result[table.actualTableName] = [
+          for (final row in rows) row.data,
+        ];
+      }
+      return result;
+    });
   }
 
   /// Encode the full backup as a pretty-printed JSON string.
@@ -52,6 +59,13 @@ class DatabaseBackup {
   Future<ValidatedDatabaseBackup> validate(
     Map<String, dynamic> data,
   ) async {
+    final format = data['_format'];
+    if (format != _format) {
+      throw FormatException(
+        'Unsupported database backup format: $format. '
+        'Expected $_format. Export a new backup from the current app.',
+      );
+    }
     final version = data['_version'];
     if (version is! int || version != db.schemaVersion) {
       throw FormatException(
@@ -65,8 +79,18 @@ class DatabaseBackup {
     }
 
     final tables = db.allTables.toList(growable: false);
+    final expectedFingerprint = await _schemaFingerprint(tables);
+    final fingerprint = data['_schemaFingerprint'];
+    if (fingerprint != expectedFingerprint) {
+      throw FormatException(
+        'Database backup schema fingerprint does not match this app. '
+        'Expected $expectedFingerprint, received $fingerprint.',
+      );
+    }
     final expectedKeys = <String>{
+      '_format',
       '_version',
+      '_schemaFingerprint',
       '_exportedAt',
       for (final table in tables) table.actualTableName,
     };
@@ -143,8 +167,36 @@ class DatabaseBackup {
           name: row.data['name'] as String,
           declaredType: (row.data['type'] as String? ?? '').toUpperCase(),
           isRequired: row.data['notnull'] == 1 || row.data['pk'] != 0,
+          primaryKeyOrder: row.data['pk'] as int? ?? 0,
+          defaultValue: row.data['dflt_value'],
         ),
     ];
+  }
+
+  Future<String> _schemaFingerprint(Iterable<dynamic> tables) async {
+    final schema = <Map<String, Object?>>[];
+    final sortedTables = tables.toList()
+      ..sort((dynamic left, dynamic right) =>
+          (left.actualTableName as String)
+              .compareTo(right.actualTableName as String));
+    for (final table in sortedTables) {
+      final tableName = table.actualTableName as String;
+      final columns = await _readColumns(tableName);
+      schema.add({
+        'table': tableName,
+        'columns': [
+          for (final column in columns)
+            {
+              'name': column.name,
+              'type': column.declaredType,
+              'required': column.isRequired,
+              'primary_key_order': column.primaryKeyOrder,
+              'default': column.defaultValue,
+            },
+        ],
+      });
+    }
+    return jsonEncode(schema);
   }
 
   Object? _validateValue({
@@ -264,9 +316,13 @@ final class _BackupColumn {
     required this.name,
     required this.declaredType,
     required this.isRequired,
+    required this.primaryKeyOrder,
+    required this.defaultValue,
   });
 
   final String name;
   final String declaredType;
   final bool isRequired;
+  final int primaryKeyOrder;
+  final Object? defaultValue;
 }

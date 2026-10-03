@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -21,14 +21,14 @@ final class MusicCatalogListeningTab extends ConsumerWidget {
   final CatalogSearchCandidate item;
   final Color accent;
 
-  CatalogItemRef get catalogRef => CatalogItemRef(
+  LibraryEntryRef get libraryEntryRef => LibraryEntryRef(
         kind: CatalogMediaKind.music,
-        id: item.reference.rootScope.id,
+        id: LibraryEntryId(item.reference.rootScope.id),
       );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final events = ref.watch(musicListeningEventsProvider(catalogRef));
+    final events = ref.watch(musicListeningEventsProvider(libraryEntryRef));
     return EditTabShell(
       children: [
         EditSection(
@@ -101,7 +101,7 @@ final class MusicCatalogListeningTab extends ConsumerWidget {
     await ref.read(musicListeningMutationsProvider).upsert(
           MusicListenEvent(
             id: 'listen-${DateTime.now().microsecondsSinceEpoch}',
-            catalogRef: catalogRef,
+            libraryEntryRef: libraryEntryRef,
             listenedAt: listenedAt,
             notes: notes,
             createdAt: listenedAt,
@@ -125,8 +125,7 @@ final class MusicCatalogListeningTab extends ConsumerWidget {
     await ref.read(musicListeningMutationsProvider).upsert(
           MusicListenEvent(
             id: event.id,
-            catalogRef: event.catalogRef,
-            collectionItemRef: event.collectionItemRef,
+            libraryEntryRef: event.libraryEntryRef,
             listenedAt: event.listenedAt,
             startedAt: event.startedAt,
             finishedAt: event.finishedAt,
@@ -211,8 +210,8 @@ final class MusicCatalogListeningTab extends ConsumerWidget {
 
   void _invalidate(WidgetRef ref) {
     ref.invalidate(shelfProvider);
-    ref.invalidate(musicListeningEventsProvider(catalogRef));
-    ref.invalidate(musicCatalogItemListeningSummaryProvider(catalogRef));
+    ref.invalidate(musicListeningEventsProvider(libraryEntryRef));
+    ref.invalidate(musicCatalogItemListeningSummaryProvider(libraryEntryRef));
   }
 }
 

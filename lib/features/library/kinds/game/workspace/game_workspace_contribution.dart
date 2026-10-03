@@ -10,11 +10,11 @@ final gameKindWorkspace = TypedLibraryKindWorkspace<GameWorkspaceDto>(
         expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
-      scope: LibraryEntityScope.collectionItem,
-      fields: gameCopyWorkspaceSchema.toRegistry(),
+    LibraryEntityScope.libraryEntry: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
+      scope: LibraryEntityScope.libraryEntry,
+      fields: gameLibraryEntryWorkspaceSchema.toRegistry(),
       projector: const GameWorkspaceProjector(
-        expectedScope: LibraryEntityScope.collectionItem,
+        expectedScope: LibraryEntityScope.libraryEntry,
       ),
     ),
   },

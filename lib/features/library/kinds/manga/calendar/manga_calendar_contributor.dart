@@ -18,8 +18,9 @@ final class MangaCalendarContributor implements LibraryCalendarContributor {
     LibraryCalendarContext context,
   ) async {
     final events = <CalendarEvent>[];
-    for (final ref in context.catalogRefs) {
-      final id = ref.id;
+    for (final ref in context.libraryEntryRefs) {
+      if (ref.kind != kind) continue;
+      final id = ref.id.value;
       final item =
           loadItem != null ? await loadItem!(id) : await _loadItem(context, id);
       if (item == null) continue;
@@ -30,7 +31,7 @@ final class MangaCalendarContributor implements LibraryCalendarContributor {
         date: DateTime.utc(date.year, date.month, date.day),
         title: item.title,
         eventId: 'manga-item:${item.id}',
-        catalogRef: ref,
+        libraryEntryRef: ref,
       ));
     }
     return events;

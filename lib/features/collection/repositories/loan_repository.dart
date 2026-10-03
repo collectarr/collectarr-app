@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
@@ -8,10 +8,10 @@ class LoanRepository {
   const LoanRepository(this._db);
   final LocalDatabase _db;
 
-  Future<List<Loan>> getLoansForItem(CollectionItemRef collectionItemRef) async {
-    requireKnownCollectionItemRef(collectionItemRef);
+  Future<List<Loan>> getLoansForItem(LibraryEntryRef libraryEntryRef) async {
+    requireKnownLibraryEntryRef(libraryEntryRef);
     final rows = await (_db.select(_db.loansCache)
-          ..where((t) => t.collectionItemRefKey.equals(collectionItemRef.key))
+          ..where((t) => t.libraryEntryRefKey.equals(libraryEntryRef.key))
           ..orderBy([(t) => OrderingTerm.desc(t.lentDate)]))
         .get();
     return rows.map(_fromRow).toList();
@@ -33,11 +33,11 @@ class LoanRepository {
   }
 
   Future<void> create(Loan loan) async {
-    requireKnownCollectionItemRef(loan.collectionItemRef);
+    requireKnownLibraryEntryRef(loan.libraryEntryRef);
     await _db.into(_db.loansCache).insert(
           LoansCacheCompanion.insert(
             id: loan.id,
-            collectionItemRefKey: loan.collectionItemRef.key,
+            libraryEntryRefKey: loan.libraryEntryRef.key,
             borrowerName: loan.borrowerName,
             lentDate: loan.lentDate,
             dueDate: Value(loan.dueDate),
@@ -56,10 +56,47 @@ class LoanRepository {
     await (_db.delete(_db.loansCache)..where((t) => t.id.equals(loanId))).go();
   }
 
+  Future<void> replaceForLibraryEntry(
+    LibraryEntryRef ref,
+    List<Loan> loans,
+  ) async {
+    requireKnownLibraryEntryRef(ref);
+    for (final loan in loans) {
+      if (loan.libraryEntryRef != ref) {
+        throw ArgumentError.value(
+          loan.libraryEntryRef,
+          'loan.libraryEntryRef',
+          'A loan snapshot must belong to its enclosing library entry.',
+        );
+      }
+    }
+    await (_db.delete(_db.loansCache)
+          ..where((t) => t.libraryEntryRefKey.equals(ref.key)))
+        .go();
+    if (loans.isEmpty) return;
+    await _db.batch((batch) {
+      for (final loan in loans) {
+        batch.insert(
+          _db.loansCache,
+          LoansCacheCompanion.insert(
+            id: loan.id,
+            libraryEntryRefKey: ref.key,
+            borrowerName: loan.borrowerName,
+            lentDate: loan.lentDate,
+            dueDate: Value(loan.dueDate),
+            returnedDate: Value(loan.returnedDate),
+            notes: Value(loan.notes),
+          ),
+          mode: InsertMode.insertOrReplace,
+        );
+      }
+    });
+  }
+
   Loan _fromRow(LoansCacheData row) {
     return Loan(
       id: row.id,
-      collectionItemRef: CollectionItemRef.fromKey(row.collectionItemRefKey),
+      libraryEntryRef: LibraryEntryRef.fromKey(row.libraryEntryRefKey),
       borrowerName: row.borrowerName,
       lentDate: row.lentDate,
       dueDate: row.dueDate,

@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_v1_schema.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -10,7 +12,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profi
 
 /// Schema-v1 collection export mechanics.
 ///
-/// Kind projections own the meaning of catalog and kind-owned cells.
+/// Kind projections own the meaning of catalog and kind-entry cells.
 final class CollectionCsvExporter {
   CollectionCsvExporter({required Iterable<CollectionCsvKindProfile> profiles})
       : _profilesByKind = {
@@ -32,6 +34,8 @@ final class CollectionCsvExporter {
       [
         ...(structural ? CollectionCsvV1Schema.header : _v1Header(entries)),
         ...cfNames,
+        if (!structural) 'quantity',
+        if (!structural) 'library_entry_json',
       ],
       for (final entry in entries)
         structural
@@ -39,11 +43,13 @@ final class CollectionCsvExporter {
                 entry,
                 customFieldDefinitions: customFieldDefinitions,
                 customFieldValuesByItem: customFieldValuesByItem,
+                includeCompleteEntry: true,
               )
             : _entryToRow(
                 entry,
                 customFieldDefinitions: customFieldDefinitions,
                 customFieldValuesByItem: customFieldValuesByItem,
+                includeCompleteEntry: true,
               ),
     ];
     return const CsvWriter(lineDelimiter: '\n').write(rows);
@@ -91,7 +97,7 @@ final class CollectionCsvExporter {
     }
 
     // Unknown kinds get only structural catalog cells. Semantic
-    // columns are supplied by a kind-owned projection when supported.
+    // columns are supplied by a kind-entry projection when supported.
     return [
       entry.itemId,
       entry.mediaKind.apiValue,
@@ -111,21 +117,27 @@ final class CollectionCsvExporter {
     LibraryWorkspaceSource entry, {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
+    bool includeCompleteEntry = false,
   }) {
-    final customFields = entry.collectionItemRef == null
+    final customFields = entry.libraryEntryRef == null
         ? List<String>.filled(customFieldDefinitions.length, '')
         : _customFieldCells(
-            entry.collectionItemRef!.key,
+            entry.libraryEntryRef!.key,
             customFieldDefinitions,
             customFieldValuesByItem,
           );
     return [
-      entry.catalogRef == null ? '' : jsonEncode(entry.catalogRef!.toJson()),
+      _catalogItemRefForExport(entry) == null
+          ? ''
+          : jsonEncode(_catalogItemRefForExport(entry)!.toJson()),
       entry.mediaKind.apiValue,
       entry.title,
       _status(entry),
       _locationCell(entry),
       entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
+      _entryQuantity(entry),
+      if (includeCompleteEntry)
+        _completeEntryCell(entry, customFieldValuesByItem),
       ...customFields,
     ];
   }
@@ -158,7 +170,7 @@ final class CollectionCsvExporter {
     return cells;
   }
 
-  List<String> _kindOwnedCellsBeforeLocation(
+  List<String> _kindEntryCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
@@ -166,55 +178,54 @@ final class CollectionCsvExporter {
     if (projection == null) {
       return const [];
     }
-    final cells = projection.ownedCellsBeforeLocation(
+    final cells = projection.entryCellsBeforeLocation(
       entry,
       clzFriendly: clzFriendly,
     );
     return cells;
   }
 
-  String _ownedCollectionValue(LibraryWorkspaceSource entry) {
+  String _entryCollectionValue(LibraryWorkspaceSource entry) {
     final projection = _profileForKind(entry.mediaKind);
-    return projection?.ownedCollectionValue(entry) ?? '';
+    return projection?.entryCollectionValue(entry) ?? '';
   }
 
-  String _ownedCondition(LibraryWorkspaceSource entry) {
+  String _entryCondition(LibraryWorkspaceSource entry) {
     final projection = _profileForKind(entry.mediaKind);
-    return projection?.ownedCondition(entry) ?? '';
+    return projection?.entryCondition(entry) ?? '';
   }
 
-  String _ownedIndexNumber(LibraryWorkspaceSource entry) {
+  String _entryIndexNumber(LibraryWorkspaceSource entry) {
     final projection = _profileForKind(entry.mediaKind);
-    return projection?.ownedIndexNumber(entry)?.toString() ?? '';
+    return projection?.entryIndexNumber(entry)?.toString() ?? '';
   }
 
-  String _ownedTags(LibraryWorkspaceSource entry) {
+  String _entryTags(LibraryWorkspaceSource entry) {
     final projection = _profileForKind(entry.mediaKind);
-    return projection?.ownedTags(entry) ?? '';
+    return projection?.entryTags(entry) ?? '';
   }
 
-  List<String> _kindOwnedCellsAfterIndex(
+  List<String> _kindEntryCellsAfterIndex(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     final projection = _profileForKind(entry.mediaKind);
     if (projection == null) {
-      return List<String>.filled(collectionCsvV1OwnedCellCount, '');
+      return List<String>.filled(collectionCsvV1EntryCellCount, '');
     }
-    final beforeLocation = projection.ownedCellsBeforeLocation(
+    final beforeLocation = projection.entryCellsBeforeLocation(
       entry,
       clzFriendly: clzFriendly,
     );
-    final cells = projection.ownedCellsAfterIndex(
+    final cells = projection.entryCellsAfterIndex(
       entry,
       clzFriendly: clzFriendly,
     );
-    if (beforeLocation.length + cells.length !=
-        collectionCsvV1OwnedCellCount) {
+    if (beforeLocation.length + cells.length != collectionCsvV1EntryCellCount) {
       throw StateError(
-        'Collection CSV owned projection for ${projection.kind.apiValue} '
+        'Collection CSV entry projection for ${projection.kind.apiValue} '
         'returned ${beforeLocation.length + cells.length} cells; expected '
-        '$collectionCsvV1OwnedCellCount.',
+        '$collectionCsvV1EntryCellCount.',
       );
     }
     return cells;
@@ -224,10 +235,11 @@ final class CollectionCsvExporter {
     LibraryWorkspaceSource entry, {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
+    bool includeCompleteEntry = false,
   }) {
-    final cfValues = entry.collectionItemRef != null
+    final cfValues = entry.libraryEntryRef != null
         ? _customFieldCells(
-            entry.collectionItemRef!.key,
+            entry.libraryEntryRef!.key,
             customFieldDefinitions,
             customFieldValuesByItem,
           )
@@ -235,24 +247,27 @@ final class CollectionCsvExporter {
     return [
       ..._catalogFields(entry),
       _status(entry),
-      _ownedCondition(entry),
-      _ownedCollectionValue(entry),
+      _entryCondition(entry),
+      _entryCollectionValue(entry),
       _formatDate(entry.purchaseDate),
       entry.pricePaidCents?.toString() ?? '',
       entry.currency ?? entry.wishlistItem?.currency ?? '',
       entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
       _locationCell(entry),
-      _ownedIndexNumber(entry),
-      ..._kindOwnedCellsAfterIndex(entry, clzFriendly: false),
+      _entryIndexNumber(entry),
+      ..._kindEntryCellsAfterIndex(entry, clzFriendly: false),
       entry.trackingRating?.toString() ?? '',
       mediaTrackingStatusToStorageValue(entry.trackingStatus) ?? '',
       _formatDate(entry.trackingStartedAt),
       _formatDate(entry.trackingCompletedAt),
-      _ownedTags(entry),
+      _entryTags(entry),
       _formatDate(entry.soldAt),
       entry.sellPriceCents?.toString() ?? '',
       entry.soldTo ?? '',
       ...cfValues,
+      _entryQuantity(entry),
+      if (includeCompleteEntry)
+        _completeEntryCell(entry, customFieldValuesByItem),
     ];
   }
 
@@ -261,9 +276,9 @@ final class CollectionCsvExporter {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
-    final cfValues = entry.collectionItemRef != null
+    final cfValues = entry.libraryEntryRef != null
         ? _customFieldCells(
-            entry.collectionItemRef!.key,
+            entry.libraryEntryRef!.key,
             customFieldDefinitions,
             customFieldValuesByItem,
           )
@@ -271,20 +286,20 @@ final class CollectionCsvExporter {
     return [
       ..._catalogFields(entry),
       _clzStatus(entry),
-      _ownedCondition(entry),
-      _ownedCollectionValue(entry),
+      _entryCondition(entry),
+      _entryCollectionValue(entry),
       _formatDate(entry.purchaseDate),
       _formatMoney(entry.pricePaidCents),
       entry.currency ?? entry.wishlistItem?.currency ?? '',
-      ..._kindOwnedCellsBeforeLocation(entry, clzFriendly: true),
+      ..._kindEntryCellsBeforeLocation(entry, clzFriendly: true),
       _locationCell(entry),
-      _ownedIndexNumber(entry),
-      ..._kindOwnedCellsAfterIndex(entry, clzFriendly: true),
+      _entryIndexNumber(entry),
+      ..._kindEntryCellsAfterIndex(entry, clzFriendly: true),
       entry.trackingRating?.toString() ?? '',
       mediaTrackingStatusToStorageValue(entry.trackingStatus) ?? '',
       _formatDate(entry.trackingStartedAt),
       _formatDate(entry.trackingCompletedAt),
-      _ownedTags(entry),
+      _entryTags(entry),
       entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
       _formatDate(entry.soldAt),
       _formatMoney(entry.sellPriceCents),
@@ -293,16 +308,97 @@ final class CollectionCsvExporter {
     ];
   }
 
+  String _completeEntryCell(
+    LibraryWorkspaceSource entry,
+    Map<String, List<CustomFieldValue>> customFieldValuesByItem,
+  ) {
+    final source = entry.persistedEntryPayload;
+    final ref = entry.libraryEntryRef;
+    if (source == null || ref == null) return '';
+    final payload = Map<String, dynamic>.from(source);
+    final personal = Map<String, dynamic>.from(
+      source['personal_data'] is Map
+          ? source['personal_data'] as Map
+          : const <String, dynamic>{},
+    );
+    personal['__sync_item_images'] = [
+      for (final image in entry.itemImages)
+        {
+          'id': image.id,
+          'image_type': image.imageType,
+          'image_data': base64Encode(image.imageData),
+          'caption': image.caption,
+          'sort_order': image.sortOrder,
+          'created_at': image.createdAt.toUtc().toIso8601String(),
+        },
+    ];
+    personal['__sync_custom_fields'] = [
+      for (final field
+          in customFieldValuesByItem[ref.key] ?? const <CustomFieldValue>[])
+        {
+          'id': field.id,
+          'field_definition_id': field.fieldDefinitionId,
+          'value': field.value,
+          'updated_at': field.updatedAt.toUtc().toIso8601String(),
+        },
+    ];
+    personal['__sync_external_links'] = [
+      for (final link in entry.userExternalLinks) link.toJson(),
+    ];
+    personal[libraryEntrySyncLoansKey] = [
+      for (final loan in entry.loans) loan.toJson(),
+    ];
+    personal[libraryEntrySyncFolderMembershipsKey] = [
+      for (final membership in entry.folderMemberships)
+        {
+          'folder_id': membership.folderId,
+          'sort_order': membership.sortOrder,
+        },
+    ];
+    personal[libraryEntrySyncReadingQueuePositionKey] =
+        entry.readingQueuePosition;
+    personal[libraryEntryCsvFolderDefinitionsKey] = [
+      for (final folder in entry.folderDefinitions)
+        {'id': folder.id, ...folder.toSyncPayload()},
+    ];
+    payload['personal_data'] = personal;
+    return jsonEncode(payload);
+  }
+
+  CatalogItemRef? _catalogItemRefForExport(LibraryWorkspaceSource entry) {
+    final wishlistRef = entry.wishlistItem?.catalogRef;
+    if (wishlistRef != null) {
+      return wishlistRef;
+    }
+    final rawSourceRef = entry.persistedEntryPayload?['source_catalog_ref'];
+    if (rawSourceRef is Map) {
+      final sourceRef = CatalogItemRef.fromJson(
+        Map<String, Object?>.from(rawSourceRef),
+      );
+      return sourceRef;
+    }
+    // A local entry owns its own identity. Its derived cache reference is not
+    // provenance and must not be exported as a Core catalog target.
+    return null;
+  }
+
+  String _entryQuantity(LibraryWorkspaceSource entry) {
+    final personal = entry.persistedEntryPayload?['personal_data'];
+    if (personal is! Map) return '';
+    final quantity = personal['quantity'];
+    return quantity is num ? quantity.toString() : '';
+  }
+
   String _locationCell(LibraryWorkspaceSource entry) {
-    return entry.locationPath ?? entry.collectionItemSummary?.locationLabel ?? '';
+    return entry.locationPath ?? entry.libraryEntrySummary?.locationLabel ?? '';
   }
 
   List<String> _customFieldCells(
-    String collectionItemRefKey,
+    String libraryEntryRefKey,
     List<CustomFieldDefinition> definitions,
     Map<String, List<CustomFieldValue>> valuesByItem,
   ) {
-    final values = valuesByItem[collectionItemRefKey] ?? const [];
+    final values = valuesByItem[libraryEntryRefKey] ?? const [];
     final byDefId = {
       for (final v in values) v.fieldDefinitionId: v.value ?? '',
     };
@@ -312,20 +408,20 @@ final class CollectionCsvExporter {
   }
 
   String _status(LibraryWorkspaceSource entry) {
-    if (entry.isOwned && entry.isWishlisted) {
+    if (entry.isEntry && entry.isWishlisted) {
       return 'both';
     }
-    if (entry.isOwned) {
-      return 'owned';
+    if (entry.isEntry) {
+      return 'entry';
     }
     return 'wishlist';
   }
 
   String _clzStatus(LibraryWorkspaceSource entry) {
-    if (entry.isOwned && entry.isWishlisted) {
+    if (entry.isEntry && entry.isWishlisted) {
       return 'In Collection + Wishlist';
     }
-    if (entry.isOwned) {
+    if (entry.isEntry) {
       return 'In Collection';
     }
     return 'Wishlist';
@@ -344,7 +440,7 @@ final class CollectionCsvExporter {
   }
 
   List<String> _clzFriendlyHeaderForKind(String kind) {
-    final mediaKind = catalogMediaKindFromValue(kind);
+    final mediaKind = catalogMediaKindFromApiValue(kind);
     final projection = _profileForKind(mediaKind);
     if (projection?.clzFriendlyHeader case final header?) {
       return header;

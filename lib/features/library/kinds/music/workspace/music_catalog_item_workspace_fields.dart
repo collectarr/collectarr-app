@@ -59,7 +59,7 @@ abstract final class MusicCatalogItemWorkspaceFields {
     label: 'Status',
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
-        : (context.source.isOwned ? 'owned' : null),
+        : (context.source.isEntry ? 'entry' : null),
     entityScope: LibraryEntityScope.catalogItem,
   );
 

@@ -63,26 +63,26 @@ const _movieCatalogItemTabs = [
   ),
 ];
 
-const _movieCollectionItemTabs = [
+const _movieLibraryEntryTabs = [
   LibraryEditTabSpec(
     id: 'edition',
     icon: Icons.info_outline,
     label: 'Edition Details',
-    sectionIds: ['release_details', 'ownership_reference', 'box_set'],
+    sectionIds: ['release_details', 'entries_reference', 'box_set'],
   ),
   LibraryEditTabSpec(
     id: 'personal',
     icon: Icons.person,
     label: 'Personal',
     sectionIds: [
-      'ownership_fields',
+      'entries_fields',
       'purchase_fields',
       'sold_fields',
       'wishlist_reference',
-      'owned_notes',
+      'entry_notes',
       'collection_fields_info',
-      'ownership_reference',
-      'owned_grading',
+      'entries_reference',
+      'entry_grading',
     ],
   ),
   LibraryEditTabSpec(
@@ -121,43 +121,43 @@ class MovieLibraryCatalogItemEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const MovieLibraryCatalogItemEditPresentationBuilder()
       : super(
-          useOwnedMainArtworkLayout: false,
+          useEntryMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _movieCatalogItemTabs,
+          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _movieCatalogItemTabs,
           trackedTabs: _movieCatalogItemTabs,
           catalogTabs: _movieCatalogItemTabs,
           customTabBuilder: buildMovieCustomTabView,
         );
 }
 
-class MovieLibraryCollectionItemEditPresentationBuilder
+class MovieLibraryEntryEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
-  const MovieLibraryCollectionItemEditPresentationBuilder()
+  const MovieLibraryEntryEditPresentationBuilder()
       : super(
-          useOwnedMainArtworkLayout: false,
+          useEntryMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _movieCollectionItemTabs,
-          trackedTabs: _movieCollectionItemTabs,
-          catalogTabs: _movieCollectionItemTabs,
+          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _movieLibraryEntryTabs,
+          trackedTabs: _movieLibraryEntryTabs,
+          catalogTabs: _movieLibraryEntryTabs,
           customTabBuilder: buildMovieCustomTabView,
         );
 }
 
 const movieLibraryEditPresentation = LibraryEditPresentation(
   builder: MovieLibraryCatalogItemEditPresentationBuilder(),
-  copyBuilder: MovieLibraryCollectionItemEditPresentationBuilder(),
+  entryBuilder: MovieLibraryEntryEditPresentationBuilder(),
 );
 
 class MovieLibraryEditDialog extends StatelessWidget {

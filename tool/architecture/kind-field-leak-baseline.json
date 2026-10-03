@@ -87,12 +87,12 @@
       "symbol": "titleExtension"
     },
     {
-      "path": "lib/core/models/collection_item_projection.dart",
+      "path": "lib/core/models/library_entry_projection.dart",
       "surface": "member-access",
       "symbol": "notes"
     },
     {
-      "path": "lib/core/models/collection_item_projection.dart",
+      "path": "lib/core/models/library_entry_projection.dart",
       "surface": "member-access",
       "symbol": "ownerLabel"
     },
@@ -642,7 +642,7 @@
       "symbol": "sellPriceCents"
     },
     {
-      "path": "lib/features/library/config/collection_item_create_payload.dart",
+      "path": "lib/features/library/config/library_entry_create_payload.dart",
       "surface": "member-declaration",
       "symbol": "isDigital"
     },
@@ -1492,12 +1492,12 @@
       "symbol": "trailer_urls"
     },
     {
-      "path": "lib/features/library/owned/owned_kind_contributor.dart",
+      "path": "lib/features/library/entries/entry_kind_contributor.dart",
       "surface": "member-access",
       "symbol": "itemId"
     },
     {
-      "path": "lib/features/library/owned/owned_kind_contributor.dart",
+      "path": "lib/features/library/entries/entry_kind_contributor.dart",
       "surface": "member-declaration",
       "symbol": "itemId"
     },

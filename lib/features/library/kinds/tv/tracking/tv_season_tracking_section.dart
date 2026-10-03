@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -44,17 +45,22 @@ class _VideoSeasonTrackingSectionState
   bool _seasonMutationInFlight = false;
   bool _showCustomEpisodes = false;
 
+  LibraryEntryRef get entryRef => LibraryEntryRef(
+        kind: widget.seriesRef.kind,
+        id: LibraryEntryId(widget.seriesRef.rootScope.id),
+      );
+
   @override
   Widget build(BuildContext context) {
     final seasonsAsync = ref.watch(
       tvSeasonsByCatalogRefProvider(widget.seriesRef),
     );
     final trackedUnits =
-        ref.watch(trackingUnitsByCatalogRefProvider(widget.seriesRef));
+        ref.watch(trackingUnitsByLibraryEntryRefProvider(entryRef));
     final watchSessions =
-        ref.watch(watchSessionsByCatalogRefProvider(widget.seriesRef));
+        ref.watch(watchSessionsByLibraryEntryRefProvider(entryRef));
     final customEpisodesAsync =
-        ref.watch(tvCustomEpisodesByCatalogRefProvider(widget.seriesRef));
+        ref.watch(tvCustomEpisodesByLibraryEntryRefProvider(entryRef));
     return seasonsAsync.when(
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
@@ -160,7 +166,7 @@ class _VideoSeasonTrackingSectionState
                 const SizedBox(height: 12),
                 const SizedBox(height: 12),
                 _CustomEpisodesPanel(
-                  catalogRef: widget.seriesRef,
+                  libraryEntryRef: entryRef,
                   providerSeason: selectedSeason,
                   showCustomEpisodes:
                       selectedSeason.episodes.isEmpty || _showCustomEpisodes,
@@ -268,7 +274,7 @@ class _VideoSeasonTrackingSectionState
     });
     try {
       await ref.read(tvTrackingUnitMutationsProvider).setEpisodeCompleted(
-            widget.seriesRef,
+            entryRef,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
             completed: !watchedEpisodeKeys.contains(key),
@@ -296,7 +302,7 @@ class _VideoSeasonTrackingSectionState
       await ref
           .read(tvTrackingUnitMutationsProvider)
           .setSeasonEpisodesCompleted(
-            widget.seriesRef,
+            entryRef,
             seasonNumber: season.seasonNumber ?? 0,
             episodeNumbers: season.episodes.map(
               (episode) => episode.episodeNumber?.toInt() ?? 0,
@@ -324,7 +330,7 @@ class _VideoSeasonTrackingSectionState
 /// Panel for displaying and managing custom episodes within a season.
 class _CustomEpisodesPanel extends ConsumerWidget {
   const _CustomEpisodesPanel({
-    required this.catalogRef,
+    required this.libraryEntryRef,
     required this.providerSeason,
     required this.showCustomEpisodes,
     required this.onShowCustomEpisodesChanged,
@@ -337,7 +343,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     required this.onToggleEpisode,
   });
 
-  final CatalogEntityRef catalogRef;
+  final LibraryEntryRef libraryEntryRef;
   final TvSeason providerSeason;
   final bool showCustomEpisodes;
   final ValueChanged<bool> onShowCustomEpisodesChanged;
@@ -536,7 +542,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
   ) async {
     for (final episode in providerSeason.episodes) {
       await ref.read(tvCustomEpisodeMutationsProvider).upsertCustomEpisode(
-            seriesId: TvSeriesId(catalogRef.id),
+            libraryEntryRef: libraryEntryRef,
             seasonNumber: providerSeason.seasonNumber ?? 0,
             episodeNumber: episode.episodeNumber?.toInt() ?? 0,
             title: episode.title ?? 'Untitled',
@@ -580,7 +586,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     if (result == null || !context.mounted) return;
     await ref.read(tvCustomEpisodeMutationsProvider).upsertCustomEpisode(
           id: existing?.id.value,
-          seriesId: TvSeriesId(catalogRef.id),
+          libraryEntryRef: libraryEntryRef,
           seasonNumber: seasonNumber,
           episodeNumber: result.episodeNumber,
           title: result.title,
@@ -601,7 +607,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
   ) async {
     await ref.read(tvCustomEpisodeMutationsProvider).upsertCustomEpisode(
           id: episode.id.value,
-          seriesId: TvSeriesId(catalogRef.id),
+          libraryEntryRef: libraryEntryRef,
           seasonNumber: episode.seasonNumber,
           episodeNumber: newEpisodeNumber < 1 ? 1 : newEpisodeNumber,
           title: episode.title,

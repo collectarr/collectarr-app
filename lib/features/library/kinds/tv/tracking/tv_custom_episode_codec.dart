@@ -1,12 +1,13 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 
-/// TV-owned custom episode sync boundary.
+/// TV-entry custom episode sync boundary.
 final class TvCustomEpisodeCodec implements CustomEpisodeSyncCodec {
   const TvCustomEpisodeCodec();
 
@@ -66,17 +67,17 @@ final class TvCustomEpisodeCodec implements CustomEpisodeSyncCodec {
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    final seriesRef = _catalogRef(payload);
-    if (seriesRef.mediaKind != kind) {
+    final libraryEntryRef = _libraryEntryRef(payload);
+    if (libraryEntryRef.kind != kind) {
       throw ArgumentError.value(
-        seriesRef.mediaKind,
-        'payload.catalog_ref.kind',
+        libraryEntryRef.kind,
+        'payload.library_entry_ref.kind',
         'Expected TV custom episode',
       );
     }
     return TvCustomEpisode(
       id: TvEpisodeId(id),
-      seriesId: TvSeriesId(seriesRef.id),
+      libraryEntryRef: libraryEntryRef,
       seasonNumber: _requiredInt(payload['season_number'], 'season_number'),
       episodeNumber: _requiredInt(payload['episode_number'], 'episode_number'),
       title: _requiredString(payload['title'], 'title'),
@@ -94,11 +95,7 @@ final class TvCustomEpisodeCodec implements CustomEpisodeSyncCodec {
 
   JsonMap _toSyncPayload(TvCustomEpisode episode) {
     return {
-      'catalog_ref': CatalogEntityRef(
-        kind: kind,
-        entityType: CatalogEntityTypeId.catalogItem,
-        id: episode.seriesId.value,
-      ).toJson(),
+      'library_entry_ref': episode.libraryEntryRef.toJson(),
       'season_number': episode.seasonNumber,
       'episode_number': episode.episodeNumber,
       'title': episode.title,
@@ -116,12 +113,20 @@ final class TvCustomEpisodeCodec implements CustomEpisodeSyncCodec {
     };
   }
 
-  CatalogEntityRef _catalogRef(JsonMap payload) {
-    final raw = payload['catalog_ref'];
+  LibraryEntryRef _libraryEntryRef(JsonMap payload) {
+    final raw = payload['library_entry_ref'];
     if (raw is! Map) {
-      throw const FormatException('TV custom episode is missing catalog_ref');
+      throw const FormatException(
+        'TV custom episode is missing library_entry_ref',
+      );
     }
-    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
+    final ref = LibraryEntryRef.fromJson(Map<String, dynamic>.from(raw));
+    if (ref.kind != kind) {
+      throw const FormatException(
+        'TV custom episode library_entry_ref must be a TV entry.',
+      );
+    }
+    return ref;
   }
 }
 

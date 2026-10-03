@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 /// One concrete board game edition represented by a Core Catalog Item.
 ///
 /// Player counts, contents, publisher, identifiers, and release details all
-/// belong to this item. App-owned play sessions remain separate activity.
+/// belong to this item. App-entry play sessions remain separate activity.
 final class BoardGameCatalogItem {
   const BoardGameCatalogItem({
     required this.item,

@@ -6,6 +6,7 @@ import 'universal_local_tables.dart';
 part 'local_database.g.dart';
 
 @DriftDatabase(tables: [
+  LibraryEntries,
   CatalogItemsCache,
   WishlistItemsCache,
   SyncQueue,

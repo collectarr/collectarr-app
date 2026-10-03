@@ -1,3 +1,7 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -15,7 +19,10 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   required LibraryEditDialogRequest request,
   LibraryEditDialogRequestLoader? requestLoader,
   ValueListenable<LibraryEditDialogRequest>? requestListenable,
-}) {
+  Future<void> Function(LibraryEditSelection result)? onCommit,
+}) async {
+  final sessions = <String, LibraryEntryEditDraft>{};
+  final database = ProviderScope.containerOf(context, listen: false).read(localDatabaseProvider);
   final editCapability = libraryEditPresentationForKind(request.type.kind);
   final builder = editCapability.editRegistry.builderForScope(
     request.resolvedScope,
@@ -40,7 +47,20 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
         '${currentRequest.type.kind.apiValue}.',
       );
     }
-    return currentBuilder;
+    return (ctx, nextRequest) => _LibraryEntryEditorFrame(
+      request: nextRequest,
+      builder: currentBuilder,
+      onCommit: onCommit,
+      load: () async {
+        final key = nextRequest.kindItem.reference.toCatalogItemRef().key;
+        if (sessions.containsKey(key)) return sessions[key];
+        final entry = await LibraryEntryStore(database).find(nextRequest.type.kind, nextRequest.kindItem.reference.id);
+        if (entry == null) return null;
+        final draft = LibraryEntryEditDraft(entry);
+        sessions[key] = draft;
+        return draft;
+      },
+    );
   }
 
   final windowClass = AppWindowClass.of(context);
@@ -51,31 +71,61 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
         builderForRequest: builderForRequest,
       );
     }
-    if (requestLoader == null) return builder(ctx, request);
+    if (requestLoader == null) return builderForRequest(request)(ctx, request);
     return _DeferredLibraryEditDialog(
       initialRequest: request,
       requestLoader: requestLoader,
-      builder: builder,
+      builder: (ctx, nextRequest) => builderForRequest(nextRequest)(ctx, nextRequest),
     );
   }
 
-  if (windowClass.isCompact) {
-    return Navigator.of(context).push<LibraryEditSelection>(
-      MaterialPageRoute<LibraryEditSelection>(
-        fullscreenDialog: true,
-        builder: (ctx) => Scaffold(
-          body: SafeArea(
-            child: widgetBuilder(ctx),
-          ),
+  LibraryEditSelection? result;
+  try {
+    if (windowClass.isCompact) {
+      result = await Navigator.of(context).push<LibraryEditSelection>(
+        MaterialPageRoute<LibraryEditSelection>(
+          fullscreenDialog: true,
+          builder: (ctx) => Scaffold(body: SafeArea(child: widgetBuilder(ctx))),
         ),
-      ),
-    );
+      );
+    } else {
+      result = await showDialog<LibraryEditSelection>(
+        context: context, barrierDismissible: false, builder: widgetBuilder,
+      );
+    }
+    if (result == null) return null;
+    final draft = sessions[result.kindItem.reference.toCatalogItemRef().key];
+    return draft?.used == true
+        ? result.copyWith(entryPersonalData: draft!.changes)
+        : result;
+  } finally {
+    for (final draft in sessions.values) { draft.dispose(); }
   }
+}
 
-  return showDialog<LibraryEditSelection>(
-    context: context,
-    barrierDismissible: false,
-    builder: widgetBuilder,
+class _LibraryEntryEditorFrame extends StatefulWidget {
+  const _LibraryEntryEditorFrame({required this.request, required this.builder, required this.load, this.onCommit});
+  final LibraryEditDialogRequest request;
+  final LibraryEditDialogBuilder builder;
+  final Future<LibraryEntryEditDraft?> Function() load;
+  final Future<void> Function(LibraryEditSelection result)? onCommit;
+  @override
+  State<_LibraryEntryEditorFrame> createState() => _LibraryEntryEditorFrameState();
+}
+
+class _LibraryEntryEditorFrameState extends State<_LibraryEntryEditorFrame> {
+  late final Future<LibraryEntryEditDraft?> _draft = widget.load();
+  @override
+  Widget build(BuildContext context) => FutureBuilder<LibraryEntryEditDraft?>(
+    future: _draft,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator());
+      if (snapshot.hasError) return AlertDialog(
+        title: const Text('Could not open entry'), content: Text('${snapshot.error}'),
+        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))],
+      );
+      return LibraryEntryEditScope(draft: snapshot.data, onCommit: widget.onCommit, child: Builder(builder: (ctx) => widget.builder(ctx, widget.request)));
+    },
   );
 }
 

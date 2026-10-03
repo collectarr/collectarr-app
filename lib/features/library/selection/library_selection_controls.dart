@@ -22,7 +22,7 @@ typedef LibrarySelectionCallbacks = ({
   VoidCallback? onTransferFieldData,
   VoidCallback? onBulkUpdateValues,
   VoidCallback? onBulkUpdateKeyInfo,
-  VoidCallback? onBulkMoveToOwned,
+  VoidCallback? onBulkMoveToEntry,
   VoidCallback? onBulkMoveToWishlist,
   VoidCallback? onBulkRemove,
   VoidCallback? onBulkRefreshMetadata,
@@ -118,9 +118,9 @@ class LibrarySelectionControls extends StatelessWidget {
           label: 'Loan',
         ),
         actionButton(
-          onPressed: callbacks.onBulkMoveToOwned,
+          onPressed: callbacks.onBulkMoveToEntry,
           icon: Icons.inventory_2_outlined,
-          label: 'Move to owned',
+          label: 'Move to entry',
         ),
         actionButton(
           onPressed: callbacks.onBulkMoveToWishlist,

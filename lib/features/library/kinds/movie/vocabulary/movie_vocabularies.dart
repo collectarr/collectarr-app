@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
 
 abstract final class MovieVocabularyIds {
   static const condition = VocabularyId<String>('movie.condition');
@@ -20,50 +20,50 @@ abstract final class MovieVocabularyIds {
 }
 
 abstract final class MovieVocabularies {
-  static Future<int> countOwnedValue(
+  static Future<int> countEntryValue(
     LocalDatabase db,
     String semanticName,
     String normalizedValue,
   ) {
-    return countPickListOwnedValues(
-      items: MovieOwnedRepository(db).listActive(),
+    return countPickListEntryValues(
+      items: MovieEntryRepository(db).listActive(),
       normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
     );
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: MovieOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: MovieEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: MovieOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: MovieEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: MovieOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: MovieEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static MovieCollectionItem _replaceOwnedValue(
-    MovieCollectionItem item,
+  static MovieLibraryEntry _replaceEntryValue(
+    MovieLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -97,11 +97,11 @@ abstract final class MovieVocabularies {
     };
     if (key == null) return item;
     final details = item.details.toJson()..[key] = targetValue;
-    return item.copyWith(details: MovieOwnedDetails.fromJson(details));
+    return item.copyWith(details: MovieEntryDetails.fromJson(details));
   }
 
-  static Iterable<String?> _ownedValues(
-    MovieCollectionItem item,
+  static Iterable<String?> _entryValues(
+    MovieLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
@@ -11,16 +11,15 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
 
-final tvDevSeedContributor = TypedDevSeedKindContributor<TvCollectionItem>(
+final tvDevSeedContributor = TypedDevSeedKindContributor<TvLibraryEntry>(
   kind: CatalogMediaKind.tv,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -38,11 +37,9 @@ final tvDevSeedContributor = TypedDevSeedKindContributor<TvCollectionItem>(
   validateCatalog: validateTvSeedCatalog,
   validateCatalogGraph: validateTvSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  collectionItemsTyped: tvSeedCollectionItems,
-  collectionItemSummaryTyped: TvCollectionItemProjection.toSummary,
-  validateOwnedTyped: validateTvSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      TvOwnedRepository(db).upsertAll(tvSeedCollectionItems(now)),
+  libraryEntriesTyped: tvSeedLibraryEntries,
+  libraryEntrySummaryTyped: TvLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateTvSeedEntry,
   trackingRecords: tvSeedTrackingStates,
   trackingUnits: tvSeedTrackingUnits,
   watchSessions: tvSeedWatchSessions,
@@ -139,9 +136,9 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateTvSeedOwned(TvCollectionItem item) {
+List<String> validateTvSeedEntry(TvLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final prefix = '${item.catalogItem.kind}/${item.id}';
   final details = item.details;
   seedRequireText(issues, prefix, 'tv.region', details.region);
   seedRequireText(issues, prefix, 'tv.packaging', details.packaging);
@@ -154,36 +151,7 @@ Future<void> seedTvDatabase(
   Iterable<CatalogItemDto> items,
   DateTime now,
 ) async {
-  final repository = TvRepository(db);
   final trackingRepository = TvTrackingRepository(db);
-  for (final item in items.where(
-    (item) => item.mediaKind == CatalogMediaKind.tv,
-  )) {
-    final seriesId = TvSeriesId(item.id);
-    final seasons = await repository.seasonsFor(seriesId);
-    for (final season in seasons) {
-      for (final episode in season.episodes) {
-        final completed = episode.episodeNumber == 1;
-        await trackingRepository.upsertEpisodeProgress(
-          TvEpisodeProgress(
-            seriesId: seriesId,
-            seasonId: TvSeasonId(season.id),
-            episodeId: TvEpisodeId(episode.id),
-            seasonNumber: season.seasonNumber,
-            episodeNumber: episode.episodeNumber,
-            watchedCount: completed ? 2 : 1,
-            completed: completed,
-            lastWatchedAt: now.subtract(
-              Duration(days: episode.episodeNumber?.toInt() ?? 0),
-            ),
-            rating: completed ? 9 : null,
-            notes: completed ? 'Seed episode replay history.' : null,
-            updatedAt: now,
-          ),
-        );
-      }
-    }
-  }
   final customEpisodes = tvSeedCustomEpisodes(now);
   for (final episode in customEpisodes) {
     await trackingRepository.upsertCustomEpisode(episode);
@@ -213,10 +181,9 @@ Iterable<TvTrackingUnit> tvSeedTrackingUnits(
                 '${episodeNumber.toString().padLeft(2, '0')}';
         yield TvTrackingUnit(
           id: 'seed-unit-tv-${item.id}-$episodeId',
-          targetRef: CatalogEntityRef(
-            kind: item.mediaKind,
-            entityType: CatalogEntityTypeId.catalogItem,
-            id: item.id,
+          libraryEntryRef: seedLibraryEntryRef(
+            item.mediaKind,
+            'seed-entry-${item.id}',
           ),
           seasonNumber: seasonNumber,
           episodeNumber: episodeNumber,
@@ -1018,16 +985,17 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
     ];
 
-List<TvCollectionItem> tvSeedCollectionItems(DateTime now) => [
+List<TvLibraryEntry> tvSeedLibraryEntries(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.tv, 15))
-        TvCollectionItem(
-          id: CollectionItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.tv, itemId),
+        TvLibraryEntry(
+          id: LibraryEntryId('seed-entry-$itemId'),
+          sourceCatalogRef:
+              seedCatalogRef(CatalogMediaKind.tv, itemId).toCatalogItemRef(),
           createdAt: now.subtract(const Duration(days: 280)),
           updatedAt: now,
           isDigital: false,
           condition: 'Near Mint',
-          details: const TvOwnedDetails(
+          details: const TvEntryDetails(
             features: 'Commentary, deleted scenes, making-of documentary',
             hdrFormats: ['HDR10', 'Dolby Vision'],
             boxSetName: 'Complete Series Box Set',
@@ -1048,10 +1016,6 @@ List<TrackingStorageRecord> tvSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         TvTrackingState(
           id: 'seed-track-tv-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
-            CatalogMediaKind.tv,
-            'seed-tv-${seedOrdinal2(i)}',
-          ),
           coordinates: TvTrackingCoordinates(
             seasonNumber: 1,
             episodeNumber: i.isEven ? 2 : 1,
@@ -1059,9 +1023,9 @@ List<TrackingStorageRecord> tvSeedTrackingStates(DateTime now) => [
               '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
             },
           ),
-          collectionItemRef: seedCollectionItemRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.tv,
-            'seed-owned-seed-tv-${seedOrdinal2(i)}',
+            'seed-entry-seed-tv-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i <= 10
@@ -1082,10 +1046,9 @@ List<WatchSession> tvSeedWatchSessions(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         TvWatchSession(
           id: 'seed-watch-tv-${seedOrdinal2(i)}',
-          seriesId: TvSeriesId('seed-tv-${seedOrdinal2(i)}'),
-          targetRef: seedCatalogRef(
-            CatalogMediaKind.tv,
-            'seed-tv-${seedOrdinal2(i)}',
+          libraryEntryRef: LibraryEntryRef(
+            kind: CatalogMediaKind.tv,
+            id: LibraryEntryId('seed-entry-seed-tv-${seedOrdinal2(i)}'),
           ),
           seasonNumber: 1,
           episodeNumber: i.isEven ? 2 : 1,
@@ -1102,7 +1065,10 @@ List<TvCustomEpisode> tvSeedCustomEpisodes(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         TvCustomEpisode(
           id: TvEpisodeId('seed-custom-tv-${seedOrdinal2(i)}'),
-          seriesId: TvSeriesId('seed-tv-${seedOrdinal2(i)}'),
+          libraryEntryRef: seedLibraryEntryRef(
+            CatalogMediaKind.tv,
+            'seed-entry-seed-tv-${seedOrdinal2(i)}',
+          ),
           seasonNumber: 1,
           episodeNumber: 3,
           title: 'Seed bonus episode ${seedOrdinal2(i)}',

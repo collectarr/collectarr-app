@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
@@ -10,7 +10,7 @@ import 'package:drift/drift.dart';
 
 import 'anime_tracking_state.dart';
 
-/// Anime-owned tracking-entry coordinates.
+/// Anime-entry tracking-entry coordinates.
 ///
 /// Anime episode coordinates live in [AnimeTrackingRows] beside the Anime
 /// lifecycle row; no cross-kind tracking table is involved.
@@ -52,7 +52,6 @@ final class AnimeTrackingStateCodec
     required bool activeOnly,
   }) async {
     final query = db.select(db.animeTrackingRows);
-    query.where((row) => row.entryType.equals('entry'));
     if (activeOnly) query.where((row) => row.deletedAt.isNull());
     final rows = await query.get();
     final coordinates = await loadCoordinates(db, rows.map((row) => row.id));
@@ -61,8 +60,7 @@ final class AnimeTrackingStateCodec
         TrackingStorageRead(
           trackingStorageRowFromColumns(
             id: row.id,
-            catalogRefJson: row.catalogRefJson,
-            collectionItemRefKey: row.collectionItemRefKey,
+            libraryEntryRefKey: row.libraryEntryRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -88,7 +86,7 @@ final class AnimeTrackingStateCodec
     TrackingStorageRecord entry,
     DateTime deletedAt,
   ) async {
-    if (entry.catalogRef.mediaKind != kind) return;
+    if (entry.libraryEntryRef.kind != kind) return;
     await (db.update(db.animeTrackingRows)
           ..where((row) => row.id.equals(entry.id)))
         .write(
@@ -102,8 +100,7 @@ final class AnimeTrackingStateCodec
   @override
   AnimeTrackingState create({
     required String id,
-    required CatalogEntityRef catalogRef,
-    CollectionItemRef? collectionItemRef,
+    required LibraryEntryRef libraryEntryRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -116,18 +113,17 @@ final class AnimeTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    if (catalogRef.mediaKind != kind) {
+    if (libraryEntryRef.kind != kind) {
       throw ArgumentError.value(
-        catalogRef.mediaKind,
-        'catalogRef.kind',
+        libraryEntryRef.kind,
+        'libraryEntryRef.kind',
         'Expected Anime tracking entry',
       );
     }
     return AnimeTrackingState(
       id: id,
-      catalogRef: catalogRef,
       coordinates: AnimeTrackingCoordinates(),
-      collectionItemRef: collectionItemRef,
+      libraryEntryRef: libraryEntryRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -150,7 +146,6 @@ final class AnimeTrackingStateCodec
     final values = ids?.toSet().toList(growable: false);
     if (values != null && values.isEmpty) return const {};
     final query = db.select(db.animeTrackingRows);
-    query.where((row) => row.entryType.equals('entry'));
     if (values != null) {
       query.where((row) => row.id.isIn(values));
     }
@@ -170,10 +165,10 @@ final class AnimeTrackingStateCodec
     LocalDatabase db,
     TrackingStorageRecord entry,
   ) async {
-    if (entry.catalogRef.mediaKind != kind) {
+    if (entry.libraryEntryRef.kind != kind) {
       throw ArgumentError.value(
-        entry.catalogRef.mediaKind,
-        'entry.catalogRef.kind',
+        entry.libraryEntryRef.kind,
+        'entry.libraryEntryRef.kind',
         'Expected Anime tracking entry',
       );
     }
@@ -181,16 +176,7 @@ final class AnimeTrackingStateCodec
     await db.into(db.animeTrackingRows).insertOnConflictUpdate(
           AnimeTrackingRowsCompanion.insert(
             id: entry.id,
-            entryType: const Value('entry'),
-            catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
-            collectionItemRefKey: Value(entry.collectionItemRef?.key),
-            mediaId: entry.catalogRef.rootId ?? entry.catalogRef.id,
-            episodeId: Value(
-              entry.catalogRef.entityType ==
-                      const CatalogEntityTypeId('episode')
-                  ? entry.catalogRef.id
-                  : null,
-            ),
+            libraryEntryRefKey: entry.libraryEntryRef.key,
             status: Value(entry.statusStorageValue ?? ''),
             sourceType: Value(entry.sourceTypeApiValue),
             rating: Value(entry.rating),
@@ -213,10 +199,10 @@ final class AnimeTrackingStateCodec
 
   @override
   Map<String, dynamic> toSyncPayload(TrackingStorageRecord entry) {
-    if (entry.catalogRef.mediaKind != kind) {
+    if (entry.libraryEntryRef.kind != kind) {
       throw ArgumentError.value(
-        entry.catalogRef.mediaKind,
-        'entry.catalogRef.kind',
+        entry.libraryEntryRef.kind,
+        'entry.libraryEntryRef.kind',
         'Expected Anime tracking entry',
       );
     }
@@ -240,24 +226,16 @@ final class AnimeTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    final catalogRef = _catalogRefFromPayload(payload);
-    if (catalogRef.mediaKind != kind) {
-      throw ArgumentError.value(
-        catalogRef.mediaKind,
-        'payload.catalog_ref.kind',
-        'Expected Anime tracking entry',
-      );
-    }
+    final libraryEntryRef = trackingLibraryEntryRefFromPayload(payload, kind);
     final seasonNumber = _int(payload['season_number']);
     return AnimeTrackingState(
       id: id,
-      catalogRef: catalogRef,
       coordinates: AnimeTrackingCoordinates(
         seasonNumber: seasonNumber,
         episodeNumber: _number(payload['episode_number']),
         episodeRatings: _decodeEpisodeRatingsValue(payload['episode_ratings']),
       ),
-      collectionItemRef: collectionItemRefFromSerialized(payload['collection_item_ref']),
+      libraryEntryRef: libraryEntryRef,
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -282,8 +260,7 @@ final class AnimeTrackingStateCodec
         : AnimeTrackingCoordinates();
     return AnimeTrackingState(
       id: row.id,
-      catalogRef: row.catalogRef,
-      collectionItemRef: row.collectionItemRef,
+      libraryEntryRef: row.libraryEntryRef,
       sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,
@@ -299,15 +276,6 @@ final class AnimeTrackingStateCodec
     );
   }
 
-  CatalogEntityRef _catalogRefFromPayload(Map<String, dynamic> payload) {
-    final raw = payload['catalog_ref'];
-    if (raw is! Map) {
-      throw const FormatException(
-        'Anime tracking entry is missing catalog_ref',
-      );
-    }
-    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
-  }
 }
 
 Map<String, int> _decodeEpisodeRatings(String? raw) {

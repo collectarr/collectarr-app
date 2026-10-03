@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:xml/xml.dart';
 
 /// Serializes and deserializes ComicInfo.xml (ComicRack/Kavita/Komga standard).
@@ -8,7 +8,7 @@ class ComicInfoXml {
   const ComicInfoXml();
 
   /// Builds ComicInfo.xml from the typed Comic media and collection item.
-  String serialize(ComicCatalogItem comic, [ComicCollectionItem? owned]) {
+  String serialize(ComicCatalogItem comic, [ComicLibraryEntry? entry]) {
     final builder = XmlBuilder();
     builder.processing('xml', 'version="1.0" encoding="utf-8"');
     builder.element('ComicInfo', nest: () {
@@ -45,17 +45,17 @@ class ComicInfoXml {
       _optionalElement(builder, 'Format', comic.physicalFormatLabel);
 
       // Personal fields from the typed Comic collection item.
-      if (owned != null) {
-        _optionalElement(builder, 'Notes', owned.personalNotes);
-        if (owned.reading.rating != null && owned.reading.rating! > 0) {
+      if (entry != null) {
+        _optionalElement(builder, 'Notes', entry.personalNotes);
+        if (entry.reading.rating != null && entry.reading.rating! > 0) {
           // ComicInfo uses 0-5 scale; our rating is 0-10, map accordingly
           final comicInfoRating =
-              (owned.reading.rating! / 2).round().clamp(0, 5);
+              (entry.reading.rating! / 2).round().clamp(0, 5);
           _optionalElement(
               builder, 'CommunityRating', comicInfoRating.toStringAsFixed(1));
         }
-        if (owned.tags != null && owned.tags!.trim().isNotEmpty) {
-          _optionalElement(builder, 'Tags', owned.tags);
+        if (entry.tags != null && entry.tags!.trim().isNotEmpty) {
+          _optionalElement(builder, 'Tags', entry.tags);
         }
       }
     });

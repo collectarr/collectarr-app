@@ -33,11 +33,6 @@ final musicKindSearchTargetOptions = const <LibrarySearchTarget>[
 
 final musicKindTrackingProfile = musicTrackingProfile;
 
-final musicKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final ReleaseProjectionCapability<MusicWorkspaceProjection>?
-    musicKindReleaseCapability = null;
-
 final LibraryRelationCapability? musicKindRelations = null;
 
 final LibraryValueCapability? musicKindValue = null;
@@ -81,25 +76,23 @@ final musicKindHierarchy = const LibraryHierarchyCapability(
 );
 
 final musicKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Album', plural: 'Albums'),
-  release: LibraryEntityLabel(singular: 'Album', plural: 'Albums'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+  catalogItem: LibraryEntityLabel(singular: 'Album', plural: 'Albums'),
+  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final musicKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.listen,
-  writableTargets: {LibraryTrackingTargetScope.work},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
+  writableTargets: {LibraryTrackingTargetScope.catalogItem},
+  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
   lookupScope: LibraryTrackingLookupScope.exactCatalog,
-  ownedTrackingTarget: LibraryOwnedTrackingTarget.catalog,
 );
 
-final musicKindOwnership = const LibraryOwnershipCapability.allowEverywhere();
+final musicKindEntryPolicy =
+    const LibraryEntryPolicyCapability.allowEverywhere();
 
 final musicKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet(),
-  copy: LibraryEntityActionSet.copy,
+  catalogItem: LibraryEntityActionSet.catalogItem,
+  libraryEntry: LibraryEntityActionSet.libraryEntry,
   semanticActions: {
     // Listening history belongs to the concrete catalog item, matching the
     // Music tracking topology and listening-event storage.
@@ -123,7 +116,7 @@ final musicKindInspector = LibraryInspectorCapability(
         sectionsBuilder: buildMusicWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.collectionItem,
+        scope: LibraryEntityScope.libraryEntry,
         heroBuilder: buildMusicCopyInspectorHero,
         sectionsBuilder: buildMusicCopyInspectorSections,
       ),

@@ -1,9 +1,8 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 
-/// Schema-v1 tracking values carried from a kind-owned CSV profile to the
+/// Schema-v1 tracking values carried from a kind-entry CSV profile to the
 /// tracking persistence boundary.
 ///
 /// This is deliberately an operation value, not a tracking domain model.
@@ -11,8 +10,7 @@ import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 final class TrackingStorageImport {
   const TrackingStorageImport({
     required this.entryId,
-    required this.catalogRef,
-    required this.collectionItemRef,
+    required this.libraryEntryRef,
     required this.now,
     this.rating,
     this.status,
@@ -21,8 +19,7 @@ final class TrackingStorageImport {
   });
 
   final String entryId;
-  final CatalogEntityRef catalogRef;
-  final CollectionItemRef collectionItemRef;
+  final LibraryEntryRef libraryEntryRef;
   final DateTime now;
   final int? rating;
   final String? status;
@@ -37,11 +34,9 @@ final class TrackingStorageImport {
 final class TrackingStorageImportResult {
   const TrackingStorageImportResult({
     required this.ref,
-    required this.catalogRef,
     required this.payload,
   });
 
   final TrackingStateRef ref;
-  final CatalogEntityRef catalogRef;
   final JsonMap payload;
 }

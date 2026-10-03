@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -121,11 +121,11 @@ class InspectorCollectionFields extends StatelessWidget {
 class InspectorPersonalDetailsEditor extends ConsumerStatefulWidget {
   const InspectorPersonalDetailsEditor({
     super.key,
-    required this.collectionItem,
+    required this.libraryEntry,
     required this.accent,
   });
 
-  final CollectionItemSummary collectionItem;
+  final LibraryEntrySummary libraryEntry;
   final Color accent;
 
   @override
@@ -152,16 +152,16 @@ class _InspectorPersonalDetailsEditorState
     _currencyController = TextEditingController();
     _notesController = TextEditingController();
     _purchaseStoreController = TextEditingController();
-    _syncFromItem(widget.collectionItem);
+    _syncFromItem(widget.libraryEntry);
     unawaited(_loadAvailableLocations());
   }
 
   @override
   void didUpdateWidget(covariant InspectorPersonalDetailsEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.collectionItem.ref.id != widget.collectionItem.ref.id ||
-        oldWidget.collectionItem.updatedAt != widget.collectionItem.updatedAt) {
-      _syncFromItem(widget.collectionItem);
+    if (oldWidget.libraryEntry.ref.id != widget.libraryEntry.ref.id ||
+        oldWidget.libraryEntry.updatedAt != widget.libraryEntry.updatedAt) {
+      _syncFromItem(widget.libraryEntry);
     }
   }
 
@@ -301,7 +301,7 @@ class _InspectorPersonalDetailsEditorState
     );
   }
 
-  void _syncFromItem(CollectionItemSummary item) {
+  void _syncFromItem(LibraryEntrySummary item) {
     _purchaseDate = item.purchaseDate;
     _priceController.text = item.pricePaidCents == null
         ? ''
@@ -361,11 +361,11 @@ class _InspectorPersonalDetailsEditorState
       return;
     }
     final currency = _currencyController.text.trim().toUpperCase();
-    await ref.read(collectionCommandCoordinatorProvider).updateCollectionItem(
-          libraryOwnedEditForKind(
-            widget.collectionItem.catalogRef?.mediaKind ?? widget.collectionItem.ref.kind,
+    await ref.read(collectionCommandCoordinatorProvider).updateLibraryEntry(
+          libraryEntryEditForKind(
+            widget.libraryEntry.ref.kind,
           ).buildPersonalDetailsUpdateCommand(
-            collectionItemRef: widget.collectionItem.ref,
+            libraryEntryRef: widget.libraryEntry.ref,
             purchaseDate: _purchaseDate,
             pricePaidCents: price,
             currency: currency.isEmpty ? null : currency,
@@ -655,12 +655,8 @@ class _InspectorTrackingDetailsEditorState
   }
 
   Future<void> _save() async {
-    final target = widget.trackingSummary.collectionItemRef != null
-        ? TrackingTarget.owned(widget.trackingSummary.collectionItemRef!)
-        : TrackingTarget.catalog(widget.trackingSummary.catalogRef);
     await ref.read(trackingMutationsProvider).upsertTrackingState(
-          target,
-          targetRef: widget.trackingSummary.catalogRef.rootScope,
+          widget.trackingSummary.libraryEntryRef,
           sourceType: widget.trackingSummary.sourceType,
           status: mediaTrackingStatusFromValue(
               _emptyToNull(_statusController.text)),
@@ -704,7 +700,7 @@ class _InspectorTrackingDetailsEditorState
     if (confirmed != true || !mounted) return;
     await ref.read(trackingMutationsProvider).removeTrackingByRef(
           TrackingStateRef(
-            kind: widget.trackingSummary.catalogRef.mediaKind,
+            kind: widget.trackingSummary.libraryEntryRef.kind,
             id: widget.trackingSummary.id,
           ),
         );

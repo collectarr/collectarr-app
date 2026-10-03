@@ -1,9 +1,7 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/structural_ref_validation.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
 class UserExternalLinksCacheRepository {
@@ -11,51 +9,68 @@ class UserExternalLinksCacheRepository {
 
   final LocalDatabase _db;
 
-  Future<List<UserExternalLink>> listByCatalogRef(
-    CatalogEntityRef catalogRef,
+  Future<List<UserExternalLink>> listByLibraryEntryRef(
+    LibraryEntryRef libraryEntryRef,
   ) async {
+    requireKnownLibraryEntryRef(libraryEntryRef, 'externalLink.libraryEntryRef');
     final rows = await (_db.select(_db.userExternalLinksCache)
+          ..where((row) => row.libraryEntryRefKey.equals(libraryEntryRef.key))
           ..orderBy([
             (row) => OrderingTerm.asc(row.kind),
             (row) => OrderingTerm.asc(row.label),
             (row) => OrderingTerm.asc(row.createdAt),
           ]))
         .get();
-    return rows
-        .map(_fromRow)
-        .where((link) => _sameCatalogRef(link.catalogRef, catalogRef))
-        .toList(growable: false);
+    return rows.map(_fromRow).toList(growable: false);
   }
 
-  Future<void> replaceForCatalogRef(
-    CatalogEntityRef catalogRef,
+  Future<Map<LibraryEntryRef, List<UserExternalLink>>> listGroupedByEntry(
+    Iterable<LibraryEntryRef> refs,
+  ) async {
+    final values = refs.toSet();
+    for (final ref in values) {
+      requireKnownLibraryEntryRef(ref, 'externalLink.libraryEntryRef');
+    }
+    final wanted = values;
+    if (wanted.isEmpty) return const {};
+    final grouped = <LibraryEntryRef, List<UserExternalLink>>{};
+    final rows = await _db.select(_db.userExternalLinksCache).get();
+    for (final row in rows) {
+      final link = _fromRow(row);
+      if (!wanted.contains(link.libraryEntryRef)) continue;
+      grouped.putIfAbsent(link.libraryEntryRef, () => []).add(link);
+    }
+    return {
+      for (final entry in grouped.entries)
+        entry.key: List.unmodifiable(entry.value),
+    };
+  }
+
+  Future<void> replaceForLibraryEntry(
+    LibraryEntryRef libraryEntryRef,
     Iterable<UserExternalLink> links,
   ) async {
-    requireKnownCatalogRef(catalogRef);
-    final normalized = links.where((link) => link.url.trim().isNotEmpty);
+    requireKnownLibraryEntryRef(libraryEntryRef, 'externalLink.libraryEntryRef');
+    final normalized = links
+        .where((link) => link.url.trim().isNotEmpty)
+        .toList(growable: false);
     for (final link in normalized) {
-      requireKnownCatalogRef(link.catalogRef, 'link.catalogRef');
-      if (link.catalogRef != catalogRef) {
+      requireKnownLibraryEntryRef(link.libraryEntryRef, 'externalLink.libraryEntryRef');
+      if (link.libraryEntryRef != libraryEntryRef) {
         throw ArgumentError(
-          'External link ${link.id} targets a different catalog reference.',
+          'External link ${link.id} targets a different library entry.',
         );
       }
     }
     await _db.transaction(() async {
-      final rows = await _db.select(_db.userExternalLinksCache).get();
-      for (final row in rows) {
-        final existing = _fromRow(row);
-        if (_sameCatalogRef(existing.catalogRef, catalogRef)) {
-          await (_db.delete(_db.userExternalLinksCache)
-                ..where((entry) => entry.id.equals(row.id)))
-              .go();
-        }
-      }
+      await (_db.delete(_db.userExternalLinksCache)
+            ..where((row) => row.libraryEntryRefKey.equals(libraryEntryRef.key)))
+          .go();
       for (final link in normalized) {
         await _db.into(_db.userExternalLinksCache).insert(
               UserExternalLinksCacheCompanion.insert(
                 id: link.id,
-                catalogRefJson: jsonEncode(link.catalogRef.toJson()),
+                libraryEntryRefKey: link.libraryEntryRef.key,
                 label: link.label,
                 url: link.url,
                 kind: link.kind,
@@ -69,19 +84,9 @@ class UserExternalLinksCacheRepository {
   }
 
   UserExternalLink _fromRow(UserExternalLinksCacheData row) {
-    final rawRef = jsonDecode(row.catalogRefJson);
-    if (rawRef is! Map) {
-      throw FormatException(
-        'External link ${row.id} contains an invalid catalog reference',
-      );
-    }
-    final catalogRef = CatalogEntityRef.fromJson(
-      Map<String, dynamic>.from(rawRef),
-    );
-    requireKnownCatalogRef(catalogRef, 'externalLink.catalogRef');
     return UserExternalLink(
       id: row.id,
-      catalogRef: catalogRef,
+      libraryEntryRef: LibraryEntryRef.fromKey(row.libraryEntryRefKey),
       label: row.label,
       url: row.url,
       kind: row.kind,
@@ -90,7 +95,10 @@ class UserExternalLinksCacheRepository {
     );
   }
 
-  bool _sameCatalogRef(CatalogEntityRef left, CatalogEntityRef right) {
-    return left == right;
+  Future<void> replaceSyncedForLibraryEntry(
+    LibraryEntryRef ref,
+    List<UserExternalLink> links,
+  ) async {
+    await replaceForLibraryEntry(ref, links);
   }
 }

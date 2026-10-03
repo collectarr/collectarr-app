@@ -11,8 +11,7 @@ Widget buildAnimeWorkInspectorHero(
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    collectionItem: request.collectionItem,
-    ownedCopies: request.ownedCopies,
+    libraryEntry: request.libraryEntry,
     accent: request.accent,
   );
 }
@@ -24,8 +23,7 @@ Widget buildAnimeReleaseInspectorHero(
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    collectionItem: request.collectionItem,
-    ownedCopies: request.ownedCopies,
+    libraryEntry: request.libraryEntry,
     accent: request.accent,
   );
 }
@@ -37,10 +35,7 @@ Widget buildAnimeCopyInspectorHero(
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    collectionItem: request.collectionItem,
-    ownedCopies: [
-      if (request.collectionItem != null) request.collectionItem!,
-    ],
+    libraryEntry: request.libraryEntry,
     accent: request.accent,
   );
 }
@@ -65,12 +60,12 @@ List<Widget> buildAnimeCopyInspectorSections(
 ) {
   return [
     ..._buildAnimeMetadataSections(context, request),
-    if (request.collectionItem != null || request.trackingSummary != null)
+    if (request.libraryEntry != null || request.trackingSummary != null)
       InspectorPersonalStatusSection(
         type: request.type,
         item: request.item,
-        collectionItem: request.collectionItem,
-        collectionItemDispatch: request.collectionItemDispatch,
+        libraryEntry: request.libraryEntry,
+        libraryEntryDispatch: request.libraryEntryDispatch,
         trackingSummary: request.trackingSummary,
         accent: request.accent,
         onFilterByValue: request.onFilterByValue,

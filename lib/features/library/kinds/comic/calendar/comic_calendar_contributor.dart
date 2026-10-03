@@ -19,8 +19,9 @@ final class ComicCalendarContributor implements LibraryCalendarContributor {
     LibraryCalendarContext context,
   ) async {
     final events = <CalendarEvent>[];
-    for (final ref in context.catalogRefs) {
-      final id = ref.id;
+    for (final ref in context.libraryEntryRefs) {
+      if (ref.kind != kind) continue;
+      final id = ref.id.value;
       final comic = loadMedia != null
           ? await loadMedia!(id)
           : await _loadMedia(context, id);
@@ -32,7 +33,7 @@ final class ComicCalendarContributor implements LibraryCalendarContributor {
         date: DateTime.utc(date.year, date.month, date.day),
         title: comic.title,
         eventId: 'comic-release:$id',
-        catalogRef: ref,
+        libraryEntryRef: ref,
       ));
     }
     return events;

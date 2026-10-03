@@ -13,10 +13,9 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   manualProposalBuilder: buildComicManualProposalData,
   manualPaneBuilder: buildComicAddManualPane,
   previewPaneBuilder: buildComicAddPreviewPane,
-  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      ComicCollectionItemCreatePayload(
-    catalogRef: item.reference,
-    details: details as ComicOwnedDetailsDraft,
+  entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      ComicLibraryEntryCreatePayload(
+    details: details as ComicEntryDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
@@ -26,6 +25,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
+    ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),

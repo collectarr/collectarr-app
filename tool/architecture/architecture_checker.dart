@@ -7,7 +7,7 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/source/line_info.dart';
 import 'package:path/path.dart' as p;
 
-import 'kind_field_ownership.dart';
+import 'kind_field_entries.dart';
 
 void main(List<String> args) => runArchitectureChecker(args);
 
@@ -21,9 +21,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     required this.kindName,
     required this.repoRoot,
     this.sourceContent,
-    Set<String>? kindOwnedFieldSymbols,
-  }) : kindOwnedFieldSymbols =
-            kindOwnedFieldSymbols ?? loadKindOwnedFieldSymbols(repoRoot);
+    Set<String>? kindEntryFieldSymbols,
+  }) : kindEntryFieldSymbols =
+            kindEntryFieldSymbols ?? loadKindEntryFieldSymbols(repoRoot);
 
   final String filePath;
   final String relativePath;
@@ -33,7 +33,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   final String? kindName;
   final String repoRoot;
   final String? sourceContent;
-  final Set<String> kindOwnedFieldSymbols;
+  final Set<String> kindEntryFieldSymbols;
 
   final List<String> violations = [];
   final List<String> complexityWarnings = [];
@@ -45,62 +45,62 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'ComicMetadata',
     'ComicWorkspaceDto',
     'ComicCatalogItem',
-    'ComicOwnedDetails',
+    'ComicEntryDetails',
     'ComicStoryArc',
     'ComicGrade',
     'ComicKeyDraft',
     'ComicKeyReason',
     'ComicMedia',
     'ComicRelease',
-    'ComicCollectionItem',
+    'ComicLibraryEntry',
     // Movie & Video
     'MovieCatalogMetadata',
     'MovieWorkspaceDto',
     'MovieCatalogItem',
-    'MovieOwnedDetails',
+    'MovieEntryDetails',
     // Tv
     'TvCatalogMetadata',
     'TvSeriesMetadata',
     'TvWorkspaceDto',
     'TvCatalogItem',
-    'TvOwnedDetails',
+    'TvEntryDetails',
     // Anime
     'AnimeCatalogMetadata',
     'AnimeMetadata',
     'AnimeWorkspaceDto',
     'AnimeCatalogItem',
-    'AnimeOwnedDetails',
+    'AnimeEntryDetails',
     // Book
     'BookCatalogMetadata',
     'BookWorkspaceDto',
     'BookCatalogItem',
-    'BookOwnedDetails',
+    'BookEntryDetails',
     // Manga
     'MangaCatalogMetadata',
     'MangaMetadata',
     'MangaWorkspaceDto',
     'MangaCatalogItem',
-    'MangaOwnedDetails',
+    'MangaEntryDetails',
     // Game
     'GameCatalogMetadata',
     'GameWorkspaceDto',
     'GameCatalogItem',
-    'GameOwnedDetails',
+    'GameEntryDetails',
     // BoardGame
     'BoardGameMetadata',
     'BoardGameWorkspaceDto',
     'BoardGameCatalogItem',
-    'BoardgameOwnedDetails',
+    'BoardgameEntryDetails',
     // Music
     'MusicCatalogMetadata',
     'MusicWorkspaceDto',
     'MusicCatalogItem',
-    'MusicOwnedDetails',
+    'MusicEntryDetails',
   };
 
   static const _forbiddenContextualMemberNames = {
     // Domain vocabulary that must not be interpreted by a generic feature
-    // after kind dispatch.  Provider protocol models and kind-owned files are
+    // after kind dispatch.  Provider protocol models and kind-entry files are
     // excluded by the path checks below.
     'series',
     'issue',
@@ -130,10 +130,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'rawOrSlabbed',
     'gradingCompany',
     'graderNotes',
-    'showsOwnedGradingSection',
+    'showsEntryGradingSection',
     'showsComicCollectorFields',
     'showsGameCompletenessFields',
-    'showsOwnedCoverPriceField',
+    'showsEntryCoverPriceField',
     'keyToggleLabel',
     'keyReasonLabel',
     'seriesHierarchy',
@@ -164,10 +164,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'parent_id',
     'targetId',
     'target_id',
-    'collectionItemRef',
-    'collection_item_ref',
-    'collectionItemRefKey',
-    'collection_item_ref_key',
+    'libraryEntryRef',
+    'library_entry_ref',
+    'libraryEntryRefKey',
+    'library_entry_ref_key',
     'trackingEntryId',
     'tracking_entry_id',
     'source',
@@ -375,7 +375,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     if (_isGenericMetadataMap(node)) {
       final line = lineInfo.getLocation(node.offset).lineNumber;
       violations.add(
-        'TK003 $relativePath:$line: Generic metadata map must be classified or moved to a kind-owned mapper',
+        'TK003 $relativePath:$line: Generic metadata map must be classified or moved to a kind-entry mapper',
       );
     }
 
@@ -547,13 +547,13 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   }) {
     if (!_isInferredFieldLeakContext(relativePath) ||
         _neutralGenericFieldSymbols.contains(symbol) ||
-        !kindOwnedFieldSymbols.contains(symbol) ||
+        !kindEntryFieldSymbols.contains(symbol) ||
         (skipKnownPolicyMember &&
             _forbiddenContextualMemberNames.contains(symbol))) {
       return;
     }
     final line = lineInfo.getLocation(offset).lineNumber;
-    final message = 'TK016 $relativePath:$line: Kind-owned field "$symbol" '
+    final message = 'TK016 $relativePath:$line: Kind-entry field "$symbol" '
         'appears in generic code ($surface)';
     violations.add(message);
     kindFieldLeaks.add(KindFieldLeakFinding(
@@ -623,7 +623,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
         ? lines[lineNumber - 1]
         : node.toSource();
     return RegExp(
-      r'\b(metadata|catalog|payload|semantic|details|owned|release|item)\b',
+      r'\b(metadata|catalog|payload|semantic|details|entry|release|item)\b',
       caseSensitive: false,
     ).hasMatch(declarationSource);
   }
@@ -677,7 +677,7 @@ bool _isInferredFieldLeakContext(String relativePath) {
   final fileName = p.basename(relativePath);
   return fileName.startsWith('catalog_') ||
       fileName.startsWith('library_') ||
-      fileName.startsWith('owned_') ||
+      fileName.startsWith('entry_') ||
       fileName.startsWith('tracking_') ||
       fileName.startsWith('personal_tracking_') ||
       fileName == 'activity_event.dart' ||
@@ -697,7 +697,7 @@ bool _isStructuralProjectionFile(String relativePath) {
     'lib/core/models/catalog_display_summary.dart',
     'lib/core/models/catalog_search_hit.dart',
     'lib/core/models/calendar_event.dart',
-    'lib/core/models/collection_item_projection.dart',
+    'lib/core/models/library_entry_projection.dart',
   }.contains(relativePath);
 }
 
@@ -1014,7 +1014,7 @@ const _compositionRoots = {
   'lib/features/collection/csv/collection_csv_registry.dart',
   'lib/features/library/tracking/library_tracking_registry.dart',
   'lib/features/library/library_kind_registry.dart',
-  'lib/features/library/owned/owned_kind_contributor_registry.dart',
+  'lib/features/library/entries/entry_kind_contributor_registry.dart',
   'lib/features/providers/library_provider_registry.dart',
 };
 

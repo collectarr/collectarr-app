@@ -9,6 +9,7 @@ final class MusicArtistCredit implements JsonEncodable {
   const MusicArtistCredit({
     required this.id,
     required this.creditedName,
+    this.sortName,
     this.artistId,
     this.joinPhrase,
     this.sequence,
@@ -16,6 +17,7 @@ final class MusicArtistCredit implements JsonEncodable {
 
   final String id;
   final String creditedName;
+  final String? sortName;
   final String? artistId;
   final String? joinPhrase;
   final int? sequence;
@@ -28,6 +30,7 @@ final class MusicArtistCredit implements JsonEncodable {
                 json['display_name']) ??
             '',
         artistId: _text(json['artist_id'] ?? json['person_id']),
+        sortName: _text(json['sort_name']),
         joinPhrase: _text(json['join_phrase']),
         sequence: _int(json['sequence']),
       );
@@ -36,6 +39,7 @@ final class MusicArtistCredit implements JsonEncodable {
   Map<String, dynamic> toJson() => {
         'id': id,
         'credited_name': creditedName,
+        if (sortName != null) 'sort_name': sortName,
         if (artistId != null) 'artist_id': artistId,
         if (joinPhrase != null) 'join_phrase': joinPhrase,
         if (sequence != null) 'sequence': sequence,
@@ -93,6 +97,7 @@ final class MusicAlbumContribution implements JsonEncodable {
     this.roleId,
     this.sequence,
     this.displayName,
+    this.sortName,
     this.imageUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -108,6 +113,7 @@ final class MusicAlbumContribution implements JsonEncodable {
   final String? roleId;
   final int? sequence;
   final String? displayName;
+  final String? sortName;
   final String? imageUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -121,6 +127,7 @@ final class MusicAlbumContribution implements JsonEncodable {
       roleId: _text(json['role_id']),
       sequence: _int(json['sequence']),
       displayName: _text(json['name'] ?? json['display_name']),
+      sortName: _text(json['sort_name']),
       imageUrl: _text(json['image_url']),
       createdAt: _dateTime(json['created_at']),
       updatedAt: _dateTime(json['updated_at']),
@@ -138,6 +145,7 @@ final class MusicAlbumContribution implements JsonEncodable {
         if (roleId != null) 'role_id': roleId,
         if (sequence != null) 'sequence': sequence,
         if (displayName != null) 'name': displayName,
+        if (sortName != null) 'sort_name': sortName,
         if (imageUrl != null) 'image_url': imageUrl,
       };
 }

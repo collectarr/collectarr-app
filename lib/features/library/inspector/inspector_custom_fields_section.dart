@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef _InspectorCustomFieldsRequest = ({
   LocalDatabase db,
-  CollectionItemRef collectionItemRef,
+  LibraryEntryRef libraryEntryRef,
 });
 
 final _inspectorCustomFieldsProvider = FutureProvider.autoDispose
@@ -18,10 +18,10 @@ final _inspectorCustomFieldsProvider = FutureProvider.autoDispose
   (ref, request) async {
     final repo = CustomFieldRepository(request.db);
     final definitions =
-        await repo.listDefinitions(mediaKind: request.collectionItemRef.kind.apiValue);
+        await repo.listDefinitions(mediaKind: request.libraryEntryRef.kind.apiValue);
     final values = await repo.listValuesForTarget(
-      targetId: request.collectionItemRef.key,
-      targetScope: CustomFieldTargetScope.collectionItem,
+      targetId: request.libraryEntryRef.key,
+      targetScope: CustomFieldTargetScope.libraryEntry,
     );
     return _CustomFieldData(
       definitions: definitions,
@@ -33,13 +33,13 @@ final _inspectorCustomFieldsProvider = FutureProvider.autoDispose
 class InspectorCustomFieldsSection extends ConsumerWidget {
   const InspectorCustomFieldsSection({
     super.key,
-    required this.collectionItemRef,
+    required this.libraryEntryRef,
     required this.db,
     required this.accent,
     this.onFilterByValue,
   });
 
-  final CollectionItemRef collectionItemRef;
+  final LibraryEntryRef libraryEntryRef;
   final LocalDatabase db;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -48,7 +48,7 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final data = ref
         .watch(_inspectorCustomFieldsProvider(
-          (db: db, collectionItemRef: collectionItemRef),
+          (db: db, libraryEntryRef: libraryEntryRef),
         ))
         .value;
     if (data == null || data.definitions.isEmpty) {

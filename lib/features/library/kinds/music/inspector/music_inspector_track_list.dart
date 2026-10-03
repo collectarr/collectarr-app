@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_track_l
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// Music-owned track presentation.
+/// Music-entry track presentation.
 ///
 /// The shared inspector track widget intentionally accepts only generic
 /// catalog tracks. Music must render its own ordered medium entries so header

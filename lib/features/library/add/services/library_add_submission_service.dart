@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -28,12 +28,13 @@ final class LibraryAddSubmissionRequest {
     required this.commonDraft,
     required this.kindDraft,
     required this.trackingDraft,
-    required this.ownedMutations,
+    required this.entryMutations,
     required this.wishlistMutations,
     required this.trackingMutations,
     this.catalog,
     this.upsertCatalogItems = true,
-    this.onCollectionItemCreated,
+    this.onLibraryEntryCreated,
+    this.onSubmissionCommitted,
   });
 
   final List<LibraryAddSubmissionItem> items;
@@ -43,24 +44,33 @@ final class LibraryAddSubmissionRequest {
   final LibraryAddKindDraft kindDraft;
   final LibraryAddTrackingDraft trackingDraft;
   final CatalogTransportRepository? catalog;
-  final CollectionItemMutations ownedMutations;
+  final LibraryEntryMutations entryMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
   final bool upsertCatalogItems;
-  final FutureOr<void> Function(CollectionItemRef collectionItemRef)?
-      onCollectionItemCreated;
+  final FutureOr<void> Function(LibraryEntryRef libraryEntryRef)?
+      onLibraryEntryCreated;
+  final FutureOr<void> Function()? onSubmissionCommitted;
 }
 
 final class LibraryAddSubmissionResult {
-  const LibraryAddSubmissionResult({required this.submittedCount});
+  const LibraryAddSubmissionResult({
+    required this.submittedCount,
+    this.itemIds = const [],
+  });
 
   final int submittedCount;
+  final List<String> itemIds;
 }
 
 final class LibraryAddBatchSubmissionResult {
-  const LibraryAddBatchSubmissionResult({required this.submittedCount});
+  const LibraryAddBatchSubmissionResult({
+    required this.submittedCount,
+    this.itemIds = const [],
+  });
 
   final int submittedCount;
+  final List<String> itemIds;
 }
 
 final class LibraryAddSubmissionService {
@@ -72,49 +82,40 @@ final class LibraryAddSubmissionService {
     if (request.items.isEmpty) {
       return const LibraryAddSubmissionResult(submittedCount: 0);
     }
+    final candidates = [for (final item in request.items) item.candidate];
+    final itemIds = await const LibraryAddCoordinator().add(
+      LibraryAddBatchRequest(
+        dependencies: LibraryAddMutationDependencies(
+          catalog: request.catalog,
+          entryMutations: request.entryMutations,
+          wishlistMutations: request.wishlistMutations,
+          trackingMutations: request.trackingMutations,
+        ),
+        items: candidates,
+        target: request.target,
+        commonDraft: request.commonDraft,
+        trackingDraft: request.trackingDraft,
+        kindDraftsByCatalogRef: {
+          for (final candidate in candidates)
+            candidate.reference: request.kindDraft,
+        },
+        upsertCatalogItems:
+            request.upsertCatalogItems && request.catalog != null,
+        onLibraryEntryCreated: request.onLibraryEntryCreated,
+        onSubmissionCommitted: request.onSubmissionCommitted,
+      ),
+    );
 
-    for (final item in request.items) {
-      if (request.upsertCatalogItems && request.catalog != null) {
-        await request.catalog!.upsertTransports([
-          item.candidate.kindCapability.toImportTransport(),
-        ]);
-      }
-
-      switch (request.target) {
-        case LibraryAddTarget.owned:
-          final command = libraryAddForKind(request.kind).buildCommand(
-            item.candidate,
-            request.commonDraft,
-            request.kindDraft,
-            tracking: request.trackingDraft,
-          );
-          final owned = await request.ownedMutations.addCollectionItem(command);
-          await request.onCollectionItemCreated?.call(owned);
-          final tracking = command.tracking;
-          if (tracking != null) {
-            await request.trackingMutations.syncOwnedTrackingState(
-              owned,
-              targetRef: command.catalogRef,
-              status: tracking.status,
-              rating: tracking.rating,
-              startedAt: tracking.startedAt,
-              finishedAt: tracking.finishedAt,
-              notes: tracking.notes,
-            );
-          }
-        case LibraryAddTarget.wishlist:
-          await request.wishlistMutations
-              .addToWishlist(item.candidate.reference.toCatalogItemRef());
-        case LibraryAddTarget.track:
-          await request.trackingMutations.upsertTrackingState(
-            TrackingTarget.catalog(item.candidate.reference),
-            targetRef: item.candidate.reference,
-          );
-      }
+    if (itemIds.length != request.items.length) {
+      throw StateError(
+        'Add submitted ${request.items.length} item(s), but returned '
+        '${itemIds.length} local identity(ies).',
+      );
     }
 
     return LibraryAddSubmissionResult(
-      submittedCount: request.items.length,
+      submittedCount: itemIds.length,
+      itemIds: itemIds,
     );
   }
 
@@ -122,7 +123,7 @@ final class LibraryAddSubmissionService {
     LibraryAddBatchRequest request,
   ) async {
     final items = request.items.toList(growable: false);
-    await const LibraryAddCoordinator().add(
+    final itemIds = await const LibraryAddCoordinator().add(
       LibraryAddBatchRequest(
         dependencies: request.dependencies,
         items: items,
@@ -131,8 +132,20 @@ final class LibraryAddSubmissionService {
         commonDraft: request.commonDraft,
         trackingDraft: request.trackingDraft,
         kindDraftsByCatalogRef: request.kindDraftsByCatalogRef,
+        upsertCatalogItems: request.upsertCatalogItems,
+        onLibraryEntryCreated: request.onLibraryEntryCreated,
+        onSubmissionCommitted: request.onSubmissionCommitted,
       ),
     );
-    return LibraryAddBatchSubmissionResult(submittedCount: items.length);
+    if (itemIds.length != items.length) {
+      throw StateError(
+        'Add submitted ${items.length} item(s), but returned '
+        '${itemIds.length} local identity(ies).',
+      );
+    }
+    return LibraryAddBatchSubmissionResult(
+      submittedCount: itemIds.length,
+      itemIds: itemIds,
+    );
   }
 }

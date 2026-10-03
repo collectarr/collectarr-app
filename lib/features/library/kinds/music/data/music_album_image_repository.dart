@@ -1,106 +1,68 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
-import 'package:drift/drift.dart';
 
+/// Music presentation of the shared entry image store.
 final class MusicAlbumImageRepository {
   const MusicAlbumImageRepository(this._db);
-
   final LocalDatabase _db;
+  LibraryEntryRef _ref(String id) =>
+      LibraryEntryRef(kind: CatalogMediaKind.music, id: LibraryEntryId(id));
 
   Future<List<MusicAlbumImage>> listForAlbum(String albumId) async {
-    _requireAlbumId(albumId);
-    final rows = await (_db.select(_db.musicAlbumImagesRows)
-          ..where((row) => row.albumId.equals(albumId))
-          ..orderBy([
-            (row) => OrderingTerm.asc(row.purpose),
-            (row) => OrderingTerm.asc(row.sortOrder),
-            (row) => OrderingTerm.asc(row.createdAt),
-          ]))
-        .get();
+    final images =
+        await ItemImageRepository(_db).listForLibraryEntryRef(_ref(albumId));
     return [
-      for (final row in rows)
+      for (final image in images)
         MusicAlbumImage(
-          id: row.id,
-          albumId: row.albumId,
-          purpose: MusicAlbumImagePurpose.values.firstWhere(
-            (purpose) => purpose.storageValue == row.purpose,
-          ),
-          imageType: row.imageType,
-          imageData: row.imageData,
-          description: row.description,
-          sortOrder: row.sortOrder,
-          createdAt: row.createdAt,
-        ),
+          id: image.id,
+          albumId: albumId,
+          purpose: image.imageType == 'front_cover' ||
+                  image.imageType == 'back_cover'
+              ? MusicAlbumImagePurpose.cover
+              : MusicAlbumImagePurpose.personal,
+          imageType: image.imageType.startsWith('personal:')
+              ? image.imageType.substring(9)
+              : image.imageType,
+          imageData: image.imageData,
+          description: image.caption,
+          sortOrder: image.sortOrder,
+          createdAt: image.createdAt,
+        )
     ];
   }
 
-  Future<void> upsert(MusicAlbumImage image) {
-    _requireAlbumId(image.albumId);
-    return _db.into(_db.musicAlbumImagesRows).insertOnConflictUpdate(
-          MusicAlbumImagesRowsCompanion.insert(
-            id: image.id,
-            albumId: image.albumId,
-            purpose: image.purpose.storageValue,
-            imageType: image.imageType,
-            imageData: image.imageData,
-            description: Value(image.description),
-            sortOrder: Value(image.sortOrder),
-            createdAt: image.createdAt,
-          ),
-        );
-  }
+  Future<void> upsert(MusicAlbumImage image) =>
+      ItemImageRepository(_db).add(ItemImage(
+        id: image.id,
+        libraryEntryRef: _ref(image.albumId),
+        imageType: image.purpose == MusicAlbumImagePurpose.cover
+            ? image.imageType
+            : 'personal:${image.imageType}',
+        imageData: image.imageData,
+        caption: image.description,
+        sortOrder: image.sortOrder,
+        createdAt: image.createdAt,
+      ));
 
   Future<void> replaceForAlbum(
-    String albumId,
-    List<MusicAlbumImage> images,
-  ) async {
-    _requireAlbumId(albumId);
-    if (images.any((image) => image.albumId != albumId)) {
-      throw StateError('Album image batch contains a different album id.');
-    }
+      String albumId, List<MusicAlbumImage> images) async {
+    if (images.any((image) => image.albumId != albumId))
+      throw StateError('Image batch belongs to another entry.');
     if (images
             .where((image) => image.purpose == MusicAlbumImagePurpose.personal)
             .length >
-        5) {
-      throw StateError(
-          'A Music album can have at most five personal images.');
-    }
+        5) throw StateError('Maximum five personal images.');
     await _db.transaction(() async {
-      await (_db.delete(_db.musicAlbumImagesRows)
-            ..where((row) => row.albumId.equals(albumId)))
-          .go();
-      if (images.isEmpty) return;
-      await _db.batch((batch) {
-        batch.insertAll(
-          _db.musicAlbumImagesRows,
-          images.map(
-            (image) => MusicAlbumImagesRowsCompanion.insert(
-              id: image.id,
-              albumId: image.albumId,
-              purpose: image.purpose.storageValue,
-              imageType: image.imageType,
-              imageData: image.imageData,
-              description: Value(image.description),
-              sortOrder: Value(image.sortOrder),
-              createdAt: image.createdAt,
-            ),
-          ),
-          mode: InsertMode.insertOrReplace,
-        );
-      });
+      await ItemImageRepository(_db).deleteAllForLibraryEntryRef(_ref(albumId));
+      for (final image in images) {
+        await upsert(image);
+      }
     });
   }
 
-  Future<void> delete(String id) async {
-    if (id.trim().isEmpty) throw ArgumentError.value(id, 'id');
-    await (_db.delete(_db.musicAlbumImagesRows)
-          ..where((row) => row.id.equals(id)))
-        .go();
-  }
-
-  static void _requireAlbumId(String albumId) {
-    if (albumId.trim().isEmpty) {
-      throw ArgumentError.value(albumId, 'albumId');
-    }
-  }
+  Future<void> delete(String id) => ItemImageRepository(_db).delete(id);
 }

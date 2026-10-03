@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -553,9 +553,9 @@ class LibraryWorkspaceSessionController
     );
   }
 
-  void setActiveLoanCollectionItemIds(Set<CollectionItemRef> ids) {
+  void setActiveLoanLibraryEntryIds(Set<LibraryEntryRef> ids) {
     state = state.copyWith(
-      asyncState: state.asyncState.copyWith(activeLoanCollectionItemIds: ids),
+      asyncState: state.asyncState.copyWith(activeLoanLibraryEntryIds: ids),
     );
   }
 

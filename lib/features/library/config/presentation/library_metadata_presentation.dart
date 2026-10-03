@@ -1,7 +1,9 @@
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
+import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart'
+    show LibraryDuplicateCandidate;
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -10,11 +12,10 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_link_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:flutter/material.dart';
 
@@ -149,40 +150,28 @@ String? _normalizedMetadataText(Object? value) {
 abstract class LibraryMediaPresentationBuilder {
   const LibraryMediaPresentationBuilder();
 
-  /// Builds semantic duplicate candidates for this kind.
-  ///
-  /// Generic duplicate UI only groups and renders the structural candidates.
-  /// The kind decides which identifiers and matching rules are meaningful.
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) =>
       const [];
 
-  List<LibraryAddReleaseOption> buildReleaseOptions({
-    required CatalogSearchCandidate item,
-  }) =>
-      const [];
-
+  /// Builds semantic duplicate candidates for this kind.
+  ///
+  /// Generic duplicate UI only groups and renders the structural candidates.
   /// Projects the already-dispatched kind data for generic workspace chrome.
   ///
   /// This is intentionally a small read projection. Add/search continues to
-  /// use [buildReleaseOptions] at its kind-owned boundary, while workspace
-  /// hosts never rehydrate a catalog transport snapshot.
-  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
-    LibraryWorkspaceSource entry,
-  ) =>
-      const [];
-
+  /// use their kind-owned candidate mappers at the add boundary, while workspace
   List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
     LibraryWorkspaceSource entry,
   ) =>
       const [];
 
-  /// Provides the kind-owned title used by the generic Add preview shell.
+  /// Provides the kind-entry title used by the generic Add preview shell.
   String buildAddPreviewTitle({required CatalogSearchCandidate item}) =>
       item.summary.primaryLabel;
 
-  /// Provides the kind-owned catalog description shown by generic Add chrome.
+  /// Provides the kind-entry catalog description shown by generic Add chrome.
   String? buildAddPreviewSynopsis({required CatalogSearchCandidate item}) =>
       null;
 
@@ -265,7 +254,7 @@ abstract class LibraryMediaPresentationBuilder {
     required VoidCallback onBack,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<CollectionItemSummary> ownedCopies,
+    required List<LibraryEntrySummary> libraryEntries,
     required List<WishlistItem> wishlistItems,
     required LibraryEntityWorkspaceProjector projector,
   }) =>

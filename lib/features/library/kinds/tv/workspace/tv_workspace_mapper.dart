@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
-/// Builds the TV-owned workspace graph from the catalog snapshot.
+/// Builds the TV-entry workspace graph from the catalog snapshot.
 ///
 /// Translates the catalog snapshot into the typed TV domain graph used by
 /// workspace fields and hierarchy code.

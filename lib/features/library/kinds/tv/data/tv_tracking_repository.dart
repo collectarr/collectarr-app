@@ -1,25 +1,27 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:drift/drift.dart';
 
-/// Persists TV-specific watch history, episode progress, and custom episodes.
+/// Persists TV-specific watch history and custom episode records.
 ///
-/// The generic collection repositories remain available to older screens, but
-/// TV's typed code uses this repository and never stores its graph through the
-/// shared video persistence models.
+/// The repository stores TV-specific episode activity beside its owning local
+/// library entry. Episode coordinates remain contained details, not separate
+/// collection identities.
 final class TvTrackingRepository {
   TvTrackingRepository(this._db);
 
   final LocalDatabase _db;
 
-  Future<List<TvWatchSession>> listWatchSessions(TvSeriesId seriesId) async {
+  Future<List<TvWatchSession>> listWatchSessions(
+    LibraryEntryRef libraryEntryRef,
+  ) async {
     final rows = await (_db.select(_db.tvWatchSessionRows)
-          ..where((table) => table.seriesId.equals(seriesId.value))
+          ..where(
+              (table) => table.libraryEntryId.equals(libraryEntryRef.id.value))
           ..orderBy([(table) => OrderingTerm.desc(table.watchedAt)]))
         .get();
     return rows
@@ -29,6 +31,11 @@ final class TvTrackingRepository {
   }
 
   Future<void> upsertWatchSession(TvWatchSession session) async {
+    if (session.libraryEntryRef.kind != CatalogMediaKind.tv) {
+      throw ArgumentError(
+        'TV watch session must target its explicit local library entry.',
+      );
+    }
     await _db
         .into(_db.tvWatchSessionRows)
         .insertOnConflictUpdate(_watchSessionCompanion(session));
@@ -41,8 +48,7 @@ final class TvTrackingRepository {
     return upsertWatchSession(
       TvWatchSession(
         id: session.id,
-        seriesId: session.seriesId,
-        targetRef: session.targetRef,
+        libraryEntryRef: session.libraryEntryRef,
         watchedAt: session.watchedAt,
         updatedAt: deletedAt,
         episodeId: session.episodeId,
@@ -58,51 +64,13 @@ final class TvTrackingRepository {
     );
   }
 
-  Future<TvEpisodeProgress?> findEpisodeProgress({
-    required TvSeriesId seriesId,
-    required TvSeasonId seasonId,
-    required TvEpisodeId episodeId,
-  }) async {
-    final row = await (_db.select(_db.tvEpisodeProgressRows)
-          ..where(
-            (table) =>
-                table.seriesId.equals(seriesId.value) &
-                table.seasonId.equals(seasonId.value) &
-                table.episodeId.equals(episodeId.value),
-          ))
-        .getSingleOrNull();
-    return row == null || row.deletedAt != null
-        ? null
-        : _episodeProgressFromRow(row);
-  }
-
-  Future<List<TvEpisodeProgress>> listEpisodeProgress(
-    TvSeriesId seriesId,
-  ) async {
-    final rows = await (_db.select(_db.tvEpisodeProgressRows)
-          ..where((table) => table.seriesId.equals(seriesId.value))
-          ..orderBy([
-            (table) => OrderingTerm.asc(table.seasonNumber),
-            (table) => OrderingTerm.asc(table.episodeNumber),
-          ]))
-        .get();
-    return rows
-        .where((row) => row.deletedAt == null)
-        .map<TvEpisodeProgress>(_episodeProgressFromRow)
-        .toList(growable: false);
-  }
-
-  Future<void> upsertEpisodeProgress(TvEpisodeProgress progress) async {
-    await _db
-        .into(_db.tvEpisodeProgressRows)
-        .insertOnConflictUpdate(_episodeProgressCompanion(progress));
-  }
-
   Future<List<TvCustomEpisode>> listCustomEpisodes(
-    TvSeriesId seriesId,
+    LibraryEntryRef libraryEntryRef,
   ) async {
+    _validateEntryRef(libraryEntryRef, 'custom episode');
     final rows = await (_db.select(_db.tvCustomEpisodeRows)
-          ..where((table) => table.seriesId.equals(seriesId.value))
+          ..where(
+              (table) => table.libraryEntryId.equals(libraryEntryRef.id.value))
           ..orderBy([
             (table) => OrderingTerm.asc(table.seasonNumber),
             (table) => OrderingTerm.asc(table.episodeNumber),
@@ -115,6 +83,7 @@ final class TvTrackingRepository {
   }
 
   Future<void> upsertCustomEpisode(TvCustomEpisode episode) async {
+    _validateEntryRef(episode.libraryEntryRef, 'custom episode');
     await _db
         .into(_db.tvCustomEpisodeRows)
         .insertOnConflictUpdate(_customEpisodeCompanion(episode));
@@ -134,7 +103,7 @@ final class TvTrackingRepository {
     return upsertCustomEpisode(
       TvCustomEpisode(
         id: episode.id,
-        seriesId: episode.seriesId,
+        libraryEntryRef: episode.libraryEntryRef,
         seasonNumber: episode.seasonNumber,
         episodeNumber: episode.episodeNumber,
         title: episode.title,
@@ -155,9 +124,9 @@ final class TvTrackingRepository {
   ) {
     return TvWatchSessionRowsCompanion.insert(
       id: session.id,
-      seriesId: session.seriesId.value,
+      libraryEntryId: session.libraryEntryRef.id.value,
+      libraryEntryRefKey: session.libraryEntryRef.key,
       episodeId: Value(session.episodeId?.value),
-      targetRefJson: Value(jsonEncode(session.targetRef.toJson())),
       trackingEntryId: Value(session.trackingEntryId),
       seasonNumber: Value(session.seasonNumber),
       episodeNumber: Value(session.episodeNumber),
@@ -171,32 +140,12 @@ final class TvTrackingRepository {
     );
   }
 
-  TvEpisodeProgressRowsCompanion _episodeProgressCompanion(
-    TvEpisodeProgress progress,
-  ) {
-    return TvEpisodeProgressRowsCompanion.insert(
-      seriesId: progress.seriesId.value,
-      seasonId: progress.seasonId.value,
-      episodeId: progress.episodeId.value,
-      seasonNumber: Value(progress.seasonNumber),
-      episodeNumber: Value(progress.episodeNumber),
-      watchedCount: Value(progress.watchedCount),
-      completed: Value(progress.completed),
-      lastWatchedAt: Value(progress.lastWatchedAt),
-      rating: Value(progress.rating),
-      notes: Value(progress.notes),
-      updatedAt: progress.updatedAt,
-      deletedAt: Value(progress.deletedAt),
-      rawPayloadJson: Value(jsonEncode(progress.rawPayload)),
-    );
-  }
-
   TvCustomEpisodeRowsCompanion _customEpisodeCompanion(
     TvCustomEpisode episode,
   ) {
     return TvCustomEpisodeRowsCompanion.insert(
       id: episode.id.value,
-      seriesId: episode.seriesId.value,
+      libraryEntryId: episode.libraryEntryRef.id.value,
       seasonNumber: episode.seasonNumber,
       episodeNumber: episode.episodeNumber,
       title: episode.title,
@@ -212,20 +161,17 @@ final class TvTrackingRepository {
   }
 
   TvWatchSession _watchSessionFromRow(TvWatchSessionRow row) {
-    final targetRef = row.targetRefJson;
+    final libraryEntryRef = LibraryEntryRef.fromKey(row.libraryEntryRefKey);
+    if (libraryEntryRef.kind != CatalogMediaKind.tv ||
+        libraryEntryRef.id.value != row.libraryEntryId) {
+      throw FormatException(
+        'TV watch session ${row.id} has a mismatched local entry reference.',
+      );
+    }
     return TvWatchSession(
       id: row.id,
-      seriesId: TvSeriesId(row.seriesId),
+      libraryEntryRef: libraryEntryRef,
       episodeId: row.episodeId == null ? null : TvEpisodeId(row.episodeId!),
-      targetRef: targetRef == null
-          ? CatalogEntityRef(
-              kind: CatalogMediaKind.tv,
-              entityType: CatalogEntityTypeId.catalogItem,
-              id: row.seriesId,
-            )
-          : CatalogEntityRef.fromJson(
-              jsonDecode(targetRef) as Map<String, dynamic>,
-            ),
       trackingEntryId: row.trackingEntryId,
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
@@ -239,28 +185,13 @@ final class TvTrackingRepository {
     );
   }
 
-  TvEpisodeProgress _episodeProgressFromRow(TvEpisodeProgressRow row) {
-    return TvEpisodeProgress(
-      seriesId: TvSeriesId(row.seriesId),
-      seasonId: TvSeasonId(row.seasonId),
-      episodeId: TvEpisodeId(row.episodeId),
-      seasonNumber: row.seasonNumber,
-      episodeNumber: row.episodeNumber,
-      watchedCount: row.watchedCount,
-      completed: row.completed,
-      lastWatchedAt: row.lastWatchedAt,
-      rating: row.rating,
-      notes: row.notes,
-      updatedAt: row.updatedAt,
-      deletedAt: row.deletedAt,
-      rawPayload: _jsonMap(row.rawPayloadJson),
-    );
-  }
-
   TvCustomEpisode _customEpisodeFromRow(TvCustomEpisodeRow row) {
     return TvCustomEpisode(
       id: TvEpisodeId(row.id),
-      seriesId: TvSeriesId(row.seriesId),
+      libraryEntryRef: LibraryEntryRef(
+        kind: CatalogMediaKind.tv,
+        id: LibraryEntryId(row.libraryEntryId),
+      ),
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
       title: row.title,
@@ -274,9 +205,14 @@ final class TvTrackingRepository {
       deletedAt: row.deletedAt,
     );
   }
-}
 
-Map<String, dynamic> _jsonMap(String value) {
-  final decoded = jsonDecode(value);
-  return decoded is Map ? Map<String, dynamic>.from(decoded) : const {};
+  void _validateEntryRef(LibraryEntryRef ref, String recordType) {
+    if (ref.kind != CatalogMediaKind.tv) {
+      throw ArgumentError.value(
+        ref.kind,
+        'libraryEntryRef.kind',
+        'TV $recordType must belong to a TV library entry.',
+      );
+    }
+  }
 }

@@ -1,17 +1,17 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 
 /// Book's semantic contribution to the generic collection CSV host.
 final class BookCollectionCsvProjection
-    with CollectionCsvKindOwnedImportSupport
-    implements CollectionCsvKindProfile, CollectionCsvOwnedCellsDecoder {
+    with CollectionCsvKindEntryImportSupport
+    implements CollectionCsvKindProfile, CollectionCsvEntryCellsDecoder {
   const BookCollectionCsvProjection();
 
   @override
@@ -68,11 +68,11 @@ final class BookCollectionCsvProjection
   }
 
   @override
-  List<String>? importOwnedCells({
+  List<String>? importEntryCells({
     required List<String> header,
     required List<String> values,
   }) {
-    return const BookCollectionCsvImportProfile().importOwnedCells(
+    return const BookCollectionCsvImportProfile().importEntryCells(
       header: header,
       values: values,
     );
@@ -83,11 +83,11 @@ final class BookCollectionCsvProjection
       BookCollectionCsvImportProfile.columnAliases;
 
   @override
-  JsonEncodable? decodeOwnedCells(List<String> cells) {
+  JsonEncodable? decodeEntryCells(List<String> cells) {
     if (cells.isEmpty || cells.first.trim().isEmpty) {
       return null;
     }
-    return _BookCollectionCsvOwnedImportPayload(cells.first.trim());
+    return _BookCollectionCsvEntryImportPayload(cells.first.trim());
   }
 
   @override
@@ -133,31 +133,31 @@ final class BookCollectionCsvProjection
   }
 
   @override
-  String? ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final owned = BookCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is BookCollectionItem ? owned.grade : null;
+  String? entryCollectionValue(LibraryWorkspaceSource entry) {
+    final personalState = BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is BookLibraryEntry ? personalState.grade : null;
   }
 
   @override
-  String? ownedCondition(LibraryWorkspaceSource entry) {
-    final owned = BookCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is BookCollectionItem ? owned.condition : null;
+  String? entryCondition(LibraryWorkspaceSource entry) {
+    final personalState = BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is BookLibraryEntry ? personalState.condition : null;
   }
 
   @override
-  int? ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final owned = BookCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is BookCollectionItem ? owned.indexNumber : null;
+  int? entryIndexNumber(LibraryWorkspaceSource entry) {
+    final personalState = BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is BookLibraryEntry ? personalState.indexNumber : null;
   }
 
   @override
-  String? ownedTags(LibraryWorkspaceSource entry) {
-    final owned = BookCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is BookCollectionItem ? owned.tags : null;
+  String? entryTags(LibraryWorkspaceSource entry) {
+    final personalState = BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is BookLibraryEntry ? personalState.tags : null;
   }
 
   @override
-  List<String> ownedCellsBeforeLocation(
+  List<String> entryCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
@@ -165,12 +165,12 @@ final class BookCollectionCsvProjection
   }
 
   @override
-  List<String> ownedCellsAfterIndex(
+  List<String> entryCellsAfterIndex(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(
-      collectionCsvV1OwnedCellCount,
+      collectionCsvV1EntryCellCount,
       '',
     );
   }
@@ -184,8 +184,8 @@ final class BookCollectionCsvProjection
   }
 }
 
-final class _BookCollectionCsvOwnedImportPayload implements JsonEncodable {
-  const _BookCollectionCsvOwnedImportPayload(this.grade);
+final class _BookCollectionCsvEntryImportPayload implements JsonEncodable {
+  const _BookCollectionCsvEntryImportPayload(this.grade);
 
   final String grade;
 

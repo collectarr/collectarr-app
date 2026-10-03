@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
@@ -40,8 +40,8 @@ typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
   LibraryAddSearchContext context,
 );
 
-typedef LibraryAddOwnedPayloadBuilder<TDraft extends LibraryAddKindDraft>
-    = CollectionItemCreatePayload Function(
+typedef LibraryAddEntryPayloadBuilder<TDraft extends LibraryAddKindDraft>
+    = LibraryEntryCreatePayload Function(
   CatalogSearchCandidate item,
   LibraryAddCommonDraft common,
   TDraft draft,
@@ -171,7 +171,7 @@ abstract interface class LibraryAddCapability<
   TDraft createInitialDraft();
   LibraryKindAddDraft createManualDraft();
 
-  /// Kind-owned validation copy for a manual candidate that could not be
+  /// Kind-entry validation copy for a manual candidate that could not be
   /// created. The generic host renders this value but never infers a kind
   /// name or entity terminology itself.
   String get manualCandidateValidationMessage =>
@@ -210,14 +210,14 @@ abstract interface class LibraryAddCapability<
     LibraryAddPreviewPaneRequest request,
   );
 
-  AddCollectionItemCommand buildCommand(
+  AddLibraryEntryCommand buildCommand(
     CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
     LibraryAddKindDraft draft, {
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   });
 
-  AddCollectionItemCommand buildCommandFromDetails(
+  AddLibraryEntryCommand buildCommandFromDetails(
     CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
     JsonEncodable details, {
@@ -251,7 +251,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.previewPaneBuilder,
     this.chrome = const LibraryAddChromeConfig(),
     required this.search,
-    this.ownedPayloadBuilder,
+    this.entryPayloadBuilder,
     this.digitalCopyFlagBuilder,
     required this.coreCatalogProjectionBuilder,
     this.resultPolicy = const LibraryAddResultPolicy.identity(),
@@ -273,7 +273,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddChromeConfig chrome;
   @override
   final LibraryAddSearchCapability search;
-  final LibraryAddOwnedPayloadBuilder<TDraft>? ownedPayloadBuilder;
+  final LibraryAddEntryPayloadBuilder<TDraft>? entryPayloadBuilder;
   final LibraryAddDigitalCopyFlagBuilder? digitalCopyFlagBuilder;
   final LibraryAddCoreCatalogProjection coreCatalogProjectionBuilder;
   @override
@@ -340,7 +340,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     );
   }
 
-  CollectionItemCreatePayload _buildOwnedPayload(
+  LibraryEntryCreatePayload _buildEntryPayload(
     CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
     TDraft draft,
@@ -348,7 +348,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     String? kindValue,
   }) {
     try {
-      final payload = ownedPayloadBuilder?.call(
+      final payload = entryPayloadBuilder?.call(
         item,
         common,
         draft,
@@ -357,20 +357,20 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       );
       if (payload == null) {
         throw StateError(
-          'Kind ${kind.apiValue} must provide an owned create payload.',
+          'Kind ${kind.apiValue} must provide an entry create payload.',
         );
       }
       return payload;
     } on TypeError catch (error) {
       throw StateError(
-        'Kind ${kind.apiValue} received details owned by another kind: '
+        'Kind ${kind.apiValue} received details entry by another kind: '
         '$error',
       );
     }
   }
 
   @override
-  AddCollectionItemCommand buildCommand(
+  AddLibraryEntryCommand buildCommand(
     CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
     LibraryAddKindDraft draft, {
@@ -380,17 +380,17 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       draft,
       operation: 'build an add command',
     );
-    final details = effectiveDraft.toOwnedDetailsDraft();
-    final typedPayload = _buildOwnedPayload(
+    final details = effectiveDraft.toEntryDetailsDraft();
+    final typedPayload = _buildEntryPayload(
       item,
       common,
       effectiveDraft,
       details,
     );
-    return AddCollectionItemCommand(
+    return AddLibraryEntryCommand(
       catalogRef: item.reference,
       typedPayload: typedPayload,
-      tracking: CollectionItemTrackingDraft(
+      tracking: LibraryEntryTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
         rating: tracking.rating,
         startedAt: tracking.startedAt,
@@ -401,7 +401,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   }
 
   @override
-  AddCollectionItemCommand buildCommandFromDetails(
+  AddLibraryEntryCommand buildCommandFromDetails(
     CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
     JsonEncodable details, {
@@ -413,17 +413,17 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       draft,
       operation: 'build an add command from details',
     );
-    final typedPayload = _buildOwnedPayload(
+    final typedPayload = _buildEntryPayload(
       item,
       common,
       effectiveDraft,
       details,
       kindValue: kindValue,
     );
-    return AddCollectionItemCommand(
+    return AddLibraryEntryCommand(
       catalogRef: item.reference,
       typedPayload: typedPayload,
-      tracking: CollectionItemTrackingDraft(
+      tracking: LibraryEntryTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
         rating: tracking.rating,
         startedAt: tracking.startedAt,

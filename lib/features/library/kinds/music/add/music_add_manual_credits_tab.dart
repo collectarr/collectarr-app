@@ -124,14 +124,27 @@ final class _MusicAddManualCreditsTabState
               Row(
                 children: [
                   Expanded(
-                    child: TextFormField(
-                      key: ValueKey('music-add-credit-${credit.id}'),
-                      initialValue: credit.name,
-                      decoration: InputDecoration(
-                        labelText: group.label,
-                        isDense: true,
-                      ),
-                      onChanged: (value) => credit.name = value,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          key: ValueKey('music-add-credit-${credit.id}'),
+                          initialValue: credit.name,
+                          decoration: InputDecoration(
+                            labelText: group.label,
+                            isDense: true,
+                          ),
+                          onChanged: (value) => credit.name = value,
+                        ),
+                        TextFormField(
+                          key: ValueKey('music-add-credit-sort-${credit.id}'),
+                          initialValue: credit.sortName,
+                          decoration: const InputDecoration(
+                            labelText: 'Sort name',
+                            isDense: true,
+                          ),
+                          onChanged: (value) => credit.sortName = value,
+                        ),
+                      ],
                     ),
                   ),
                   if (group.instrument) ...[

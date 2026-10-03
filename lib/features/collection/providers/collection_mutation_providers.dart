@@ -9,11 +9,11 @@ import 'package:collectarr_app/features/collection/events/collection_event_bus.d
 import 'package:collectarr_app/features/collection/mutations/collection_import_orchestrator.dart';
 import 'package:collectarr_app/features/collection/mutations/catalog_transport_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/metadata_override_mutations.dart';
-import 'package:collectarr_app/features/collection/mutations/collection_item_mutations.dart';
+import 'package:collectarr_app/features/collection/mutations/library_entry_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/watch_session_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
@@ -31,8 +31,9 @@ final syncQueueRepositoryProvider = Provider<SyncQueueRepository>((ref) {
   return SyncQueueRepository(ref.watch(localDatabaseProvider));
 });
 
-final collectionItemsRepositoryProvider = Provider<CollectionItemsRepository>((ref) {
-  return CollectionItemsRepository(ref.watch(localDatabaseProvider));
+final libraryEntriesRepositoryProvider =
+    Provider<LibraryEntriesRepository>((ref) {
+  return LibraryEntriesRepository(ref.watch(localDatabaseProvider));
 });
 
 final wishlistItemsCacheRepositoryProvider =
@@ -89,7 +90,7 @@ final collectionMutationRunnerProvider =
       ref.invalidate(collectionProvider);
       ref.invalidate(collectionSummariesProvider);
       ref.invalidate(trackingSummariesProvider);
-      ref.invalidate(trackingSummariesByCatalogRefProvider);
+      ref.invalidate(trackingSummariesByLibraryEntryRefProvider);
       ref.invalidate(trackingUnitsProvider);
       ref.invalidate(wishlistRefsProvider);
       ref.invalidate(wishlistProvider);
@@ -104,16 +105,17 @@ final collectionMutationRunnerProvider =
   );
 });
 
-final collectionItemMutationsProvider = Provider<CollectionItemMutations>((ref) {
+final libraryEntryMutationsProvider = Provider<LibraryEntryMutations>((ref) {
   final auth = ref.watch(authControllerProvider);
-  return CollectionItemMutations(
-    collectionItems: ref.watch(collectionItemsRepositoryProvider),
+  return LibraryEntryMutations(
+    libraryEntries: ref.watch(libraryEntriesRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
     catalogSummaries: CatalogDisplaySummaryRepository(
       ref.watch(localDatabaseProvider),
     ),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
+    trackingMutations: ref.watch(trackingMutationsProvider),
     userId: auth.userId,
     userEmail: auth.email,
   );
@@ -140,7 +142,7 @@ final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
     trackingRecords: ref.watch(trackingRecordRepositoryProvider),
     trackingUnits: ref.watch(trackingUnitStorageRepositoryProvider),
     watchSessions: ref.watch(watchSessionRepositoryProvider),
-    collectionItems: ref.watch(collectionItemsRepositoryProvider),
+    libraryEntries: ref.watch(libraryEntriesRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -166,7 +168,7 @@ final metadataOverrideMutationsProvider =
 final collectionImportOrchestratorProvider =
     Provider<CollectionImportOrchestrator>((ref) {
   return CollectionImportOrchestrator(
-    collectionItems: ref.watch(collectionItemsRepositoryProvider),
+    libraryEntries: ref.watch(libraryEntriesRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
     catalogTransport: ref.watch(catalogTransportRepositoryProvider),
     catalogSummaries: CatalogDisplaySummaryRepository(
@@ -185,7 +187,7 @@ final collectionImportOrchestratorProvider =
 final collectionCommandCoordinatorProvider =
     Provider<CollectionCommandCoordinator>((ref) {
   return CollectionCommandCoordinator(
-    ownedMutations: ref.watch(collectionItemMutationsProvider),
+    entryMutations: ref.watch(libraryEntryMutationsProvider),
     trackingMutations: ref.watch(trackingMutationsProvider),
   );
 });

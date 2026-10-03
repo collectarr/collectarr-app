@@ -11,25 +11,25 @@ TransferableField bookTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(BookCollectionItem item) read,
-  required BookCollectionItem Function(BookCollectionItem item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.collectionItem,
+  required String? Function(BookLibraryEntry item) read,
+  required BookLibraryEntry Function(BookLibraryEntry item, String? value) write,
+  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
-  return TransferableField.typed<BookCollectionItem>(
+  return TransferableField.typed<BookLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
     scope: scope,
-    decode: (value) => value as BookCollectionItem,
+    decode: (value) => value as BookLibraryEntry,
     read: read,
     write: write,
   );
 }
 
 final bookUniversalTransferableFields =
-    TransferableField.universalForTyped<BookCollectionItem>(
-  decode: (value) => value as BookCollectionItem,
+    TransferableField.universalForTyped<BookLibraryEntry>(
+  decode: (value) => value as BookLibraryEntry,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,
@@ -90,7 +90,7 @@ final bookTransferableFields = <TransferableField>[
     label: 'Dust jacket',
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
@@ -103,7 +103,7 @@ final bookTransferableFields = <TransferableField>[
     label: 'Dust jacket condition',
     icon: Icons.grade_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.collectionItem,
+    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.dustJacketCondition,
     write: (item, value) {
       return item.copyWith(

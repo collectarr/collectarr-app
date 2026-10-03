@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -31,7 +31,7 @@ class LibraryProjectionRequest {
     required this.customFieldValuesByItem,
     required this.customFieldValuesByDefinitionByItem,
     this.customFieldDefinitions = const [],
-    required this.activeLoanCollectionItemIds,
+    required this.activeLoanLibraryEntryIds,
     required this.searchTarget,
   });
 
@@ -52,7 +52,7 @@ class LibraryProjectionRequest {
   final Map<String, List<String>> customFieldValuesByItem;
   final Map<String, Map<String, String>> customFieldValuesByDefinitionByItem;
   final List<CustomFieldDefinition> customFieldDefinitions;
-  final Set<CollectionItemRef> activeLoanCollectionItemIds;
+  final Set<LibraryEntryRef> activeLoanLibraryEntryIds;
   final LibrarySearchTarget searchTarget;
 
   @override
@@ -81,7 +81,7 @@ class LibraryProjectionRequest {
           other.customFieldValuesByDefinitionByItem,
         ) &&
         listEquals(customFieldDefinitions, other.customFieldDefinitions) &&
-        setEquals(activeLoanCollectionItemIds, other.activeLoanCollectionItemIds) &&
+        setEquals(activeLoanLibraryEntryIds, other.activeLoanLibraryEntryIds) &&
         searchTarget == other.searchTarget;
   }
 
@@ -104,7 +104,7 @@ class LibraryProjectionRequest {
         _stringListMapHash(customFieldValuesByItem),
         _stringNestedMapHash(customFieldValuesByDefinitionByItem),
         Object.hashAll(customFieldDefinitions),
-        Object.hashAll(activeLoanCollectionItemIds.toList(growable: false)),
+        Object.hashAll(activeLoanLibraryEntryIds.toList(growable: false)),
         searchTarget,
       ]);
 }
@@ -193,7 +193,7 @@ final libraryProjectionProvider = Provider.autoDispose
     customFieldValuesByItem: request.customFieldValuesByItem,
     customFieldValuesByDefinitionByItem:
         request.customFieldValuesByDefinitionByItem,
-    activeLoanCollectionItemIds: request.activeLoanCollectionItemIds,
+    activeLoanLibraryEntryIds: request.activeLoanLibraryEntryIds,
     searchTarget: request.searchTarget,
   );
 });

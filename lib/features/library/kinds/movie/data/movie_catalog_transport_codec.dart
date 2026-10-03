@@ -14,9 +14,7 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadat
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 
 final class MovieCatalogTransportCodec
-    implements
-        CatalogKindTransportCodec<MovieCatalogMetadata>,
-        CatalogSharedCachePrimaryStore {
+    implements CatalogKindTransportCodec<MovieCatalogMetadata> {
   const MovieCatalogTransportCodec();
 
   @override
@@ -117,11 +115,6 @@ final class MovieCatalogTransportCodec
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
-
-  @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return CatalogItemCacheRepository(db).upsert(item);
-  }
 
   @override
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db) =>

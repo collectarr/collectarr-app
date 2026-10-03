@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 
-/// Maps the flat Core TV Catalog Item response into TV-owned contained data.
+/// Maps the flat Core TV Catalog Item response into TV-entry contained data.
 final class TvCoreMapper {
   const TvCoreMapper._();
 

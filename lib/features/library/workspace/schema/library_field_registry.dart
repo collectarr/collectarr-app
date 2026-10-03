@@ -36,7 +36,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
   /// Returns the registry view exposed to generic workspace code.
   ///
-  /// Kind-owned definitions retain their concrete DTO callback types. The
+  /// Kind-entry definitions retain their concrete DTO callback types. The
   /// generic host receives a structural registry whose callbacks validate and
   /// adapt the already-projected [LibraryWorkspaceDto] instead of asking the
   /// host to cast the kind DTO itself.
@@ -124,7 +124,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
             category: group.category,
             entityScope: group.entityScope,
             bucketValueMutator: group.bucketValueMutator,
-            ownedBucketValueMutator: group.ownedBucketValueMutator,
+            entryBucketValueMutator: group.entryBucketValueMutator,
             getValue: (context) => group.getValue(typedContext(context)),
           ),
       ],
@@ -270,7 +270,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     final normalized = trimmed.startsWith('group.')
         ? trimmed.substring('group.'.length)
         : trimmed;
-    // Prefer the kind-owned definition before collapsing a namespaced
+    // Prefer the kind-entry definition before collapsing a namespaced
     // semantic alias to the structural shared ID. A book.location group must
     // resolve to the Book registry entry, not the generic `location` ID.
     final direct = _findGroupDefinitionByValue(normalized);
@@ -284,7 +284,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     final sharedGroup = switch (normalized) {
       'title' => LibraryStandardGroupIds.title,
       'location' => LibraryStandardGroupIds.location,
-      'ownership' => LibraryStandardGroupIds.ownership,
+      'entries' => LibraryStandardGroupIds.entries,
       _ when normalized == '$kindNamespace.location' =>
         LibraryStandardGroupIds.location,
       _ => null,

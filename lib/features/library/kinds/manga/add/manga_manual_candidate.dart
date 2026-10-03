@@ -22,6 +22,7 @@ CatalogSearchCandidate? buildMangaManualCandidate(
     CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.manga),
       kindData: metadata,
+      origin: CatalogItemOrigin.privateLocal,
     ),
   );
 }

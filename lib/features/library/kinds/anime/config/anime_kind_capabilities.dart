@@ -52,10 +52,6 @@ final animeKindPhysicalMediaFormats = animePhysicalMediaFormats;
 
 final animeKindTrackingProfile = animeTrackingProfile;
 
-final animeKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final animeKindCatalogTarget = const AnimeCatalogTargetCapability();
-
 final LibraryRelationCapability? animeKindRelations = null;
 
 final LibraryValueCapability? animeKindValue = null;
@@ -92,22 +88,21 @@ final animeKindHierarchy = const LibraryHierarchyCapability(
 );
 
 final animeKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Catalog Item', plural: 'Catalog Items'),
-  release: LibraryEntityLabel(singular: 'Release', plural: 'Releases'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+  catalogItem:
+      LibraryEntityLabel(singular: 'Catalog Item', plural: 'Catalog Items'),
+  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final animeKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.watch,
   writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
+  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
   contentTargets: {LibraryTrackingTargetScope.content},
 );
 
 final animeKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet(),
-  copy: LibraryEntityActionSet.copy,
+  catalogItem: LibraryEntityActionSet.catalogItem,
+  libraryEntry: LibraryEntityActionSet.libraryEntry,
 );
 
 final animeKindInspector = LibraryInspectorCapability(
@@ -119,7 +114,7 @@ final animeKindInspector = LibraryInspectorCapability(
         sectionsBuilder: buildAnimeWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.collectionItem,
+        scope: LibraryEntityScope.libraryEntry,
         heroBuilder: buildAnimeCopyInspectorHero,
         sectionsBuilder: buildAnimeCopyInspectorSections,
       ),

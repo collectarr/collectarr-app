@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_cont
 import 'package:flutter/material.dart';
 
 abstract class AnimeEditDraftContract
-    implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
+    implements LibraryCatalogItemEditSession, LibraryEntryEditSession {
   TextEditingController get audioTracksController;
   TextEditingController get subtitlesController;
   TextEditingController get layersController;

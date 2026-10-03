@@ -336,11 +336,11 @@ class LibrarySidebarBucketStatusPanel extends StatelessWidget {
             ? null
             : () => onScopeSelected!(LibraryCollectionStatusScope.all),
       ),
-      if (summary.ownedCount > 0)
+      if (summary.entryCount > 0)
         _LibrarySidebarStatusEntry(
           icon: Icons.inventory_2_outlined,
-          label: 'Owned',
-          count: summary.ownedCount,
+          label: 'Entry',
+          count: summary.entryCount,
           selected: selectedScope == LibraryCollectionStatusScope.inCollection,
           accent: libraryCollectionStatusScopeColor(
             LibraryCollectionStatusScope.inCollection,

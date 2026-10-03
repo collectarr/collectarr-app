@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-/// Structural identity for a kind-owned tracking unit in mixed infrastructure.
+/// Structural identity for a kind-entry tracking unit in mixed infrastructure.
 final class TrackingUnitRef {
   const TrackingUnitRef({
     required this.kind,

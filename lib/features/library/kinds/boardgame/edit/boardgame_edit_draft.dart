@@ -1,18 +1,18 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_collection_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_collection_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -33,10 +33,10 @@ enum BoardGameCanonicalEditField {
 class BoardGameEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
-        LibraryCopyEditSessionDefaults
-    implements LibraryCatalogItemEditSession, LibraryCopyEditSession {
+        LibraryEntryEditSessionDefaults
+    implements LibraryCatalogItemEditSession, LibraryEntryEditSession {
   BoardGameEditDraft({
-    this.collectionItem,
+    this.libraryEntry,
     this.editionLanguage,
     this.editionRegion,
     this.componentCondition,
@@ -91,7 +91,7 @@ class BoardGameEditDraft
     required this.releaseDateController,
   });
 
-  final BoardGameCollectionItem? collectionItem;
+  final BoardGameLibraryEntry? libraryEntry;
 
   String? editionLanguage;
   String? editionRegion;
@@ -147,7 +147,7 @@ class BoardGameEditDraft
   final TextEditingController releaseYearController;
 
   @override
-  JsonEncodable toDetailsDraft() => BoardgameOwnedDetailsDraft(
+  JsonEncodable toDetailsDraft() => BoardgameEntryDetailsDraft(
         editionLanguage: editionLanguage,
         editionRegion: editionRegion,
         componentCondition: componentCondition,
@@ -161,7 +161,7 @@ class BoardGameEditDraft
 
   @override
   void initializePersonalState(PersonalStateDraft personal) {
-    final item = collectionItem;
+    final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.ownerLabel ?? '';
     personal.conditionController.text = item.condition ?? '';
@@ -189,11 +189,11 @@ class BoardGameEditDraft
   }
 
   @override
-  BoardgameCollectionItemUpdatePayload buildOwnedUpdatePayload({
-    required CollectionItemRef collectionItemRef,
+  BoardgameLibraryEntryUpdatePayload buildEntryUpdatePayload({
+    required LibraryEntryRef libraryEntryRef,
     required PersonalStateDraft personal,
   }) {
-    return BoardgameCollectionItemUpdatePayload(
+    return BoardgameLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -236,7 +236,7 @@ class BoardGameEditDraft
       soldTo: personal.soldToController.text.trim().isEmpty
           ? const Patch.clear()
           : Patch.set(personal.soldToController.text.trim()),
-      details: Patch.set(toDetailsDraft() as BoardgameOwnedDetailsDraft),
+      details: Patch.set(toDetailsDraft() as BoardgameEntryDetailsDraft),
     );
   }
 
@@ -728,12 +728,12 @@ Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
 
 LibraryEditSessionBundle createBoardGameEditDraft({
   required CatalogSearchCandidate item,
-  LibraryCollectionItemDispatch? collectionItemDispatch,
+  LibraryEntryDispatch? libraryEntryDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = BoardGameCollectionItemProjection.fromDispatch(collectionItemDispatch);
-  final bg = owned?.details;
+  final entry = BoardGameLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
+  final bg = entry?.details;
   final meta = item.kindCapability.mapTransport(
               (transport) => BoardGameMetadata.fromJson(transport.kindData))
           is BoardGameMetadata
@@ -742,7 +742,7 @@ LibraryEditSessionBundle createBoardGameEditDraft({
           as BoardGameMetadata
       : null;
   final draft = BoardGameEditDraft(
-    collectionItem: owned,
+    libraryEntry: entry,
     editionLanguage: bg?.editionLanguage,
     editionRegion: bg?.editionRegion,
     componentCondition: bg?.componentCondition,
@@ -895,7 +895,7 @@ LibraryEditSessionBundle createBoardGameEditDraft({
   );
   return LibraryEditSessionBundle(
     catalogItemSession: draft,
-    copySession: draft,
+    entrySession: draft,
     disposeSession: draft.dispose,
   );
 }

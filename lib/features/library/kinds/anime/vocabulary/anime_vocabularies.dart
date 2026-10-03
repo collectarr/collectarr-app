@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
 
 abstract final class AnimeVocabularyIds {
   static const condition = VocabularyId<String>('anime.condition');
@@ -21,50 +21,50 @@ abstract final class AnimeVocabularyIds {
 }
 
 abstract final class AnimeVocabularies {
-  static Future<int> countOwnedValue(
+  static Future<int> countEntryValue(
     LocalDatabase db,
     String semanticName,
     String normalizedValue,
   ) {
-    return countPickListOwnedValues(
-      items: AnimeOwnedRepository(db).listActive(),
+    return countPickListEntryValues(
+      items: AnimeEntryRepository(db).listActive(),
       normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
     );
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: AnimeOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: AnimeEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: AnimeOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: AnimeEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: AnimeOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: AnimeEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static AnimeCollectionItem _replaceOwnedValue(
-    AnimeCollectionItem item,
+  static AnimeLibraryEntry _replaceEntryValue(
+    AnimeLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
@@ -98,11 +98,11 @@ abstract final class AnimeVocabularies {
     };
     if (key == null) return item;
     final details = item.details.toJson()..[key] = targetValue;
-    return item.copyWith(details: AnimeOwnedDetails.fromJson(details));
+    return item.copyWith(details: AnimeEntryDetails.fromJson(details));
   }
 
-  static Iterable<String?> _ownedValues(
-    AnimeCollectionItem item,
+  static Iterable<String?> _entryValues(
+    AnimeLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {

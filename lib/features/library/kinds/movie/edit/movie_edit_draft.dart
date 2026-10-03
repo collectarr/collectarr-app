@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_collection_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -11,10 +11,10 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_collection_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -37,10 +37,10 @@ enum MovieCanonicalEditField {
 class MovieEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
-        LibraryCopyEditSessionDefaults
+        LibraryEntryEditSessionDefaults
     implements MovieEditDraftContract {
   MovieEditDraft({
-    this.collectionItem,
+    this.libraryEntry,
     required this.featuresController,
     required this.boxSetNameController,
     required this.regionController,
@@ -56,7 +56,7 @@ class MovieEditDraft
     required this.movieEdit,
   });
 
-  final MovieCollectionItem? collectionItem;
+  final MovieLibraryEntry? libraryEntry;
 
   @override
   final TextEditingController featuresController;
@@ -87,7 +87,7 @@ class MovieEditDraft
   final MovieEditController movieEdit;
 
   @override
-  JsonEncodable toDetailsDraft() => MovieOwnedDetailsDraft(
+  JsonEncodable toDetailsDraft() => MovieEntryDetailsDraft(
         features: emptyToNull(featuresController.text),
         hdrFormats: hdrFormats,
         boxSetName: emptyToNull(boxSetNameController.text),
@@ -98,7 +98,7 @@ class MovieEditDraft
 
   @override
   void initializePersonalState(PersonalStateDraft personal) {
-    final item = collectionItem;
+    final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.ownerLabel ?? '';
     personal.conditionController.text = item.condition ?? '';
@@ -126,11 +126,11 @@ class MovieEditDraft
   }
 
   @override
-  MovieCollectionItemUpdatePayload buildOwnedUpdatePayload({
-    required CollectionItemRef collectionItemRef,
+  MovieLibraryEntryUpdatePayload buildEntryUpdatePayload({
+    required LibraryEntryRef libraryEntryRef,
     required PersonalStateDraft personal,
   }) {
-    return MovieCollectionItemUpdatePayload(
+    return MovieLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -173,7 +173,7 @@ class MovieEditDraft
       soldTo: personal.soldToController.text.trim().isEmpty
           ? const Patch.clear()
           : Patch.set(personal.soldToController.text.trim()),
-      details: Patch.set(toDetailsDraft() as MovieOwnedDetailsDraft),
+      details: Patch.set(toDetailsDraft() as MovieEntryDetailsDraft),
     );
   }
 
@@ -387,12 +387,12 @@ class MovieEditDraft
 
 LibraryEditSessionBundle createMovieEditDraft({
   required CatalogSearchCandidate item,
-  LibraryCollectionItemDispatch? collectionItemDispatch,
+  LibraryEntryDispatch? libraryEntryDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = MovieCollectionItemProjection.fromDispatch(collectionItemDispatch);
-  final video = owned?.details;
+  final entry = MovieLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
+  final video = entry?.details;
   final metadata = item.kindCapability.mapTransport(
       (transport) => MovieCatalogMetadata.fromJson(transport.kindData));
   final movie = metadata is MovieCatalogMetadata ? metadata : null;
@@ -434,7 +434,7 @@ LibraryEditSessionBundle createMovieEditDraft({
   movieEdit.initializeMovieEditors();
 
   final draft = MovieEditDraft(
-    collectionItem: owned,
+    libraryEntry: entry,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
     regionController: textControllers.create(text: video?.region ?? ''),
@@ -455,7 +455,7 @@ LibraryEditSessionBundle createMovieEditDraft({
   );
   return LibraryEditSessionBundle(
     catalogItemSession: draft,
-    copySession: draft,
+    entrySession: draft,
     disposeSession: draft.dispose,
   );
 }

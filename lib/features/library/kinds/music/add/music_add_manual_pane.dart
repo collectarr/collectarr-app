@@ -24,6 +24,7 @@ class MusicAddManualPane extends StatelessWidget {
         for (final field in section.fields) field.id: field,
     };
     const mainFieldIds = [
+      'title',
       'release_date',
       'original_release_date',
       'sort_title',
@@ -75,6 +76,7 @@ class MusicAddManualPane extends StatelessWidget {
 
     return LibraryAddManualPaneShell(
       request: request,
+      showCatalogTitleField: false,
       tabs: [
         LibraryAddManualPaneTab(
           label: 'Main',
@@ -85,6 +87,7 @@ class MusicAddManualPane extends StatelessWidget {
             mediaKind: request.kind.apiValue,
             onVocabularyValueChanged: request.onVocabularyValueChanged,
             onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+            onChanged: request.onManualDraftChanged,
           ),
         ),
         LibraryAddManualPaneTab(
@@ -96,6 +99,7 @@ class MusicAddManualPane extends StatelessWidget {
             mediaKind: request.kind.apiValue,
             onVocabularyValueChanged: request.onVocabularyValueChanged,
             onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+            onChanged: request.onManualDraftChanged,
           ),
         ),
         LibraryAddManualPaneTab(

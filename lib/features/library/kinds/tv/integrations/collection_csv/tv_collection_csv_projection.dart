@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
@@ -12,10 +12,10 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_
 ///
 /// TV owns series/release metadata and the Network label. Seasons and
 /// episodes remain typed TV hierarchy and are not flattened into generic
-/// collection-owned fields.
+/// collection-personalState fields.
 final class TvCollectionCsvProjection
-    with CollectionCsvKindOwnedImportSupport
-    implements CollectionCsvKindProfile, CollectionCsvOwnedCellsDecoder {
+    with CollectionCsvKindEntryImportSupport
+    implements CollectionCsvKindProfile, CollectionCsvEntryCellsDecoder {
   const TvCollectionCsvProjection();
 
   @override
@@ -72,11 +72,11 @@ final class TvCollectionCsvProjection
   }
 
   @override
-  List<String>? importOwnedCells({
+  List<String>? importEntryCells({
     required List<String> header,
     required List<String> values,
   }) {
-    return const TvCollectionCsvImportProfile().importOwnedCells(
+    return const TvCollectionCsvImportProfile().importEntryCells(
       header: header,
       values: values,
     );
@@ -87,11 +87,11 @@ final class TvCollectionCsvProjection
       TvCollectionCsvImportProfile.columnAliases;
 
   @override
-  JsonEncodable? decodeOwnedCells(List<String> cells) {
+  JsonEncodable? decodeEntryCells(List<String> cells) {
     if (cells.isEmpty || cells.first.trim().isEmpty) {
       return null;
     }
-    return _TvCollectionCsvOwnedImportPayload(cells.first.trim());
+    return _TvCollectionCsvEntryImportPayload(cells.first.trim());
   }
 
   @override
@@ -143,31 +143,31 @@ final class TvCollectionCsvProjection
   }
 
   @override
-  String? ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final owned = TvCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is TvCollectionItem ? owned.grade : null;
+  String? entryCollectionValue(LibraryWorkspaceSource entry) {
+    final personalState = TvLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is TvLibraryEntry ? personalState.grade : null;
   }
 
   @override
-  String? ownedCondition(LibraryWorkspaceSource entry) {
-    final owned = TvCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is TvCollectionItem ? owned.condition : null;
+  String? entryCondition(LibraryWorkspaceSource entry) {
+    final personalState = TvLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is TvLibraryEntry ? personalState.condition : null;
   }
 
   @override
-  int? ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final owned = TvCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is TvCollectionItem ? owned.indexNumber : null;
+  int? entryIndexNumber(LibraryWorkspaceSource entry) {
+    final personalState = TvLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is TvLibraryEntry ? personalState.indexNumber : null;
   }
 
   @override
-  String? ownedTags(LibraryWorkspaceSource entry) {
-    final owned = TvCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is TvCollectionItem ? owned.tags : null;
+  String? entryTags(LibraryWorkspaceSource entry) {
+    final personalState = TvLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is TvLibraryEntry ? personalState.tags : null;
   }
 
   @override
-  List<String> ownedCellsBeforeLocation(
+  List<String> entryCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
@@ -175,12 +175,12 @@ final class TvCollectionCsvProjection
   }
 
   @override
-  List<String> ownedCellsAfterIndex(
+  List<String> entryCellsAfterIndex(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(
-      collectionCsvV1OwnedCellCount,
+      collectionCsvV1EntryCellCount,
       '',
     );
   }
@@ -194,8 +194,8 @@ final class TvCollectionCsvProjection
   }
 }
 
-final class _TvCollectionCsvOwnedImportPayload implements JsonEncodable {
-  const _TvCollectionCsvOwnedImportPayload(this.grade);
+final class _TvCollectionCsvEntryImportPayload implements JsonEncodable {
+  const _TvCollectionCsvEntryImportPayload(this.grade);
 
   final String grade;
 

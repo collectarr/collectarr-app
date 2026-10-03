@@ -10,11 +10,11 @@ final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
         expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
-      scope: LibraryEntityScope.collectionItem,
-      fields: boardgameCopyWorkspaceSchema.toRegistry(),
+    LibraryEntityScope.libraryEntry: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
+      scope: LibraryEntityScope.libraryEntry,
+      fields: boardgameLibraryEntryWorkspaceSchema.toRegistry(),
       projector: const BoardGameWorkspaceProjector(
-        expectedScope: LibraryEntityScope.collectionItem,
+        expectedScope: LibraryEntityScope.libraryEntry,
       ),
     ),
   },

@@ -35,7 +35,7 @@ const _mangaCombinedTabs = [
     sectionIds: [
       'tracking_personal',
       'wishlist_reference',
-      'owned_notes',
+      'entry_notes',
       'collection_fields_info',
     ],
   ),
@@ -64,10 +64,10 @@ const _mangaCombinedTabs = [
     sectionIds: ['cover_images'],
   ),
   LibraryEditTabSpec(
-    id: 'owned',
+    id: 'entry',
     icon: Icons.inventory_2,
-    label: 'Owned',
-    sectionIds: ['manga_owned'],
+    label: 'Entry',
+    sectionIds: ['manga_entry'],
   ),
 ];
 
@@ -75,15 +75,15 @@ class MangaLibraryEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const MangaLibraryEditPresentationBuilder()
       : super(
-          useOwnedMainArtworkLayout: true,
+          useEntryMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
           trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _mangaCombinedTabs,
+          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _mangaCombinedTabs,
           trackedTabs: _mangaCombinedTabs,
           catalogTabs: _mangaCombinedTabs,
           customTabBuilder: buildMangaCustomTabView,

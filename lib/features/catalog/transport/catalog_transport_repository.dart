@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
@@ -24,7 +25,7 @@ final class CatalogTransportRepository {
   final LocalDatabase _db;
   final Map<CatalogMediaKind, CatalogKindTransportBoundary> _codecs;
 
-  /// Persists kind-owned import snapshots at the catalog transport boundary.
+  /// Persists kind-entry import snapshots at the catalog transport boundary.
   Future<void> upsertTransports(
     Iterable<CatalogImportTransport> transports,
   ) {
@@ -40,6 +41,16 @@ final class CatalogTransportRepository {
     return CatalogItemDto.fromJson({...payload, 'id': id});
   }
 
+  Future<CatalogItemDto?> findCatalogItem(CatalogEntityRef ref) {
+    return CatalogItemCacheRepository(_db).find(ref.toCatalogItemRef());
+  }
+
+  /// Cleans up a transient private Add candidate once its full catalog data is
+  /// owned by a local Library Entry.
+  Future<void> removePrivateCandidate(CatalogEntityRef ref) =>
+      CatalogItemCacheRepository(_db)
+          .removePrivateCandidate(ref.toCatalogItemRef());
+
   CatalogImportTransport transportFromSyncPayload({
     required String id,
     required Map<String, dynamic> payload,
@@ -52,12 +63,13 @@ final class CatalogTransportRepository {
   Future<void> upsertTransportItems(
     Iterable<CatalogItemDto> items, {
     bool captureDerivedData = true,
+    bool forceCacheUpdate = false,
   }) async {
     final catalogItems = items.toList(growable: false);
     if (catalogItems.isEmpty) return;
 
     for (final item in catalogItems) {
-      await _upsertItem(item);
+      await _upsertItem(item, forceCacheUpdate: forceCacheUpdate);
     }
     if (captureDerivedData) {
       await _captureDerivedData(catalogItems);
@@ -86,21 +98,19 @@ final class CatalogTransportRepository {
     });
   }
 
-  Future<void> _upsertItem(CatalogItemDto item) async {
+  Future<void> _upsertItem(
+    CatalogItemDto item, {
+    required bool forceCacheUpdate,
+  }) async {
     final codec = _codecs[item.mediaKind];
     if (codec == null) {
       throw StateError(
         'Cannot persist catalog item without a supported kind: ${item.kind}',
       );
     }
-    await _db.transaction(() async {
-      await CatalogItemCacheRepository(_db).upsert(item);
-      if (codec is! CatalogSharedCachePrimaryStore) {
-        // Unconverted kinds still have active readers of their per-kind
-        // repositories. Flat kinds opt into the shared cache as their sole
-        // local catalog store and avoid a second Media/Work/Release graph.
-        await codec.upsertTransport(_db, item);
-      }
-    });
+    await _db.transaction(() => CatalogItemCacheRepository(_db).upsert(
+          item,
+          force: forceCacheUpdate,
+        ));
   }
 }

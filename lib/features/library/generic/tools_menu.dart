@@ -275,7 +275,7 @@ void _showGenericStatsDialog(
             children: [
               _StatsChip('Shown', counts.shown),
               _StatsChip('Total', counts.total),
-              _StatsChip('Owned', counts.owned),
+              _StatsChip('Entry', counts.entry),
               _StatsChip('Wishlist', counts.wishlist),
               _StatsChip('Missing covers', counts.missingCover),
               _StatsChip('Missing metadata', counts.missingMetadata),

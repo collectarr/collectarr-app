@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
-/// Kind-owned preference codec for converting between persisted string identifiers
+/// Kind-entry preference codec for converting between persisted string identifiers
 /// and strongly-typed canonical kind identifiers.
 abstract interface class LibraryWorkspacePreferenceCodec<TKind> {
   /// Decodes a persisted column ID string into a canonical typed [LibraryFieldId].
@@ -32,7 +32,7 @@ abstract interface class LibraryWorkspacePreferenceCodec<TKind> {
   String encodeGroup(LibraryGroupIdRuntime id, LibraryEntityScope scope);
 }
 
-/// Default identity codec for kind-owned persisted identifiers.
+/// Default identity codec for kind-entry persisted identifiers.
 class IdentityLibraryWorkspacePreferenceCodec<TKind>
     implements LibraryWorkspacePreferenceCodec<TKind> {
   const IdentityLibraryWorkspacePreferenceCodec();

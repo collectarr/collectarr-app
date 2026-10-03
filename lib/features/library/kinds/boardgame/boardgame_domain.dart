@@ -1,12 +1,12 @@
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_providers.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_entry_repository.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';

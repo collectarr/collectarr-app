@@ -288,15 +288,15 @@ abstract final class _LibraryPageLifecycleControllerOps {
       final db = state.ref.read(localDatabaseProvider);
       final repo = LoanRepository(db);
       final activeLoans = await repo.getActiveLoans();
-      final next = <CollectionItemRef>{
-        for (final loan in activeLoans) loan.collectionItemRef,
+      final next = <LibraryEntryRef>{
+        for (final loan in activeLoans) loan.libraryEntryRef,
       };
       if (!state.mounted ||
           loadToken != state._activeLoanIdsLoadToken ||
           state.widget.type.kind != expectedKind) {
         return;
       }
-      state._mutateState(() => state._activeLoanCollectionItemIds = next);
+      state._mutateState(() => state._activeLoanLibraryEntryIds = next);
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'library_page',

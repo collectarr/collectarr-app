@@ -238,7 +238,7 @@ class PickListRepository {
       if (requestedKind != null && contributor.kind != requestedKind) continue;
       for (final normalized in normalizedValues) {
         counts[normalized] = counts[normalized]! +
-            await contributor.countOwnedValue(_db, semanticName, normalized);
+            await contributor.countEntryValue(_db, semanticName, normalized);
       }
     }
 
@@ -502,7 +502,7 @@ class PickListRepository {
       if (requestedKind != null && contributor.kind != requestedKind) {
         continue;
       }
-      total += await contributor.countOwnedValue(
+      total += await contributor.countEntryValue(
         _db,
         semanticName,
         normalized,

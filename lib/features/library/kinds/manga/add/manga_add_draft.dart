@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'manga_grading_draft.dart';
 import 'package:collectarr_app/features/library/add/models/signature_draft.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details_draft.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -52,7 +52,7 @@ final class MangaAddDraft extends LibraryAddKindDraft {
   CatalogMediaKind get kind => CatalogMediaKind.manga;
 
   @override
-  JsonEncodable toOwnedDetailsDraft() => MangaOwnedDetailsDraft(
+  JsonEncodable toEntryDetailsDraft() => MangaEntryDetailsDraft(
         rawOrSlabbed: grading.rawOrSlabbed,
         signedBy: signedBy,
         gradingCompany: gradingCompany,

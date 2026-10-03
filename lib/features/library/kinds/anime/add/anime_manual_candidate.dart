@@ -60,6 +60,7 @@ CatalogSearchCandidate? buildAnimeManualCandidate(
     CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.anime),
       kindData: metadata,
+      origin: CatalogItemOrigin.privateLocal,
     ),
   );
 }

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
@@ -30,11 +31,10 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final customEpisodesAsync = ref.watch(
-      tvCustomEpisodesByCatalogRefProvider(
-        CatalogEntityRef(
+      tvCustomEpisodesByLibraryEntryRefProvider(
+        LibraryEntryRef(
           kind: type.kind,
-          entityType: CatalogEntityTypeId.catalogItem,
-          id: item.id,
+          id: LibraryEntryId(item.id),
         ),
       ),
     );

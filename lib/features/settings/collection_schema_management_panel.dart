@@ -1323,7 +1323,7 @@ _SchemaTableCategory _inferCategory(String tableName) {
     return _SchemaTableCategory.join;
   }
   if (lower.contains('catalog') ||
-      lower.contains('owned') ||
+      lower.contains('entry') ||
       lower.contains('wishlist') ||
       lower.contains('tracking') ||
       lower.contains('watch') ||

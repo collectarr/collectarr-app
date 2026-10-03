@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/edit/session/library_edit_sessio
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -35,8 +35,8 @@ class LibraryEditShellState {
     required this.scope,
     required this.node,
     required this.kindItem,
-    required this.collectionItem,
-    required this.collectionItemDispatch,
+    required this.libraryEntry,
+    required this.libraryEntryDispatch,
     required this.wishlistItem,
     required this.trackingSummary,
     required this.accent,
@@ -61,12 +61,12 @@ class LibraryEditShellState {
   final LibraryEntityScope scope;
   final LibraryEntityRef? node;
 
-  /// The selected transport candidate is retained only for the kind-owned
+  /// The selected transport candidate is retained only for the kind-entry
   /// draft and final catalog mutation boundary. The shared shell keeps this
   /// candidate opaque and routes semantic work through the kind session.
   final CatalogSearchCandidate kindItem;
-  final CollectionItemSummary? collectionItem;
-  final LibraryCollectionItemDispatch? collectionItemDispatch;
+  final LibraryEntrySummary? libraryEntry;
+  final LibraryEntryDispatch? libraryEntryDispatch;
   final WishlistItem? wishlistItem;
   final TrackingSummary? trackingSummary;
   final Color accent;
@@ -144,8 +144,8 @@ class LibraryEditShellState {
       scope: request.resolvedScope,
       node: request.node,
       item: request.kindItem,
-      collectionItem: request.collectionItem,
-      collectionItemDispatch: request.collectionItemDispatch,
+      libraryEntry: request.libraryEntry,
+      libraryEntryDispatch: request.libraryEntryDispatch,
       wishlistItem: request.wishlistItem,
       trackingSummary: request.trackingSummary,
       accent: request.accent,
@@ -162,8 +162,8 @@ class LibraryEditShellState {
     LibraryEntityScope scope = LibraryEntityScope.catalogItem,
     LibraryEntityRef? node,
     required CatalogSearchCandidate item,
-    CollectionItemSummary? collectionItem,
-    LibraryCollectionItemDispatch? collectionItemDispatch,
+    LibraryEntrySummary? libraryEntry,
+    LibraryEntryDispatch? libraryEntryDispatch,
     WishlistItem? wishlistItem,
     TrackingSummary? trackingSummary,
     required Color accent,
@@ -178,8 +178,8 @@ class LibraryEditShellState {
       scope: scope,
       node: node,
       item: item,
-      collectionItem: collectionItem,
-      collectionItemDispatch: collectionItemDispatch,
+      libraryEntry: libraryEntry,
+      libraryEntryDispatch: libraryEntryDispatch,
       wishlistItem: wishlistItem,
       trackingSummary: trackingSummary,
       accent: accent,
@@ -196,8 +196,8 @@ class LibraryEditShellState {
     LibraryEntityScope scope = LibraryEntityScope.catalogItem,
     LibraryEntityRef? node,
     required CatalogSearchCandidate item,
-    required CollectionItemSummary? collectionItem,
-    LibraryCollectionItemDispatch? collectionItemDispatch,
+    required LibraryEntrySummary? libraryEntry,
+    LibraryEntryDispatch? libraryEntryDispatch,
     required WishlistItem? wishlistItem,
     required TrackingSummary? trackingSummary,
     required Color accent,
@@ -212,8 +212,8 @@ class LibraryEditShellState {
         scope: scope,
         node: node,
         item: item,
-        collectionItem: collectionItem,
-        collectionItemDispatch: collectionItemDispatch,
+        libraryEntry: libraryEntry,
+        libraryEntryDispatch: libraryEntryDispatch,
         wishlistItem: wishlistItem,
         trackingSummary: trackingSummary,
         accent: accent,
@@ -228,37 +228,25 @@ class LibraryEditShellState {
   // Domain Helpers & Actions
   // ---------------------------------------------------------------------------
 
-  bool get isOwned => collectionItem != null;
-  bool get hasTrackingContext => isOwned || trackingSummary != null;
-  bool get isTrackingOnly => !isOwned && trackingSummary != null;
+  bool get isEntry => libraryEntry != null;
+  bool get hasTrackingContext => isEntry || trackingSummary != null;
+  bool get isTrackingOnly => !isEntry && trackingSummary != null;
   bool get hasWishlistContext => wishlistItem != null;
-  bool get showPhysicalOwnedFields => isOwned && !isDigitalFormat;
+  bool get showPhysicalEntryFields => isEntry && !isDigitalFormat;
 
   ({
     String? selectedLocationId,
     DateTime? startedAt,
     DateTime? finishedAt,
     DateTime? soldAt,
-    CatalogEntityRef? selectedTargetRef,
     Map<String, String?> customFieldEdits,
     List<ItemImageEdit> itemImageEdits,
   }) cloneDialogState() {
-    final wishlistRef = wishlistItem?.catalogRef;
-    final wishlistEntityRef = wishlistRef == null
-        ? null
-        : CatalogEntityRef(
-            kind: wishlistRef.kind,
-            entityType: CatalogEntityTypeId.catalogItem,
-            id: wishlistRef.id,
-          );
     return (
       selectedLocationId: personal.selectedLocationId,
       startedAt: tracking.startedAt,
       finishedAt: tracking.finishedAt,
       soldAt: personal.soldAt,
-      selectedTargetRef: trackingSummary?.catalogRef ??
-          wishlistEntityRef ??
-          kindItem.reference,
       customFieldEdits: Map<String, String?>.from(customFieldEdits),
       itemImageEdits: List<ItemImageEdit>.from(itemImageEdits),
     );

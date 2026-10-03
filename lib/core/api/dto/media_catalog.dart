@@ -9,7 +9,7 @@ enum MetadataFieldScope {
   episode('episode'),
   media('media'),
   track('track'),
-  collectionItem('collection_item'),
+  libraryEntry('library_entry'),
   trackingRecord('tracking_entry'),
   ageRating('age_rating'),
   category('category'),
@@ -196,7 +196,7 @@ class MetadataFieldSpec {
     required this.input,
     required this.kinds,
     this.required = false,
-    this.ownershipByKind = const {},
+    this.entriesByKind = const {},
   });
 
   final String key;
@@ -210,7 +210,7 @@ class MetadataFieldSpec {
   final String section;
   final String input;
   final List<String> kinds;
-  final Map<String, MetadataFieldOwnership> ownershipByKind;
+  final Map<String, MetadataFieldEntryPolicy> entriesByKind;
 
   factory MetadataFieldSpec.fromJson(Map<String, dynamic> json) {
     return MetadataFieldSpec(
@@ -228,28 +228,28 @@ class MetadataFieldSpec {
         for (final value in (json['kinds'] as List<dynamic>? ?? const []))
           value.toString(),
       ],
-      ownershipByKind: {
+      entriesByKind: {
         for (final entry
-            in (json['ownership_by_kind'] as Map<String, dynamic>? ?? const {})
+            in (json['entries_by_kind'] as Map<String, dynamic>? ?? const {})
                 .entries)
-          entry.key: MetadataFieldOwnership.fromJson(
+          entry.key: MetadataFieldEntryPolicy.fromJson(
             entry.value as Map<String, dynamic>,
           ),
       },
     );
   }
 
-  MetadataFieldOwnership ownershipForKind(String kind) {
-    final ownership = ownershipByKind[kind];
-    if (ownership == null) {
+  MetadataFieldEntryPolicy entriesForKind(String kind) {
+    final entries = entriesByKind[kind];
+    if (entries == null) {
       throw StateError('Field "$key" is not declared for kind "$kind".');
     }
-    return ownership;
+    return entries;
   }
 }
 
-class MetadataFieldOwnership {
-  const MetadataFieldOwnership({
+class MetadataFieldEntryPolicy {
+  const MetadataFieldEntryPolicy({
     required this.scope,
     required this.sourceEntityType,
     required this.sourceTable,
@@ -261,8 +261,8 @@ class MetadataFieldOwnership {
   final String sourceTable;
   final MetadataWriteTarget writeTarget;
 
-  factory MetadataFieldOwnership.fromJson(Map<String, dynamic> json) {
-    return MetadataFieldOwnership(
+  factory MetadataFieldEntryPolicy.fromJson(Map<String, dynamic> json) {
+    return MetadataFieldEntryPolicy(
       scope: MetadataFieldScope.fromApiValue(json['scope'] as String?),
       sourceEntityType: json['source_entity_type']?.toString() ?? '',
       sourceTable: json['source_table']?.toString() ?? '',

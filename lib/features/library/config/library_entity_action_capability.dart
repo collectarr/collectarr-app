@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
@@ -13,10 +13,8 @@ import 'package:flutter/material.dart';
 /// belong here. They are registered by the workspace toolbar instead.
 final class LibraryEntityActionSet {
   const LibraryEntityActionSet({
-    this.addCopy = false,
     this.openDetails = false,
-    this.selectCollectionItem = false,
-    this.toggleOwned = false,
+    this.toggleEntry = false,
     this.toggleWishlist = false,
     this.edit = false,
     this.duplicate = false,
@@ -26,32 +24,18 @@ final class LibraryEntityActionSet {
     this.unlinkFromCore = false,
   });
 
-  static const work = LibraryEntityActionSet(
-    addCopy: true,
+  static const catalogItem = LibraryEntityActionSet(
     openDetails: true,
-    selectCollectionItem: true,
-    toggleOwned: true,
+    toggleEntry: true,
     toggleWishlist: true,
     edit: true,
     refreshMetadata: true,
     share: true,
   );
 
-  static const release = LibraryEntityActionSet(
-    addCopy: true,
+  static const libraryEntry = LibraryEntityActionSet(
     openDetails: true,
-    selectCollectionItem: true,
-    toggleOwned: true,
-    toggleWishlist: true,
-    edit: true,
-    refreshMetadata: true,
-    share: true,
-  );
-
-  static const copy = LibraryEntityActionSet(
-    openDetails: true,
-    selectCollectionItem: true,
-    toggleOwned: true,
+    toggleEntry: true,
     edit: true,
     duplicate: true,
     loan: true,
@@ -59,10 +43,8 @@ final class LibraryEntityActionSet {
     share: true,
   );
 
-  final bool addCopy;
   final bool openDetails;
-  final bool selectCollectionItem;
-  final bool toggleOwned;
+  final bool toggleEntry;
   final bool toggleWishlist;
   final bool edit;
   final bool duplicate;
@@ -72,7 +54,7 @@ final class LibraryEntityActionSet {
   final bool unlinkFromCore;
 }
 
-/// Runtime callbacks supplied by the generic host to a kind-owned action
+/// Runtime callbacks supplied by the generic host to a kind-entry action
 /// capability. The host owns lifecycle and navigation mechanics; the kind
 /// decides which callbacks are legal at each entity scope.
 final class LibraryEntityActionContext {
@@ -81,12 +63,9 @@ final class LibraryEntityActionContext {
     required this.buildContext,
     required this.projection,
     required this.item,
-    required this.collectionItem,
-    required this.ownedCopies,
-    required this.onAddCopy,
+    required this.libraryEntry,
     required this.onOpenDetails,
-    required this.onSelectCollectionItem,
-    required this.onToggleOwned,
+    required this.onToggleEntry,
     required this.onToggleWishlist,
     required this.onEdit,
     required this.onDuplicate,
@@ -101,12 +80,9 @@ final class LibraryEntityActionContext {
   final BuildContext buildContext;
   final LibraryProjection projection;
   final LibraryProjectionView item;
-  final CollectionItemSummary? collectionItem;
-  final List<CollectionItemSummary> ownedCopies;
-  final VoidCallback? onAddCopy;
+  final LibraryEntrySummary? libraryEntry;
   final VoidCallback? onOpenDetails;
-  final ValueChanged<CollectionItemRef>? onSelectCollectionItem;
-  final VoidCallback? onToggleOwned;
+  final VoidCallback? onToggleEntry;
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
   final VoidCallback? onDuplicate;
@@ -131,26 +107,23 @@ final class LibraryEntitySemanticActionDefinition {
   final FutureOr<void> Function(LibraryEntityActionContext context) invoke;
 }
 
-/// Kind-owned entity action registration.
+/// Kind-entry entity action registration.
 final class LibraryEntityActionCapability {
   const LibraryEntityActionCapability({
-    required this.work,
-    required this.release,
-    required this.copy,
+    required this.catalogItem,
+    required this.libraryEntry,
     this.semanticActions = const {},
   });
 
-  final LibraryEntityActionSet work;
-  final LibraryEntityActionSet release;
-  final LibraryEntityActionSet copy;
+  final LibraryEntityActionSet catalogItem;
+  final LibraryEntityActionSet libraryEntry;
   final Map<LibraryEntityScope, List<LibraryEntitySemanticActionDefinition>>
       semanticActions;
 
   LibraryEntityActionSet actionSetForScope(LibraryEntityScope scope) =>
       switch (scope) {
-        LibraryEntityScope.catalogItem => work,
-        LibraryEntityScope.release => release,
-        LibraryEntityScope.collectionItem => copy,
+        LibraryEntityScope.catalogItem => catalogItem,
+        LibraryEntityScope.libraryEntry => libraryEntry,
       };
 
   List<LibraryEntitySemanticActionDefinition> semanticActionsForScope(
@@ -163,15 +136,19 @@ final class LibraryEntityActionCapability {
       contributors: [
         LibraryEntityActionContributor(
           scope: LibraryEntityScope.catalogItem,
-          actions: _buildActions(LibraryEntityScope.catalogItem, work, context),
+          actions: _buildActions(
+            LibraryEntityScope.catalogItem,
+            catalogItem,
+            context,
+          ),
         ),
         LibraryEntityActionContributor(
-          scope: LibraryEntityScope.release,
-          actions: _buildActions(LibraryEntityScope.release, release, context),
-        ),
-        LibraryEntityActionContributor(
-          scope: LibraryEntityScope.collectionItem,
-          actions: _buildActions(LibraryEntityScope.collectionItem, copy, context),
+          scope: LibraryEntityScope.libraryEntry,
+          actions: _buildActions(
+            LibraryEntityScope.libraryEntry,
+            libraryEntry,
+            context,
+          ),
         ),
       ],
     );
@@ -184,11 +161,8 @@ final class LibraryEntityActionCapability {
   ) {
     final definitions = semanticActionsForScope(scope);
     return LibraryItemActions(
-      onAddCopy: actionSet.addCopy ? context.onAddCopy : null,
       onOpenDetails: actionSet.openDetails ? context.onOpenDetails : null,
-      onSelectCollectionItem:
-          actionSet.selectCollectionItem ? context.onSelectCollectionItem : null,
-      onToggleOwned: actionSet.toggleOwned ? context.onToggleOwned : null,
+      onToggleEntry: actionSet.toggleEntry ? context.onToggleEntry : null,
       onToggleWishlist:
           actionSet.toggleWishlist ? context.onToggleWishlist : null,
       onEdit: actionSet.edit ? context.onEdit : null,

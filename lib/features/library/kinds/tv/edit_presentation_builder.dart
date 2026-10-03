@@ -14,7 +14,7 @@ const _tvMediaTabs = [
     id: 'personal',
     icon: Icons.person,
     label: 'Personal',
-    sectionIds: ['tracking_personal', 'ownership_fields', 'owned_notes'],
+    sectionIds: ['tracking_personal', 'entries_fields', 'entry_notes'],
   ),
   LibraryEditTabSpec(
     id: 'episodes',
@@ -80,15 +80,15 @@ class TvLibraryEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const TvLibraryEditPresentationBuilder()
       : super(
-          useOwnedMainArtworkLayout: false,
+          useEntryMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _tvAllTabs,
+          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _tvAllTabs,
           trackedTabs: _tvMediaTabs,
           catalogTabs: _tvMediaTabs,
           customTabBuilder: buildTvCustomTabView,
@@ -99,15 +99,15 @@ class TvLibraryMediaEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const TvLibraryMediaEditPresentationBuilder()
       : super(
-          useOwnedMainArtworkLayout: false,
+          useEntryMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownedTabs: _tvMediaTabs,
+          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _tvMediaTabs,
           trackedTabs: _tvMediaTabs,
           catalogTabs: _tvMediaTabs,
           customTabBuilder: buildTvCustomTabView,
@@ -116,5 +116,5 @@ class TvLibraryMediaEditPresentationBuilder
 
 const tvLibraryEditPresentation = LibraryEditPresentation(
   builder: TvLibraryEditPresentationBuilder(),
-  workBuilder: TvLibraryMediaEditPresentationBuilder(),
+  catalogItemBuilder: TvLibraryMediaEditPresentationBuilder(),
 );

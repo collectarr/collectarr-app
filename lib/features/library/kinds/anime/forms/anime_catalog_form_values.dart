@@ -1,4 +1,4 @@
-/// Kind-owned Anime catalog form values shared by Add and Edit.
+/// Kind-entry Anime catalog form values shared by Add and Edit.
 final class AnimeMediaFormValues {
   AnimeMediaFormValues({
     this.title = '',

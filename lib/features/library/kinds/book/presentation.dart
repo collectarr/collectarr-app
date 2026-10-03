@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
@@ -51,8 +51,8 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => BookCollectionItemProjection.fromDispatch(
-      item.source.collectionItemDispatch,
+    value: (item) => BookLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
     )?.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
@@ -75,8 +75,8 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => BookCollectionItemProjection.fromDispatch(
-      item.source.collectionItemDispatch,
+    value: (item) => BookLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
     )?.condition,
   ),
   LibraryFilterDefinition<Object?>(

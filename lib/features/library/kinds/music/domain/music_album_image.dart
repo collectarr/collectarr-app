@@ -12,7 +12,7 @@ enum MusicAlbumImagePurpose {
 /// Locally managed image attached to one exact Music album.
 ///
 /// Front/back artwork is distinct from personal booklet, signature, and other
-/// reference images, even though both are stored in the same release-owned
+/// reference images, even though both are stored in the same release-entry
 /// table.
 final class MusicAlbumImage {
   const MusicAlbumImage({

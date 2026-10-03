@@ -39,12 +39,12 @@ List<Widget> buildBoardGameCopyInspectorSections(
 ) {
   return [
     _BoardGameInspectorMain(inspector: inspector),
-    if (inspector.collectionItem != null || inspector.trackingSummary != null)
+    if (inspector.libraryEntry != null || inspector.trackingSummary != null)
       InspectorPersonalStatusSection(
         type: inspector.type,
         item: inspector.item,
-        collectionItem: inspector.collectionItem,
-        collectionItemDispatch: inspector.collectionItemDispatch,
+        libraryEntry: inspector.libraryEntry,
+        libraryEntryDispatch: inspector.libraryEntryDispatch,
         trackingSummary: inspector.trackingSummary,
         accent: inspector.accent,
         onFilterByValue: inspector.onFilterByValue,
@@ -59,8 +59,7 @@ Widget buildBoardGameCatalogItemInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      collectionItem: request.collectionItem,
-      ownedCopies: request.ownedCopies,
+      libraryEntry: request.libraryEntry,
       accent: request.accent,
     );
 
@@ -71,10 +70,7 @@ Widget buildBoardGameCopyInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      collectionItem: request.collectionItem,
-      ownedCopies: [
-        if (request.collectionItem != null) request.collectionItem!,
-      ],
+      libraryEntry: request.libraryEntry,
       accent: request.accent,
     );
 
@@ -96,7 +92,7 @@ class BoardGameInspectorPanel extends StatelessWidget {
         onEdit: request.onEdit,
         onShare: request.onShare,
         onDuplicate: request.onDuplicate,
-        onToggleOwned: request.onToggleOwned,
+        onToggleEntry: request.onToggleEntry,
         onLoan: request.onLoan,
         onRefreshMetadata: request.onRefreshMetadata,
         onUnlinkFromCore: request.onUnlinkFromCore,

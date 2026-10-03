@@ -10,11 +10,11 @@ final comicKindWorkspace = TypedLibraryKindWorkspace<ComicWorkspaceDto>(
         expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
-      scope: LibraryEntityScope.collectionItem,
-      fields: comicCopyWorkspaceSchema.toRegistry(),
+    LibraryEntityScope.libraryEntry: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
+      scope: LibraryEntityScope.libraryEntry,
+      fields: comicLibraryEntryWorkspaceSchema.toRegistry(),
       projector: const ComicWorkspaceProjector(
-        expectedScope: LibraryEntityScope.collectionItem,
+        expectedScope: LibraryEntityScope.libraryEntry,
       ),
     ),
   },

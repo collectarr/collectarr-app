@@ -4,7 +4,6 @@ import 'dart:ui' as ui;
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
@@ -12,8 +11,6 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/widgets/format_badge.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -483,7 +480,7 @@ class _FlowBackdrop extends StatelessWidget {
                     itemNumber:
                         libraryCardPresentationForEntry(item).itemNumber,
                     imageUrl: item.dto.imageUrl,
-                    collectionItemRef: item.source.collectionItemRef,
+                    libraryEntryRef: item.source.libraryEntryRef,
                     borderRadius: 0,
                     fit: BoxFit.cover,
                   ),
@@ -680,8 +677,8 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                             title: title,
                             itemNumber: itemNumber,
                             imageUrl: dto.imageUrl,
-                            collectionItemRef:
-                                widget.item.source.collectionItemRef,
+                            libraryEntryRef:
+                                widget.item.source.libraryEntryRef,
                             accentColor: widget.accent,
                             enableFullscreen: false,
                             enableSecondaryControl: false,
@@ -692,7 +689,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                         left: 8,
                         top: 8,
                         child: LibraryCoverBadges(
-                          isOwned: widget.item.source.isOwned,
+                          isEntry: widget.item.source.isEntry,
                           isTracked: widget.item.source.isTracked,
                           isWishlisted: widget.item.source.isWishlisted,
                           hasMissingCover:
@@ -702,7 +699,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                               libraryHierarchyContractDiagnosticLabel(
                                   widget.item),
                           notesLabel: libraryNotesMarkerLabel(
-                              widget.item.source.collectionItemSummary?.notes),
+                              widget.item.source.libraryEntrySummary?.notes),
                         ),
                       ),
                       if (showEditButton)
@@ -802,16 +799,6 @@ class _FlowCarouselFooter extends StatefulWidget {
 }
 
 class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
-  bool _showReleases = false;
-
-  @override
-  void didUpdateWidget(covariant _FlowCarouselFooter oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.item.node.id != oldWidget.item.node.id) {
-      _showReleases = false;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final dto = widget.item.dto;
@@ -826,15 +813,6 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
         '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       if (formatLabel != null) formatLabel,
     ].whereType<String>().join('  ·  ');
-
-    final registration =
-        libraryKindRegistrationForKind(widget.item.source.mediaKind);
-    final editions = libraryPresentationForKind(registration.kind)
-        .builder
-        .buildWorkspaceReleases(
-          widget.item.source,
-        );
-    final hasReleases = editions.length > 1;
 
     final itemNumber = presentation.itemNumber;
     return DecoratedBox(
@@ -911,110 +889,8 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                   ),
               ],
             ),
-            if (hasReleases) ...[
-              const SizedBox(height: 8),
-              InkWell(
-                mouseCursor: WidgetStateMouseCursor.clickable,
-                borderRadius: BorderRadius.circular(4),
-                onTap: () => setState(() => _showReleases = !_showReleases),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _showReleases ? Icons.expand_less : Icons.expand_more,
-                        size: 18,
-                        color: widget.accent,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${editions.length} releases',
-                        style: TextStyle(
-                          color: widget.accent,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (_showReleases) ...[
-                const SizedBox(height: 6),
-                for (final edition in editions)
-                  _FlowCarouselReleaseRow(
-                    edition: edition,
-                    isOwned: edition.id ==
-                        libraryCatalogTargetForKind(
-                          widget.item.source.mediaKind,
-                        )
-                            .parts(widget
-                                .item.source.collectionItemSummary?.catalogRef)
-                            .firstId,
-                    accent: widget.accent,
-                  ),
-              ],
-            ],
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _FlowCarouselReleaseRow extends StatelessWidget {
-  const _FlowCarouselReleaseRow({
-    required this.edition,
-    required this.isOwned,
-    required this.accent,
-  });
-
-  final LibraryWorkspaceReleaseSummary edition;
-  final bool isOwned;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        children: [
-          if (isOwned)
-            Icon(Icons.check_circle, size: 14, color: accent)
-          else
-            Icon(Icons.circle_outlined,
-                size: 14, color: appPalette(context).textMuted),
-          const SizedBox(width: 8),
-          if (edition.formatBadge != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: FormatBadge.fromDescriptor(
-                descriptor: edition.formatBadge!,
-                compact: true,
-              ),
-            ),
-          Expanded(
-            child: Text(
-              edition.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: isOwned ? Colors.white : appPalette(context).textMuted,
-                fontSize: 12,
-                fontWeight: isOwned ? FontWeight.w800 : FontWeight.w600,
-              ),
-            ),
-          ),
-          if (edition.variantCount > 0)
-            Text(
-              '${edition.variantCount} variant${edition.variantCount > 1 ? 's' : ''}',
-              style: TextStyle(
-                color: appPalette(context).textMuted,
-                fontSize: 12,
-              ),
-            ),
-        ],
       ),
     );
   }

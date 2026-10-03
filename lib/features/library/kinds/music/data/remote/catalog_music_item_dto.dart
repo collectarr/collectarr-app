@@ -278,24 +278,78 @@ final class CatalogMusicItemDto implements JsonEncodable {
         if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
         if (externalLinks.isNotEmpty) 'external_links': externalLinks,
         if (discs.isNotEmpty)
-          'discs': discs.map((disc) => disc.toJson()).toList(),
+          'discs': discs.map((disc) => disc.toProposalData()).toList(),
+      };
+
+  /// Serializes the complete Catalog Item response payload.
+  ///
+  /// This is intentionally separate from [toProposalData]: Core responses
+  /// carry canonical identity, revision, scalar display fields, precise date
+  /// values, and identities/order for contained discs and tracks.
+  Map<String, Object?> toCatalogData() => {
+        'title': title,
+        if (sortTitle != null) 'sort_title': sortTitle,
+        if (subtitle != null) 'subtitle': subtitle,
+        if (artist != null) 'artist': artist,
+        'artist_credits': artistCredits,
+        if (originalReleaseDate != null)
+          'original_release_date': originalReleaseDate,
+        if (originalReleaseDateParts != null)
+          'original_release_date_parts': originalReleaseDateParts,
+        if (recordingDate != null) 'recording_date': recordingDate,
+        if (recordingDateParts != null)
+          'recording_date_parts': recordingDateParts,
+        if (releaseDate != null) 'release_date': releaseDate,
+        if (releaseDateParts != null) 'release_date_parts': releaseDateParts,
+        if (label != null) 'label': label,
+        if (format != null) 'format': format,
+        if (barcode != null) 'barcode': barcode,
+        if (catalogNumber != null) 'catalog_number': catalogNumber,
+        'genres': genres,
+        if (packaging != null) 'packaging': packaging,
+        'studios': studios,
+        if (country != null) 'country': country,
+        if (isLive != null) 'is_live': isLive,
+        'sound_types': soundTypes,
+        if (vinylColor != null) 'vinyl_color': vinylColor,
+        if (vinylWeight != null) 'vinyl_weight': vinylWeight,
+        if (rpm != null) 'rpm': rpm,
+        if (extra != null) 'extra': extra,
+        if (spars != null) 'spars': spars,
+        if (boxSet != null) 'box_set': boxSet,
+        'composers': composers,
+        'conductors': conductors,
+        'choruses': choruses,
+        'compositions': compositions,
+        'orchestras': orchestras,
+        'songwriters': songwriters,
+        'producers': producers,
+        'engineers': engineers,
+        'musicians': musicians,
+        'external_links': externalLinks,
+        if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+        if (backCoverImageUrl != null)
+          'back_cover_image_url': backCoverImageUrl,
+        if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+        'revision': revision,
+        'discs': [for (final disc in discs) disc.toResponseJson()],
       };
 
   @override
   Map<String, dynamic> toJson() => {
         'id': id,
         'kind': 'music',
-        ...toProposalData(),
+        ...toCatalogData(),
       };
 
   /// Projects one Music item into the shared catalog search envelope.
   ///
   /// Only routing identity sits outside `kind_data`. Title, cover, dates, and
-  /// every other catalog value remain owned by the Music kind.
+  /// every other catalog value remain entry by the Music kind.
   Map<String, dynamic> toSearchJson() => {
         'id': id,
         'kind': 'music',
-        'kind_data': toProposalData(),
+        'kind_data': toCatalogData(),
       };
 }
 
@@ -337,14 +391,25 @@ final class CatalogMusicDiscDto {
   final String? matrixNumberSideB;
   final List<CatalogMusicTrackDto> tracks;
 
-  Map<String, Object?> toJson() => {
+  Map<String, Object?> toProposalData() => {
         'disc_number': discNumber,
         if (title != null) 'title': title,
         if (matrixNumberSideA != null)
           'matrix_number_side_a': matrixNumberSideA,
         if (matrixNumberSideB != null)
           'matrix_number_side_b': matrixNumberSideB,
-        'tracks': tracks.map((track) => track.toJson()).toList(),
+        'tracks': tracks.map((track) => track.toProposalData()).toList(),
+      };
+
+  Map<String, Object?> toResponseJson() => {
+        'id': id,
+        'disc_number': discNumber,
+        if (title != null) 'title': title,
+        if (matrixNumberSideA != null)
+          'matrix_number_side_a': matrixNumberSideA,
+        if (matrixNumberSideB != null)
+          'matrix_number_side_b': matrixNumberSideB,
+        'tracks': [for (final track in tracks) track.toResponseJson()],
       };
 }
 
@@ -362,15 +427,19 @@ final class CatalogMusicTrackDto {
     final id = _string(json['id']);
     final position = _string(json['position']);
     final title = _string(json['title']);
-    if (id == null || position == null || title == null) {
+    final positionOrder = _integer(json['position_order']);
+    if (id == null ||
+        position == null ||
+        title == null ||
+        positionOrder == null) {
       throw const FormatException(
-        'Music track response requires id, position, and title.',
+        'Music track response requires id, position, position_order, and title.',
       );
     }
     return CatalogMusicTrackDto(
       id: id,
       position: position,
-      positionOrder: _integer(json['position_order']) ?? 0,
+      positionOrder: positionOrder,
       title: title,
       artist: _string(json['artist']),
       durationMs: _integer(json['duration_ms']),
@@ -384,11 +453,17 @@ final class CatalogMusicTrackDto {
   final String? artist;
   final int? durationMs;
 
-  Map<String, Object?> toJson() => {
+  Map<String, Object?> toProposalData() => {
         'position': position,
+        'position_order': positionOrder,
         'title': title,
         if (artist != null) 'artist': artist,
         if (durationMs != null) 'duration_ms': durationMs,
+      };
+
+  Map<String, Object?> toResponseJson() => {
+        'id': id,
+        ...toProposalData(),
       };
 }
 

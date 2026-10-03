@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -26,11 +26,14 @@ final class WatchSessionMutations {
   final IdGenerator idGenerator;
 
   Future<WatchSession> addWatchSession(
-    CatalogEntityRef targetRef, {
+    LibraryEntryRef libraryEntryRef, {
     String? id,
     String? trackingEntryId,
     Object? sourceType,
     DateTime? watchedAt,
+    int? seasonNumber,
+    int? episodeNumber,
+    String? episodeId,
     String? seenWhere,
     int? rating,
     String? notes,
@@ -39,10 +42,13 @@ final class WatchSessionMutations {
     final session = watchSessions.create(
       WatchSessionCreateRequest(
         id: id ?? idGenerator(),
-        targetRef: targetRef,
+        libraryEntryRef: libraryEntryRef,
         trackingEntryId: trackingEntryId,
         sourceType: sourceType,
         watchedAt: watchedAt ?? now,
+        seasonNumber: seasonNumber,
+        episodeNumber: episodeNumber,
+        episodeId: episodeId,
         seenWhere: seenWhere,
         rating: rating,
         notes: notes,

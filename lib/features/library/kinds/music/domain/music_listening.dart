@@ -1,18 +1,16 @@
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:flutter/foundation.dart';
 
-/// A completed listening event for a concrete Music Catalog Item.
+/// A completed listening event attached to one local Music library entry.
 ///
-/// Listening history is App-owned activity. It targets the catalog item and
-/// can optionally record which collection item was used.
+/// The local entry is the complete editable record and the stable owner of
+/// personal activity. Catalog provenance is deliberately not repeated here.
 @immutable
 final class MusicListenEvent {
   const MusicListenEvent({
     required this.id,
-    required this.catalogRef,
+    required this.libraryEntryRef,
     required this.listenedAt,
-    this.collectionItemRef,
     this.startedAt,
     this.finishedAt,
     this.location,
@@ -23,9 +21,8 @@ final class MusicListenEvent {
   });
 
   final String id;
-  final CatalogItemRef catalogRef;
+  final LibraryEntryRef libraryEntryRef;
   final DateTime listenedAt;
-  final CollectionItemRef? collectionItemRef;
   final DateTime? startedAt;
   final DateTime? finishedAt;
   final String? location;
@@ -38,9 +35,8 @@ final class MusicListenEvent {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'catalog_ref': catalogRef.toJson(),
+        'library_entry_ref': libraryEntryRef.toJson(),
         'listened_at': listenedAt.toIso8601String(),
-        if (collectionItemRef != null) 'collection_item_ref': collectionItemRef!.toJson(),
         if (startedAt != null) 'started_at': startedAt!.toIso8601String(),
         if (finishedAt != null) 'finished_at': finishedAt!.toIso8601String(),
         if (location != null) 'location': location,
@@ -57,22 +53,19 @@ final class MusicListenEvent {
   }
 
   factory MusicListenEvent.fromJson(Map<String, dynamic> json) {
-    final rawCatalog = json['catalog_ref'];
-    if (rawCatalog is! Map) {
-      throw const FormatException('MusicListenEvent requires catalog_ref');
+    final rawEntry = json['library_entry_ref'];
+    if (rawEntry is! Map) {
+      throw const FormatException(
+          'MusicListenEvent requires library_entry_ref');
     }
-    final rawOwned = json['collection_item_ref'];
     return MusicListenEvent(
       id: (json['id'] as String?) ?? '',
-      catalogRef: CatalogItemRef.fromJson(
-        Map<String, Object?>.from(rawCatalog),
+      libraryEntryRef: LibraryEntryRef.fromJson(
+        Map<String, Object?>.from(rawEntry),
       ),
       listenedAt: json['listened_at'] != null
           ? DateTime.parse(json['listened_at'] as String)
           : DateTime.now(),
-      collectionItemRef: rawOwned is Map
-          ? CollectionItemRef.fromJson(Map<String, Object?>.from(rawOwned))
-          : null,
       startedAt: _date(json['started_at']),
       finishedAt: _date(json['finished_at']),
       location: json['location'] as String?,

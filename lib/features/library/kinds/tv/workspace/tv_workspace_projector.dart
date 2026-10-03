@@ -16,7 +16,6 @@ final class TvWorkspaceProjector
   TvWorkspaceDto project({
     required LibraryWorkspaceSource source,
     required LibraryEntityRef entity,
-    LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
     requireEntityScope(entity, expectedScope ?? entity.scope);
@@ -25,7 +24,6 @@ final class TvWorkspaceProjector
       common: _tvCommonProjection(source, entity, catalog.video),
       personal: PersonalCopyProjection.fromShelf(
         source,
-        releaseState: releaseState,
       ),
       video: catalog.video,
       series: catalog.series,

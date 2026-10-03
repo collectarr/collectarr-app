@@ -24,6 +24,7 @@ CatalogSearchCandidate? buildBoardgameManualCandidate(
       identity:
           LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.boardgame),
       kindData: metadata,
+      origin: CatalogItemOrigin.privateLocal,
     ),
   );
 }

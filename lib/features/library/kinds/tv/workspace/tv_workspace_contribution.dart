@@ -5,16 +5,16 @@ final tvKindWorkspace = TypedLibraryKindWorkspace<TvWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.catalogItem: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
       scope: LibraryEntityScope.catalogItem,
-      fields: tvWorkWorkspaceSchema.toRegistry(),
+      fields: tvCatalogItemWorkspaceSchema.toRegistry(),
       projector: const TvWorkspaceProjector(
         expectedScope: LibraryEntityScope.catalogItem,
       ),
     ),
-    LibraryEntityScope.collectionItem: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
-      scope: LibraryEntityScope.collectionItem,
-      fields: tvCopyWorkspaceSchema.toRegistry(),
+    LibraryEntityScope.libraryEntry: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
+      scope: LibraryEntityScope.libraryEntry,
+      fields: tvLibraryEntryWorkspaceSchema.toRegistry(),
       projector: const TvWorkspaceProjector(
-        expectedScope: LibraryEntityScope.collectionItem,
+        expectedScope: LibraryEntityScope.libraryEntry,
       ),
     ),
   },

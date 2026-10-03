@@ -223,7 +223,7 @@ class _ExportWizardPane extends StatelessWidget {
       ),
       ...additionalExports,
     ];
-    final owned = entries.where((entry) => entry.isOwned).length;
+    final entry = entries.where((entry) => entry.isEntry).length;
     final wishlist = entries.where((entry) => entry.isWishlisted).length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -236,7 +236,7 @@ class _ExportWizardPane extends StatelessWidget {
                 icon: Icons.table_rows_outlined,
                 label: '${entries.length} rows'),
             _WizardStat(
-                icon: Icons.inventory_2_outlined, label: '$owned owned'),
+                icon: Icons.inventory_2_outlined, label: '$entry entry'),
             _WizardStat(
                 icon: Icons.bookmark_border, label: '$wishlist wishlist'),
           ],

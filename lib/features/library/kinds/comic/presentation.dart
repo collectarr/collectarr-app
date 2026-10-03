@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
@@ -83,8 +83,8 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => ComicCollectionItemProjection.fromDispatch(
-      item.source.collectionItemDispatch,
+    value: (item) => ComicLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
     )?.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
@@ -108,21 +108,21 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Grade',
     anyLabel: 'Any grade',
     missingValueLabel: 'Missing grade',
-    value: (item) => ComicCollectionItemProjection.fromDispatch(
-      item.source.collectionItemDispatch,
+    value: (item) => ComicLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
     )?.grade,
     matches: (item, value) => value == LibraryFilterDefinition.missingValue
-        ? item.source.isOwned &&
-            (ComicCollectionItemProjection.fromDispatch(
-                            item.source.collectionItemDispatch)
+        ? item.source.isEntry &&
+            (ComicLibraryEntryProjection.fromDispatch(
+                            item.source.libraryEntryDispatch)
                         ?.grade ==
                     null ||
-                ComicCollectionItemProjection.fromDispatch(
-                        item.source.collectionItemDispatch)!
+                ComicLibraryEntryProjection.fromDispatch(
+                        item.source.libraryEntryDispatch)!
                     .grade!
                     .trim()
                     .isEmpty)
-        : ComicCollectionItemProjection.fromDispatch(item.source.collectionItemDispatch)
+        : ComicLibraryEntryProjection.fromDispatch(item.source.libraryEntryDispatch)
                 ?.grade
                 ?.trim() ==
             value,
@@ -131,8 +131,8 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => ComicCollectionItemProjection.fromDispatch(
-      item.source.collectionItemDispatch,
+    value: (item) => ComicLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
     )?.condition,
   ),
   LibraryFilterDefinition<Object?>(
@@ -190,12 +190,12 @@ bool? comicQuickViewMatcher(
   LibraryQuickView view,
 ) {
   return switch (view) {
-    LibraryQuickView.missingGrade => item.source.isOwned &&
-        (ComicCollectionItemProjection.fromDispatch(item.source.collectionItemDispatch)
+    LibraryQuickView.missingGrade => item.source.isEntry &&
+        (ComicLibraryEntryProjection.fromDispatch(item.source.libraryEntryDispatch)
                     ?.grade ==
                 null ||
-            ComicCollectionItemProjection.fromDispatch(
-                    item.source.collectionItemDispatch)!
+            ComicLibraryEntryProjection.fromDispatch(
+                    item.source.libraryEntryDispatch)!
                 .grade!
                 .trim()
                 .isEmpty),

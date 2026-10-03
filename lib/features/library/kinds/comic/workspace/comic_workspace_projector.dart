@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
@@ -17,21 +17,19 @@ final class ComicWorkspaceProjector
   ComicWorkspaceDto project({
     required LibraryWorkspaceSource source,
     required LibraryEntityRef entity,
-    LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
     requireEntityScope(entity, expectedScope ?? entity.scope);
     final catalog = _catalogFor(source);
-    final collectionItem =
-        ComicCollectionItemProjection.fromDispatch(source.collectionItemDispatch);
+    final libraryEntry =
+        ComicLibraryEntryProjection.fromDispatch(source.libraryEntryDispatch);
     return ComicWorkspaceDto(
       common: _comicCommonProjection(source, entity, catalog.comic),
       personal: PersonalCopyProjection.fromShelf(
         source,
-        releaseState: releaseState,
       ),
       comic: catalog.comic,
-      collectionItem: collectionItem,
+      libraryEntry: libraryEntry,
     );
   }
 }

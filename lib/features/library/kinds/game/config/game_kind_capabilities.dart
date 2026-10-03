@@ -7,10 +7,6 @@ final gameKindPhysicalMediaFormats = gamePhysicalMediaFormats;
 
 final gameKindTrackingProfile = gameTrackingProfile;
 
-final gameKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final gameKindCatalogTarget = const RootCatalogTargetCapability();
-
 final gameKindUiPolicy = const LibraryUiPolicy();
 
 final LibraryRelationCapability? gameKindRelations = null;
@@ -48,15 +44,14 @@ final gameKindHierarchy = const LibraryHierarchyCapability(
 );
 
 final gameKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Game', plural: 'Games'),
-  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+  catalogItem: LibraryEntityLabel(singular: 'Game', plural: 'Games'),
+  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final gameKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.play,
-  writableTargets: {LibraryTrackingTargetScope.work},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
+  writableTargets: {LibraryTrackingTargetScope.catalogItem},
+  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
 );
 
 final gameKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
@@ -96,9 +91,8 @@ final gameKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
 );
 
 final gameKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
-  copy: LibraryEntityActionSet.copy,
+  catalogItem: LibraryEntityActionSet.catalogItem,
+  libraryEntry: LibraryEntityActionSet.libraryEntry,
 );
 
 final gameKindInspector = LibraryInspectorCapability(
@@ -110,7 +104,7 @@ final gameKindInspector = LibraryInspectorCapability(
         sectionsBuilder: buildGameWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.collectionItem,
+        scope: LibraryEntityScope.libraryEntry,
         heroBuilder: buildGameCopyInspectorHero,
         sectionsBuilder: buildGameCopyInspectorSections,
       ),

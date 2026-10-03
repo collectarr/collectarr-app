@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 /// Reads TV catalog data from the shared Catalog Item cache.
 ///
 /// Seasons, episodes, and included physical contents remain contained in each
-/// cached Catalog Item payload. App-owned viewing and copy state stays in its
+/// cached Catalog Item payload. App-entry viewing and copy state stays in its
 /// dedicated TV tables.
 final class TvRepository implements ReadRepository<TvSeriesId, TvSeries> {
   TvRepository(this._db);

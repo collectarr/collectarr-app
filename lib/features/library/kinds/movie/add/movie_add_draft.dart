@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -30,7 +30,7 @@ final class MovieAddDraft extends LibraryAddKindDraft {
   CatalogMediaKind get kind => CatalogMediaKind.movie;
 
   @override
-  JsonEncodable toOwnedDetailsDraft() => MovieOwnedDetailsDraft(
+  JsonEncodable toEntryDetailsDraft() => MovieEntryDetailsDraft(
         features: features,
         hdrFormats: hdrFormats,
         boxSetId: boxSetId,

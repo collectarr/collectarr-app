@@ -1,11 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:drift/drift.dart';
 
-/// Local persistence for App-owned Music listening activity.
+/// Local persistence for App-entry Music listening activity.
 final class MusicListeningRepository {
   const MusicListeningRepository(this._db);
 
@@ -18,14 +17,14 @@ final class MusicListeningRepository {
     return row == null ? null : _fromRow(row);
   }
 
-  Future<List<MusicListenEvent>> listForCatalogItem(
-    CatalogItemRef catalogRef,
+  Future<List<MusicListenEvent>> listForLibraryEntry(
+    LibraryEntryRef libraryEntryRef,
   ) async {
-    _validateCatalogItem(catalogRef);
+    _validateLibraryEntry(libraryEntryRef);
     final rows = await (_db.select(_db.musicListenEventsRows)
           ..where(
             (table) =>
-                table.catalogItemId.equals(catalogRef.id) &
+                table.libraryEntryRefKey.equals(libraryEntryRef.key) &
                 table.deletedAt.isNull(),
           )
           ..orderBy([
@@ -37,11 +36,11 @@ final class MusicListeningRepository {
   }
 
   Future<MusicCatalogItemListeningSummary> getSummary(
-    CatalogItemRef catalogRef,
+    LibraryEntryRef libraryEntryRef,
   ) async {
-    final events = await listForCatalogItem(catalogRef);
+    final events = await listForLibraryEntry(libraryEntryRef);
     return MusicCatalogItemListeningSummary.fromEvents(
-      catalogItemId: catalogRef.id,
+      catalogItemId: libraryEntryRef.id.value,
       events: events,
     );
   }
@@ -72,8 +71,7 @@ final class MusicListeningRepository {
     return upsert(
       MusicListenEvent(
         id: event.id,
-        catalogRef: event.catalogRef,
-        collectionItemRef: event.collectionItemRef,
+        libraryEntryRef: event.libraryEntryRef,
         listenedAt: event.listenedAt,
         startedAt: event.startedAt,
         finishedAt: event.finishedAt,
@@ -90,8 +88,7 @@ final class MusicListeningRepository {
 MusicListenEventsRowsCompanion _toRow(MusicListenEvent event) {
   return MusicListenEventsRowsCompanion.insert(
     id: event.id,
-    catalogItemId: event.catalogRef.id,
-    collectionItemId: Value(event.collectionItemRef?.id.value),
+    libraryEntryRefKey: event.libraryEntryRef.key,
     listenedAt: event.listenedAt,
     startedAt: Value(event.startedAt),
     finishedAt: Value(event.finishedAt),
@@ -105,16 +102,7 @@ MusicListenEventsRowsCompanion _toRow(MusicListenEvent event) {
 
 MusicListenEvent _fromRow(MusicListenEventsRow row) => MusicListenEvent(
       id: row.id,
-      catalogRef: CatalogItemRef(
-        kind: CatalogMediaKind.music,
-        id: row.catalogItemId,
-      ),
-      collectionItemRef: row.collectionItemId == null
-          ? null
-          : CollectionItemRef(
-              kind: CatalogMediaKind.music,
-              id: CollectionItemId(row.collectionItemId!),
-            ),
+      libraryEntryRef: LibraryEntryRef.fromKey(row.libraryEntryRefKey),
       listenedAt: row.listenedAt,
       startedAt: row.startedAt,
       finishedAt: row.finishedAt,
@@ -129,32 +117,26 @@ Future<void> _validateEvent(LocalDatabase db, MusicListenEvent event) async {
   if (event.id.trim().isEmpty) {
     throw StateError('Cannot persist a Music listen event without an id');
   }
-  _validateCatalogItem(event.catalogRef);
-  if (event.collectionItemRef case final owned?
-      when owned.kind != CatalogMediaKind.music) {
+  _validateLibraryEntry(event.libraryEntryRef);
+  final entryRow = await (db.select(db.libraryEntries)
+        ..where((table) =>
+            table.kind.equals('music') &
+            table.id.equals(event.libraryEntryRef.id.value)))
+      .getSingleOrNull();
+  if (entryRow == null) {
     throw StateError(
-      'Music listen events can only reference Music collection items',
+      'Music listen events require an existing local Music library entry.',
     );
-  }
-  if (event.collectionItemRef case final owned?) {
-    final ownedRow = await (db.select(db.musicCollectionItemsRows)
-          ..where((table) => table.id.equals(owned.id.value)))
-        .getSingleOrNull();
-    if (ownedRow == null || ownedRow.itemId != event.catalogRef.id) {
-      throw StateError(
-        'The Music collection item must belong to the event Catalog Item',
-      );
-    }
   }
 }
 
-void _validateCatalogItem(CatalogItemRef catalogRef) {
-  if (catalogRef.kind != CatalogMediaKind.music ||
-      catalogRef.id.trim().isEmpty) {
+void _validateLibraryEntry(LibraryEntryRef libraryEntryRef) {
+  if (libraryEntryRef.kind != CatalogMediaKind.music ||
+      libraryEntryRef.id.value.trim().isEmpty) {
     throw ArgumentError.value(
-      catalogRef,
-      'catalogRef',
-      'Music listening requires a concrete Music Catalog Item',
+      libraryEntryRef,
+      'libraryEntryRef',
+      'Music listening requires a concrete local Music library entry.',
     );
   }
 }

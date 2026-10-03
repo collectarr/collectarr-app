@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_fields.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -76,29 +76,6 @@ class AnimeLibraryMediaPresentationBuilder
   }
 
   @override
-  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
-    LibraryWorkspaceSource entry,
-  ) {
-    final catalog = entry.catalogData;
-    if (catalog is! AnimeWorkspaceCatalogData) return const [];
-    return [
-      for (final release in catalog.video.releases)
-        LibraryWorkspaceReleaseSummary(
-          id: release.id,
-          title: release.title,
-          formatLabel: release.formatLabel,
-          formatBadge: animeFormatBadge(release.formatLabel),
-          releaseDate: release.releaseDate,
-          mediaLabels: [
-            for (var index = 0; index < release.media.length; index += 1)
-              release.media[index].title ?? 'Media \${index + 1}',
-          ],
-          runtimeMinutes: release.videoDetails?.runtimeMinutes,
-        ),
-    ];
-  }
-
-  @override
   List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
     LibraryWorkspaceSource entry,
   ) {
@@ -117,46 +94,6 @@ class AnimeLibraryMediaPresentationBuilder
                   value['kind']?.toString() != 'link',
               isAutomatic: value['is_automatic'] != false,
             ),
-    ];
-  }
-
-  @override
-  List<LibraryAddReleaseOption> buildReleaseOptions({
-    required CatalogSearchCandidate item,
-  }) {
-    return [
-      for (final edition in item.kindCapability
-          .mapTransport((transport) => transport)
-          .editions)
-        LibraryAddReleaseOption(
-          id: edition.id,
-          title: edition.title,
-          formatId: edition.physicalFormat,
-          formatLabel: edition.physicalFormatLabel,
-          formatBadge: animeFormatBadge(
-            edition.physicalFormat,
-            label: edition.physicalFormatLabel,
-          ),
-          releaseDate: edition.releaseDate,
-          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
-          identifierCode: edition.identifierCode,
-          variants: [
-            for (final variant in edition.variants)
-              LibraryAddVariantOption(
-                id: variant.id,
-                name: variant.name,
-                coverImageUrl: variant.coverImageUrl,
-                identifierCode: variant.identifierCode,
-                formatId: variant.physicalFormat,
-                formatLabel: variant.physicalFormatLabel,
-                formatBadge: animeFormatBadge(
-                  variant.physicalFormat,
-                  label: variant.physicalFormatLabel,
-                ),
-                isPrimary: variant.isPrimary,
-              ),
-          ],
-        ),
     ];
   }
 
@@ -429,8 +366,8 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => AnimeCollectionItemProjection.fromDispatch(
-      item.source.collectionItemDispatch,
+    value: (item) => AnimeLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
     )?.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
@@ -453,8 +390,8 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => AnimeCollectionItemProjection.fromDispatch(
-      item.source.collectionItemDispatch,
+    value: (item) => AnimeLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
     )?.condition,
   ),
   LibraryFilterDefinition<Object?>(

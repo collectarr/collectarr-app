@@ -1,6 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -12,24 +9,14 @@ import 'package:collectarr_app/features/library/kinds/music/forms/music_album_fo
 
 final class MusicAlbumEditDraft {
   MusicAlbumEditDraft.fromAlbum(
-    MusicAlbum album, {
-    TrackingSummary? trackingSummary,
-  })  : original = album,
+    MusicAlbum album,
+  )   : original = album,
         values = MusicAlbumFormValues.fromAlbum(album),
         contributions = List.of(album.contributions),
         mediums = [
           for (final medium in album.mediums) _copyMedium(medium),
         ],
-        externalLinks = List.of(album.externalLinks),
-        trackingStatus = trackingSummary?.statusStorageValue,
-        trackingRating = trackingSummary?.rating,
-        trackingNotes = trackingSummary?.notes,
-        _trackingSummary = trackingSummary {
-    _originalMediumNumbers = {
-      for (final medium in album.mediums)
-        medium.id.value: medium.mediumNumber,
-    };
-  }
+        externalLinks = List.of(album.externalLinks);
 
   final MusicAlbum original;
   final MusicAlbumFormValues values;
@@ -37,65 +24,6 @@ final class MusicAlbumEditDraft {
   final List<MusicMedium> mediums;
   List<MusicExternalLink> externalLinks;
   bool hasIncompleteContributions = false;
-
-  String? trackingStatus;
-  int? trackingRating;
-  String? trackingNotes;
-
-  final TrackingSummary? _trackingSummary;
-  late final Map<String, int> _originalMediumNumbers;
-
-  /// Maps each surviving original disc's old owned-detail index to its new
-  /// index. Newly added discs have no existing owned details to migrate.
-  Map<int, int> get ownedMediumIndexRemap {
-    final currentNumberById = {
-      for (final medium in mediums) medium.id.value: medium.mediumNumber,
-    };
-    final remap = <int, int>{};
-    final originalIdsByNumber = <int, String>{};
-    for (final entry in _originalMediumNumbers.entries) {
-      final previousId = originalIdsByNumber.putIfAbsent(
-        entry.value,
-        () => entry.key,
-      );
-      if (previousId != entry.key) {
-        throw StateError(
-          'Music album ${original.id.value} has duplicate original '
-          'medium number ${entry.value}; disc details cannot be remapped safely.',
-        );
-      }
-      final newNumber = currentNumberById[entry.key];
-      if (newNumber == null) continue;
-      final previous = remap[entry.value];
-      if (previous != null && previous != newNumber) {
-        throw StateError(
-          'Music album ${original.id.value} has duplicate original '
-          'medium number ${entry.value}; disc details cannot be remapped safely.',
-        );
-      }
-      remap[entry.value] = newNumber;
-    }
-    return Map.unmodifiable(remap);
-  }
-
-  Set<int> get removedOwnedMediumIndexes {
-    final currentIds = mediums.map((medium) => medium.id.value).toSet();
-    return {
-      for (final entry in _originalMediumNumbers.entries)
-        if (!currentIds.contains(entry.key)) entry.value,
-    };
-  }
-
-  bool get hasOwnedMediumIndexChanges {
-    final currentNumberById = {
-      for (final medium in mediums) medium.id.value: medium.mediumNumber,
-    };
-    for (final entry in _originalMediumNumbers.entries) {
-      final currentNumber = currentNumberById[entry.key];
-      if (currentNumber == null || currentNumber != entry.value) return true;
-    }
-    return false;
-  }
 
   void addMedium() {
     final nextNumber = mediums.fold<int>(
@@ -480,24 +408,6 @@ final class MusicAlbumEditDraft {
     );
   }
 
-  bool get hasTrackingEdits =>
-      _trackingSummary != null ||
-      trackingStatus != null ||
-      trackingRating != null ||
-      trackingNotes != null;
-
-  LibraryTrackingEditSelection? trackingSelection(
-    CatalogEntityRef targetRef,
-  ) {
-    if (!hasTrackingEdits) return null;
-    return LibraryTrackingEditSelection(
-      targetRef: targetRef,
-      rating: trackingRating,
-      readStatus: _text(trackingStatus),
-      notes: _text(trackingNotes),
-    );
-  }
-
   MusicAlbum toAlbum() => MusicAlbumFormAdapter.update(
         original,
         values,
@@ -515,6 +425,7 @@ MusicTrack musicTrackWithEdits(
   required String position,
   required String artist,
   required int? durationMs,
+  int? positionOrder,
   int? indentLevel,
   MusicMediumId? mediumId,
   bool clearParentHeaderId = false,
@@ -525,6 +436,7 @@ MusicTrack musicTrackWithEdits(
     id: source.id,
     mediumId: mediumId ?? source.mediumId,
     position: position.trim(),
+    positionOrder: positionOrder ?? source.positionOrder,
     title: title.trim().isEmpty ? 'Untitled track' : title.trim(),
     artist: _text(artist),
     composition: source.composition,
@@ -606,13 +518,15 @@ MusicMedium _copyMedium(
 List<MusicTrack> _renumberTracks(List<MusicTrack> tracks) {
   var position = 1;
   return [
-    for (final track in tracks)
+    for (var index = 0; index < tracks.length; index++)
       musicTrackWithEdits(
-        track,
-        title: track.title,
-        position: track.isHeader ? track.position : '${position++}',
-        artist: track.artist ?? '',
-        durationMs: track.durationMs,
+        tracks[index],
+        title: tracks[index].title,
+        position:
+            tracks[index].isHeader ? tracks[index].position : '${position++}',
+        artist: tracks[index].artist ?? '',
+        durationMs: tracks[index].durationMs,
+        positionOrder: index + 1,
       ),
   ];
 }

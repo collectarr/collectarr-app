@@ -1,29 +1,40 @@
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_collection_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:flutter/material.dart';
 
 List<LibraryDetailField> buildMusicPersonalDetailFields({
   required BuildContext context,
   required LibraryProjectionView item,
-  required CollectionItemSummary? collectionItem,
-  required LibraryCollectionItemDispatch? collectionItemDispatch,
+  required LibraryEntrySummary? libraryEntry,
+  required LibraryEntryDispatch? libraryEntryDispatch,
   required String? currency,
 }) {
   final details =
-      MusicCollectionItemProjection.fromDispatch(collectionItemDispatch)?.details;
-  if (details == null) {
+      MusicLibraryEntryProjection.fromDispatch(libraryEntryDispatch)?.details;
+  final entry = MusicLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
+  if (details == null || entry == null) {
     return const [];
+  }
+  final discNumbers = <String, int>{};
+  final rawDiscs = entry.catalogData['discs'];
+  if (rawDiscs is Iterable) {
+    for (final rawDisc in rawDiscs) {
+      if (rawDisc is! Map) continue;
+      final id = rawDisc['id'];
+      final number = rawDisc['disc_number'];
+      if (id is String && number is int) discNumbers[id] = number;
+    }
   }
   final storage = [
     for (final medium in details.media) ...[
       if (medium.storageDevice?.trim().isNotEmpty == true)
-        'Disc ${medium.mediumIndex}: ${medium.storageDevice!.trim()}',
+        'Disc ${discNumbers[medium.mediumId] ?? '?'}: ${medium.storageDevice!.trim()}',
       if (medium.storageSlot?.trim().isNotEmpty == true)
-        'Disc ${medium.mediumIndex}: ${medium.storageSlot!.trim()}',
+        'Disc ${discNumbers[medium.mediumId] ?? '?'}: ${medium.storageSlot!.trim()}',
     ],
   ];
   return [

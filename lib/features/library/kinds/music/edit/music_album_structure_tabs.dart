@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
@@ -12,7 +14,7 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Music-owned release structure editor.
+/// Music-entry release structure editor.
 ///
 /// The draft owns the mutable medium/track graph. This tab deliberately does
 /// not route track edits through a generic catalog DTO, so headers, nesting,
@@ -135,140 +137,8 @@ final class _MusicAlbumStructureTabState
         accent: widget.accent,
         child: _mediumTrackEditor(medium),
       ),
-      _discDetailsExpansion(medium),
     ];
   }
-
-  Widget _discDetailsExpansion(MusicMedium medium) => ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        title: Text('Disc ${medium.mediumNumber} details'),
-        childrenPadding: const EdgeInsets.only(bottom: 12),
-        children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final fieldWidth = constraints.maxWidth >= 680
-                  ? (constraints.maxWidth - 12) / 2
-                  : constraints.maxWidth;
-              final fields = <Widget>[
-                TextFormField(
-                  key: ValueKey('music-medium-matrix-a-${medium.id.value}'),
-                  initialValue: medium.matrixNumberSideA ?? '',
-                  decoration:
-                      const InputDecoration(labelText: 'Matrix number Side A'),
-                  onChanged: (value) => draft.updateMediumTechnicalDetails(
-                    medium.id,
-                    matrixNumberSideA: value,
-                    replaceMatrixNumberSideA: true,
-                  ),
-                ),
-                TextFormField(
-                  key: ValueKey('music-medium-matrix-b-${medium.id.value}'),
-                  initialValue: medium.matrixNumberSideB ?? '',
-                  decoration:
-                      const InputDecoration(labelText: 'Matrix number Side B'),
-                  onChanged: (value) => draft.updateMediumTechnicalDetails(
-                    medium.id,
-                    matrixNumberSideB: value,
-                    replaceMatrixNumberSideB: true,
-                  ),
-                ),
-                TextFormField(
-                  key: ValueKey('music-medium-sound-${medium.id.value}'),
-                  initialValue: medium.soundType ?? '',
-                  decoration: const InputDecoration(labelText: 'Sound type'),
-                  onChanged: (value) => draft.updateMediumTechnicalDetails(
-                    medium.id,
-                    soundType: value,
-                    replaceSoundType: true,
-                  ),
-                ),
-                LibraryDropdownPickField<String>(
-                  key: ValueKey('music-medium-vinyl-color-${medium.id.value}'),
-                  label: 'Vinyl color',
-                  value: medium.vinylColor,
-                  options: const [],
-                  openPicker: ({
-                    required label,
-                    required selectedValue,
-                    required options,
-                  }) =>
-                      showPickListSelectDialog(
-                    context: context,
-                    label: label,
-                    options: options,
-                    selectedValue: selectedValue,
-                    listName: MusicVocabularyIds.vinylColor.value,
-                    pluralLabel: 'Vinyl Colors',
-                    mediaKind: CatalogMediaKind.music.apiValue,
-                    allowUserValues:
-                        MusicVocabularies.vinylColor.allowCustomValues,
-                    db: ref.read(localDatabaseProvider),
-                  ),
-                  onChanged: (value) => draft.updateMediumTechnicalDetails(
-                    medium.id,
-                    vinylColor: value,
-                    replaceVinylColor: true,
-                  ),
-                ),
-                TextFormField(
-                  key: ValueKey('music-medium-vinyl-weight-${medium.id.value}'),
-                  initialValue: medium.vinylWeight ?? '',
-                  decoration: const InputDecoration(labelText: 'Vinyl weight'),
-                  onChanged: (value) => draft.updateMediumTechnicalDetails(
-                    medium.id,
-                    vinylWeight: value,
-                    replaceVinylWeight: true,
-                  ),
-                ),
-                TextFormField(
-                  key: ValueKey('music-medium-rpm-${medium.id.value}'),
-                  initialValue: medium.rpm?.toString() ?? '',
-                  decoration: const InputDecoration(labelText: 'RPM'),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) => draft.updateMediumTechnicalDetails(
-                    medium.id,
-                    rpm: int.tryParse(value.trim()),
-                    replaceRpm: true,
-                  ),
-                ),
-                TextFormField(
-                  key: ValueKey('music-medium-spars-${medium.id.value}'),
-                  initialValue: medium.spars ?? '',
-                  decoration: const InputDecoration(labelText: 'SPARS code'),
-                  onChanged: (value) => draft.updateMediumTechnicalDetails(
-                    medium.id,
-                    spars: value,
-                    replaceSpars: true,
-                  ),
-                ),
-              ];
-              return Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  for (final field in fields)
-                    SizedBox(width: fieldWidth, child: field),
-                ],
-              );
-            },
-          ),
-          for (final entry in [
-            ('Tracks', medium.effectiveTrackCount.toString()),
-            ('Table of contents', medium.toc),
-            ('CDDB ID', medium.cddbId),
-            ('Lead-out offset', medium.leadoutOffset?.toString()),
-            ('Disc ID', medium.bpDiscId),
-          ])
-            if (entry.$2?.trim().isNotEmpty == true)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Text('${entry.$1}: ${entry.$2}'),
-                ),
-              ),
-        ],
-      );
 
   Future<void> _removeMedium(MusicMedium medium) async {
     final confirmed = await showDialog<bool>(
@@ -277,8 +147,7 @@ final class _MusicAlbumStructureTabState
         title: Text('Remove Disc ${medium.mediumNumber}?'),
         content: Text(
           'This removes ${medium.tracks.length} track entries from the release. '
-          'Storage, slot, and matrix details for this disc will also be '
-          'removed from its collection items when you save.',
+          'Storage, slot, and matrix details for this disc will also be removed when you save.',
         ),
         actions: [
           TextButton(
@@ -294,6 +163,12 @@ final class _MusicAlbumStructureTabState
     );
     if (confirmed != true || !mounted) return;
     setState(() {
+      final entry = LibraryEntryEditScope.maybeOf(context);
+      if (entry != null) {
+        final details = _discDetails(entry);
+        details.removeWhere((row) => row['medium_id'] == medium.id.value);
+        entry.set('media', details);
+      }
       draft.removeMedium(medium.id);
       _activeMediumId = draft.mediums.isEmpty ? null : draft.mediums.first.id;
       _selectedTrackIds.clear();
@@ -309,43 +184,10 @@ final class _MusicAlbumStructureTabState
   }
 
   Widget _mediumTrackEditor(MusicMedium medium) {
-    final durationLabel = _mediumDurationLabel(medium);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Expanded(
-              flex: 3,
-              child: TextFormField(
-                key: ValueKey('music-medium-title-${medium.id.value}'),
-                initialValue: medium.title ?? '',
-                decoration: const InputDecoration(labelText: 'Disc title'),
-                onChanged: (value) => draft.updateMediumTitle(medium.id, value),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              flex: 2,
-              child: TextFormField(
-                key: ValueKey('music-medium-type-${medium.id.value}'),
-                initialValue: medium.mediumType ?? '',
-                decoration: const InputDecoration(labelText: 'Medium type'),
-                onChanged: (value) => draft.updateMediumType(medium.id, value),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Flexible(
-              child: Text(
-                '${medium.effectiveTrackCount} tracks'
-                '${durationLabel == null ? '' : ' - $durationLabel'}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          ],
-        ),
+        _discFields(medium),
         const SizedBox(height: 12),
         if (_selectedTrackIds.isNotEmpty) _selectionToolbar(medium),
         _trackTable(medium),
@@ -376,6 +218,97 @@ final class _MusicAlbumStructureTabState
       ],
     );
   }
+
+  List<Map<String, dynamic>> _discDetails(LibraryEntryEditDraft entry) {
+    final raw = entry.values['media'];
+    return raw is List
+        ? [
+            for (final row in raw)
+              if (row is Map && row['medium_id'] is String)
+                Map<String, dynamic>.from(row),
+          ]
+        : <Map<String, dynamic>>[];
+  }
+
+  Widget _discPersonalField(MusicMedium medium, String label, String key) {
+    final entry = LibraryEntryEditScope.maybeOf(context);
+    final rows = entry == null ? <Map<String, dynamic>>[] : _discDetails(entry);
+    final row =
+        rows.where((row) => row['medium_id'] == medium.id.value).firstOrNull;
+    return LibraryFormField(
+        label: label,
+        child: TextFormField(
+          key: ValueKey('${medium.id.value}:$key'),
+          initialValue: row?[key]?.toString() ?? '',
+          enabled: entry != null,
+          onChanged: (value) {
+            final next = _discDetails(entry!);
+            final details = next
+                .where((row) => row['medium_id'] == medium.id.value)
+                .firstOrNull;
+            if (details != null) {
+              details[key] = value.trim().isEmpty ? null : value.trim();
+            } else {
+              next.add({
+                'medium_id': medium.id.value,
+                key: value.trim().isEmpty ? null : value.trim(),
+              });
+            }
+            entry.set('media', next);
+          },
+        ));
+  }
+
+  Widget _discFields(MusicMedium medium) =>
+      LayoutBuilder(builder: (context, constraints) {
+        final wide = constraints.maxWidth >= 680;
+        final half =
+            wide ? (constraints.maxWidth - 12) / 2 : constraints.maxWidth;
+        final quarter = wide ? (half - 12) / 2 : constraints.maxWidth;
+        return Wrap(spacing: 12, runSpacing: 12, children: [
+          SizedBox(
+              width: half,
+              child: LibraryFormField(
+                  label: 'Disc Title',
+                  child: TextFormField(
+                    key: ValueKey('music-medium-title-${medium.id.value}'),
+                    initialValue: medium.title ?? '',
+                    onChanged: (value) =>
+                        draft.updateMediumTitle(medium.id, value),
+                  ))),
+          SizedBox(
+              width: quarter,
+              child: _discPersonalField(
+                  medium, 'Storage Device', 'storage_device')),
+          SizedBox(
+              width: quarter,
+              child: _discPersonalField(medium, 'Slot', 'storage_slot')),
+          SizedBox(
+              width: half,
+              child: LibraryFormField(
+                  label: 'Matrix Nr Side A',
+                  child: TextFormField(
+                    key: ValueKey('music-medium-matrix-a-${medium.id.value}'),
+                    initialValue: medium.matrixNumberSideA ?? '',
+                    onChanged: (value) => draft.updateMediumTechnicalDetails(
+                        medium.id,
+                        matrixNumberSideA: value,
+                        replaceMatrixNumberSideA: true),
+                  ))),
+          SizedBox(
+              width: half,
+              child: LibraryFormField(
+                  label: 'Matrix Nr Side B',
+                  child: TextFormField(
+                    key: ValueKey('music-medium-matrix-b-${medium.id.value}'),
+                    initialValue: medium.matrixNumberSideB ?? '',
+                    onChanged: (value) => draft.updateMediumTechnicalDetails(
+                        medium.id,
+                        matrixNumberSideB: value,
+                        replaceMatrixNumberSideB: true),
+                  ))),
+        ]);
+      });
 
   Widget _selectionToolbar(MusicMedium medium) {
     final destinations = draft.mediums

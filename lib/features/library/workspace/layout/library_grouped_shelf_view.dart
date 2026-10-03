@@ -342,7 +342,7 @@ class LibraryGroupFolderTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final representative = group.representativeItem;
-    final ownedCount = group.items.where((item) => item.source.isOwned).length;
+    final entryCount = group.items.where((item) => item.source.isEntry).length;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -487,7 +487,7 @@ class LibraryGroupFolderTile extends StatelessWidget {
                               ),
                               const Spacer(),
                               _GroupStats(
-                                ownedCount: ownedCount,
+                                entryCount: entryCount,
                                 totalCount: group.count,
                               ),
                             ],
@@ -508,11 +508,11 @@ class LibraryGroupFolderTile extends StatelessWidget {
 
 class _GroupStats extends StatelessWidget {
   const _GroupStats({
-    required this.ownedCount,
+    required this.entryCount,
     required this.totalCount,
   });
 
-  final int ownedCount;
+  final int entryCount;
   final int totalCount;
 
   @override
@@ -520,7 +520,7 @@ class _GroupStats extends StatelessWidget {
     final palette = appPalette(context);
     final lines = <String>[
       '$totalCount items',
-      '$ownedCount owned',
+      '$entryCount entry',
     ];
     return DecoratedBox(
       decoration: BoxDecoration(

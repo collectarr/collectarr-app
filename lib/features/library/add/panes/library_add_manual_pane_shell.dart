@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/edit/sections/item_images_edit_s
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:flutter/material.dart';
 
-/// Shared visual structure for kind-owned manual Add forms.
+/// Shared visual structure for kind-entry manual Add forms.
 ///
 /// Uses the Edit dialog scaffold so manual Add and Edit share their header,
 /// tab strip, form surface, positioning, and footer layout. Kind panes retain
@@ -18,12 +18,14 @@ class LibraryAddManualPaneShell extends StatefulWidget {
     required this.request,
     required this.tabs,
     this.identityDetails,
+    this.showCatalogTitleField = true,
   }) : assert(tabs.length > 0);
 
   final LibraryAddManualPaneRequest request;
 
   /// Optional kind-specific fields shown below the shared Catalog Item title.
   final Widget? identityDetails;
+  final bool showCatalogTitleField;
   final List<LibraryAddManualPaneTab> tabs;
 
   @override
@@ -112,7 +114,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
     ];
     final badges = <Widget>[
       const LibraryAddResultBadge('main'),
-      LibraryAddResultBadge('owned defaults', accent: request.accent),
+      LibraryAddResultBadge('entry defaults', accent: request.accent),
       if (request.defaultLocationLabel != null)
         LibraryAddResultBadge(
           request.defaultLocationLabel!,
@@ -138,7 +140,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
         for (var index = 0; index < tabs.length; index++)
           EditTabShell(
             children: [
-              if (index == 0)
+              if (index == 0 && widget.showCatalogTitleField)
                 TextFormField(
                   initialValue: request.manualDraft.catalogTitle,
                   onChanged: (value) {
@@ -160,7 +162,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
       tabOrderKey: 'library_add_manual_tabs_${request.kind.apiValue}_v1',
       onClose: () => Navigator.of(context).pop(),
       onCancel: () => Navigator.of(context).pop(),
-      onSave: request.onAddOwned,
+      onSave: request.onAddEntry,
       footerOverride: LibraryAddManualActionBar(
         request: request,
         formKey: _formKey,
@@ -169,7 +171,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
   }
 }
 
-/// One kind-owned tab displayed inside the shared manual Add dialog shell.
+/// One kind-entry tab displayed inside the shared manual Add dialog shell.
 ///
 /// The shell owns tab layout and chrome; each kind owns tab contents.
 final class LibraryAddManualPaneTab {

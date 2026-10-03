@@ -17,10 +17,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 LibraryCollectionStatusScope resolveLibraryCollectionStatusScope(
   LibraryProjectionView item,
 ) {
-  if (item.source.collectionItemSummary?.soldAt != null) {
+  if (item.source.libraryEntrySummary?.soldAt != null) {
     return LibraryCollectionStatusScope.sold;
   }
-  if (item.source.isOwned) return LibraryCollectionStatusScope.inCollection;
+  if (item.source.isEntry) return LibraryCollectionStatusScope.inCollection;
   if (item.source.isWishlisted) return LibraryCollectionStatusScope.wishList;
   return LibraryCollectionStatusScope.notInCollection;
 }
@@ -195,7 +195,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                           title: dto.primaryLabel,
                           itemNumber: presentation.itemNumber,
                           imageUrl: dto.imageUrl,
-                          collectionItemRef: item.source.collectionItemRef,
+                          libraryEntryRef: item.source.libraryEntryRef,
                           targetCacheWidth: targetCacheWidth,
                           fallbackAspectRatio: widget.fallbackCoverAspectRatio,
                           accentColor: widget.accentColor,

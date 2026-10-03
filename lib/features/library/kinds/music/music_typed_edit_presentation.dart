@@ -37,7 +37,7 @@ final class MusicTypedEditPresentationBuilder
     required LibraryEditPresentationContext context,
   }) =>
       const LibraryEditPresentationState(
-        usesOwnedMainArtworkLayout: false,
+        usesEntryMainArtworkLayout: false,
         usesDetailsTab: false,
         usesArtworkCoverTab: false,
         usesArtworkPhotosTab: false,

@@ -119,90 +119,6 @@ class MangaLibraryMediaPresentationBuilder
   }
 
   @override
-  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
-    LibraryWorkspaceSource entry,
-  ) {
-    final catalog = entry.catalogData;
-    if (catalog is! MangaWorkspaceCatalogData) return const [];
-    return [
-      for (final edition in catalog.metadata.editions)
-        LibraryWorkspaceReleaseSummary(
-          id: edition.id,
-          title: edition.title,
-          formatLabel: edition.physicalFormatLabel ?? edition.physicalFormat,
-          formatBadge: mangaFormatBadge(
-            edition.physicalFormat,
-            label: edition.physicalFormatLabel,
-          ),
-          releaseDate: edition.releaseDate,
-          variantCount: edition.variants.length,
-          variants: [
-            for (final variant in edition.variants)
-              LibraryWorkspaceVariantSummary(
-                id: variant.id,
-                name: variant.name,
-                coverImageUrl: variant.coverImageUrl,
-                thumbnailImageUrl: variant.thumbnailImageUrl,
-                formatLabel:
-                    variant.physicalFormatLabel ?? variant.physicalFormat,
-                formatBadge: mangaFormatBadge(
-                  variant.physicalFormat,
-                  label: variant.physicalFormatLabel,
-                ),
-              ),
-          ],
-          mediaLabels: [
-            for (final disc in edition.discs)
-              disc.discName ??
-                  (disc.discNumber == null
-                      ? 'Media'
-                      : 'Disc \${disc.discNumber}'),
-          ],
-        ),
-    ];
-  }
-
-  @override
-  List<LibraryAddReleaseOption> buildReleaseOptions({
-    required CatalogSearchCandidate item,
-  }) {
-    return [
-      for (final edition in item.kindCapability
-          .mapTransport((transport) => transport)
-          .editions)
-        LibraryAddReleaseOption(
-          id: edition.id,
-          title: edition.title,
-          formatId: edition.physicalFormat,
-          formatLabel: edition.physicalFormatLabel,
-          formatBadge: mangaFormatBadge(
-            edition.physicalFormat,
-            label: edition.physicalFormatLabel,
-          ),
-          releaseDate: edition.releaseDate,
-          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
-          identifierCode: edition.identifierCode,
-          variants: [
-            for (final variant in edition.variants)
-              LibraryAddVariantOption(
-                id: variant.id,
-                name: variant.name,
-                coverImageUrl: variant.coverImageUrl,
-                identifierCode: variant.identifierCode,
-                formatId: variant.physicalFormat,
-                formatLabel: variant.physicalFormatLabel,
-                formatBadge: mangaFormatBadge(
-                  variant.physicalFormat,
-                  label: variant.physicalFormatLabel,
-                ),
-                isPrimary: variant.isPrimary,
-              ),
-          ],
-        ),
-    ];
-  }
-
-  @override
   CatalogSearchCandidate mergeHydratedAddItem({
     required CatalogSearchCandidate hydrated,
     required CatalogSearchCandidate fallback,
@@ -310,8 +226,6 @@ class MangaLibraryMediaPresentationBuilder
     const String? musicAlbumStatus = null;
     const String? ageRating = null;
     const String? audienceRating = null;
-    final referenceRelease = _mangaReferenceRelease(item);
-    final referenceVariant = referenceRelease.variant;
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
@@ -402,19 +316,6 @@ class MangaLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Age Rating', value: ageRating),
         if (audienceRating != null)
           LibraryDetailField(label: 'Audience Rating', value: audienceRating),
-        if (referenceVariant?.formatLabel case final variantType?
-            when variantType.trim().isNotEmpty)
-          LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
-        if (referenceVariant?.sku case final sku? when sku.trim().isNotEmpty)
-          LibraryDetailField(label: 'SKU', value: sku.trim()),
-        if (referenceRelease.release != null)
-          LibraryDetailField(
-              label: 'Primary release',
-              value: [
-                referenceRelease.release!.title,
-                if (referenceVariant?.name.trim().isNotEmpty == true)
-                  referenceVariant!.name.trim(),
-              ].join(' Â· ')),
         LibraryDetailField(
             label: 'Cover',
             value: dto.imageUrl == null || dto.imageUrl!.isEmpty
@@ -473,26 +374,6 @@ class MangaLibraryMediaPresentationBuilder
       ),
     ];
   }
-}
-
-({
-  LibraryWorkspaceReleaseSummary? release,
-  LibraryWorkspaceVariantSummary? variant
-}) _mangaReferenceRelease(LibraryProjectionView item) {
-  final node = item.node;
-  if (node is! LibraryReleaseRef || node.release.id != node.releaseId) {
-    return (release: null, variant: null);
-  }
-  LibraryWorkspaceVariantSummary? variant;
-  for (final candidate in node.release.variants) {
-    if (candidate.isPrimary) {
-      variant = candidate;
-      break;
-    }
-  }
-  variant ??=
-      node.release.variants.isEmpty ? null : node.release.variants.first;
-  return (release: node.release, variant: variant);
 }
 
 String _mangaVolumeLabel(double? volumeNumber) {

@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -28,7 +29,7 @@ class _UserFoldersDialog extends StatefulWidget {
 
 class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   List<UserFolder> _folders = [];
-  Map<String, List<CollectionItemRef>> _folderCollectionItemRefs = {};
+  Map<String, List<LibraryEntryRef>> _folderLibraryEntryRefs = {};
   bool _loading = true;
 
   @override
@@ -40,14 +41,14 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   Future<void> _load() async {
     final repo = UserFolderRepository(widget.db);
     final folders = await repo.getAll();
-    final collectionItemRefs = <String, List<CollectionItemRef>>{};
+    final libraryEntryRefs = <String, List<LibraryEntryRef>>{};
     for (final folder in folders) {
-      collectionItemRefs[folder.id] = await repo.getCollectionItemRefsInFolder(folder.id);
+      libraryEntryRefs[folder.id] = await repo.getLibraryEntryRefsInFolder(folder.id);
     }
     if (mounted) {
       setState(() {
         _folders = folders;
-        _folderCollectionItemRefs = collectionItemRefs;
+        _folderLibraryEntryRefs = libraryEntryRefs;
         _loading = false;
       });
     }
@@ -105,7 +106,11 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     if (confirmed != true) return;
 
     final repo = UserFolderRepository(widget.db);
+    final refs = await repo.getLibraryEntryRefsInFolder(folder.id);
     await repo.delete(folder.id);
+    for (final ref in refs) {
+      await enqueueLibraryEntrySnapshot(widget.db, ref);
+    }
     await _load();
   }
 
@@ -181,7 +186,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
                         Divider(height: 1, color: palette.divider),
                     itemBuilder: (context, i) {
                       final folder = _folders[i];
-                      final count = _folderCollectionItemRefs[folder.id]?.length ?? 0;
+                      final count = _folderLibraryEntryRefs[folder.id]?.length ?? 0;
                       return ListTile(
                         leading: Icon(
                           _iconForFolder(folder.iconName),

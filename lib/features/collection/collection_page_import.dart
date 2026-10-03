@@ -167,7 +167,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
         .upsertTransports([item.kindCapability.toImportTransport()]);
     final resolvedRow = row.copyWith(
       itemId: item.reference.id,
-      catalogRef: item.reference,
+      catalogItemRef: item.reference.toCatalogItemRef(),
       mediaKind: item.summary.kind,
       title: item.summary.primaryLabel,
       kindDisplayTitle: item.summary.primaryLabel,
@@ -216,7 +216,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
         resolvedRows.add(
           row.copyWith(
             itemId: match.reference.id,
-            catalogRef: match.reference,
+            catalogItemRef: match.reference.toCatalogItemRef(),
             mediaKind: match.summary.kind,
             title: match.summary.primaryLabel,
             kindDisplayTitle: match.summary.primaryLabel,

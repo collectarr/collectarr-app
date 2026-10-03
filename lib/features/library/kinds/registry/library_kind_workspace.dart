@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/tracking/library_tracking_topolo
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:flutter/material.dart';
 
-/// Workspace behavior owned by one concrete kind.
+/// Workspace behavior entry by one concrete kind.
 ///
 /// The registry may hold this behind the structural interface, but all field
 /// and projection callbacks are bound to the concrete [TDto] implementation
@@ -57,7 +57,7 @@ abstract interface class LibraryKindWorkspace {
 
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields;
 
-  /// Selects the kind-owned schema from the structural workspace node.
+  /// Selects the kind-entry schema from the structural workspace node.
   ///
   /// Generic workspace code supplies the node shape; it never interprets
   /// Music-specific entity names or fields.
@@ -184,7 +184,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     // A kind may omit a structural scope it does not expose. Catalog Items
     // that are already concrete editions, such as Music albums, have no
     // separate Release workspace.
-    final missing = const [LibraryEntityScope.catalogItem, LibraryEntityScope.collectionItem]
+    final missing = const [LibraryEntityScope.catalogItem, LibraryEntityScope.libraryEntry]
         .where((scope) => !entityWorkspaces.containsKey(scope))
         .toList(growable: false);
     if (missing.isNotEmpty) {
@@ -271,7 +271,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   ) =>
       switch (entityType) {
         'catalog_item' => fieldsForScope(LibraryEntityScope.catalogItem),
-        'collection_item' => fieldsForScope(LibraryEntityScope.collectionItem),
+        'library_entry' => fieldsForScope(LibraryEntityScope.libraryEntry),
         _ => throw FormatException(
             'Unsupported workspace entity type: $entityType.',
           ),
@@ -613,18 +613,9 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     required LibraryWorkspaceSource source,
     required LibraryEntityRef node,
   }) {
-    final releaseState = node.scope == LibraryEntityScope.release
-        ? LibraryReleaseState(
-            isOwned: source.isOwned,
-            isWishlisted: source.isWishlisted,
-            isTracked: source.isTracked,
-            trackingSummary: source.trackingSummary,
-          )
-        : null;
     return projectorForScope(node.scope).project(
       source: source,
       entity: node,
-      releaseState: releaseState,
     );
   }
 }

@@ -11,10 +11,9 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   manualCandidateBuilder: buildMusicManualCandidate,
   manualProposalBuilder: buildMusicManualProposalData,
   manualCandidateValidationMessage: 'Enter a valid music release',
-  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      MusicCollectionItemCreatePayload(
-    catalogRef: item.reference,
-    details: details as MusicOwnedDetailsDraft,
+  entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      MusicLibraryEntryCreatePayload(
+    details: details as MusicEntryDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
@@ -24,6 +23,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
+    ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),

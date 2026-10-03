@@ -14,9 +14,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 
 final class TvCatalogTransportCodec
-    implements
-        CatalogKindTransportCodec<TvSeries>,
-        CatalogSharedCachePrimaryStore {
+    implements CatalogKindTransportCodec<TvSeries> {
   const TvCatalogTransportCodec();
 
   @override
@@ -107,11 +105,6 @@ final class TvCatalogTransportCodec
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
-
-  @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return CatalogItemCacheRepository(db).upsert(item);
-  }
 
   @override
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_import_transpo
 ///
 /// The caller supplies an already selected schema-v1 catalog transport. The
 /// implementation only performs payload mechanics; field meaning and the
-/// payload keys remain owned by the kind that registers the mutator.
+/// payload keys remain entry by the kind that registers the mutator.
 typedef CatalogTransportBucketValueMutator = CatalogImportTransport? Function(
   CatalogImportTransport source,
   String currentLabel, {

@@ -64,7 +64,7 @@ class LibraryPageCollectionActionCoordinator {
     }
   }
 
-  Future<void> confirmAndRemoveOwned(LibraryProjectionItem item) async {
+  Future<void> confirmAndRemoveEntry(LibraryProjectionItem item) async {
     final confirmed = await _page.confirmSingleRemove(
       _page.context,
       title: item.dto.primaryLabel,
@@ -73,7 +73,7 @@ class LibraryPageCollectionActionCoordinator {
     if (!confirmed || !_page.mounted) {
       return;
     }
-    await runCollectionAction((actions) => actions.removeOwned(item));
+    await runCollectionAction((actions) => actions.removeEntry(item));
   }
 
   LibraryProjectionItem? selectedProjectionItemFor(
@@ -141,18 +141,18 @@ class LibraryPageCollectionActionCoordinator {
           return;
         }
         await singleDuplicateFlow(item);
-      case LibraryItemContextAction.addToOwned:
+      case LibraryItemContextAction.addToEntry:
         if (isBatchSelection) {
-          await bulkMoveToOwnedFlow(projection);
+          await bulkMoveToEntryFlow(projection);
           return;
         }
-        await runCollectionAction((a) => a.addOwned(item));
-      case LibraryItemContextAction.removeFromOwned:
+        await runCollectionAction((a) => a.addEntry(item));
+      case LibraryItemContextAction.removeFromEntry:
         if (isBatchSelection) {
           await bulkRemoveFlow(projection);
           return;
         }
-        await confirmAndRemoveOwned(item);
+        await confirmAndRemoveEntry(item);
       case LibraryItemContextAction.addToWishlist:
         if (isBatchSelection) {
           await bulkMoveToWishlistFlow(projection);
@@ -164,12 +164,11 @@ class LibraryPageCollectionActionCoordinator {
       case LibraryItemContextAction.removeTracking:
         final active = resolveActiveTrackingSummary(
           libraryTrackingSummariesForItem(
-            _page.type,
             item,
-            _page.ref.read(trackingSummariesByCatalogRefProvider),
-            collectionItem: item.source.collectionItemSummary,
+            _page.ref.read(trackingSummariesByLibraryEntryRefProvider),
+            libraryEntry: item.source.libraryEntrySummary,
           ),
-          item.source.collectionItemSummary,
+          item.source.libraryEntrySummary,
         );
         if (active != null) {
           await _page.ref
@@ -265,14 +264,14 @@ class LibraryPageCollectionActionCoordinator {
     _page.invalidateShelf();
   }
 
-  Future<void> bulkMoveToOwnedFlow(LibraryProjection? projection) async {
+  Future<void> bulkMoveToEntryFlow(LibraryProjection? projection) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,
       _page.selection.itemIds,
     );
     final prefill = await PrefillDefaults.load();
-    await _page.bulkActions().moveSelectedToOwned(
+    await _page.bulkActions().moveSelectedToEntry(
           entries,
           defaultCondition:
               libraryEditPresentationForKind(_page.type.kind).defaultCondition,
@@ -312,7 +311,7 @@ class LibraryPageCollectionActionCoordinator {
   }
 
   Future<void> singleDuplicateFlow(LibraryProjectionItem item) async {
-    if (!item.source.isOwned) return;
+    if (!item.source.isEntry) return;
     await _page.bulkActions().duplicateSelected([item.source]);
     if (_page.mounted) {
       _page.invalidateShelf();

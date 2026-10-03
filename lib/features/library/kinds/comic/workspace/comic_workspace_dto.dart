@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
@@ -8,13 +8,13 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
     required this.common,
     required this.personal,
     required this.comic,
-    this.collectionItem,
+    this.libraryEntry,
   });
 
   final WorkspaceCommonProjection common;
   final PersonalCopyProjection personal;
   final ComicCatalogItem comic;
-  final ComicCollectionItem? collectionItem;
+  final ComicLibraryEntry? libraryEntry;
 
   String get title => common.title;
   String? get coverImageUrl => common.coverImageUrl;

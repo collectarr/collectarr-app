@@ -74,11 +74,11 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ownedCatalogRefs =
+    final entryCatalogRefs =
         ref.watch(collectionByCatalogRefProvider).keys.toSet();
-    bool isOwnedId(String? id) =>
+    bool isEntryId(String? id) =>
         id != null &&
-        ownedCatalogRefs.any(
+        entryCatalogRefs.any(
           (ref) => ref.kind == CatalogMediaKind.comic && ref.id == id,
         );
     final series = data.series;
@@ -189,15 +189,15 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
             const SizedBox(width: 8),
             if (data.items.isNotEmpty)
               Builder(builder: (context) {
-                final ownedCount = data.items.where((item) {
+                final entryCount = data.items.where((item) {
                   final id = item['id']?.toString();
-                  return isOwnedId(id);
+                  return isEntryId(id);
                 }).length;
                 return Text(
-                  '$ownedCount / ${data.items.length} owned',
+                  '$entryCount / ${data.items.length} entry',
                   style: TextStyle(
                     fontSize: 12,
-                    color: ownedCount == data.items.length
+                    color: entryCount == data.items.length
                         ? kAppAccent
                         : appPalette(context).textMuted,
                     fontWeight: FontWeight.w600,
@@ -208,7 +208,7 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         Builder(builder: (context) {
-          final missingNumbers = _computeMissingIssues(data.items, isOwnedId);
+          final missingNumbers = _computeMissingIssues(data.items, isEntryId);
           if (missingNumbers.isEmpty) return const SizedBox.shrink();
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -260,7 +260,7 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
           for (final item in data.items)
             _ComicSeriesItemTile(
               item: item,
-              isOwned: isOwnedId(item['id']?.toString()),
+              isEntry: isEntryId(item['id']?.toString()),
             ),
       ],
     );
@@ -293,10 +293,10 @@ class _MissingIssueChip extends StatelessWidget {
 }
 
 class _ComicSeriesItemTile extends StatelessWidget {
-  const _ComicSeriesItemTile({required this.item, required this.isOwned});
+  const _ComicSeriesItemTile({required this.item, required this.isEntry});
 
   final Map<String, dynamic> item;
-  final bool isOwned;
+  final bool isEntry;
 
   @override
   Widget build(BuildContext context) {
@@ -351,7 +351,7 @@ class _ComicSeriesItemTile extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        trailing: isOwned
+        trailing: isEntry
             ? const Icon(Icons.check_circle, color: kAppAccent, size: 20)
             : Icon(
                 Icons.circle_outlined,
@@ -367,9 +367,9 @@ final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
 
 List<int> _computeMissingIssues(
   List<dynamic> items,
-  bool Function(String? id) isOwnedId,
+  bool Function(String? id) isEntryId,
 ) {
-  final ownedNumbers = <int>{};
+  final entryNumbers = <int>{};
   final allNumbers = <int>{};
   for (final item in items) {
     if (item is! Map) continue;
@@ -380,16 +380,16 @@ List<int> _computeMissingIssues(
     if (number == null) continue;
     allNumbers.add(number);
     final id = item['id']?.toString();
-    if (isOwnedId(id)) {
-      ownedNumbers.add(number);
+    if (isEntryId(id)) {
+      entryNumbers.add(number);
     }
   }
-  if (ownedNumbers.length < 2) return const [];
-  final sorted = ownedNumbers.toList()..sort();
+  if (entryNumbers.length < 2) return const [];
+  final sorted = entryNumbers.toList()..sort();
   if (sorted.last - sorted.first > 5000) return const [];
   final missing = <int>[];
   for (var number = sorted.first; number <= sorted.last; number++) {
-    if (!ownedNumbers.contains(number) && allNumbers.contains(number)) {
+    if (!entryNumbers.contains(number) && allNumbers.contains(number)) {
       missing.add(number);
       if (missing.length > 1000) break;
     }

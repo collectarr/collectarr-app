@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -10,7 +10,7 @@ import 'package:drift/drift.dart';
 
 import 'comic_tracking_state.dart';
 
-/// Comic-owned lifecycle tracking mapping.
+/// Comic-entry lifecycle tracking mapping.
 ///
 /// Comics do not have episodic tracking coordinates. The codec still owns the
 /// wire/storage mapping so sync never falls back to a generic kind parser.
@@ -35,8 +35,7 @@ final class ComicTrackingStateCodec
         TrackingStorageRead(
           trackingStorageRowFromColumns(
             id: row.id,
-            catalogRefJson: row.catalogRefJson,
-            collectionItemRefKey: row.collectionItemRefKey,
+                        libraryEntryRefKey: row.libraryEntryRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -59,12 +58,11 @@ final class ComicTrackingStateCodec
   @override
   Future<void> writeStorageRecord(
       LocalDatabase db, TrackingStorageRecord entry) async {
-    _validateKind(entry.catalogRef);
+    validateTrackingEntryKind(entry.libraryEntryRef);
     await db.into(db.comicTrackingRows).insertOnConflictUpdate(
           ComicTrackingRowsCompanion.insert(
             id: entry.id,
-            catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
-            collectionItemRefKey: Value(entry.collectionItemRef?.key),
+                        libraryEntryRefKey: entry.libraryEntryRef.key,
             sourceType: Value(entry.sourceTypeApiValue),
             status: Value(entry.statusStorageValue),
             rating: Value(entry.rating),
@@ -86,7 +84,7 @@ final class ComicTrackingStateCodec
     TrackingStorageRecord entry,
     DateTime deletedAt,
   ) async {
-    _validateKind(entry.catalogRef);
+    validateTrackingEntryKind(entry.libraryEntryRef);
     await (db.update(db.comicTrackingRows)
           ..where((row) => row.id.equals(entry.id)))
         .write(
@@ -100,8 +98,7 @@ final class ComicTrackingStateCodec
   @override
   ComicTrackingState create({
     required String id,
-    required CatalogEntityRef catalogRef,
-    CollectionItemRef? collectionItemRef,
+    required LibraryEntryRef libraryEntryRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -114,11 +111,10 @@ final class ComicTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    _validateKind(catalogRef);
+    validateTrackingEntryKind(libraryEntryRef);
     return ComicTrackingState(
       id: id,
-      catalogRef: catalogRef,
-      collectionItemRef: collectionItemRef,
+      libraryEntryRef: libraryEntryRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -142,7 +138,7 @@ final class ComicTrackingStateCodec
 
   @override
   Map<String, dynamic> toSyncPayload(TrackingStorageRecord entry) {
-    _validateKind(entry.catalogRef);
+    validateTrackingEntryKind(entry.libraryEntryRef);
     return entry.toSyncPayload()
       ..addAll({
         'progress_current': entry.progress.current,
@@ -158,12 +154,10 @@ final class ComicTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    final catalogRef = _catalogRefFromPayload(payload);
-    _validateKind(catalogRef);
+    final libraryEntryRef = trackingLibraryEntryRefFromPayload(payload, kind);
     return ComicTrackingState(
       id: id,
-      catalogRef: catalogRef,
-      collectionItemRef: collectionItemRefFromSerialized(payload['collection_item_ref']),
+      libraryEntryRef: libraryEntryRef,
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -183,11 +177,10 @@ final class ComicTrackingStateCodec
     TrackingStorageRow row,
     Object? coordinates,
   ) {
-    _validateKind(row.catalogRef);
+    validateTrackingEntryKind(row.libraryEntryRef);
     return ComicTrackingState(
       id: row.id,
-      catalogRef: row.catalogRef,
-      collectionItemRef: row.collectionItemRef,
+      libraryEntryRef: row.libraryEntryRef,
       sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,
@@ -202,24 +195,6 @@ final class ComicTrackingStateCodec
     );
   }
 
-  CatalogEntityRef _catalogRefFromPayload(Map<String, dynamic> payload) {
-    final raw = payload['catalog_ref'];
-    if (raw is! Map) {
-      throw const FormatException(
-          'Comic tracking entry is missing catalog_ref');
-    }
-    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
-  }
-
-  void _validateKind(CatalogEntityRef ref) {
-    if (ref.mediaKind != kind) {
-      throw ArgumentError.value(
-        ref.mediaKind,
-        'catalogRef.kind',
-        'Expected Comic tracking entry',
-      );
-    }
-  }
 }
 
 int? _int(Object? value) {

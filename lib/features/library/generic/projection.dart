@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -311,7 +311,7 @@ String? libraryGroupModeFromStorageValue(String value,
     final fields = workspace.fieldsForGroupModeAcrossScopes(candidate);
     if (fields == null) {
       return switch (candidate) {
-        'title' || 'location' || 'ownership' => candidate,
+        'title' || 'location' || 'entries' => candidate,
         _ => null,
       };
     }
@@ -361,7 +361,7 @@ class LibraryProjection {
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
-    Set<CollectionItemRef> activeLoanCollectionItemIds = const {},
+    Set<LibraryEntryRef> activeLoanLibraryEntryIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
     return const LibraryProjectionService().build(
@@ -382,7 +382,7 @@ class LibraryProjection {
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
-      activeLoanCollectionItemIds: activeLoanCollectionItemIds,
+      activeLoanLibraryEntryIds: activeLoanLibraryEntryIds,
       searchTarget: searchTarget,
     );
   }

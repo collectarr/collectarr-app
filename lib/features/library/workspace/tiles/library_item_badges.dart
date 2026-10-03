@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class LibraryCoverBadges extends StatelessWidget {
   const LibraryCoverBadges({
-    required this.isOwned,
+    required this.isEntry,
     required this.isTracked,
     required this.isWishlisted,
     this.hasMissingCover = false,
@@ -21,7 +21,7 @@ class LibraryCoverBadges extends StatelessWidget {
     super.key,
   });
 
-  final bool isOwned;
+  final bool isEntry;
   final bool isTracked;
   final bool isWishlisted;
   final bool hasMissingCover;
@@ -45,12 +45,12 @@ class LibraryCoverBadges extends StatelessWidget {
       runSpacing: 6,
       children: [
         LibraryCoverBadge(
-          icon: isOwned ? Icons.check_box : Icons.check_box_outline_blank,
-          label: isOwned ? 'Owned' : 'Not owned',
-          backgroundColor: isOwned
+          icon: isEntry ? Icons.check_box : Icons.check_box_outline_blank,
+          label: isEntry ? 'Entry' : 'Not entry',
+          backgroundColor: isEntry
               ? colorScheme.primaryContainer
               : colorScheme.surfaceContainerHighest,
-          foregroundColor: isOwned
+          foregroundColor: isEntry
               ? colorScheme.onPrimaryContainer
               : colorScheme.onSurfaceVariant,
         ),
@@ -205,7 +205,7 @@ class LibraryCoverBadge extends StatelessWidget {
 
 class LibraryItemStatusIcons extends StatelessWidget {
   const LibraryItemStatusIcons({
-    required this.isOwned,
+    required this.isEntry,
     required this.isTracked,
     required this.isWishlisted,
     this.hasMissingCover = false,
@@ -220,7 +220,7 @@ class LibraryItemStatusIcons extends StatelessWidget {
     super.key,
   });
 
-  final bool isOwned;
+  final bool isEntry;
   final bool isTracked;
   final bool isWishlisted;
   final bool hasMissingCover;
@@ -238,9 +238,9 @@ class LibraryItemStatusIcons extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final icons = <Widget>[
       Icon(
-        isOwned ? Icons.check_box : Icons.check_box_outline_blank,
+        isEntry ? Icons.check_box : Icons.check_box_outline_blank,
         size: 17,
-        color: isOwned ? colorScheme.primary : colorScheme.outline,
+        color: isEntry ? colorScheme.primary : colorScheme.outline,
       ),
       if (isTracked)
         Icon(Icons.equalizer, size: 16, color: colorScheme.secondary),

@@ -14,9 +14,9 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
   const BoardGameStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+  LibraryEntryFinancialSummary buildEntryFinancialSummary(
       LibraryWorkspaceSource entry) {
-    return LibraryOwnedFinancialSummary(
+    return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
       currency: entry.currency,

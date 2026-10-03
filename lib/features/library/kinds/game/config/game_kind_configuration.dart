@@ -9,25 +9,25 @@ TransferableField gameTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(GameCollectionItem item) read,
-  required GameCollectionItem Function(GameCollectionItem item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.collectionItem,
+  required String? Function(GameLibraryEntry item) read,
+  required GameLibraryEntry Function(GameLibraryEntry item, String? value) write,
+  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
-  return TransferableField.typed<GameCollectionItem>(
+  return TransferableField.typed<GameLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
     scope: scope,
-    decode: (value) => value as GameCollectionItem,
+    decode: (value) => value as GameLibraryEntry,
     read: read,
     write: write,
   );
 }
 
 final gameUniversalTransferableFields =
-    TransferableField.universalForTyped<GameCollectionItem>(
-  decode: (value) => value as GameCollectionItem,
+    TransferableField.universalForTyped<GameLibraryEntry>(
+  decode: (value) => value as GameLibraryEntry,
   readCondition: (item) => item.condition,
   writeCondition: (item, value) => item.copyWith(condition: value),
   readPersonalNotes: (item) => item.personalNotes,

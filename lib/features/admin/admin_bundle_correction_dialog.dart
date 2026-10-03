@@ -513,7 +513,7 @@ class _BundleReleaseCorrectionDialogState
                     const _DestructiveWarning(
                       icon: Icons.inventory_2_outlined,
                       message:
-                          'This edits canonical bundle metadata and affects every user who attaches ownership to this bundle.',
+                          'This edits canonical bundle metadata and affects every user who attaches entries to this bundle.',
                     ),
                     const SizedBox(height: 12),
                     for (final change in changes)

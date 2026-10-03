@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -14,7 +14,7 @@ class ActivityEventAggregator {
 
   /// Build a time-sorted (newest-first) list of activity events for one item.
   static List<ActivityEvent> aggregate({
-    required List<CollectionItemSummary> collectionItems,
+    required List<LibraryEntrySummary> libraryEntries,
     required List<TrackingActivitySummary> trackingRecords,
     required List<WishlistItem> wishlistItems,
     required List<Loan> loans,
@@ -24,7 +24,7 @@ class ActivityEventAggregator {
     Iterable<ActivityEvent> kindEvents = const <ActivityEvent>[],
   }) {
     final universalContext = UniversalActivityContext(
-      collectionItems: collectionItems,
+      libraryEntries: libraryEntries,
       trackingRecords: trackingRecords,
       wishlistItems: wishlistItems,
       loans: loans,
@@ -37,7 +37,7 @@ class ActivityEventAggregator {
     }
     events.addAll(kindEvents);
 
-    // Deduplicate by kind+timestamp (same second = same event from owned vs tracking)
+    // Deduplicate by kind+timestamp (same second = same event from entry vs tracking)
     final seen = <String>{};
     events.removeWhere((e) {
       final key =

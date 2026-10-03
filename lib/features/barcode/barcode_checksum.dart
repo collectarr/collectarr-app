@@ -1,4 +1,4 @@
-/// Technical retail barcode checksum shared by kind-owned resolvers.
+/// Technical retail barcode checksum shared by kind-entry resolvers.
 bool isValidRetailBarcode(String value) {
   if (value.length case 8 || 12 || 13 || 14) {
     if (!RegExp(r'^\d+$').hasMatch(value)) return false;

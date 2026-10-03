@@ -14,7 +14,7 @@ class FormatBadgeStyle {
   final String? shortLabel;
 }
 
-/// A fully resolved badge descriptor supplied by a kind-owned presentation
+/// A fully resolved badge descriptor supplied by a kind-entry presentation
 /// policy. Shared widgets never translate semantic format IDs.
 @immutable
 class LibraryFormatBadgeDescriptor {

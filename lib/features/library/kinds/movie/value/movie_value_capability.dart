@@ -11,7 +11,7 @@ class MovieValueCapability implements LibraryValueCapability {
     final valuedEntries = entries
         .where(
           (entry) =>
-              entry.isOwned &&
+              entry.isEntry &&
               entry.marketValueCents != null &&
               entry.currency?.trim().isNotEmpty == true,
         )

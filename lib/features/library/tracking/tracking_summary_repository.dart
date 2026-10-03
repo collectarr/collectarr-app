@@ -5,7 +5,7 @@ import 'tracking_storage_repository.dart';
 
 /// Read-only structural tracking projection for mixed/global features.
 ///
-/// This boundary intentionally does not expose a kind-owned lifecycle
+/// This boundary intentionally does not expose a kind-entry lifecycle
 /// aggregate. Typed tracking records remain inside the persistence repository
 /// and the owning kind's tracking integration.
 final class TrackingSummaryRepository {

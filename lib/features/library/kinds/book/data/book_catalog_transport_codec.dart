@@ -16,9 +16,7 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 
 final class BookCatalogTransportCodec
-    implements
-        CatalogKindTransportCodec<BookCatalogItem>,
-        CatalogSharedCachePrimaryStore {
+    implements CatalogKindTransportCodec<BookCatalogItem> {
   const BookCatalogTransportCodec();
 
   @override
@@ -116,11 +114,6 @@ final class BookCatalogTransportCodec
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
-
-  @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return CatalogItemCacheRepository(db).upsert(item);
-  }
 
   @override
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db) =>

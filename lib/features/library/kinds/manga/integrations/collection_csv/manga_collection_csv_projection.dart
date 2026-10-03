@@ -1,17 +1,17 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_collection_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 
 /// Manga's semantic contribution to the generic collection CSV host.
 final class MangaCollectionCsvProjection
-    with CollectionCsvKindOwnedImportSupport
-    implements CollectionCsvKindProfile, CollectionCsvOwnedCellsDecoder {
+    with CollectionCsvKindEntryImportSupport
+    implements CollectionCsvKindProfile, CollectionCsvEntryCellsDecoder {
   const MangaCollectionCsvProjection();
 
   @override
@@ -68,11 +68,11 @@ final class MangaCollectionCsvProjection
   }
 
   @override
-  List<String>? importOwnedCells({
+  List<String>? importEntryCells({
     required List<String> header,
     required List<String> values,
   }) {
-    return const MangaCollectionCsvImportProfile().importOwnedCells(
+    return const MangaCollectionCsvImportProfile().importEntryCells(
       header: header,
       values: values,
     );
@@ -83,11 +83,11 @@ final class MangaCollectionCsvProjection
       MangaCollectionCsvImportProfile.columnAliases;
 
   @override
-  JsonEncodable? decodeOwnedCells(List<String> cells) {
+  JsonEncodable? decodeEntryCells(List<String> cells) {
     if (cells.isEmpty || cells.first.trim().isEmpty) {
       return null;
     }
-    return _MangaCollectionCsvOwnedImportPayload(cells.first.trim());
+    return _MangaCollectionCsvEntryImportPayload(cells.first.trim());
   }
 
   @override
@@ -137,35 +137,35 @@ final class MangaCollectionCsvProjection
   }
 
   @override
-  String? ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final owned =
-        MangaCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is MangaCollectionItem ? owned.grade : null;
+  String? entryCollectionValue(LibraryWorkspaceSource entry) {
+    final personalState =
+        MangaLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is MangaLibraryEntry ? personalState.grade : null;
   }
 
   @override
-  String? ownedCondition(LibraryWorkspaceSource entry) {
-    final owned =
-        MangaCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is MangaCollectionItem ? owned.condition : null;
+  String? entryCondition(LibraryWorkspaceSource entry) {
+    final personalState =
+        MangaLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is MangaLibraryEntry ? personalState.condition : null;
   }
 
   @override
-  int? ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final owned =
-        MangaCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is MangaCollectionItem ? owned.indexNumber : null;
+  int? entryIndexNumber(LibraryWorkspaceSource entry) {
+    final personalState =
+        MangaLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is MangaLibraryEntry ? personalState.indexNumber : null;
   }
 
   @override
-  String? ownedTags(LibraryWorkspaceSource entry) {
-    final owned =
-        MangaCollectionItemProjection.fromDispatch(entry.collectionItemDispatch);
-    return owned is MangaCollectionItem ? owned.tags : null;
+  String? entryTags(LibraryWorkspaceSource entry) {
+    final personalState =
+        MangaLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is MangaLibraryEntry ? personalState.tags : null;
   }
 
   @override
-  List<String> ownedCellsBeforeLocation(
+  List<String> entryCellsBeforeLocation(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
@@ -173,12 +173,12 @@ final class MangaCollectionCsvProjection
   }
 
   @override
-  List<String> ownedCellsAfterIndex(
+  List<String> entryCellsAfterIndex(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(
-      collectionCsvV1OwnedCellCount,
+      collectionCsvV1EntryCellCount,
       '',
     );
   }
@@ -192,8 +192,8 @@ final class MangaCollectionCsvProjection
   }
 }
 
-final class _MangaCollectionCsvOwnedImportPayload implements JsonEncodable {
-  const _MangaCollectionCsvOwnedImportPayload(this.grade);
+final class _MangaCollectionCsvEntryImportPayload implements JsonEncodable {
+  const _MangaCollectionCsvEntryImportPayload(this.grade);
 
   final String grade;
 

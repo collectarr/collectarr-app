@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
@@ -17,17 +16,10 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required LibraryKindRegistration type,
   required LibraryProjectionView item,
   required Color accent,
-  CollectionItemSummary? collectionItemSummary,
+  LibraryEntrySummary? libraryEntrySummary,
   TrackingSummary? trackingSummary,
-  required List<CollectionItemSummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {
-  final activeBundleReleaseId = libraryCatalogTargetForKind(type.kind)
-      .parts(
-        collectionItemSummary?.catalogRef,
-      )
-      .groupId;
-
   final sections = <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.identity,
@@ -41,7 +33,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
         ),
       ],
     ),
-    if (collectionItemSummary != null || trackingSummary != null)
+    if (libraryEntrySummary != null || trackingSummary != null)
       LibraryDetailSectionSpec(
         slot: LibraryDetailSectionSlot.personal,
         title: 'Personal status',
@@ -49,9 +41,8 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
           LibraryDetailPersonalSection(
             type: type,
             item: item,
-            collectionItemDispatch: item.source.collectionItemDispatch,
-            collectionItemSummary: collectionItemSummary,
-            ownedCopies: ownedCopies,
+            libraryEntryDispatch: item.source.libraryEntryDispatch,
+            libraryEntrySummary: libraryEntrySummary,
             trackingSummary: trackingSummary,
             accent: accent,
             onFilterByValue: onFilterByValue,
@@ -66,18 +57,12 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
       ),
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.progress,
-      title: 'Ownership / release',
+      title: 'Contents',
       children: [
-        if (activeBundleReleaseId != null)
-          BundleReleaseContentsSection(
-            bundleReleaseId: activeBundleReleaseId,
-            accent: accent,
-          )
-        else
-          ItemBundleReleaseBrowserSection(
-            itemId: item.node.catalogItemId,
-            accent: accent,
-          ),
+        ItemBundleReleaseBrowserSection(
+          itemId: item.node.catalogItemId,
+          accent: accent,
+        ),
       ],
     ),
     LibraryDetailSectionSpec(

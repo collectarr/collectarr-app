@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 
 /// Seed-only Music child data for the legacy workspace fixture boundary.
 ///
-/// Production Music transport is owned by the Music kind and uses its flat
+/// Production Music transport is entry by the Music kind and uses its flat
 /// Catalog Item DTO. This helper exists only to keep the development seed
 /// declarations compact while they are converted to the flat child shape.
 class MusicSeedCatalogDetails {

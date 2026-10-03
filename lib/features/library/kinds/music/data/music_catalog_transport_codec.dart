@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
@@ -19,8 +21,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 final class MusicCatalogTransportCodec
     implements
         CatalogKindTransportCodec<MusicAlbum>,
-        CatalogWorkspaceDataEnricher,
-        CatalogSharedCachePrimaryStore {
+        CatalogWorkspaceDataEnricher {
   const MusicCatalogTransportCodec();
 
   @override
@@ -56,14 +57,12 @@ final class MusicCatalogTransportCodec
     LocalDatabase db,
     CatalogItemDto item,
     LibraryWorkspaceCatalogData data,
+    {LibraryEntryRef? libraryEntryRef,}
   ) async {
-    if (data is! MusicWorkspaceCatalogData) return data;
-    final summary = await MusicListeningRepository(db).getSummary(
-      CatalogItemRef(
-        kind: kind,
-        id: data.ref.rootScope.id,
-      ),
-    );
+    if (data is! MusicWorkspaceCatalogData || libraryEntryRef == null) {
+      return data;
+    }
+    final summary = await MusicListeningRepository(db).getSummary(libraryEntryRef);
     return data.copyWith(listeningSummary: summary);
   }
 
@@ -130,10 +129,6 @@ final class MusicCatalogTransportCodec
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
-
-  @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) =>
-      CatalogItemCacheRepository(db).upsert(item);
 
   @override
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db) =>

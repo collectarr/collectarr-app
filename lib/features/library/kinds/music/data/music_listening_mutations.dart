@@ -24,8 +24,7 @@ final class MusicListeningMutations {
   Future<void> markDeleted(MusicListenEvent event, DateTime deletedAt) async {
     final deleted = MusicListenEvent(
       id: event.id,
-      catalogRef: event.catalogRef,
-      collectionItemRef: event.collectionItemRef,
+      libraryEntryRef: event.libraryEntryRef,
       listenedAt: event.listenedAt,
       startedAt: event.startedAt,
       finishedAt: event.finishedAt,

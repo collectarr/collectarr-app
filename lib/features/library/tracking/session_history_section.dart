@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -16,35 +16,42 @@ export 'package:collectarr_app/features/library/tracking/library_tracking_topolo
 
 class WatchHistoryTargetOption {
   const WatchHistoryTargetOption({
-    required this.ref,
     required this.label,
     this.subtitle,
+    this.seasonNumber,
+    this.episodeNumber,
+    this.episodeId,
   });
 
-  final CatalogEntityRef ref;
   final String label;
   final String? subtitle;
+  final int? seasonNumber;
+  final int? episodeNumber;
+  final String? episodeId;
+
+  bool matches(WatchSession session) =>
+      seasonNumber == session.seasonNumber &&
+      episodeNumber == session.episodeNumber;
 }
 
 class WatchHistorySection extends ConsumerWidget {
   const WatchHistorySection({
     super.key,
-    required this.catalogRef,
+    required this.libraryEntryRef,
     required this.accent,
     this.labels = LibraryTrackingSessionLabels.watch,
-    this.defaultTargetRef,
     this.targetOptions = const <WatchHistoryTargetOption>[],
   });
 
   final Color accent;
-  final CatalogEntityRef catalogRef;
+  final LibraryEntryRef libraryEntryRef;
   final LibraryTrackingSessionLabels labels;
-  final CatalogEntityRef? defaultTargetRef;
   final List<WatchHistoryTargetOption> targetOptions;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sessions = ref.watch(watchSessionsByCatalogRefProvider(catalogRef));
+    final sessions =
+        ref.watch(watchSessionsByLibraryEntryRefProvider(libraryEntryRef));
     final runSummary = const SessionHistoryPresenter().build(sessions);
     final palette = appPalette(context);
     final resolvedTargets = _resolvedTargetOptions();
@@ -112,8 +119,7 @@ class WatchHistorySection extends ConsumerWidget {
                   session: session,
                   accent: accent,
                   sessionIcon: labels.icon,
-                  targetLabel:
-                      _targetLabelFor(session.targetRef, resolvedTargets),
+                  targetLabel: _targetLabelFor(session, resolvedTargets),
                   onEdit: () => _showEditor(
                     context,
                     ref,
@@ -135,25 +141,28 @@ class WatchHistorySection extends ConsumerWidget {
     if (targetOptions.isNotEmpty) {
       return targetOptions;
     }
-    final fallbackRef = defaultTargetRef ?? catalogRef;
     return [
       WatchHistoryTargetOption(
-        ref: fallbackRef,
-        label: 'Current item',
+        label: 'This item',
       ),
     ];
   }
 
   String _targetLabelFor(
-    CatalogEntityRef targetRef,
+    WatchSession session,
     List<WatchHistoryTargetOption> options,
   ) {
     for (final option in options) {
-      if (option.ref == targetRef) {
+      if (option.matches(session)) {
         return option.label;
       }
     }
-    return targetRef.id;
+    final season = session.seasonNumber;
+    final episode = session.episodeNumber;
+    if (season != null && episode != null)
+      return 'Season $season, Episode $episode';
+    if (season != null) return 'Season $season';
+    return 'This item';
   }
 
   Future<void> _showEditor(
@@ -180,9 +189,12 @@ class WatchHistorySection extends ConsumerWidget {
       return;
     }
     await ref.read(watchSessionMutationsProvider).addWatchSession(
-          result.target.ref,
+          libraryEntryRef,
           id: existing?.id,
           watchedAt: result.watchedAt,
+          seasonNumber: result.target.seasonNumber,
+          episodeNumber: result.target.episodeNumber,
+          episodeId: result.target.episodeId,
           seenWhere: result.seenWhere,
           rating: result.rating,
           notes: result.notes,
@@ -195,13 +207,14 @@ class WatchHistorySection extends ConsumerWidget {
   ) {
     if (existing != null) {
       for (final option in options) {
-        if (option.ref == existing.targetRef) {
+        if (option.matches(existing)) {
           return option;
         }
       }
       return WatchHistoryTargetOption(
-        ref: existing.targetRef,
-        label: _targetLabelFor(existing.targetRef, options),
+        label: _targetLabelFor(existing, options),
+        seasonNumber: existing.seasonNumber,
+        episodeNumber: existing.episodeNumber,
       );
     }
     return options.first;

@@ -89,11 +89,11 @@ List<Widget> _buildMovieEntitySections(
     if ((metadata?.links.isNotEmpty ?? false))
       InspectorLinksTrailersSection(request: request),
     if (includePersonalStatus &&
-        (request.collectionItem != null || request.trackingSummary != null))
+        (request.libraryEntry != null || request.trackingSummary != null))
       InspectorPersonalStatusSection(
         type: request.type,
         item: item,
-        collectionItem: request.collectionItem,
+        libraryEntry: request.libraryEntry,
         trackingSummary: request.trackingSummary,
         accent: request.accent,
         onFilterByValue: request.onFilterByValue,
@@ -110,8 +110,7 @@ Widget buildMovieInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      collectionItem: request.collectionItem,
-      ownedCopies: request.ownedCopies,
+      libraryEntry: request.libraryEntry,
       accent: request.accent,
     );
 
@@ -122,10 +121,7 @@ Widget buildMovieCopyInspectorHero(
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      collectionItem: request.collectionItem,
-      ownedCopies: [
-        if (request.collectionItem != null) request.collectionItem!,
-      ],
+      libraryEntry: request.libraryEntry,
       accent: request.accent,
     );
 
@@ -155,7 +151,7 @@ class _MovieInspectorPanel extends StatelessWidget {
         onEdit: request.onEdit,
         onShare: request.onShare,
         onDuplicate: request.onDuplicate,
-        onToggleOwned: request.onToggleOwned,
+        onToggleEntry: request.onToggleEntry,
         onLoan: request.onLoan,
         onRefreshMetadata: request.onRefreshMetadata,
         onUnlinkFromCore: request.onUnlinkFromCore,
@@ -164,7 +160,7 @@ class _MovieInspectorPanel extends StatelessWidget {
       hero: LibraryDetailHero(
         type: request.inspector.type,
         item: item,
-        collectionItem: request.inspector.collectionItem,
+        libraryEntry: request.inspector.libraryEntry,
         accent: accent,
       ),
       sections: [
@@ -173,10 +169,6 @@ class _MovieInspectorPanel extends StatelessWidget {
           title: 'Details',
           children: [
             ...sections,
-            if (request.ownedCopiesSection != null) ...[
-              request.ownedCopiesSection!,
-              const SizedBox(height: 8),
-            ],
             if (request.bundleSection != null) ...[
               request.bundleSection!,
               const SizedBox(height: 8),

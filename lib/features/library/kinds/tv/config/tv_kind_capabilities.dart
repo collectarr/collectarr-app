@@ -51,10 +51,6 @@ final tvKindPhysicalMediaFormats = tvPhysicalMediaFormats;
 
 final tvKindTrackingProfile = tvTrackingProfile;
 
-final tvKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final tvKindCatalogTarget = const TvCatalogTargetCapability();
-
 final LibraryRelationCapability? tvKindRelations = null;
 
 final LibraryValueCapability? tvKindValue = null;
@@ -98,22 +94,21 @@ final tvKindHierarchy = const LibraryHierarchyCapability(
 );
 
 final tvKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Series', plural: 'Series'),
-  release: LibraryEntityLabel(singular: 'Release', plural: 'Releases'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+  catalogItem:
+      LibraryEntityLabel(singular: 'Season release', plural: 'Season releases'),
+  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final tvKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.watch,
   writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
+  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
   contentTargets: {LibraryTrackingTargetScope.content},
 );
 
 final tvKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet(),
-  copy: LibraryEntityActionSet.copy,
+  catalogItem: LibraryEntityActionSet.catalogItem,
+  libraryEntry: LibraryEntityActionSet.libraryEntry,
 );
 
 final tvKindInspector = LibraryInspectorCapability(
@@ -125,7 +120,7 @@ final tvKindInspector = LibraryInspectorCapability(
         sectionsBuilder: buildTvCatalogItemInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.collectionItem,
+        scope: LibraryEntityScope.libraryEntry,
         heroBuilder: buildTvCopyInspectorHero,
         sectionsBuilder: buildTvCopyInspectorSections,
       ),

@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
-import 'package:collectarr_app/features/library/config/collection_item_update_payload.dart';
+import 'package:collectarr_app/features/library/config/library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_local_edit_change.dart';
 
 // ---------------------------------------------------------------------------
 // Selection data classes returned by the edit dialog
@@ -22,7 +22,9 @@ class LibraryEditSelection {
     this.wishlist,
     this.tracking,
     this.trackingKindPatch,
-    this.ownedUpdatePayload,
+    this.entryUpdatePayload,
+    this.entryPersonalData,
+    this.localChanges = const [],
     this.customFieldEdits = const {},
     this.itemImageEdits = const [],
     this.submitAction = LibraryEditSubmitAction.save,
@@ -35,7 +37,9 @@ class LibraryEditSelection {
   final LibraryWishlistEditSelection? wishlist;
   final LibraryTrackingEditSelection? tracking;
   final TrackingKindPatch? trackingKindPatch;
-  final CollectionItemUpdatePayload? ownedUpdatePayload;
+  final LibraryEntryUpdatePayload? entryUpdatePayload;
+  final Map<String, dynamic>? entryPersonalData;
+  final List<LibraryLocalEditChange> localChanges;
   final Map<String, String?> customFieldEdits;
   final List<ItemImageEdit> itemImageEdits;
   final LibraryEditSubmitAction submitAction;
@@ -46,7 +50,9 @@ class LibraryEditSelection {
     LibraryWishlistEditSelection? wishlist,
     LibraryTrackingEditSelection? tracking,
     TrackingKindPatch? trackingKindPatch,
-    CollectionItemUpdatePayload? ownedUpdatePayload,
+    LibraryEntryUpdatePayload? entryUpdatePayload,
+    Map<String, dynamic>? entryPersonalData,
+    List<LibraryLocalEditChange>? localChanges,
     Map<String, String?>? customFieldEdits,
     List<ItemImageEdit>? itemImageEdits,
     LibraryEditSubmitAction? submitAction,
@@ -58,7 +64,9 @@ class LibraryEditSelection {
       wishlist: wishlist ?? this.wishlist,
       tracking: tracking ?? this.tracking,
       trackingKindPatch: trackingKindPatch ?? this.trackingKindPatch,
-      ownedUpdatePayload: ownedUpdatePayload ?? this.ownedUpdatePayload,
+      entryUpdatePayload: entryUpdatePayload ?? this.entryUpdatePayload,
+      entryPersonalData: entryPersonalData ?? this.entryPersonalData,
+      localChanges: localChanges ?? this.localChanges,
       customFieldEdits: customFieldEdits ?? this.customFieldEdits,
       itemImageEdits: itemImageEdits ?? this.itemImageEdits,
       submitAction: submitAction ?? this.submitAction,
@@ -82,7 +90,6 @@ class LibraryWishlistEditSelection {
 
 class LibraryTrackingEditSelection {
   const LibraryTrackingEditSelection({
-    required this.targetRef,
     required this.rating,
     required this.readStatus,
     this.progressCurrent,
@@ -93,7 +100,6 @@ class LibraryTrackingEditSelection {
     this.finishedAt,
   });
 
-  final CatalogEntityRef? targetRef;
   final int? rating;
   final String? readStatus;
   final int? progressCurrent;
@@ -104,7 +110,6 @@ class LibraryTrackingEditSelection {
   final DateTime? finishedAt;
 
   LibraryTrackingEditSelection copyWith({
-    CatalogEntityRef? targetRef,
     int? rating,
     String? readStatus,
     int? progressCurrent,
@@ -115,7 +120,6 @@ class LibraryTrackingEditSelection {
     DateTime? finishedAt,
   }) {
     return LibraryTrackingEditSelection(
-      targetRef: targetRef ?? this.targetRef,
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
       progressCurrent: progressCurrent ?? this.progressCurrent,

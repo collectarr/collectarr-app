@@ -1,18 +1,16 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 
-/// TV-owned season/episode progress unit.
+/// TV-entry season/episode progress unit.
 final class TvTrackingUnit extends TrackingUnitSummary {
   const TvTrackingUnit({
     required super.id,
-    required super.targetRef,
+    required super.libraryEntryRef,
     required super.completedAt,
     required super.updatedAt,
     this.seasonNumber,
     this.episodeNumber,
     super.trackingEntryId,
-    super.collectionItemRef,
     super.deletedAt,
   });
 
@@ -34,18 +32,16 @@ final class TvTrackingUnit extends TrackingUnitSummary {
   @override
   TvTrackingUnit copyWith({
     String? id,
-    CatalogEntityRef? targetRef,
     String? trackingEntryId,
-    CollectionItemRef? collectionItemRef,
+    LibraryEntryRef? libraryEntryRef,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
   }) {
     return TvTrackingUnit(
       id: id ?? this.id,
-      targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      collectionItemRef: collectionItemRef ?? this.collectionItemRef,
+      libraryEntryRef: libraryEntryRef ?? this.libraryEntryRef,
       seasonNumber: seasonNumber,
       episodeNumber: episodeNumber,
       completedAt: completedAt ?? this.completedAt,

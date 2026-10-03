@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter/material.dart';
 
@@ -38,7 +38,7 @@ class TransferableField {
   final String? Function(Object item) read;
   final Object Function(Object item, String? value) write;
 
-  /// Builds a kind-owned field. The generic host keeps the value opaque.
+  /// Builds a kind-entry field. The generic host keeps the value opaque.
   static TransferableField typed<T>({
     required String key,
     required String label,
@@ -64,7 +64,7 @@ class TransferableField {
 
   /// Creates the structural copy fields that every kind may expose. The
   /// accessors are supplied by the owning kind; this class never knows a
-  /// concrete Owned model or decodes a cross-kind aggregate.
+  /// concrete Entry model or decodes a cross-kind aggregate.
   static List<TransferableField> universalForTyped<T>({
     required T Function(Object value) decode,
     required String? Function(T value) readCondition,
@@ -108,7 +108,7 @@ class TransferableField {
         decode: decode,
         read: read,
         write: write,
-        scope: LibraryEntityScope.collectionItem,
+        scope: LibraryEntityScope.libraryEntry,
       );
     }
 
@@ -230,7 +230,7 @@ class TransferableField {
       label: def.name,
       icon: Icons.text_fields,
       type: TransferableFieldType.text,
-      scope: LibraryEntityScope.collectionItem,
+      scope: LibraryEntityScope.libraryEntry,
       customFieldId: def.id,
       read: (item) => null,
       write: (item, value) => item,
@@ -242,7 +242,7 @@ class TransferableField {
     List<CustomFieldDefinition> definitions, {
     Iterable<String>? fieldKeys,
     List<TransferableField>? availableFields,
-    LibraryEntityScope scope = LibraryEntityScope.collectionItem,
+    LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
   }) {
     final pool = availableFields ?? const <TransferableField>[];
     final map = {for (final field in pool) field.key: field};
@@ -255,21 +255,21 @@ class TransferableField {
     return [
       ...resolved,
       for (final def in definitions)
-        if (scope == LibraryEntityScope.collectionItem)
+        if (scope == LibraryEntityScope.libraryEntry)
           TransferableField.customField(def),
     ];
   }
 }
 
 /// Opaque typed item carried by the transfer host after kind dispatch.
-final class TransferableCollectionItem {
-  const TransferableCollectionItem({
+final class TransferableLibraryEntry {
+  const TransferableLibraryEntry({
     required this.ref,
     required this.catalogRef,
     required this.value,
   });
 
-  final CollectionItemRef ref;
+  final LibraryEntryRef ref;
   final CatalogEntityRef catalogRef;
   final Object value;
 }

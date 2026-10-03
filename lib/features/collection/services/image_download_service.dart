@@ -1,7 +1,7 @@
 import 'dart:developer' as developer;
 import 'dart:typed_data';
 
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:uuid/uuid.dart';
@@ -24,12 +24,12 @@ class ImageDownloadService {
 
   final ItemImagesCacheRepository imagesRepo;
 
-  /// Download the cover image at [url] and store it locally for [collectionItemRef].
+  /// Download the cover image at [url] and store it locally for [libraryEntryRef].
   ///
   /// Skips silently if the URL is null/empty or if the download fails.
   /// Returns the stored bytes, or null on failure.
   Future<Uint8List?> downloadAndStoreCover({
-    required CollectionItemRef collectionItemRef,
+    required LibraryEntryRef libraryEntryRef,
     required String? coverImageUrl,
     String imageType = 'front_cover',
   }) async {
@@ -38,7 +38,7 @@ class ImageDownloadService {
     }
     // Skip if image already cached locally for this item+type.
     final existing = await imagesRepo.primaryImageForItem(
-      collectionItemRef,
+      libraryEntryRef,
       imageType: imageType,
     );
     if (existing != null) {
@@ -57,8 +57,8 @@ class ImageDownloadService {
         return null;
       }
       await imagesRepo.upsert(
-        id: _uuid.v5(Namespace.url.value, '${collectionItemRef.key}:$imageType'),
-        collectionItemRef: collectionItemRef,
+        id: _uuid.v5(Namespace.url.value, '${libraryEntryRef.key}:$imageType'),
+        libraryEntryRef: libraryEntryRef,
         imageType: imageType,
         imageData: bytes,
       );
@@ -76,20 +76,20 @@ class ImageDownloadService {
 
   /// Download cover images for a batch of items.
   ///
-  /// Returns a map of collectionItemId → image bytes for successful downloads.
+  /// Returns a map of libraryEntryId → image bytes for successful downloads.
   Future<Map<String, Uint8List>> downloadCoversForItems(
-    Map<CollectionItemRef, String?> collectionItemRefToCoverUrl, {
+    Map<LibraryEntryRef, String?> libraryEntryRefToCoverUrl, {
     String imageType = 'front_cover',
     int concurrency = 4,
   }) async {
-    final entries = collectionItemRefToCoverUrl.entries.toList();
+    final entries = libraryEntryRefToCoverUrl.entries.toList();
     final results = <String, Uint8List>{};
     for (var i = 0; i < entries.length; i += concurrency) {
       final chunk = entries.skip(i).take(concurrency);
       final downloaded = await Future.wait(
         chunk.map(
           (entry) => downloadAndStoreCover(
-            collectionItemRef: entry.key,
+            libraryEntryRef: entry.key,
             coverImageUrl: entry.value,
             imageType: imageType,
           ),

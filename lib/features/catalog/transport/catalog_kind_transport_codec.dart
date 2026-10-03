@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_summary_reader.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -31,18 +32,11 @@ abstract interface class CatalogKindTransportBoundary
     CatalogItemDto item,
   );
 
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item);
-
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db);
 
   /// Decodes transport into the owning kind's typed workspace projection.
   LibraryWorkspaceCatalogData workspaceData(CatalogItemDto item);
 }
-
-/// Marker for kinds whose shared Catalog Item cache is their local catalog
-/// store. The transport repository skips the transitional per-kind dual-write
-/// for these codecs.
-abstract interface class CatalogSharedCachePrimaryStore {}
 
 /// Explicit schema-v1 transport adapter for one catalog kind.
 ///
@@ -84,20 +78,21 @@ abstract interface class CatalogKindTransportCodec<TCatalog>
   /// concrete implementation immediately.
 }
 
-/// Optional kind-owned enrichment for the synchronous workspace projection.
+/// Optional kind-entry enrichment for the synchronous workspace projection.
 ///
 /// Mixed infrastructure may ask a codec to attach a derived, read-only
 /// projection after transport decoding. The semantic query and returned
-/// typed value remain owned by the concrete kind.
+/// typed value remain entry by the concrete kind.
 abstract interface class CatalogWorkspaceDataEnricher {
   Future<LibraryWorkspaceCatalogData> enrichWorkspaceData(
     LocalDatabase db,
     CatalogItemDto item,
     LibraryWorkspaceCatalogData data,
+    {LibraryEntryRef? libraryEntryRef,}
   );
 }
 
-/// Runs the kind-owned summary projection at the transport boundary.
+/// Runs the kind-entry summary projection at the transport boundary.
 extension CatalogKindTransportSummary on CatalogKindTransportBoundary {
   CatalogDisplaySummary summarizeTransport(CatalogItemDto item) {
     final codec = this as CatalogKindTransportCodec<dynamic>;

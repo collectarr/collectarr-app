@@ -108,7 +108,7 @@ class LibraryWorkspace extends ConsumerWidget {
         final workspace = libraryKindWorkspaceForKind(type.kind);
         final semantic = workspace.fields.decodeGroupId(groupMode).semantic;
         return semantic != LibraryGroupSemantic.title &&
-            semantic != LibraryGroupSemantic.ownership;
+            semantic != LibraryGroupSemantic.entries;
       })();
 
   bool _isActive(LibraryProjectionItem item) => item.node.id == selectedId;

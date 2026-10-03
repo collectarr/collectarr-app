@@ -220,7 +220,7 @@ class _CollectionShareDialog extends StatelessWidget {
 <h1>$escapedTitle</h1>
 <p class="count">${items.length} items</p>
 <table>
-<thead><tr><th>#</th><th>Title</th><th>Kind</th><th>Reference</th><th>Owned</th><th>Wishlist</th><th>Location</th></tr></thead>
+<thead><tr><th>#</th><th>Title</th><th>Kind</th><th>Reference</th><th>Entry</th><th>Wishlist</th><th>Location</th></tr></thead>
 <tbody>
 ${rows.toString()}</tbody>
 </table>
@@ -259,7 +259,7 @@ ${rows.toString()}</tbody>
     'Title',
     'Kind',
     'Reference',
-    'Owned',
+    'Entry',
     'Wishlist',
     'Location',
   ];
@@ -270,7 +270,7 @@ ${rows.toString()}</tbody>
       item.dto.primaryLabel,
       item.source.mediaKind.apiValue,
       ref == null ? item.node.id : _referenceLabel(ref),
-      item.source.isOwned.toString(),
+      item.source.isEntry.toString(),
       item.source.isWishlisted.toString(),
       item.source.locationPath ?? '',
     ];
@@ -282,7 +282,7 @@ ${rows.toString()}</tbody>
       'title': item.dto.primaryLabel,
       'kind': item.source.mediaKind.apiValue,
       'reference': ref?.toJson() ?? item.node.id,
-      'owned': item.source.isOwned,
+      'entry': item.source.isEntry,
       'wishlist': item.source.isWishlisted,
       if (item.source.locationPath case final location?) 'location': location,
     };

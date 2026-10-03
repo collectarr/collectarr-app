@@ -56,10 +56,6 @@ final mangaKindPhysicalMediaFormats = mangaPhysicalMediaFormats;
 
 final mangaKindTrackingProfile = mangaTrackingProfile;
 
-final mangaKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final mangaKindCatalogTarget = const MangaCatalogTargetCapability();
-
 final mangaKindUiPolicy = const LibraryUiPolicy();
 
 final LibraryRelationCapability? mangaKindRelations = null;
@@ -99,22 +95,21 @@ final mangaKindMetadata = LibraryMetadataCapability(
 final mangaKindHierarchy = const LibraryHierarchyCapability();
 
 final mangaKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Catalog Item', plural: 'Catalog Items'),
-  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+  catalogItem:
+      LibraryEntityLabel(singular: 'Catalog Item', plural: 'Catalog Items'),
+  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final mangaKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.read,
   writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
+  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
   contentTargets: {LibraryTrackingTargetScope.content},
 );
 
 final mangaKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet(),
-  copy: LibraryEntityActionSet.copy,
+  catalogItem: LibraryEntityActionSet.catalogItem,
+  libraryEntry: LibraryEntityActionSet.libraryEntry,
 );
 
 final mangaKindInspector = LibraryInspectorCapability(
@@ -126,7 +121,7 @@ final mangaKindInspector = LibraryInspectorCapability(
         sectionsBuilder: buildMangaWorkInspectorSections,
       ),
       LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.collectionItem,
+        scope: LibraryEntityScope.libraryEntry,
         heroBuilder: buildMangaCopyInspectorHero,
         sectionsBuilder: buildMangaCopyInspectorSections,
       ),

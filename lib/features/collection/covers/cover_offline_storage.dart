@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:uuid/uuid.dart';
@@ -17,10 +17,10 @@ class CoverOfflineStorage {
 
   static const _coverCaption = '__offline_cover__';
 
-  /// Download the cover at [url] and store it for [collectionItemRef].
+  /// Download the cover at [url] and store it for [libraryEntryRef].
   /// Returns the created [ItemImage], or null if the download failed.
   Future<ItemImage?> saveCoverOffline({
-    required CollectionItemRef collectionItemRef,
+    required LibraryEntryRef libraryEntryRef,
     required String url,
   }) async {
     final bytes = await _downloadBytes(url);
@@ -28,7 +28,7 @@ class CoverOfflineStorage {
       return null;
     }
     // Remove existing offline cover for this item
-    final existing = await _repo.listForCollectionItemRef(collectionItemRef);
+    final existing = await _repo.listForLibraryEntryRef(libraryEntryRef);
     for (final img in existing) {
       if (img.caption == _coverCaption) {
         await _repo.delete(img.id);
@@ -36,7 +36,7 @@ class CoverOfflineStorage {
     }
     final image = ItemImage(
       id: const Uuid().v4(),
-      collectionItemRef: collectionItemRef,
+      libraryEntryRef: libraryEntryRef,
       imageData: Uint8List.fromList(bytes),
       caption: _coverCaption,
       sortOrder: -1, // always first
@@ -47,8 +47,8 @@ class CoverOfflineStorage {
   }
 
   /// Check if an offline cover exists for the given item.
-  Future<Uint8List?> offlineCoverBytes(CollectionItemRef collectionItemRef) async {
-    final images = await _repo.listForCollectionItemRef(collectionItemRef);
+  Future<Uint8List?> offlineCoverBytes(LibraryEntryRef libraryEntryRef) async {
+    final images = await _repo.listForLibraryEntryRef(libraryEntryRef);
     for (final img in images) {
       if (img.caption == _coverCaption) {
         return img.imageData;
@@ -58,8 +58,8 @@ class CoverOfflineStorage {
   }
 
   /// Remove the offline cover for the given item.
-  Future<void> removeOfflineCover(CollectionItemRef collectionItemRef) async {
-    final images = await _repo.listForCollectionItemRef(collectionItemRef);
+  Future<void> removeOfflineCover(LibraryEntryRef libraryEntryRef) async {
+    final images = await _repo.listForLibraryEntryRef(libraryEntryRef);
     for (final img in images) {
       if (img.caption == _coverCaption) {
         await _repo.delete(img.id);

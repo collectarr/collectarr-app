@@ -2,45 +2,7 @@ import 'package:drift/drift.dart';
 
 /// Complete BoardGame-collection item state. Play sessions are tracking data and
 /// remain in their dedicated table rather than being embedded in a copy.
-class BoardGameCollectionItemsRows extends Table {
-  TextColumn get id => text()();
-  TextColumn get itemId => text()();
-  DateTimeColumn get createdAt => dateTime().nullable()();
-  BoolColumn get isDigital => boolean().nullable()();
-  TextColumn get condition => text().nullable()();
-  TextColumn get grade => text().nullable()();
-  DateTimeColumn get purchaseDate => dateTime().nullable()();
-  IntColumn get pricePaidCents => integer().nullable()();
-  TextColumn get currency => text().nullable()();
-  TextColumn get personalNotes => text().nullable()();
-  IntColumn get indexNumber => integer().nullable()();
-  TextColumn get tags => text().nullable()();
-  DateTimeColumn get updatedAt => dateTime()();
-  DateTimeColumn get deletedAt => dateTime().nullable()();
-  DateTimeColumn get soldAt => dateTime().nullable()();
-  IntColumn get sellPriceCents => integer().nullable()();
-  TextColumn get soldTo => text().nullable()();
-  TextColumn get ownerUserId => text().nullable()();
-  TextColumn get ownerLabel => text().nullable()();
-  TextColumn get locationId => text().nullable()();
-  TextColumn get purchaseStore => text().nullable()();
-  TextColumn get collectionStatus => text().nullable()();
-  IntColumn get marketValueCents => integer().nullable()();
-  TextColumn get editionLanguage => text().nullable()();
-  TextColumn get editionRegion => text().nullable()();
-  TextColumn get componentCondition => text().nullable()();
-  TextColumn get componentCompleteness => text().nullable()();
-  TextColumn get missingPiecesNotes => text().nullable()();
-  BoolColumn get isSleeved => boolean().withDefault(const Constant(false))();
-  BoolColumn get hasCustomInsert =>
-      boolean().withDefault(const Constant(false))();
-  BoolColumn get hasPaintedMiniatures =>
-      boolean().withDefault(const Constant(false))();
-  TextColumn get storageNotes => text().nullable()();
 
-  @override
-  Set<Column> get primaryKey => {id};
-}
 
 class BoardGamePlaySessionsRows extends Table {
   TextColumn get id => text()();
@@ -59,8 +21,7 @@ class BoardGamePlaySessionsRows extends Table {
 
 class BoardGameTrackingRows extends Table {
   TextColumn get id => text()();
-  TextColumn get catalogRefJson => text()();
-  TextColumn get collectionItemRefKey => text().nullable()();
+  TextColumn get libraryEntryRefKey => text()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
   IntColumn get rating => integer().nullable()();

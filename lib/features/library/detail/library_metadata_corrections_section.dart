@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -14,16 +14,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class LibraryMetadataCorrectionsSection extends ConsumerWidget {
   const LibraryMetadataCorrectionsSection({
     super.key,
-    required this.catalogRef,
+    required this.libraryEntryRef,
     required this.accent,
   });
 
-  final CatalogItemRef catalogRef;
+  final LibraryEntryRef libraryEntryRef;
   final Color accent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final overrides = ref.watch(metadataOverridesByItemProvider)[catalogRef] ??
+    final overrides = ref.watch(metadataOverridesByItemProvider)[libraryEntryRef] ??
         const <UserMetadataOverride>[];
     final palette = appPalette(context);
     return DecoratedBox(
@@ -75,7 +75,7 @@ class LibraryMetadataCorrectionsSection extends ConsumerWidget {
   }
 
   Future<void> _showAddDialog(BuildContext context, WidgetRef ref) async {
-    final contributor = libraryAdminContributorForKind(catalogRef.kind);
+    final contributor = libraryAdminContributorForKind(libraryEntryRef.kind);
     final fields = contributor?.metadataOverrideFields ??
         const <LibraryMetadataOverrideField>[];
     final result = await showDialog<MetadataOverrideFormResult>(
@@ -89,7 +89,7 @@ class LibraryMetadataCorrectionsSection extends ConsumerWidget {
       return;
     }
     await ref.read(metadataOverrideMutationsProvider).setMetadataOverride(
-          catalogRef,
+          libraryEntryRef,
           fieldId: result.fieldId,
           overrideValue: result.overrideValue,
           originalValue: result.originalValue,

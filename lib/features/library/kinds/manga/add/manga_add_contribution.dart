@@ -9,10 +9,9 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
   manualDraftBuilder: MangaAddManualDraft.new,
   manualCandidateBuilder: buildMangaManualCandidate,
   manualProposalBuilder: buildMangaManualProposalData,
-  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      MangaCollectionItemCreatePayload(
-    catalogRef: item.reference,
-    details: details as MangaOwnedDetailsDraft,
+  entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      MangaLibraryEntryCreatePayload(
+    details: details as MangaEntryDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
@@ -22,6 +21,7 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
+    ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),

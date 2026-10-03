@@ -24,7 +24,7 @@ final class CatalogSearchCandidate {
     );
   }
 
-  /// Produces a small, transient display projection from a kind-owned flat
+  /// Produces a small, transient display projection from a kind-entry flat
   /// payload. The projection is never cached or written back as catalog data.
   factory CatalogSearchCandidate.fromItem(CatalogItemDto item) {
     return CatalogSearchCandidate.fromTransport(
@@ -80,7 +80,7 @@ final class CatalogSearchCandidate {
   final CatalogSearchCandidateKindCapability kindCapability;
 }
 
-/// Kind-owned operations over the selected catalog transport.
+/// Kind-entry operations over the selected catalog transport.
 ///
 /// The DTO stays private so mixed hosts can pass the capability without
 /// interpreting kind metadata or generated fields.
@@ -88,6 +88,9 @@ final class CatalogSearchCandidateKindCapability {
   const CatalogSearchCandidateKindCapability._(this._item);
 
   final CatalogItemDto? _item;
+
+  bool get isPrivateLocal =>
+      _item?.origin == CatalogItemOrigin.privateLocal;
 
   T mapTransport<T>(T Function(CatalogItemDto item) decoder) {
     final item = _item;

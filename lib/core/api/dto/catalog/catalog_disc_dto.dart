@@ -21,7 +21,7 @@ class CatalogDiscDto {
   // Music-specific getters (null by default in the generic DTO)
   int? get trackCount => tracks.isEmpty ? null : tracks.length;
   int? get expectedTrackCount => null;
-  int? get ownedTrackCount => null;
+  int? get entryTrackCount => null;
   int? get missingTrackCount => null;
   List<int> get missingTrackPositions => const <int>[];
   String? get toc => null;

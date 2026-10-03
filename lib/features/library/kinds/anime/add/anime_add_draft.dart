@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details_draft.dart';
 import 'anime_release_add_draft.dart';
 import 'package:flutter/foundation.dart';
 
@@ -48,7 +48,7 @@ final class AnimeAddDraft extends LibraryAddKindDraft {
   CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
-  JsonEncodable toOwnedDetailsDraft() => AnimeOwnedDetailsDraft(
+  JsonEncodable toEntryDetailsDraft() => AnimeEntryDetailsDraft(
         features: features,
         hdrFormats: hdrFormats,
         boxSetId: boxSetId,

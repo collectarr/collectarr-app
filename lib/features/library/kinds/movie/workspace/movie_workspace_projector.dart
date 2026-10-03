@@ -15,7 +15,6 @@ final class MovieWorkspaceProjector
   MovieWorkspaceDto project({
     required LibraryWorkspaceSource source,
     required LibraryEntityRef entity,
-    LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
     requireEntityScope(entity, expectedScope ?? entity.scope);
@@ -31,7 +30,6 @@ final class MovieWorkspaceProjector
       ),
       personal: PersonalCopyProjection.fromShelf(
         source,
-        releaseState: releaseState,
       ),
       movie: catalog.movie,
       metadata: catalog.metadata,

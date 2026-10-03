@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
-/// Structural duplicate candidate supplied by a kind-owned presentation.
+/// Structural duplicate candidate supplied by a kind-entry presentation.
 ///
 /// The generic duplicate host groups candidates and renders their result. It
 /// does not know whether a kind produced a barcode, issue, ISBN, platform, or

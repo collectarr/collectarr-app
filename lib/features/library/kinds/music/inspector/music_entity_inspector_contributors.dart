@@ -16,8 +16,7 @@ Widget buildMusicWorkInspectorHero(
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    collectionItem: request.collectionItem,
-    ownedCopies: request.ownedCopies,
+    libraryEntry: request.libraryEntry,
     accent: request.accent,
   );
 }
@@ -29,8 +28,7 @@ Widget buildMusicAlbumInspectorHero(
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    collectionItem: request.collectionItem,
-    ownedCopies: request.ownedCopies,
+    libraryEntry: request.libraryEntry,
     accent: request.accent,
   );
 }
@@ -42,10 +40,7 @@ Widget buildMusicCopyInspectorHero(
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    collectionItem: request.collectionItem,
-    ownedCopies: [
-      if (request.collectionItem != null) request.collectionItem!,
-    ],
+    libraryEntry: request.libraryEntry,
     accent: request.accent,
   );
 }
@@ -69,24 +64,23 @@ List<Widget> buildMusicCopyInspectorSections(
   LibraryInspectorRequest request,
 ) {
   final sections = _buildMusicInspectorSections(context, request);
-  final ownedDetails =
-      MusicInspectorViewModel.from(request.item).owned?.details;
-  if (ownedDetails == null) return sections;
+  final entryDetails =
+      MusicInspectorViewModel.from(request.item).entry?.details;
+  if (entryDetails == null) return sections;
 
   final facts = <LibraryDetailField>[
-    if (ownedDetails.signedBy?.trim().isNotEmpty == true)
+    if (entryDetails.signedBy?.trim().isNotEmpty == true)
       LibraryDetailField(
-          label: 'Signed by', value: ownedDetails.signedBy!.trim()),
-    if (ownedDetails.lastCleanedDate != null)
+          label: 'Signed by', value: entryDetails.signedBy!.trim()),
+    if (entryDetails.lastCleanedDate != null)
       LibraryDetailField(
         label: 'Last cleaned',
-        value: formatNullableDate(ownedDetails.lastCleanedDate) ?? '-',
+        value: formatNullableDate(entryDetails.lastCleanedDate) ?? '-',
       ),
   ];
   final model = MusicInspectorViewModel.from(request.item);
   for (final medium in model.mediums) {
     final storage = model.storageForMedium(medium.mediumNumber);
-    final runouts = model.matrixForMedium(medium.mediumNumber);
     if (storage.label != '-') {
       facts.add(
         LibraryDetailField(
@@ -95,22 +89,12 @@ List<Widget> buildMusicCopyInspectorSections(
         ),
       );
     }
-    if (runouts.isNotEmpty) {
-      facts.add(
-        LibraryDetailField(
-          label: 'Disc ${medium.mediumNumber} matrix',
-          value: runouts
-              .map((runout) => '${runout.side}: ${runout.text}')
-              .join(' / '),
-        ),
-      );
-    }
   }
   if (facts.isEmpty) return sections;
   return [
     ...sections,
     LibraryDetailSection(
-      title: 'Owned media',
+      title: 'Entry media',
       accentColor: request.accent,
       children: [LibraryDetailFieldTable(fields: facts)],
     ),

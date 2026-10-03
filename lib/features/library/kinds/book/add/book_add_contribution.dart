@@ -9,10 +9,9 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   manualDraftBuilder: BookAddManualDraft.new,
   manualCandidateBuilder: buildBookManualCandidate,
   manualProposalBuilder: buildBookManualProposalData,
-  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      BookCollectionItemCreatePayload(
-    catalogRef: item.reference,
-    details: details as BookOwnedDetailsDraft,
+  entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      BookLibraryEntryCreatePayload(
+    details: details as BookEntryDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
@@ -22,6 +21,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
+    ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),

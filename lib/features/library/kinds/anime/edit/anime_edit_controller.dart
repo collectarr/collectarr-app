@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,6 +52,10 @@ class AnimeEditController {
   final WidgetRef? ref;
   final String itemId;
   final CatalogEntityRef catalogRef;
+  LibraryEntryRef get libraryEntryRef => LibraryEntryRef(
+        kind: catalogRef.kind,
+        id: LibraryEntryId(itemId),
+      );
   final String initialRuntime;
   final String initialAgeRating;
   final String initialAudienceRating;
@@ -112,11 +118,11 @@ class AnimeEditController {
     final db = ref!.read(localDatabaseProvider);
     final repo = UserExternalLinksCacheRepository(db);
     final links = [
-      ...await repo.listByCatalogRef(catalogRef),
+      ...await repo.listByLibraryEntryRef(libraryEntryRef),
       for (final link in initialTrailerLinks.where((link) => !link.isAutomatic))
         UserExternalLink(
           id: 'seed-$itemId-${link.kind}-${link.url.hashCode}',
-          catalogRef: catalogRef,
+          libraryEntryRef: libraryEntryRef,
           label: link.title ?? link.description ?? link.url,
           url: link.url,
           kind: link.kind == 'trailer' ? 'trailer' : 'custom',
@@ -200,6 +206,7 @@ class AnimeEditController {
         links.add(resolved);
       }
     }
-    await repo.replaceForCatalogRef(catalogRef, links);
+    await repo.replaceForLibraryEntry(libraryEntryRef, links);
+    await enqueueLibraryEntrySnapshot(db, libraryEntryRef);
   }
 }

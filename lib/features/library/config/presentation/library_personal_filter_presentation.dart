@@ -1,10 +1,10 @@
 class LibraryFilterOptionLabels {
   const LibraryFilterOptionLabels({
-    this.ownershipAll = 'All items',
-    this.ownershipOwned = 'Owned only',
-    this.ownershipWishlist = 'Wishlist only',
-    this.ownershipForSale = 'For sale',
-    this.ownershipOnOrder = 'On order',
+    this.entriesAll = 'All items',
+    this.entriesEntry = 'Entry only',
+    this.entriesWishlist = 'Wishlist only',
+    this.entriesForSale = 'For sale',
+    this.entriesOnOrder = 'On order',
     this.trackingAny = 'Any tracking status',
     this.trackingNotTracked = 'Not tracked',
     this.loanAny = 'Any loan status',
@@ -16,11 +16,11 @@ class LibraryFilterOptionLabels {
     this.dateFinished = 'Finished',
   });
 
-  final String ownershipAll;
-  final String ownershipOwned;
-  final String ownershipWishlist;
-  final String ownershipForSale;
-  final String ownershipOnOrder;
+  final String entriesAll;
+  final String entriesEntry;
+  final String entriesWishlist;
+  final String entriesForSale;
+  final String entriesOnOrder;
   final String trackingAny;
   final String trackingNotTracked;
   final String loanAny;

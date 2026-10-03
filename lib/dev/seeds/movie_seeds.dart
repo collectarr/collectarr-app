@@ -1,19 +1,19 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_collection_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 
-final movieDevSeedContributor = TypedDevSeedKindContributor<MovieCollectionItem>(
+final movieDevSeedContributor = TypedDevSeedKindContributor<MovieLibraryEntry>(
   kind: CatalogMediaKind.movie,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -31,11 +31,9 @@ final movieDevSeedContributor = TypedDevSeedKindContributor<MovieCollectionItem>
   validateCatalog: validateMovieSeedCatalog,
   validateCatalogGraph: validateMovieSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  collectionItemsTyped: movieSeedCollectionItems,
-  collectionItemSummaryTyped: MovieCollectionItemProjection.toSummary,
-  validateOwnedTyped: validateMovieSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      MovieOwnedRepository(db).upsertAll(movieSeedCollectionItems(now)),
+  libraryEntriesTyped: movieSeedLibraryEntries,
+  libraryEntrySummaryTyped: MovieLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateMovieSeedEntry,
   trackingRecords: movieSeedTrackingStates,
 );
 
@@ -86,9 +84,9 @@ List<String> validateMovieSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateMovieSeedOwned(MovieCollectionItem item) {
+List<String> validateMovieSeedEntry(MovieLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final prefix = '${item.catalogItem.kind}/${item.id}';
   final details = item.details;
   seedRequireText(issues, prefix, 'movie.region', details.region);
   seedRequireText(issues, prefix, 'movie.packaging', details.packaging);
@@ -965,10 +963,10 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
       ),
     ];
 
-List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-01'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01'),
+List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) => [
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-01'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 420)),
         updatedAt: now,
         isDigital: false,
@@ -978,16 +976,16 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Steelbook 4K UHD release. Flawless condition.',
         purchaseStore: 'Best Buy',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           region: 'Region Free',
           packaging: 'Steelbook',
           distributor: 'Warner Bros.',
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-02'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-02'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-02'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-02').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 380)),
         updatedAt: now,
         isDigital: false,
@@ -997,16 +995,16 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Incredible IMAX aspect ratio shifting presentation.',
         purchaseStore: 'Amazon',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           region: 'Region Free',
           packaging: 'Keep Case',
           distributor: 'Warner Bros.',
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-03'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-03'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-03'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-03').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 350)),
         updatedAt: now,
         isDigital: false,
@@ -1016,7 +1014,7 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Final chapter of the trilogy in a 4K keep case.',
         purchaseStore: 'Amazon',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Theatrical and extended cuts',
           hdrFormats: ['HDR10'],
           region: 'Region Free',
@@ -1025,9 +1023,9 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-04'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-04'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-04'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-04').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 280)),
         updatedAt: now,
         isDigital: false,
@@ -1037,7 +1035,7 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: '10th Anniversary slipcover edition.',
         purchaseStore: 'Zavvi',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: '10th anniversary commentary and deleted scenes',
           hdrFormats: ['Dolby Vision'],
           boxSetName: 'Anniversary Collector Edition',
@@ -1047,9 +1045,9 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-05'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-05'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-05'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-05').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 200)),
         updatedAt: now,
         isDigital: false,
@@ -1060,7 +1058,7 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         personalNotes:
             'Hans Zimmer pipe organ score sounds breathtaking on 5.1.',
         purchaseStore: 'Target',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Original score isolated track',
           hdrFormats: ['Dolby Vision', 'HDR10'],
           region: 'Region A',
@@ -1069,9 +1067,9 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-06'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-06'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-06'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-06').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 500)),
         updatedAt: now,
         isDigital: false,
@@ -1081,7 +1079,7 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Final Cut Dolby Atmos mix is reference tier.',
         purchaseStore: 'Barnes & Noble',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Final Cut with Dolby Atmos mix',
           hdrFormats: ['HDR10'],
           region: 'Region A',
@@ -1090,9 +1088,9 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-07'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-07'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-07'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-07').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 340)),
         updatedAt: now,
         isDigital: false,
@@ -1102,7 +1100,7 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Mondo steelbook with embossed typography.',
         purchaseStore: 'Zavvi',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Embossed steelbook and art cards',
           hdrFormats: ['Dolby Vision'],
           region: 'Region B',
@@ -1111,9 +1109,9 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-08'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-08'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-08'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-08').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 240)),
         updatedAt: now,
         isDigital: false,
@@ -1123,16 +1121,16 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Special edition with the original mono soundtrack.',
         purchaseStore: 'Criterion Store',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           region: 'Region A',
           packaging: 'Digipak',
           distributor: 'The Criterion Collection',
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-09'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-09'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-09'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-09').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 230)),
         updatedAt: now,
         isDigital: false,
@@ -1142,7 +1140,7 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: '4K restoration with both theatrical cuts.',
         purchaseStore: 'Best Buy',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Theatrical and alternate cuts',
           hdrFormats: ['HDR10'],
           region: 'Region A',
@@ -1151,9 +1149,9 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-10'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-10'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-10'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-10').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 150)),
         updatedAt: now,
         isDigital: false,
@@ -1164,16 +1162,16 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         personalNotes:
             'Criterion 50% off flash sale copy. Includes Black & White cut.',
         purchaseStore: 'Criterion Channel Store',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           region: 'Region A',
           packaging: 'Digipak',
           distributor: 'The Criterion Collection',
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-11'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-11'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-11'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-11').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 90)),
         updatedAt: now,
         isDigital: false,
@@ -1183,7 +1181,7 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'GKIDS steelbook with original theatrical poster art.',
         purchaseStore: 'Amazon',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Original theatrical poster and booklet',
           hdrFormats: ['HDR10'],
           region: 'Region A',
@@ -1192,9 +1190,9 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-12'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-12'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-12'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-12').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 60)),
         updatedAt: now,
         isDigital: false,
@@ -1204,7 +1202,7 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Reference Dolby Vision demo disc.',
         purchaseStore: 'Best Buy',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Dolby Vision reference transfer',
           hdrFormats: ['Dolby Vision'],
           region: 'Region Free',
@@ -1213,9 +1211,9 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-13'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-13'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-13'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-13').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 30)),
         updatedAt: now,
         isDigital: false,
@@ -1225,7 +1223,7 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Day 1 preorder steelbook.',
         purchaseStore: 'Walmart',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Day-one preorder bonus disc',
           hdrFormats: ['HDR10'],
           region: 'Region A',
@@ -1234,9 +1232,9 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-14'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-14'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-14'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-14').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 45)),
         updatedAt: now,
         isDigital: false,
@@ -1246,7 +1244,7 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: '3-disc set with over 3 hours of special features.',
         purchaseStore: 'Target',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Three-disc special features set',
           hdrFormats: ['HDR10'],
           region: 'Region A',
@@ -1255,9 +1253,9 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieCollectionItem(
-        id: CollectionItemId('seed-owned-movie-15'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-15'),
+      MovieLibraryEntry(
+        id: LibraryEntryId('seed-entry-movie-15'),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-15').toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 20)),
         updatedAt: now,
         isDigital: false,
@@ -1267,7 +1265,7 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Animated 4K collector edition with art cards.',
         purchaseStore: 'Sony Pictures Store',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Art cards and animated shorts',
           hdrFormats: ['Dolby Vision'],
           region: 'Region Free',
@@ -1281,10 +1279,9 @@ List<MovieCollectionItem> movieSeedCollectionItems(DateTime now) => [
 List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       MovieTrackingState(
         id: 'seed-track-movie-01',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01'),
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-01',
+          'seed-entry-movie-01',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1297,10 +1294,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-02',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-02'),
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-02',
+          'seed-entry-movie-02',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1313,10 +1309,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-03',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-03'),
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-03',
+          'seed-entry-movie-03',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1328,11 +1323,10 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-04',
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-04',
+          'seed-entry-movie-04',
         ),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-04'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1343,11 +1337,10 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-07',
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-07',
+          'seed-entry-movie-07',
         ),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-07'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1359,10 +1352,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-05',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-05'),
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-05',
+          'seed-entry-movie-05',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1374,10 +1366,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-06',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-06'),
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-06',
+          'seed-entry-movie-06',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1389,10 +1380,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-08',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-08'),
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-08',
+          'seed-entry-movie-08',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1404,10 +1394,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-09',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-09'),
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-09',
+          'seed-entry-movie-09',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1419,11 +1408,10 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-10',
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-10',
+          'seed-entry-movie-10',
         ),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-10'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1434,11 +1422,10 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-13',
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-13',
+          'seed-entry-movie-13',
         ),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-13'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1450,10 +1437,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-11',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-11'),
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-11',
+          'seed-entry-movie-11',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1465,10 +1451,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-12',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-12'),
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-12',
+          'seed-entry-movie-12',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1480,10 +1465,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-14',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-14'),
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-14',
+          'seed-entry-movie-14',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1495,10 +1479,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-15',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-15'),
-        collectionItemRef: seedCollectionItemRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-15',
+          'seed-entry-movie-15',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,

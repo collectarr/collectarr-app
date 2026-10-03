@@ -1,19 +1,20 @@
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class InspectorReadingQueueSection extends StatefulWidget {
   const InspectorReadingQueueSection({
     super.key,
-    required this.collectionItemRef,
+    required this.libraryEntryRef,
     required this.db,
     required this.accent,
   });
 
-  final CollectionItemRef collectionItemRef;
+  final LibraryEntryRef libraryEntryRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -37,7 +38,7 @@ class _InspectorReadingQueueSectionState
   Future<void> _load() async {
     final repo = ReadingQueueRepository(widget.db);
     final queue = await repo.getQueue();
-    final idx = queue.indexOf(widget.collectionItemRef);
+    final idx = queue.indexOf(widget.libraryEntryRef);
     if (mounted) {
       setState(() {
         _inQueue = idx >= 0;
@@ -50,16 +51,18 @@ class _InspectorReadingQueueSectionState
   Future<void> _toggle() async {
     final repo = ReadingQueueRepository(widget.db);
     if (_inQueue) {
-      await repo.removeFromQueue(widget.collectionItemRef);
+      await repo.removeFromQueue(widget.libraryEntryRef);
     } else {
-      await repo.addToQueue(widget.collectionItemRef);
+      await repo.addToQueue(widget.libraryEntryRef);
     }
+    await enqueueReadingQueueSnapshots(widget.db, widget.libraryEntryRef);
     unawaited(_load());
   }
 
   Future<void> _moveToTop() async {
     final repo = ReadingQueueRepository(widget.db);
-    await repo.moveToTop(widget.collectionItemRef);
+    await repo.moveToTop(widget.libraryEntryRef);
+    await enqueueReadingQueueSnapshots(widget.db, widget.libraryEntryRef);
     unawaited(_load());
   }
 

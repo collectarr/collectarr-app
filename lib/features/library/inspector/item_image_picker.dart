@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,10 +18,10 @@ const itemImageTypeLabels = {
   'other': 'Other',
 };
 
-Future<String?> pickAndStoreCollectionItemImage({
+Future<String?> pickAndStoreLibraryEntryImage({
   required BuildContext context,
   required LocalDatabase db,
-  required CollectionItemRef collectionItemRef,
+  required LibraryEntryRef libraryEntryRef,
   String? imageType,
 }) async {
   try {
@@ -57,7 +57,7 @@ Future<String?> pickAndStoreCollectionItemImage({
     final bytes = await picked.readAsBytes();
     await ItemImagesCacheRepository(db).upsert(
       id: _itemImageUuid.v4(),
-      collectionItemRef: collectionItemRef,
+      libraryEntryRef: libraryEntryRef,
       imageType: selectedType,
       imageData: bytes,
     );

@@ -1,20 +1,19 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
-import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace_contributors.dart';
-import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
 
-/// Orchestrates tracking-entry lifecycle across kind-owned persistence codecs.
+/// Orchestrates tracking-entry lifecycle across kind-entry persistence codecs.
 ///
-/// Kind-owned tracking tables are composed here for queries and transactions.
+/// Kind-entry tracking tables are composed here for queries and transactions.
 /// Mixed feature code receives structural summaries; concrete entries stay
 /// inside the owning codec boundary.
 class TrackingStorageRepository {
@@ -30,8 +29,7 @@ class TrackingStorageRepository {
 
   TrackingStorageRecord create({
     required String id,
-    required CatalogEntityRef catalogRef,
-    CollectionItemRef? collectionItemRef,
+    required LibraryEntryRef libraryEntryRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -44,11 +42,10 @@ class TrackingStorageRepository {
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    _validateTargetRefs(catalogRef, collectionItemRef);
-    return _codecForKind(catalogRef.mediaKind).create(
+    _validateLibraryEntryRef(libraryEntryRef);
+    return _codecForKind(libraryEntryRef.kind).create(
       id: id,
-      catalogRef: catalogRef,
-      collectionItemRef: collectionItemRef,
+      libraryEntryRef: libraryEntryRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -126,8 +123,7 @@ class TrackingStorageRepository {
   /// tracking aggregate.
   Future<TrackingStorageSyncRecord> upsertMutation({
     required String id,
-    required CatalogEntityRef catalogRef,
-    CollectionItemRef? collectionItemRef,
+    required LibraryEntryRef libraryEntryRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -139,26 +135,25 @@ class TrackingStorageRepository {
     String? notes,
     TrackingKindPatch? kindPatch,
     required DateTime updatedAt,
+    bool replaceNullableFields = false,
   }) async {
-    _validateTargetRefs(catalogRef, collectionItemRef);
-    if (kindPatch != null && kindPatch.kind != catalogRef.mediaKind) {
+    _validateLibraryEntryRef(libraryEntryRef);
+    if (kindPatch != null && kindPatch.kind != libraryEntryRef.kind) {
       throw ArgumentError.value(
         kindPatch.kind,
         'kindPatch.kind',
         'Tracking patch kind must match catalog reference kind.',
       );
     }
-    final codec = _codecForKind(catalogRef.mediaKind);
+    final codec = _codecForKind(libraryEntryRef.kind);
     final existing = await _findActiveEntry(
-      catalogRef: catalogRef,
-      collectionItemRef: collectionItemRef,
+      libraryEntryRef: libraryEntryRef,
     );
     final entryId = existing?.id ?? id;
     final entry = existing == null
         ? codec.create(
             id: entryId,
-            catalogRef: catalogRef,
-            collectionItemRef: collectionItemRef,
+            libraryEntryRef: libraryEntryRef,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -173,22 +168,33 @@ class TrackingStorageRepository {
         : existing
             .copyWith(
               id: entryId,
-              catalogRef: catalogRef,
-              collectionItemRef: collectionItemRef ?? existing.collectionItemRef,
-              sourceType: sourceType ?? existing.sourceType,
-              status: status ?? existing.status ?? MediaTrackingStatus.planned,
-              rating: rating ?? existing.rating,
-              startedAt: startedAt ?? existing.startedAt,
-              finishedAt: finishedAt ?? existing.finishedAt,
-              notes: notes ?? existing.notes,
+              libraryEntryRef: libraryEntryRef,
+              sourceType: replaceNullableFields
+                  ? sourceType
+                  : sourceType ?? existing.sourceType,
+              status: replaceNullableFields
+                  ? status
+                  : status ?? existing.status ?? MediaTrackingStatus.planned,
+              rating: replaceNullableFields ? rating : rating ?? existing.rating,
+              startedAt:
+                  replaceNullableFields ? startedAt : startedAt ?? existing.startedAt,
+              finishedAt: replaceNullableFields
+                  ? finishedAt
+                  : finishedAt ?? existing.finishedAt,
+              notes: replaceNullableFields ? notes : notes ?? existing.notes,
               updatedAt: updatedAt,
             )
             .copyWithProgress(
               TrackingProgressSnapshot(
-                current: progressCurrent ?? existing.progress.current,
-                total: progressTotal ?? existing.progress.total,
-                timesCompleted:
-                    timesCompleted ?? existing.progress.timesCompleted,
+                current: replaceNullableFields
+                    ? progressCurrent
+                    : progressCurrent ?? existing.progress.current,
+                total: replaceNullableFields
+                    ? progressTotal
+                    : progressTotal ?? existing.progress.total,
+                timesCompleted: replaceNullableFields
+                    ? timesCompleted
+                    : timesCompleted ?? existing.progress.timesCompleted,
               ),
             );
     final withPatch =
@@ -216,31 +222,22 @@ class TrackingStorageRepository {
     return _syncRecord(codec, deleted);
   }
 
-  Future<List<TrackingStorageRecord>> findActiveStorageRecordsByCatalogRefs(
-    Iterable<CatalogEntityRef> catalogRefs,
+  Future<List<TrackingStorageRecord>> findActiveStorageRecordsByLibraryEntryRefs(
+    Iterable<LibraryEntryRef> libraryEntryRefs,
   ) async {
-    final wanted = catalogRefs.toSet();
+    final wanted = libraryEntryRefs.toSet();
     if (wanted.isEmpty) return const [];
     return (await listActiveStorageRecords())
-        .where((entry) => wanted.contains(entry.catalogRef))
-        .toList(growable: false);
-  }
-
-  Future<List<TrackingStorageRecord>> findActiveStorageRecordsByCatalogRoots(
-    Iterable<CatalogEntityRef> catalogRefs,
-  ) async {
-    final wanted = {
-      for (final ref in catalogRefs) ref.rootScope,
-    };
-    if (wanted.isEmpty) return const [];
-    return (await listActiveStorageRecords())
-        .where((entry) => wanted.contains(entry.catalogRef.rootScope))
+        .where((entry) {
+          final ref = entry.libraryEntryRef;
+          return ref != null && wanted.contains(ref);
+        })
         .toList(growable: false);
   }
 
   Future<void> upsertStorageRecord(TrackingStorageRecord entry) async {
-    _validateTargetRefs(entry.catalogRef, entry.collectionItemRef);
-    final codec = _codecForKind(entry.catalogRef.mediaKind);
+    final libraryEntryRef = _libraryEntryRefForRecord(entry);
+    final codec = _codecForKind(libraryEntryRef.kind);
     await _db.transaction(() => codec.upsertToStorage(_db, entry));
   }
 
@@ -248,32 +245,20 @@ class TrackingStorageRepository {
     if (entries.isEmpty) return;
     await _db.transaction(() async {
       for (final entry in entries) {
-        _validateTargetRefs(entry.catalogRef, entry.collectionItemRef);
-        await _codecForKind(entry.catalogRef.mediaKind)
+        final libraryEntryRef = _libraryEntryRefForRecord(entry);
+        await _codecForKind(libraryEntryRef.kind)
             .upsertToStorage(_db, entry);
       }
     });
   }
 
   Future<TrackingStorageRecord?> _findActiveEntry({
-    required CatalogEntityRef catalogRef,
-    required CollectionItemRef? collectionItemRef,
+    required LibraryEntryRef libraryEntryRef,
   }) async {
-    final trackingTopology =
-        libraryTrackingTopologyForKind(catalogRef.mediaKind);
     final entries =
-        trackingTopology.lookupScope == LibraryTrackingLookupScope.exactCatalog
-            ? await findActiveStorageRecordsByCatalogRefs([catalogRef])
-            : await findActiveStorageRecordsByCatalogRoots([catalogRef]);
+        await findActiveStorageRecordsByLibraryEntryRefs([libraryEntryRef]);
     for (final entry in entries) {
-      if (entry.collectionItemRef == collectionItemRef) return entry;
-    }
-    // A catalog-level lifecycle is distinct from an Owned lifecycle. Never
-    // fall back to an arbitrary row for a different target; doing so can
-    // silently mutate the first copy when a work has multiple collection items.
-    if (collectionItemRef != null) return null;
-    for (final entry in entries) {
-      if (entry.collectionItemRef == null) return entry;
+      if (entry.libraryEntryRef == libraryEntryRef) return entry;
     }
     return null;
   }
@@ -284,7 +269,7 @@ class TrackingStorageRepository {
   ) {
     return TrackingStorageSyncRecord(
       ref: TrackingStateRef(
-        kind: entry.catalogRef.mediaKind,
+        kind: _libraryEntryRefForRecord(entry).kind,
         id: entry.id,
       ),
       payload: codec.toSyncPayload(entry),
@@ -310,7 +295,7 @@ class TrackingStorageRepository {
           updatedAt: input.updatedAt,
           deletedAt: input.deletedAt,
         );
-        _validateTargetRefs(entry.catalogRef, entry.collectionItemRef);
+        _libraryEntryRefForRecord(entry);
         await codec.upsertToStorage(_db, entry);
       }
     });
@@ -328,39 +313,6 @@ class TrackingStorageRepository {
     );
   }
 
-  /// Rebases tracking targets while keeping the concrete lifecycle private to
-  /// this repository/codec boundary.
-  Future<List<TrackingStorageSyncRecord>> rebaseCatalogRef({
-    required CatalogEntityRef current,
-    required CatalogEntityRef target,
-    required DateTime updatedAt,
-  }) async {
-    final entries = await findActiveStorageRecordsByCatalogRefs([current]);
-    if (entries.isEmpty) return const [];
-    final records = <TrackingStorageSyncRecord>[];
-    await _db.transaction(() async {
-      for (final entry in entries) {
-        final updated = entry.copyWith(
-          catalogRef: _rebaseRef(entry.catalogRef, target),
-          updatedAt: updatedAt,
-        );
-        final codec = _codecForKind(updated.catalogRef.mediaKind);
-        await codec.upsertToStorage(_db, updated);
-        records.add(
-          TrackingStorageSyncRecord(
-            ref: TrackingStateRef(
-              kind: updated.catalogRef.mediaKind,
-              id: updated.id,
-            ),
-            payload: codec.toSyncPayload(updated),
-            isDeleted: updated.isDeleted,
-          ),
-        );
-      }
-    });
-    return records;
-  }
-
   /// Applies schema-v1 import values and returns only a structural sync
   /// record. The concrete lifecycle is reconstructed and persisted inside
   /// this repository, never exposed to the generic import host.
@@ -372,16 +324,15 @@ class TrackingStorageRepository {
 
     final entries = <TrackingStorageRecord>[];
     for (final input in values) {
-      final existingEntries =
-          await findActiveStorageRecordsByCatalogRoots([input.catalogRef]);
-      final existing = existingEntries
-          .where((entry) => entry.collectionItemRef == input.collectionItemRef)
-          .firstOrNull;
+      _validateLibraryEntryRef(input.libraryEntryRef);
+      final existing =
+          (await findActiveStorageRecordsByLibraryEntryRefs([
+        input.libraryEntryRef,
+      ])).firstOrNull;
       final entry = existing == null
           ? create(
               id: input.entryId,
-              catalogRef: input.catalogRef,
-              collectionItemRef: input.collectionItemRef,
+              libraryEntryRef: input.libraryEntryRef,
               status: mediaTrackingStatusFromValue(input.status) ??
                   MediaTrackingStatus.planned,
               rating: input.rating,
@@ -391,8 +342,7 @@ class TrackingStorageRepository {
             )
           : existing.copyWith(
               id: input.entryId,
-              catalogRef: input.catalogRef,
-              collectionItemRef: input.collectionItemRef,
+              libraryEntryRef: input.libraryEntryRef,
               status:
                   mediaTrackingStatusFromValue(input.status) ?? existing.status,
               rating: input.rating ?? existing.rating,
@@ -408,10 +358,9 @@ class TrackingStorageRepository {
       for (final entry in entries)
         TrackingStorageImportResult(
           ref: TrackingStateRef(
-            kind: entry.catalogRef.mediaKind,
+            kind: _libraryEntryRefForRecord(entry).kind,
             id: entry.id,
           ),
-          catalogRef: entry.catalogRef,
           payload: toSyncPayload(entry),
         ),
     ];
@@ -421,12 +370,13 @@ class TrackingStorageRepository {
     TrackingStorageRecord entry,
     DateTime deletedAt,
   ) {
-    return _codecForKind(entry.catalogRef.mediaKind)
+    return _codecForKind(_libraryEntryRefForRecord(entry).kind)
         .markDeletedInStorage(_db, entry, deletedAt);
   }
 
   Map<String, dynamic> toSyncPayload(TrackingStorageRecord entry) {
-    return _codecForKind(entry.catalogRef.mediaKind).toSyncPayload(entry);
+    return _codecForKind(_libraryEntryRefForRecord(entry).kind)
+        .toSyncPayload(entry);
   }
 
   TrackingStorageCodec _codecForKind(CatalogMediaKind kind) {
@@ -439,32 +389,13 @@ class TrackingStorageRepository {
     return codec;
   }
 
-  CatalogEntityRef _rebaseRef(
-    CatalogEntityRef current,
-    CatalogEntityRef target,
-  ) {
-    if (current.kind != target.kind) {
-      throw ArgumentError(
-        'Tracking catalog references cannot be rebased across kinds: '
-        '${current.kind.apiValue} -> ${target.kind.apiValue}.',
-      );
-    }
-    if (current.rootScope == current || current.rootId == null) {
-      return target;
-    }
-    return current.copyWith(
-      kind: target.kind,
-      rootId: target.id,
-    );
+  void _validateLibraryEntryRef(LibraryEntryRef libraryEntryRef) {
+    requireKnownLibraryEntryRef(libraryEntryRef, 'tracking.libraryEntryRef');
   }
 
-  void _validateTargetRefs(
-    CatalogEntityRef catalogRef,
-    CollectionItemRef? collectionItemRef,
-  ) {
-    requireKnownCatalogRef(catalogRef, 'catalogRef');
-    if (collectionItemRef != null) {
-      requireMatchingCatalogAndCollectionItemKinds(catalogRef, collectionItemRef);
-    }
+  LibraryEntryRef _libraryEntryRefForRecord(TrackingStorageRecord entry) {
+    final ref = entry.libraryEntryRef;
+    _validateLibraryEntryRef(ref);
+    return ref;
   }
 }

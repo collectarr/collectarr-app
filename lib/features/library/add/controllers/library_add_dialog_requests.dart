@@ -45,12 +45,15 @@ class LibraryAddManualPaneRequest {
     required this.isAdding,
     required this.defaultCondition,
     this.conditions = const [],
+    this.tagOptions = const [],
+    this.ownerOptions = const [],
+    this.purchaseStoreOptions = const [],
     this.locations = const [],
     this.defaultLocationId,
     required this.defaultLocationLabel,
     required this.defaultPurchaseDate,
     required this.defaultTags,
-    required this.onAddOwned,
+    required this.onAddEntry,
     required this.onAddWishlist,
     required this.onAddTrack,
     required this.onPropose,
@@ -62,6 +65,7 @@ class LibraryAddManualPaneRequest {
     this.onItemImagesChanged,
     this.onVocabularyValueChanged,
     this.onVocabularyValuesChanged,
+    this.onManualDraftChanged,
   });
 
   final CatalogMediaKind kind;
@@ -85,12 +89,15 @@ class LibraryAddManualPaneRequest {
   final bool isAdding;
   final String defaultCondition;
   final List<String> conditions;
+  final List<String> tagOptions;
+  final List<String> ownerOptions;
+  final List<String> purchaseStoreOptions;
   final List<StorageLocation> locations;
   final String? defaultLocationId;
   final String? defaultLocationLabel;
   final DateTime? defaultPurchaseDate;
   final String? defaultTags;
-  final VoidCallback onAddOwned;
+  final VoidCallback onAddEntry;
   final VoidCallback onAddWishlist;
   final VoidCallback onAddTrack;
   final VoidCallback onPropose;
@@ -99,10 +106,11 @@ class LibraryAddManualPaneRequest {
   final List<CustomFieldDefinition> customFieldDefinitions;
   final Map<String, String?> customFieldValues;
   final ValueChanged<Map<String, String?>>? onCustomFieldValuesChanged;
-  final List<ItemImage> itemImages;
+  final List<ItemImageDraft> itemImages;
   final ValueChanged<List<ItemImageEdit>>? onItemImagesChanged;
   final LibraryVocabularyValueChanged? onVocabularyValueChanged;
   final LibraryVocabularyValuesChanged? onVocabularyValuesChanged;
+  final VoidCallback? onManualDraftChanged;
 
   TDraft manualDraftAs<TDraft extends LibraryKindAddDraft>() =>
       manualDraft as TDraft;
