@@ -16,7 +16,6 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -319,58 +318,55 @@ class MovieEditDraft
     var result = selection;
     final meta = result.kindItem.kindCapability.mapTransport(
         (transport) => MovieCatalogMetadata.fromJson(transport.kindData));
-    if (meta is MovieCatalogMetadata) {
-      final parsedGenres = movieEdit.genresEditController.text
-          .split(RegExp(r'[,\r\n]+'))
-          .map((value) => value.trim())
-          .where((value) => value.isNotEmpty)
-          .toList();
-      final updatedMeta = meta.copyWith(
-        runtimeMinutes: int.tryParse(movieEdit.runtimeController.text),
-        genres: parsedGenres.isNotEmpty ? parsedGenres : meta.genres,
-        cast: movieEdit.castCredits
-            .map((credit) => MoviePersonCredit(
-                  name: credit.nameController.text.trim(),
-                  role: emptyToNull(credit.roleController.text.trim()),
-                ))
-            .where((credit) => credit.name.isNotEmpty)
-            .toList(),
-        crew: movieEdit.crewCredits
-            .map((credit) => MoviePersonCredit(
-                  name: credit.nameController.text.trim(),
-                  role: emptyToNull(credit.roleController.text.trim()),
-                ))
-            .where((credit) => credit.name.isNotEmpty)
-            .toList(),
-        ageRating: emptyToNull(movieEdit.ageRatingController.text),
-        audienceRating: emptyToNull(movieEdit.audienceRatingController.text),
-        editionTitle: emptyToNull(movieEdit.editionTitleController.text),
-        variant: emptyToNull(movieEdit.variantController.text),
-        barcode: emptyToNull(movieEdit.barcodeController.text),
-        physicalFormat: movieEdit.physicalFormatId,
-        physicalFormatLabel:
-            emptyToNull(movieEdit.physicalFormatLabelController.text),
-        publisher: emptyToNull(movieEdit.publisherController.text),
-        country: emptyToNull(movieEdit.countryController.text) ?? meta.country,
-        language:
-            emptyToNull(movieEdit.languageController.text) ?? meta.language,
-        releaseDate: parseDate(movieEdit.releaseDateController.text),
-        links: movieEdit.buildUpdatedTrailerUrls(meta.links),
-        screenRatio: emptyToNull(screenRatioController.text),
-        audioTracks: emptyToNull(audioTracksController.text),
-        subtitles: emptyToNull(subtitlesController.text),
-        layers: emptyToNull(layersController.text),
-        color: emptyToNull(colorController.text),
-        nrDiscs: int.tryParse(nrDiscsController.text),
-      );
-      result = result.copyWith(
-        kindItem: result.kindItem.kindCapability.mapTransport(
-          (transport) => CatalogSearchCandidate.fromItem(
-            transport.withKindData(updatedMeta),
-          ),
+    final parsedGenres = movieEdit.genresEditController.text
+        .split(RegExp(r'[,\r\n]+'))
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList();
+    final updatedMeta = meta.copyWith(
+      runtimeMinutes: int.tryParse(movieEdit.runtimeController.text),
+      genres: parsedGenres.isNotEmpty ? parsedGenres : meta.genres,
+      cast: movieEdit.castCredits
+          .map((credit) => MoviePersonCredit(
+                name: credit.nameController.text.trim(),
+                role: emptyToNull(credit.roleController.text.trim()),
+              ))
+          .where((credit) => credit.name.isNotEmpty)
+          .toList(),
+      crew: movieEdit.crewCredits
+          .map((credit) => MoviePersonCredit(
+                name: credit.nameController.text.trim(),
+                role: emptyToNull(credit.roleController.text.trim()),
+              ))
+          .where((credit) => credit.name.isNotEmpty)
+          .toList(),
+      ageRating: emptyToNull(movieEdit.ageRatingController.text),
+      audienceRating: emptyToNull(movieEdit.audienceRatingController.text),
+      editionTitle: emptyToNull(movieEdit.editionTitleController.text),
+      variant: emptyToNull(movieEdit.variantController.text),
+      barcode: emptyToNull(movieEdit.barcodeController.text),
+      physicalFormat: movieEdit.physicalFormatId,
+      physicalFormatLabel:
+          emptyToNull(movieEdit.physicalFormatLabelController.text),
+      publisher: emptyToNull(movieEdit.publisherController.text),
+      country: emptyToNull(movieEdit.countryController.text) ?? meta.country,
+      language: emptyToNull(movieEdit.languageController.text) ?? meta.language,
+      releaseDate: parseDate(movieEdit.releaseDateController.text),
+      links: movieEdit.buildUpdatedTrailerUrls(meta.links),
+      screenRatio: emptyToNull(screenRatioController.text),
+      audioTracks: emptyToNull(audioTracksController.text),
+      subtitles: emptyToNull(subtitlesController.text),
+      layers: emptyToNull(layersController.text),
+      color: emptyToNull(colorController.text),
+      nrDiscs: int.tryParse(nrDiscsController.text),
+    );
+    result = result.copyWith(
+      kindItem: result.kindItem.kindCapability.mapTransport(
+        (transport) => CatalogSearchCandidate.fromItem(
+          transport.withKindData(updatedMeta),
         ),
-      );
-    }
+      ),
+    );
     return result;
   }
 
@@ -397,41 +393,41 @@ LibraryEditSessionBundle createMovieEditDraft({
   final video = entry?.personal.details;
   final metadata = item.kindCapability.mapTransport(
       (transport) => MovieCatalogMetadata.fromJson(transport.kindData));
-  final movie = metadata is MovieCatalogMetadata ? metadata : null;
+  final movie = metadata;
   final movieEdit = MovieEditController(
     itemId: item.reference.id,
     catalogRef: item.reference,
-    initialRuntime: movie?.runtimeMinutes?.toString() ?? '',
-    initialAgeRating: movie?.ageRating ?? '',
-    initialAudienceRating: movie?.audienceRating ?? '',
-    initialGenres: movie?.genres.join(', ') ?? '',
-    initialEditionTitle: movie?.editionTitle ??
+    initialRuntime: movie.runtimeMinutes?.toString() ?? '',
+    initialAgeRating: movie.ageRating ?? '',
+    initialAudienceRating: movie.audienceRating ?? '',
+    initialGenres: movie.genres.join(', '),
+    initialEditionTitle: movie.editionTitle ??
         (item.movieCatalogFields.titleExtension ??
                 item.kindCapability
                     .mapTransport((transport) => transport)
                     .editionTitle)
             ?.trim() ??
         '',
-    initialVariant: movie?.variant ?? '',
-    initialBarcode: movie?.barcode ?? '',
+    initialVariant: movie.variant ?? '',
+    initialBarcode: movie.barcode ?? '',
     initialPhysicalFormatLabel:
-        movie?.physicalFormatLabel ?? movie?.variant ?? '',
-    initialPhysicalFormatId: movie?.physicalFormat,
-    initialPublisher: movie?.publisher ?? movie?.studio ?? '',
-    initialCountry: movie?.country ?? '',
-    initialLanguage: movie?.language ?? movie?.originalLanguage ?? '',
+        movie.physicalFormatLabel ?? movie.variant ?? '',
+    initialPhysicalFormatId: movie.physicalFormat,
+    initialPublisher: movie.publisher ?? movie.studio ?? '',
+    initialCountry: movie.country ?? '',
+    initialLanguage: movie.language ?? movie.originalLanguage ?? '',
     initialReleaseDate:
-        movie?.releaseDate == null ? '' : formatDate(movie!.releaseDate!),
-    initialReleaseYear: movie?.releaseDate?.year.toString() ?? '',
+        movie.releaseDate == null ? '' : formatDate(movie.releaseDate!),
+    initialReleaseYear: movie.releaseDate?.year.toString() ?? '',
     initialCreators: [
-      for (final creator in movie?.creators ?? const <Map<String, dynamic>>[])
+      for (final creator in movie.creators)
         MovieCreditInput(
           name: creator['name']?.toString() ?? '',
           role: creator['role']?.toString() ?? creator['job']?.toString(),
           sourceType: creator['source_type']?.toString() ?? 'provider',
         ),
     ],
-    initialTrailerLinks: movie?.links ?? const <TrailerLinkDto>[],
+    initialTrailerLinks: movie.links,
   );
   movieEdit.initializeMovieEditors();
 
@@ -444,14 +440,14 @@ LibraryEditSessionBundle createMovieEditDraft({
     distributorController:
         textControllers.create(text: video?.distributor ?? ''),
     screenRatioController:
-        textControllers.create(text: movie?.screenRatio ?? ''),
+        textControllers.create(text: movie.screenRatio ?? ''),
     audioTracksController:
-        textControllers.create(text: movie?.audioTracks ?? ''),
-    subtitlesController: textControllers.create(text: movie?.subtitles ?? ''),
-    layersController: textControllers.create(text: movie?.layers ?? ''),
-    colorController: textControllers.create(text: movie?.color ?? ''),
+        textControllers.create(text: movie.audioTracks ?? ''),
+    subtitlesController: textControllers.create(text: movie.subtitles ?? ''),
+    layersController: textControllers.create(text: movie.layers ?? ''),
+    colorController: textControllers.create(text: movie.color ?? ''),
     nrDiscsController:
-        textControllers.create(text: movie?.nrDiscs?.toString() ?? ''),
+        textControllers.create(text: movie.nrDiscs?.toString() ?? ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
     movieEdit: movieEdit,
   );

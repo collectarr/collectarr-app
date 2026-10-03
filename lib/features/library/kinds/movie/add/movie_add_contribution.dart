@@ -72,9 +72,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport((transport) =>
                   MovieCatalogMetadata.fromJson(transport.kindData));
-              return metadata is MovieCatalogMetadata
-                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                  : const <Object?>[];
+              return [metadata.seriesTitle, metadata.series?.seriesTitle];
             },
           ),
           LibraryAddSearchRankField(
@@ -84,9 +82,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport((transport) =>
                   MovieCatalogMetadata.fromJson(transport.kindData));
-              return metadata is MovieCatalogMetadata
-                  ? [metadata.releaseDate?.year]
-                  : const <Object?>[];
+              return [metadata.releaseDate?.year];
             },
           ),
         ],

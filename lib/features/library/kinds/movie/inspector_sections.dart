@@ -63,9 +63,14 @@ List<Widget> _buildMovieEntitySections(
     if (metadata?.audienceRating?.trim().isNotEmpty == true)
       LibraryDetailField(
           label: 'Audience rating', value: metadata!.audienceRating!),
-    if (metadata?.trailerUrls.isNotEmpty == true)
+    if (metadata?.links.any((link) => link.isTrailerLink) == true)
       LibraryDetailField(
-          label: 'Trailers', value: metadata!.trailerUrls.length.toString()),
+        label: 'Trailers',
+        value: metadata!.links
+            .where((link) => link.isTrailerLink)
+            .length
+            .toString(),
+      ),
   ];
 
   final sections = <Widget>[

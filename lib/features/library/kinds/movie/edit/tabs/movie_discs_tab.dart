@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -16,18 +16,11 @@ class MovieEditDiscsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final payload =
-        item.kindCapability.mapTransport((transport) => transport).payload;
-    final rawMedia = payload['media'] ?? payload['discs'];
-    final media = rawMedia is Iterable
-        ? [
-            for (final value in rawMedia)
-              if (value is Map)
-                MovieCatalogItemMedia.fromJson(
-                  Map<String, dynamic>.from(value),
-                ),
-          ]
-        : const <MovieCatalogItemMedia>[];
+    final metadata = item.kindCapability.mapTransport(
+      (transport) => MovieCatalogMetadata.fromJson(transport.kindData),
+    );
+    final media = [...metadata.media]
+      ..sort((left, right) => left.mediaNumber.compareTo(right.mediaNumber));
     return EditTabShell(
       children: [
         EditSection(
@@ -61,9 +54,9 @@ class MovieEditDiscsTab extends StatelessWidget {
                             Text(disc.title ?? 'Disc ${disc.mediaNumber}',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w700)),
-                            if (disc.formatLabel != null) ...[
+                            if (disc.mediaType != null) ...[
                               const SizedBox(width: 6),
-                              Text('(${disc.formatLabel})',
+                              Text('(${disc.mediaType})',
                                   style: TextStyle(
                                       color: appPalette(context).textMuted)),
                             ],

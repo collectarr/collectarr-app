@@ -51,7 +51,7 @@ abstract final class MovieCatalogEditionWorkspaceFields {
   static final audioTracks = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.audioTracks,
     label: 'Audio Tracks',
-    getValue: (dto) => dto.movie.audioTracks,
+    getValue: (dto) => dto.metadata.audioTracks,
     entityScope: LibraryEntityScope.catalogItem,
   );
 

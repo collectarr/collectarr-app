@@ -50,13 +50,13 @@ class MovieLibraryMediaPresentationBuilder
   ) {
     final catalog = entry.catalogData;
     if (catalog is! MovieWorkspaceCatalogData) return const [];
-    final item = catalog.movie;
-    final identifier = normalizeLibraryDuplicateIdentifier(item.barcode);
+    final metadata = catalog.metadata;
+    final identifier = normalizeLibraryDuplicateIdentifier(metadata.barcode);
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label: 'Identifier ${item.barcode!.trim()}',
+        label: 'Identifier ${metadata.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -70,21 +70,13 @@ class MovieLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! MovieWorkspaceCatalogData) return const [];
     return [
-      for (final link in catalog.movie.externalLinks)
-        if (link['url']?.toString().trim() case final url? when url.isNotEmpty)
+      for (final link in catalog.metadata.links)
+        if (link.url.trim() case final url when url.isNotEmpty)
           LibraryWorkspaceLinkSummary(
             url: url,
-            label: (link['title'] ?? link['label'])?.toString(),
-            source: (link['site'] ?? link['source'])?.toString(),
-            isTrailer:
-                link['link_type'] != 'external' && link['link_type'] != 'link',
-          ),
-      for (final link in catalog.movie.trailerUrls)
-        if (link['url']?.toString().trim() case final url? when url.isNotEmpty)
-          LibraryWorkspaceLinkSummary(
-            url: url,
-            label: link['title']?.toString(),
-            source: link['site']?.toString(),
+            label: link.title,
+            source: link.source,
+            isTrailer: link.isTrailerLink,
           ),
     ];
   }
@@ -186,15 +178,13 @@ class MovieLibraryMediaPresentationBuilder
         ? (item.source.catalogData! as MovieWorkspaceCatalogData).metadata
         : null;
     final series = metadata?.series;
-    final video = metadata?.video;
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
-    final runtime = metadata?.runtimeMinutes ??
-        (video?['runtime_minutes'] as num?)?.toInt();
-    final screenRatio = (video?['screen_ratio'] as String?)?.trim();
-    final audioTracks = (video?['audio_tracks'] as String?)?.trim();
-    final subtitles = (video?['subtitles'] as String?)?.trim();
+    final runtime = metadata?.runtimeMinutes;
+    final screenRatio = metadata?.screenRatio?.trim();
+    final audioTracks = metadata?.audioTracks?.trim();
+    final subtitles = metadata?.subtitles?.trim();
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [

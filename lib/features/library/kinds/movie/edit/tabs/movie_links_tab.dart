@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,8 +23,13 @@ class MovieEditLinksTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final catalogLinks =
-        item.kindCapability.mapTransport((transport) => transport.trailerUrls);
+    final catalogLinks = item.kindCapability
+        .mapTransport(
+          (transport) => MovieCatalogMetadata.fromJson(transport.kindData),
+        )
+        .links
+        .where((link) => link.isExternalLink)
+        .toList(growable: false);
     return EditTabShell(
       children: [
         if (catalogLinks.isNotEmpty)

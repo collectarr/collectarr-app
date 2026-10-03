@@ -23,15 +23,14 @@ final class MovieWorkspaceProjector
       common: WorkspaceCommonProjection.fromStructuralShelf(
         source,
         entity,
-        overrideTitle: catalog.movie.title,
-        overrideSynopsis: catalog.movie.synopsis,
-        overrideReleaseDate: catalog.movie.releaseDate,
-        overrideCoverImageUrl: catalog.movie.coverImageUrl,
+        overrideTitle: catalog.metadata.title,
+        overrideSynopsis: catalog.metadata.synopsis,
+        overrideReleaseDate: catalog.releaseDate,
+        overrideCoverImageUrl: catalog.metadata.coverImageUrl,
       ),
       personal: PersonalCopyProjection.fromShelf(
         source,
       ),
-      movie: catalog.movie,
       metadata: catalog.metadata,
     );
   }

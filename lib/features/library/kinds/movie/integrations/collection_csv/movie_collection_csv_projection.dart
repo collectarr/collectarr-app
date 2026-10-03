@@ -118,11 +118,10 @@ final class MovieCollectionCsvProjection
     final catalog = entry.catalogData;
     final metadata =
         catalog is MovieWorkspaceCatalogData ? catalog.metadata : null;
-    final movie = catalog is MovieWorkspaceCatalogData ? catalog.movie : null;
     return [
       entry.itemId,
       CatalogMediaKind.movie.apiValue,
-      metadata?.title ?? movie?.title ?? entry.title,
+      metadata?.title ?? entry.title,
       metadata?.itemNumber ?? '',
       metadata?.variant ?? '',
       metadata?.editionTitle ?? '',
@@ -130,7 +129,7 @@ final class MovieCollectionCsvProjection
       metadata?.physicalFormatLabel ?? '',
       metadata?.studio ?? metadata?.publisher ?? '',
       _formatDate(metadata?.releaseDate ??
-          movie?.releaseDate ??
+          metadata?.releaseDateParts?.asDateTime ??
           entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
