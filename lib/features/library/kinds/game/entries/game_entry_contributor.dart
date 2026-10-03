@@ -13,8 +13,9 @@ final gameEntryContributor = TypedEntryKindContributor<GameLibraryEntry>(
       GameEntryRepository(database).findById(LibraryEntryId(id)),
   upsert: (database, item) => GameEntryRepository(database).upsert(item),
   listActive: (database) => GameEntryRepository(database).listActive(),
-  createItem: ({
+  createItemWithCatalog: ({
     required payload,
+    required sourceCatalogItem,
     required id,
     required createdAt,
     required existingIsDigital,
@@ -26,6 +27,7 @@ final gameEntryContributor = TypedEntryKindContributor<GameLibraryEntry>(
     }
     return payload.toLibraryEntry(
       id: id,
+      sourceCatalogItem: sourceCatalogItem,
       createdAt: createdAt,
       existingIsDigital: existingIsDigital,
       ownerUserId: ownerUserId,

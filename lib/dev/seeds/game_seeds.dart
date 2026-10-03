@@ -9,8 +9,8 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_entry_repository.dart';
 
 final gameDevSeedContributor = TypedDevSeedKindContributor<GameLibraryEntry>(
   kind: CatalogMediaKind.game,
@@ -738,31 +738,40 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
     ];
 
-List<GameLibraryEntry> gameSeedLibraryEntries(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.game, 15))
-        GameLibraryEntry(
-          id: LibraryEntryId('seed-entry-$itemId'),
-          sourceCatalogRef: seedCatalogRef(CatalogMediaKind.game, itemId).toCatalogItemRef(),
-          createdAt: now.subtract(const Duration(days: 200)),
-          updatedAt: now,
-          isDigital: false,
-          condition: 'Mint',
-          details: GameEntryDetails(
-            completeness: 'Complete',
-            hasBox: true,
-            hasManual: true,
-            priceChartingId: 'seed-pricecharting-$itemId',
-            coreRegion: 'NTSC-U',
-            valueIsLocked: false,
-          ),
-          purchaseDate: DateTime.utc(2022, 11, 15),
-          pricePaidCents: 5999,
-          currency: 'USD',
-          personalNotes: 'Physical launch edition on disc.',
-          purchaseStore: 'PlayStation Direct / Steam',
-          collectionStatus: 'collected',
+List<GameLibraryEntry> gameSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in gameSeedCatalogItems())
+      item.id: GameCatalogMetadata.fromJson(item.kindData),
+  };
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.game, 15))
+      GameLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId] ??
+            (throw StateError('Missing Game seed catalog item: $itemId')),
+        sourceCatalogRef:
+            seedCatalogRef(CatalogMediaKind.game, itemId).toCatalogItemRef(),
+        createdAt: now.subtract(const Duration(days: 200)),
+        updatedAt: now,
+        isDigital: false,
+        condition: 'Mint',
+        details: GameEntryDetails(
+          completeness: 'Complete',
+          hasBox: true,
+          hasManual: true,
+          priceChartingId: 'seed-pricecharting-$itemId',
+          coreRegion: 'NTSC-U',
+          valueIsLocked: false,
         ),
-    ];
+        purchaseDate: DateTime.utc(2022, 11, 15),
+        pricePaidCents: 5999,
+        currency: 'USD',
+        personalNotes: 'Physical launch edition on disc.',
+        purchaseStore: 'PlayStation Direct / Steam',
+        collectionStatus: 'collected',
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> gameSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)

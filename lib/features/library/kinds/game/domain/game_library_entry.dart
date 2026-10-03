@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:flutter/foundation.dart';
 
 /// Complete Game-collection item state.
@@ -13,7 +14,7 @@ import 'package:flutter/foundation.dart';
 final class GameLibraryEntry implements JsonEncodable {
   const GameLibraryEntry({
     required this.id,
-    this.catalogData = const {},
+    required this.metadata,
     this.sourceCatalogRef,
     this.createdAt,
     this.isDigital,
@@ -40,13 +41,15 @@ final class GameLibraryEntry implements JsonEncodable {
   });
 
   final LibraryEntryId id;
-  final Map<String, dynamic> catalogData;
+  final GameCatalogMetadata metadata;
   final CatalogItemRef? sourceCatalogRef;
 
   CatalogItemDto get catalogItem => CatalogItemDto.raw(
-    id: id.value, mediaKind: CatalogMediaKind.game,
-    kindData: catalogData, origin: CatalogItemOrigin.privateLocal,
-  );
+        id: id.value,
+        mediaKind: CatalogMediaKind.game,
+        kindData: metadata.toJson(),
+        origin: CatalogItemOrigin.privateLocal,
+      );
   final DateTime? createdAt;
   final bool? isDigital;
   final String? condition;
@@ -74,9 +77,10 @@ final class GameLibraryEntry implements JsonEncodable {
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 
+  @override
   Map<String, dynamic> toJson() => {
         'id': id.value,
-        'catalog_data': catalogData,
+        'catalog_data': metadata.toJson(),
         'source_catalog_ref': sourceCatalogRef?.toJson(),
         'created_at': createdAt?.toUtc().toIso8601String(),
         'is_digital': isDigital,
@@ -104,7 +108,8 @@ final class GameLibraryEntry implements JsonEncodable {
 
   factory GameLibraryEntry.fromJson(Map<String, dynamic> json) {
     const obsoleteIdentityFields = {'catalog_ref', 'target_ref'};
-    final obsoleteFields = json.keys.where(obsoleteIdentityFields.contains).toList();
+    final obsoleteFields =
+        json.keys.where(obsoleteIdentityFields.contains).toList();
     if (obsoleteFields.isNotEmpty) {
       throw FormatException(
         'Local library entry contains unsupported identity fields: '
@@ -112,10 +117,22 @@ final class GameLibraryEntry implements JsonEncodable {
       );
     }
 
+    final rawCatalogData = json['catalog_data'];
+    if (rawCatalogData is! Map) {
+      throw const FormatException(
+        'A Game library entry requires typed catalog metadata.',
+      );
+    }
+
     return GameLibraryEntry(
       id: LibraryEntryId(json['id'] as String),
-      catalogData: json['catalog_data'] is Map ? Map<String, dynamic>.from(json['catalog_data'] as Map) : const {},
-      sourceCatalogRef: json['source_catalog_ref'] is Map ? CatalogItemRef.fromJson(Map<String, dynamic>.from(json['source_catalog_ref'] as Map)) : null,
+      metadata: GameCatalogMetadata.fromJson(
+        Map<String, dynamic>.from(rawCatalogData),
+      ),
+      sourceCatalogRef: json['source_catalog_ref'] is Map
+          ? CatalogItemRef.fromJson(
+              Map<String, dynamic>.from(json['source_catalog_ref'] as Map))
+          : null,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
       condition: json['condition'] as String?,
@@ -143,6 +160,7 @@ final class GameLibraryEntry implements JsonEncodable {
 
   GameLibraryEntry copyWith({
     LibraryEntryId? id,
+    GameCatalogMetadata? metadata,
     Object? createdAt = _unset,
     Object? isDigital = _unset,
     Object? condition = _unset,
@@ -168,8 +186,8 @@ final class GameLibraryEntry implements JsonEncodable {
   }) {
     return GameLibraryEntry(
       id: id ?? this.id,
-      catalogData: this.catalogData,
-      sourceCatalogRef: this.sourceCatalogRef,
+      metadata: metadata ?? this.metadata,
+      sourceCatalogRef: sourceCatalogRef,
       createdAt: identical(createdAt, _unset)
           ? this.createdAt
           : createdAt as DateTime?,
