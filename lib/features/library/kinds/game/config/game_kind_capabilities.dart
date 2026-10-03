@@ -75,7 +75,7 @@ final gameKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
       group: 'Games',
     ),
     PersonalLibraryFieldSpec(
-      key: 'game_price_charting_id',
+      key: 'game_pricecharting_id',
       label: 'Game PriceCharting ID',
       group: 'Games',
     ),

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 
 class GameEntryDetailsDraft implements JsonEncodable {
@@ -7,6 +8,7 @@ class GameEntryDetailsDraft implements JsonEncodable {
     this.hasBox,
     this.hasManual,
     this.priceChartingId,
+    this.valuations,
     this.coreRegion,
     this.valueIsLocked,
   });
@@ -15,6 +17,7 @@ class GameEntryDetailsDraft implements JsonEncodable {
   final bool? hasBox;
   final bool? hasManual;
   final String? priceChartingId;
+  final GameValuationSet? valuations;
   final String? coreRegion;
   final bool? valueIsLocked;
 
@@ -23,6 +26,7 @@ class GameEntryDetailsDraft implements JsonEncodable {
         hasBox: hasBox,
         hasManual: hasManual,
         priceChartingId: priceChartingId,
+        valuations: valuations,
         coreRegion: coreRegion,
         valueIsLocked: valueIsLocked,
       );

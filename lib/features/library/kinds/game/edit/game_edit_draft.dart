@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
@@ -42,6 +42,7 @@ class GameEditDraft
     required this.gameHasBox,
     required this.gameHasManual,
     required this.gamePriceChartingId,
+    this.gameValuations,
     required this.gameCoreRegion,
     required this.gameValueIsLocked,
     required this.gameEdit,
@@ -53,6 +54,7 @@ class GameEditDraft
   bool? gameHasBox;
   bool? gameHasManual;
   String? gamePriceChartingId;
+  final GameValuationSet? gameValuations;
   String? gameCoreRegion;
   bool gameValueIsLocked;
 
@@ -64,6 +66,7 @@ class GameEditDraft
         hasBox: gameHasBox,
         hasManual: gameHasManual,
         priceChartingId: gamePriceChartingId,
+        valuations: gameValuations,
         coreRegion: gameCoreRegion,
         valueIsLocked: gameValueIsLocked,
       );
@@ -359,6 +362,7 @@ LibraryEditSessionBundle createGameEditDraft({
     gameHasBox: game?.hasBox,
     gameHasManual: game?.hasManual,
     gamePriceChartingId: game?.priceChartingId,
+    gameValuations: game?.valuations,
     gameCoreRegion: game?.coreRegion,
     gameValueIsLocked: game?.valueIsLocked ?? false,
     gameEdit: gameEdit,

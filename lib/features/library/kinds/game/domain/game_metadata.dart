@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -230,8 +229,6 @@ final class GameCatalogMetadata implements JsonEncodable {
     this.variantName,
     this.toySubtype,
     this.toyType,
-    this.priceChartingId,
-    this.valuations,
     this.creators = const [],
   });
 
@@ -281,12 +278,9 @@ final class GameCatalogMetadata implements JsonEncodable {
   final List<GameCatalogLink> links;
   final String? variantName;
 
-  // These values belong to the local Game details layer and are not emitted
-  // in the source-neutral Core Catalog Item document.
+  // Game classification values are part of the typed Core document.
   final String? toySubtype;
   final String? toyType;
-  final String? priceChartingId;
-  final GameValuationSet? valuations;
   final List<GameCatalogPersonCredit> creators;
 
   DateTime? get releaseDate => releaseDateParts?.asDateTime;
@@ -399,8 +393,6 @@ final class GameCatalogMetadata implements JsonEncodable {
     String? variantName,
     String? toySubtype,
     String? toyType,
-    String? priceChartingId,
-    GameValuationSet? valuations,
     List<GameCatalogPersonCredit>? creators,
   }) =>
       GameCatalogMetadata(
@@ -447,8 +439,6 @@ final class GameCatalogMetadata implements JsonEncodable {
         variantName: variantName ?? this.variantName,
         toySubtype: toySubtype ?? this.toySubtype,
         toyType: toyType ?? this.toyType,
-        priceChartingId: priceChartingId ?? this.priceChartingId,
-        valuations: valuations ?? this.valuations,
         creators: creators ?? this.creators,
       );
 
@@ -513,12 +503,6 @@ final class GameCatalogMetadata implements JsonEncodable {
       variantName: _text(json['variant_name']),
       toySubtype: _text(json['toy_subtype']),
       toyType: _text(json['toy_type']),
-      priceChartingId: _text(json['price_charting_id']),
-      valuations: json['valuations'] is Map
-          ? GameValuationSet.fromJson(
-              Map<String, dynamic>.from(json['valuations'] as Map),
-            )
-          : null,
       creators: creatorRows,
     );
   }

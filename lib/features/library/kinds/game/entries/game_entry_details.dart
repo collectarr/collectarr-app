@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 
 const Object _gameDetailsUnset = Object();
 
@@ -10,6 +11,7 @@ class GameEntryDetails implements JsonEncodable {
     this.hasBox,
     this.hasManual,
     this.priceChartingId,
+    this.valuations,
     this.coreRegion,
     this.valueIsLocked,
   });
@@ -18,6 +20,7 @@ class GameEntryDetails implements JsonEncodable {
   final bool? hasBox;
   final bool? hasManual;
   final String? priceChartingId;
+  final GameValuationSet? valuations;
   final String? coreRegion;
   final bool? valueIsLocked;
 
@@ -27,6 +30,7 @@ class GameEntryDetails implements JsonEncodable {
         if (hasBox != null) 'game_has_box': hasBox,
         if (hasManual != null) 'game_has_manual': hasManual,
         if (priceChartingId != null) 'game_pricecharting_id': priceChartingId,
+        if (valuations != null) 'game_valuations': valuations!.toJson(),
         if (coreRegion != null) 'game_core_region': coreRegion,
         if (valueIsLocked != null) 'game_value_is_locked': valueIsLocked,
       };
@@ -37,6 +41,11 @@ class GameEntryDetails implements JsonEncodable {
       hasBox: json['game_has_box'] as bool?,
       hasManual: json['game_has_manual'] as bool?,
       priceChartingId: json['game_pricecharting_id'] as String?,
+      valuations: json['game_valuations'] is Map
+          ? GameValuationSet.fromJson(
+              Map<String, dynamic>.from(json['game_valuations'] as Map),
+            )
+          : null,
       coreRegion: json['game_core_region'] as String?,
       valueIsLocked: json['game_value_is_locked'] as bool?,
     );
@@ -47,6 +56,7 @@ class GameEntryDetails implements JsonEncodable {
     Object? hasBox = _gameDetailsUnset,
     Object? hasManual = _gameDetailsUnset,
     Object? priceChartingId = _gameDetailsUnset,
+    Object? valuations = _gameDetailsUnset,
     Object? coreRegion = _gameDetailsUnset,
     Object? valueIsLocked = _gameDetailsUnset,
   }) {
@@ -62,6 +72,9 @@ class GameEntryDetails implements JsonEncodable {
       priceChartingId: identical(priceChartingId, _gameDetailsUnset)
           ? this.priceChartingId
           : priceChartingId as String?,
+      valuations: identical(valuations, _gameDetailsUnset)
+          ? this.valuations
+          : valuations as GameValuationSet?,
       coreRegion: identical(coreRegion, _gameDetailsUnset)
           ? this.coreRegion
           : coreRegion as String?,
@@ -80,6 +93,7 @@ class GameEntryDetails implements JsonEncodable {
           hasBox == other.hasBox &&
           hasManual == other.hasManual &&
           priceChartingId == other.priceChartingId &&
+          valuations == other.valuations &&
           coreRegion == other.coreRegion &&
           valueIsLocked == other.valueIsLocked;
 
@@ -89,6 +103,7 @@ class GameEntryDetails implements JsonEncodable {
         hasBox,
         hasManual,
         priceChartingId,
+        valuations,
         coreRegion,
         valueIsLocked,
       );

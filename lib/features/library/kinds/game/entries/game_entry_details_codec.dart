@@ -20,6 +20,7 @@ final class GameEntryDetailsCodec {
         hasBox: details.hasBox,
         hasManual: details.hasManual,
         priceChartingId: details.priceChartingId,
+        valuations: details.valuations,
         coreRegion: details.coreRegion,
         valueIsLocked: details.valueIsLocked,
       );

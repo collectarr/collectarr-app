@@ -1,48 +1,9 @@
 import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
 import 'package:flutter/foundation.dart';
 
-enum GameValuationTier {
-  loose,
-  cib,
-  newSealed,
-  graded,
-  boxOnly,
-  manualOnly,
-}
-
-@immutable
-class GameValuationSnapshot {
-  const GameValuationSnapshot({
-    required this.tier,
-    required this.snapshot,
-  });
-
-  final GameValuationTier tier;
-  final ValuationSnapshot snapshot;
-
-  Map<String, dynamic> toJson() => {
-        'tier': tier.name,
-        'snapshot': snapshot.toJson(),
-      };
-
-  factory GameValuationSnapshot.fromJson(Map<String, dynamic> json) {
-    final tierName = json['tier'] as String?;
-    final tier = GameValuationTier.values.firstWhere(
-      (e) => e.name == tierName,
-      orElse: () => GameValuationTier.loose,
-    );
-    return GameValuationSnapshot(
-      tier: tier,
-      snapshot:
-          ValuationSnapshot.fromJson(json['snapshot'] as Map<String, dynamic>),
-    );
-  }
-}
-
 @immutable
 class GameValuationSet {
   const GameValuationSet({
-    this.priceChartingId,
     this.loose,
     this.cib,
     this.newSealed,
@@ -51,7 +12,6 @@ class GameValuationSet {
     this.manualOnly,
   });
 
-  final String? priceChartingId;
   final ValuationSnapshot? loose;
   final ValuationSnapshot? cib;
   final ValuationSnapshot? newSealed;
@@ -60,7 +20,6 @@ class GameValuationSet {
   final ValuationSnapshot? manualOnly;
 
   Map<String, dynamic> toJson() => {
-        if (priceChartingId != null) 'price_charting_id': priceChartingId,
         if (loose != null) 'loose': loose!.toJson(),
         if (cib != null) 'cib': cib!.toJson(),
         if (newSealed != null) 'new_sealed': newSealed!.toJson(),
@@ -71,7 +30,6 @@ class GameValuationSet {
 
   factory GameValuationSet.fromJson(Map<String, dynamic> json) {
     return GameValuationSet(
-      priceChartingId: json['price_charting_id'] as String?,
       loose: json['loose'] != null
           ? ValuationSnapshot.fromJson(json['loose'] as Map<String, dynamic>)
           : null,
@@ -94,4 +52,45 @@ class GameValuationSet {
           : null,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GameValuationSet &&
+          _sameValuation(loose, other.loose) &&
+          _sameValuation(cib, other.cib) &&
+          _sameValuation(newSealed, other.newSealed) &&
+          _sameValuation(graded, other.graded) &&
+          _sameValuation(boxOnly, other.boxOnly) &&
+          _sameValuation(manualOnly, other.manualOnly);
+
+  @override
+  int get hashCode => Object.hash(
+        _valuationHash(loose),
+        _valuationHash(cib),
+        _valuationHash(newSealed),
+        _valuationHash(graded),
+        _valuationHash(boxOnly),
+        _valuationHash(manualOnly),
+      );
 }
+
+bool _sameValuation(ValuationSnapshot? left, ValuationSnapshot? right) =>
+    left == null
+        ? right == null
+        : right != null &&
+            left.source == right.source &&
+            left.amountCents == right.amountCents &&
+            left.currency == right.currency &&
+            left.gradeOrCondition == right.gradeOrCondition &&
+            left.capturedAt == right.capturedAt;
+
+int _valuationHash(ValuationSnapshot? value) => value == null
+    ? 0
+    : Object.hash(
+        value.source,
+        value.amountCents,
+        value.currency,
+        value.gradeOrCondition,
+        value.capturedAt,
+      );

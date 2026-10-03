@@ -39,7 +39,7 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionView item) {
   final developer = gameDto?.publisher?.trim();
   final gameCatalog = item.source.catalogData;
   final ageRating = gameCatalog is GameWorkspaceCatalogData
-      ? gameCatalog.metadata?.ageRating?.trim()
+      ? gameCatalog.metadata.ageRating?.trim()
       : null;
   final entry =
       GameLibraryEntryProjection.fromDispatch(item.source.libraryEntryDispatch);
