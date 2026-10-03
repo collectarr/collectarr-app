@@ -73,6 +73,17 @@ slice. This is progress, not completion of this plan:
   cover URL, nested `publishing`, or `trailers` field shapes. The canonical
   `variant_name` key is now read and written by the kind metadata models and
   seed factory for every kind that has that field.
+- Anime and TV workspace/catalog projections now read their kind-owned typed
+  metadata instead of parallel `AnimeCatalogItem`/`TvCatalogItem` work-release
+  snapshots. Their obsolete catalog snapshot mappers were removed after a
+  production consumer audit. Add preview, duplicate detection, workspace links,
+  CSV output, and common workspace facts use the typed metadata models.
+- Anime and TV metadata now own the catalog display fields used by their
+  candidate projections, including title variants, search aliases, covers,
+  and partial release dates. Their decoders no longer accept the obsolete
+  `issue_number`, `overview`, nested TV `video`, or alternate TV rating and
+  publisher shapes. The pinned kind ledgers remain the source for canonical
+  field keys.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.
@@ -84,12 +95,13 @@ slice. This is progress, not completion of this plan:
   implementation and docs are complete, as requested.
 
 Still outstanding: removing business-field semantics and the remaining fallback
-aliases from shared transport; replacing the universal `PersonalStateDraft` and
-shared edit-section field assumptions with kind-owned bindings; removing active
-edition/media projections and duplicated shared DTO graphs; and finishing
-kind-owned field, schema, and form organization. The nine field ledgers remain
-authoritative, and exact CLZ parity is only confirmed for Music until the other
-reference captures are available.
+aliases from shared transport and the other kind codecs; replacing the universal
+`PersonalStateDraft` and shared edit-section field assumptions with kind-owned
+bindings; removing active edition/media projections and duplicated shared DTO
+graphs from the remaining kinds; and finishing kind-owned field, schema, and
+form organization. The nine field ledgers remain authoritative, and exact CLZ
+parity is only confirmed for Music until the other reference captures are
+available.
 
 ## Architectural decisions
 
