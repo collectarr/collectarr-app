@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
+
 /// Catalog values shared by the Comic Add form and issue Edit schema.
 final class ComicCatalogItemFormValues {
   ComicCatalogItemFormValues({
@@ -12,6 +14,7 @@ final class ComicCatalogItemFormValues {
     this.upc = '',
     this.physicalFormatLabel = '',
     this.coverDate,
+    this.coverDateParts,
     this.releaseDate,
     this.publisher = '',
     this.imprint = '',
@@ -37,6 +40,7 @@ final class ComicCatalogItemFormValues {
   String upc;
   String physicalFormatLabel;
   DateTime? coverDate;
+  PartialDate? coverDateParts;
   DateTime? releaseDate;
   String publisher;
   String imprint;
@@ -51,4 +55,5 @@ final class ComicCatalogItemFormValues {
   String coverImageUrl;
 }
 
-typedef ComicCatalogItemValuesReader<T> = ComicCatalogItemFormValues Function(T value);
+typedef ComicCatalogItemValuesReader<T> = ComicCatalogItemFormValues Function(
+    T value);

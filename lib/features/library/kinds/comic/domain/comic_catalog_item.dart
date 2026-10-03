@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:flutter/foundation.dart';
@@ -81,6 +82,7 @@ class ComicCatalogItem implements JsonEncodable {
     this.imprint,
     this.releaseDate,
     this.coverDate,
+    this.coverDateParts,
     this.pageCount,
     this.country = 'US',
     this.language = 'en',
@@ -131,6 +133,7 @@ class ComicCatalogItem implements JsonEncodable {
   final String? imprint;
   final DateTime? releaseDate;
   final DateTime? coverDate;
+  final PartialDate? coverDateParts;
   final int? pageCount;
   final String country;
   final String language;
@@ -167,8 +170,7 @@ class ComicCatalogItem implements JsonEncodable {
   final List<ComicLink> links;
   final Map<String, dynamic> rawPayload;
 
-  String? get coverImageUrl =>
-      _comicText(rawPayload['cover_image_url']);
+  String? get coverImageUrl => _comicText(rawPayload['cover_image_url']);
   String? get thumbnailImageUrl =>
       _comicText(rawPayload['thumbnail_image_url']) ?? coverImageUrl;
   String? get isbn => identifierValue('isbn');
@@ -216,6 +218,10 @@ class ComicCatalogItem implements JsonEncodable {
       if (publisher != null) 'publisher': publisher,
       if (imprint != null) 'imprint': imprint,
       if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
+      if (coverDateParts != null)
+        'cover_date': coverDateParts!.toJson()
+      else if (coverDate != null)
+        'cover_date': coverDate!.toIso8601String(),
       if (pageCount != null) 'page_count': pageCount,
       'country': country,
       'language': language,
@@ -229,9 +235,12 @@ class ComicCatalogItem implements JsonEncodable {
       if (contributors.isNotEmpty) 'contributors': contributors,
       if (creators.isNotEmpty) 'creators': creators,
       if (storyArcs.isNotEmpty) 'story_arcs': storyArcs,
+      if (keyEvents.isNotEmpty)
+        'key_events': [for (final event in keyEvents) event.toJson()],
       if (isKeyComic) 'key_comic': true,
       if (keyReason != null) 'key_reason': keyReason,
       if (variant != null) 'variant_name': variant,
+      if (variantDescription != null) 'variant_description': variantDescription,
       if (barcode != null) 'barcode': barcode,
       if (editionTitle != null) 'edition_title': editionTitle,
       if (titleExtension != null) 'title_extension': titleExtension,
@@ -242,6 +251,8 @@ class ComicCatalogItem implements JsonEncodable {
       if (series?.tags?.isNotEmpty == true) 'series_tags': series!.tags,
       if (series?.volumeName != null) 'volume_name': series!.volumeName,
       if (series?.volumeNumber != null) 'volume_number': series!.volumeNumber,
+      if (series?.volumeStartYear != null)
+        'volume_start_year': series!.volumeStartYear,
       if (publishing?.seriesGroup != null)
         'series_group': publishing!.seriesGroup,
       if (publishing?.coverPriceCents != null)
@@ -265,6 +276,7 @@ class ComicCatalogItem implements JsonEncodable {
     String? imprint,
     DateTime? releaseDate,
     DateTime? coverDate,
+    PartialDate? coverDateParts,
     int? pageCount,
     String? country,
     String? language,
@@ -310,6 +322,7 @@ class ComicCatalogItem implements JsonEncodable {
       imprint: imprint ?? this.imprint,
       releaseDate: releaseDate ?? this.releaseDate,
       coverDate: coverDate ?? this.coverDate,
+      coverDateParts: coverDateParts ?? this.coverDateParts,
       pageCount: pageCount ?? this.pageCount,
       country: country ?? this.country,
       language: language ?? this.language,
@@ -410,9 +423,8 @@ class ComicCatalogItem implements JsonEncodable {
       imprint: (json['imprint'] ?? publishing.imprint) as String?,
       releaseDate: _comicDate(json['release_date']) ??
           _comicDate(json['release_date_parts']),
-      coverDate: json['cover_date'] != null
-          ? DateTime.tryParse(json['cover_date'] as String)
-          : null,
+      coverDate: PartialDate.tryParse(json['cover_date'])?.asDateTime,
+      coverDateParts: PartialDate.tryParse(json['cover_date']),
       pageCount: (json['page_count'] ?? publishing.pageCount) as int?,
       country: (json['country'] as String?) ?? 'US',
       language: (json['language'] as String?) ?? 'en',
@@ -489,8 +501,7 @@ class ComicCatalogItem implements JsonEncodable {
                       'identifier_type': 'other',
                       'value': value?.toString() ?? '',
                     })
-              .where((identifier) =>
-                  _comicText(identifier['value']) != null)
+              .where((identifier) => _comicText(identifier['value']) != null)
               .toList(growable: false) ??
           const <Map<String, dynamic>>[],
       links: rawLinks,
@@ -516,10 +527,10 @@ DateTime? _comicDate(Object? value) {
 List<Map<String, dynamic>> _comicCredits(
   Iterable<String> names,
   String role,
-) => [
+) =>
+    [
       for (final name in names)
-        if (name.trim().isNotEmpty)
-          {'name': name.trim(), 'role': role},
+        if (name.trim().isNotEmpty) {'name': name.trim(), 'role': role},
     ];
 
 const _comicCatalogItemPayloadKeys = <String>{
@@ -537,6 +548,7 @@ const _comicCatalogItemPayloadKeys = <String>{
   'contributors',
   'country',
   'cover_image_url',
+  'cover_date',
   'cover_price_cents',
   'creators',
   'crossover',
@@ -550,6 +562,7 @@ const _comicCatalogItemPayloadKeys = <String>{
   'issue_number',
   'item_number',
   'key_comic',
+  'key_events',
   'key_reason',
   'language',
   'localized_title',
@@ -572,6 +585,8 @@ const _comicCatalogItemPayloadKeys = <String>{
   'thumbnail_image_url',
   'title_extension',
   'variant_name',
+  'variant_description',
   'volume_name',
   'volume_number',
+  'volume_start_year',
 };

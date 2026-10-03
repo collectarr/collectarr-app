@@ -3,11 +3,11 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.d
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 
-ComicCatalogItemFormValues comicCatalogItemFormValuesFrom(ComicCatalogItem media) =>
+ComicCatalogItemFormValues comicCatalogItemFormValuesFrom(
+        ComicCatalogItem media) =>
     ComicCatalogItemFormValues(
       title: media.title,
-      seriesTitle:
-          media.seriesTitle ?? media.series?.seriesTitle ?? '',
+      seriesTitle: media.seriesTitle ?? media.series?.seriesTitle ?? '',
       seriesId: media.series?.seriesId,
       issueNumber: media.issueNumber ?? '',
       variant: media.variant ?? '',
@@ -17,6 +17,7 @@ ComicCatalogItemFormValues comicCatalogItemFormValuesFrom(ComicCatalogItem media
       upc: media.upc ?? '',
       physicalFormatLabel: media.physicalFormatLabel ?? '',
       coverDate: media.coverDate,
+      coverDateParts: media.coverDateParts,
       releaseDate: media.releaseDate,
       publisher: media.publisher ?? media.publishing?.originalPublisher ?? '',
       imprint: media.imprint ?? media.publishing?.imprint ?? '',
@@ -95,6 +96,7 @@ ComicCatalogItem comicCatalogItemFromFormValues({
     imprint: imprint,
     releaseDate: values.releaseDate,
     coverDate: values.coverDate,
+    coverDateParts: values.coverDateParts,
     pageCount: values.pageCount,
     country: _nullable(values.country) ?? original.country,
     language: _nullable(values.language) ?? original.language,
@@ -168,7 +170,8 @@ List<Map<String, dynamic>> _replaceComicIdentifiers(
   List<Map<String, dynamic>> original, {
   required String? isbn,
   required String? upc,
-}) => [
+}) =>
+    [
       for (final identifier in original)
         if (!{'isbn', 'upc'}.contains(
           identifier['identifier_type']?.toString().toLowerCase(),

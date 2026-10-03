@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
@@ -79,7 +80,11 @@ List<LibraryFieldSpec<T>> comicCatalogItemIdentityFields<T>({
         id: 'cover_date',
         label: 'Cover date',
         value: (draft) => values(draft).coverDate,
-        setValue: (draft, value) => values(draft).coverDate = value,
+        setValue: (draft, value) {
+          values(draft).coverDate = value;
+          values(draft).coverDateParts =
+              value == null ? null : PartialDate.fromDateTime(value);
+        },
       ),
       LibraryDateFieldSpec<T>(
         id: 'release_date',
