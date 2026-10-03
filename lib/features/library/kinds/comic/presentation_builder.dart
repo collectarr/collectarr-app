@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -132,10 +134,18 @@ class ComicLibraryCatalogItemPresentationBuilder
         ? hydratedMetadata.thumbnailImageUrl
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
-        hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
-              coverImageUrl: coverImageUrl,
-              thumbnailImageUrl: thumbnailImageUrl,
-            )));
+      hydrated.kindCapability.mapTransport((transport) {
+        final metadata = ComicCatalogItem.fromJson(transport.kindData);
+        final updated = ComicCatalogItem.fromJson(applyJsonFieldPatch(
+          metadata,
+          {
+            'cover_image_url': coverImageUrl,
+            'thumbnail_image_url': thumbnailImageUrl,
+          },
+        ));
+        return transport.replacingKindData(updated);
+      }),
+    );
   }
 
   @override

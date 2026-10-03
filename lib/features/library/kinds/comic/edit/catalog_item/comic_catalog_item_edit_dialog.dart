@@ -70,7 +70,7 @@ class _ComicCatalogItemEditDialogState
           );
           final updated = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
-              transport.withKindData(updatedMedia),
+              transport.replacingKindData(updatedMedia),
             ),
           );
           await commitLibraryEdit(

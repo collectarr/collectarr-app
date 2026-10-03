@@ -334,6 +334,7 @@ class ComicCatalogItem implements JsonEncodable {
   const ComicCatalogItem({
     this.id,
     required this.title,
+    this.displayTitle,
     this.sortTitle,
     this.seriesTitle,
     this.seriesId,
@@ -393,6 +394,7 @@ class ComicCatalogItem implements JsonEncodable {
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
+  final String? displayTitle;
   final ComicCatalogItemId? id;
   final String? sortTitle;
   final String? seriesTitle;
@@ -471,6 +473,7 @@ class ComicCatalogItem implements JsonEncodable {
       'kind': CatalogMediaKind.comic.apiValue,
       if (id != null) 'id': id!.value,
       'title': title,
+      if (displayTitle != null) 'display_title': displayTitle,
       if (sortTitle != null) 'sort_key': sortTitle,
       if (seriesTitle != null) 'series_title': seriesTitle,
       if (seriesGroup != null) 'series_group': seriesGroup,
@@ -552,6 +555,7 @@ class ComicCatalogItem implements JsonEncodable {
   ComicCatalogItem copyWith({
     ComicCatalogItemId? id,
     String? title,
+    String? displayTitle,
     String? sortTitle,
     String? seriesTitle,
     String? seriesId,
@@ -608,6 +612,7 @@ class ComicCatalogItem implements JsonEncodable {
     return ComicCatalogItem(
       id: id ?? this.id,
       title: title ?? this.title,
+      displayTitle: displayTitle ?? this.displayTitle,
       sortTitle: sortTitle ?? this.sortTitle,
       seriesTitle: seriesTitle ?? this.seriesTitle,
       seriesId: seriesId ?? this.seriesId,
@@ -669,6 +674,7 @@ class ComicCatalogItem implements JsonEncodable {
           ? ComicCatalogItemId(json['id'] as String)
           : null,
       title: (json['title'] as String?) ?? '',
+      displayTitle: json['display_title'] as String?,
       sortTitle: json['sort_key'] as String?,
       seriesTitle: json['series_title'] as String?,
       seriesId: json['series_id'] as String?,

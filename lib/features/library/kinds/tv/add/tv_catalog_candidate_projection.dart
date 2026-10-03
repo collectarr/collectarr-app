@@ -9,6 +9,6 @@ CatalogSearchCandidate tvCatalogTransportFromCoreItem(
     final metadata = TvSeriesMetadata.fromJson(
       catalogTransportPayloadFor(transport),
     );
-    return item.kindCapability.withKindData(metadata);
+    return item.kindCapability.replacingKindData(metadata);
   });
 }

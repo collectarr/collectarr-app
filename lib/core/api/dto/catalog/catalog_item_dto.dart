@@ -174,74 +174,14 @@ final class CatalogItemDto {
         kindData: kindData,
       );
 
-  /// Applies editor values directly to the flattened kind-entry data map.
-  ///
-  /// This convenience is used by the current kind editors while their typed
-  /// draft adapters are being consolidated. It never creates a shared/common
-  /// metadata object or writes these fields outside kindData.
-  CatalogItemDto copyWith({
-    LibraryItemIdentity? identity,
-    String? title,
-    Object? displayTitle = _unset,
-    Object? localizedTitle = _unset,
-    Object? originalTitle = _unset,
-    Object? titleExtension = _unset,
-    Object? searchAliases = _unset,
-    Object? synopsis = _unset,
-    Object? coverImageUrl = _unset,
-    Object? thumbnailImageUrl = _unset,
-    Object? coverImageData = _unset,
-    Object? releaseDate = _unset,
-    Object? releaseDateParts = _unset,
-    Object? releaseYear = _unset,
-    Object? physicalFormat = _unset,
-    Object? physicalFormatLabel = _unset,
-    Object? editionTitle = _unset,
-  }) {
-    final data = <String, dynamic>{
-      ...kindData,
-      if (title != null) 'title': title,
-      if (!identical(displayTitle, _unset)) 'display_title': displayTitle,
-      if (!identical(localizedTitle, _unset)) 'localized_title': localizedTitle,
-      if (!identical(originalTitle, _unset)) 'original_title': originalTitle,
-      if (!identical(titleExtension, _unset)) 'title_extension': titleExtension,
-      if (!identical(searchAliases, _unset)) 'search_aliases': searchAliases,
-      if (!identical(synopsis, _unset)) 'synopsis': synopsis,
-      if (!identical(coverImageUrl, _unset)) 'cover_image_url': coverImageUrl,
-      if (!identical(thumbnailImageUrl, _unset))
-        'thumbnail_image_url': thumbnailImageUrl,
-      if (!identical(coverImageData, _unset))
-        'cover_image_data': coverImageData,
-      if (!identical(releaseDate, _unset))
-        'release_date': (releaseDate as DateTime?)?.toIso8601String(),
-      if (!identical(releaseDateParts, _unset))
-        'release_date_parts': (releaseDateParts as PartialDate?)?.toJson(),
-      if (!identical(releaseYear, _unset)) 'release_year': releaseYear,
-      if (!identical(physicalFormat, _unset)) 'physical_format': physicalFormat,
-      if (!identical(physicalFormatLabel, _unset))
-        'physical_format_label': physicalFormatLabel,
-      if (!identical(editionTitle, _unset)) 'edition_title': editionTitle,
-    };
-    final updatedIdentity = identity ?? this.identity;
-    return CatalogItemDto.raw(
-      id: updatedIdentity.id,
-      mediaKind: updatedIdentity.mediaKind,
-      kindData: data,
-      origin: origin,
-    );
-  }
-
-  CatalogItemDto withKindData(JsonEncodable kindData) {
-    return CatalogItemDto.raw(
-      id: id,
-      mediaKind: mediaKind,
-      origin: origin,
-      kindData: {
-        ...this.kindData,
-        ...kindData.toJson(),
-      },
-    );
-  }
+  /// Replaces the complete kind document while retaining the transport identity.
+  CatalogItemDto replacingKindData(JsonEncodable kindData) =>
+      CatalogItemDto.raw(
+        id: id,
+        mediaKind: mediaKind,
+        origin: origin,
+        kindData: kindData.toJson(),
+      );
 
   CatalogItemDto withOrigin(CatalogItemOrigin origin) => CatalogItemDto.raw(
         id: id,
@@ -261,8 +201,6 @@ const _transportFields = <String>{
   'kind',
   'snapshot_version',
 };
-
-const _unset = Object();
 
 String? _string(Object? value) {
   final result = value?.toString().trim();

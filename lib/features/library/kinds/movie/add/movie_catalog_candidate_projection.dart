@@ -6,6 +6,6 @@ CatalogSearchCandidate movieCatalogTransportFromCoreItem(
 ) {
   return item.kindCapability.mapTransport((transport) {
     final metadata = MovieCatalogMetadata.fromJson(transport.kindData);
-    return item.kindCapability.withKindData(metadata);
+    return item.kindCapability.replacingKindData(metadata);
   });
 }

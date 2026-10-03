@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
@@ -166,7 +166,8 @@ class GameEditDraft
     return selection.copyWith(
       kindItem: CatalogSearchCandidate.fromItem(
           selection.kindItem.kindCapability.mapTransport((transport) {
-        final updated = transport.copyWith(
+        final metadata = GameCatalogMetadata.fromJson(transport.kindData);
+        final edited = metadata.copyWith(
           title: fields.controller(GameCanonicalEditField.title).text.trim(),
           displayTitle: emptyToNull(
               fields.controller(GameCanonicalEditField.displayTitle).text),
@@ -181,13 +182,38 @@ class GameEditDraft
               fields.controller(GameCanonicalEditField.coverImage).text),
           thumbnailImageUrl: emptyToNull(
               fields.controller(GameCanonicalEditField.thumbnailImage).text),
-        );
-        return _withGameSortKey(
-          updated,
-          emptyToNull(
+          sortKey: emptyToNull(
             fields.controller(GameCanonicalEditField.sortTitle).text,
           ),
         );
+        final updated = GameCatalogMetadata.fromJson(applyJsonFieldPatch(
+          edited,
+          {
+            'display_title': emptyToNull(
+              fields.controller(GameCanonicalEditField.displayTitle).text,
+            ),
+            'original_title': emptyToNull(
+              fields.controller(GameCanonicalEditField.originalTitle).text,
+            ),
+            'localized_title': emptyToNull(
+              fields.controller(GameCanonicalEditField.localizedTitle).text,
+            ),
+            'search_aliases': aliases,
+            'synopsis': emptyToNull(
+              fields.controller(GameCanonicalEditField.synopsis).text,
+            ),
+            'cover_image_url': emptyToNull(
+              fields.controller(GameCanonicalEditField.coverImage).text,
+            ),
+            'thumbnail_image_url': emptyToNull(
+              fields.controller(GameCanonicalEditField.thumbnailImage).text,
+            ),
+            'sort_key': emptyToNull(
+              fields.controller(GameCanonicalEditField.sortTitle).text,
+            ),
+          },
+        ));
+        return transport.replacingKindData(updated);
       })),
     );
   }
@@ -292,17 +318,6 @@ class GameEditDraft
   void dispose() {
     gameEdit.dispose();
   }
-}
-
-CatalogItemDto _withGameSortKey(CatalogItemDto item, String? sortKey) {
-  final kindData = Map<String, dynamic>.from(item.kindData)
-    ..remove('sort_title');
-  if (sortKey == null) {
-    kindData.remove('sort_key');
-  } else {
-    kindData['sort_key'] = sortKey;
-  }
-  return item.withKindData(GameCatalogMetadata.fromJson(kindData));
 }
 
 LibraryEditSessionBundle createGameEditDraft({

@@ -68,10 +68,11 @@ class _TvMediaEditDialogState extends State<_TvMediaEditDialog> {
           );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
-              transport.withKindData(updated),
+              transport.replacingKindData(updated),
             ),
           );
-          await commitLibraryEdit(context,
+          await commitLibraryEdit(
+            context,
             LibraryEditSelection(
               kindItem: candidate,
             ),

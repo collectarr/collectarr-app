@@ -213,7 +213,7 @@ LibraryEditSelection applyComicSelectionEdits(
 
   final updatedItem = selection.kindItem.kindCapability.mapTransport(
     (transport) => CatalogSearchCandidate.fromItem(
-      transport.withKindData(updatedMetadata),
+      transport.replacingKindData(updatedMetadata),
     ),
   );
   return selection.copyWith(kindItem: updatedItem);

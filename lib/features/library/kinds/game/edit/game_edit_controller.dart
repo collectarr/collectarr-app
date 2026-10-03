@@ -135,7 +135,7 @@ class GameEditController {
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindData(updatedMetadata),
+        transport.replacingKindData(updatedMetadata),
       ),
     );
 

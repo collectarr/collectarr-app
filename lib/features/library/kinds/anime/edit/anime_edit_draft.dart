@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
@@ -201,7 +201,8 @@ class AnimeEditDraft
     return selection.copyWith(
       kindItem: CatalogSearchCandidate.fromItem(
           selection.kindItem.kindCapability.mapTransport((transport) {
-        final updated = transport.copyWith(
+        final metadata = AnimeMetadata.fromJson(transport.kindData);
+        final edited = metadata.copyWith(
           title: fields.controller(AnimeCanonicalEditField.title).text.trim(),
           displayTitle: emptyToNull(
               fields.controller(AnimeCanonicalEditField.displayTitle).text),
@@ -216,13 +217,35 @@ class AnimeEditDraft
               fields.controller(AnimeCanonicalEditField.coverImage).text),
           thumbnailImageUrl: emptyToNull(
               fields.controller(AnimeCanonicalEditField.thumbnailImage).text),
-        );
-        return _withAnimeSortKey(
-          updated,
-          emptyToNull(
+          sortKey: emptyToNull(
             fields.controller(AnimeCanonicalEditField.sortTitle).text,
           ),
         );
+        final updated = AnimeMetadata.fromJson(applyJsonFieldPatch(edited, {
+          'display_title': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.displayTitle).text,
+          ),
+          'original_title': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.originalTitle).text,
+          ),
+          'localized_title': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.localizedTitle).text,
+          ),
+          'search_aliases': aliases,
+          'synopsis': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.synopsis).text,
+          ),
+          'cover_image_url': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.coverImage).text,
+          ),
+          'thumbnail_image_url': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.thumbnailImage).text,
+          ),
+          'sort_key': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.sortTitle).text,
+          ),
+        }));
+        return transport.replacingKindData(updated);
       })),
     );
   }
@@ -332,7 +355,7 @@ class AnimeEditDraft
     result = result.copyWith(
       kindItem: result.kindItem.kindCapability.mapTransport(
         (transport) => CatalogSearchCandidate.fromItem(
-          transport.withKindData(
+          transport.replacingKindData(
             metadata.copyWith(
               episodeRuntimeMinutes:
                   int.tryParse(animeEdit.runtimeController.text),
@@ -388,17 +411,6 @@ class AnimeEditDraft
     episodeNumberController.dispose();
     animeEdit.dispose();
   }
-}
-
-CatalogItemDto _withAnimeSortKey(CatalogItemDto item, String? sortKey) {
-  final kindData = Map<String, dynamic>.from(item.kindData)
-    ..remove('sort_title');
-  if (sortKey == null) {
-    kindData.remove('sort_key');
-  } else {
-    kindData['sort_key'] = sortKey;
-  }
-  return item.withKindData(AnimeMetadata.fromJson(kindData));
 }
 
 LibraryEditSessionBundle createAnimeEditDraft({

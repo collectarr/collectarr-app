@@ -235,7 +235,7 @@ class BookEditDraft
     );
     final updatedCandidate = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindData(updated),
+        transport.replacingKindData(updated),
       ),
     );
     return selection.copyWith(kindItem: updatedCandidate);
@@ -385,7 +385,7 @@ class BookEditDraft
     );
     final updatedCandidate = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindData(updatedMetadata),
+        transport.replacingKindData(updatedMetadata),
       ),
     );
     return selection.copyWith(kindItem: updatedCandidate);

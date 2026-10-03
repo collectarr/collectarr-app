@@ -58,7 +58,7 @@ final class CatalogSearchCandidate {
   }) {
     var item = CatalogItemDto.fromJson(json);
     if (metadataDecoder != null) {
-      item = item.withKindData(metadataDecoder(item.payload));
+      item = item.replacingKindData(metadataDecoder(item.payload));
     }
     return CatalogSearchCandidate.fromTransport(
       item: item,
@@ -91,9 +91,9 @@ final class CatalogSearchCandidateKindCapability {
     return decoder(item);
   }
 
-  CatalogSearchCandidate withKindData(JsonEncodable kindData) {
+  CatalogSearchCandidate replacingKindData(JsonEncodable kindData) {
     return CatalogSearchCandidate.fromItem(
-      mapTransport((item) => item.withKindData(kindData)),
+      mapTransport((item) => item.replacingKindData(kindData)),
     );
   }
 

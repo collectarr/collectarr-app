@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
@@ -115,10 +116,18 @@ class BookLibraryMediaPresentationBuilder
         ? hydratedMetadata.thumbnailImageUrl
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
-        hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
-              coverImageUrl: coverImageUrl,
-              thumbnailImageUrl: thumbnailImageUrl,
-            )));
+      hydrated.kindCapability.mapTransport((transport) {
+        final metadata = BookCatalogMetadata.fromJson(transport.kindData);
+        final updated = BookCatalogMetadata.fromJson(applyJsonFieldPatch(
+          metadata,
+          {
+            'cover_image_url': coverImageUrl,
+            'thumbnail_image_url': thumbnailImageUrl,
+          },
+        ));
+        return transport.replacingKindData(updated);
+      }),
+    );
   }
 
   @override

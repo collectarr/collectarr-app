@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/entry/comic_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
@@ -179,7 +179,8 @@ class ComicEditDraft
     return selection.copyWith(
       kindItem: CatalogSearchCandidate.fromItem(
           selection.kindItem.kindCapability.mapTransport((transport) {
-        final updated = transport.copyWith(
+        final metadata = ComicCatalogItem.fromJson(transport.kindData);
+        final edited = metadata.copyWith(
           title: fields.controller(ComicCanonicalEditField.title).text.trim(),
           displayTitle: emptyToNull(
               fields.controller(ComicCanonicalEditField.displayTitle).text),
@@ -194,13 +195,35 @@ class ComicEditDraft
               fields.controller(ComicCanonicalEditField.coverImage).text),
           thumbnailImageUrl: emptyToNull(
               fields.controller(ComicCanonicalEditField.thumbnailImage).text),
-        );
-        return _withComicSortKey(
-          updated,
-          emptyToNull(
+          sortTitle: emptyToNull(
             fields.controller(ComicCanonicalEditField.sortTitle).text,
           ),
         );
+        final updated = ComicCatalogItem.fromJson(applyJsonFieldPatch(edited, {
+          'display_title': emptyToNull(
+            fields.controller(ComicCanonicalEditField.displayTitle).text,
+          ),
+          'original_title': emptyToNull(
+            fields.controller(ComicCanonicalEditField.originalTitle).text,
+          ),
+          'localized_title': emptyToNull(
+            fields.controller(ComicCanonicalEditField.localizedTitle).text,
+          ),
+          'search_aliases': aliases,
+          'synopsis': emptyToNull(
+            fields.controller(ComicCanonicalEditField.synopsis).text,
+          ),
+          'cover_image_url': emptyToNull(
+            fields.controller(ComicCanonicalEditField.coverImage).text,
+          ),
+          'thumbnail_image_url': emptyToNull(
+            fields.controller(ComicCanonicalEditField.thumbnailImage).text,
+          ),
+          'sort_key': emptyToNull(
+            fields.controller(ComicCanonicalEditField.sortTitle).text,
+          ),
+        }));
+        return transport.replacingKindData(updated);
       })),
     );
   }
@@ -306,17 +329,6 @@ class ComicEditDraft
     entryEdit.dispose();
     comicEdit.dispose();
   }
-}
-
-CatalogItemDto _withComicSortKey(CatalogItemDto item, String? sortKey) {
-  final kindData = Map<String, dynamic>.from(item.kindData)
-    ..remove('sort_title');
-  if (sortKey == null) {
-    kindData.remove('sort_key');
-  } else {
-    kindData['sort_key'] = sortKey;
-  }
-  return item.withKindData(ComicCatalogItem.fromJson(kindData));
 }
 
 LibraryEditSessionBundle createComicEditDraft({

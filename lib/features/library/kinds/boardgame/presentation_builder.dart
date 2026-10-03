@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_fields.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -95,12 +97,17 @@ class BoardGameLibraryMediaPresentationBuilder
         ? hydratedMetadata.thumbnailImageUrl
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
-      hydrated.kindCapability.mapTransport(
-        (transport) => transport.copyWith(
-          coverImageUrl: coverImageUrl,
-          thumbnailImageUrl: thumbnailImageUrl,
-        ),
-      ),
+      hydrated.kindCapability.mapTransport((transport) {
+        final metadata = BoardGameMetadata.fromJson(transport.kindData);
+        final updated = BoardGameMetadata.fromJson(applyJsonFieldPatch(
+          metadata,
+          {
+            'cover_image_url': coverImageUrl,
+            'thumbnail_image_url': thumbnailImageUrl,
+          },
+        ));
+        return transport.replacingKindData(updated);
+      }),
     );
   }
 

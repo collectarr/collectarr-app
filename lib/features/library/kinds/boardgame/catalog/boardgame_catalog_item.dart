@@ -50,5 +50,5 @@ final class BoardGameCatalogItem {
   List<String> get contributors =>
       metadata.contributors.map((value) => value.name).toList(growable: false);
 
-  CatalogItemDto toCatalogItemDto() => item.withKindData(metadata);
+  CatalogItemDto toCatalogItemDto() => item.replacingKindData(metadata);
 }

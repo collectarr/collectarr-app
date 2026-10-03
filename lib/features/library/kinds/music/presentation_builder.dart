@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/music/inspector/music_insp
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
@@ -76,12 +77,22 @@ class MusicLibraryMediaPresentationBuilder
         ? hydratedMetadata.thumbnailImageUrl
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
-      hydrated.kindCapability.mapTransport(
-        (transport) => transport.copyWith(
-          coverImageUrl: coverImageUrl,
-          thumbnailImageUrl: thumbnailImageUrl,
-        ),
-      ),
+      hydrated.kindCapability.mapTransport((transport) {
+        final metadata = MusicAlbum.fromJson({
+          ...transport.kindData,
+          'id': transport.id,
+          'kind': transport.kind,
+        });
+        final updated = MusicAlbum.fromJson({
+          ...applyJsonFieldPatch(metadata, {
+            'cover_image_url': coverImageUrl,
+            'thumbnail_image_url': thumbnailImageUrl,
+          }),
+          'id': transport.id,
+          'kind': transport.kind,
+        });
+        return transport.replacingKindData(updated);
+      }),
     );
   }
 

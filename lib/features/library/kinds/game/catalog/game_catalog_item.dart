@@ -37,5 +37,5 @@ final class GameCatalogItem {
   List<String> get genres => metadata.genres;
   List<String> get platforms => metadata.platforms;
 
-  CatalogItemDto toCatalogItemDto() => item.withKindData(metadata);
+  CatalogItemDto toCatalogItemDto() => item.replacingKindData(metadata);
 }

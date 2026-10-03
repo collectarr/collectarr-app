@@ -6,6 +6,6 @@ CatalogSearchCandidate gameCatalogTransportFromCoreItem(
 ) {
   return item.kindCapability.mapTransport((transport) {
     final metadata = GameCatalogMetadata.fromJson(transport.payload);
-    return item.kindCapability.withKindData(metadata);
+    return item.kindCapability.replacingKindData(metadata);
   });
 }

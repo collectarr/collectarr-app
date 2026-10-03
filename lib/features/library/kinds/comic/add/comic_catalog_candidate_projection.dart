@@ -6,6 +6,6 @@ CatalogSearchCandidate comicCatalogTransportFromCoreItem(
 ) {
   return item.kindCapability.mapTransport((transport) {
     final metadata = ComicCoreMapper.fromCatalogItem(transport);
-    return item.kindCapability.withKindData(metadata);
+    return item.kindCapability.replacingKindData(metadata);
   });
 }

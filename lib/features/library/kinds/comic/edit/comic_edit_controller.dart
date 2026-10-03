@@ -177,7 +177,7 @@ class ComicEditController {
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindData(updatedMeta),
+        transport.replacingKindData(updatedMeta),
       ),
     );
     final withMetadata = selection.copyWith(kindItem: updatedItem);

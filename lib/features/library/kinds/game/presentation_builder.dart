@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -69,10 +71,18 @@ class GameLibraryMediaPresentationBuilder
         ? hydratedMetadata.thumbnailImageUrl
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
-        hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
-              coverImageUrl: coverImageUrl,
-              thumbnailImageUrl: thumbnailImageUrl,
-            )));
+      hydrated.kindCapability.mapTransport((transport) {
+        final metadata = GameCatalogMetadata.fromJson(transport.kindData);
+        final updated = GameCatalogMetadata.fromJson(applyJsonFieldPatch(
+          metadata,
+          {
+            'cover_image_url': coverImageUrl,
+            'thumbnail_image_url': thumbnailImageUrl,
+          },
+        ));
+        return transport.replacingKindData(updated);
+      }),
+    );
   }
 
   @override

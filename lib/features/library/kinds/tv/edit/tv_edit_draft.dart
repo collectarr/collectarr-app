@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
@@ -204,7 +204,8 @@ class TvEditDraft
     return selection.copyWith(
       kindItem: CatalogSearchCandidate.fromItem(
           selection.kindItem.kindCapability.mapTransport((transport) {
-        final updated = transport.copyWith(
+        final metadata = TvSeriesMetadata.fromJson(transport.kindData);
+        final edited = metadata.copyWith(
           title: fields.controller(TvCanonicalEditField.title).text.trim(),
           displayTitle: emptyToNull(
               fields.controller(TvCanonicalEditField.displayTitle).text),
@@ -219,13 +220,35 @@ class TvEditDraft
               fields.controller(TvCanonicalEditField.coverImage).text),
           thumbnailImageUrl: emptyToNull(
               fields.controller(TvCanonicalEditField.thumbnailImage).text),
-        );
-        return _withTvSortKey(
-          updated,
-          emptyToNull(
+          sortKey: emptyToNull(
             fields.controller(TvCanonicalEditField.sortTitle).text,
           ),
         );
+        final updated = TvSeriesMetadata.fromJson(applyJsonFieldPatch(edited, {
+          'display_title': emptyToNull(
+            fields.controller(TvCanonicalEditField.displayTitle).text,
+          ),
+          'original_title': emptyToNull(
+            fields.controller(TvCanonicalEditField.originalTitle).text,
+          ),
+          'localized_title': emptyToNull(
+            fields.controller(TvCanonicalEditField.localizedTitle).text,
+          ),
+          'search_aliases': aliases,
+          'synopsis': emptyToNull(
+            fields.controller(TvCanonicalEditField.synopsis).text,
+          ),
+          'cover_image_url': emptyToNull(
+            fields.controller(TvCanonicalEditField.coverImage).text,
+          ),
+          'thumbnail_image_url': emptyToNull(
+            fields.controller(TvCanonicalEditField.thumbnailImage).text,
+          ),
+          'sort_key': emptyToNull(
+            fields.controller(TvCanonicalEditField.sortTitle).text,
+          ),
+        }));
+        return transport.replacingKindData(updated);
       })),
     );
   }
@@ -337,7 +360,7 @@ class TvEditDraft
     result = result.copyWith(
       kindItem: result.kindItem.kindCapability.mapTransport(
         (transport) => CatalogSearchCandidate.fromItem(
-          transport.withKindData(
+          transport.replacingKindData(
             metadata.copyWith(
               episodeRuntimeMinutes:
                   int.tryParse(tvEdit.runtimeController.text),
@@ -401,17 +424,6 @@ class TvEditDraft
     episodeNumberController.dispose();
     tvEdit.dispose();
   }
-}
-
-CatalogItemDto _withTvSortKey(CatalogItemDto item, String? sortKey) {
-  final kindData = Map<String, dynamic>.from(item.kindData)
-    ..remove('sort_title');
-  if (sortKey == null) {
-    kindData.remove('sort_key');
-  } else {
-    kindData['sort_key'] = sortKey;
-  }
-  return item.withKindData(TvSeriesMetadata.fromJson(kindData));
 }
 
 LibraryEditSessionBundle createTvEditDraft({

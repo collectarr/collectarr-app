@@ -9,13 +9,14 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -304,32 +305,39 @@ class BoardGameEditDraft
     return selection.copyWith(
       kindItem: CatalogSearchCandidate.fromItem(
           selection.kindItem.kindCapability.mapTransport((transport) {
-        final updated = transport.copyWith(
-          title:
-              fields.controller(BoardGameCanonicalEditField.title).text.trim(),
-          displayTitle: emptyToNull(
-              fields.controller(BoardGameCanonicalEditField.displayTitle).text),
-          originalTitle: emptyToNull(fields
-              .controller(BoardGameCanonicalEditField.originalTitle)
-              .text),
-          localizedTitle: emptyToNull(fields
-              .controller(BoardGameCanonicalEditField.localizedTitle)
-              .text),
-          searchAliases: aliases.isEmpty ? null : aliases,
-          synopsis: emptyToNull(
-              fields.controller(BoardGameCanonicalEditField.synopsis).text),
-          coverImageUrl: emptyToNull(
-              fields.controller(BoardGameCanonicalEditField.coverImage).text),
-          thumbnailImageUrl: emptyToNull(fields
-              .controller(BoardGameCanonicalEditField.thumbnailImage)
-              .text),
-        );
-        return _withBoardGameSortKey(
-          updated,
-          emptyToNull(
-            fields.controller(BoardGameCanonicalEditField.sortTitle).text,
-          ),
-        );
+        final metadata = BoardGameMetadata.fromJson(transport.kindData);
+        final updated = BoardGameMetadata.fromJson(applyJsonFieldPatch(
+          metadata,
+          {
+            'title': fields
+                .controller(BoardGameCanonicalEditField.title)
+                .text
+                .trim(),
+            'display_title': emptyToNull(fields
+                .controller(BoardGameCanonicalEditField.displayTitle)
+                .text),
+            'sort_key': emptyToNull(
+              fields.controller(BoardGameCanonicalEditField.sortTitle).text,
+            ),
+            'original_title': emptyToNull(fields
+                .controller(BoardGameCanonicalEditField.originalTitle)
+                .text),
+            'localized_title': emptyToNull(fields
+                .controller(BoardGameCanonicalEditField.localizedTitle)
+                .text),
+            'search_aliases': aliases,
+            'synopsis': emptyToNull(
+              fields.controller(BoardGameCanonicalEditField.synopsis).text,
+            ),
+            'cover_image_url': emptyToNull(
+              fields.controller(BoardGameCanonicalEditField.coverImage).text,
+            ),
+            'thumbnail_image_url': emptyToNull(fields
+                .controller(BoardGameCanonicalEditField.thumbnailImage)
+                .text),
+          },
+        ));
+        return transport.replacingKindData(updated);
       })),
     );
   }
@@ -501,8 +509,6 @@ class BoardGameEditDraft
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     final meta = _boardGameMetadataFor(selection.kindItem);
     if (meta != null) {
-      final transport =
-          selection.kindItem.kindCapability.mapTransport((item) => item);
       final originalTitle = _nullableText(originalTitleController);
       final editionTitle = _nullableText(editionTitleController);
       final year = _intValue(releaseYearController);
@@ -537,15 +543,12 @@ class BoardGameEditDraft
       final variant = _nullableText(variantController);
       final releaseDate =
           PartialDate.tryParse(releaseDateController.text.trim());
-      final updatedTransport = transport.copyWith(
-        originalTitle: originalTitle,
-      );
       final updatedMeta = BoardGameMetadata(
-        title: updatedTransport.title,
+        title: meta.title,
         sortKey: meta.sortKey,
         originalTitle: originalTitle,
-        localizedTitle: updatedTransport.localizedTitle,
-        titleExtension: updatedTransport.titleExtension,
+        localizedTitle: meta.localizedTitle,
+        titleExtension: meta.titleExtension,
         subtitle: _nullableText(subtitleController),
         searchAliases: meta.searchAliases,
         synopsis: meta.synopsis,
@@ -559,8 +562,8 @@ class BoardGameEditDraft
         itemNumber: itemNumber,
         contributors: _editedCredits(contributorsController, meta.contributors),
         country: _nullableText(countryController),
-        coverImageUrl: updatedTransport.coverImageUrl,
-        thumbnailImageUrl: updatedTransport.thumbnailImageUrl,
+        coverImageUrl: meta.coverImageUrl,
+        thumbnailImageUrl: meta.thumbnailImageUrl,
         yearPublished: year,
         minPlayers: minPlayers,
         maxPlayers: maxPlayers,
@@ -607,7 +610,7 @@ class BoardGameEditDraft
       return selection.copyWith(
         kindItem: selection.kindItem.kindCapability.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
-            transport.withKindData(updatedMeta),
+            transport.replacingKindData(updatedMeta),
           ),
         ),
       );
@@ -621,17 +624,6 @@ BoardGameMetadata? _boardGameMetadataFor(CatalogSearchCandidate item) {
   return item.kindCapability.mapTransport(
     (transport) => BoardGameMetadata.fromJson(transport.kindData),
   );
-}
-
-CatalogItemDto _withBoardGameSortKey(CatalogItemDto item, String? sortKey) {
-  final kindData = Map<String, dynamic>.from(item.kindData)
-    ..remove('sort_title');
-  if (sortKey == null) {
-    kindData.remove('sort_key');
-  } else {
-    kindData['sort_key'] = sortKey;
-  }
-  return item.withKindData(BoardGameMetadata.fromJson(kindData));
 }
 
 String? _nullableText(TextEditingController controller) {

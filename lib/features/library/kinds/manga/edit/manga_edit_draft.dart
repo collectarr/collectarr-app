@@ -274,7 +274,8 @@ class MangaEditDraft
       ),
     );
     return selection.copyWith(
-      kindItem: selection.kindItem.kindCapability.withKindData(updatedMetadata),
+      kindItem:
+          selection.kindItem.kindCapability.replacingKindData(updatedMetadata),
     );
   }
 
@@ -417,7 +418,7 @@ class MangaEditDraft
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindData(
+        transport.replacingKindData(
           mangaEditKindMetadataForCandidate(
             selection.kindItem,
             updatedMetadata,

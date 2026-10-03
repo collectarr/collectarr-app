@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_fields.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -105,10 +107,18 @@ class TvLibraryMediaPresentationBuilder
         ? hydratedMetadata.thumbnailImageUrl
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
-        hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
-              coverImageUrl: coverImageUrl,
-              thumbnailImageUrl: thumbnailImageUrl,
-            )));
+      hydrated.kindCapability.mapTransport((transport) {
+        final metadata = TvSeriesMetadata.fromJson(transport.kindData);
+        final updated = TvSeriesMetadata.fromJson(applyJsonFieldPatch(
+          metadata,
+          {
+            'cover_image_url': coverImageUrl,
+            'thumbnail_image_url': thumbnailImageUrl,
+          },
+        ));
+        return transport.replacingKindData(updated);
+      }),
+    );
   }
 
   @override

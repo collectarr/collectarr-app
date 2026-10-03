@@ -6,6 +6,6 @@ CatalogSearchCandidate animeCatalogTransportFromCoreItem(
 ) {
   return item.kindCapability.mapTransport((transport) {
     final metadata = AnimeMetadata.fromJson(transport.payload);
-    return item.kindCapability.withKindData(metadata);
+    return item.kindCapability.replacingKindData(metadata);
   });
 }

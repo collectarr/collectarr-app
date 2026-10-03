@@ -64,7 +64,7 @@ final class ComicRepository
       ...media.toJson(),
       'id': id,
       'kind': CatalogMediaKind.comic.apiValue,
-    }).withKindData(media);
+    }).replacingKindData(media);
     await _catalog.upsert(item);
   }
 }

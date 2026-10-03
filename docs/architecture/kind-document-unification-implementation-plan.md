@@ -158,8 +158,11 @@ slice. This is progress, not completion of this plan:
   cross-kind `sort_title` fallback or exposes a generic sort-key setter.
 - Synopsis reads now come from the kind-owned metadata in catalog projections;
   the shared transport no longer interprets either `synopsis` or the legacy
-  `description` alias. Generic edit setters for this field remain to be
-  replaced by kind-owned draft commits.
+  `description` alias. Canonical edit commits now serialize each kind's typed
+  metadata document; nullable fields are patched explicitly so clearing a form
+  value does not fall back to the previous value. Image hydration also updates
+  typed metadata. The shared transport no longer exposes generic field
+  `copyWith` or merge methods.
 - Comic search previews now read the issue number from `ComicCatalogItem`, and
   the shared `itemNumber` projection no longer falls back to `issue_number`.
 - Anime physical media is now represented by an Anime-owned `media` value with
@@ -284,8 +287,8 @@ slice. This is progress, not completion of this plan:
   pass targeted static analysis. Automated tests remain deferred until
   implementation and docs are complete, as requested.
 
-Still outstanding: removing business-field semantics and remaining fallback
-aliases from shared transport and the other kind codecs; completing field
+Still outstanding: removing the remaining business-field getters from shared
+transport and auditing kind decoder fallback aliases; completing field
 ownership and typed schema organization across all kinds; replacing the universal
 `PersonalStateDraft` and shared edit-section field assumptions with kind-owned
 bindings; removing active edition/media projections and duplicated shared DTO

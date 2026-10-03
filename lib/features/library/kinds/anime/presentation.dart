@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
@@ -103,10 +105,15 @@ class AnimeLibraryMediaPresentationBuilder
         ? hydratedMetadata.thumbnailImageUrl
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
-        hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
-              coverImageUrl: coverImageUrl,
-              thumbnailImageUrl: thumbnailImageUrl,
-            )));
+      hydrated.kindCapability.mapTransport((transport) {
+        final metadata = AnimeMetadata.fromJson(transport.kindData);
+        final updated = AnimeMetadata.fromJson(applyJsonFieldPatch(metadata, {
+          'cover_image_url': coverImageUrl,
+          'thumbnail_image_url': thumbnailImageUrl,
+        }));
+        return transport.replacingKindData(updated);
+      }),
+    );
   }
 
   @override

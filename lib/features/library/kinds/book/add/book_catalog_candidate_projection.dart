@@ -6,6 +6,6 @@ CatalogSearchCandidate bookCatalogTransportFromCoreItem(
 ) {
   return item.kindCapability.mapTransport((transport) {
     final metadata = BookCatalogMetadata.fromJson(transport.kindData);
-    return item.kindCapability.withKindData(metadata);
+    return item.kindCapability.replacingKindData(metadata);
   });
 }
