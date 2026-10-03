@@ -32,6 +32,9 @@ slice. This is progress, not completion of this plan:
   records such as Book Series remain separate.
 - Core create/update, proposals, Admin corrections, seeds, indexing, search,
   identifier lookup, fingerprints, and schema exports use the root documents.
+- Core kind-only metadata field specs now live beside all nine kind document
+  schemas. Shared common fields remain centrally declared, while the metadata
+  registry composes the exported Admin schema without changing its field rows.
 - App Admin search, correction, cover inspection, and item summaries now read
   root Catalog Item fields. Kind contributors interpret their own correction
   fields; the Admin DTO no longer models editions or variants, and Core's

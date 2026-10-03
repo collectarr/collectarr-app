@@ -7,6 +7,9 @@ claim completion of every cleanup item or literal CLZ parity.
 
 - Core serves source-neutral Catalog Items and accepts user proposals. Provider
   search and provider ingest are not part of the App/Core product flow.
+- Core's kind-only metadata field specifications are declared alongside each
+  kind document; common fields remain shared and the registry composes them for
+  Admin and the pinned contracts.
 - App stores one complete, independently editable `LibraryEntryRecord` per
   local collectible. Each kind owns typed metadata and personal-data models;
   entry codecs encode them as JSON only at persistence and Sync boundaries.
