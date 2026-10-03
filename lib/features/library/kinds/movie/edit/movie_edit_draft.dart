@@ -327,20 +327,18 @@ class MovieEditDraft
     final updatedMeta = meta.copyWith(
       runtimeMinutes: int.tryParse(movieEdit.runtimeController.text),
       genres: parsedGenres.isNotEmpty ? parsedGenres : meta.genres,
-      cast: movieEdit.castCredits
-          .map((credit) => MoviePersonCredit(
-                name: credit.nameController.text.trim(),
-                role: emptyToNull(credit.roleController.text.trim()),
-              ))
-          .where((credit) => credit.name.isNotEmpty)
-          .toList(),
-      crew: movieEdit.crewCredits
-          .map((credit) => MoviePersonCredit(
-                name: credit.nameController.text.trim(),
-                role: emptyToNull(credit.roleController.text.trim()),
-              ))
-          .where((credit) => credit.name.isNotEmpty)
-          .toList(),
+      creators: const [],
+      contributors: [
+        for (final credit in [
+          ...movieEdit.castCredits,
+          ...movieEdit.crewCredits,
+        ])
+          if (credit.nameController.text.trim().isNotEmpty)
+            MoviePersonCredit(
+              name: credit.nameController.text.trim(),
+              role: emptyToNull(credit.roleController.text.trim()),
+            ),
+      ],
       ageRating: emptyToNull(movieEdit.ageRatingController.text),
       audienceRating: emptyToNull(movieEdit.audienceRatingController.text),
       editionTitle: emptyToNull(movieEdit.editionTitleController.text),
@@ -421,11 +419,10 @@ LibraryEditSessionBundle createMovieEditDraft({
         movie.releaseDate == null ? '' : formatDate(movie.releaseDate!),
     initialReleaseYear: movie.releaseDate?.year.toString() ?? '',
     initialCreators: [
-      for (final creator in movie.creators)
+      for (final creator in movie.allPeople)
         MovieCreditInput(
-          name: creator['name']?.toString() ?? '',
-          role: creator['role']?.toString() ?? creator['job']?.toString(),
-          sourceType: creator['source_type']?.toString() ?? 'provider',
+          name: creator.name,
+          role: creator.role,
         ),
     ],
     initialTrailerLinks: movie.links,

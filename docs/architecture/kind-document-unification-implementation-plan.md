@@ -96,10 +96,16 @@ slice. This is progress, not completion of this plan:
   stored format value; its human-readable label is derived from the kind-owned
   format vocabulary in forms and projections. Obsolete raw `series` and
   `publishing` fallbacks were removed from Movie Add, and format statistics no
-  longer count the same format twice. The Movie ledger is still provisional:
-  some current App fields and person-role collections have
-  not yet been reconciled with the pinned Core field set, and the saved CLZ
-  Edit-form capture is unavailable.
+  longer count the same format twice. Movie people and characters are now
+  kind-owned typed values; the role views are derived from their typed credits
+  rather than persisted as duplicate role arrays. Core's Movie document and
+  typed response now include `display_title`, `original_language`, `studio`,
+  `production_companies`, and `series_title`; the App metadata encoder emits
+  exactly the pinned Movie field set. The Movie transport codec decodes only
+  kind data, keeping envelope identity outside metadata. The Movie ledger is
+  synchronized to the contract, but remains provisional: the saved CLZ Edit
+  form is unavailable and App-local media details still need an ownership
+  review.
 - Book workspace, Add preview, links, CSV, author spotlight, statistics, and
   editing now consume `BookCatalogMetadata` directly. The duplicate
   `BookCatalogItem` snapshot and mapper were removed. Printings, credits,
@@ -128,6 +134,11 @@ slice. This is progress, not completion of this plan:
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.
+- The unused `upsert` operation was removed from the shared typed catalog
+  transport codec and all kind codecs after a production call-site audit found
+  no callers. The shared catalog transport repository remains the persistence
+  path because it carries item identity separately from metadata. Old nested
+  `publishing.cover_price_cents` fallbacks were also removed.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
@@ -135,10 +146,9 @@ slice. This is progress, not completion of this plan:
   pass targeted static analysis. Automated tests remain deferred until
   implementation and docs are complete, as requested.
 
-Still outstanding: removing business-field semantics and the remaining fallback
-aliases from shared transport and the other kind codecs; reconciling Movie's
-remaining App-only fields and person-role collections against its pinned
-ledger; replacing the universal
+Still outstanding: removing business-field semantics and remaining fallback
+aliases from shared transport and the other kind codecs; completing field
+ownership and typed schema organization across all kinds; replacing the universal
 `PersonalStateDraft` and shared edit-section field assumptions with kind-owned
 bindings; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and

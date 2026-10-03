@@ -160,7 +160,7 @@ Iterable<String?> movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
       metadata.country,
       metadata.originalLanguage,
       metadata.language,
-      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      ...metadata.creators.map((credit) => credit.name),
       ...metadata.genres,
     ];
 

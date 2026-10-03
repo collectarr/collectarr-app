@@ -7174,20 +7174,16 @@
             ],
             "title": "Description"
           },
-          "discs": {
+          "display_title": {
             "anyOf": [
               {
-                "items": {
-                  "additionalProperties": true,
-                  "type": "object"
-                },
-                "type": "array"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Discs"
+            "title": "Display Title"
           },
           "edition_title": {
             "anyOf": [
@@ -7302,6 +7298,17 @@
             ],
             "title": "Nr Discs"
           },
+          "original_language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Language"
+          },
           "original_title": {
             "anyOf": [
               {
@@ -7345,6 +7352,20 @@
               }
             ],
             "title": "Plot Summary"
+          },
+          "production_companies": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Companies"
           },
           "publisher": {
             "anyOf": [
@@ -7456,6 +7477,17 @@
             ],
             "title": "Series Tags"
           },
+          "series_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Series Title"
+          },
           "sort_key": {
             "anyOf": [
               {
@@ -7466,6 +7498,17 @@
               }
             ],
             "title": "Sort Key"
+          },
+          "studio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Studio"
           },
           "subtitle": {
             "anyOf": [

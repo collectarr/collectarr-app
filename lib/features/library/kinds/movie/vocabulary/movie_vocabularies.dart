@@ -173,8 +173,6 @@ abstract final class MovieVocabularies {
   static const region = VocabularyDefinition<String>(
     id: MovieVocabularyIds.region,
     label: 'Region',
-    valuesFrom:
-        TypedVocabularyProjector<MovieCatalogMetadata>(_regionCatalogValues),
     builtIns: [
       'Region A / Region 1',
       'Region B / Region 2',
@@ -186,9 +184,6 @@ abstract final class MovieVocabularies {
   static const packaging = VocabularyDefinition<String>(
     id: MovieVocabularyIds.packaging,
     label: 'Packaging',
-    valuesFrom: TypedVocabularyProjector<MovieCatalogMetadata>(
-      _packagingCatalogValues,
-    ),
     builtIns: [
       'Standard Keep Case',
       'Steelbook',
@@ -205,9 +200,6 @@ abstract final class MovieVocabularies {
   static const distributor = VocabularyDefinition<String>(
     id: MovieVocabularyIds.distributor,
     label: 'Distributor / Boutique Label',
-    valuesFrom: TypedVocabularyProjector<MovieCatalogMetadata>(
-      _distributorCatalogValues,
-    ),
     builtIns: [
       'Criterion Collection',
       'Arrow Video',
@@ -288,8 +280,6 @@ abstract final class MovieVocabularies {
   static const hdr = VocabularyDefinition<String>(
     id: MovieVocabularyIds.hdr,
     label: 'HDR / Video Format',
-    valuesFrom:
-        TypedVocabularyProjector<MovieCatalogMetadata>(_hdrCatalogValues),
     builtIns: [
       'Dolby Vision',
       'HDR10+',
@@ -319,24 +309,6 @@ Iterable<String?> _physicalFormatCatalogValues(
   ]);
 }
 
-Iterable<String?> _regionCatalogValues(MovieCatalogMetadata metadata) {
-  return vocabularyValues([
-    metadata.region,
-  ]);
-}
-
-Iterable<String?> _packagingCatalogValues(MovieCatalogMetadata metadata) {
-  return vocabularyValues([
-    metadata.packaging,
-  ]);
-}
-
-Iterable<String?> _distributorCatalogValues(MovieCatalogMetadata metadata) {
-  return vocabularyValues([
-    metadata.distributor,
-  ]);
-}
-
 Iterable<String?> _screenRatioCatalogValues(MovieCatalogMetadata metadata) {
   return vocabularyValues([
     metadata.screenRatio,
@@ -352,11 +324,5 @@ Iterable<String?> _audioCatalogValues(MovieCatalogMetadata metadata) {
 Iterable<String?> _subtitlesCatalogValues(MovieCatalogMetadata metadata) {
   return vocabularyValues([
     metadata.subtitles,
-  ]);
-}
-
-Iterable<String?> _hdrCatalogValues(MovieCatalogMetadata metadata) {
-  return vocabularyValues([
-    metadata.hdr,
   ]);
 }

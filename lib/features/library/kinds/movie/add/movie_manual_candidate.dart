@@ -25,7 +25,7 @@ CatalogSearchCandidate? buildMovieManualCandidate(
     origin: CatalogItemOrigin.privateLocal,
     kindData: {
       'title': title.trim(),
-      if (_text(values.sortTitle) case final value?) 'sort_title': value,
+      if (_text(values.sortTitle) case final value?) 'sort_key': value,
       if (_text(values.workDescription) case final value?) 'synopsis': value,
       if (_text(values.coverImageUrl) case final value?)
         'cover_image_url': value,

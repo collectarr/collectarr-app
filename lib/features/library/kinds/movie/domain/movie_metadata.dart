@@ -8,28 +8,146 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 class MoviePersonCredit {
   const MoviePersonCredit({
     required this.name,
+    this.id,
+    this.personId,
+    this.artistId,
     this.role,
+    this.roleId,
+    this.sequence,
+    this.creditedName,
+    this.joinPhrase,
+    this.sortName,
+    this.instrument,
     this.character,
     this.imageUrl,
   });
 
+  final String? id;
+  final String? personId;
+  final String? artistId;
   final String name;
   final String? role;
+  final String? roleId;
+  final int? sequence;
+  final String? creditedName;
+  final String? joinPhrase;
+  final String? sortName;
+  final String? instrument;
   final String? character;
   final String? imageUrl;
 
   Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        if (personId != null) 'person_id': personId,
+        if (artistId != null) 'artist_id': artistId,
         'name': name,
         if (role != null) 'role': role,
+        if (roleId != null) 'role_id': roleId,
+        if (sequence != null) 'sequence': sequence,
+        if (creditedName != null) 'credited_name': creditedName,
+        if (joinPhrase != null) 'join_phrase': joinPhrase,
+        if (sortName != null) 'sort_name': sortName,
+        if (instrument != null) 'instrument': instrument,
         if (character != null) 'character': character,
         if (imageUrl != null) 'image_url': imageUrl,
       };
 
   factory MoviePersonCredit.fromJson(Map<String, dynamic> json) {
+    _checkKeys(
+        json,
+        const {
+          'id',
+          'person_id',
+          'artist_id',
+          'name',
+          'role',
+          'role_id',
+          'sequence',
+          'credited_name',
+          'join_phrase',
+          'sort_name',
+          'instrument',
+          'character',
+          'image_url',
+        },
+        'Movie person credit');
     return MoviePersonCredit(
+      id: json['id'] as String?,
+      personId: json['person_id'] as String?,
+      artistId: json['artist_id'] as String?,
       name: (json['name'] as String?) ?? '',
       role: json['role'] as String?,
+      roleId: json['role_id'] as String?,
+      sequence: (json['sequence'] as num?)?.toInt(),
+      creditedName: json['credited_name'] as String?,
+      joinPhrase: json['join_phrase'] as String?,
+      sortName: json['sort_name'] as String?,
+      instrument: json['instrument'] as String?,
       character: json['character'] as String?,
+      imageUrl: json['image_url'] as String?,
+    );
+  }
+}
+
+@immutable
+class MovieCharacter {
+  const MovieCharacter({
+    this.id,
+    this.characterId,
+    required this.name,
+    this.aliases = const [],
+    this.role,
+    this.description,
+    this.imageUrl,
+  });
+
+  final String? id;
+  final String? characterId;
+  final String name;
+  final List<String> aliases;
+  final String? role;
+  final String? description;
+  final String? imageUrl;
+
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        if (characterId != null) 'character_id': characterId,
+        'name': name,
+        if (aliases.isNotEmpty) 'aliases': aliases,
+        if (role != null) 'role': role,
+        if (description != null) 'description': description,
+        if (imageUrl != null) 'image_url': imageUrl,
+      };
+
+  Object toJsonValue() => id == null &&
+          characterId == null &&
+          aliases.isEmpty &&
+          role == null &&
+          description == null &&
+          imageUrl == null
+      ? name
+      : toJson();
+
+  factory MovieCharacter.fromJson(Map<String, dynamic> json) {
+    _checkKeys(
+        json,
+        const {
+          'id',
+          'character_id',
+          'name',
+          'aliases',
+          'role',
+          'description',
+          'image_url',
+        },
+        'Movie character');
+    return MovieCharacter(
+      id: json['id'] as String?,
+      characterId: json['character_id'] as String?,
+      name: (json['name'] as String?) ?? '',
+      aliases: _strictStringList(json['aliases'], 'Movie character aliases'),
+      role: json['role'] as String?,
+      description: json['description'] as String?,
       imageUrl: json['image_url'] as String?,
     );
   }
@@ -66,6 +184,23 @@ class MovieMediaMetadata {
   final String? subtitles;
 
   factory MovieMediaMetadata.fromJson(Map<String, dynamic> json) {
+    _checkKeys(
+        json,
+        const {
+          'id',
+          'media_number',
+          'media_type',
+          'title',
+          'aspect_ratio',
+          'screen_ratio',
+          'color',
+          'num_discs',
+          'nr_layers',
+          'layers',
+          'audio_tracks',
+          'subtitles',
+        },
+        'Movie media');
     final mediaNumber = (json['media_number'] as num?)?.toInt();
     if (mediaNumber == null || mediaNumber < 1) {
       throw const FormatException(
@@ -117,7 +252,6 @@ class MovieCatalogMetadata implements JsonEncodable {
     this.synopsis,
     this.coverImageUrl,
     this.thumbnailImageUrl,
-    this.coverImageData,
     this.genres = const [],
     this.runtimeMinutes,
     this.audienceRating,
@@ -130,21 +264,12 @@ class MovieCatalogMetadata implements JsonEncodable {
     this.releaseDate,
     this.releaseDateParts,
     this.releaseStatus,
-    this.directors = const [],
-    this.writers = const [],
-    this.producers = const [],
-    this.cast = const [],
-    this.crew = const [],
     this.editionTitle,
     this.subtitle,
     this.barcode,
     this.catalogNumber,
     this.physicalFormat,
     this.publisher,
-    this.region,
-    this.packaging,
-    this.distributor,
-    this.hdr,
     this.variant,
     this.itemNumber,
     this.seriesTitle,
@@ -159,8 +284,8 @@ class MovieCatalogMetadata implements JsonEncodable {
     this.description,
     this.plotSummary,
     this.plotDescription,
-    this.characters = const [],
-    this.characterDetails = const [],
+    this.characters = const <MovieCharacter>[],
+    this.characterDetails = const <MovieCharacter>[],
     this.creators = const [],
     this.contributors = const [],
     this.links = const [],
@@ -180,7 +305,6 @@ class MovieCatalogMetadata implements JsonEncodable {
   final String? synopsis;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
-  final String? coverImageData;
   final List<String> genres;
   final int? runtimeMinutes;
   final String? audienceRating;
@@ -193,21 +317,12 @@ class MovieCatalogMetadata implements JsonEncodable {
   final DateTime? releaseDate;
   final PartialDate? releaseDateParts;
   final String? releaseStatus;
-  final List<MoviePersonCredit> directors;
-  final List<MoviePersonCredit> writers;
-  final List<MoviePersonCredit> producers;
-  final List<MoviePersonCredit> cast;
-  final List<MoviePersonCredit> crew;
   final String? editionTitle;
   final String? subtitle;
   final String? barcode;
   final String? catalogNumber;
   final String? physicalFormat;
   final String? publisher;
-  final String? region;
-  final String? packaging;
-  final String? distributor;
-  final String? hdr;
   final String? variant;
   final String? itemNumber;
   final String? seriesTitle;
@@ -222,13 +337,30 @@ class MovieCatalogMetadata implements JsonEncodable {
   final String? description;
   final String? plotSummary;
   final String? plotDescription;
-  final List<Map<String, dynamic>> characters;
-  final List<Map<String, dynamic>> characterDetails;
-  final List<Map<String, dynamic>> creators;
-  final List<Map<String, dynamic>> contributors;
+  final List<MovieCharacter> characters;
+  final List<MovieCharacter> characterDetails;
+  final List<MoviePersonCredit> creators;
+  final List<MoviePersonCredit> contributors;
   final List<TrailerLinkDto> links;
 
   int? get releaseYear => releaseDateParts?.year ?? releaseDate?.year;
+  List<MoviePersonCredit> get allPeople => [
+        ...creators,
+        ...contributors,
+      ];
+  List<MoviePersonCredit> get directors => _peopleWithRole('director');
+  List<MoviePersonCredit> get writers => _peopleWithRole('writer');
+  List<MoviePersonCredit> get producers => _peopleWithRole('producer');
+  List<MoviePersonCredit> get cast => allPeople
+      .where((credit) => _isCastRole(credit.role))
+      .toList(growable: false);
+  List<MoviePersonCredit> get crew => allPeople
+      .where((credit) => !_isCastRole(credit.role))
+      .toList(growable: false);
+
+  List<MoviePersonCredit> _peopleWithRole(String expected) => allPeople
+      .where((credit) => credit.role?.toLowerCase().contains(expected) == true)
+      .toList(growable: false);
 
   @override
   Map<String, dynamic> toJson() {
@@ -243,7 +375,6 @@ class MovieCatalogMetadata implements JsonEncodable {
       if (synopsis != null) 'synopsis': synopsis,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
       if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
-      if (coverImageData != null) 'cover_image_data': coverImageData,
       if (releaseDateParts != null)
         'release_date_parts': releaseDateParts!.toJson(),
       if (releaseStatus != null) 'release_status': releaseStatus,
@@ -253,9 +384,12 @@ class MovieCatalogMetadata implements JsonEncodable {
       if (plotSummary != null) 'plot_summary': plotSummary,
       if (plotDescription != null) 'plot_description': plotDescription,
       if (seriesTags.isNotEmpty) 'series_tags': seriesTags,
-      if (characters.isNotEmpty) 'characters': characters,
-      if (characterDetails.isNotEmpty) 'character_details': characterDetails,
-      if (contributors.isNotEmpty) 'contributors': contributors,
+      if (characters.isNotEmpty)
+        'characters': characters.map((value) => value.toJsonValue()).toList(),
+      if (characterDetails.isNotEmpty)
+        'character_details': characterDetails.map((e) => e.toJson()).toList(),
+      if (contributors.isNotEmpty)
+        'contributors': contributors.map((e) => e.toJson()).toList(),
       if (genres.isNotEmpty) 'genres': genres,
       if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
       if (audienceRating != null) 'audience_rating': audienceRating,
@@ -268,22 +402,10 @@ class MovieCatalogMetadata implements JsonEncodable {
       if (language != null) 'language': language,
       if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
       if (media.isNotEmpty) 'media': media.map((e) => e.toJson()).toList(),
-      if (directors.isNotEmpty)
-        'directors': directors.map((e) => e.toJson()).toList(),
-      if (writers.isNotEmpty)
-        'writers': writers.map((e) => e.toJson()).toList(),
-      if (producers.isNotEmpty)
-        'producers': producers.map((e) => e.toJson()).toList(),
-      if (cast.isNotEmpty) 'cast': cast.map((e) => e.toJson()).toList(),
-      if (crew.isNotEmpty) 'crew': crew.map((e) => e.toJson()).toList(),
       if (editionTitle != null) 'edition_title': editionTitle,
       if (barcode != null) 'barcode': barcode,
       if (physicalFormat != null) 'physical_format': physicalFormat,
       if (publisher != null) 'publisher': publisher,
-      if (region != null) 'region': region,
-      if (packaging != null) 'packaging': packaging,
-      if (distributor != null) 'distributor': distributor,
-      if (hdr != null) 'hdr': hdr,
       if (variant != null) 'variant_name': variant,
       if (itemNumber != null) 'item_number': itemNumber,
       if (seriesTitle != null) 'series_title': seriesTitle,
@@ -293,18 +415,15 @@ class MovieCatalogMetadata implements JsonEncodable {
       if (nrDiscs != null) 'nr_discs': nrDiscs,
       if (screenRatio != null) 'screen_ratio': screenRatio,
       if (layers != null) 'layers': layers,
-      if (creators.isNotEmpty) 'creators': creators,
+      if (creators.isNotEmpty)
+        'creators': creators.map((e) => e.toJson()).toList(),
       if (links.isNotEmpty) ...{
         if (links.any((l) => l.isTrailerLink))
-          'trailer_urls': links
-              .where((l) => l.isTrailerLink)
-              .map((e) => e.toJson())
-              .toList(),
+          'trailer_urls':
+              links.where((l) => l.isTrailerLink).map(_movieLinkJson).toList(),
         if (links.any((l) => l.isExternalLink))
-          'external_links': links
-              .where((l) => l.isExternalLink)
-              .map((e) => e.toJson())
-              .toList(),
+          'external_links':
+              links.where((l) => l.isExternalLink).map(_movieLinkJson).toList(),
       },
     };
   }
@@ -320,7 +439,6 @@ class MovieCatalogMetadata implements JsonEncodable {
     String? synopsis,
     String? coverImageUrl,
     String? thumbnailImageUrl,
-    String? coverImageData,
     List<String>? genres,
     int? runtimeMinutes,
     String? audienceRating,
@@ -333,21 +451,14 @@ class MovieCatalogMetadata implements JsonEncodable {
     DateTime? releaseDate,
     PartialDate? releaseDateParts,
     String? releaseStatus,
-    List<MoviePersonCredit>? directors,
-    List<MoviePersonCredit>? writers,
-    List<MoviePersonCredit>? producers,
-    List<MoviePersonCredit>? cast,
-    List<MoviePersonCredit>? crew,
+    List<MoviePersonCredit>? creators,
+    List<MoviePersonCredit>? contributors,
     String? editionTitle,
     String? subtitle,
     String? barcode,
     String? catalogNumber,
     String? physicalFormat,
     String? publisher,
-    String? region,
-    String? packaging,
-    String? distributor,
-    String? hdr,
     String? variant,
     String? itemNumber,
     String? seriesTitle,
@@ -362,10 +473,8 @@ class MovieCatalogMetadata implements JsonEncodable {
     String? description,
     String? plotSummary,
     String? plotDescription,
-    List<Map<String, dynamic>>? characters,
-    List<Map<String, dynamic>>? characterDetails,
-    List<Map<String, dynamic>>? contributors,
-    List<Map<String, dynamic>>? creators,
+    List<MovieCharacter>? characters,
+    List<MovieCharacter>? characterDetails,
     List<TrailerLinkDto>? links,
   }) {
     return MovieCatalogMetadata(
@@ -379,7 +488,6 @@ class MovieCatalogMetadata implements JsonEncodable {
       synopsis: synopsis ?? this.synopsis,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
-      coverImageData: coverImageData ?? this.coverImageData,
       genres: genres ?? this.genres,
       runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
       audienceRating: audienceRating ?? this.audienceRating,
@@ -392,21 +500,14 @@ class MovieCatalogMetadata implements JsonEncodable {
       releaseDate: releaseDate ?? this.releaseDate,
       releaseDateParts: releaseDateParts ?? this.releaseDateParts,
       releaseStatus: releaseStatus ?? this.releaseStatus,
-      directors: directors ?? this.directors,
-      writers: writers ?? this.writers,
-      producers: producers ?? this.producers,
-      cast: cast ?? this.cast,
-      crew: crew ?? this.crew,
+      creators: creators ?? this.creators,
+      contributors: contributors ?? this.contributors,
       editionTitle: editionTitle ?? this.editionTitle,
       subtitle: subtitle ?? this.subtitle,
       barcode: barcode ?? this.barcode,
       catalogNumber: catalogNumber ?? this.catalogNumber,
       physicalFormat: physicalFormat ?? this.physicalFormat,
       publisher: publisher ?? this.publisher,
-      region: region ?? this.region,
-      packaging: packaging ?? this.packaging,
-      distributor: distributor ?? this.distributor,
-      hdr: hdr ?? this.hdr,
       variant: variant ?? this.variant,
       itemNumber: itemNumber ?? this.itemNumber,
       seriesTitle: seriesTitle ?? this.seriesTitle,
@@ -423,31 +524,64 @@ class MovieCatalogMetadata implements JsonEncodable {
       plotDescription: plotDescription ?? this.plotDescription,
       characters: characters ?? this.characters,
       characterDetails: characterDetails ?? this.characterDetails,
-      contributors: contributors ?? this.contributors,
-      creators: creators ?? this.creators,
       links: links ?? this.links,
     );
   }
 
   factory MovieCatalogMetadata.fromJson(Map<String, dynamic> json) {
-    final rawCreators = (json['creators'] as List<dynamic>?)
-            ?.whereType<Map<String, dynamic>>()
-            .map((e) => Map<String, dynamic>.from(e))
-            .toList() ??
-        const <Map<String, dynamic>>[];
-
-    final rawLinks = <TrailerLinkDto>[
-      ...((json['trailer_urls'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((e) =>
-                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLinkDto>[]),
-      ...((json['external_links'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((e) =>
-                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLinkDto>[]),
-    ];
+    _checkKeys(
+        json,
+        const {
+          'title',
+          'display_title',
+          'localized_title',
+          'title_extension',
+          'search_aliases',
+          'original_title',
+          'sort_key',
+          'synopsis',
+          'cover_image_url',
+          'thumbnail_image_url',
+          'genres',
+          'runtime_minutes',
+          'audience_rating',
+          'age_rating',
+          'studio',
+          'production_companies',
+          'country',
+          'original_language',
+          'language',
+          'release_date',
+          'release_date_parts',
+          'release_status',
+          'creators',
+          'contributors',
+          'edition_title',
+          'subtitle',
+          'barcode',
+          'catalog_number',
+          'physical_format',
+          'publisher',
+          'variant_name',
+          'item_number',
+          'series_title',
+          'audio_tracks',
+          'subtitles',
+          'color',
+          'nr_discs',
+          'screen_ratio',
+          'layers',
+          'media',
+          'series_tags',
+          'description',
+          'plot_summary',
+          'plot_description',
+          'characters',
+          'character_details',
+          'trailer_urls',
+          'external_links',
+        },
+        'Movie metadata');
 
     final media = _movieMediaList(json['media']);
 
@@ -456,13 +590,12 @@ class MovieCatalogMetadata implements JsonEncodable {
       displayTitle: json['display_title'] as String?,
       localizedTitle: json['localized_title'] as String?,
       titleExtension: json['title_extension'] as String?,
-      searchAliases: _stringList(json['search_aliases']),
+      searchAliases: _stringList(json['search_aliases'], 'search_aliases'),
       originalTitle: json['original_title'] as String?,
       sortTitle: json['sort_key'] as String?,
       synopsis: json['synopsis'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
-      coverImageData: json['cover_image_data'] as String?,
       releaseDateParts: PartialDate.tryParse(json['release_date_parts']),
       releaseStatus: json['release_status'] as String?,
       subtitle: json['subtitle'] as String?,
@@ -470,64 +603,27 @@ class MovieCatalogMetadata implements JsonEncodable {
       description: json['description'] as String?,
       plotSummary: json['plot_summary'] as String?,
       plotDescription: json['plot_description'] as String?,
-      seriesTags: _stringList(json['series_tags']),
-      characters: _mapList(json['characters']),
-      characterDetails: _mapList(json['character_details']),
-      contributors: _mapList(json['contributors']),
-      genres: (json['genres'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const [],
+      seriesTags: _stringList(json['series_tags'], 'series_tags'),
+      characters: _movieCharacterList(json['characters'], allowStrings: true),
+      characterDetails:
+          _movieCharacterList(json['character_details'], allowStrings: false),
+      creators: _moviePeopleList(json['creators']),
+      contributors: _moviePeopleList(json['contributors']),
+      genres: _stringList(json['genres'], 'genres'),
       runtimeMinutes: (json['runtime_minutes'] as num?)?.toInt(),
       audienceRating: json['audience_rating'] as String?,
       ageRating: json['age_rating'] as String?,
       studio: json['studio'] as String?,
-      productionCompanies: (json['production_companies'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const [],
+      productionCompanies:
+          _stringList(json['production_companies'], 'production_companies'),
       country: json['country'] as String?,
       originalLanguage: json['original_language'] as String?,
       language: json['language'] as String?,
       releaseDate: PartialDate.tryParse(json['release_date'])?.asDateTime,
-      directors: (json['directors'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((e) =>
-                  MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
-              .toList() ??
-          const [],
-      writers: (json['writers'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((e) =>
-                  MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
-              .toList() ??
-          const [],
-      producers: (json['producers'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((e) =>
-                  MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
-              .toList() ??
-          const [],
-      cast: (json['cast'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((e) =>
-                  MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
-              .toList() ??
-          const [],
-      crew: (json['crew'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((e) =>
-                  MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
-              .toList() ??
-          const [],
       editionTitle: json['edition_title'] as String?,
       barcode: json['barcode'] as String?,
       physicalFormat: json['physical_format'] as String?,
       publisher: json['publisher'] as String?,
-      region: json['region'] as String?,
-      packaging: json['packaging'] as String?,
-      distributor: json['distributor'] as String?,
-      hdr: json['hdr'] as String?,
       variant: json['variant_name'] as String?,
       itemNumber: json['item_number'] as String?,
       seriesTitle: json['series_title'] as String?,
@@ -537,8 +633,7 @@ class MovieCatalogMetadata implements JsonEncodable {
       nrDiscs: (json['nr_discs'] as num?)?.toInt(),
       screenRatio: json['screen_ratio'] as String?,
       layers: json['layers'] as String?,
-      creators: rawCreators,
-      links: rawLinks,
+      links: _movieLinkList(json),
       media: media,
     );
   }
@@ -558,16 +653,100 @@ List<MovieMediaMetadata> _movieMediaList(Object? value) {
   ];
 }
 
-List<String> _stringList(Object? value) => value is List
-    ? [
-        for (final entry in value)
-          if (entry is String) entry
-      ]
-    : const [];
+List<String> _stringList(Object? value, String fieldName) {
+  if (value == null) return const [];
+  if (value is! List || value.any((entry) => entry is! String)) {
+    throw FormatException('Movie $fieldName must be a list of strings.');
+  }
+  return List<String>.unmodifiable(value.cast<String>());
+}
 
-List<Map<String, dynamic>> _mapList(Object? value) => value is List
-    ? [
-        for (final entry in value)
-          if (entry is Map) Map<String, dynamic>.from(entry),
-      ]
-    : const [];
+List<String> _strictStringList(Object? value, String fieldName) =>
+    _stringList(value, fieldName);
+
+List<MoviePersonCredit> _moviePeopleList(Object? value) {
+  if (value == null) return const [];
+  if (value is! List) {
+    throw const FormatException('Movie people must be a list.');
+  }
+  return [
+    for (final entry in value)
+      if (entry is String)
+        MoviePersonCredit(name: entry)
+      else if (entry is Map)
+        MoviePersonCredit.fromJson(Map<String, dynamic>.from(entry))
+      else
+        throw const FormatException('Movie person must be a string or object.'),
+  ];
+}
+
+List<MovieCharacter> _movieCharacterList(
+  Object? value, {
+  required bool allowStrings,
+}) {
+  if (value == null) return const [];
+  if (value is! List) {
+    throw const FormatException('Movie characters must be a list.');
+  }
+  return [
+    for (final entry in value)
+      if (entry is String && allowStrings)
+        MovieCharacter(name: entry)
+      else if (entry is Map)
+        MovieCharacter.fromJson(Map<String, dynamic>.from(entry))
+      else
+        throw const FormatException('Movie character must be an object.'),
+  ];
+}
+
+List<TrailerLinkDto> _movieLinkList(Map<String, dynamic> json) {
+  final links = <TrailerLinkDto>[];
+  for (final field in const ['trailer_urls', 'external_links']) {
+    final value = json[field];
+    if (value == null) continue;
+    if (value is! List) {
+      throw FormatException('Movie $field must be a list.');
+    }
+    for (final entry in value) {
+      if (entry is! Map) {
+        throw FormatException('Movie $field entries must be objects.');
+      }
+      links.add(TrailerLinkDto.fromJson(Map<String, dynamic>.from(entry)));
+    }
+  }
+  return links;
+}
+
+Map<String, Object?> _movieLinkJson(TrailerLinkDto link) => {
+      if (link.title != null) 'title': link.title,
+      'url': link.url,
+      if (link.description != null) 'description': link.description,
+      'kind': link.kind,
+    };
+
+void _checkKeys(
+  Map<String, dynamic> value,
+  Set<String> allowed,
+  String description,
+) {
+  final unknown = value.keys.where((key) => !allowed.contains(key)).toList()
+    ..sort();
+  if (unknown.isNotEmpty) {
+    throw FormatException(
+      '$description contains unsupported fields: ${unknown.join(', ')}.',
+    );
+  }
+}
+
+bool _isCastRole(String? role) {
+  final normalized = role?.trim().toLowerCase() ?? '';
+  if (normalized.isEmpty) return true;
+  return const {
+    'actor',
+    'voice',
+    'voice actor',
+    'guest star',
+    'cameo',
+    'narrator',
+  }.any(normalized.contains);
+}

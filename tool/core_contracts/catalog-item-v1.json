@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "bb68fba45cb68ea77ddaaee6a2c3e76bec10a302",
+  "coreCommit": "5415b1c89ad0c5665c821dfaaf4477ce0c3fa1f2",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-03T10:07:59.721346Z",
+  "generatedAt": "2026-10-03T11:35:12.762119Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -6251,6 +6251,16 @@
                           }
                         ]
                       },
+                      "character": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -6358,6 +6368,16 @@
                           }
                         ]
                       },
+                      "character": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -6425,6 +6445,16 @@
           ]
         },
         "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "display_title": {
           "anyOf": [
             {
               "type": "string"
@@ -6699,6 +6729,16 @@
             }
           ]
         },
+        "original_language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "original_title": {
           "anyOf": [
             {
@@ -6733,6 +6773,19 @@
           "anyOf": [
             {
               "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "production_companies": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
             },
             {
               "type": "null"
@@ -6842,7 +6895,27 @@
             }
           ]
         },
+        "series_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "sort_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "studio": {
           "anyOf": [
             {
               "type": "string"

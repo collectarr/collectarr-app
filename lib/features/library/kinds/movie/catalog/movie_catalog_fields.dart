@@ -19,7 +19,6 @@ final class MovieCatalogFields {
   String? get coverImageUrl =>
       _metadata?.coverImageUrl ?? _candidate.summary.imageUrl;
   String? get thumbnailImageUrl => _metadata?.thumbnailImageUrl;
-  String? get coverImageData => _metadata?.coverImageData;
   String? get physicalFormat => _metadata?.physicalFormat;
   DateTime? get releaseDate =>
       _metadata?.releaseDate ?? _metadata?.releaseDateParts?.asDateTime;
