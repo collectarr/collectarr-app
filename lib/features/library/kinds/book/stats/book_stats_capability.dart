@@ -25,11 +25,8 @@ class BookStatsCapability implements LibraryStatsCapability {
     final catalog = entry.catalogData;
     final metadata = _metadata(entry);
     if (catalog == null || metadata == null) return null;
-    final primary =
-        (metadata.seriesTitle ?? metadata.series?.seriesTitle ?? catalog.title)
-            .trim();
-    final secondary =
-        (metadata.publisher ?? metadata.originalPublisher)?.trim();
+    final primary = (metadata.seriesTitle ?? catalog.title).trim();
+    final secondary = metadata.publisher?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup: primary,
       secondaryGroup: secondary,
@@ -38,8 +35,8 @@ class BookStatsCapability implements LibraryStatsCapability {
           libraryWorkspaceCatalogSynopsis(catalog)?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
-      hasReleaseDate: metadata.originalPublicationDate != null ||
-          catalog.releaseDate != null,
+      hasReleaseDate:
+          metadata.releaseDate != null || catalog.releaseDate != null,
       hasItemNumber: metadata.itemNumber?.trim().isNotEmpty == true,
     );
   }
@@ -87,8 +84,7 @@ class BookStatsCapability implements LibraryStatsCapability {
     for (final entry in entries) {
       if (!entry.isEntry) continue;
       final metadata = _metadata(entry);
-      final seriesTitle =
-          (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();
+      final seriesTitle = metadata?.seriesTitle?.trim();
       final number = numberFor(entry);
       if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
         continue;
@@ -115,7 +111,7 @@ class BookStatsCapability implements LibraryStatsCapability {
   static int? _volumeNumber(LibraryWorkspaceSource entry) {
     final metadata = _metadata(entry);
     if (metadata == null) return null;
-    final seriesNumber = metadata.series?.volumeNumber;
+    final seriesNumber = metadata.volumeNumber;
     final parsedSeries = int.tryParse(seriesNumber?.trim() ?? '');
     if (parsedSeries != null) return parsedSeries;
     return int.tryParse(metadata.itemNumber?.trim() ?? '');

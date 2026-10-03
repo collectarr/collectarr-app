@@ -68,6 +68,6 @@ abstract final class BookFacetIds {
   static const publisher = LibraryFacetId<BookKind, String>('book.publisher');
   static const genre = LibraryFacetId<BookKind, String>('book.genre');
   static const format = LibraryFacetId<BookKind, String>('book.format');
-  static const subject = LibraryFacetId<BookKind, String>('book.subject');
   static const translator = LibraryFacetId<BookKind, String>('book.translator');
+  static const subject = LibraryFacetId<BookKind, String>('book.subject');
 }

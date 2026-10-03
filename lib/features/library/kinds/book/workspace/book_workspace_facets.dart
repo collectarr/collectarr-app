@@ -8,11 +8,7 @@ final bookLibraryFacetDefinitions =
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
     id: BookFacetIds.author,
     label: 'Author',
-    extractValues: (dto) =>
-        dto.metadata?.authors ??
-        [
-          if (dto.author case final author?) author,
-        ],
+    extractValues: (dto) => dto.metadata.authors,
   ),
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
     id: BookFacetIds.publisher,
@@ -24,7 +20,12 @@ final bookLibraryFacetDefinitions =
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
     id: BookFacetIds.genre,
     label: 'Genre',
-    extractValues: (dto) => dto.metadata?.genres ?? const <String>[],
+    extractValues: (dto) => dto.metadata.genres,
+  ),
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.subject,
+    label: 'Subject',
+    extractValues: (dto) => dto.metadata.subjects,
   ),
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
     id: BookFacetIds.format,
@@ -34,13 +35,8 @@ final bookLibraryFacetDefinitions =
     ],
   ),
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
-    id: BookFacetIds.subject,
-    label: 'Subject',
-    extractValues: (dto) => dto.metadata?.subjects ?? const <String>[],
-  ),
-  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
     id: BookFacetIds.translator,
     label: 'Translator',
-    extractValues: (dto) => dto.metadata?.translators ?? const <String>[],
+    extractValues: (dto) => dto.metadata.translators,
   ),
 ];

@@ -31,7 +31,6 @@ final class BookWorkspaceProjector
       personal: PersonalCopyProjection.fromShelf(
         source,
       ),
-      book: catalog.book,
       metadata: catalog.metadata,
     );
   }

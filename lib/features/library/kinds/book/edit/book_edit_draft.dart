@@ -20,13 +20,14 @@ import 'package:flutter/material.dart';
 
 enum BookCanonicalEditField {
   title,
-  displayTitle,
   sortTitle,
   originalTitle,
   localizedTitle,
   searchAliases,
+  subjects,
   synopsis,
   coverImage,
+  backCoverImage,
   thumbnailImage
 }
 
@@ -53,7 +54,6 @@ class BookEditDraft
     required this.countryController,
     required this.authorsController,
     required this.genresController,
-    required this.subjectsController,
     required this.translatorsController,
   });
 
@@ -75,7 +75,6 @@ class BookEditDraft
   final TextEditingController countryController;
   final TextEditingController authorsController;
   final TextEditingController genresController;
-  final TextEditingController subjectsController;
   final TextEditingController translatorsController;
 
   @override
@@ -182,7 +181,6 @@ class BookEditDraft
     countryController.dispose();
     authorsController.dispose();
     genresController.dispose();
-    subjectsController.dispose();
     translatorsController.dispose();
   }
 
@@ -200,40 +198,47 @@ class BookEditDraft
     LibraryEditSelection selection,
     LibraryEditFormFields fields,
   ) {
+    final current = selection.kindItem.kindCapability.mapTransport(
+      (transport) => BookCatalogMetadata.fromJson(transport.kindData),
+    );
     final aliases = fields
         .controller(BookCanonicalEditField.searchAliases)
         .text
         .split(RegExp(r'[,\r\n]+'))
-        .map((entry) => entry.trim())
-        .where((entry) => entry.isNotEmpty)
-        .toList();
-    return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(selection
-          .kindItem.kindCapability
-          .mapTransport((transport) => transport.copyWith(
-                title:
-                    fields.controller(BookCanonicalEditField.title).text.trim(),
-                displayTitle: emptyToNull(fields
-                    .controller(BookCanonicalEditField.displayTitle)
-                    .text),
-                sortKey: emptyToNull(
-                    fields.controller(BookCanonicalEditField.sortTitle).text),
-                originalTitle: emptyToNull(fields
-                    .controller(BookCanonicalEditField.originalTitle)
-                    .text),
-                localizedTitle: emptyToNull(fields
-                    .controller(BookCanonicalEditField.localizedTitle)
-                    .text),
-                searchAliases: aliases.isEmpty ? null : aliases,
-                synopsis: emptyToNull(
-                    fields.controller(BookCanonicalEditField.synopsis).text),
-                coverImageUrl: emptyToNull(
-                    fields.controller(BookCanonicalEditField.coverImage).text),
-                thumbnailImageUrl: emptyToNull(fields
-                    .controller(BookCanonicalEditField.thumbnailImage)
-                    .text),
-              ))),
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+    final updated = current.copyWith(
+      title: fields.controller(BookCanonicalEditField.title).text.trim(),
+      sortTitle: emptyToNull(
+        fields.controller(BookCanonicalEditField.sortTitle).text,
+      ),
+      originalTitle: emptyToNull(
+        fields.controller(BookCanonicalEditField.originalTitle).text,
+      ),
+      localizedTitle: emptyToNull(
+        fields.controller(BookCanonicalEditField.localizedTitle).text,
+      ),
+      searchAliases: aliases,
+      subjects: _splitValues(
+        fields.controller(BookCanonicalEditField.subjects).text,
+      ),
+      synopsis: emptyToNull(
+        fields.controller(BookCanonicalEditField.synopsis).text,
+      ),
+      coverImageUrl: emptyToNull(
+        fields.controller(BookCanonicalEditField.coverImage).text,
+      ),
+      backCoverImageUrl: emptyToNull(
+        fields.controller(BookCanonicalEditField.backCoverImage).text,
+      ),
     );
+    final updatedCandidate = selection.kindItem.kindCapability.mapTransport(
+      (transport) => CatalogSearchCandidate.fromItem(
+        transport.withKindData(updated),
+      ),
+    );
+    return selection.copyWith(kindItem: updatedCandidate);
   }
 
   @override
@@ -243,8 +248,6 @@ class BookEditDraft
   ) {
     final metadata = item.bookCatalogFields;
     fields.create(BookCanonicalEditField.title, initialValue: metadata.title);
-    fields.create(BookCanonicalEditField.displayTitle,
-        initialValue: metadata.displayTitle ?? '');
     fields.create(BookCanonicalEditField.sortTitle,
         initialValue: metadata.sortKey ?? '');
     fields.create(BookCanonicalEditField.originalTitle,
@@ -253,10 +256,14 @@ class BookEditDraft
         initialValue: metadata.localizedTitle ?? '');
     fields.create(BookCanonicalEditField.searchAliases,
         initialValue: metadata.searchAliases.join(', '));
+    fields.create(BookCanonicalEditField.subjects,
+        initialValue: metadata.subjects.join(', '));
     fields.create(BookCanonicalEditField.synopsis,
         initialValue: metadata.synopsis ?? '');
     fields.create(BookCanonicalEditField.coverImage,
         initialValue: metadata.coverImageUrl ?? '');
+    fields.create(BookCanonicalEditField.backCoverImage,
+        initialValue: metadata.backCoverImageUrl ?? '');
     fields.create(BookCanonicalEditField.thumbnailImage,
         initialValue: metadata.thumbnailImageUrl ?? '');
     return LibraryEditFormSchema(
@@ -287,17 +294,17 @@ class BookEditDraft
           label: 'Localized title',
         ),
         LibraryEditFormFieldSpec(
-          id: BookCanonicalEditField.displayTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(BookCanonicalEditField.displayTitle),
-          label: 'Display title',
-        ),
-        LibraryEditFormFieldSpec(
           id: BookCanonicalEditField.searchAliases,
           section: LibraryEditFormSection.details,
           controller: fields.controller(BookCanonicalEditField.searchAliases),
           label: 'Search aliases',
           visible: false,
+        ),
+        LibraryEditFormFieldSpec(
+          id: BookCanonicalEditField.subjects,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(BookCanonicalEditField.subjects),
+          label: 'Subjects',
         ),
         LibraryEditFormFieldSpec(
           id: BookCanonicalEditField.thumbnailImage,
@@ -311,6 +318,12 @@ class BookEditDraft
           section: LibraryEditFormSection.artwork,
           controller: fields.controller(BookCanonicalEditField.coverImage),
           label: 'Cover Image URL',
+        ),
+        LibraryEditFormFieldSpec(
+          id: BookCanonicalEditField.backCoverImage,
+          section: LibraryEditFormSection.artwork,
+          controller: fields.controller(BookCanonicalEditField.backCoverImage),
+          label: 'Back Cover Image URL',
         ),
         LibraryEditFormFieldSpec(
           id: BookCanonicalEditField.synopsis,
@@ -330,67 +343,52 @@ class BookEditDraft
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final rawMetadata = selection.kindItem.kindCapability.mapTransport(
-        (transport) => BookCatalogMetadata.fromJson(transport.kindData));
-    final meta = rawMetadata is BookCatalogMetadata
-        ? rawMetadata
-        : BookCatalogMetadata.fromJson(selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .payload);
-    final count = int.tryParse(pageCountController.text);
-    final impr = emptyToNull(imprintController.text);
-    final pub = emptyToNull(publisherController.text);
-    final barcode = emptyToNull(barcodeController.text);
-    final editionTitle = emptyToNull(editionTitleController.text);
-    final variant = emptyToNull(variantController.text);
-    final format = emptyToNull(formatController.text);
-    final language = emptyToNull(languageController.text);
-    final country = emptyToNull(countryController.text);
-
-    final updatedPublishing = meta.publishing != null
-        ? meta.publishing!.copyWith(
-            pageCount: count ?? meta.publishing!.pageCount,
-            imprint: impr ?? meta.publishing!.imprint,
-            originalPublisher: pub ?? meta.publishing!.originalPublisher,
-          )
-        : ((count != null || impr != null || pub != null)
-            ? CatalogPublishingDetailsDto(
-                imprint: impr,
-                pageCount: count,
-                originalPublisher: pub,
-              )
-            : null);
-
-    final updatedMetadata = meta.copyWith(
-      publisher: pub ?? meta.publisher,
-      barcode: barcode ?? meta.barcode,
-      editionTitle: editionTitle ?? meta.editionTitle,
-      variant: variant ?? meta.variant,
-      physicalFormat: format ?? meta.physicalFormat,
-      physicalFormatLabel: format ?? meta.physicalFormatLabel,
-      language: language ?? meta.language,
-      country: country ?? meta.country,
-      authors: _splitValues(authorsController.text, fallback: meta.authors),
-      genres: _splitValues(genresController.text, fallback: meta.genres),
-      subjects: _splitValues(subjectsController.text, fallback: meta.subjects),
-      translators: _splitValues(
-        translatorsController.text,
-        fallback: meta.translators,
-      ),
-      originalPublicationDate:
-          parseDate(releaseDateController.text) ?? meta.originalPublicationDate,
-      publishing: updatedPublishing != null && updatedPublishing.hasData
-          ? updatedPublishing
-          : null,
-      links: _externalLinksEdited ? _externalLinks : meta.links,
+    final meta = selection.kindItem.kindCapability.mapTransport(
+      (transport) => BookCatalogMetadata.fromJson(transport.kindData),
     );
-
-    final updatedItem = selection.kindItem.kindCapability.mapTransport(
+    final count = int.tryParse(pageCountController.text);
+    final releaseDate = parseDate(releaseDateController.text);
+    final updatedMetadata = meta.copyWith(
+      pageCount: count,
+      imprint: emptyToNull(imprintController.text),
+      publisher: emptyToNull(publisherController.text),
+      barcode: emptyToNull(barcodeController.text),
+      editionTitle: emptyToNull(editionTitleController.text),
+      variant: emptyToNull(variantController.text),
+      physicalFormat: emptyToNull(formatController.text),
+      language: emptyToNull(languageController.text),
+      country: emptyToNull(countryController.text),
+      creators: [
+        for (final name in _splitValues(authorsController.text))
+          BookCatalogCredit(name: name, role: 'Author'),
+      ],
+      genres: _splitValues(genresController.text),
+      contributors: [
+        ...meta.contributors.where(
+          (credit) => credit.role?.toLowerCase() != 'translator',
+        ),
+        for (final name in _splitValues(translatorsController.text))
+          BookCatalogCredit(name: name, role: 'Translator'),
+      ],
+      releaseDate: releaseDate,
+      externalLinks: _externalLinksEdited
+          ? [
+              for (final link in _externalLinks)
+                BookExternalLink(
+                  url: link.url,
+                  description: link.description,
+                  kind: link.kind,
+                  title: link.title,
+                ),
+            ]
+          : meta.externalLinks,
+    );
+    final updatedCandidate = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
         transport.withKindData(updatedMetadata),
       ),
     );
-    return selection.copyWith(kindItem: updatedItem);
+    return selection.copyWith(kindItem: updatedCandidate);
   }
 }
 
@@ -402,36 +400,32 @@ LibraryEditSessionBundle createBookEditDraft({
 }) {
   final entry = BookLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
   final book = entry?.personal.details;
-  final rawMetadata = item.kindCapability.mapTransport(
-      (transport) => BookCatalogMetadata.fromJson(transport.kindData));
-  final BookCatalogMetadata metadata = rawMetadata is BookCatalogMetadata
-      ? rawMetadata
-      : BookCatalogMetadata.fromJson(
-          item.kindCapability.mapTransport((transport) => transport).payload);
+  final metadata = item.kindCapability.mapTransport(
+    (transport) => BookCatalogMetadata.fromJson(transport.kindData),
+  );
   final draft = BookEditDraft(
     libraryEntry: entry,
     signedBy: book?.signedBy,
     dustJacketPresent: book?.dustJacketPresent ?? false,
     dustJacketCondition: book?.dustJacketCondition,
     pageCountController: textControllers.create(
-      text: metadata.publishing?.pageCount?.toString() ?? '',
+      text: metadata.pageCount?.toString() ?? '',
     ),
     imprintController: textControllers.create(
-      text: metadata.publishing?.imprint ?? '',
+      text: metadata.imprint ?? '',
     ),
     publisherController: textControllers.create(
-      text: metadata.publisher ?? metadata.publishing?.originalPublisher ?? '',
+      text: metadata.publisher ?? '',
     ),
     barcodeController: textControllers.create(
       text: metadata.barcode ?? '',
     ),
     releaseDateController: textControllers.create(
-      text: metadata.originalPublicationDate != null
-          ? formatDate(metadata.originalPublicationDate!)
-          : '',
+      text:
+          metadata.releaseDate != null ? formatDate(metadata.releaseDate!) : '',
     ),
     releaseYearController: textControllers.create(
-      text: metadata.originalPublicationDate?.year.toString() ?? '',
+      text: metadata.releaseDate?.year.toString() ?? '',
     ),
     editionTitleController: textControllers.create(
       text: metadata.editionTitle ?? '',
@@ -440,7 +434,7 @@ LibraryEditSessionBundle createBookEditDraft({
       text: metadata.variant ?? '',
     ),
     formatController: textControllers.create(
-      text: metadata.physicalFormatLabel ?? metadata.physicalFormat ?? '',
+      text: metadata.physicalFormat ?? '',
     ),
     languageController: textControllers.create(
       text: metadata.language ?? '',
@@ -454,9 +448,6 @@ LibraryEditSessionBundle createBookEditDraft({
     genresController: textControllers.create(
       text: metadata.genres.join(', '),
     ),
-    subjectsController: textControllers.create(
-      text: metadata.subjects.join(', '),
-    ),
     translatorsController: textControllers.create(
       text: metadata.translators.join(', '),
     ),
@@ -468,12 +459,9 @@ LibraryEditSessionBundle createBookEditDraft({
   );
 }
 
-List<String> _splitValues(String value, {required List<String> fallback}) {
-  final values = value
-      .split(RegExp(r'[,\r\n]+'))
-      .map((entry) => entry.trim())
-      .where((entry) => entry.isNotEmpty)
-      .toSet()
-      .toList();
-  return values.isEmpty ? fallback : values;
-}
+List<String> _splitValues(String value) => value
+    .split(RegExp(r'[,\r\n]+'))
+    .map((entry) => entry.trim())
+    .where((entry) => entry.isNotEmpty)
+    .toSet()
+    .toList();

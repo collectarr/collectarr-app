@@ -225,13 +225,11 @@ abstract final class BookVocabularies {
 Iterable<String?> _publisherCatalogValues(BookCatalogMetadata metadata) sync* {
   yield* vocabularyValues([
     metadata.publisher,
-    metadata.originalPublisher,
   ]);
 }
 
 Iterable<String?> _formatCatalogValues(BookCatalogMetadata metadata) sync* {
   yield* vocabularyValues([
-    metadata.physicalFormatLabel,
     metadata.physicalFormat,
   ]);
 }
@@ -239,6 +237,5 @@ Iterable<String?> _formatCatalogValues(BookCatalogMetadata metadata) sync* {
 Iterable<String?> _languageCatalogValues(BookCatalogMetadata metadata) sync* {
   yield* vocabularyValues([
     metadata.language,
-    metadata.originalLanguage,
   ]);
 }

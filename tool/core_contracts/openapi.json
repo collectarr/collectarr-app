@@ -3342,6 +3342,93 @@
         "title": "CatalogBoardGameItemResponse",
         "type": "object"
       },
+      "CatalogBookItemCharacterResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "aliases": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aliases"
+          },
+          "character_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Id"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          }
+        },
+        "title": "CatalogBookItemCharacterResponse",
+        "type": "object"
+      },
       "CatalogBookItemCreditResponse": {
         "additionalProperties": true,
         "properties": {
@@ -3552,6 +3639,28 @@
             ],
             "title": "Audience Rating"
           },
+          "audio_length_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Audio Length Minutes"
+          },
+          "back_cover_image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Back Cover Image Url"
+          },
           "barcode": {
             "anyOf": [
               {
@@ -3563,6 +3672,17 @@
             ],
             "title": "Barcode"
           },
+          "binding": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Binding"
+          },
           "catalog_number": {
             "anyOf": [
               {
@@ -3573,6 +3693,27 @@
               }
             ],
             "title": "Catalog Number"
+          },
+          "characters": {
+            "anyOf": [
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/CatalogBookItemCharacterResponse"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Characters"
           },
           "contributors": {
             "anyOf": [
@@ -3649,6 +3790,39 @@
             ],
             "title": "Description"
           },
+          "dimensions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dimensions"
+          },
+          "distributor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distributor"
+          },
+          "edition_statement": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edition Statement"
+          },
           "edition_title": {
             "anyOf": [
               {
@@ -3674,6 +3848,26 @@
               }
             ],
             "title": "External Links"
+          },
+          "first_edition": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Edition"
+          },
+          "first_publication_date": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Publication Date"
           },
           "genres": {
             "anyOf": [
@@ -3798,6 +3992,26 @@
             ],
             "title": "Localized Title"
           },
+          "original_language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Language"
+          },
+          "original_publication_date": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Publication Date"
+          },
           "original_title": {
             "anyOf": [
               {
@@ -3877,6 +4091,17 @@
               }
             ],
             "title": "Publisher"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region"
           },
           "release_date": {
             "anyOf": [
@@ -3978,6 +4203,20 @@
               }
             ],
             "title": "Sort Key"
+          },
+          "subjects": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subjects"
           },
           "subtitle": {
             "anyOf": [

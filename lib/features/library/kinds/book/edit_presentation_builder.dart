@@ -144,10 +144,10 @@ class BookCatalogItemEditPresentationBuilder
   }) {
     String? creator;
     creator = kindItem.kindCapability.mapTransport((transport) {
-      final metadata = BookCatalogMetadata.fromJson(transport.payload);
+      final metadata = BookCatalogMetadata.fromJson(transport.kindData);
       for (final credit in metadata.creators) {
-        final name = credit['name']?.toString().trim();
-        if (name != null && name.isNotEmpty) return name;
+        final name = credit.name.trim();
+        if (name.isNotEmpty) return name;
       }
       return null;
     });

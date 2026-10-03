@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/detail/book_routes.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
@@ -6,6 +5,18 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+class BookCreatorCredit {
+  const BookCreatorCredit({
+    required this.name,
+    required this.role,
+    this.imageUrl,
+  });
+
+  final String name;
+  final String role;
+  final String? imageUrl;
+}
 
 Widget? buildBookAuthorSpotlight({
   required LibraryProjectionView item,
@@ -16,24 +27,22 @@ Widget? buildBookAuthorSpotlight({
     return null;
   }
 
-  final metadataCreators = dto.metadata?.creators ?? const [];
+  final metadataCreators = dto.metadata.creators;
   final creators = metadataCreators
       .map(
         (creator) => BookCreatorCredit(
-          name: (creator['name'] ?? creator['display_name'] ?? '').toString(),
-          role: (creator['role'] ?? creator['type'] ?? '').toString(),
-          imageUrl: creator['image_url']?.toString(),
+          name: creator.name,
+          role: creator.role ?? '',
+          imageUrl: creator.imageUrl,
         ),
       )
       .where((creator) => creator.name.trim().isNotEmpty)
       .toList(growable: false);
   final resolvedCreators = creators.isNotEmpty
       ? creators
-      : dto.book.creators.isNotEmpty
-          ? dto.book.creators
-          : (dto.metadata?.authors ?? const <String>[])
-              .map((name) => BookCreatorCredit(name: name, role: 'Author'))
-              .toList(growable: false);
+      : dto.metadata.authors
+          .map((name) => BookCreatorCredit(name: name, role: 'Author'))
+          .toList(growable: false);
   if (resolvedCreators.isEmpty) {
     return null;
   }

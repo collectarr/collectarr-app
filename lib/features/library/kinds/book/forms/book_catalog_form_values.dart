@@ -9,6 +9,7 @@ final class BookCatalogFormValues {
     this.firstPublicationDate,
     this.originalPublicationDate,
     this.genres = const [],
+    this.subjects = const [],
     this.searchAliases = const [],
     this.number = '',
     this.variant = '',
@@ -49,6 +50,7 @@ final class BookCatalogFormValues {
   DateTime? firstPublicationDate;
   DateTime? originalPublicationDate;
   List<String> genres;
+  List<String> subjects;
   List<String> searchAliases;
 
   String number;

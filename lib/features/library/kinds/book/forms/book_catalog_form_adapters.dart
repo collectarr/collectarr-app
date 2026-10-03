@@ -1,44 +1,74 @@
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 
 BookCatalogMetadata bookMetadataFromManualFormValues({
   required BookCatalogFormValues values,
   required String id,
   required String title,
 }) {
-  final year = values.publicationYear;
-  return BookCatalogMetadata.fromJson({
-    'id': id,
-    'title': title.trim(),
-    'subtitle': _optional(values.editionTitle),
-    'edition_title': _optional(values.editionTitle),
-    'series_title':
-        _optional(values.seriesTitle) ?? _optional(values.seriesGroup),
-    'item_number': _optional(values.number),
-    'original_publisher': _optional(values.publisher),
-    'publisher': _optional(values.publisher),
-    'distributor': _optional(values.distributor),
-    'imprint': _optional(values.imprint),
-    'page_count': values.pageCount,
-    'authors': _split(values.authors),
-    'characters': _split(values.characters),
-    'synopsis': _optional(values.description),
-    'genres': values.genres,
-    'age_rating': _optional(values.ageRating),
-    'language': _optional(values.language),
-    'country': _optional(values.country),
-    'original_publication_date':
-        year == null ? null : DateTime.utc(year).toIso8601String(),
-    'publication_date': values.releaseDate?.toIso8601String(),
-    'isbn': _optional(values.isbn) ?? _optional(values.upc),
-    'barcode': _optional(values.upc) ?? _optional(values.isbn),
-    'variant': _optional(values.variant),
-    'physical_format_label': _optional(values.format),
-    'physical_format': _optional(values.format),
-    'cover_image_url': _optional(values.coverImageUrl),
-    'back_cover_image_url': _optional(values.backCoverImageUrl),
-    'contributors': _split(values.authors),
-  });
+  final releaseDate = values.releaseDate ??
+      (values.publicationYear == null
+          ? null
+          : DateTime.utc(values.publicationYear!));
+  return BookCatalogMetadata(
+    transportId: id,
+    title: title.trim(),
+    sortTitle: _optional(values.sortTitle),
+    subtitle: _optional(values.subtitle),
+    editionTitle: _optional(values.editionTitle),
+    editionStatement: _optional(values.editionStatement),
+    seriesTitle: _optional(values.seriesTitle),
+    seriesGroup: _optional(values.seriesGroup),
+    itemNumber: _optional(values.number),
+    publisher: _optional(values.publisher),
+    distributor: _optional(values.distributor),
+    imprint: _optional(values.imprint),
+    pageCount: values.pageCount,
+    creators: [
+      for (final name in _split(values.authors))
+        BookCatalogCredit(name: name, role: 'Author'),
+    ],
+    characters: [
+      for (final name in _split(values.characters))
+        BookCatalogCharacter(name: name),
+    ],
+    description: _optional(values.description),
+    genres: values.genres,
+    subjects: values.subjects,
+    ageRating: _optional(values.ageRating),
+    language: _optional(values.language),
+    originalLanguage: _optional(values.originalLanguage),
+    country: _optional(values.country),
+    region: _optional(values.region),
+    firstPublicationDate: values.firstPublicationDate,
+    firstPublicationDateParts: values.firstPublicationDate == null
+        ? null
+        : PartialDate.fromDateTime(values.firstPublicationDate!),
+    originalPublicationDate: values.originalPublicationDate,
+    originalPublicationDateParts: values.originalPublicationDate == null
+        ? null
+        : PartialDate.fromDateTime(values.originalPublicationDate!),
+    releaseDate: releaseDate,
+    releaseDateParts: releaseDate == null
+        ? null
+        : values.releaseDate == null && values.publicationYear != null
+            ? PartialDate(year: values.publicationYear)
+            : PartialDate.fromDateTime(releaseDate),
+    isbn: _optional(values.isbn),
+    barcode: _optional(values.upc),
+    variant: _optional(values.variant),
+    binding: _optional(values.binding),
+    physicalFormat: _optional(values.format),
+    coverImageUrl: _optional(values.coverImageUrl),
+    backCoverImageUrl: _optional(values.backCoverImageUrl),
+    thumbnailImageUrl: _optional(values.thumbnailImageUrl),
+    searchAliases: values.searchAliases,
+    releaseStatus: _optional(values.releaseStatus),
+    dimensions: _optional(values.dimensions),
+    firstEdition: values.firstEdition,
+    audioLengthMinutes: values.audioLengthMinutes,
+  );
 }
 
 String? _optional(String value) {

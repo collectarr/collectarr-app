@@ -116,19 +116,24 @@ final class BookCollectionCsvProjection
     final catalog = entry.catalogData;
     final metadata =
         catalog is BookWorkspaceCatalogData ? catalog.metadata : null;
-    final book = catalog is BookWorkspaceCatalogData ? catalog.book : null;
     return [
       entry.itemId,
       CatalogMediaKind.book.apiValue,
-      metadata?.title ?? book?.title ?? entry.title,
+      metadata?.title ?? entry.title,
       metadata?.itemNumber ?? '',
       metadata?.variant ?? '',
       metadata?.editionTitle ?? '',
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? '',
-      _formatDate(book?.releaseDate ?? entry.catalogData?.releaseDate),
-      metadata?.barcode ?? '',
+      _formatDate(metadata?.releaseDate ??
+          metadata?.releaseDateParts?.asDateTime ??
+          entry.catalogData?.releaseDate),
+      metadata?.isbn ??
+          metadata?.isbn13 ??
+          metadata?.isbn10 ??
+          metadata?.barcode ??
+          '',
     ];
   }
 

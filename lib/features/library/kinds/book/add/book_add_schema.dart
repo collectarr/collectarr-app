@@ -108,7 +108,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
           ),
           ...bookPublicationHistoryFields(
             values: values,
-            include: {'genres'},
+            include: {'genres', 'subjects'},
           ),
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'age_rating',

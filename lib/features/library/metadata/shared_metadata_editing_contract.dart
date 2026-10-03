@@ -66,6 +66,7 @@ SharedMetadataEditTab _tabFromSection(String section) {
 SharedMetadataFieldValueType _valueTypeFromName(String name) {
   return switch (name) {
     'integer' => SharedMetadataFieldValueType.integer,
+    'boolean' => SharedMetadataFieldValueType.boolean,
     'partialDate' => SharedMetadataFieldValueType.partialDate,
     'stringList' => SharedMetadataFieldValueType.stringList,
     _ => SharedMetadataFieldValueType.text,

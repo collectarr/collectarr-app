@@ -26,24 +26,12 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     isDigital: common.isDigital,
   ),
   digitalCopyFlagBuilder: (item) {
-    final payload =
-        item.kindCapability.mapTransport((transport) => transport).payload;
-    final direct = payload['is_digital'];
-    if (direct is bool) return direct;
-    final format =
-        (payload['physical_format'] ?? payload['physical_format_label'])
-            ?.toString()
-            .toLowerCase();
+    final metadata = item.kindCapability.mapTransport(
+      (transport) => BookCatalogMetadata.fromJson(transport.kindData),
+    );
+    final format = metadata.physicalFormat?.toLowerCase();
     if (format == 'digital' || format == 'ebook' || format == 'web') {
       return true;
-    }
-    final series = payload['series'];
-    if (series is Map && series['is_digital'] is bool) {
-      return series['is_digital'] as bool;
-    }
-    final publishing = payload['publishing'];
-    if (publishing is Map && publishing['is_digital'] is bool) {
-      return publishing['is_digital'] as bool;
     }
     return null;
   },
@@ -62,9 +50,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport((transport) =>
                   BookCatalogMetadata.fromJson(transport.kindData));
-              return metadata is BookCatalogMetadata
-                  ? metadata.authors
-                  : const <Object?>[];
+              return metadata.authors;
             },
           ),
           LibraryAddSearchRankField(
@@ -74,9 +60,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport((transport) =>
                   BookCatalogMetadata.fromJson(transport.kindData));
-              return metadata is BookCatalogMetadata
-                  ? [metadata.barcode, metadata.itemNumber]
-                  : const <Object?>[];
+              return [metadata.barcode, metadata.itemNumber];
             },
           ),
           LibraryAddSearchRankField(
@@ -86,9 +70,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport((transport) =>
                   BookCatalogMetadata.fromJson(transport.kindData));
-              return metadata is BookCatalogMetadata
-                  ? [metadata.publisher, metadata.originalPublisher]
-                  : const <Object?>[];
+              return [metadata.publisher];
             },
           ),
           LibraryAddSearchRankField(
@@ -98,9 +80,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport((transport) =>
                   BookCatalogMetadata.fromJson(transport.kindData));
-              return metadata is BookCatalogMetadata
-                  ? [metadata.originalPublicationDate?.year]
-                  : const <Object?>[];
+              return [metadata.releaseDate?.year];
             },
           ),
         ],

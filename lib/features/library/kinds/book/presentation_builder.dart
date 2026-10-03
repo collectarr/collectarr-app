@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/hierarchy/ui/hierarchy_children_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -63,16 +62,21 @@ class BookLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required CatalogSearchCandidate item,
   }) =>
-      item.kindCapability.mapTransport((transport) => transport).itemNumber;
+      item.kindCapability.mapTransport(
+        (transport) =>
+            BookCatalogMetadata.fromJson(transport.kindData).itemNumber,
+      );
 
   @override
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
-    final transport = item.kindCapability.mapTransport((value) => value);
+    final metadata = item.kindCapability.mapTransport(
+      (transport) => BookCatalogMetadata.fromJson(transport.kindData),
+    );
     final badge = bookFormatBadge(
-      transport.physicalFormat,
-      label: transport.physicalFormatLabel,
+      metadata.physicalFormat,
+      label: metadata.physicalFormat,
     );
     return badge == null ? const [] : [badge];
   }
@@ -83,13 +87,15 @@ class BookLibraryMediaPresentationBuilder
   ) {
     final catalog = entry.catalogData;
     if (catalog is! BookWorkspaceCatalogData) return const [];
-    final item = catalog.book;
-    final identifier = normalizeLibraryDuplicateIdentifier(item.barcode);
+    final metadata = catalog.metadata;
+    final identifier = normalizeLibraryDuplicateIdentifier(
+      metadata.isbn ?? metadata.isbn13 ?? metadata.isbn10 ?? metadata.barcode,
+    );
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label: 'Identifier ${item.barcode!.trim()}',
+        label: 'Identifier $identifier',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -190,11 +196,6 @@ class BookLibraryMediaPresentationBuilder
     final language = adapter?.language;
 
     final metadata = _bookMetadata(item);
-    final series = metadata?.series;
-    final publishing = metadata?.publishing;
-    final hasVolume = series?.hasVolume ?? false;
-    final hasSeason = series?.hasSeason ?? false;
-    final hasEpisode = series?.hasEpisode ?? false;
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
@@ -203,26 +204,15 @@ class BookLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
-        if (series?.seriesTitle != null)
+        if (metadata?.seriesTitle != null)
           LibraryDetailField(
               label: 'Series',
-              value: series!.seriesTitle!,
-              onTap: tapFor(series.seriesTitle)),
-        if (hasVolume && !hasSeason)
+              value: metadata!.seriesTitle!,
+              onTap: tapFor(metadata.seriesTitle)),
+        if (metadata?.volumeName != null || metadata?.volumeNumber != null)
           LibraryDetailField(
               label: 'Volume',
-              value: series!.volumeName ?? (series.volumeNumber ?? '')),
-        if (hasSeason && hasEpisode)
-          LibraryDetailField(
-              label: 'Season / Episode',
-              value:
-                  'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}'),
-        if (hasSeason && !hasEpisode)
-          LibraryDetailField(
-              label: 'Season', value: 'Season ${series!.seasonNumber}'),
-        if (hasEpisode && !hasSeason)
-          LibraryDetailField(
-              label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
+              value: metadata!.volumeName ?? metadata.volumeNumber ?? ''),
         LibraryDetailField(
             label: 'Volume',
             value: genericLibraryDash(itemNumber),
@@ -245,28 +235,21 @@ class BookLibraryMediaPresentationBuilder
               formatPresentationNullableDate(releaseDate) ??
                   releaseDate?.year.toString(),
             )),
-        if (publishing?.pageCount != null)
+        if (metadata?.pageCount != null)
           LibraryDetailField(
-              label: 'Pages', value: publishing!.pageCount.toString()),
-        if (publishing?.coverPriceCents != null)
-          LibraryDetailField(
-              label: 'Cover Price',
-              value: formatPresentationMoney(
-                publishing!.coverPriceCents,
-                publishing.currency,
-              )),
-        if (publishing?.imprint != null)
+              label: 'Pages', value: metadata!.pageCount.toString()),
+        if (metadata?.imprint != null)
           LibraryDetailField(
               label: 'Imprint',
-              value: publishing!.imprint!,
-              onTap: tapFor(publishing.imprint)),
-        if (publishing?.seriesGroup != null)
+              value: metadata!.imprint!,
+              onTap: tapFor(metadata.imprint)),
+        if (metadata?.seriesGroup != null)
           LibraryDetailField(
               label: 'Series Group',
-              value: publishing!.seriesGroup!,
-              onTap: tapFor(publishing.seriesGroup)),
-        if (publishing?.subtitle != null)
-          LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
+              value: metadata!.seriesGroup!,
+              onTap: tapFor(metadata.seriesGroup)),
+        if (metadata?.subtitle != null)
+          LibraryDetailField(label: 'Subtitle', value: metadata!.subtitle!),
         if (country != null)
           LibraryDetailField(label: 'Country', value: country),
         if (language != null)
@@ -283,7 +266,7 @@ class BookLibraryMediaPresentationBuilder
       ],
       sections: {
         'creators': LibraryMetadataSection(
-          values: metadata?.creators ?? const <Map<String, dynamic>>[],
+          values: metadata?.creators ?? const <BookCatalogCredit>[],
           placement: LibraryMetadataSectionPlacement.credits,
           renderer: LibraryMetadataSectionRenderer.credits,
           completenessWeight: 12,
@@ -313,12 +296,12 @@ class BookLibraryMediaPresentationBuilder
     }
     final dto = item.dto;
     final metadata = _bookMetadata(item);
-    final series = metadata?.series;
     final sectionSpecs = <LibraryDetailSectionSpec>[];
 
     final originalFacts = <LibraryDetailField>[
-      if (series?.seriesTitle?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Series', value: series!.seriesTitle!.trim()),
+      if (metadata?.seriesTitle?.trim().isNotEmpty == true)
+        LibraryDetailField(
+            label: 'Series', value: metadata!.seriesTitle!.trim()),
       if (metadata?.synopsis != null && metadata!.synopsis!.trim().isNotEmpty)
         LibraryDetailField(label: 'Summary', value: metadata.synopsis!.trim()),
     ];
@@ -360,10 +343,8 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final creatorNames = <String>[
-      for (final creator
-          in metadata?.creators ?? const <Map<String, dynamic>>[])
-        if (creator['name']?.toString().trim().isNotEmpty == true)
-          creator['name']!.toString().trim(),
+      for (final creator in metadata?.creators ?? const <BookCatalogCredit>[])
+        if (creator.name.trim().isNotEmpty) creator.name.trim(),
     ];
     sectionSpecs.add(
       LibraryDetailSectionSpec(
@@ -475,30 +456,23 @@ class BookLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildBookSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber = item.kindCapability
-      .mapTransport((transport) => transport)
-      .itemNumber
-      ?.trim();
+  final metadata = item.kindCapability.mapTransport(
+    (transport) => BookCatalogMetadata.fromJson(transport.kindData),
+  );
+  final itemNumber = metadata.itemNumber?.trim();
   final subtitle = [
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .publisher
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata.publisher?.trim() case final value? when value.isNotEmpty)
       value,
     if ((item.bookCatalogFields.releaseYear ??
             item.bookCatalogFields.releaseDate?.year)
         case final year?)
       year.toString(),
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .physicalFormatLabel
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata.physicalFormat?.trim() case final value? when value.isNotEmpty)
       value,
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
+    if ((metadata.isbn ??
+                metadata.isbn13 ??
+                metadata.isbn10 ??
+                metadata.barcode)
             ?.trim()
         case final value? when value.isNotEmpty)
       value,

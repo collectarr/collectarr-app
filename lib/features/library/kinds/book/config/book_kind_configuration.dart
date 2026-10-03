@@ -147,16 +147,13 @@ final bookTransferableFields = <TransferableField>[
 
 Iterable<String?> bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
       metadata.seriesTitle,
-      metadata.series?.seriesTitle,
       metadata.itemNumber,
       metadata.publisher,
-      metadata.originalPublisher,
-      metadata.publishing?.originalPublisher,
       metadata.variant,
-      metadata.publishing?.imprint,
+      metadata.imprint,
       metadata.country,
       metadata.language,
-      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      ...metadata.creators.map((credit) => credit.name),
       ...metadata.genres,
     ];
 
@@ -175,7 +172,7 @@ MetadataSearchQuery bookMetadataSearchQuery({
     barcode: metadata?.barcode,
     issueNumber: metadata?.itemNumber,
     publisher: metadata?.publisher,
-    year: metadata?.originalPublicationDate?.year,
+    year: metadata?.releaseDate?.year,
     limit: 5,
   );
 }

@@ -10,8 +10,6 @@ export 'package:collectarr_app/features/library/kinds/book/data/book_entry_repos
 export 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
 export 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
-export 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
-export 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 

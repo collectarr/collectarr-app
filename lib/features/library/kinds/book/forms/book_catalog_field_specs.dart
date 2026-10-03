@@ -74,6 +74,12 @@ List<LibraryFieldSpec<TDraft>> bookPublicationHistoryFields<TDraft>({
         setValue: (draft, value) => values(draft).genres = _split(value),
       ),
       LibraryTextFieldSpec<TDraft>(
+        id: 'subjects',
+        label: 'Subjects',
+        value: (draft) => values(draft).subjects.join(', '),
+        setValue: (draft, value) => values(draft).subjects = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
         id: 'search_aliases',
         label: 'Search aliases',
         value: (draft) => values(draft).searchAliases.join(', '),

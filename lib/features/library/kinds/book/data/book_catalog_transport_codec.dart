@@ -10,34 +10,43 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 
 final class BookCatalogTransportCodec
-    implements CatalogKindTransportCodec<BookCatalogItem> {
+    implements CatalogKindTransportCodec<BookCatalogMetadata> {
   const BookCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.book;
 
   @override
-  BookCatalogItem decode(CatalogItemDto item) =>
-      BookCatalogMapper.mapMetadataItemToBook(item);
+  BookCatalogMetadata decode(CatalogItemDto item) =>
+      BookCatalogMetadata.fromJson(catalogTransportPayloadFor(item));
 
   @override
-  Future<void> upsert(LocalDatabase db, BookCatalogItem item) {
-    return CatalogItemCacheRepository(db).upsert(_projection(item));
+  Future<void> upsert(LocalDatabase db, BookCatalogMetadata item) {
+    final payload = Map<String, dynamic>.from(item.toJson());
+    final id = payload.remove('id')?.toString().trim() ?? '';
+    if (id.isEmpty) {
+      throw StateError('Cannot cache a Book Catalog Item without an id');
+    }
+    return CatalogItemCacheRepository(db).upsert(
+      CatalogItemDto.raw(
+        id: id,
+        mediaKind: kind,
+        kindData: payload,
+      ),
+    );
   }
 
   @override
-  CatalogDisplaySummary summarize(BookCatalogItem item) =>
+  CatalogDisplaySummary summarize(BookCatalogMetadata item) =>
       CatalogDisplaySummary.root(
         kind: kind,
-        id: item.id,
+        id: item.transportId ?? '',
         primaryLabel: item.title,
-        imageUrl: item.thumbnailImageUrl ?? item.displayCoverUrl,
+        imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
 
   @override
@@ -97,11 +106,11 @@ final class BookCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    BookCatalogItem item,
+    BookCatalogMetadata item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
-      derived: _derivedDataForMetadata(item.catalogMetadata),
+      derived: _derivedDataForMetadata(item),
       pickLists: pickLists,
       serialAuthority: serialAuthority,
     );
@@ -126,49 +135,11 @@ final class BookCatalogTransportCodec
   }
 
   BookCatalogMetadata _catalogMetadata(CatalogItemDto item) {
-    return BookCatalogMetadata.fromJson(catalogTransportPayloadFor(item));
+    return decode(item);
   }
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
-}
-
-CatalogItemDto _projection(BookCatalogItem item) {
-  final payload = Map<String, dynamic>.from(item.catalogMetadata.toJson())
-    ..remove('editions');
-  if (item.printings.isNotEmpty) {
-    payload['printings'] = [
-      for (final printing in item.printings)
-        {
-          'id': printing.id,
-          if (printing.printingNumber != null)
-            'printing_number': printing.printingNumber,
-          if (printing.title != null) 'title': printing.title,
-          if (printing.releaseDate != null)
-            'release_date': printing.releaseDate!.toIso8601String(),
-          if (printing.publisher != null) 'publisher': printing.publisher,
-          if (printing.language != null) 'language': printing.language,
-          if (printing.isbn != null) 'isbn': printing.isbn,
-        },
-    ];
-  }
-  return CatalogItemDto.raw(
-    id: item.id,
-    mediaKind: CatalogMediaKind.book,
-    kindData: {
-      ...payload,
-      'title': item.title,
-      if (item.coverImageUrl ?? item.displayCoverUrl case final cover?)
-        'cover_image_url': cover,
-      if (item.thumbnailImageUrl case final thumbnail?)
-        'thumbnail_image_url': thumbnail,
-      if (item.releaseDate case final date?)
-        'release_date': date.toIso8601String(),
-    },
-  );
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }
