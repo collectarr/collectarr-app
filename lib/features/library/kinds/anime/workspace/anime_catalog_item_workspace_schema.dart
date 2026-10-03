@@ -34,21 +34,21 @@ abstract final class AnimeCatalogItemWorkspaceFields {
   static final nativeTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.nativeTitle,
     label: 'Native Title',
-    getValue: (dto) => dto.metadata?.nativeTitle,
+    getValue: (dto) => dto.metadata.nativeTitle,
     entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final romajiTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.romajiTitle,
     label: 'Romaji Title',
-    getValue: (dto) => dto.metadata?.romajiTitle,
+    getValue: (dto) => dto.metadata.romajiTitle,
     entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final englishTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.englishTitle,
     label: 'English Title',
-    getValue: (dto) => dto.metadata?.englishTitle,
+    getValue: (dto) => dto.metadata.englishTitle,
     entityScope: LibraryEntityScope.catalogItem,
   );
 
@@ -62,14 +62,14 @@ abstract final class AnimeCatalogItemWorkspaceFields {
   static final season = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.season,
     label: 'Season',
-    getValue: (dto) => dto.metadata?.season?.label,
+    getValue: (dto) => dto.metadata.season?.label,
     entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final seasonYear = numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.seasonYear,
     label: 'Season Year',
-    getValue: (dto) => dto.metadata?.seasonYear,
+    getValue: (dto) => dto.metadata.seasonYear,
     entityScope: LibraryEntityScope.catalogItem,
   );
 
@@ -84,7 +84,7 @@ abstract final class AnimeCatalogItemWorkspaceFields {
       numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.episodeRuntimeMinutes,
     label: 'Episode Runtime (m)',
-    getValue: (dto) => dto.metadata?.episodeRuntimeMinutes,
+    getValue: (dto) => dto.metadata.episodeRuntimeMinutes,
     entityScope: LibraryEntityScope.catalogItem,
   );
 
@@ -98,7 +98,7 @@ abstract final class AnimeCatalogItemWorkspaceFields {
   static final sourceMaterial = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.sourceMaterial,
     label: 'Source Material',
-    getValue: (dto) => dto.metadata?.sourceMaterial.label,
+    getValue: (dto) => dto.metadata.sourceMaterial.label,
     entityScope: LibraryEntityScope.catalogItem,
   );
 }

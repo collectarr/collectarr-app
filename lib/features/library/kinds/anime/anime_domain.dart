@@ -21,4 +21,3 @@ export 'package:collectarr_app/features/library/kinds/anime/tracking/anime_track
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
-export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_mapper.dart';
