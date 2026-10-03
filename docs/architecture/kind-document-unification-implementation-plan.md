@@ -210,6 +210,10 @@ slice. This is progress, not completion of this plan:
   the seed factory no longer accepts `Object`-typed detail values.
 - The unused Catalog Item target-ref adapter was removed after a repository-wide
   production call-site search found no consumers.
+- Core now accepts and exports the Board Game fields already exposed by the App
+  form, including player/play-time details, ratings, people, languages, themes,
+  and expansion data. The form uses Core's `min_age` and `variant_name` keys;
+  App's pinned contract was regenerated. This does not establish CLZ parity.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
@@ -223,9 +227,10 @@ ownership and typed schema organization across all kinds; replacing the universa
 `PersonalStateDraft` and shared edit-section field assumptions with kind-owned
 bindings; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
-form organization. The nine field ledgers remain authoritative, and exact CLZ
-parity is only confirmed for Music until the other reference captures are
-available.
+form organization. Board Game metadata still retains a raw payload for fields
+that have not yet moved into its typed model. The nine field ledgers remain
+authoritative, and exact CLZ parity is only confirmed for Music until the other
+reference captures are available.
 
 ## Architectural decisions
 
