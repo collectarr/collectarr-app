@@ -9,17 +9,19 @@ final class AnimeWorkspaceMapper {
   const AnimeWorkspaceMapper._();
 
   static AnimeMedia fromCatalogItem(CatalogItemDto item) {
-    final basePayload = Map<String, dynamic>.from(item.toJson());
+    final basePayload = Map<String, dynamic>.from(item.kindData);
     final metadata = AnimeMetadata.fromJson(basePayload);
     final payload = <String, dynamic>{
       ...basePayload,
       'id': item.id,
       'kind': 'anime',
-      'title': item.title,
-      if (basePayload['description'] == null && item.synopsis != null)
-        'description': item.synopsis,
-      if (basePayload['anime_type'] == null) 'anime_type': metadata.format.label,
-      if (basePayload['original_air_date'] == null && metadata.startDate != null)
+      'title': metadata.title,
+      if (basePayload['description'] == null && metadata.synopsis != null)
+        'description': metadata.synopsis,
+      if (basePayload['anime_type'] == null)
+        'anime_type': metadata.format.label,
+      if (basePayload['original_air_date'] == null &&
+          metadata.startDate != null)
         'original_air_date': metadata.startDate!.toIso8601String(),
       if (basePayload['end_date'] == null && metadata.endDate != null)
         'end_date': metadata.endDate!.toIso8601String(),
@@ -30,9 +32,9 @@ final class AnimeWorkspaceMapper {
       if (basePayload['status'] == null) 'status': metadata.airingStatus.name,
       if (basePayload['contributions'] == null && metadata.creators.isNotEmpty)
         'contributions': metadata.creators,
-      'releases': item.editions.isNotEmpty
+      'releases': metadata.editions.isNotEmpty
           ? [
-              for (final edition in item.editions)
+              for (final edition in metadata.editions)
                 _releasePayload(item.id, edition),
             ]
           : (basePayload['releases'] is Iterable

@@ -119,20 +119,17 @@ final class AnimeCollectionCsvProjection
     final catalog = entry.catalogData;
     final metadata =
         catalog is AnimeWorkspaceCatalogData ? catalog.metadata : null;
-    final video = catalog is AnimeWorkspaceCatalogData ? catalog.video : null;
     return [
       entry.itemId,
       CatalogMediaKind.anime.apiValue,
-      metadata?.title ?? video?.title ?? entry.title,
+      metadata?.title ?? entry.title,
       metadata?.itemNumber ?? '',
       metadata?.variant ?? '',
       metadata?.editionTitle ?? '',
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? metadata?.studios.firstOrNull ?? '',
-      _formatDate(metadata?.startDate ??
-          video?.work.releaseDate ??
-          entry.catalogData?.releaseDate),
+      _formatDate(metadata?.startDate ?? entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
   }

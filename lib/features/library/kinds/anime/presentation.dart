@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
@@ -61,14 +62,13 @@ class AnimeLibraryMediaPresentationBuilder
   ) {
     final catalog = entry.catalogData;
     if (catalog is! AnimeWorkspaceCatalogData) return const [];
-    final item = catalog.video;
     final identifier =
-        normalizeLibraryDuplicateIdentifier(item.primaryRelease?.barcode);
+        normalizeLibraryDuplicateIdentifier(catalog.metadata?.barcode);
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label: 'Identifier ${item.primaryRelease!.barcode!.trim()}',
+        label: 'Identifier ${catalog.metadata!.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -82,18 +82,15 @@ class AnimeLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! AnimeWorkspaceCatalogData) return const [];
     return [
-      for (final value in catalog.video.trailerUrls)
-        if (value is Map<Object?, Object?>)
-          if (value['url']?.toString().trim() case final url?
-              when url.isNotEmpty)
-            LibraryWorkspaceLinkSummary(
-              url: url,
-              label: value['title']?.toString(),
-              source: value['source']?.toString(),
-              isTrailer: value['kind']?.toString() != 'external' &&
-                  value['kind']?.toString() != 'link',
-              isAutomatic: value['is_automatic'] != false,
-            ),
+      for (final value in catalog.metadata?.links ?? const <TrailerLinkDto>[])
+        if (value.url.trim().isNotEmpty)
+          LibraryWorkspaceLinkSummary(
+            url: value.url,
+            label: value.title,
+            source: value.source,
+            isTrailer: value.isTrailerLink,
+            isAutomatic: value.isAutomatic,
+          ),
     ];
   }
 

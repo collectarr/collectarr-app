@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -8,14 +7,12 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
   AnimeWorkspaceDto({
     required this.common,
     required this.personal,
-    required this.video,
     required this.media,
     this.metadata,
   });
 
   final WorkspaceCommonProjection common;
   final PersonalCopyProjection personal;
-  final AnimeCatalogItem video;
   final AnimeMedia media;
   final AnimeMetadata? metadata;
 

@@ -6,7 +6,6 @@ export 'package:collectarr_app/features/library/kinds/anime/domain/anime_episode
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
-export 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
 export 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';

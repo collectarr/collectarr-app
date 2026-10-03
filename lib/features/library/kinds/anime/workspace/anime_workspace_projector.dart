@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
@@ -26,14 +25,12 @@ final class AnimeWorkspaceProjector
       common: _animeCommonProjection(
         source,
         entity,
-        catalog.video,
         catalog.media,
         catalog.metadata,
       ),
       personal: PersonalCopyProjection.fromShelf(
         source,
       ),
-      video: catalog.video,
       media: catalog.media,
       metadata: catalog.metadata,
     );
@@ -49,17 +46,15 @@ AnimeWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
 WorkspaceCommonProjection _animeCommonProjection(
   LibraryWorkspaceSource source,
   LibraryEntityRef node,
-  AnimeCatalogItem video,
   AnimeMedia media,
   AnimeMetadata? metadata,
 ) {
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: video.work.title,
-    overrideSynopsis: video.work.synopsis,
-    overrideReleaseDate:
-        metadata?.startDate ?? media.originalAirDate ?? video.work.releaseDate,
+    overrideTitle: metadata?.title,
+    overrideSynopsis: metadata?.synopsis,
+    overrideReleaseDate: metadata?.startDate ?? media.originalAirDate,
     overrideCoverImageUrl: media.coverImageUrl,
   );
 }

@@ -214,6 +214,11 @@ class AnimeMetadata implements JsonEncodable {
   final List<TrailerLinkDto> links;
   final Map<String, dynamic> rawPayload;
 
+  String? get synopsis {
+    final value = rawPayload['synopsis'];
+    return value is String ? value : null;
+  }
+
   @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
