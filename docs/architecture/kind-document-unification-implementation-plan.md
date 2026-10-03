@@ -208,9 +208,11 @@ slice. This is progress, not completion of this plan:
   `AnimeMetadata` document. The manual Add draft and candidate builder now use
   that same model instead of maintaining parallel `AnimeMediaFormValues` and
   `AnimeReleaseFormValues`. Repeated media region data stays in the typed
-  contained-media list. The old Anime edit controller and workspace hierarchy
-  still include release-shaped adapters that need migration before this kind
-  is complete.
+  contained-media list. The shared hierarchy projector now builds its episode
+  nodes from typed root episodes and season-contained episodes. The obsolete
+  `AnimeMedia`, `AnimeRelease`, and media-parent `AnimeEpisode` models and IDs
+  have been removed. Anime's entry Add draft now stores its personal fields
+  directly rather than nesting them under a release-named draft.
 - `AnimeMetadata` now gives its recognized rating, audio, catalog number, video
   presentation, plot, release-status, and series-tag fields explicit types.
   Creators, contributors, characters, identifiers, seasons, and episodes also
@@ -223,8 +225,10 @@ slice. This is progress, not completion of this plan:
   workspace projection still has raw maps and remains to be migrated.
 - Removed the unreferenced Anime media edit dialog and separate Anime
   media/release schema exports. The manual Add schema now edits `AnimeMetadata`
-  directly; obsolete form value and adapter files were removed. The reachable
-  edit controller and workspace hierarchy remain to be migrated.
+  directly; obsolete form value and adapter files were removed. The episode
+  hierarchy reads the typed Catalog Item document. The current Edit UI still
+  has a custom controller whose fields should be consolidated into the shared
+  typed form infrastructure.
 - Core now declares Anime and TV media, season, and episode shapes inside each
   kind's schema module rather than centralizing those definitions in the shared
   document module. Movie media, Book printings and series memberships, and
@@ -330,9 +334,10 @@ across all kinds; replacing the universal `PersonalStateDraft` with kind-owned
 typed drafts and moving remaining validation/serialization adapters out of the
 shared personal editor; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
-form organization. Anime's workspace, lookup, catalog transport, and manual
-Add now read or edit the flattened typed document. Its older edit controller
-and workspace hierarchy remain to be moved off `AnimeMedia`/`AnimeRelease`.
+form organization. Anime's workspace, lookup, catalog transport, manual Add,
+and episode hierarchy now use the flattened typed document. Its current Edit
+UI still has a custom controller with duplicate field controllers to move into
+the shared typed form infrastructure.
 The legacy TV workspace projection and its contained projection models still
 retain raw payload maps; the active root `TvSeriesMetadata` model no longer
 does.
