@@ -377,7 +377,8 @@ slice. This is progress, not completion of this plan:
   representation that the canonical document cannot preserve.
 - Music now stores each catalog date once as a `PartialDate` through its
   metadata model, Add draft, and Edit form values. Full `DateTime` values used
-  by calendars and workspace projections are derived views.
+  by calendars and workspace projections are derived views; the canonical Core
+  serializer still emits the date-only string and precision object.
 
 Still outstanding: replacing the universal `PersonalStateDraft` with
 kind-owned edit drafts/bindings and moving validation/serialization out of the
