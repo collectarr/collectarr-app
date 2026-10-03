@@ -88,10 +88,7 @@ class MangaLibraryMediaPresentationBuilder
     final issue = normalizeLibraryDuplicateToken(volumeNumber);
     if (title == null || issue == null) return candidates;
     final publisher = normalizeLibraryDuplicateToken(item.publisher) ?? '';
-    final year = (item.localizedReleaseDate ?? item.originalPublicationDate)
-            ?.year
-            .toString() ??
-        '';
+    final year = item.releaseDate?.year.toString() ?? '';
     final variant = normalizeLibraryDuplicateToken(item.variant) ?? '';
     final labelParts = [
       item.title,
@@ -286,13 +283,20 @@ class MangaLibraryMediaPresentationBuilder
       ],
       sections: {
         'creators': LibraryMetadataSection(
-          values: metadata?.creators ?? const <Map<String, dynamic>>[],
+          values: [
+            for (final credit in metadata?.creators ?? const <MangaCredit>[])
+              credit.toJson(),
+          ],
           placement: LibraryMetadataSectionPlacement.credits,
           renderer: LibraryMetadataSectionRenderer.credits,
           completenessWeight: 12,
         ),
         'characters': LibraryMetadataSection(
-          values: const <String>[],
+          values: [
+            for (final character
+                in metadata?.characters ?? const <MangaCharacter>[])
+              character.toJsonValue(),
+          ],
           placement: LibraryMetadataSectionPlacement.credits,
           completenessWeight: 6,
         ),

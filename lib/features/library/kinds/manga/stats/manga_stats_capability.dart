@@ -26,10 +26,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
     final metadata = _mangaMetadata(entry);
     if (catalog == null || metadata == null) return null;
     final primary = (metadata.seriesTitle ?? catalog.title).trim();
-    final secondary = (metadata.publisher ??
-            metadata.originalPublisher ??
-            metadata.localizedPublisher)
-        ?.trim();
+    final secondary = metadata.publisher?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup: primary,
       secondaryGroup: secondary,
@@ -38,10 +35,10 @@ class MangaStatsCapability implements LibraryStatsCapability {
           libraryWorkspaceCatalogSynopsis(catalog)?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
-      hasReleaseDate: metadata.localizedReleaseDate != null ||
-          metadata.originalPublicationDate != null ||
-          catalog.releaseDate != null,
-      hasItemNumber: metadata.volumeNumber != null,
+      hasReleaseDate:
+          metadata.releaseDate != null || catalog.releaseDate != null,
+      hasItemNumber:
+          metadata.itemNumber != null || metadata.volumeNumber != null,
     );
   }
 

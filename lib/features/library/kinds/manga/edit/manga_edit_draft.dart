@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fie
 import 'package:collectarr_app/features/library/kinds/manga/catalog/manga_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -12,7 +13,6 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details_draft.dart';
@@ -21,7 +21,6 @@ import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.
 
 enum MangaCanonicalEditField {
   title,
-  displayTitle,
   sortTitle,
   originalTitle,
   localizedTitle,
@@ -256,32 +255,26 @@ class MangaEditDraft
         .map((entry) => entry.trim())
         .where((entry) => entry.isNotEmpty)
         .toList();
+    final metadata = mangaEditMetadataFromCandidate(selection.kindItem);
+    final updatedMetadata = metadata.copyWith(
+      title: fields.controller(MangaCanonicalEditField.title).text.trim(),
+      originalTitle: emptyToNull(
+          fields.controller(MangaCanonicalEditField.originalTitle).text),
+      localizedTitle: emptyToNull(
+          fields.controller(MangaCanonicalEditField.localizedTitle).text),
+      searchAliases: aliases,
+      synopsis:
+          emptyToNull(fields.controller(MangaCanonicalEditField.synopsis).text),
+      coverImageUrl: emptyToNull(
+          fields.controller(MangaCanonicalEditField.coverImage).text),
+      thumbnailImageUrl: emptyToNull(
+          fields.controller(MangaCanonicalEditField.thumbnailImage).text),
+      sortKey: emptyToNull(
+        fields.controller(MangaCanonicalEditField.sortTitle).text,
+      ),
+    );
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.kindCapability.mapTransport((transport) {
-        final updated = transport.copyWith(
-          title: fields.controller(MangaCanonicalEditField.title).text.trim(),
-          displayTitle: emptyToNull(
-              fields.controller(MangaCanonicalEditField.displayTitle).text),
-          originalTitle: emptyToNull(
-              fields.controller(MangaCanonicalEditField.originalTitle).text),
-          localizedTitle: emptyToNull(
-              fields.controller(MangaCanonicalEditField.localizedTitle).text),
-          searchAliases: aliases.isEmpty ? null : aliases,
-          synopsis: emptyToNull(
-              fields.controller(MangaCanonicalEditField.synopsis).text),
-          coverImageUrl: emptyToNull(
-              fields.controller(MangaCanonicalEditField.coverImage).text),
-          thumbnailImageUrl: emptyToNull(
-              fields.controller(MangaCanonicalEditField.thumbnailImage).text),
-        );
-        return _withMangaSortKey(
-          updated,
-          emptyToNull(
-            fields.controller(MangaCanonicalEditField.sortTitle).text,
-          ),
-        );
-      })),
+      kindItem: selection.kindItem.kindCapability.withKindData(updatedMetadata),
     );
   }
 
@@ -292,8 +285,6 @@ class MangaEditDraft
   ) {
     final metadata = item.mangaCatalogFields;
     fields.create(MangaCanonicalEditField.title, initialValue: metadata.title);
-    fields.create(MangaCanonicalEditField.displayTitle,
-        initialValue: metadata.displayTitle ?? '');
     fields.create(MangaCanonicalEditField.sortTitle,
         initialValue: metadata.sortKey ?? '');
     fields.create(MangaCanonicalEditField.originalTitle,
@@ -334,12 +325,6 @@ class MangaEditDraft
           section: LibraryEditFormSection.details,
           controller: fields.controller(MangaCanonicalEditField.localizedTitle),
           label: 'Localized title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: MangaCanonicalEditField.displayTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(MangaCanonicalEditField.displayTitle),
-          label: 'Display title',
         ),
         LibraryEditFormFieldSpec(
           id: MangaCanonicalEditField.searchAliases,
@@ -425,8 +410,9 @@ class MangaEditDraft
           ? meta.publicationStatus
           : MangaPublicationStatus.fromString(status),
       serializationPlatform: serialization ?? meta.serializationPlatform,
-      localizedReleaseDate:
-          parseDate(releaseDateController.text) ?? meta.localizedReleaseDate,
+      releaseDateParts:
+          _partialDateFromController(releaseDateController.text) ??
+              meta.releaseDateParts,
     );
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
@@ -441,17 +427,6 @@ class MangaEditDraft
     );
     return selection.copyWith(kindItem: updatedItem);
   }
-}
-
-CatalogItemDto _withMangaSortKey(CatalogItemDto item, String? sortKey) {
-  final kindData = Map<String, dynamic>.from(item.kindData)
-    ..remove('sort_title');
-  if (sortKey == null) {
-    kindData.remove('sort_key');
-  } else {
-    kindData['sort_key'] = sortKey;
-  }
-  return item.withKindData(MangaMetadata.fromJson(kindData));
 }
 
 LibraryEditSessionBundle createMangaEditDraft({
@@ -540,15 +515,13 @@ LibraryEditSessionBundle createMangaEditDraft({
       text: metadata.localizedPublisher ?? '',
     ),
     releaseDateController: textControllers.create(
-      text: metadata.localizedReleaseDate != null
-          ? formatDate(metadata.localizedReleaseDate!)
-          : (metadata.originalPublicationDate != null
-              ? formatDate(metadata.originalPublicationDate!)
-              : ''),
+      text: metadata.releaseDateParts?.isoString ??
+          metadata.releaseDate?.isoString ??
+          '',
     ),
     releaseYearController: textControllers.create(
-      text: metadata.localizedReleaseDate?.year.toString() ??
-          metadata.originalPublicationDate?.year.toString() ??
+      text: metadata.releaseDateParts?.year?.toString() ??
+          metadata.releaseDate?.year?.toString() ??
           '',
     ),
   );
@@ -580,4 +553,9 @@ List<String> _splitValues(String value, {required List<String> fallback}) {
       .toSet()
       .toList();
   return values.isEmpty ? fallback : values;
+}
+
+PartialDate? _partialDateFromController(String value) {
+  final parsed = parseDate(value);
+  return parsed == null ? null : PartialDate.fromDateTime(parsed);
 }

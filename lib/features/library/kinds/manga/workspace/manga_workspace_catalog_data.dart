@@ -10,33 +10,27 @@ final class MangaWorkspaceCatalogData
   MangaWorkspaceCatalogData({
     required this.ref,
     required this.metadata,
-    this.catalogReleaseDate,
   });
 
   factory MangaWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
     return MangaWorkspaceCatalogData(
       ref: item.catalogRef,
       metadata: MangaMetadata.fromJson(item.payload),
-      catalogReleaseDate: item.releaseDate,
     );
   }
 
   @override
   final CatalogEntityRef ref;
   final MangaMetadata metadata;
-  final DateTime? catalogReleaseDate;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.manga;
   @override
   String get title => metadata.title;
   @override
-  String? get synopsis => null;
+  String? get synopsis => metadata.synopsis ?? metadata.description;
   @override
-  DateTime? get releaseDate =>
-      metadata.localizedReleaseDate ??
-      metadata.originalPublicationDate ??
-      catalogReleaseDate;
+  DateTime? get releaseDate => metadata.releaseDate?.asDateTime;
   @override
   String? get coverImageUrl => metadata.coverImageUrl;
   @override

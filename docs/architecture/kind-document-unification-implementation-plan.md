@@ -239,8 +239,12 @@ slice. This is progress, not completion of this plan:
 - Manga's Catalog Item transport now decodes the kind-owned `MangaMetadata`
   model instead of the parallel `MangaMedia` projection. Removed the unused
   standalone Manga media edit dialog/schema and its work/publication wrappers;
-  the shared kind Add/Edit and workspace paths remain active. Manga metadata's
-  remaining raw payload fields are still outstanding.
+  the shared kind Add/Edit and workspace paths remain active. Manga's root
+  metadata no longer retains an arbitrary payload map. Chapters, characters,
+  credits, identifiers, and external links now have Manga-owned typed values;
+  manual Add and canonical Edit update typed Manga metadata, and catalog,
+  workspace, and inspector projections read it. The remaining field ownership
+  differences are still under review against Manga's provisional Core ledger.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
@@ -254,8 +258,10 @@ ownership and typed schema organization across all kinds; replacing the universa
 `PersonalStateDraft` and shared edit-section field assumptions with kind-owned
 bindings; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
-form organization. Anime, Manga, and TV metadata still retain raw payload maps
-for fields not yet moved into their typed models. Game's
+form organization. Anime and TV metadata still retain raw payload maps for
+fields not yet moved into their typed models. Manga's root map has been removed,
+but App/Core field ownership differences remain under review against its
+provisional ledger. Game's
 PriceCharting identifier and valuation snapshots still need an ownership
 decision and are not in the Core contract. The nine field ledgers
 remain authoritative, and exact CLZ parity is only confirmed for Music until

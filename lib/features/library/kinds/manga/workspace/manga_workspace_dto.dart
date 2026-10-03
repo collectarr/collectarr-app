@@ -29,23 +29,18 @@ final class MangaWorkspaceDto implements LibraryWorkspaceDto {
   String? get synopsis => common.synopsis;
   String? get currency => common.currency;
 
-  String? get publisher =>
-      metadata?.publisher ??
-      metadata?.localizedPublisher ??
-      metadata?.originalPublisher;
+  String? get publisher => metadata?.publisher;
   String? get seriesTitle => metadata?.seriesTitle;
-  String? get itemNumber => metadata?.volumeNumber?.toString();
+  String? get itemNumber =>
+      metadata?.itemNumber ?? metadata?.volumeNumber?.toString();
   DateTime? get releaseDate =>
-      metadata?.localizedReleaseDate ??
-      metadata?.originalPublicationDate ??
-      common.releaseDate;
+      metadata?.releaseDate?.asDateTime ?? common.releaseDate;
   String? get country => metadata?.country;
   String? get language => metadata?.language;
   String? get identifierCode => metadata?.barcode ?? metadata?.isbn;
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
-  String? get referenceFormatLabel =>
-      metadata?.physicalFormatLabel ?? metadata?.physicalFormat;
+  String? get referenceFormatLabel => metadata?.physicalFormat;
   String? get format => referenceFormatLabel;
   @override
   Iterable<String> get searchTokens => [
