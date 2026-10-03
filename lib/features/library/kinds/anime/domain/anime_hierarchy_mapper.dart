@@ -1,19 +1,11 @@
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 
-import 'anime_episode.dart';
-import 'anime_media.dart';
+import 'anime_metadata.dart';
+import 'anime_metadata_children.dart';
 
-/// Projects the Anime-entry episode graph into generic renderer nodes.
+/// Projects contained Anime episode values for hierarchy and search views.
 final class AnimeHierarchyMapper {
   const AnimeHierarchyMapper._();
-
-  static List<LibraryHierarchyNode> toLibraryNodes(AnimeMedia media) {
-    return _toLibraryNodes(
-      id: media.id.value,
-      coverImageUrl: media.coverImageUrl,
-      episodes: media.episodes,
-    );
-  }
 
   static List<LibraryHierarchyNode> fromCatalogItemJson(
     Map<String, dynamic> item,
@@ -22,86 +14,88 @@ final class AnimeHierarchyMapper {
     if (id == null || id.isEmpty) {
       throw const FormatException('Anime Catalog Item is missing its id');
     }
-    final rawEpisodes = item['episodes'];
-    final episodes = <AnimeEpisode>[
-      if (rawEpisodes is Iterable)
-        for (final value in rawEpisodes)
-          if (value is Map)
-            AnimeEpisode.fromJson({
-              ...Map<String, dynamic>.from(value),
-              'series_id': id,
-            }),
-    ];
-    return _toLibraryNodes(
-      id: id,
-      coverImageUrl: item['cover_image_url']?.toString(),
-      episodes: episodes,
+    return fromMetadata(
+      catalogItemId: id,
+      metadata: AnimeMetadata.fromJson(item),
     );
   }
 
-  static List<LibraryHierarchyNode> _toLibraryNodes({
-    required String id,
-    required String? coverImageUrl,
-    required List<AnimeEpisode> episodes,
+  static List<LibraryHierarchyNode> fromMetadata({
+    required String catalogItemId,
+    required AnimeMetadata metadata,
   }) {
-    if (episodes.isEmpty) return const <LibraryHierarchyNode>[];
+    final episodesByIdentity = <String, AnimeEpisodeMetadata>{};
+    for (final episode in [
+      ...metadata.episodes,
+      for (final season in metadata.seasons) ...season.episodes,
+    ]) {
+      final identity = episode.id ??
+          '${episode.seasonNumber ?? 0}:${episode.episodeNumber ?? episode.position}';
+      episodesByIdentity.putIfAbsent(identity, () => episode);
+    }
+    if (episodesByIdentity.isEmpty) return const <LibraryHierarchyNode>[];
 
+    final episodes = episodesByIdentity.values.toList()
+      ..sort((left, right) {
+        final seasonOrder =
+            (left.seasonNumber ?? 0).compareTo(right.seasonNumber ?? 0);
+        if (seasonOrder != 0) return seasonOrder;
+        final numberOrder = (left.episodeNumber ?? left.position)
+            .compareTo(right.episodeNumber ?? right.position);
+        return numberOrder != 0
+            ? numberOrder
+            : left.position.compareTo(right.position);
+      });
     final children = [
       for (var index = 0; index < episodes.length; index++)
-        _episodeNode(episodes[index], index + 1),
+        _episodeNode(catalogItemId, episodes[index], index + 1),
     ];
     return [
       LibraryHierarchyNode(
-        id: '$id:episodes',
+        id: '$catalogItemId:episodes',
         label: 'Episodes',
         secondaryLabel: '${children.length} episodes',
         level: LibraryHierarchyLevel.container,
-        imageUrl: coverImageUrl,
+        imageUrl: metadata.thumbnailImageUrl ?? metadata.coverImageUrl,
         totalCount: children.length,
         children: children,
         extras: {
           'kind': 'anime_episodes',
-          'seriesId': id,
+          'catalogItemId': catalogItemId,
         },
       ),
     ];
   }
 
   static LibraryHierarchyNode _episodeNode(
-    AnimeEpisode episode,
+    String catalogItemId,
+    AnimeEpisodeMetadata episode,
     int fallbackNumber,
   ) {
-    final episodeNumber = episode.episodeNumber ?? fallbackNumber.toDouble();
+    final episodeNumber = episode.episodeNumber ?? fallbackNumber;
+    final label = episode.episodeTitle ?? episode.title;
     final details = <String>[];
     if (episode.runtimeMinutes != null) {
       details.add('${episode.runtimeMinutes} min');
     }
-    if (episode.airDate != null) {
-      details.add(episode.airDate!.year.toString());
-    }
+    if (episode.airDate?.year case final year?) details.add(year.toString());
     return LibraryHierarchyNode(
-      id: episode.id.value.isEmpty
-          ? '${episode.seriesId.value}:episode:$episodeNumber'
-          : episode.id.value,
-      label: episode.title ?? 'Episode ${_numberLabel(episodeNumber)}',
+      id: episode.id ??
+          '$catalogItemId:episode:${episode.seasonNumber ?? 0}:$episodeNumber',
+      label: label ?? 'Episode $episodeNumber',
       secondaryLabel: details.isEmpty ? null : details.join(' · '),
       level: LibraryHierarchyLevel.leaf,
-      imageUrl: episode.coverImageUrl,
       extras: {
         'kind': 'anime_episode',
-        'seriesId': episode.seriesId.value,
-        'episodeNumber': episodeNumber,
-        if (episode.airDate != null)
-          'airDate': episode.airDate!.toIso8601String(),
+        'catalogItemId': catalogItemId,
+        'position': episode.position,
+        if (episode.seasonNumber != null) 'seasonNumber': episode.seasonNumber,
+        if (episode.episodeNumber != null)
+          'episodeNumber': episode.episodeNumber,
+        if (episode.airDate != null) 'airDate': episode.airDate!.toJson(),
         if (episode.runtimeMinutes != null)
           'runtimeMinutes': episode.runtimeMinutes,
       },
     );
-  }
-
-  static String _numberLabel(double number) {
-    return number == number.truncateToDouble()
-        ? number.toInt().toString()
-        : number.toString();
   }
 }
