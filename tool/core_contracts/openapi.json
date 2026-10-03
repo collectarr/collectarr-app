@@ -4510,6 +4510,23 @@
             ],
             "title": "Country"
           },
+          "cover_date": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover Date"
+          },
           "cover_image_url": {
             "anyOf": [
               {
@@ -4696,6 +4713,30 @@
               }
             ],
             "title": "Key Comic"
+          },
+          "key_events": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Events"
           },
           "key_reason": {
             "anyOf": [
@@ -4982,6 +5023,17 @@
             ],
             "title": "Title Extension"
           },
+          "variant_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant Description"
+          },
           "variant_name": {
             "anyOf": [
               {
@@ -5014,6 +5066,17 @@
               }
             ],
             "title": "Volume Number"
+          },
+          "volume_start_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume Start Year"
           }
         },
         "required": [

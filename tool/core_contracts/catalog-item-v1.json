@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "8c365ddb3f1aa71b83201d5c0a1b329528cb0d27",
+  "coreCommit": "7e582148d19ec0f8436c7c0618444f456bf6dee6",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-03T09:29:03.094826Z",
+  "generatedAt": "2026-10-03T09:48:35.365312Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -3541,6 +3541,35 @@
             }
           ]
         },
+        "cover_date": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "day": {
+                      "type": "integer"
+                    },
+                    "month": {
+                      "type": "integer"
+                    },
+                    "year": {
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "cover_image_url": {
           "anyOf": [
             {
@@ -3860,6 +3889,44 @@
           "anyOf": [
             {
               "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "key_events": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "character_or_subject": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "description": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "type": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "character_or_subject",
+                  "type"
+                ],
+                "type": "object"
+              },
+              "type": "array"
             },
             {
               "type": "null"
@@ -4214,6 +4281,16 @@
             }
           ]
         },
+        "variant_description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "variant_name": {
           "anyOf": [
             {
@@ -4228,6 +4305,26 @@
           "anyOf": [
             {
               "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "volume_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "volume_start_year": {
+          "anyOf": [
+            {
+              "type": "integer"
             },
             {
               "type": "null"
