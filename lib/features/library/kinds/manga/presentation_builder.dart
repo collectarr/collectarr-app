@@ -159,11 +159,13 @@ class MangaLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.mangaCatalogFields.releaseDate;
+    final fields = item.mangaCatalogFields;
+    final metadata = fields.metadata;
+    final releaseDate = fields.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.kindCapability.mapTransport((transport) => transport).publisher
+        metadata?.publisher
       ),
       (
         'Released',
@@ -176,17 +178,14 @@ class MangaLibraryMediaPresentationBuilder
           previewLabels.labelFor('item_number', fallback: 'Number'),
           item.mangaCatalogFields.itemNumber
         ),
-      if (item.kindCapability.mapTransport((transport) => transport).variant !=
-          null)
+      if (metadata?.variant != null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.kindCapability.mapTransport((transport) => transport).variant
+          metadata?.variant
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
+        metadata?.barcode
       ),
     ];
   }
@@ -356,28 +355,20 @@ String _mangaVolumeLabel(double? volumeNumber) {
 LibraryAddSearchResultDisplay _buildMangaSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber = item.mangaCatalogFields.itemNumber?.trim();
+  final fields = item.mangaCatalogFields;
+  final metadata = fields.metadata;
+  final itemNumber = fields.itemNumber?.trim();
   final subtitle = [
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .publisher
-            ?.trim()
+    if (metadata?.publisher?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if ((item.mangaCatalogFields.releaseYear ??
-            item.mangaCatalogFields.releaseDate?.year)
+    if ((fields.releaseYear ?? fields.releaseDate?.year)
         case final year?)
       year.toString(),
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .physicalFormatLabel
-            ?.trim()
+    if ((metadata?.physicalFormatLabel ?? metadata?.physicalFormat)?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
-            ?.trim()
+    if (metadata?.barcode?.trim()
         case final value? when value.isNotEmpty)
       value,
   ].join(' | ');
@@ -386,8 +377,7 @@ LibraryAddSearchResultDisplay _buildMangaSearchResultDisplay(
         ? item.summary.primaryLabel
         : '${item.summary.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
-    year: item.mangaCatalogFields.releaseYear ??
-        item.mangaCatalogFields.releaseDate?.year,
+    year: fields.releaseYear ?? fields.releaseDate?.year,
     detailLine: null,
   );
 }

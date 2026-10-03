@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.da
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -79,32 +78,6 @@ final class CatalogItemDto {
 
   CatalogItemRef get catalogItemRef => CatalogItemRef(kind: mediaKind, id: id);
 
-  // These are read-only workspace conveniences derived from the flat payload.
-  // They are never serialized separately: Core and the local cache retain
-  // every canonical value only in kindData, and kind-entry codecs remain the
-  // source for semantic behavior.
-  String get title => _string(kindData['title']) ?? '';
-  String? get displayTitle => _string(kindData['display_title']);
-  String? get localizedTitle => _string(kindData['localized_title']);
-  String? get originalTitle => _string(kindData['original_title']);
-  String? get titleExtension => _string(kindData['title_extension']);
-  List<String>? get searchAliases => _stringList(kindData['search_aliases']);
-  String? get coverImageUrl => _string(kindData['cover_image_url']);
-  String? get thumbnailImageUrl => _string(kindData['thumbnail_image_url']);
-  String? get coverImageData => _string(kindData['cover_image_data']);
-  PartialDate? get releaseDateParts => PartialDate.tryParse(
-        kindData['release_date_parts'] ?? kindData['release_date'],
-      );
-  DateTime? get releaseDate => releaseDateParts?.asDateTime;
-  int? get releaseYear =>
-      (kindData['release_year'] as num?)?.toInt() ?? releaseDateParts?.year;
-  String? get variant => _string(kindData['variant_name']);
-  String? get publisher => _string(kindData['publisher']);
-  String? get barcode => _string(kindData['barcode']);
-  String? get identifierCode => barcode;
-  String? get physicalFormat => _string(kindData['physical_format']);
-  String? get physicalFormatLabel => _string(kindData['physical_format_label']);
-  String? get editionTitle => _string(kindData['edition_title']);
   CatalogEntityRef get catalogRef => CatalogEntityRef(
         kind: mediaKind,
         entityType: CatalogEntityTypeId.catalogItem,
@@ -202,10 +175,3 @@ const _transportFields = <String>{
   'snapshot_version',
 };
 
-String? _string(Object? value) {
-  final result = value?.toString().trim();
-  return result == null || result.isEmpty ? null : result;
-}
-
-List<String>? _stringList(Object? value) =>
-    value is List ? value.whereType<String>().toList(growable: false) : null;

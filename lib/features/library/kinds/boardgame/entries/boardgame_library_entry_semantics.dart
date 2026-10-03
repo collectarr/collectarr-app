@@ -8,13 +8,13 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 LibraryEntryFormatHint resolveBoardGameEntryFormatHint(
   CatalogSearchCandidate item,
 ) {
-  final transport = item.kindCapability.mapTransport((transport) => transport);
-  final format = transport.physicalFormat;
+  final metadata = item.boardGameCatalogFields.metadata;
+  final format = metadata?.physicalFormat;
   return (
     format: format,
-    label: transport.physicalFormatLabel ??
+    label: metadata?.physicalFormatLabel ??
         format ??
-        (item.boardGameCatalogFields.titleExtension ?? transport.editionTitle)
+        (item.boardGameCatalogFields.titleExtension ?? metadata?.editionTitle)
             ?.trim(),
   );
 }

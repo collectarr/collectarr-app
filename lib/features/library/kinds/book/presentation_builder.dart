@@ -151,11 +151,13 @@ class BookLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.bookCatalogFields.releaseDate;
+    final fields = item.bookCatalogFields;
+    final metadata = fields.metadata;
+    final releaseDate = fields.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.kindCapability.mapTransport((transport) => transport).publisher
+        metadata?.publisher
       ),
       (
         'Released',
@@ -168,17 +170,14 @@ class BookLibraryMediaPresentationBuilder
           previewLabels.labelFor('item_number', fallback: 'Number'),
           item.bookCatalogFields.itemNumber
         ),
-      if (item.kindCapability.mapTransport((transport) => transport).variant !=
-          null)
+      if (metadata?.variant != null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.kindCapability.mapTransport((transport) => transport).variant
+          metadata?.variant
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
+        metadata?.barcode
       ),
     ];
   }

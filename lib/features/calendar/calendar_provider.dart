@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/calendar/universal_calendar_contributors.dart';
+import 'package:collectarr_app/features/catalog/catalog_transport_summary_registry.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
@@ -31,7 +32,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
       LibraryEntryRef(
         kind: record.kind,
         id: LibraryEntryId(record.id),
-      ): record.catalogItem.title,
+      ): summarizeCatalogTransportPayload(record.catalogItem).primaryLabel,
   };
   String titleFor(LibraryEntryRef ref) => titleByRef[ref] ?? 'Unknown item';
 

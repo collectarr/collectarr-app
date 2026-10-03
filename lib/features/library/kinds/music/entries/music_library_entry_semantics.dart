@@ -8,14 +8,11 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 LibraryEntryFormatHint resolveMusicEntryFormatHint(
   CatalogSearchCandidate item,
 ) {
-  final transport = item.kindCapability.mapTransport((transport) => transport);
-  final format = transport.physicalFormat;
+  final album = item.musicCatalogFields.metadata;
+  final format = album?.physicalFormat;
   return (
     format: format,
-    label: transport.physicalFormatLabel ??
-        format ??
-        (item.musicCatalogFields.titleExtension ?? transport.editionTitle)
-            ?.trim(),
+    label: album?.physicalFormatLabel ?? format,
   );
 }
 

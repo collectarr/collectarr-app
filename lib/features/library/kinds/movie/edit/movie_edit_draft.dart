@@ -425,9 +425,7 @@ LibraryEditSessionBundle createMovieEditDraft({
     initialGenres: movie.genres.join(', '),
     initialEditionTitle: movie.editionTitle ??
         (item.movieCatalogFields.titleExtension ??
-                item.kindCapability
-                    .mapTransport((transport) => transport)
-                    .editionTitle)
+                item.movieCatalogFields.metadata?.editionTitle)
             ?.trim() ??
         '',
     initialVariant: movie.variant ?? '',

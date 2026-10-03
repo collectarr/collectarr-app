@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/catalog_transport_summary_registry.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
@@ -11,32 +10,33 @@ final class MangaHierarchyMapper {
     required CatalogItemDto selected,
     required Iterable<CatalogItemDto> items,
   }) {
-    final selectedSeries = _mapValue(selected.payload['series']);
-    final selectedSeriesId = _textValue(
-          selectedSeries?['series_id'] ?? selected.payload['series_id'],
-        ) ??
-        selected.id;
-    final selectedSeriesTitle = _textValue(
-          selectedSeries?['series_title'] ??
-              selected.payload['series_title'] ??
-              selected.title,
-        ) ??
-        selected.title;
+    final selectedMetadata = MangaMetadata.fromJson(selected.kindData);
+    final selectedSeriesTitle =
+        selectedMetadata.seriesTitle?.trim().isNotEmpty == true
+            ? selectedMetadata.seriesTitle!.trim()
+            : selectedMetadata.title;
+    final selectedSeriesId = selectedMetadata.seriesGroup?.trim().isNotEmpty ==
+            true
+        ? selectedMetadata.seriesGroup!.trim()
+        : selectedSeriesTitle;
     final siblings = items.where((item) {
       if (item.id == selected.id) return true;
-      final series = _mapValue(item.payload['series']);
-      final seriesId = _textValue(
-        series?['series_id'] ?? item.payload['series_id'],
-      );
-      if (seriesId != null) return seriesId == selectedSeriesId;
-      final seriesTitle = _textValue(
-        series?['series_title'] ?? item.payload['series_title'],
-      );
-      return selectedSeriesId == selected.id &&
-          seriesTitle?.toLowerCase() == selectedSeriesTitle.toLowerCase();
+      final metadata = MangaMetadata.fromJson(item.kindData);
+      final seriesId = metadata.seriesGroup?.trim();
+      if (seriesId != null && seriesId.isNotEmpty) {
+        return seriesId == selectedSeriesId;
+      }
+      final seriesTitle = metadata.seriesTitle?.trim();
+      return seriesTitle != null &&
+          seriesTitle.isNotEmpty &&
+          seriesTitle.toLowerCase() == selectedSeriesTitle.toLowerCase();
     }).toList()
-      ..sort(
-          (left, right) => _volumeNumber(left).compareTo(_volumeNumber(right)));
+      ..sort((left, right) {
+        final leftNumber = MangaMetadata.fromJson(left.kindData).volumeNumber;
+        final rightNumber =
+            MangaMetadata.fromJson(right.kindData).volumeNumber;
+        return (leftNumber ?? 0).compareTo(rightNumber ?? 0);
+      });
 
     return MangaSeriesHierarchy(
       seriesId: selectedSeriesId,
@@ -83,58 +83,34 @@ final class MangaHierarchyMapper {
   static MangaVolumeHierarchyNode _volumeFromCatalogItem(
     CatalogItemDto item,
   ) {
-    final rawChapters = item.payload['chapters'];
-    final chapters = <MangaChapterHierarchyNode>[];
-    if (rawChapters is Iterable) {
-      var index = 0;
-      for (final rawChapter in rawChapters) {
-        if (rawChapter is! Map) continue;
-        index++;
-        final chapter = Map<String, dynamic>.from(rawChapter);
-        final number =
-            _intValue(chapter['chapter_number'] ?? chapter['number']) ?? index;
-        chapters.add(
-          MangaChapterHierarchyNode(
-            chapterId:
-                _textValue(chapter['id']) ?? '${item.id}:chapter:$number',
-            chapterNumber: number,
-            title: _textValue(chapter['chapter_title'] ?? chapter['title']),
-            pageCount: _intValue(chapter['page_count']),
-            releaseDate: _textValue(chapter['release_date']),
-          ),
-        );
-      }
-    }
+    final metadata = MangaMetadata.fromJson(item.kindData);
+    final chapters = [
+      for (var index = 0; index < metadata.chapters.length; index++)
+        _chapterFromMetadata(item.id, index, metadata.chapters[index]),
+    ];
     chapters.sort(
         (left, right) => left.chapterNumber.compareTo(right.chapterNumber));
     return MangaVolumeHierarchyNode(
       volumeId: item.id,
-      volumeNumber: _volumeNumber(item),
-      title: summarizeCatalogTransportPayload(item).primaryLabel,
+      volumeNumber: metadata.volumeNumber ?? 0,
+      title: metadata.volumeName ?? metadata.title,
       chapterCount: chapters.isEmpty ? null : chapters.length,
       chapters: List.unmodifiable(chapters),
     );
   }
 
-  static int _volumeNumber(CatalogItemDto item) =>
-      _intValue(
-        item.payload['volume_number'] ??
-            MangaMetadata.fromJson(item.kindData).volumeNumber?.toString(),
-      ) ??
-      0;
-
-  static Map<String, dynamic>? _mapValue(Object? value) {
-    if (value is! Map) return null;
-    return Map<String, dynamic>.from(value);
-  }
-
-  static String? _textValue(Object? value) {
-    final text = value?.toString().trim();
-    return text == null || text.isEmpty ? null : text;
-  }
-
-  static int? _intValue(Object? value) {
-    if (value is num) return value.toInt();
-    return int.tryParse(value?.toString().trim() ?? '');
+  static MangaChapterHierarchyNode _chapterFromMetadata(
+    String itemId,
+    int index,
+    MangaChapter chapter,
+  ) {
+    final number = chapter.chapterNumber ?? index + 1;
+    return MangaChapterHierarchyNode(
+      chapterId: chapter.id ?? '$itemId:chapter:$number',
+      chapterNumber: number,
+      title: chapter.title,
+      pageCount: chapter.pageCount,
+      releaseDate: chapter.releaseDate?.isoString,
+    );
   }
 }

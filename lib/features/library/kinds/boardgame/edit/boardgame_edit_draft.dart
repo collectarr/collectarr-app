@@ -673,9 +673,7 @@ LibraryEditSessionBundle createBoardGameEditDraft({
     storageNotes: bg?.storageNotes,
     editionTitleController: textControllers.create(
       text: (item.boardGameCatalogFields.titleExtension ??
-                  item.kindCapability
-                      .mapTransport((transport) => transport)
-                      .editionTitle)
+                  item.boardGameCatalogFields.metadata?.editionTitle)
               ?.trim() ??
           '',
     ),

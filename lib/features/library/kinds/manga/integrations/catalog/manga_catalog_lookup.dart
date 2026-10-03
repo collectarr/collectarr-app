@@ -42,7 +42,8 @@ final class MangaCatalogLookup implements CatalogKindLookup {
     if (normalizedTitle.isEmpty) return null;
     final normalizedItemNumber = itemNumber?.trim();
     for (final item in await _items()) {
-      if (normalizeCatalogLookupTitle(item.title) != normalizedTitle) {
+      final metadata = _metadata(item);
+      if (normalizeCatalogLookupTitle(metadata.title) != normalizedTitle) {
         continue;
       }
       if (normalizedItemNumber != null &&
@@ -57,43 +58,41 @@ final class MangaCatalogLookup implements CatalogKindLookup {
 
   Future<List<CatalogItemDto>> _items() async {
     final items = await CatalogItemCacheRepository(_db).findAll(kind: kind);
-    return items..sort((left, right) => left.title.compareTo(right.title));
+    return items
+      ..sort((left, right) =>
+          _metadata(left).title.compareTo(_metadata(right).title));
   }
 
   CatalogSearchHit _hit(CatalogItemDto item) {
     return catalogLookupHit(
       kind: kind,
       id: item.id,
-      title: item.title,
+      title: _metadata(item).title,
       subtitle: _itemNumber(item),
     );
   }
 
   bool _matchesBarcode(CatalogItemDto item, String normalized) {
-    if (_same(_text(item.barcode), normalized)) return true;
-    if (_same(_text(item.payload['isbn']), normalized)) return true;
-    final identifiers = item.payload['identifiers'];
-    if (identifiers is! Iterable) return false;
-    for (final identifier in identifiers) {
-      final value = identifier is Map
-          ? identifier['value'] ?? identifier['barcode'] ?? identifier['isbn']
-          : null;
-      if (_same(_text(value), normalized)) return true;
-    }
-    return false;
+    final metadata = _metadata(item);
+    return [
+      metadata.barcode,
+      metadata.isbn,
+      metadata.itemNumber,
+      for (final identifier in metadata.identifiers)
+        identifier.normalizedValue ?? identifier.value,
+    ].any((value) => _same(value, normalized));
   }
 
   String? _itemNumber(CatalogItemDto item) {
-    final metadata = MangaMetadata.fromJson(item.kindData);
+    final metadata = _metadata(item);
     return metadata.volumeNumber?.toString();
   }
 
-  String? _text(Object? value) {
-    final text = value?.toString().trim();
-    return text == null || text.isEmpty ? null : text;
-  }
+  MangaMetadata _metadata(CatalogItemDto item) =>
+      MangaMetadata.fromJson(item.kindData);
 
   bool _same(String? value, String normalized) {
+    value = value?.trim();
     return value != null && normalizeCatalogLookupValue(value) == normalized;
   }
 }

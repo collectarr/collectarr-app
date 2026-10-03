@@ -99,9 +99,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
                   ? [
                       metadata.firstAirDate?.year,
                       metadata.lastAirDate?.year,
-                      item.kindCapability
-                          .mapTransport((transport) => transport.releaseDate)
-                          ?.year,
+                      metadata.releaseDate?.year,
                     ]
                   : const <Object?>[];
             },

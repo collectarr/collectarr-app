@@ -64,9 +64,9 @@ final class MangaSerialAuthorityContributor
     for (final item in items) {
       if (!wanted.contains(item.id)) continue;
 
-      final kindData = Map<String, dynamic>.from(item.kindData)
-        ..['series_title'] = seriesTitle
-        ..remove('series');
+      final kindData = MangaMetadata.fromJson(item.kindData)
+          .copyWith(seriesTitle: seriesTitle)
+          .toJson();
       await catalog.upsertTransportItems([
         CatalogItemDto.raw(
           id: item.id,
@@ -78,15 +78,11 @@ final class MangaSerialAuthorityContributor
   }
 
   static SerialAuthorityCatalogRecord _recordFromItem(CatalogItemDto item) {
-    final metadata = MangaMetadata.fromJson({
-      ...item.payload,
-      'id': item.id,
-      'title': item.title,
-    });
+    final metadata = MangaMetadata.fromJson(item.kindData);
     final seriesTitle = metadata.seriesTitle?.trim();
     return SerialAuthorityCatalogRecord(
       itemId: item.id,
-      title: item.title,
+      title: metadata.title,
       seriesTitle:
           seriesTitle == null || seriesTitle.isEmpty ? null : seriesTitle,
     );

@@ -40,7 +40,8 @@ class ComicLibraryCatalogItemPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <LibraryFormatBadgeDescriptor>[];
-    final transport = item.kindCapability.mapTransport((value) => value);
+    final transport = item.comicCatalogFields.metadata;
+    if (transport == null) return const [];
     final badge = comicFormatBadge(
       transport.physicalFormat,
       label: transport.physicalFormat,
@@ -169,11 +170,13 @@ class ComicLibraryCatalogItemPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.comicCatalogFields.releaseDate;
+    final fields = item.comicCatalogFields;
+    final metadata = fields.metadata;
+    final releaseDate = fields.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.kindCapability.mapTransport((transport) => transport).publisher
+        metadata?.publisher
       ),
       (
         'Released',
@@ -186,17 +189,14 @@ class ComicLibraryCatalogItemPresentationBuilder
           previewLabels.labelFor('item_number', fallback: 'Number'),
           item.comicCatalogFields.itemNumber
         ),
-      if (item.kindCapability.mapTransport((transport) => transport).variant !=
-          null)
+      if (metadata?.variant != null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.kindCapability.mapTransport((transport) => transport).variant
+          metadata?.variant
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
+        metadata?.barcode
       ),
     ];
   }
@@ -360,28 +360,20 @@ class ComicLibraryCatalogItemPresentationBuilder
 LibraryAddSearchResultDisplay _buildComicSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber = item.comicCatalogFields.itemNumber?.trim();
+  final fields = item.comicCatalogFields;
+  final metadata = fields.metadata;
+  final itemNumber = fields.itemNumber?.trim();
   final subtitle = [
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .publisher
-            ?.trim()
+    if (metadata?.publisher?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if ((item.comicCatalogFields.releaseYear ??
-            item.comicCatalogFields.releaseDate?.year)
+    if ((fields.releaseYear ?? fields.releaseDate?.year)
         case final year?)
       year.toString(),
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .physicalFormat
-            ?.trim()
+    if (metadata?.physicalFormat?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
-            ?.trim()
+    if (metadata?.barcode?.trim()
         case final value? when value.isNotEmpty)
       value,
   ].join(' | ');
@@ -390,8 +382,7 @@ LibraryAddSearchResultDisplay _buildComicSearchResultDisplay(
         ? item.summary.primaryLabel
         : '${item.summary.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
-    year: item.comicCatalogFields.releaseYear ??
-        item.comicCatalogFields.releaseDate?.year,
+    year: fields.releaseYear ?? fields.releaseDate?.year,
     detailLine: null,
   );
 }

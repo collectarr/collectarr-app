@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 
 /// Manga owns the mapping from catalog publication metadata to calendar time.
 final class MangaCalendarContributor implements LibraryCalendarContributor {
@@ -24,12 +25,15 @@ final class MangaCalendarContributor implements LibraryCalendarContributor {
       final item =
           loadItem != null ? await loadItem!(id) : await _loadItem(context, id);
       if (item == null) continue;
-      final date = item.releaseDate ?? _firstPublicationDate(item);
+      final metadata = MangaMetadata.fromJson(item.kindData);
+      final date = metadata.releaseDate?.asDateTime ??
+          metadata.originalPublicationDate ??
+          metadata.localizedReleaseDate;
       if (date == null) continue;
       events.add(CalendarEvent(
         kind: CalendarEventKind.releaseDate,
         date: DateTime.utc(date.year, date.month, date.day),
-        title: item.title,
+        title: metadata.title,
         eventId: 'manga-item:${item.id}',
         libraryEntryRef: ref,
       ));
@@ -50,8 +54,4 @@ final class MangaCalendarContributor implements LibraryCalendarContributor {
     );
   }
 
-  DateTime? _firstPublicationDate(CatalogItemDto item) {
-    final value = item.payload['first_publication_date']?.toString();
-    return value == null ? null : DateTime.tryParse(value);
-  }
 }

@@ -160,6 +160,14 @@ slice. This is progress, not completion of this plan:
   for Books, Movies, and Manga decode or project their kind metadata directly.
   The generic `CatalogItemDto` no longer supplies a universal resolved-title
   or display-cover fallback.
+- `CatalogItemDto` now exposes only structural identity, kind, origin, and
+  kind-data transport behavior; its generic title, cover, date, identifier,
+  publisher, variant, and format getters have been removed. Mixed activity and
+  calendar labels use the registered kind summary, and kind-specific date,
+  format, barcode, and hierarchy reads now decode their owning metadata model.
+  Development seed callers were updated to use kind metadata for these reads;
+  the seed fixture builder still has shared convenience inputs that need a
+  separate ownership review.
 - Anime and TV link editors now decode their link lists through their own
   metadata models. The shared catalog transport no longer parses generic
   `trailer_urls` or `external_links` into a cross-kind link property.

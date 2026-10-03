@@ -40,7 +40,8 @@ final class BoardGameCatalogLookup implements CatalogKindLookup {
     if (normalizedTitle.isEmpty) return null;
     final normalizedItemNumber = itemNumber?.trim();
     for (final item in await _items()) {
-      if (normalizeCatalogLookupTitle(item.title) != normalizedTitle) {
+      final metadata = _metadata(item);
+      if (normalizeCatalogLookupTitle(metadata.title) != normalizedTitle) {
         continue;
       }
       if (normalizedItemNumber != null &&
@@ -55,32 +56,28 @@ final class BoardGameCatalogLookup implements CatalogKindLookup {
 
   Future<List<CatalogItemDto>> _items() async {
     final items = await CatalogItemCacheRepository(_db).findAll(kind: kind);
-    return items..sort((left, right) => left.title.compareTo(right.title));
+    return items
+      ..sort((left, right) => _metadata(left).title.compareTo(_metadata(right).title));
   }
 
   CatalogSearchHit _hit(CatalogItemDto item) {
     return catalogLookupHit(
       kind: kind,
       id: item.id,
-      title: item.title,
+      title: _metadata(item).title,
       subtitle: _itemNumber(item),
     );
   }
 
   bool _matchesBarcode(CatalogItemDto item, String normalized) {
-    if (_same(_text(item.barcode), normalized)) return true;
-    if (_same(_text(item.payload['barcode']), normalized)) return true;
-    final editions = item.payload['editions'];
-    if (editions is! Iterable) return false;
-    for (final edition in editions) {
-      if (edition is! Map) continue;
-      if (_same(_text(edition['barcode']), normalized)) return true;
-    }
-    return false;
+    final metadata = _metadata(item);
+    return _same(_text(metadata.barcode), normalized) ||
+        metadata.identifiers.any((identifier) =>
+            _same(_text(identifier.value), normalized));
   }
 
   String? _itemNumber(CatalogItemDto item) {
-    final value = BoardGameMetadata.fromJson(item.kindData).itemNumber;
+    final value = _metadata(item).itemNumber;
     final text = value?.toString().trim();
     return text == null || text.isEmpty ? null : text;
   }
@@ -89,6 +86,9 @@ final class BoardGameCatalogLookup implements CatalogKindLookup {
     final text = value?.toString().trim();
     return text == null || text.isEmpty ? null : text;
   }
+
+  BoardGameMetadata _metadata(CatalogItemDto item) =>
+      BoardGameMetadata.fromJson(item.kindData);
 
   bool _same(String? value, String normalized) {
     return value != null && normalizeCatalogLookupValue(value) == normalized;

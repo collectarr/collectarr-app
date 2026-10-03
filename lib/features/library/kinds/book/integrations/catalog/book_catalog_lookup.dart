@@ -46,7 +46,7 @@ final class BookCatalogLookup implements CatalogKindLookup {
         ? null
         : normalizeCatalogLookupValue(rawIdentifier);
     for (final item in await _items()) {
-      if (normalizeCatalogLookupTitle(item.title) != normalizedTitle) {
+      if (normalizeCatalogLookupTitle(_metadata(item).title) != normalizedTitle) {
         continue;
       }
       if (normalizedIdentifier != null &&
@@ -61,7 +61,7 @@ final class BookCatalogLookup implements CatalogKindLookup {
   }
 
   CatalogSearchHit _hit(CatalogItemDto item) {
-    final metadata = BookCatalogMetadata.fromJson(item.kindData);
+    final metadata = _metadata(item);
     return catalogLookupHit(
       kind: kind,
       id: item.id,
@@ -75,42 +75,28 @@ final class BookCatalogLookup implements CatalogKindLookup {
       CatalogItemCacheRepository(_db).findAll(kind: kind);
 
   Iterable<String> _identifierValues(CatalogItemDto item) sync* {
-    final payload = item.payload;
-    for (final key in const [
-      'barcode',
-      'isbn',
-      'isbn10',
-      'isbn13',
-      'item_number',
-      'catalog_number',
+    final metadata = _metadata(item);
+    for (final value in [
+      metadata.barcode,
+      metadata.isbn,
+      metadata.isbn10,
+      metadata.isbn13,
+      metadata.itemNumber,
+      metadata.catalogNumber,
+      for (final identifier in metadata.identifiers)
+        identifier.normalizedValue ?? identifier.value,
+      for (final printing in metadata.printings) printing.isbn,
     ]) {
-      final value = payload[key];
-      if (value is String && value.trim().isNotEmpty) yield value;
-    }
-    final identifiers = payload['identifiers'];
-    if (identifiers is Iterable) {
-      for (final identifier in identifiers) {
-        if (identifier is String) {
-          yield identifier;
-        } else if (identifier is Map) {
-          final value = identifier['normalized_value'] ?? identifier['value'];
-          if (value is String && value.trim().isNotEmpty) yield value;
-        }
-      }
-    }
-    final printings = payload['printings'];
-    if (printings is Iterable) {
-      for (final printing in printings) {
-        if (printing is Map && printing['isbn'] is String) {
-          yield printing['isbn'] as String;
-        }
-      }
+      if (value?.trim().isNotEmpty == true) yield value!;
     }
   }
 
   String? _firstIdentifier(CatalogItemDto item) =>
-      BookCatalogMetadata.fromJson(item.kindData).itemNumber ??
+      _metadata(item).itemNumber ??
       _identifierValues(item).firstOrNull;
+
+  BookCatalogMetadata _metadata(CatalogItemDto item) =>
+      BookCatalogMetadata.fromJson(item.kindData);
 
   bool _same(String value, String normalized) =>
       normalizeCatalogLookupValue(value) == normalized;

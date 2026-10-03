@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 
 /// BoardGame owns the mapping from publication/edition dates to the calendar.
 final class BoardGameCalendarContributor implements LibraryCalendarContributor {
@@ -24,12 +25,17 @@ final class BoardGameCalendarContributor implements LibraryCalendarContributor {
       final item =
           loadItem != null ? await loadItem!(id) : await _loadItem(context, id);
       if (item == null) continue;
-      final date = _releaseDate(item);
+      final metadata = BoardGameMetadata.fromJson(item.kindData);
+      final date = metadata.releaseDate?.asDateTime ??
+          metadata.releaseDateParts?.asDateTime ??
+          (metadata.yearPublished == null
+              ? null
+              : DateTime(metadata.yearPublished!));
       if (date == null) continue;
       events.add(CalendarEvent(
         kind: CalendarEventKind.releaseDate,
         date: DateTime.utc(date.year, date.month, date.day),
-        title: item.title,
+        title: metadata.title,
         eventId: 'boardgame-item:${item.id}',
         libraryEntryRef: ref,
       ));
@@ -48,18 +54,5 @@ final class BoardGameCalendarContributor implements LibraryCalendarContributor {
     return CatalogItemCacheRepository(database).find(
       CatalogItemRef(kind: kind, id: id),
     );
-  }
-
-  DateTime? _releaseDate(CatalogItemDto item) {
-    if (item.releaseDate != null) return item.releaseDate;
-    final editions = item.payload['editions'];
-    if (editions is! Iterable) return null;
-    for (final value in editions) {
-      if (value is! Map) continue;
-      final rawDate = value['release_date']?.toString();
-      final date = rawDate == null ? null : DateTime.tryParse(rawDate);
-      if (date != null) return date;
-    }
-    return null;
   }
 }
