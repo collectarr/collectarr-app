@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_draft.dart';
 
@@ -101,26 +102,28 @@ final class MusicLibraryEntryCreatePayload
     final item = MusicLibraryEntry(
       id: LibraryEntryId(id),
       metadata: MusicCatalogMapper.mapMetadataItemToMusic(localCatalogItem),
+      personal: MusicPersonalData(
+        isDigital: isDigital ?? existingIsDigital,
+        condition: condition,
+        grade: grade,
+        purchaseDate: purchaseDate,
+        pricePaidCents: pricePaidCents,
+        currency: currency,
+        personalNotes: personalNotes,
+        indexNumber: indexNumber,
+        tags: tags,
+        locationId: locationId,
+        purchaseStore: purchaseStore,
+        collectionStatus: collectionStatus,
+        soldAt: soldAt,
+        sellPriceCents: sellPriceCents,
+        soldTo: soldTo,
+        marketValueCents: marketValueCents,
+        ownerUserId: ownerUserId,
+        ownerLabel: this.ownerLabel ?? ownerLabel,
+        details: details.toDetails(),
+      ),
       createdAt: createdAt,
-      isDigital: isDigital ?? existingIsDigital,
-      details: details.toDetails(),
-      condition: condition,
-      grade: grade,
-      purchaseDate: purchaseDate,
-      pricePaidCents: pricePaidCents,
-      currency: currency,
-      personalNotes: personalNotes,
-      indexNumber: indexNumber,
-      locationId: locationId,
-      purchaseStore: purchaseStore,
-      collectionStatus: collectionStatus,
-      tags: tags,
-      marketValueCents: marketValueCents,
-      soldAt: soldAt,
-      sellPriceCents: sellPriceCents,
-      soldTo: soldTo,
-      ownerUserId: ownerUserId,
-      ownerLabel: this.ownerLabel ?? ownerLabel,
       updatedAt: createdAt,
     );
     return item;

@@ -24,6 +24,7 @@ export 'package:collectarr_app/features/library/kinds/music/add/music_manual_can
 export 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/music/detail/music_personal_detail_fields.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
+export 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 export 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/music/inspector/music_entity_inspector_contributors.dart';
 export 'package:collectarr_app/features/library/kinds/music/metadata/music_metadata_compare.dart';

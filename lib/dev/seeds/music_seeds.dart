@@ -9,10 +9,10 @@ import 'package:collectarr_app/dev/seeds/music_seed_catalog_details.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 
 final musicDevSeedContributor = TypedDevSeedKindContributor<MusicLibraryEntry>(
   kind: CatalogMediaKind.music,
@@ -1380,14 +1380,22 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
     ];
 
-List<MusicLibraryEntry> musicSeedLibraryEntries(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.music, 15))
-        MusicLibraryEntry(
-          id: LibraryEntryId('seed-entry-$itemId'),
-          sourceCatalogRef:
-              seedCatalogRef(CatalogMediaKind.music, itemId).toCatalogItemRef(),
-          createdAt: now.subtract(const Duration(days: 220)),
-          updatedAt: now,
+List<MusicLibraryEntry> musicSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in musicSeedCatalogItems())
+      item.id: MusicCatalogMapper.mapMetadataItemToMusic(
+        enrichMusicSeedItem(item),
+      ),
+  };
+
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.music, 15))
+      MusicLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId]!,
+        sourceCatalogRef:
+            seedCatalogRef(CatalogMediaKind.music, itemId).toCatalogItemRef(),
+        personal: MusicPersonalData(
           isDigital: false,
           condition: 'Mint',
           details: MusicEntryDetails(
@@ -1407,7 +1415,11 @@ List<MusicLibraryEntry> musicSeedLibraryEntries(DateTime now) => [
           purchaseStore: 'Local Record Store / Acoustic Sounds',
           collectionStatus: 'collected',
         ),
-    ];
+        createdAt: now.subtract(const Duration(days: 220)),
+        updatedAt: now,
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> musicSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
