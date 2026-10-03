@@ -307,7 +307,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'breaking-bad-0001',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-breaking-bad',
           seriesTitle: 'Breaking Bad Universe',
           volumeName: 'Breaking Bad',
@@ -315,14 +315,14 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
           volumeStartYear: 2008,
           tags: 'drama, crime, thriller, prestige tv',
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 47,
           nrDiscs: 16,
           screenRatio: '1.78:1',
           audioTracks: 'English DTS-HD MA 5.1, French DD 5.1, German DD 5.1',
           subtitles: 'English SDH, French, German, Spanish',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 15999,
           currency: 'USD',
           imprint: 'Sony Pictures Home Entertainment',
@@ -439,14 +439,14 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'better-call-saul-0001',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-breaking-bad',
           seriesTitle: 'Breaking Bad Universe',
           volumeName: 'Better Call Saul',
           volumeNumber: '2',
           volumeStartYear: 2015,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 50,
           nrDiscs: 19,
           screenRatio: '1.78:1',
@@ -490,7 +490,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'the-wire-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 58,
           nrDiscs: 20,
           screenRatio: '1.78:1 (16:9 Full HD Remaster)',
@@ -535,7 +535,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'chernobyl-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 65,
           nrDiscs: 2,
           screenRatio: '2.00:1',
@@ -580,7 +580,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         ageRating: 'TV-MA',
         sortKey: 'true-detective-0001',
         itemNumber: '1',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 58,
           nrDiscs: 3,
           screenRatio: '1.78:1',
@@ -618,7 +618,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'mindhunter-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 54,
           nrDiscs: 4,
           screenRatio: '2.20:1',
@@ -657,7 +657,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'severance-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 52,
           nrDiscs: 2,
           screenRatio: '2.39:1',
@@ -703,7 +703,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'last-of-us-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 60,
           nrDiscs: 4,
           screenRatio: '1.78:1',
@@ -741,7 +741,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'fargo-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 55,
           nrDiscs: 3,
           screenRatio: '1.78:1',
@@ -783,7 +783,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'de',
         ageRating: 'TV-MA',
         sortKey: 'dark-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 56,
           nrDiscs: 6,
           screenRatio: '2.00:1',
@@ -825,7 +825,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'succession-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 62,
           nrDiscs: 12,
           screenRatio: '1.78:1',
@@ -871,7 +871,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-14',
         sortKey: 'arcane-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 42,
           nrDiscs: 3,
           screenRatio: '2.39:1',
@@ -916,7 +916,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-14',
         sortKey: 'stranger-things-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 51,
           nrDiscs: 4,
           screenRatio: '2.00:1',
@@ -960,7 +960,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'band-of-brothers-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 60,
           nrDiscs: 6,
           screenRatio: '1.78:1',
@@ -1003,7 +1003,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'game-of-thrones-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 58,
           nrDiscs: 30,
           screenRatio: '1.78:1',

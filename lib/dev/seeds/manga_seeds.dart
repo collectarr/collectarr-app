@@ -191,7 +191,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: '18+',
         sortKey: 'berserk-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-berserk',
           seriesTitle: 'Berserk',
           volumeName: 'Berserk Deluxe',
@@ -199,7 +199,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
           volumeStartYear: 1989,
           tags: 'dark fantasy, epic, seinen, grimdark',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           pageCount: 696,
           coverPriceCents: 4999,
           currency: 'USD',
@@ -234,14 +234,14 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'monster-manga-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-monster',
           seriesTitle: 'Monster',
           volumeName: 'The Perfect Edition',
           volumeNumber: '1',
           volumeStartYear: 1994,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           pageCount: 424,
           coverPriceCents: 1999,
           currency: 'USD',
@@ -281,14 +281,14 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'vagabond-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-vagabond',
           seriesTitle: 'Vagabond',
           volumeName: 'VIZBIG Edition',
           volumeNumber: '1',
           volumeStartYear: 1998,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           pageCount: 728,
           coverPriceCents: 1999,
           currency: 'USD',
@@ -328,7 +328,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen+',
         sortKey: '20th-century-boys-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           pageCount: 416,
           coverPriceCents: 1999,
           currency: 'USD',
@@ -368,7 +368,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen+',
         sortKey: 'pluto-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 200, coverPriceCents: 1299, currency: 'USD'),
         creators: [
           {'name': 'Naoki Urasawa', 'role': 'artist'},
@@ -399,7 +399,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'chainsaw-man-manga-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 192, coverPriceCents: 999, currency: 'USD'),
         creators: [
           {'name': 'Tatsuki Fujimoto', 'role': 'writer & illustrator'},
@@ -429,7 +429,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen',
         sortKey: 'one-piece-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 208, coverPriceCents: 999, currency: 'USD'),
         creators: [
           {'name': 'Eiichiro Oda', 'role': 'writer & illustrator'},
@@ -459,7 +459,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen',
         sortKey: 'fullmetal-alchemist-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 280, coverPriceCents: 1999, currency: 'USD'),
         creators: [
           {'name': 'Hiromu Arakawa', 'role': 'writer & illustrator'},
@@ -489,7 +489,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen+',
         sortKey: 'death-note-manga-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 384, coverPriceCents: 1499, currency: 'USD'),
         creators: [
           {'name': 'Tsugumi Ohba', 'role': 'writer'},
@@ -520,7 +520,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'vinland-saga-manga-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 464, coverPriceCents: 2299, currency: 'USD'),
         creators: [
           {'name': 'Makoto Yukimura', 'role': 'writer & illustrator'},
@@ -550,7 +550,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'tokyo-ghoul-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 224, coverPriceCents: 1299, currency: 'USD'),
         creators: [
           {'name': 'Sui Ishida', 'role': 'writer & illustrator'},
@@ -580,7 +580,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen+',
         sortKey: 'jujutsu-kaisen-manga-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 192, coverPriceCents: 999, currency: 'USD'),
         creators: [
           {'name': 'Gege Akutami', 'role': 'writer & illustrator'},
@@ -610,7 +610,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen',
         sortKey: 'spy-family-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 216, coverPriceCents: 999, currency: 'USD'),
         creators: [
           {'name': 'Tatsuya Endo', 'role': 'writer & illustrator'},
@@ -644,7 +644,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'dorohedoro-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 224, coverPriceCents: 1299, currency: 'USD'),
         creators: [
           {'name': 'Q Hayashida', 'role': 'writer & illustrator'},
@@ -674,7 +674,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen+',
         sortKey: 'blue-lock-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 208, coverPriceCents: 1299, currency: 'USD'),
         creators: [
           {'name': 'Muneyuki Kaneshiro', 'role': 'writer'},

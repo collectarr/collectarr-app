@@ -190,12 +190,12 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         physicalFormat: 'Board Game',
         ageRating: '14+',
         sortKey: 'gloomhaven-0001',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-gloomhaven',
           seriesTitle: 'Gloomhaven',
           tags: 'cooperative, dungeon crawl, campaign',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 14000,
           currency: 'USD',
         ),
@@ -216,7 +216,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         releaseYear: 2020,
         releaseDate: DateTime.utc(2020, 6, 18),
         sortKey: 'gloomhaven-0002',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-gloomhaven',
           seriesTitle: 'Gloomhaven',
         ),
@@ -238,7 +238,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         releaseDate: DateTime.utc(2019, 3, 8),
         ageRating: '10+',
         sortKey: 'wingspan-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 6500,
           currency: 'USD',
         ),
@@ -277,7 +277,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         releaseYear: 2015,
         releaseDate: DateTime.utc(2015, 10, 8),
         sortKey: 'pandemic-0002',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-pandemic',
           seriesTitle: 'Pandemic',
         ),
@@ -302,7 +302,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         ageRating: '12+',
         country: 'SE',
         sortKey: 'terraforming-mars-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 6999,
           currency: 'USD',
         ),
@@ -345,7 +345,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         releaseDate: DateTime.utc(2018, 8, 1),
         ageRating: '10+',
         sortKey: 'root-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 6000,
           currency: 'USD',
         ),
@@ -393,7 +393,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         releaseDate: DateTime.utc(2016, 8, 18),
         ageRating: '14+',
         sortKey: 'scythe-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 8000,
           currency: 'USD',
         ),

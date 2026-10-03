@@ -166,7 +166,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'saga-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-saga',
           seriesTitle: 'Saga',
           volumeName: 'Saga',
@@ -174,7 +174,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
           volumeStartYear: 2012,
           tags: 'sci-fi, space opera, fantasy, romance',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           pageCount: 44,
           coverPriceCents: 299,
           currency: 'USD',
@@ -214,12 +214,12 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         barcode: '70985301254200211',
         itemNumber: '2',
         sortKey: 'saga-0002',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-saga',
           seriesTitle: 'Saga',
           volumeNumber: '1',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 299, currency: 'USD'),
         creators: [
           {'name': 'Brian K. Vaughan', 'role': 'writer'},
@@ -250,7 +250,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'watchmen-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-watchmen',
           seriesTitle: 'Watchmen',
           volumeName: 'Watchmen',
@@ -258,7 +258,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
           volumeStartYear: 1986,
           tags: 'superhero deconstruction, cold war, alternate history',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 36, coverPriceCents: 150, currency: 'USD'),
         creators: [
           {'name': 'Alan Moore', 'role': 'writer'},
@@ -297,14 +297,14 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'dark-knight-returns-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dkr',
           seriesTitle: 'The Dark Knight Returns',
           volumeName: 'The Dark Knight Returns',
           volumeNumber: '1',
           volumeStartYear: 1986,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 52, coverPriceCents: 295, currency: 'USD'),
         creators: [
           {'name': 'Frank Miller', 'role': 'writer & penciller'},
@@ -341,7 +341,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'batman-year-one-0001',
         itemNumber: '404',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 75, currency: 'USD'),
         creators: [
           {'name': 'Frank Miller', 'role': 'writer'},
@@ -378,14 +378,14 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'invincible-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-invincible',
           seriesTitle: 'Invincible',
           volumeName: 'Invincible',
           volumeNumber: '1',
           volumeStartYear: 2003,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 295, currency: 'USD'),
         creators: [
           {'name': 'Robert Kirkman', 'role': 'writer'},
@@ -421,14 +421,14 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'sandman-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-sandman',
           seriesTitle: 'The Sandman',
           volumeName: 'Preludes & Nocturnes',
           volumeNumber: '1',
           volumeStartYear: 1989,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 40, coverPriceCents: 150, currency: 'USD'),
         creators: [
           {'name': 'Neil Gaiman', 'role': 'writer'},
@@ -465,7 +465,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'kingdom-come-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 52, coverPriceCents: 495, currency: 'USD'),
         creators: [
           {'name': 'Mark Waid', 'role': 'writer'},
@@ -502,7 +502,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'all-star-superman-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 299, currency: 'USD'),
         creators: [
           {'name': 'Grant Morrison', 'role': 'writer'},
@@ -538,7 +538,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'kravens-last-hunt-0001',
         itemNumber: '293',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 75, currency: 'USD'),
         creators: [
           {'name': 'J.M. DeMatteis', 'role': 'writer'},
@@ -575,14 +575,14 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'hellboy-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-hellboy',
           seriesTitle: 'Hellboy',
           volumeName: 'Seed of Destruction',
           volumeNumber: '1',
           volumeStartYear: 1994,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 250, currency: 'USD'),
         creators: [
           {'name': 'Mike Mignola', 'role': 'writer & artist'},
@@ -619,7 +619,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'preacher-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 36, coverPriceCents: 195, currency: 'USD'),
         creators: [
           {'name': 'Garth Ennis', 'role': 'writer'},
@@ -655,7 +655,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'daredevil-born-again-0001',
         itemNumber: '227',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 75, currency: 'USD'),
         creators: [
           {'name': 'Frank Miller', 'role': 'writer'},
@@ -692,7 +692,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'xmen-dofp-0001',
         itemNumber: '141',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 50, currency: 'USD'),
         creators: [
           {'name': 'Chris Claremont', 'role': 'writer'},
@@ -730,7 +730,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         country: 'US',
         language: 'en',
         sortKey: 'killing-joke-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 64, coverPriceCents: 1799, currency: 'USD'),
         creators: [
           {'name': 'Alan Moore', 'role': 'writer'},

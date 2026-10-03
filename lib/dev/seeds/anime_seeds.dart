@@ -243,14 +243,14 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '16+',
         sortKey: 'cowboy-bebop-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 5,
           screenRatio: '1.33:1 (4:3 Original)',
           audioTracks: 'Japanese LPCM 2.0, English Dolby TrueHD 5.1',
           subtitles: 'English, French',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 6999,
           currency: 'USD',
           imprint: 'Funimation / Crunchyroll',
@@ -331,7 +331,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'fma-brotherhood-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 10,
           screenRatio: '1.78:1',
@@ -373,7 +373,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '16+',
         sortKey: 'steins-gate-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 4,
           screenRatio: '1.78:1',
@@ -415,7 +415,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '18+',
         sortKey: 'attack-on-titan-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 8,
           screenRatio: '1.78:1',
@@ -457,7 +457,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'mob-psycho-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 6,
           screenRatio: '1.78:1',
@@ -499,7 +499,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-MA',
         sortKey: 'vinland-saga-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 4,
           screenRatio: '1.78:1',
@@ -535,7 +535,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'jujutsu-kaisen-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 6,
           screenRatio: '1.78:1',
@@ -577,7 +577,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'frieren-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 7,
           screenRatio: '1.78:1',
@@ -615,7 +615,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '16+',
         sortKey: 'evangelion-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 8,
           screenRatio: '1.33:1',
@@ -657,7 +657,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'death-note-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 23,
           nrDiscs: 5,
           screenRatio: '1.78:1',
@@ -699,7 +699,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-MA',
         sortKey: 'cyberpunk-edgerunners-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 2,
           screenRatio: '1.78:1',
@@ -735,7 +735,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '16+',
         sortKey: 'demon-slayer-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 6,
           screenRatio: '1.78:1',
@@ -778,7 +778,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'hunter-x-hunter-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 23,
           nrDiscs: 14,
           screenRatio: '1.78:1',
@@ -821,7 +821,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '18+',
         sortKey: 'monster-anime-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 8,
           screenRatio: '1.33:1',
@@ -862,7 +862,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '18+',
         sortKey: 'chainsaw-man-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 2,
           screenRatio: '1.78:1',

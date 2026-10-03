@@ -169,7 +169,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         ageRating: 'Adult',
         sortKey: 'dune-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dune-chronicles',
           seriesTitle: 'Dune Chronicles',
           volumeName: 'Dune',
@@ -177,7 +177,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
           volumeStartYear: 1965,
           tags: 'sci-fi, space opera, politics, ecology',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           pageCount: 688,
           coverPriceCents: 4000,
           currency: 'USD',
@@ -217,14 +217,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'dune-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dune-chronicles',
           seriesTitle: 'Dune Chronicles',
           volumeName: 'Dune Messiah',
           volumeNumber: '2',
           volumeStartYear: 1965,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 336, coverPriceCents: 1700, currency: 'USD'),
         creators: [
           {'name': 'Frank Herbert', 'role': 'author'},
@@ -259,14 +259,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'foundation-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-foundation',
           seriesTitle: 'Foundation Series',
           volumeName: 'Foundation',
           volumeNumber: '1',
           volumeStartYear: 1951,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 256, coverPriceCents: 899, currency: 'USD'),
         creators: [
           {'name': 'Isaac Asimov', 'role': 'author'},
@@ -300,14 +300,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'neuromancer-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-sprawl',
           seriesTitle: 'Sprawl Trilogy',
           volumeName: 'Sprawl',
           volumeNumber: '1',
           volumeStartYear: 1984,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 271, coverPriceCents: 999, currency: 'USD'),
         creators: [
           {'name': 'William Gibson', 'role': 'author'},
@@ -342,14 +342,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'middle-earth-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-middle-earth',
           seriesTitle: 'Middle-earth Legendarium',
           volumeName: 'The Hobbit',
           volumeNumber: '1',
           volumeStartYear: 1937,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 320, coverPriceCents: 3500, currency: 'USD'),
         creators: [
           {'name': 'J.R.R. Tolkien', 'role': 'author & illustrator'},
@@ -383,7 +383,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         country: 'GB',
         language: 'en',
         sortKey: 'nineteen-eighty-four-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 328, coverPriceCents: 999, currency: 'USD'),
         creators: [
           {'name': 'George Orwell', 'role': 'author'},
@@ -413,14 +413,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'middle-earth-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-middle-earth',
           seriesTitle: 'Middle-earth Legendarium',
           volumeName: 'The Lord of the Rings',
           volumeNumber: '1',
           volumeStartYear: 1954,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 432, coverPriceCents: 2600, currency: 'USD'),
         creators: [
           {'name': 'J.R.R. Tolkien', 'role': 'author'},
@@ -456,14 +456,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'hyperion-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-hyperion',
           seriesTitle: 'Hyperion Cantos',
           volumeName: 'Hyperion',
           volumeNumber: '1',
           volumeStartYear: 1989,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 482, coverPriceCents: 1099, currency: 'USD'),
         creators: [
           {'name': 'Dan Simmons', 'role': 'author'},
@@ -497,7 +497,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         country: 'US',
         language: 'en',
         sortKey: 'snow-crash-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 480, coverPriceCents: 1800, currency: 'USD'),
         creators: [
           {'name': 'Neal Stephenson', 'role': 'author'},
@@ -532,14 +532,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'enders-game-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-ender',
           seriesTitle: 'Enderverse',
           volumeName: 'Ender\'s Saga',
           volumeNumber: '1',
           volumeStartYear: 1985,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 352, coverPriceCents: 899, currency: 'USD'),
         creators: [
           {'name': 'Orson Scott Card', 'role': 'author'},
@@ -573,7 +573,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         country: 'US',
         language: 'en',
         sortKey: 'fahrenheit-451-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 256, coverPriceCents: 1700, currency: 'USD'),
         creators: [
           {'name': 'Ray Bradbury', 'role': 'author'},
@@ -606,7 +606,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         country: 'GB',
         language: 'en',
         sortKey: 'brave-new-world-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 288, coverPriceCents: 1699, currency: 'USD'),
         creators: [
           {'name': 'Aldous Huxley', 'role': 'author'},
@@ -640,7 +640,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'stormlight-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-stormlight',
           seriesTitle: 'The Stormlight Archive',
           volumeName: 'The Way of Kings',
@@ -648,7 +648,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
           volumeStartYear: 2010,
           tags: 'high fantasy, epic, cosmere',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 1007, coverPriceCents: 3799, currency: 'USD'),
         creators: [
           {'name': 'Brandon Sanderson', 'role': 'author'},
@@ -685,14 +685,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'kingkiller-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-kingkiller',
           seriesTitle: 'The Kingkiller Chronicle',
           volumeName: 'The Kingkiller Chronicle',
           volumeNumber: '1',
           volumeStartYear: 2007,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 662, coverPriceCents: 2995, currency: 'USD'),
         creators: [
           {'name': 'Patrick Rothfuss', 'role': 'author'},
@@ -720,7 +720,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         country: 'US',
         language: 'en',
         sortKey: 'project-hail-mary-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 496, coverPriceCents: 2899, currency: 'USD'),
         creators: [
           {'name': 'Andy Weir', 'role': 'author'},

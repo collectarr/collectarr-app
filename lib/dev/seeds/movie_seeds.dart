@@ -174,7 +174,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         ageRating: 'PG-13',
         sortKey: 'dark-knight-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dark-knight',
           seriesTitle: 'The Dark Knight Trilogy',
           volumeName: 'The Dark Knight Trilogy',
@@ -182,7 +182,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
           volumeStartYear: 2005,
           tags: 'superhero, action, thriller, dc comics',
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 140,
           color: 'Color',
           nrDiscs: 2,
@@ -191,7 +191,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
           subtitles: 'English SDH, French, Spanish',
           layers: 'Dual Layer (BD-66 + BD-50)',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 2999,
           currency: 'USD',
           imprint: 'DC Films',
@@ -285,7 +285,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         ageRating: 'PG-13',
         sortKey: 'dark-knight-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dark-knight',
           seriesTitle: 'The Dark Knight Trilogy',
           volumeName: 'The Dark Knight Trilogy',
@@ -293,7 +293,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
           volumeStartYear: 2005,
           tags: 'superhero, action, thriller, dc comics',
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 152,
           color: 'Color',
           nrDiscs: 3,
@@ -302,7 +302,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
           subtitles: 'English SDH, French, Spanish',
           layers: 'BD-66 + 2x BD-50',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 3299,
           currency: 'USD',
           imprint: 'DC Films',
@@ -365,14 +365,14 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         ageRating: 'PG-13',
         sortKey: 'dark-knight-0003',
         itemNumber: '3',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dark-knight',
           seriesTitle: 'The Dark Knight Trilogy',
           volumeName: 'The Dark Knight Trilogy',
           volumeNumber: '3',
           volumeStartYear: 2005,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 165,
           color: 'Color',
           nrDiscs: 3,
@@ -410,7 +410,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         language: 'en',
         ageRating: 'PG-13',
         sortKey: 'inception-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 148,
           color: 'Color',
           nrDiscs: 2,
@@ -448,7 +448,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         language: 'en',
         ageRating: 'PG-13',
         sortKey: 'interstellar-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 169,
           color: 'Color',
           nrDiscs: 3,
@@ -489,14 +489,14 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         ageRating: 'R',
         sortKey: 'blade-runner-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-blade-runner',
           seriesTitle: 'Blade Runner',
           volumeName: 'Blade Runner',
           volumeNumber: '1',
           volumeStartYear: 1982,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 117,
           color: 'Color',
           nrDiscs: 4,
@@ -536,14 +536,14 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         ageRating: 'R',
         sortKey: 'blade-runner-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-blade-runner',
           seriesTitle: 'Blade Runner',
           volumeName: 'Blade Runner',
           volumeNumber: '2',
           volumeStartYear: 1982,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 164,
           color: 'Color',
           nrDiscs: 2,
@@ -588,7 +588,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         language: 'en',
         ageRating: 'R',
         sortKey: 'pulp-fiction-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 154,
           color: 'Color',
           nrDiscs: 2,
@@ -633,14 +633,14 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         ageRating: 'R',
         sortKey: 'matrix-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-matrix',
           seriesTitle: 'The Matrix Franchise',
           volumeName: 'The Matrix',
           volumeNumber: '1',
           volumeStartYear: 1999,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 136,
           color: 'Color',
           nrDiscs: 2,
@@ -680,7 +680,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         language: 'ko',
         ageRating: 'R',
         sortKey: 'parasite-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 132,
           color: 'Color & B/W',
           nrDiscs: 2,
@@ -741,7 +741,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         language: 'ja',
         ageRating: 'PG',
         sortKey: 'spirited-away-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 125,
           color: 'Color',
           nrDiscs: 2,
@@ -779,14 +779,14 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         ageRating: 'PG-13',
         sortKey: 'dune-movie-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dune-films',
           seriesTitle: 'Dune Film Saga',
           volumeName: 'Dune',
           volumeNumber: '1',
           volumeStartYear: 2021,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 155,
           color: 'Color',
           nrDiscs: 2,
@@ -833,14 +833,14 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         ageRating: 'PG-13',
         sortKey: 'dune-movie-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dune-films',
           seriesTitle: 'Dune Film Saga',
           volumeName: 'Dune',
           volumeNumber: '2',
           volumeStartYear: 2021,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 166,
           color: 'Color',
           nrDiscs: 2,
@@ -885,7 +885,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         language: 'en',
         ageRating: 'R',
         sortKey: 'oppenheimer-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 180,
           color: 'Color & B/W',
           nrDiscs: 3,
@@ -930,14 +930,14 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
         ageRating: 'PG',
         sortKey: 'spider-verse-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-spider-verse',
           seriesTitle: 'Spider-Verse Saga',
           volumeName: 'Spider-Verse',
           volumeNumber: '1',
           volumeStartYear: 2018,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 117,
           color: 'Color',
           nrDiscs: 2,

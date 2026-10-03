@@ -110,7 +110,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
           'Xbox Series X',
           'Nintendo Switch'
         ],
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-witcher',
           seriesTitle: 'The Witcher Series',
           volumeName: 'The Witcher 3',
@@ -118,7 +118,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
           volumeStartYear: 2007,
           tags: 'rpg, open world, dark fantasy',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 4999,
           currency: 'USD',
           imprint: 'CD Projekt',

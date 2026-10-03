@@ -1,5 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/dev/seeds/music_seed_catalog_details.dart';
+import 'package:collectarr_app/dev/seeds/seed_kind_details.dart';
+
+export 'package:collectarr_app/dev/seeds/seed_kind_details.dart';
 
 /// Builds a catalog item for the development database seed.
 ///
@@ -40,11 +43,10 @@ CatalogItemDto seedCatalogItem({
   List<String>? storyArcs,
   List<Map<String, dynamic>>? creators,
   List<TrailerLinkDto>? trailerUrls,
-  CatalogSeriesDetailsDto? series,
-  Object? video,
-  Object? music,
-  Object? game,
-  CatalogPublishingDetailsDto? publishing,
+  SeedSeriesDetails? series,
+  SeedVideoDetails? video,
+  MusicSeedCatalogDetails? music,
+  SeedPublishingDetails? publishing,
   Map<String, dynamic>? payload,
 }) {
   final resolvedCoverImageUrl = coverImageUrl ??
@@ -63,7 +65,7 @@ CatalogItemDto seedCatalogItem({
           : null);
   final resolvedPublishing = publishing ??
       (kind == CatalogMediaKind.comic
-          ? const CatalogPublishingDetailsDto(
+          ? const SeedPublishingDetails(
               imprint: 'IDW', subtitle: 'Director Cut')
           : null);
   final mergedPayload = <String, dynamic>{
@@ -86,9 +88,8 @@ CatalogItemDto seedCatalogItem({
     if (storyArcs != null) 'story_arcs': storyArcs,
     if (resolvedCreators != null) 'creators': resolvedCreators,
     if (series != null) ...series.toJson(),
-    if (video != null) ..._encodeSeedDetails(video),
-    if (music != null) ..._encodeSeedDetails(music),
-    if (game != null) ..._encodeSeedDetails(game),
+    if (video != null) ...video.toJson(),
+    if (music != null) ...music.toJson(),
     if (resolvedPublishing != null) ...resolvedPublishing.toJson(),
     if (payload != null) ...payload,
   };
@@ -118,16 +119,3 @@ CatalogItemDto seedCatalogItem({
   );
 }
 
-Map<String, dynamic> _encodeSeedDetails(Object value) {
-  return switch (value) {
-    VideoCatalogDetailsDto details => details.toJson(),
-    MusicSeedCatalogDetails details => details.toJson(),
-    GameCatalogDetailsDto details => details.toJson(),
-    Map<Object?, Object?> value => Map<String, dynamic>.from(value),
-    _ => throw ArgumentError.value(
-        value,
-        'value',
-        'Seed catalog details must be a typed catalog DTO or JSON object',
-      ),
-  };
-}
