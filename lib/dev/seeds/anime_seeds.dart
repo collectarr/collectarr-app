@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -13,8 +12,8 @@ import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_track
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
@@ -845,33 +844,41 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
     ];
 
-List<AnimeLibraryEntry> animeSeedLibraryEntries(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.anime, 15))
-        AnimeLibraryEntry(
-          id: LibraryEntryId('seed-entry-$itemId'),
-          sourceCatalogRef:
-              seedCatalogRef(CatalogMediaKind.anime, itemId).toCatalogItemRef(),
-          createdAt: now.subtract(const Duration(days: 180)),
-          updatedAt: now,
-          isDigital: false,
-          condition: 'Mint',
-          details: const AnimeEntryDetails(
-            features: 'Artbook, soundtrack CD, bonus episodes',
-            hdrFormats: ['HDR10'],
-            boxSetName: 'Collector Edition Box',
-            region: 'Region A/B',
-            packaging: 'Rigid slipcase',
-            distributor: 'Crunchyroll',
-          ),
-          purchaseDate: DateTime.utc(2023, 3, 15),
-          pricePaidCents: 5999,
-          currency: 'USD',
-          personalNotes:
-              'Import Japanese/English collector\'s edition with artbook.',
-          purchaseStore: 'RightStuf / Crunchyroll Store',
-          collectionStatus: 'collected',
+List<AnimeLibraryEntry> animeSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in animeSeedCatalogItems())
+      item.id: AnimeMetadata.fromJson(item.kindData),
+  };
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.anime, 15))
+      AnimeLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId] ??
+            (throw StateError('Missing Anime seed catalog item: $itemId')),
+        sourceCatalogRef:
+            seedCatalogRef(CatalogMediaKind.anime, itemId).toCatalogItemRef(),
+        createdAt: now.subtract(const Duration(days: 180)),
+        updatedAt: now,
+        isDigital: false,
+        condition: 'Mint',
+        details: const AnimeEntryDetails(
+          features: 'Artbook, soundtrack CD, bonus episodes',
+          hdrFormats: ['HDR10'],
+          boxSetName: 'Collector Edition Box',
+          region: 'Region A/B',
+          packaging: 'Rigid slipcase',
+          distributor: 'Crunchyroll',
         ),
-    ];
+        purchaseDate: DateTime.utc(2023, 3, 15),
+        pricePaidCents: 5999,
+        currency: 'USD',
+        personalNotes:
+            'Import Japanese/English collector\'s edition with artbook.',
+        purchaseStore: 'RightStuf / Crunchyroll Store',
+        collectionStatus: 'collected',
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> animeSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)

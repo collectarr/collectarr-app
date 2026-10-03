@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details_draft.dart';
@@ -62,13 +64,22 @@ final class AnimeLibraryEntryCreatePayload
 
   AnimeLibraryEntry toLibraryEntry({
     required String id,
+    required CatalogItemDto sourceCatalogItem,
     required DateTime createdAt,
     required bool? existingIsDigital,
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
+    if (sourceCatalogItem.mediaKind != CatalogMediaKind.anime) {
+      throw ArgumentError.value(
+        sourceCatalogItem.mediaKind,
+        'sourceCatalogItem',
+        'Anime entries require an Anime catalog item.',
+      );
+    }
     return AnimeLibraryEntry(
       id: LibraryEntryId(id),
+      metadata: AnimeMetadata.fromJson(sourceCatalogItem.kindData),
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,
       details: details.toDetails(),
