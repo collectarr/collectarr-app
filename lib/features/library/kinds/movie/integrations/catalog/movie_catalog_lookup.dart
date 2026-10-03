@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 
 final class MovieCatalogLookup implements CatalogKindLookup {
   MovieCatalogLookup(this._db);
@@ -53,10 +54,14 @@ final class MovieCatalogLookup implements CatalogKindLookup {
   }
 
   CatalogSearchHit _hit(CatalogItemDto item) {
+    final metadata = MovieCatalogMetadata.fromJson(item.kindData);
     return catalogLookupHit(
       kind: kind,
       id: item.id,
-      title: item.resolvedDisplayTitle,
+      title: metadata.displayTitle ??
+          metadata.localizedTitle ??
+          metadata.originalTitle ??
+          metadata.title,
       subtitle: item.itemNumber,
     );
   }

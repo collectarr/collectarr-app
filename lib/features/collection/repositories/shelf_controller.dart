@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -11,6 +10,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_transport_summary_registry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
@@ -62,11 +62,12 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   );
   for (final record in await LibraryEntryStore(db).list()) {
     final item = record.catalogItem;
+    final summary = summarizeCatalogTransportPayload(item);
     catalogSummaries[item.catalogRef.rootScope] = CatalogDisplaySummary.root(
       kind: record.kind,
       id: record.id,
-      primaryLabel: item.title,
-      imageUrl: item.displayCoverUrl,
+      primaryLabel: summary.primaryLabel,
+      imageUrl: summary.imageUrl,
     );
   }
   final catalogDataByRef =

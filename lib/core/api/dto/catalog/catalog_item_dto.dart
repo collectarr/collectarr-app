@@ -129,10 +129,6 @@ final class CatalogItemDto {
   List<CatalogEditionDto> get editions =>
       _mapList(kindData['editions']).map(CatalogEditionDto.fromJson).toList();
 
-  String get resolvedDisplayTitle =>
-      displayTitle ?? localizedTitle ?? originalTitle ?? title;
-  String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
-
   CatalogEntityRef get catalogRef => CatalogEntityRef(
         kind: mediaKind,
         entityType: CatalogEntityTypeId.catalogItem,

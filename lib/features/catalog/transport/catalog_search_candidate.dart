@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
+import 'package:collectarr_app/features/catalog/catalog_transport_summary_registry.dart';
 
 /// Structural search result passed through mixed Add/Edit hosts.
 ///
@@ -27,14 +28,10 @@ final class CatalogSearchCandidate {
   /// Produces a small, transient display projection from a kind-entry flat
   /// payload. The projection is never cached or written back as catalog data.
   factory CatalogSearchCandidate.fromItem(CatalogItemDto item) {
+    final summary = summarizeCatalogTransportPayload(item);
     return CatalogSearchCandidate.fromTransport(
       item: item,
-      summary: CatalogDisplaySummary(
-        ref: item.catalogRef,
-        kind: item.mediaKind,
-        primaryLabel: item.resolvedDisplayTitle,
-        imageUrl: item.displayCoverUrl,
-      ),
+      summary: summary,
     );
   }
 
@@ -65,13 +62,8 @@ final class CatalogSearchCandidate {
     }
     return CatalogSearchCandidate.fromTransport(
       item: item,
-      summary: summaryBuilder?.call(item) ??
-          CatalogDisplaySummary(
-            ref: item.catalogRef,
-            kind: item.mediaKind,
-            primaryLabel: item.resolvedDisplayTitle,
-            imageUrl: item.displayCoverUrl,
-          ),
+      summary:
+          summaryBuilder?.call(item) ?? summarizeCatalogTransportPayload(item),
     );
   }
 
@@ -89,8 +81,7 @@ final class CatalogSearchCandidateKindCapability {
 
   final CatalogItemDto? _item;
 
-  bool get isPrivateLocal =>
-      _item?.origin == CatalogItemOrigin.privateLocal;
+  bool get isPrivateLocal => _item?.origin == CatalogItemOrigin.privateLocal;
 
   T mapTransport<T>(T Function(CatalogItemDto item) decoder) {
     final item = _item;

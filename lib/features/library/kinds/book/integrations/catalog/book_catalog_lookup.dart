@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 
 /// Resolves Book identifiers against concrete Catalog Items cached from Core.
 final class BookCatalogLookup implements CatalogKindLookup {
@@ -60,10 +61,12 @@ final class BookCatalogLookup implements CatalogKindLookup {
   }
 
   CatalogSearchHit _hit(CatalogItemDto item) {
+    final metadata = BookCatalogMetadata.fromJson(item.kindData);
     return catalogLookupHit(
       kind: kind,
       id: item.id,
-      title: item.resolvedDisplayTitle,
+      title:
+          metadata.localizedTitle ?? metadata.originalTitle ?? metadata.title,
       subtitle: item.itemNumber ?? _firstIdentifier(item),
     );
   }

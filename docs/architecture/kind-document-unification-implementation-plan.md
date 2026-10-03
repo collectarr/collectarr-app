@@ -139,6 +139,11 @@ slice. This is progress, not completion of this plan:
   no callers. The shared catalog transport repository remains the persistence
   path because it carries item identity separately from metadata. Old nested
   `publishing.cover_price_cents` fallbacks were also removed.
+- Mixed search candidates and the Shelf now get display titles and covers from
+  the owning kind's transport summary. Calendar, lookup, and hierarchy views
+  for Books, Movies, and Manga decode or project their kind metadata directly.
+  The generic `CatalogItemDto` no longer supplies a universal resolved-title
+  or display-cover fallback.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/catalog_transport_summary_registry.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy.dart';
 
@@ -108,7 +109,7 @@ final class MangaHierarchyMapper {
     return MangaVolumeHierarchyNode(
       volumeId: item.id,
       volumeNumber: _volumeNumber(item),
-      title: item.resolvedDisplayTitle,
+      title: summarizeCatalogTransportPayload(item).primaryLabel,
       chapterCount: chapters.isEmpty ? null : chapters.length,
       chapters: List.unmodifiable(chapters),
     );

@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/catalog_transport_summary_registry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
@@ -13,26 +13,11 @@ import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
-const List<CatalogKindTransportBoundary> libraryCatalogTransportCodecs = [
-  AnimeCatalogTransportCodec(),
-  BoardGameCatalogTransportCodec(),
-  BookCatalogTransportCodec(),
-  ComicCatalogTransportCodec(),
-  GameCatalogTransportCodec(),
-  MangaCatalogTransportCodec(),
-  MovieCatalogTransportCodec(),
-  MusicCatalogTransportCodec(),
-  TvCatalogTransportCodec(),
-];
+export 'package:collectarr_app/features/catalog/catalog_transport_summary_registry.dart'
+    show libraryCatalogTransportCodecs;
 
 CatalogDisplaySummary summarizeCatalogTransport(CatalogItemDto item) {
-  final codec = libraryCatalogTransportCodecs.firstWhere(
-    (candidate) => candidate.kind == item.mediaKind,
-    orElse: () => throw StateError(
-      'No Catalog Item codec is registered for ${item.mediaKind.apiValue}.',
-    ),
-  );
-  return codec.summarizeTransport(item);
+  return summarizeCatalogTransportPayload(item);
 }
 
 List<CatalogKindLookup> libraryCatalogLookups(LocalDatabase database) => [
