@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "97c2788879a63ab77a3a70e6c94fd2f81df2a87e",
+  "coreCommit": "8955d19d5c986062aa18bcf15e7af47a26d75d2d",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-03T14:17:35.770064Z",
+  "generatedAt": "2026-10-03T14:36:15.916475Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -4963,6 +4963,16 @@
             }
           ]
         },
+        "franchise": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "genres": {
           "anyOf": [
             {
@@ -5061,7 +5071,30 @@
             }
           ]
         },
+        "languages": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "localized_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "original_language": {
           "anyOf": [
             {
               "type": "string"
@@ -5082,6 +5115,16 @@
           ]
         },
         "physical_format": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "physical_format_label": {
           "anyOf": [
             {
               "type": "string"

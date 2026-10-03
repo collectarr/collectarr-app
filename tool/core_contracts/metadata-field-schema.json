@@ -2852,6 +2852,54 @@
     {
       "common": false,
       "editable": true,
+      "input": "text",
+      "key": "franchise",
+      "kind": "game",
+      "label": "Franchise",
+      "normalized": false,
+      "scope": "catalog_item",
+      "section": "relations",
+      "sourceEntityType": "catalog_game_item",
+      "sourceTable": "game_items",
+      "typed": false,
+      "valueType": "string",
+      "writeTarget": "core_canonical"
+    },
+    {
+      "common": false,
+      "editable": true,
+      "input": "text",
+      "key": "original_language",
+      "kind": "game",
+      "label": "Original language",
+      "normalized": false,
+      "scope": "catalog_item",
+      "section": "regional",
+      "sourceEntityType": "catalog_game_item",
+      "sourceTable": "game_items",
+      "typed": false,
+      "valueType": "string",
+      "writeTarget": "core_canonical"
+    },
+    {
+      "common": false,
+      "editable": true,
+      "input": "list",
+      "key": "languages",
+      "kind": "game",
+      "label": "Languages",
+      "normalized": false,
+      "scope": "catalog_item",
+      "section": "regional",
+      "sourceEntityType": "catalog_game_item",
+      "sourceTable": "game_items",
+      "typed": false,
+      "valueType": "string_list",
+      "writeTarget": "core_canonical"
+    },
+    {
+      "common": false,
+      "editable": true,
       "input": "list",
       "key": "contributors",
       "kind": "boardgame",
@@ -7730,5 +7778,5 @@
       "writeTarget": "core_canonical"
     }
   ],
-  "generatedAt": "2026-10-03T14:17:35.770064Z"
+  "generatedAt": "2026-10-03T14:36:15.916475Z"
 }

@@ -5779,6 +5779,17 @@
             ],
             "title": "External Links"
           },
+          "franchise": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Franchise"
+          },
           "genres": {
             "anyOf": [
               {
@@ -5847,6 +5858,20 @@
             ],
             "title": "Language"
           },
+          "languages": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Languages"
+          },
           "localized_title": {
             "anyOf": [
               {
@@ -5857,6 +5882,17 @@
               }
             ],
             "title": "Localized Title"
+          },
+          "original_language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Language"
           },
           "original_title": {
             "anyOf": [
@@ -5879,6 +5915,17 @@
               }
             ],
             "title": "Physical Format"
+          },
+          "physical_format_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Physical Format Label"
           },
           "platforms": {
             "anyOf": [
