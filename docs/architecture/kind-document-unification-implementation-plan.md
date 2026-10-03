@@ -42,9 +42,9 @@ slice. This is progress, not completion of this plan:
   payload; the canonical disc/track fields match the saved Music ledger.
 - The unused Add-side `sameTracks`/normalization helper file has been removed;
   the active Music inspector uses its kind-owned track widget and models. The
-  generic inspector widget remains temporarily because an existing widget
-  test still imports it; its migration belongs in the deferred final test and
-  compatibility review.
+  unused generic inspector widget and shared disc/track DTOs were removed after
+  the App source audit found no runtime callers; stale test imports remain for
+  the deferred final test cleanup.
 - The shared personal editor now accepts kind-contributed fields. Music's
   `Signed By` vocabulary loading and persistence live in its edit module; the
   shared editor no longer switches on Music or reads its vocabulary directly.
@@ -201,6 +201,10 @@ slice. This is progress, not completion of this plan:
   App transport surface after the active-library audit found no production
   consumers. Their remaining references are confined to old tests and
   fixtures, which are deferred until the final test cleanup pass.
+- Music development seed tracks and discs now use Music-specific seed values
+  and encode into the canonical contained `discs -> tracks` document shape.
+  The obsolete generic inspector and Core API disc/track DTOs are gone; Music's
+  active model and editor remain the only production owners of track data.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.

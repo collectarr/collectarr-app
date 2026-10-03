@@ -6,13 +6,11 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
-export 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/game_catalog_details_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/video_catalog_details_dto.dart';
 export 'package:collectarr_app/core/models/catalog_media_kind.dart';
 

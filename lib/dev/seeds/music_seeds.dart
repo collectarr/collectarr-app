@@ -269,55 +269,55 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'SHVL 804',
           releaseStatus: 'Official',
           discs: [
-            CatalogDiscDto(discNumber: 1, name: 'Vinyl LP (Side 1 & 2)'),
+            MusicSeedDisc(discNumber: 1, name: 'Vinyl LP (Side 1 & 2)'),
           ],
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Speak to Me',
                 durationSeconds: 67,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'Breathe (In the Air)',
                 durationSeconds: 169,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'On the Run',
                 durationSeconds: 225,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'Time',
                 durationSeconds: 413,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'The Great Gig in the Sky',
                 durationSeconds: 284,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6',
                 title: 'Money',
                 durationSeconds: 382,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Us and Them',
                 durationSeconds: 469,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'Any Colour You Like',
                 durationSeconds: 205,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'Brain Damage',
                 durationSeconds: 228,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10',
                 title: 'Eclipse',
                 durationSeconds: 123,
@@ -359,37 +359,37 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'BSK 3010',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Second Hand News',
                 durationSeconds: 163),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Dreams', durationSeconds: 254),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'Never Going Back Again',
                 durationSeconds: 134),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Don\'t Stop', durationSeconds: 191),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Go Your Own Way',
                 durationSeconds: 218),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Songbird', durationSeconds: 200),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7', title: 'The Chain', durationSeconds: 268),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'You Make Loving Fun',
                 durationSeconds: 211),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'I Don\'t Want to Know',
                 durationSeconds: 195),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Oh Daddy', durationSeconds: 234),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'Gold Dust Woman',
                 durationSeconds: 291),
@@ -430,17 +430,17 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'CL 1355',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'So What', durationSeconds: 562),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'Freddie Freeloader',
                 durationSeconds: 586),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3', title: 'Blue in Green', durationSeconds: 337),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'All Blues', durationSeconds: 693),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Flamenco Sketches',
                 durationSeconds: 566),
@@ -479,29 +479,29 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'QE 38112',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Wanna Be Startin\' Somethin\'',
                 durationSeconds: 363),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Baby Be Mine', durationSeconds: 260),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'The Girl Is Mine (with Paul McCartney)',
                 durationSeconds: 222),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Thriller', durationSeconds: 357),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5', title: 'Beat It', durationSeconds: 258),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Billie Jean', durationSeconds: 294),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7', title: 'Human Nature', durationSeconds: 246),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'P.Y.T. (Pretty Young Thing)',
                 durationSeconds: 239),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'The Lady in My Life',
                 durationSeconds: 300),
@@ -541,35 +541,35 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'DGC-24425',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Smells Like Teen Spirit',
                 durationSeconds: 301),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'In Bloom', durationSeconds: 254),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'Come as You Are',
                 durationSeconds: 219),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Breed', durationSeconds: 183),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5', title: 'Lithium', durationSeconds: 257),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Polly', durationSeconds: 177),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Territorial Pissings',
                 durationSeconds: 142),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8', title: 'Drain You', durationSeconds: 223),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9', title: 'Lounge Act', durationSeconds: 156),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Stay Away', durationSeconds: 212),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11', title: 'On a Plain', durationSeconds: 196),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12',
                 title: 'Something in the Way',
                 durationSeconds: 232),
@@ -610,49 +610,49 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: '88883716861',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Give Life Back to Music',
                 durationSeconds: 275),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'The Game of Love',
                 durationSeconds: 322),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'Giorgio by Moroder',
                 durationSeconds: 544),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Within', durationSeconds: 228),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Instant Crush (feat. Julian Casablancas)',
                 durationSeconds: 337),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6',
                 title: 'Lose Yourself to Dance (feat. Pharrell Williams)',
                 durationSeconds: 353),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Touch (feat. Paul Williams)',
                 durationSeconds: 498),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'Get Lucky (feat. Pharrell Williams)',
                 durationSeconds: 369),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9', title: 'Beyond', durationSeconds: 290),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Motherboard', durationSeconds: 341),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'Fragments of Time (feat. Todd Edwards)',
                 durationSeconds: 279),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12',
                 title: 'Doin\' It Right (feat. Panda Bear)',
                 durationSeconds: 251),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '13', title: 'Contact', durationSeconds: 381),
           ],
         ),
@@ -689,41 +689,41 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'NODATA 02',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'Airbag', durationSeconds: 284),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'Paranoid Android',
                 durationSeconds: 383),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'Subterranean Homesick Alien',
                 durationSeconds: 267),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'Exit Music (For a Film)',
                 durationSeconds: 264),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5', title: 'Let Down', durationSeconds: 299),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Karma Police', durationSeconds: 261),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Fitter Happier',
                 durationSeconds: 117),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'Electioneering',
                 durationSeconds: 230),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'Climbing Up the Walls',
                 durationSeconds: 285),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'No Surprises', durationSeconds: 228),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11', title: 'Lucky', durationSeconds: 259),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12', title: 'The Tourist', durationSeconds: 324),
           ],
         ),
@@ -760,54 +760,53 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'B0022956-01',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Wesley\'s Theory',
                 durationSeconds: 287),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'For Free? (Interlude)',
                 durationSeconds: 130),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3', title: 'King Kunta', durationSeconds: 234),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'Institutionalized',
                 durationSeconds: 271),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5', title: 'These Walls', durationSeconds: 300),
-            CatalogTrackDto(trackNumber: '6', title: 'u', durationSeconds: 268),
-            CatalogTrackDto(
+            MusicSeedTrack(trackNumber: '6', title: 'u', durationSeconds: 268),
+            MusicSeedTrack(
                 trackNumber: '7', title: 'Alright', durationSeconds: 219),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'For Sale? (Interlude)',
                 durationSeconds: 291),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9', title: 'Momma', durationSeconds: 283),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10',
                 title: 'Hood Politics',
                 durationSeconds: 283),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'How Much a Dollar Cost',
                 durationSeconds: 261),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12',
                 title: 'Complexion (A Zulu Love)',
                 durationSeconds: 263),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '13',
                 title: 'The Blacker the Berry',
                 durationSeconds: 328),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '14',
                 title: 'You Ain\'t Gotta Lie (Momma Said)',
                 durationSeconds: 241),
-            CatalogTrackDto(
-                trackNumber: '15', title: 'i', durationSeconds: 336),
-            CatalogTrackDto(
+            MusicSeedTrack(trackNumber: '15', title: 'i', durationSeconds: 336),
+            MusicSeedTrack(
                 trackNumber: '16', title: 'Mortal Man', durationSeconds: 727),
           ],
         ),
@@ -846,57 +845,57 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'PCS 7088',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'Come Together', durationSeconds: 259),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Something', durationSeconds: 182),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'Maxwell\'s Silver Hammer',
                 durationSeconds: 207),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Oh! Darling', durationSeconds: 207),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Octopus\'s Garden',
                 durationSeconds: 171),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6',
                 title: 'I Want You (She\'s So Heavy)',
                 durationSeconds: 467),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Here Comes the Sun',
                 durationSeconds: 185),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8', title: 'Because', durationSeconds: 165),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'You Never Give Me Your Money',
                 durationSeconds: 242),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Sun King', durationSeconds: 146),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'Mean Mr. Mustard',
                 durationSeconds: 66),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12', title: 'Polythene Pam', durationSeconds: 72),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '13',
                 title: 'She Came In Through the Bathroom Window',
                 durationSeconds: 117),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '14',
                 title: 'Golden Slumbers',
                 durationSeconds: 91),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '15',
                 title: 'Carry That Weight',
                 durationSeconds: 96),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '16', title: 'The End', durationSeconds: 140),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '17', title: 'Her Majesty', durationSeconds: 23),
           ],
         ),
@@ -934,29 +933,29 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'SD 7208',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'Black Dog', durationSeconds: 296),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Rock and Roll', durationSeconds: 220),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'The Battle of Evermore',
                 durationSeconds: 351),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'Stairway to Heaven',
                 durationSeconds: 482),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Misty Mountain Hop',
                 durationSeconds: 278),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Four Sticks', durationSeconds: 284),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Going to California',
                 durationSeconds: 211),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'When the Levee Breaks',
                 durationSeconds: 427),
@@ -995,37 +994,37 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'SF 8287',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'Five Years', durationSeconds: 282),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Soul Love', durationSeconds: 214),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'Moonage Daydream',
                 durationSeconds: 280),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Starman', durationSeconds: 250),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'It Ain\'t Easy',
                 durationSeconds: 178),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Lady Stardust', durationSeconds: 201),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7', title: 'Star', durationSeconds: 167),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'Hang On to Yourself',
                 durationSeconds: 160),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'Ziggy Stardust',
                 durationSeconds: 193),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10',
                 title: 'Suffragette City',
                 durationSeconds: 205),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'Rock \'n\' Roll Suicide',
                 durationSeconds: 178),
@@ -1064,45 +1063,45 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'EMTC 103',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Death on Two Legs (Dedicated to...)',
                 durationSeconds: 223),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'Lazing on a Sunday Afternoon',
                 durationSeconds: 67),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'I\'m in Love with My Car',
                 durationSeconds: 185),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'You\'re My Best Friend',
                 durationSeconds: 172),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5', title: '\'39', durationSeconds: 211),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Sweet Lady', durationSeconds: 243),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Seaside Rendezvous',
                 durationSeconds: 135),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'The Prophet\'s Song',
                 durationSeconds: 500),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'Love of My Life',
                 durationSeconds: 219),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Good Company', durationSeconds: 203),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'Bohemian Rhapsody',
                 durationSeconds: 355),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12',
                 title: 'God Save the Queen',
                 durationSeconds: 75),
@@ -1141,31 +1140,31 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'WBRLP4',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'Angel', durationSeconds: 379),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Risingson', durationSeconds: 298),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3', title: 'Teardrop', durationSeconds: 329),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'Inertia Creeps',
                 durationSeconds: 356),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5', title: 'Exchange', durationSeconds: 251),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6',
                 title: 'Dissolved Girl',
                 durationSeconds: 367),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7', title: 'Man Next Door', durationSeconds: 355),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8', title: 'Black Milk', durationSeconds: 381),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9', title: 'Mezzanine', durationSeconds: 354),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Group Four', durationSeconds: 497),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11', title: '(Exchange)', durationSeconds: 254),
           ],
         ),
@@ -1202,31 +1201,31 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: '828 553-1',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'Mysterons', durationSeconds: 302),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Sour Times', durationSeconds: 251),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3', title: 'Strangers', durationSeconds: 235),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'It Could Be Sweet',
                 durationSeconds: 256),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Wandering Star',
                 durationSeconds: 291),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'It\'s a Fire', durationSeconds: 229),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7', title: 'Numb', durationSeconds: 234),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8', title: 'Roads', durationSeconds: 302),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9', title: 'Pedestal', durationSeconds: 219),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Biscuit', durationSeconds: 301),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11', title: 'Glory Box', durationSeconds: 306),
           ],
         ),
@@ -1265,69 +1264,69 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           catalogNumber: 'CBS CLASH 3',
           releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'London Calling',
                 durationSeconds: 199),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'Brand New Cadillac',
                 durationSeconds: 128),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3', title: 'Jimmy Jazz', durationSeconds: 234),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Hateful', durationSeconds: 164),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Rudie Can\'t Fail',
                 durationSeconds: 209),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Spanish Bombs', durationSeconds: 198),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'The Right Profile',
                 durationSeconds: 234),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'Lost in the Supermarket',
                 durationSeconds: 227),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9', title: 'Clampdown', durationSeconds: 229),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10',
                 title: 'The Guns of Brixton',
                 durationSeconds: 189),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'Wrong \'Em Boyo',
                 durationSeconds: 190),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12',
                 title: 'Death or Glory',
                 durationSeconds: 235),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '13', title: 'Koka Kola', durationSeconds: 107),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '14',
                 title: 'The Card Cheat',
                 durationSeconds: 229),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '15',
                 title: 'Lover\'s Rock',
                 durationSeconds: 243),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '16',
                 title: 'Four Horsemen',
                 durationSeconds: 175),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '17',
                 title: 'I\'m Not Down',
                 durationSeconds: 186),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '18',
                 title: 'Revolution Rock',
                 durationSeconds: 333),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '19',
                 title: 'Train in Vain',
                 durationSeconds: 181),
