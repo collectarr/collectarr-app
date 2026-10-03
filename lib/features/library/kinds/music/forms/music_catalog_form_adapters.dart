@@ -105,7 +105,6 @@ abstract final class MusicAlbumFormAdapter {
         contributions:
             List.unmodifiable(contributions ?? original.contributions),
         artistCredits: List.unmodifiable(values.artistCredits),
-        labels: original.labels,
         identifiers: original.identifiers,
         mediums: List.unmodifiable(mediums ?? original.mediums),
       );

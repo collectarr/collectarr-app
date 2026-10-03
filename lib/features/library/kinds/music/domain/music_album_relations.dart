@@ -43,42 +43,6 @@ final class MusicArtistCredit implements JsonEncodable {
       };
 }
 
-/// A release label/catalog-number pair.
-@immutable
-final class MusicAlbumLabel implements JsonEncodable {
-  const MusicAlbumLabel({
-    required this.id,
-    this.labelId,
-    required this.labelName,
-    this.catalogNumber,
-    this.sequence,
-  });
-
-  final String id;
-  final String? labelId;
-  final String labelName;
-  final String? catalogNumber;
-  final int? sequence;
-
-  factory MusicAlbumLabel.fromJson(Map<String, dynamic> json) =>
-      MusicAlbumLabel(
-        id: _text(json['id']) ?? '',
-        labelId: _text(json['label_id']),
-        labelName: _text(json['label_name']) ?? '',
-        catalogNumber: _text(json['catalog_number']),
-        sequence: _int(json['sequence']),
-      );
-
-  @override
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        if (labelId != null) 'label_id': labelId,
-        'label_name': labelName,
-        if (catalogNumber != null) 'catalog_number': catalogNumber,
-        if (sequence != null) 'sequence': sequence,
-      };
-}
-
 /// A release credit row matching Core's music_album_contributions table.
 ///
 /// The canonical relation is identified by [personId]; display data is kept

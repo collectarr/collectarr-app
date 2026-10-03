@@ -57,7 +57,6 @@ final class MusicAlbum implements JsonEncodable {
     this.boxSet,
     this.contributions = const [],
     this.artistCredits = const [],
-    this.labels = const [],
     this.identifiers = const [],
     this.mediums = const [],
     this.mediumTypesSummary = const [],
@@ -118,7 +117,6 @@ final class MusicAlbum implements JsonEncodable {
   final String? boxSet;
   final List<MusicAlbumContribution> contributions;
   final List<MusicArtistCredit> artistCredits;
-  final List<MusicAlbumLabel> labels;
   final List<MusicAlbumIdentifier> identifiers;
   final List<MusicMedium> mediums;
 
@@ -231,10 +229,6 @@ final class MusicAlbum implements JsonEncodable {
         for (final value in _maps(json['artist_credits']))
           MusicArtistCredit.fromJson(value),
       ],
-      labels: [
-        for (final value in _maps(json['labels']))
-          MusicAlbumLabel.fromJson(value),
-      ],
       identifiers: [
         for (final value in _maps(json['identifiers']))
           MusicAlbumIdentifier.fromJson(value),
@@ -317,8 +311,6 @@ final class MusicAlbum implements JsonEncodable {
         if (artistCredits.isNotEmpty)
           'artist_credits':
               artistCredits.map((value) => value.toJson()).toList(),
-        if (labels.isNotEmpty)
-          'labels': labels.map((value) => value.toJson()).toList(),
         if (identifiers.isNotEmpty)
           'identifiers': identifiers.map((value) => value.toJson()).toList(),
         'mediums': mediums.map((medium) => medium.toJson()).toList(),

@@ -47,8 +47,7 @@ final class MusicCatalogMapper {
         'release_date_parts': album.releaseDateParts!.toJson(),
       } else if (album.releaseDate != null)
         'release_date': album.releaseDate!.toIso8601String(),
-      if (album.publisher != null || album.labels.isNotEmpty)
-        'label': album.publisher ?? album.labels.firstOrNull?.labelName,
+      if (album.publisher != null) 'label': album.publisher,
       if (album.format ?? album.mediumTypes.firstOrNull case final format?)
         'format': format,
       if (album.barcode ?? album.upc case final barcode?) 'barcode': barcode,
