@@ -1,6 +1,5 @@
 export 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 export 'package:collectarr_app/features/library/kinds/game/data/local/game_local_tables.dart';
-export 'package:collectarr_app/features/library/kinds/game/data/local/game_library_entry_local_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/game/data/game_entry_repository.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
