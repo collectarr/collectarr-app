@@ -191,9 +191,10 @@ slice. This is progress, not completion of this plan:
   object. Their series title is a direct kind-owned value; TV's season and
   episode numbers remain direct typed item fields. Core now accepts and returns
   `series_title` for these kinds, and the pinned catalog contract was
-  regenerated. The development seed factory also flattens its existing typed
-  detail inputs into the item document instead of writing `series`, `video`,
-  `game`, `music`, or `publishing` wrapper objects.
+  regenerated. Core's editorial field schema also exposes it to Admin
+  corrections. The development seed factory flattens its detail inputs into
+  the item document instead of writing `series`, `video`, `game`, `music`, or
+  `publishing` wrapper objects.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
