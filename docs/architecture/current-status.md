@@ -66,15 +66,16 @@ claim completion of every cleanup item or literal CLZ parity.
   kind-owned transport document. Business-field getters and cross-kind aliases
   have been removed. Development fixture helpers still have convenience
   inputs that need a separate kind-ownership review.
-- Anime and TV still have active `CatalogEditionDto` and Work/Release-shaped
-  presentation adapters over their flat Catalog Item records. Replace these
-  with kind-owned contained media/season/episode models, then remove the old
-  projection paths. Anime's workspace, transport codec, identifier lookup, and
-  manual Add, and episode hierarchy now use `AnimeMetadata` directly. The
+- TV still has a Work/Release-shaped edit repository and presentation path over
+  its flat Catalog Item records. Replace it with kind-owned contained
+  media/season/episode models, then remove that old edit path. Anime's
+  workspace, transport codec, identifier lookup, manual Add, and episode
+  hierarchy now use `AnimeMetadata` directly. The
   obsolete Anime media/release models and media-parent episode model are gone;
   the old mixed repository is now only a user-created episode store. Anime's
-  custom Edit field controllers and TV's older workspace projection remain
-  active and need migration.
+  custom Edit field controllers remain active. TV's workspace, transport
+  codec, and identifier lookup now read `TvSeriesMetadata` directly; the old
+  TV repository and edit tabs still depend on `TvSeries`/`TvRelease`.
 - `LibraryEntryPersonalSection` now renders its fields from kind-contributed
   specs for editor type, area, order, pick-list ownership, currency linkage,
   and status options; it no longer hardcodes universal field keys. The shared

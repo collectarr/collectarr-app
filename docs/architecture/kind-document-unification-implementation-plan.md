@@ -86,8 +86,9 @@ slice. This is progress, not completion of this plan:
   directly. The intermediate workspace mapper and its legacy `AnimeMedia`
   conversion were removed. Catalog lookup now also decodes the root metadata
   document directly, and the former mixed Anime catalog repository was reduced
-  to the separate user-created episode store. Legacy `AnimeMedia` and
-  `AnimeRelease` form adapters remain for a later Add-form consolidation.
+  to the separate user-created episode store. Anime manual Add now edits that
+  same typed metadata model; its legacy media/release form adapters and domain
+  models have been removed.
 - Anime and TV metadata now own the catalog display fields used by their
   candidate projections, including title variants, search aliases, covers,
   and partial release dates. Their decoders no longer accept the obsolete
@@ -248,9 +249,11 @@ slice. This is progress, not completion of this plan:
 - TV root media now uses the kind-owned `TvMediaMetadata` shape matching Core's
   `TV_MEDIA` document. TV metadata no longer serializes generic editions or a
   parallel physical-release list, and its media tab and vocabulary readers use
-  the contained root values. The older TV workspace `TvRelease` projection and
-  editor are still outstanding and are not represented as part of the Core
-  document.
+  the contained root values. TV's transport codec, workspace projection, and
+  identifier lookup now consume `TvSeriesMetadata` directly; the synthetic
+  `TvSeries` workspace conversion and its raw-map field reads are removed. The
+  older TV repository and edit tabs still consume `TvSeries`/`TvRelease` and
+  remain to be moved to the root document.
 - Manga metadata no longer exposes a generic `CatalogEditionDto` list or
   release conversion helpers. Manual Add writes its edition, format, and
   identifier values directly on the Manga document; the unused release
@@ -337,10 +340,9 @@ graphs from the remaining kinds; and finishing kind-owned field, schema, and
 form organization. Anime's workspace, lookup, catalog transport, manual Add,
 and episode hierarchy now use the flattened typed document. Its current Edit
 UI still has a custom controller with duplicate field controllers to move into
-the shared typed form infrastructure.
-The legacy TV workspace projection and its contained projection models still
-retain raw payload maps; the active root `TvSeriesMetadata` model no longer
-does.
+the shared typed form infrastructure. TV's workspace no longer uses the legacy
+`TvSeries` projection or raw payload maps; the older TV edit repository and
+tabs remain to be moved to the root `TvSeriesMetadata` document.
 Manga's root map has been removed, but App/Core field ownership differences
 remain under review against its provisional ledger. Game's
 PriceCharting identifier and valuation snapshots still need an ownership
