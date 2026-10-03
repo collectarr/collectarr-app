@@ -259,11 +259,7 @@ class ComicCatalogItem implements JsonEncodable {
         'cover_price_cents': publishing!.coverPriceCents,
       if (publishing?.currency != null) 'currency': publishing!.currency,
     };
-    return {
-      for (final entry in payload.entries)
-        if (_comicCatalogItemPayloadKeys.contains(entry.key))
-          entry.key: entry.value,
-    };
+    return payload;
   }
 
   ComicCatalogItem copyWith({
@@ -532,61 +528,3 @@ List<Map<String, dynamic>> _comicCredits(
       for (final name in names)
         if (name.trim().isNotEmpty) {'name': name.trim(), 'role': role},
     ];
-
-const _comicCatalogItemPayloadKeys = <String>{
-  'id',
-  'kind',
-  'revision',
-  'title',
-  'sort_key',
-  'age_rating',
-  'audience_rating',
-  'barcode',
-  'catalog_number',
-  'character_details',
-  'characters',
-  'contributors',
-  'country',
-  'cover_image_url',
-  'cover_date',
-  'cover_price_cents',
-  'creators',
-  'crossover',
-  'currency',
-  'description',
-  'edition_title',
-  'external_links',
-  'genres',
-  'identifiers',
-  'imprint',
-  'issue_number',
-  'item_number',
-  'key_comic',
-  'key_events',
-  'key_reason',
-  'language',
-  'localized_title',
-  'original_title',
-  'page_count',
-  'physical_format',
-  'plot_description',
-  'plot_summary',
-  'publisher',
-  'release_date',
-  'release_date_parts',
-  'release_status',
-  'search_aliases',
-  'series_group',
-  'series_tags',
-  'series_title',
-  'story_arcs',
-  'subtitle',
-  'synopsis',
-  'thumbnail_image_url',
-  'title_extension',
-  'variant_name',
-  'variant_description',
-  'volume_name',
-  'volume_number',
-  'volume_start_year',
-};
