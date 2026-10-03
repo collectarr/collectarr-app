@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details_draft.dart';
@@ -61,13 +63,22 @@ final class TvLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
 
   TvLibraryEntry toLibraryEntry({
     required String id,
+    required CatalogItemDto sourceCatalogItem,
     required DateTime createdAt,
     required bool? existingIsDigital,
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
+    if (sourceCatalogItem.mediaKind != CatalogMediaKind.tv) {
+      throw ArgumentError.value(
+        sourceCatalogItem.mediaKind,
+        'sourceCatalogItem',
+        'TV entries require a TV catalog item.',
+      );
+    }
     return TvLibraryEntry(
       id: LibraryEntryId(id),
+      metadata: TvSeriesMetadata.fromJson(sourceCatalogItem.kindData),
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,
       details: details.toDetails(),

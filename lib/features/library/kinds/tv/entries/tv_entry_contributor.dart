@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_entry_repository.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/entries/tv_library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/tv/entries/tv_library_entry_update_payload.dart';
@@ -14,8 +13,9 @@ final tvEntryContributor = TypedEntryKindContributor<TvLibraryEntry>(
       TvEntryRepository(database).findById(LibraryEntryId(id)),
   upsert: (database, item) => TvEntryRepository(database).upsert(item),
   listActive: (database) => TvEntryRepository(database).listActive(),
-  createItem: ({
+  createItemWithCatalog: ({
     required payload,
+    required sourceCatalogItem,
     required id,
     required createdAt,
     required existingIsDigital,
@@ -27,6 +27,7 @@ final tvEntryContributor = TypedEntryKindContributor<TvLibraryEntry>(
     }
     return payload.toLibraryEntry(
       id: id,
+      sourceCatalogItem: sourceCatalogItem,
       createdAt: createdAt,
       existingIsDigital: existingIsDigital,
       ownerUserId: ownerUserId,

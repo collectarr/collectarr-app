@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -13,11 +12,11 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_un
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
 final tvDevSeedContributor = TypedDevSeedKindContributor<TvLibraryEntry>(
   kind: CatalogMediaKind.tv,
@@ -985,32 +984,40 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
     ];
 
-List<TvLibraryEntry> tvSeedLibraryEntries(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.tv, 15))
-        TvLibraryEntry(
-          id: LibraryEntryId('seed-entry-$itemId'),
-          sourceCatalogRef:
-              seedCatalogRef(CatalogMediaKind.tv, itemId).toCatalogItemRef(),
-          createdAt: now.subtract(const Duration(days: 280)),
-          updatedAt: now,
-          isDigital: false,
-          condition: 'Near Mint',
-          details: const TvEntryDetails(
-            features: 'Commentary, deleted scenes, making-of documentary',
-            hdrFormats: ['HDR10', 'Dolby Vision'],
-            boxSetName: 'Complete Series Box Set',
-            region: 'Region Free',
-            packaging: 'Collector box',
-            distributor: 'Warner Bros. Home Entertainment',
-          ),
-          purchaseDate: DateTime.utc(2022, 5, 10),
-          pricePaidCents: 4999,
-          currency: 'USD',
-          personalNotes: 'Complete box set in pristine condition.',
-          purchaseStore: 'Amazon',
-          collectionStatus: 'collected',
+List<TvLibraryEntry> tvSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in tvSeedCatalogItems())
+      item.id: TvSeriesMetadata.fromJson(item.kindData),
+  };
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.tv, 15))
+      TvLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId] ??
+            (throw StateError('Missing TV seed catalog item: $itemId')),
+        sourceCatalogRef:
+            seedCatalogRef(CatalogMediaKind.tv, itemId).toCatalogItemRef(),
+        createdAt: now.subtract(const Duration(days: 280)),
+        updatedAt: now,
+        isDigital: false,
+        condition: 'Near Mint',
+        details: const TvEntryDetails(
+          features: 'Commentary, deleted scenes, making-of documentary',
+          hdrFormats: ['HDR10', 'Dolby Vision'],
+          boxSetName: 'Complete Series Box Set',
+          region: 'Region Free',
+          packaging: 'Collector box',
+          distributor: 'Warner Bros. Home Entertainment',
         ),
-    ];
+        purchaseDate: DateTime.utc(2022, 5, 10),
+        pricePaidCents: 4999,
+        currency: 'USD',
+        personalNotes: 'Complete box set in pristine condition.',
+        purchaseStore: 'Amazon',
+        collectionStatus: 'collected',
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> tvSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
