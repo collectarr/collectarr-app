@@ -10,7 +10,8 @@ TransferableField gameTransferField({
   required IconData icon,
   required TransferableFieldType type,
   required String? Function(GameLibraryEntry item) read,
-  required GameLibraryEntry Function(GameLibraryEntry item, String? value) write,
+  required GameLibraryEntry Function(GameLibraryEntry item, String? value)
+      write,
   LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
   return TransferableField.typed<GameLibraryEntry>(
@@ -29,39 +30,51 @@ final gameUniversalTransferableFields =
     TransferableField.universalForTyped<GameLibraryEntry>(
   decode: (value) => value as GameLibraryEntry,
   readCondition: (item) => item.condition,
-  writeCondition: (item, value) => item.copyWith(condition: value),
+  writeCondition: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(condition: value)),
   readPersonalNotes: (item) => item.personalNotes,
-  writePersonalNotes: (item, value) => item.copyWith(personalNotes: value),
+  writePersonalNotes: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(personalNotes: value)),
   readLocationId: (item) => item.locationId,
-  writeLocationId: (item, value) => item.copyWith(locationId: value),
+  writeLocationId: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(locationId: value)),
   readTags: (item) => item.tags,
-  writeTags: (item, value) => item.copyWith(tags: value),
+  writeTags: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(tags: value)),
   readCurrency: (item) => item.currency,
-  writeCurrency: (item, value) => item.copyWith(currency: value),
+  writeCurrency: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(currency: value)),
   readSoldTo: (item) => item.soldTo,
-  writeSoldTo: (item, value) => item.copyWith(soldTo: value),
+  writeSoldTo: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(soldTo: value)),
   readPurchaseStore: (item) => item.purchaseStore,
-  writePurchaseStore: (item, value) => item.copyWith(purchaseStore: value),
+  writePurchaseStore: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(purchaseStore: value)),
   readPricePaidCents: (item) => item.pricePaidCents?.toString(),
   writePricePaidCents: (item, value) => item.copyWith(
+      personal: item.personal.copyWith(
     pricePaidCents: value == null ? null : int.tryParse(value),
-  ),
+  )),
   readSellPriceCents: (item) => item.sellPriceCents?.toString(),
   writeSellPriceCents: (item, value) => item.copyWith(
+      personal: item.personal.copyWith(
     sellPriceCents: value == null ? null : int.tryParse(value),
-  ),
+  )),
   readIndexNumber: (item) => item.indexNumber?.toString(),
   writeIndexNumber: (item, value) => item.copyWith(
+      personal: item.personal.copyWith(
     indexNumber: value == null ? null : int.tryParse(value),
-  ),
+  )),
   readPurchaseDate: (item) => item.purchaseDate?.toIso8601String(),
   writePurchaseDate: (item, value) => item.copyWith(
+      personal: item.personal.copyWith(
     purchaseDate: value == null ? null : DateTime.tryParse(value),
-  ),
+  )),
   readSoldAt: (item) => item.soldAt?.toIso8601String(),
   writeSoldAt: (item, value) => item.copyWith(
+      personal: item.personal.copyWith(
     soldAt: value == null ? null : DateTime.tryParse(value),
-  ),
+  )),
 );
 
 final gameTransferableFields = <TransferableField>[
@@ -71,7 +84,8 @@ final gameTransferableFields = <TransferableField>[
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
     read: (item) => item.grade,
-    write: (item, value) => item.copyWith(grade: value),
+    write: (item, value) =>
+        item.copyWith(personal: item.personal.copyWith(grade: value)),
   ),
 ];
 

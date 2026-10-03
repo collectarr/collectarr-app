@@ -66,23 +66,29 @@ abstract final class GameVocabularies {
   ) {
     switch (semanticName) {
       case 'condition':
-        return item.copyWith(condition: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(condition: targetValue));
       case 'grade':
-        return item.copyWith(grade: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(grade: targetValue));
       case 'purchase_store':
-        return item.copyWith(purchaseStore: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(purchaseStore: targetValue));
       case 'sold_to':
-        return item.copyWith(soldTo: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(soldTo: targetValue));
       case 'collection_status':
-        return item.copyWith(collectionStatus: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(collectionStatus: targetValue));
       case 'tags':
         return item.copyWith(
+            personal: item.personal.copyWith(
           tags: replacePickListDelimitedValue(
             item.tags,
             normalizedSourceValues,
             targetValue,
           ),
-        );
+        ));
     }
     final key = switch (semanticName) {
       'game_completeness' => 'game_completeness',
@@ -91,7 +97,9 @@ abstract final class GameVocabularies {
     };
     if (key == null) return item;
     final details = item.details.toJson()..[key] = targetValue;
-    return item.copyWith(details: GameEntryDetails.fromJson(details));
+    return item.copyWith(
+        personal: item.personal
+            .copyWith(details: GameEntryDetails.fromJson(details)));
   }
 
   static Iterable<String?> _entryValues(
