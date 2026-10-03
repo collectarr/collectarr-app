@@ -121,8 +121,9 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ),
     if (tvDto?.format?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Format', value: tvDto!.format!),
-    if (libraryEntry?.condition?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Condition', value: libraryEntry!.condition!),
+    if (libraryEntry?.personal.condition?.trim().isNotEmpty == true)
+      LibraryDetailField(
+          label: 'Condition', value: libraryEntry!.personal.condition!),
     if (tvLinks.isNotEmpty)
       LibraryDetailField(label: 'Trailers', value: tvLinks.length.toString()),
   ];

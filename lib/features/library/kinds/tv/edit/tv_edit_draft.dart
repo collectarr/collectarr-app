@@ -110,29 +110,31 @@ class TvEditDraft
   void initializePersonalState(PersonalStateDraft personal) {
     final item = libraryEntry;
     if (item == null) return;
-    personal.ownerLabelController.text = item.ownerLabel ?? '';
-    personal.conditionController.text = item.condition ?? '';
-    personal.gradeController.text = item.grade ?? '';
-    personal.purchaseDateController.text =
-        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
-    personal.priceController.text = item.pricePaidCents == null
+    personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
+    personal.conditionController.text = item.personal.condition ?? '';
+    personal.gradeController.text = item.personal.grade ?? '';
+    personal.purchaseDateController.text = item.personal.purchaseDate == null
         ? ''
-        : (item.pricePaidCents! / 100).toStringAsFixed(2);
-    personal.currencyController.text = item.currency ?? '';
-    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
-    personal.notesController.text = item.personalNotes ?? '';
-    personal.tagsController.text = item.tags ?? '';
-    personal.sellPriceController.text = item.sellPriceCents == null
+        : formatDate(item.personal.purchaseDate!);
+    personal.priceController.text = item.personal.pricePaidCents == null
         ? ''
-        : (item.sellPriceCents! / 100).toStringAsFixed(2);
-    personal.soldToController.text = item.soldTo ?? '';
-    personal.purchaseStoreController.text = item.purchaseStore ?? '';
-    personal.marketValueController.text = item.marketValueCents == null
+        : (item.personal.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.personal.currency ?? '';
+    personal.indexNumberController.text =
+        item.personal.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personal.personalNotes ?? '';
+    personal.tagsController.text = item.personal.tags ?? '';
+    personal.sellPriceController.text = item.personal.sellPriceCents == null
         ? ''
-        : (item.marketValueCents! / 100).toStringAsFixed(2);
-    personal.selectedLocationId = item.locationId;
-    personal.soldAt = item.soldAt;
-    personal.collectionStatus = item.collectionStatus;
+        : (item.personal.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.personal.soldTo ?? '';
+    personal.purchaseStoreController.text = item.personal.purchaseStore ?? '';
+    personal.marketValueController.text = item.personal.marketValueCents == null
+        ? ''
+        : (item.personal.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.personal.locationId;
+    personal.soldAt = item.personal.soldAt;
+    personal.collectionStatus = item.personal.collectionStatus;
   }
 
   @override
@@ -415,7 +417,7 @@ LibraryEditSessionBundle createTvEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final entry = TvLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
-  final video = entry?.details;
+  final video = entry?.personal.details;
   final metadata = item.kindCapability.mapTransport(
       (transport) => TvSeriesMetadata.fromJson(transport.kindData));
   final tv = metadata is TvSeriesMetadata ? metadata : null;

@@ -14,9 +14,9 @@ abstract final class TvLibraryEntryWorkspaceFields {
     id: TvFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final entry =
-          TvLibraryEntryProjection.fromDispatch(context.source.libraryEntryDispatch);
-      return entry is TvLibraryEntry ? entry.condition : null;
+      final entry = TvLibraryEntryProjection.fromDispatch(
+          context.source.libraryEntryDispatch);
+      return entry is TvLibraryEntry ? entry.personal.condition : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
