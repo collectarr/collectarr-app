@@ -74,12 +74,7 @@ final class AnimeCatalogLookup implements CatalogKindLookup {
   }
 
   String? _itemNumber(AnimeMedia media) {
-    return _text(media.rawPayload['item_number']);
-  }
-
-  String? _text(Object? value) {
-    final text = value?.toString().trim();
-    return text == null || text.isEmpty ? null : text;
+    return media.itemNumber;
   }
 
   bool _same(String? value, String normalized) {

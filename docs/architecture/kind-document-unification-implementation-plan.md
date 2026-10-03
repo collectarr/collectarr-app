@@ -166,6 +166,11 @@ slice. This is progress, not completion of this plan:
   the Core document's required `position` and typed media fields. Anime edit,
   vocabulary, and workspace projections consume that root document directly;
   seed data no longer manufactures edition or release nodes.
+- Anime workspace studio display now reads the typed `AnimeMetadata.studios`
+  value, and barcode/title lookup reads typed `AnimeMedia` fields for item
+  number, cover URLs, and barcode instead of indexing those values from its raw
+  map. The old `AnimeMedia`/`AnimeRelease` consumers and raw maps still remain
+  and must move to the single Anime catalog document before this kind is done.
 - Development seeds for all nine kinds now place repeated item data in their
   kind document: media, seasons/episodes, printings, Music discs/tracks, and
   issue or platform details no longer require an edition/release graph. Seed

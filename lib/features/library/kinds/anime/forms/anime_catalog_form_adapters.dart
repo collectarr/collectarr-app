@@ -54,6 +54,10 @@ AnimeMedia animeMediaFromFormValues({
       originalLanguage: _nullable(values.originalLanguage),
       sortTitle: _nullable(values.sortTitle),
       status: _nullable(values.status),
+      itemNumber: original.itemNumber,
+      coverImageUrl: _nullable(values.coverImageUrl),
+      thumbnailImageUrl: original.thumbnailImageUrl,
+      barcode: original.barcode,
       releases: original.releases,
       rawPayload: {
         ..._withoutKeys(original.rawPayload, const {

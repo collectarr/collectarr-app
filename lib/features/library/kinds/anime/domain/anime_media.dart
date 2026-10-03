@@ -124,6 +124,10 @@ final class AnimeMedia implements JsonEncodable {
     this.originalLanguage,
     this.sortTitle,
     this.status,
+    this.itemNumber,
+    this.coverImageUrl,
+    this.thumbnailImageUrl,
+    this.barcode,
     this.releases = const [],
     this.rawPayload = const <String, dynamic>{},
   });
@@ -142,6 +146,10 @@ final class AnimeMedia implements JsonEncodable {
   final String? originalLanguage;
   final String? sortTitle;
   final String? status;
+  final String? itemNumber;
+  final String? coverImageUrl;
+  final String? thumbnailImageUrl;
+  final String? barcode;
   final List<AnimeRelease> releases;
   final Map<String, dynamic> rawPayload;
 
@@ -149,14 +157,14 @@ final class AnimeMedia implements JsonEncodable {
 
   String? get synopsis => description;
   AnimeRelease? get primaryRelease => releases.isEmpty ? null : releases.first;
-  String? get coverImageUrl => _textValue(rawPayload['cover_image_url']);
-  String? get thumbnailImageUrl =>
-      _textValue(rawPayload['thumbnail_image_url']) ?? coverImageUrl;
-  String? get barcode => _textValue(rawPayload['barcode']);
-
   Map<String, dynamic> toSyncPayload() => toJson();
 
   factory AnimeMedia.fromJson(Map<String, dynamic> json) {
+    final rawPayload = Map<String, dynamic>.from(json)
+      ..remove('item_number')
+      ..remove('cover_image_url')
+      ..remove('thumbnail_image_url')
+      ..remove('barcode');
     return AnimeMedia(
       id: AnimeMediaId(_textValue(json['id']) ?? ''),
       title: _textValue(json['title']) ?? '',
@@ -174,10 +182,15 @@ final class AnimeMedia implements JsonEncodable {
       originalLanguage: _textValue(json['original_language']),
       sortTitle: _textValue(json['sort_title']),
       status: _textValue(json['status']),
+      itemNumber: _textValue(json['item_number']),
+      coverImageUrl: _textValue(json['cover_image_url']),
+      thumbnailImageUrl: _textValue(json['thumbnail_image_url']) ??
+          _textValue(json['cover_image_url']),
+      barcode: _textValue(json['barcode']),
       releases: _maps(json['releases'] ?? json['editions'])
           .map(AnimeRelease.fromJson)
           .toList(growable: false),
-      rawPayload: Map<String, dynamic>.from(json),
+      rawPayload: rawPayload,
     );
   }
 
@@ -201,6 +214,10 @@ final class AnimeMedia implements JsonEncodable {
         if (originalLanguage != null) 'original_language': originalLanguage,
         if (sortTitle != null) 'sort_title': sortTitle,
         if (status != null) 'status': status,
+        if (itemNumber != null) 'item_number': itemNumber,
+        if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+        if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+        if (barcode != null) 'barcode': barcode,
         'releases': releases.map((entry) => entry.toJson()).toList(),
       };
 }

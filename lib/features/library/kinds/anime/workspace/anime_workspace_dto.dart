@@ -35,9 +35,7 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
   String? get airingStatus => media.status == null
       ? metadata?.airingStatus.label
       : AnimeAiringStatus.fromString(media.status).label;
-  String? get studio =>
-      _firstString(media.rawPayload['studios']) ??
-      metadata?.studios.firstOrNull;
+  String? get studio => metadata?.studios.firstOrNull;
   String? get publisher => metadata?.publisher ?? studio;
   String? get seriesTitle => metadata?.seriesTitle;
   String? get itemNumber => metadata?.itemNumber;
@@ -58,13 +56,4 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
         if (animeType != null) animeType!,
         if (airingStatus != null) airingStatus!,
       ];
-
-  static String? _firstString(Object? value) {
-    if (value is! Iterable) return null;
-    for (final entry in value) {
-      final text = entry?.toString().trim();
-      if (text != null && text.isNotEmpty) return text;
-    }
-    return null;
-  }
 }
