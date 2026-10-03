@@ -9,6 +9,7 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 
@@ -753,22 +754,24 @@ List<GameLibraryEntry> gameSeedLibraryEntries(DateTime now) {
             seedCatalogRef(CatalogMediaKind.game, itemId).toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 200)),
         updatedAt: now,
-        isDigital: false,
-        condition: 'Mint',
-        details: GameEntryDetails(
-          completeness: 'Complete',
-          hasBox: true,
-          hasManual: true,
-          priceChartingId: 'seed-pricecharting-$itemId',
-          coreRegion: 'NTSC-U',
-          valueIsLocked: false,
+        personal: GamePersonalData(
+          isDigital: false,
+          condition: 'Mint',
+          details: GameEntryDetails(
+            completeness: 'Complete',
+            hasBox: true,
+            hasManual: true,
+            priceChartingId: 'seed-pricecharting-$itemId',
+            coreRegion: 'NTSC-U',
+            valueIsLocked: false,
+          ),
+          purchaseDate: DateTime.utc(2022, 11, 15),
+          pricePaidCents: 5999,
+          currency: 'USD',
+          personalNotes: 'Physical launch edition on disc.',
+          purchaseStore: 'PlayStation Direct / Steam',
+          collectionStatus: 'collected',
         ),
-        purchaseDate: DateTime.utc(2022, 11, 15),
-        pricePaidCents: 5999,
-        currency: 'USD',
-        personalNotes: 'Physical launch edition on disc.',
-        purchaseStore: 'PlayStation Direct / Steam',
-        collectionStatus: 'collected',
       ),
   ];
 }

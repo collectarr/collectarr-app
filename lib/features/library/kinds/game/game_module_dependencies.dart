@@ -20,6 +20,7 @@ export 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_p
 export 'package:collectarr_app/features/library/kinds/game/add/game_catalog_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
+export 'package:collectarr_app/features/library/kinds/game/domain/game_personal_data.dart';
 export 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
