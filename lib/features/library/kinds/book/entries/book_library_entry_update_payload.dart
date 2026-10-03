@@ -89,101 +89,104 @@ final class BookLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload {
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,
   }) {
-    final existingDetails = existing.details;
+    final existingPersonal = existing.personal;
     final codec = const BookEntryDetailsCodec();
     final resolvedDetails = details.when(
-      unchanged: () => existingDetails,
+      unchanged: () => existingPersonal.details,
       set: (draft) {
         final value = draft.toDetails();
         return value;
       },
       clear: () => codec.defaultDetails(),
     );
-    return existing.copyWith(
-      createdAt: existing.createdAt ?? updatedAt,
+    final updatedPersonal = existingPersonal.copyWith(
       isDigital: isDigital.when(
-        unchanged: () => existing.isDigital,
+        unchanged: () => existingPersonal.isDigital,
         set: (value) => value,
         clear: () => null,
       ),
       details: resolvedDetails,
       condition: condition.when(
-        unchanged: () => existing.condition,
+        unchanged: () => existingPersonal.condition,
         set: (value) => value,
         clear: () => null,
       ),
       grade: grade.when(
-        unchanged: () => existing.grade,
+        unchanged: () => existingPersonal.grade,
         set: (value) => value,
         clear: () => null,
       ),
       purchaseDate: purchaseDate.when(
-        unchanged: () => existing.purchaseDate,
+        unchanged: () => existingPersonal.purchaseDate,
         set: (value) => value,
         clear: () => null,
       ),
       pricePaidCents: pricePaidCents.when(
-        unchanged: () => existing.pricePaidCents,
+        unchanged: () => existingPersonal.pricePaidCents,
         set: (value) => value,
         clear: () => null,
       ),
       currency: currency.when(
-        unchanged: () => existing.currency,
+        unchanged: () => existingPersonal.currency,
         set: (value) => value,
         clear: () => null,
       ),
       personalNotes: personalNotes.when(
-        unchanged: () => existing.personalNotes,
+        unchanged: () => existingPersonal.personalNotes,
         set: (value) => value,
         clear: () => null,
       ),
       locationId: locationId.when(
-        unchanged: () => existing.locationId,
+        unchanged: () => existingPersonal.locationId,
         set: (value) => value,
         clear: () => null,
       ),
       purchaseStore: purchaseStore.when(
-        unchanged: () => existing.purchaseStore,
+        unchanged: () => existingPersonal.purchaseStore,
         set: (value) => value,
         clear: () => null,
       ),
       collectionStatus: collectionStatus.when(
-        unchanged: () => existing.collectionStatus,
+        unchanged: () => existingPersonal.collectionStatus,
         set: (value) => value,
         clear: () => null,
       ),
       tags: tags.when(
-        unchanged: () => existing.tags,
+        unchanged: () => existingPersonal.tags,
         set: (value) => value,
         clear: () => null,
       ),
       soldAt: soldAt.when(
-        unchanged: () => existing.soldAt,
+        unchanged: () => existingPersonal.soldAt,
         set: (value) => value,
         clear: () => null,
       ),
       sellPriceCents: sellPriceCents.when(
-        unchanged: () => existing.sellPriceCents,
+        unchanged: () => existingPersonal.sellPriceCents,
         set: (value) => value,
         clear: () => null,
       ),
       soldTo: soldTo.when(
-        unchanged: () => existing.soldTo,
+        unchanged: () => existingPersonal.soldTo,
         set: (value) => value,
         clear: () => null,
       ),
       marketValueCents: marketValueCents.when(
-        unchanged: () => existing.marketValueCents,
+        unchanged: () => existingPersonal.marketValueCents,
         set: (value) => value,
         clear: () => null,
       ),
-      ownerUserId: existing.ownerUserId ?? fallbackOwnerUserId,
-      ownerLabel: existing.ownerLabel ?? fallbackOwnerLabel,
+      ownerUserId: existingPersonal.ownerUserId ?? fallbackOwnerUserId,
+      ownerLabel: existingPersonal.ownerLabel ?? fallbackOwnerLabel,
       indexNumber: indexNumber.when(
-        unchanged: () => existing.indexNumber,
+        unchanged: () => existingPersonal.indexNumber,
         set: (value) => value,
         clear: () => null,
       ),
+    );
+    return existing.copyWith(
+      createdAt: existing.createdAt ?? updatedAt,
+      personal: updatedPersonal,
       updatedAt: updatedAt,
     );
   }

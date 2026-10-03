@@ -61,6 +61,7 @@ final bookEntryContributor = TypedEntryKindContributor<BookLibraryEntry>(
   itemId: (item) => item.id.value,
   markDeleted: (item, deletedAt) =>
       item.copyWith(deletedAt: deletedAt, updatedAt: deletedAt),
-  updateItemLocation: (item, locationId) =>
-      item.copyWith(locationId: locationId),
+  updateItemLocation: (item, locationId) => item.copyWith(
+    personal: item.personal.copyWith(locationId: locationId),
+  ),
 );
