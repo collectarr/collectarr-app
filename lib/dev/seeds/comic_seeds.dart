@@ -94,7 +94,8 @@ List<String> validateComicSeedCatalogGraph(CatalogItemDto item) {
       issues,
       prefix,
       'issues[$index].issue_number',
-      issue['issue_number'] ?? item.itemNumber,
+      issue['issue_number'] ??
+          ComicCatalogItem.fromJson(item.kindData).issueNumber,
     );
   }
   return issues;
@@ -131,7 +132,7 @@ Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
     final issueMap = issue is Map ? issue : const <String, dynamic>{};
     final issueNumber = issueMap['issue_number']?.toString() ??
         issueMap['number']?.toString() ??
-        item.itemNumber ??
+        ComicCatalogItem.fromJson(item.kindData).issueNumber ??
         '1';
     final issueId = issueMap['id']?.toString() ?? 'issue-01';
     yield ComicTrackingUnit(
@@ -155,7 +156,9 @@ CatalogItemDto enrichComicSeedItem(CatalogItemDto item) {
         'id': edition['id']?.toString() ?? '${item.id}-issue-01',
         'kind': 'comic',
         'work_id': item.id,
-        'issue_number': edition['issue_number'] ?? item.itemNumber ?? '1',
+        'issue_number': edition['issue_number'] ??
+            ComicCatalogItem.fromJson(item.kindData).issueNumber ??
+            '1',
         'title': edition['title'] ?? item.editionTitle ?? item.title,
         'publisher': edition['publisher'] ?? item.publisher,
         'imprint': edition['imprint'] ?? item.publisher,

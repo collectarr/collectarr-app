@@ -105,7 +105,9 @@ Iterable<BookTrackingUnit> bookSeedTrackingUnits(
   for (final item in items.where(
     (item) => item.mediaKind == CatalogMediaKind.book,
   )) {
-    final volumeNumber = _seedBookInt(item.itemNumber) ?? 1;
+    final volumeNumber =
+        _seedBookInt(BookCatalogMetadata.fromJson(item.kindData).itemNumber) ??
+            1;
     yield BookTrackingUnit(
       id: 'seed-unit-book-${item.id}',
       libraryEntryRef: seedLibraryEntryRef(

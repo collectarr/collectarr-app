@@ -55,7 +55,7 @@ List<String> validateMovieSeedCatalogGraph(CatalogItemDto item) {
   final prefix = '${item.kind}/${item.id}';
   if (item.payload.containsKey('editions') ||
       item.payload.containsKey('releases') ||
-      item.editions.isNotEmpty) {
+      item.kindData.containsKey('editions')) {
     issues.add('$prefix must be a flat Movie Catalog Item.');
   }
   final media = item.payload['media'];
@@ -134,8 +134,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
     ];
 
 CatalogItemDto _movieSeedItemWithMedia(CatalogItemDto item) {
-  if (item.editions.isNotEmpty ||
-      item.payload.containsKey('editions') ||
+  if (item.kindData.containsKey('editions') ||
       item.payload.containsKey('releases')) {
     throw StateError(
       'Movie seed ${item.id} must define one flat Catalog Item per edition.',

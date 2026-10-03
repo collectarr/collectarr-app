@@ -135,7 +135,9 @@ CatalogItemDto enrichMangaSeedItem(CatalogItemDto item) {
         'id': '${item.id}-chapter-01',
         'kind': 'manga',
         'series_id': item.id,
-        'volume_number': int.tryParse(item.itemNumber ?? '') ?? 1,
+        'volume_number': int.tryParse(
+                MangaMetadata.fromJson(item.kindData).itemNumber ?? '') ??
+            1,
         'chapter_number': 1,
         'title': '${item.title} — Chapter 1',
         'release_date': item.releaseDate?.toUtc().toIso8601String(),

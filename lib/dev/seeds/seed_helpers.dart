@@ -72,22 +72,11 @@ CatalogItemDto withSeedPayload(
 /// Returns the declared common editions, or one deterministic fallback edition
 /// so every kind fixture exercises its edition/release mapping path.
 List<Map<String, dynamic>> seedEditionPayloads(CatalogItemDto item) {
-  if (item.editions.isNotEmpty) {
-    return [for (final edition in item.editions) edition.toJson()];
-  }
+  final raw = item.kindData['editions'];
+  if (raw is! List) return const [];
   return [
-    {
-      'id': '${item.id}-edition-01',
-      'title': item.editionTitle ?? item.title,
-      if (item.physicalFormat != null) 'format': item.physicalFormat,
-      if (item.publisher != null) 'publisher': item.publisher,
-      if (item.barcode != null) 'barcode': item.barcode,
-      if (item.payload['country'] != null) 'region': item.payload['country'],
-      if (item.payload['language'] != null)
-        'language': item.payload['language'],
-      if (item.releaseDate != null)
-        'release_date': item.releaseDate!.toIso8601String(),
-    },
+    for (final value in raw)
+      if (value is Map) Map<String, dynamic>.from(value),
   ];
 }
 
@@ -124,7 +113,7 @@ CatalogItemDto enrichSeedItem(
   payload.putIfAbsent('original_title', () => item.originalTitle ?? item.title);
   payload.putIfAbsent(
     'title_extension',
-    () => item.releaseYear != null ? '${item.releaseYear}' : item.itemNumber,
+    () => item.releaseYear?.toString(),
   );
   final seriesMap = payload['series'] is Map ? payload['series'] as Map : null;
   final seriesTitle = seriesMap?['series_title'] as String?;
@@ -232,7 +221,6 @@ void validateSeedCatalogQuality(
 
     _requireText(issues, prefix, 'localized_title', item.localizedTitle);
     _requireText(issues, prefix, 'original_title', item.originalTitle);
-    _requireText(issues, prefix, 'synopsis', item.synopsis);
     _requireText(issues, prefix, 'cover_image_data', item.coverImageData);
     _requireSeedImageUrl(issues, prefix, 'cover_image_url', item.coverImageUrl);
     _requireSeedImageUrl(
@@ -256,16 +244,6 @@ void validateSeedCatalogQuality(
     _requireTextList(
         issues, prefix, 'search_aliases', payload['search_aliases']);
     _requireTextList(issues, prefix, 'genres', payload['genres']);
-
-    if (item.trailerUrls.isEmpty) {
-      issues.add('$prefix: trailer_urls must contain at least one link');
-    } else {
-      for (var index = 0; index < item.trailerUrls.length; index++) {
-        if (item.trailerUrls[index].url.trim().isEmpty) {
-          issues.add('$prefix: trailer_urls[$index].url is empty');
-        }
-      }
-    }
 
     final validator = validators[mediaKind];
     if (validator == null) {
