@@ -22,12 +22,14 @@ class LibraryEntryPersonalSection extends ConsumerStatefulWidget {
   const LibraryEntryPersonalSection({
     super.key,
     required this.draft,
+    this.kindSpecificFields = const <Widget>[],
     this.onRatingChanged,
     this.onNotesChanged,
     this.history,
   });
 
   final LibraryEntryEditDraft draft;
+  final List<Widget> kindSpecificFields;
   final ValueChanged<int?>? onRatingChanged;
   final ValueChanged<String>? onNotesChanged;
   final Widget? history;
@@ -43,7 +45,6 @@ class _LibraryEntryPersonalSectionState
   List<String> _tags = const [];
   List<String> _owners = const [];
   List<String> _purchaseStores = const [];
-  List<String> _signedBy = const [];
   bool _optionsLoaded = false;
 
   LibraryEntryEditDraft get _draft => widget.draft;
@@ -96,22 +97,12 @@ class _LibraryEntryPersonalSectionState
         mediaKind: _kind,
         selectedValue: _draft.text('purchase_store'),
       ),
-      if (_kind == 'music')
-        loadSingleValuePickListOptions(
-          db,
-          listName: 'music.signed_by',
-          mediaKind: _kind,
-          selectedValue: _draft.text('signed_by'),
-        )
-      else
-        Future.value(const <String>[]),
     ]);
     if (!mounted) return;
     setState(() {
       _tags = values[0] as List<String>;
       _owners = values[1] as List<String>;
       _purchaseStores = values[2] as List<String>;
-      _signedBy = values[3] as List<String>;
       _optionsLoaded = true;
     });
   }
@@ -240,31 +231,8 @@ class _LibraryEntryPersonalSectionState
                   },
                 ),
               ),
-              if (_kind == 'music')
-                LibraryFormField(
-                  label: 'Signed By',
-                  child: MultiSelectPickListField(
-                    label: 'Signed By',
-                    values: splitPickListValues(_draft.text('signed_by')),
-                    options: _signedBy,
-                    pickerTitle: 'Signed By',
-                    pickerSearchHint: 'Search names',
-                    customValueHint: 'Add signer',
-                    onChanged: (values) {
-                      _draft.set('signed_by', joinPickListValues(values) ?? '');
-                      _draft.pendingChanges['vocabulary:music.signed_by'] =
-                          LibraryVocabularyEditChange([
-                        for (final value in values)
-                          (
-                            listName: 'music.signed_by',
-                            value: value,
-                            mediaKind: _kind,
-                          ),
-                      ]);
-                    },
-                  ),
-                ),
             ];
+            fields.addAll(widget.kindSpecificFields);
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

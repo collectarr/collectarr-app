@@ -45,6 +45,9 @@ slice. This is progress, not completion of this plan:
   generic inspector widget remains temporarily because an existing widget
   test still imports it; its migration belongs in the deferred final test and
   compatibility review.
+- The shared personal editor now accepts kind-contributed fields. Music's
+  `Signed By` vocabulary loading and persistence live in its edit module; the
+  shared editor no longer switches on Music or reads its vocabulary directly.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.

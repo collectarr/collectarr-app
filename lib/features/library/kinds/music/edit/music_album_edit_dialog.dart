@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_signed_by_personal_field.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_listening_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
@@ -273,12 +274,14 @@ final class _MusicAlbumEditDialogState
 
   Widget _personalSection(BuildContext context) {
     final personal = LibraryEntryEditScope.maybeOf(context);
-    if (personal == null)
+    if (personal == null) {
       return const Text('Personal fields belong to your local library entry.');
+    }
     personal.used = true;
     return EditTabShell(children: [
       LibraryEntryPersonalSection(
         draft: personal,
+        kindSpecificFields: [MusicSignedByPersonalField(draft: personal)],
         history: _listening == null
             ? const LinearProgressIndicator()
             : MusicListeningDraftSection(draft: _listening!),
