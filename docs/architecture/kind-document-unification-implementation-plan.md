@@ -82,6 +82,10 @@ slice. This is progress, not completion of this plan:
   snapshots. Their obsolete catalog snapshot mappers were removed after a
   production consumer audit. Add preview, duplicate detection, workspace links,
   CSV output, and common workspace facts use the typed metadata models.
+- Anime's active workspace DTO and transport codec now decode `AnimeMetadata`
+  directly. The intermediate workspace mapper and its legacy `AnimeMedia`
+  conversion were removed; the repository and lookup call sites that still
+  consume `AnimeMedia` remain to be audited and migrated.
 - Anime and TV metadata now own the catalog display fields used by their
   candidate projections, including title variants, search aliases, covers,
   and partial release dates. Their decoders no longer accept the obsolete
@@ -320,8 +324,9 @@ across all kinds; replacing the universal `PersonalStateDraft` with kind-owned
 typed drafts and moving remaining validation/serialization adapters out of the
 shared personal editor; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
-form organization. The legacy `AnimeMedia` repository and workspace projections
-remain active alongside the flattened Anime document and still need migration.
+form organization. Anime's workspace projections now read the flattened typed
+document, while its legacy `AnimeMedia` repository and some catalog lookup/domain
+call sites remain active and still need migration.
 The legacy TV workspace projection and its contained projection models still
 retain raw payload maps; the active root `TvSeriesMetadata` model no longer
 does.
