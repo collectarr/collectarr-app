@@ -13,10 +13,8 @@ export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual
 export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_schema.dart';
 export 'package:collectarr_app/features/library/kinds/anime/add/anime_release_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
-export 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/anime/edit/anime_entry_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/anime/edit/anime_entry_edit_schema.dart';
-export 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_values.dart';
 export 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_profile.dart';

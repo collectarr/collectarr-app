@@ -171,6 +171,9 @@ slice. This is progress, not completion of this plan:
   number, cover URLs, and barcode instead of indexing those values from its raw
   map. The old `AnimeMedia`/`AnimeRelease` consumers and raw maps still remain
   and must move to the single Anime catalog document before this kind is done.
+- Removed the unreferenced Anime media edit dialog and the separate Anime
+  media/release schema exports. The current Add field specs remain in use; the
+  reachable media/release repository paths still need migration.
 - Core now declares Anime and TV media, season, and episode shapes inside each
   kind's schema module rather than centralizing those definitions in the shared
   document module. The emitted field shapes are unchanged; App's remaining raw
