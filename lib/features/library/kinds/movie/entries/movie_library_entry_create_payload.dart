@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
@@ -63,13 +64,22 @@ final class MovieLibraryEntryCreatePayload
 
   MovieLibraryEntry toLibraryEntry({
     required String id,
+    required CatalogItemDto sourceCatalogItem,
     required DateTime createdAt,
     required bool? existingIsDigital,
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
+    if (sourceCatalogItem.mediaKind != CatalogMediaKind.movie) {
+      throw ArgumentError.value(
+        sourceCatalogItem.mediaKind,
+        'sourceCatalogItem',
+        'Movie entries require a Movie catalog item.',
+      );
+    }
     return MovieLibraryEntry(
       id: LibraryEntryId(id),
+      metadata: MovieCatalogMetadata.fromJson(sourceCatalogItem.kindData),
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,
       details: details.toDetails(),

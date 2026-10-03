@@ -54,7 +54,7 @@ slice. This is progress, not completion of this plan:
 - `MusicLibraryEntry` now stores `MusicAlbum` metadata as a typed value instead
   of a parallel catalog map. New-entry creation receives the selected Music
   item and assigns the local entry identity while decoding it; JSON remains at
-  the persistence and Sync envelope boundary. The other three entry models
+  the persistence and Sync envelope boundary. The other two entry models
   still need the same typed consolidation. `BookLibraryEntry` has now joined
   this path with `BookCatalogMetadata`; Book Add and seed construction decode
   that typed value at the kind boundary instead of storing a second raw map.
@@ -66,6 +66,8 @@ slice. This is progress, not completion of this plan:
   catalog data during Add and typed seed construction.
   `GameLibraryEntry` now stores `GameCatalogMetadata`, with explicit kind
   validation on Add and typed seed construction.
+  `MovieLibraryEntry` now stores `MovieCatalogMetadata`; Add validates its
+  source kind and Movie seeds construct entries from typed catalog metadata.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.
