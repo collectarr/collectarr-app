@@ -1,35 +1,67 @@
-# Local persistence architecture
+# Local Persistence Architecture
 
-`lib/core/db/local_database.dart` is the Drift composition root. It declares
-schema version 4, creates all registered tables for new databases, and applies
-the upgrades below for existing databases. It does not own kind semantics.
+## Database file and baseline
 
-The current upgrade path is:
+`lib/core/db/local_database.dart` is the Drift composition root. The supported
+schema version is `1` and has no upgrade chain. Native platforms create
+`collectarr-library.sqlite` in the application's documents directory. Web
+uses the `collectarr-library-sqlite3` database name. Older database and backup
+formats are unsupported; implementation work must not reset or overwrite an
+existing database.
 
-- v1 → v2 adds Music partial-date columns and the artist-credit and label
-  tables.
-- v2 → v3 adds the Music release-image table.
-- v3 to v4 removes the unused Music release-group synopsis column.
-- Upgrading from v1 applies all three steps in order.
+For a fresh development profile, stop the App and point it at an empty
+application data directory. Keep the old database and its backup files
+untouched. When registered tables change, regenerate the kind registry and
+Drift output:
 
-Kind tables and local mappers live beside their kind repositories:
-
-```text
-library/kinds/comic/data/local/
-library/kinds/manga/data/local/
-library/kinds/book/data/local/
-library/kinds/game/data/local/
-library/kinds/boardgame/data/local/
-library/kinds/movie/data/local/
-library/kinds/tv/data/local/
-library/kinds/anime/data/local/
-library/kinds/music/data/local/
+```powershell
+dart run tool/generate_kind_registries.dart
+dart run build_runner build --delete-conflicting-outputs
 ```
 
-The composition root may list every table because that is schema composition,
-not a shared semantic model. Universal tables cover genuinely universal
-personal state such as locations, ownership, sync, and tracking entries.
+## Local record
 
-The DB schema ownership and typed local mapping boundaries are guarded by
-`test/architecture/db_schema_ownership_test.dart` and the per-kind persistence
-contracts.
+`LibraryEntryRecord` is keyed by `(kind, id)` and contains the complete local
+record: `catalog_data`, `personal_data`, optional `source_catalog_ref`, and
+timestamps. Its local ID is the identity for edits, duplication, deletion,
+personal attachments, and entry-owned activity. `source_catalog_ref` records
+metadata provenance only; it is never a parent key. Manually created entries
+can omit it.
+
+The `CatalogItemsCache` table stores remote Core snapshots and private local
+catalog data for offline search and Add. Its `origin` marks the source. Personal
+values are stored only on the local entry and are never written to Core's
+canonical catalog.
+
+## Personal records and attachments
+
+Record-owned data uses the local `LibraryEntryRef`:
+
+- item images and custom-field values;
+- loans, folder membership, and reading queue position;
+- user-created external links;
+- watch sessions and kind-owned tracking associated with that entry.
+
+These attachments are included in the full `library_entry` Sync snapshot.
+Wishlist items may target a Core Catalog Item before a local entry exists.
+Locations, folder definitions, and pick-list values are user-owned Sync
+entities. Kind-specific progress and repeated contents stay in their owning
+kind model.
+
+Some tracking summaries and storage adapters still carry a derived Catalog
+Item reference in addition to the required local entry identity. Treat the
+local `LibraryEntryRef` as authoritative; the derived value is transitional
+and must not imply a parent relationship.
+
+## Kind-owned data
+
+Kind-owned models, forms, field schemas, and projections define the semantic
+meaning of each kind's catalog and personal values. The generic entry table is
+the persistence source of truth. Repeated content such as Music discs/tracks or
+TV/Anime episodes is contained kind data, not another editable Work/Release
+level.
+
+The nine field ledgers are the source of field ownership and naming. The Music
+ledger uses the saved CLZ Music Edit form. Exact CLZ parity for the other eight
+kinds is unverified until the relevant Edit-form captures and reference
+decisions are available.

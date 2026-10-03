@@ -19,11 +19,13 @@ Collectarr keeps your personal library local, fast, and offline-friendly, while
 using `collectarr-core` for canonical metadata and `collectarr-sync` for
 optional multi-device sync.
 
-The flattened-catalog cutover is in progress. Its target is one Catalog Item
-per concrete edition in each kind, with separate App-owned copies. User
-proposals remain available and carry the same catalog fields as manual Add/Edit;
-provider search and ingest are not part of that flow. See
-[the Catalog Item v1 cutover status and fresh database policy](docs/architecture/flattened-catalog-baseline.md).
+The active local record model is one independently editable library entry per
+concrete collectible, with `catalog_data` and `personal_data` stored together.
+An optional `source_catalog_ref` records Core provenance only. Duplicating an
+entry creates a new independent local record. User proposals remain available
+and carry the same catalog fields as manual Add/Edit; provider search and
+ingest are not part of that flow. See
+[the Catalog Item v1 baseline and fresh database policy](docs/architecture/flattened-catalog-baseline.md).
 
 The app keeps semantic behavior inside the owning kind: Comic, Manga, Book,
 Game, Board Game, Movie, TV, Anime, and Music each provide their typed domain,
@@ -61,16 +63,12 @@ flutter test
 
 ### Local database and seed fixture
 
-The development fixture covers all nine kinds, their typed media/release
-graphs, owned data, tracking data, and validated cover images.
-
-```powershell
-# Seed the existing local database
-dart run scripts/seed_local_db.dart
-
-# Delete the local Drift database, reseed it, and launch Windows
-.\scripts\reset_and_run.ps1 -Run -Seed
-```
+The development fixture covers all nine kinds, local library entries, personal
+data, tracking data, and validated cover images. Native builds create
+`collectarr-library.sqlite` in the application's documents directory when
+started against a fresh v1 setup. Keep any existing database and its backups;
+the schema has no upgrade path, and reset helpers must not be run against user
+data.
 
 For a browser session with the fixture already loaded:
 
@@ -103,14 +101,17 @@ Collectarr App owns:
 - canonical in-memory models and semantic behavior for each library kind
 
 `collectarr-core` owns the source-neutral catalog/API contract and review of
-user proposals. The App owns personal collection state, owned copies, local
-storage, and sync payloads. Catalog proposals contain the same kind-owned
-catalog fields as the manual Add/Edit form; they contain no provider IDs,
-snapshots, or personal copy data.
+user proposals. The App owns the complete local entry, its personal fields,
+attachments, activity, local storage, and sync payloads. Sync carries the
+entry's catalog and personal maps together as one local snapshot; it does not
+create a second canonical catalog. Proposals contain the same kind-owned
+catalog fields as manual Add/Edit and contain no provider IDs or personal data.
 
-After kind dispatch, app code keeps the concrete type (`ComicMedia`,
-`BookRelease`, `TvSeries`, etc.). Cross-kind screens use structural references
-and summaries instead of a universal semantic catalog model.
+After kind dispatch, app code keeps the concrete kind-owned type for field
+semantics. Cross-kind screens use local-entry references and summaries. The
+workspace still distinguishes Core Catalog Item rows from local entries while
+the remaining derived-reference adapters are consolidated; see the
+[current status](docs/architecture/current-status.md) for the exact limits.
 
 ## 🗺️ Roadmap
 
@@ -118,17 +119,19 @@ See the [current architecture status](docs/architecture/current-status.md),
 [kind architecture](docs/architecture/kinds.md), and
 [local persistence model](docs/architecture/local-persistence.md).
 
-Active implementation plans:
+Architecture references and remaining implementation tracks:
 
+- [Remaining cleanup audit and implementation sequence (2026-10-02)](docs/architecture/cleanup-audit-2026-10-02.md)
+- [Music UI comparison with CLZ and parity implementation plan (2026-10-02)](docs/architecture/music-clz-ui-parity-2026-10-02.md)
 - [Flattened Catalog Item baseline](docs/architecture/flattened-catalog-baseline.md)
 - [Add/Edit form unification](docs/architecture/add-edit-form-unification-plan.md)
 - [All-kind form and workspace schema reorganization](docs/architecture/kind-schema-reorganization-plan.md)
 - [UI readability and contrast](docs/architecture/ui-readability-plan.md)
 
-Current active tracks:
+Current product tracks:
 
 - keep Add search on the Core catalog and preserve manual Add/Edit proposals
-- move each kind's local catalog and workspace from Work/Release to Catalog Item
+- remove the remaining derived catalog references from local tracking storage
 - keep personal collection state and sync in App and collectarr-sync
 - improve small text, accent contrast, and text scaling across Library screens
 - keep seed scripts, local Drift schemas, and contract tests synchronized
