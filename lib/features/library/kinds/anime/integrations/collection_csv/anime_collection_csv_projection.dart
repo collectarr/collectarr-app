@@ -129,7 +129,10 @@ final class AnimeCollectionCsvProjection
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? metadata?.studios.firstOrNull ?? '',
-      _formatDate(metadata?.startDate ?? entry.catalogData?.releaseDate),
+      metadata?.releaseDateParts?.isoString ??
+          _formatDate(metadata?.releaseDate ??
+              metadata?.startDate ??
+              entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
   }

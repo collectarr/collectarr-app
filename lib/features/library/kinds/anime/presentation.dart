@@ -35,7 +35,7 @@ class AnimeLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required CatalogSearchCandidate item,
   }) =>
-      item.kindCapability.mapTransport((transport) => transport).itemNumber;
+      item.animeCatalogFields.itemNumber;
 
   @override
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
@@ -43,9 +43,7 @@ class AnimeLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <LibraryFormatBadgeDescriptor>[];
-    for (final edition in item.kindCapability
-        .mapTransport((transport) => transport)
-        .editions) {
+    for (final edition in item.animeCatalogFields.editions) {
       final badge = animeFormatBadge(
         edition.physicalFormat,
         label: edition.physicalFormatLabel,
@@ -101,10 +99,8 @@ class AnimeLibraryMediaPresentationBuilder
   }) {
     final hydratedMetadata = hydrated.animeCatalogFields;
     final fallbackMetadata = fallback.animeCatalogFields;
-    final hydratedEditions =
-        hydrated.kindCapability.mapTransport((transport) => transport.editions);
-    final fallbackEditions =
-        fallback.kindCapability.mapTransport((transport) => transport.editions);
+    final hydratedEditions = hydrated.animeCatalogFields.editions;
+    final fallbackEditions = fallback.animeCatalogFields.editions;
     final editions =
         hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
     final coverImageUrl =
@@ -145,7 +141,7 @@ class AnimeLibraryMediaPresentationBuilder
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.kindCapability.mapTransport((transport) => transport).publisher
+        item.animeCatalogFields.publisher
       ),
       (
         'Released',
@@ -153,25 +149,19 @@ class AnimeLibraryMediaPresentationBuilder
             ? item.animeCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.kindCapability
-              .mapTransport((transport) => transport)
-              .itemNumber !=
-          null)
+      if (item.animeCatalogFields.itemNumber != null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.kindCapability.mapTransport((transport) => transport).itemNumber
+          item.animeCatalogFields.itemNumber
         ),
-      if (item.kindCapability.mapTransport((transport) => transport).variant !=
-          null)
+      if (item.animeCatalogFields.variant != null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.kindCapability.mapTransport((transport) => transport).variant
+          item.animeCatalogFields.variant
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
+        item.animeCatalogFields.barcode
       ),
     ];
   }
@@ -290,32 +280,20 @@ class AnimeLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildAnimeSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber = item.kindCapability
-      .mapTransport((transport) => transport)
-      .itemNumber
-      ?.trim();
+  final itemNumber = item.animeCatalogFields.itemNumber?.trim();
   final subtitle = [
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .publisher
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (item.animeCatalogFields.publisher?.trim() case final value?
+        when value.isNotEmpty)
       value,
     if ((item.animeCatalogFields.releaseYear ??
             item.animeCatalogFields.releaseDate?.year)
         case final year?)
       year.toString(),
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .physicalFormatLabel
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (item.animeCatalogFields.physicalFormatLabel?.trim() case final value?
+        when value.isNotEmpty)
       value,
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (item.animeCatalogFields.barcode?.trim() case final value?
+        when value.isNotEmpty)
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(

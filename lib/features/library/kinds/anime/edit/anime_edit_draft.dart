@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_track
 import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/entries/anime_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -326,41 +325,37 @@ class AnimeEditDraft
     var result = selection;
     final metadata = result.kindItem.kindCapability.mapTransport(
         (transport) => AnimeMetadata.fromJson(transport.kindData));
-    if (metadata is AnimeMetadata) {
-      final parsedGenres = animeEdit.genresEditController.text
-          .split(RegExp(r'[,\r\n]+'))
-          .map((value) => value.trim())
-          .where((value) => value.isNotEmpty)
-          .toList();
-      result = result.copyWith(
-        kindItem: result.kindItem.kindCapability.mapTransport(
-          (transport) => CatalogSearchCandidate.fromItem(
-            transport.withKindData(
-              metadata.copyWith(
-                episodeRuntimeMinutes:
-                    int.tryParse(animeEdit.runtimeController.text),
-                genres:
-                    parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
-                editionTitle:
-                    emptyToNull(animeEdit.editionTitleController.text),
-                variant: emptyToNull(animeEdit.variantController.text),
-                barcode: emptyToNull(animeEdit.barcodeController.text),
-                physicalFormat: animeEdit.physicalFormatId,
-                physicalFormatLabel:
-                    emptyToNull(animeEdit.physicalFormatLabelController.text),
-                publisher: emptyToNull(animeEdit.publisherController.text),
-                country: emptyToNull(animeEdit.countryController.text) ??
-                    metadata.country,
-                language: emptyToNull(animeEdit.languageController.text) ??
-                    metadata.language,
-                startDate: parseDate(animeEdit.releaseDateController.text),
-                links: animeEdit.buildUpdatedTrailerUrls(metadata.links),
-              ),
+    final parsedGenres = animeEdit.genresEditController.text
+        .split(RegExp(r'[,\r\n]+'))
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList();
+    result = result.copyWith(
+      kindItem: result.kindItem.kindCapability.mapTransport(
+        (transport) => CatalogSearchCandidate.fromItem(
+          transport.withKindData(
+            metadata.copyWith(
+              episodeRuntimeMinutes:
+                  int.tryParse(animeEdit.runtimeController.text),
+              genres: parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
+              editionTitle: emptyToNull(animeEdit.editionTitleController.text),
+              variant: emptyToNull(animeEdit.variantController.text),
+              barcode: emptyToNull(animeEdit.barcodeController.text),
+              physicalFormat: animeEdit.physicalFormatId,
+              physicalFormatLabel:
+                  emptyToNull(animeEdit.physicalFormatLabelController.text),
+              publisher: emptyToNull(animeEdit.publisherController.text),
+              country: emptyToNull(animeEdit.countryController.text) ??
+                  metadata.country,
+              language: emptyToNull(animeEdit.languageController.text) ??
+                  metadata.language,
+              startDate: parseDate(animeEdit.releaseDateController.text),
+              links: animeEdit.buildUpdatedTrailerUrls(metadata.links),
             ),
           ),
         ),
-      );
-    }
+      ),
+    );
     if (result.tracking != null) {
       final seasonNumber = int.tryParse(seasonNumberController.text);
       final episodeNumber = int.tryParse(episodeNumberController.text);
@@ -406,41 +401,34 @@ LibraryEditSessionBundle createAnimeEditDraft({
   final video = entry?.personal.details;
   final metadata = item.kindCapability
       .mapTransport((transport) => AnimeMetadata.fromJson(transport.kindData));
-  final anime = metadata is AnimeMetadata ? metadata : null;
   final animeEdit = AnimeEditController(
     itemId: item.reference.id,
     catalogRef: item.reference,
-    initialRuntime: anime?.episodeRuntimeMinutes?.toString() ?? '',
-    initialGenres: anime?.genres.join(', ') ?? '',
-    initialEditionTitle: anime?.editionTitle ??
-        (item.animeCatalogFields.titleExtension ??
-                item.kindCapability
-                    .mapTransport((transport) => transport)
-                    .editionTitle)
-            ?.trim() ??
-        '',
-    initialVariant: anime?.variant ?? '',
-    initialBarcode: anime?.barcode ?? '',
+    initialRuntime: metadata.episodeRuntimeMinutes?.toString() ?? '',
+    initialGenres: metadata.genres.join(', '),
+    initialEditionTitle: metadata.editionTitle ?? metadata.titleExtension ?? '',
+    initialVariant: metadata.variant ?? '',
+    initialBarcode: metadata.barcode ?? '',
     initialPhysicalFormatLabel:
-        anime?.physicalFormatLabel ?? anime?.variant ?? '',
-    initialPhysicalFormatId: anime?.physicalFormat,
-    initialPublisher: anime?.publisher ?? '',
-    initialCountry: anime?.country ?? '',
-    initialLanguage: anime?.language ?? '',
+        metadata.physicalFormatLabel ?? metadata.variant ?? '',
+    initialPhysicalFormatId: metadata.physicalFormat,
+    initialPublisher: metadata.publisher ?? '',
+    initialCountry: metadata.country,
+    initialLanguage: metadata.language,
     initialReleaseDate:
-        anime?.startDate == null ? '' : formatDate(anime!.startDate!),
-    initialReleaseYear: anime?.seasonYear?.toString() ??
-        anime?.startDate?.year.toString() ??
+        metadata.startDate == null ? '' : formatDate(metadata.startDate!),
+    initialReleaseYear: metadata.seasonYear?.toString() ??
+        metadata.startDate?.year.toString() ??
         '',
     initialCreators: [
-      for (final creator in anime?.creators ?? const <Map<String, dynamic>>[])
+      for (final creator in metadata.creators)
         AnimeCreditInput(
           name: creator['name']?.toString() ?? '',
           role: creator['role']?.toString() ?? creator['job']?.toString(),
           sourceType: creator['source_type']?.toString() ?? 'provider',
         ),
     ],
-    initialTrailerLinks: anime?.links ?? const <TrailerLinkDto>[],
+    initialTrailerLinks: metadata.links,
   );
   animeEdit.initializeAnimeEditors();
 
@@ -461,7 +449,7 @@ LibraryEditSessionBundle createAnimeEditDraft({
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
     seasonNumberController: TextEditingController(),
     episodeNumberController: TextEditingController(
-      text: anime?.episodeCount?.toString() ?? '',
+      text: metadata.episodeCount?.toString() ?? '',
     ),
     episodeRatings: const <String, int>{},
     animeEdit: animeEdit,

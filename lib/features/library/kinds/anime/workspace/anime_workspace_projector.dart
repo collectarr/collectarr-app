@@ -54,7 +54,8 @@ WorkspaceCommonProjection _animeCommonProjection(
     node,
     overrideTitle: metadata?.title,
     overrideSynopsis: metadata?.synopsis,
-    overrideReleaseDate: metadata?.startDate ?? media.originalAirDate,
+    overrideReleaseDate:
+        metadata?.releaseDate ?? metadata?.startDate ?? media.originalAirDate,
     overrideCoverImageUrl: media.coverImageUrl,
   );
 }

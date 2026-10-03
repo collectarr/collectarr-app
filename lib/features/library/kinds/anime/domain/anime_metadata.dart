@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 
@@ -138,9 +139,19 @@ class AnimeRelation {
 class AnimeMetadata implements JsonEncodable {
   const AnimeMetadata({
     this.title = '',
+    this.displayTitle,
     this.nativeTitle,
     this.romajiTitle,
     this.englishTitle,
+    this.localizedTitle,
+    this.originalTitle,
+    this.titleExtension,
+    this.sortKey,
+    this.synopsis,
+    this.searchAliases = const [],
+    this.coverImageUrl,
+    this.thumbnailImageUrl,
+    this.coverImageData,
     this.alternateTitles = const [],
     this.format = AnimeFormat.tv,
     this.season,
@@ -150,6 +161,8 @@ class AnimeMetadata implements JsonEncodable {
     this.airingStatus = AnimeAiringStatus.finished,
     this.startDate,
     this.endDate,
+    this.releaseDateParts,
+    this.releaseYear,
     this.studios = const [],
     this.producers = const [],
     this.licensors = const [],
@@ -179,9 +192,19 @@ class AnimeMetadata implements JsonEncodable {
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
+  final String? displayTitle;
   final String? nativeTitle;
   final String? romajiTitle;
   final String? englishTitle;
+  final String? localizedTitle;
+  final String? originalTitle;
+  final String? titleExtension;
+  final String? sortKey;
+  final String? synopsis;
+  final List<String> searchAliases;
+  final String? coverImageUrl;
+  final String? thumbnailImageUrl;
+  final String? coverImageData;
   final List<String> alternateTitles;
   final AnimeFormat format;
   final AnimeSeason? season;
@@ -191,6 +214,8 @@ class AnimeMetadata implements JsonEncodable {
   final AnimeAiringStatus airingStatus;
   final DateTime? startDate;
   final DateTime? endDate;
+  final PartialDate? releaseDateParts;
+  final int? releaseYear;
   final List<String> studios;
   final List<String> producers;
   final List<String> licensors;
@@ -214,18 +239,25 @@ class AnimeMetadata implements JsonEncodable {
   final List<TrailerLinkDto> links;
   final Map<String, dynamic> rawPayload;
 
-  String? get synopsis {
-    final value = rawPayload['synopsis'];
-    return value is String ? value : null;
-  }
+  DateTime? get releaseDate => releaseDateParts?.asDateTime;
 
   @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'title': title,
+        if (displayTitle != null) 'display_title': displayTitle,
         if (nativeTitle != null) 'native_title': nativeTitle,
         if (romajiTitle != null) 'romaji_title': romajiTitle,
         if (englishTitle != null) 'english_title': englishTitle,
+        if (localizedTitle != null) 'localized_title': localizedTitle,
+        if (originalTitle != null) 'original_title': originalTitle,
+        if (titleExtension != null) 'title_extension': titleExtension,
+        if (sortKey != null) 'sort_key': sortKey,
+        if (synopsis != null) 'synopsis': synopsis,
+        if (searchAliases.isNotEmpty) 'search_aliases': searchAliases,
+        if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+        if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+        if (coverImageData != null) 'cover_image_data': coverImageData,
         if (alternateTitles.isNotEmpty) 'alternate_titles': alternateTitles,
         'format': format.name,
         if (season != null) 'season': season!.name,
@@ -236,6 +268,11 @@ class AnimeMetadata implements JsonEncodable {
         'airing_status': airingStatus.name,
         if (startDate != null) 'start_date': startDate!.toIso8601String(),
         if (endDate != null) 'end_date': endDate!.toIso8601String(),
+        if (releaseDateParts != null) ...{
+          'release_date': releaseDateParts!.isoString,
+          'release_date_parts': releaseDateParts!.toJson(),
+        },
+        if (releaseYear != null) 'release_year': releaseYear,
         if (studios.isNotEmpty) 'studios': studios,
         if (producers.isNotEmpty) 'producers': producers,
         if (licensors.isNotEmpty) 'licensors': licensors,
@@ -277,9 +314,19 @@ class AnimeMetadata implements JsonEncodable {
 
   AnimeMetadata copyWith({
     String? title,
+    String? displayTitle,
     String? nativeTitle,
     String? romajiTitle,
     String? englishTitle,
+    String? localizedTitle,
+    String? originalTitle,
+    String? titleExtension,
+    String? sortKey,
+    String? synopsis,
+    List<String>? searchAliases,
+    String? coverImageUrl,
+    String? thumbnailImageUrl,
+    String? coverImageData,
     List<String>? alternateTitles,
     AnimeFormat? format,
     AnimeSeason? season,
@@ -289,6 +336,8 @@ class AnimeMetadata implements JsonEncodable {
     AnimeAiringStatus? airingStatus,
     DateTime? startDate,
     DateTime? endDate,
+    PartialDate? releaseDateParts,
+    int? releaseYear,
     List<String>? studios,
     List<String>? producers,
     List<String>? licensors,
@@ -314,9 +363,19 @@ class AnimeMetadata implements JsonEncodable {
     return AnimeMetadata(
       title: title ?? this.title,
       rawPayload: rawPayload,
+      displayTitle: displayTitle ?? this.displayTitle,
       nativeTitle: nativeTitle ?? this.nativeTitle,
       romajiTitle: romajiTitle ?? this.romajiTitle,
       englishTitle: englishTitle ?? this.englishTitle,
+      localizedTitle: localizedTitle ?? this.localizedTitle,
+      originalTitle: originalTitle ?? this.originalTitle,
+      titleExtension: titleExtension ?? this.titleExtension,
+      sortKey: sortKey ?? this.sortKey,
+      synopsis: synopsis ?? this.synopsis,
+      searchAliases: searchAliases ?? this.searchAliases,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
+      coverImageData: coverImageData ?? this.coverImageData,
       alternateTitles: alternateTitles ?? this.alternateTitles,
       format: format ?? this.format,
       season: season ?? this.season,
@@ -327,6 +386,8 @@ class AnimeMetadata implements JsonEncodable {
       airingStatus: airingStatus ?? this.airingStatus,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      releaseDateParts: releaseDateParts ?? this.releaseDateParts,
+      releaseYear: releaseYear ?? this.releaseYear,
       studios: studios ?? this.studios,
       producers: producers ?? this.producers,
       licensors: licensors ?? this.licensors,
@@ -389,9 +450,22 @@ class AnimeMetadata implements JsonEncodable {
     return AnimeMetadata(
       rawPayload: rawPayload,
       title: (json['title'] as String?) ?? '',
+      displayTitle: json['display_title'] as String?,
       nativeTitle: json['native_title'] as String?,
       romajiTitle: json['romaji_title'] as String?,
       englishTitle: json['english_title'] as String?,
+      localizedTitle: json['localized_title'] as String?,
+      originalTitle: json['original_title'] as String?,
+      titleExtension: json['title_extension'] as String?,
+      sortKey: json['sort_key'] as String?,
+      synopsis: json['synopsis'] as String?,
+      searchAliases: (json['search_aliases'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+      coverImageUrl: json['cover_image_url'] as String?,
+      thumbnailImageUrl: json['thumbnail_image_url'] as String?,
+      coverImageData: json['cover_image_data'] as String?,
       alternateTitles: (json['alternate_titles'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
@@ -411,6 +485,10 @@ class AnimeMetadata implements JsonEncodable {
       endDate: json['end_date'] != null
           ? DateTime.tryParse(json['end_date'] as String)
           : null,
+      releaseDateParts: PartialDate.tryParse(
+        json['release_date_parts'] ?? json['release_date'],
+      ),
+      releaseYear: (json['release_year'] as num?)?.toInt(),
       studios: (json['studios'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??

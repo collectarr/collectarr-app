@@ -35,7 +35,8 @@ final class AnimeWorkspaceCatalogData
   @override
   String? get synopsis => metadata?.synopsis;
   @override
-  DateTime? get releaseDate => metadata?.startDate ?? media.originalAirDate;
+  DateTime? get releaseDate =>
+      metadata?.releaseDate ?? metadata?.startDate ?? media.originalAirDate;
   @override
   String? get coverImageUrl => media.coverImageUrl;
   @override
