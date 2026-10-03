@@ -19,7 +19,6 @@
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `cover_image_url` | `cover_image_url` |
 | Unverified; Edit-form capture required | Unverified; capture required | array of string or object | Catalog Item | Yes | `creators` | `creators` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `description` | `description` |
-| Unverified; Edit-form capture required | Unverified; capture required | array of object | Catalog Item | Yes | `discs` | `discs` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `edition_title` | `edition_title` |
 | Unverified; Edit-form capture required | Unverified; capture required | array of object | Catalog Item | Yes | `episodes` | `episodes` |
 | Unverified; Edit-form capture required | Unverified; capture required | array of object | Catalog Item | Yes | `external_links` | `external_links` |
