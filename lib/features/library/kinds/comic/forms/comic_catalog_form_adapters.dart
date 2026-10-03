@@ -28,7 +28,10 @@ ComicCatalogItemFormValues comicCatalogItemFormValuesFrom(
       language: media.language,
       country: media.country,
       crossover: media.crossover ?? '',
-      storyArcs: List<String>.of(media.storyArcs),
+      storyArcs: [
+        for (final arc in media.storyArcs)
+          if (arc.name?.trim().isNotEmpty == true) arc.name!.trim(),
+      ],
       coverImageUrl: media.coverImageUrl ?? '',
     );
 
@@ -116,7 +119,7 @@ ComicCatalogItem comicCatalogItemFromFormValues({
     characters: original.characters,
     characterDetails: original.characterDetails,
     creators: original.creators,
-    storyArcs: List<String>.unmodifiable(values.storyArcs),
+    storyArcs: _replaceComicStoryArcs(original.storyArcs, values.storyArcs),
     keyEvents: original.keyEvents,
     isKeyComic: original.isKeyComic,
     keyReason: original.keyReason,
@@ -178,6 +181,23 @@ List<ComicIdentifier> _replaceComicIdentifiers(
       if (isbn != null) ComicIdentifier(identifierType: 'isbn', value: isbn),
       if (upc != null) ComicIdentifier(identifierType: 'upc', value: upc),
     ];
+
+List<ComicStoryArc> _replaceComicStoryArcs(
+  List<ComicStoryArc> original,
+  List<String> values,
+) {
+  final existing = {
+    for (final arc in original)
+      if (arc.name?.trim().isNotEmpty == true)
+        arc.name!.trim().toLowerCase(): arc,
+  };
+  return [
+    for (final value in values)
+      if (value.trim().isNotEmpty)
+        (existing[value.trim().toLowerCase()] ?? const ComicStoryArc())
+            .copyWith(name: value.trim()),
+  ];
+}
 
 String? _nullable(String value) {
   final normalized = value.trim();

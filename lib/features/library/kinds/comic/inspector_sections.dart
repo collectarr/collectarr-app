@@ -91,7 +91,12 @@ List<_ComicInspectorTab> _comicInspectorTabs(
       : null;
   final synopsis = catalogItem?.synopsis?.trim();
   final genres = catalogItem?.genres ?? const <String>[];
-  final storyArcs = catalogItem?.storyArcs ?? const <String>[];
+  final storyArcs = catalogItem?.storyArcs
+          .map((arc) => arc.name?.trim())
+          .whereType<String>()
+          .where((name) => name.isNotEmpty)
+          .toList(growable: false) ??
+      const <String>[];
   final characters = catalogItem?.characters ?? const <String>[];
   final creators = catalogItem?.creators ?? const <Map<String, dynamic>>[];
   final libraryEntry =

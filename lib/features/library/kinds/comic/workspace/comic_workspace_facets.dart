@@ -25,7 +25,8 @@ final comicLibraryFacetDefinitions =
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
     id: ComicFacetIds.storyArc,
     label: 'Story Arc',
-    extractValues: (dto) => dto.comic.storyArcs,
+    extractValues: (dto) =>
+        dto.comic.storyArcs.map((arc) => arc.name).whereType<String>(),
   ),
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
     id: ComicFacetIds.writer,

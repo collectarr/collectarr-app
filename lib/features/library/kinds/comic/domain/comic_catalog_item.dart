@@ -71,6 +71,76 @@ final class ComicIdentifier implements JsonEncodable {
 }
 
 @immutable
+final class ComicStoryArc implements JsonEncodable {
+  const ComicStoryArc({
+    this.id,
+    this.storyArcId,
+    this.name,
+    this.description,
+    this.publisher,
+    this.startDate,
+    this.endDate,
+  });
+
+  final String? id;
+  final String? storyArcId;
+  final String? name;
+  final String? description;
+  final String? publisher;
+  final PartialDate? startDate;
+  final PartialDate? endDate;
+
+  factory ComicStoryArc.fromValue(Object value) {
+    if (value is String) return ComicStoryArc(name: value);
+    if (value is! Map) {
+      throw const FormatException(
+        'Comic story arcs must be strings or objects.',
+      );
+    }
+    final json = Map<String, dynamic>.from(value);
+    return ComicStoryArc(
+      id: json['id'] as String?,
+      storyArcId: json['story_arc_id'] as String?,
+      name: json['name'] as String?,
+      description: json['description'] as String?,
+      publisher: json['publisher'] as String?,
+      startDate: PartialDate.tryParse(json['start_date']),
+      endDate: PartialDate.tryParse(json['end_date']),
+    );
+  }
+
+  ComicStoryArc copyWith({String? name}) => ComicStoryArc(
+        id: id,
+        storyArcId: storyArcId,
+        name: name ?? this.name,
+        description: description,
+        publisher: publisher,
+        startDate: startDate,
+        endDate: endDate,
+      );
+
+  @override
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        if (storyArcId != null) 'story_arc_id': storyArcId,
+        if (name != null) 'name': name,
+        if (description != null) 'description': description,
+        if (publisher != null) 'publisher': publisher,
+        if (startDate != null) 'start_date': startDate!.toJson(),
+        if (endDate != null) 'end_date': endDate!.toJson(),
+      };
+
+  Object toJsonValue() => id == null &&
+          storyArcId == null &&
+          description == null &&
+          publisher == null &&
+          startDate == null &&
+          endDate == null
+      ? name ?? ''
+      : toJson();
+}
+
+@immutable
 class ComicKeyEvent {
   const ComicKeyEvent({
     required this.type,
@@ -208,7 +278,7 @@ class ComicCatalogItem implements JsonEncodable {
   final List<String> characters;
   final List<Map<String, dynamic>> characterDetails;
   final List<Map<String, dynamic>> creators;
-  final List<String> storyArcs;
+  final List<ComicStoryArc> storyArcs;
   final List<ComicKeyEvent> keyEvents;
   final bool isKeyComic;
   final String? keyReason;
@@ -288,7 +358,8 @@ class ComicCatalogItem implements JsonEncodable {
       if (characterDetails.isNotEmpty) 'character_details': characterDetails,
       if (contributors.isNotEmpty) 'contributors': contributors,
       if (creators.isNotEmpty) 'creators': creators,
-      if (storyArcs.isNotEmpty) 'story_arcs': storyArcs,
+      if (storyArcs.isNotEmpty)
+        'story_arcs': [for (final arc in storyArcs) arc.toJsonValue()],
       if (keyEvents.isNotEmpty)
         'key_events': [for (final event in keyEvents) event.toJson()],
       if (isKeyComic) 'key_comic': true,
@@ -349,7 +420,7 @@ class ComicCatalogItem implements JsonEncodable {
     List<String>? characters,
     List<Map<String, dynamic>>? characterDetails,
     List<Map<String, dynamic>>? creators,
-    List<String>? storyArcs,
+    List<ComicStoryArc>? storyArcs,
     List<ComicKeyEvent>? keyEvents,
     bool? isKeyComic,
     String? keyReason,
@@ -527,10 +598,16 @@ class ComicCatalogItem implements JsonEncodable {
           const [],
       characterDetails: rawCharDetails,
       creators: rawCreators,
-      storyArcs: (json['story_arcs'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const [],
+      storyArcs:
+          (json['story_arcs'] as List<dynamic>?)?.map<ComicStoryArc>((value) {
+                if (value is! Map && value is! String) {
+                  throw const FormatException(
+                    'Comic story arcs must be strings or objects.',
+                  );
+                }
+                return ComicStoryArc.fromValue(value as Object);
+              }).toList(growable: false) ??
+              const <ComicStoryArc>[],
       keyEvents: (json['key_events'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
               .map(ComicKeyEvent.fromJson)

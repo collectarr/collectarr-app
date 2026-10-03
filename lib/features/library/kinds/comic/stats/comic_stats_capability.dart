@@ -143,7 +143,9 @@ class ComicStatsCapability implements LibraryStatsCapability {
       (entry) =>
           _comicMetadata(entry)
               ?.storyArcs
-              .where((name) => name.trim().isNotEmpty) ??
+              .map((arc) => arc.name?.trim())
+              .whereType<String>()
+              .where((name) => name.isNotEmpty) ??
           const <String>[],
     );
   }

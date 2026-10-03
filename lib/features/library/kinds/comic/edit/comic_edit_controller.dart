@@ -13,8 +13,12 @@ class ComicEditController {
     required this.item,
     required this.itemImages,
   })  : crossoverController = TextEditingController(text: item.crossover ?? ''),
-        storyArcsController =
-            TextEditingController(text: item.storyArcs.join(', ')),
+        storyArcsController = TextEditingController(
+          text: item.storyArcs
+              .map((arc) => arc.name)
+              .whereType<String>()
+              .join(', '),
+        ),
         imprintController = TextEditingController(
             text: item.imprint ?? item.publishing?.imprint ?? ''),
         pageCountController = TextEditingController(
@@ -146,12 +150,8 @@ class ComicEditController {
         .toList();
 
     final currentMeta = selection.kindItem.kindCapability.mapTransport(
-                (transport) => ComicCatalogItem.fromJson(transport.kindData))
-            is ComicCatalogItem
-        ? selection.kindItem.kindCapability.mapTransport(
-                (transport) => ComicCatalogItem.fromJson(transport.kindData))
-            as ComicCatalogItem
-        : item;
+      (transport) => ComicCatalogItem.fromJson(transport.kindData),
+    );
 
     final updatedSeries = (currentMeta.series != null ||
             seriesId != null ||
@@ -183,8 +183,9 @@ class ComicEditController {
     final updatedMeta = currentMeta.copyWith(
       title: emptyToNull(seriesTitleController.text) ?? currentMeta.title,
       crossover: emptyToNull(crossoverController.text),
-      storyArcs:
-          parsedStoryArcs.isNotEmpty ? parsedStoryArcs : currentMeta.storyArcs,
+      storyArcs: parsedStoryArcs.isNotEmpty
+          ? _replaceStoryArcs(currentMeta.storyArcs, parsedStoryArcs)
+          : currentMeta.storyArcs,
       ageRating: emptyToNull(ageRatingController.text),
       genres: parsedGenres.isNotEmpty ? parsedGenres : currentMeta.genres,
       imprint: emptyToNull(imprintController.text),
@@ -223,4 +224,20 @@ class ComicEditController {
       links,
     );
   }
+}
+
+List<ComicStoryArc> _replaceStoryArcs(
+  List<ComicStoryArc> original,
+  List<String> values,
+) {
+  final existing = {
+    for (final arc in original)
+      if (arc.name?.trim().isNotEmpty == true)
+        arc.name!.trim().toLowerCase(): arc,
+  };
+  return [
+    for (final value in values)
+      (existing[value.toLowerCase()] ?? const ComicStoryArc())
+          .copyWith(name: value),
+  ];
 }

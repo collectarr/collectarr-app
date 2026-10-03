@@ -360,7 +360,9 @@ Iterable<String?> _physicalFormatCatalogValues(
 }
 
 Iterable<String?> _storyArcCatalogValues(ComicCatalogItem metadata) {
-  return vocabularyValues([metadata.storyArcs]);
+  return vocabularyValues(
+    metadata.storyArcs.map((arc) => arc.name).whereType<String>(),
+  );
 }
 
 Iterable<String?> _crossoverCatalogValues(ComicCatalogItem metadata) {

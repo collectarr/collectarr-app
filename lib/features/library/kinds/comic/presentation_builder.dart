@@ -135,7 +135,7 @@ class ComicLibraryCatalogItemPresentationBuilder
         hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
               coverImageUrl: coverImageUrl,
               thumbnailImageUrl: thumbnailImageUrl,
-             )));
+            )));
   }
 
   @override
@@ -216,8 +216,9 @@ class ComicLibraryCatalogItemPresentationBuilder
     final metadata = dto.comic;
     final series = metadata.series;
     final publishing = metadata.publishing;
-    final referenceFormat =
-        metadata.physicalFormatLabel ?? metadata.physicalFormat ?? metadata.variant;
+    final referenceFormat = metadata.physicalFormatLabel ??
+        metadata.physicalFormat ??
+        metadata.variant;
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
@@ -317,7 +318,10 @@ class ComicLibraryCatalogItemPresentationBuilder
           completenessWeight: 6,
         ),
         'story_arcs': LibraryMetadataSection(
-          values: metadata.storyArcs,
+          values: metadata.storyArcs
+              .map((arc) => arc.name)
+              .whereType<String>()
+              .toList(growable: false),
           placement: LibraryMetadataSectionPlacement.credits,
           inlineLabelKey: 'story_arcs_inline',
         ),
