@@ -39,7 +39,6 @@ CatalogItemDto seedCatalogItem({
   List<String>? characters,
   List<String>? storyArcs,
   List<Map<String, dynamic>>? creators,
-  List<CatalogEditionDto>? editions,
   List<TrailerLinkDto>? trailerUrls,
   CatalogSeriesDetailsDto? series,
   Object? video,
@@ -108,8 +107,6 @@ CatalogItemDto seedCatalogItem({
     if (sortKey != null) 'sort_key': sortKey,
     if (releaseDate != null) 'release_date': releaseDate.toIso8601String(),
     if (releaseYear != null) 'release_year': releaseYear,
-    if (editions?.isNotEmpty ?? false)
-      'editions': editions!.map((edition) => edition.toJson()).toList(),
     if (trailerUrls?.isNotEmpty ?? false)
       'trailer_urls': trailerUrls!.map((link) => link.toJson()).toList(),
     ...mergedPayload,

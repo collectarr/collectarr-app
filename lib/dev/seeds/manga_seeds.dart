@@ -58,16 +58,7 @@ List<String> validateMangaSeedCatalogGraph(CatalogItemDto item) {
     'chapters',
     item.payload['chapters'],
   );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'chapters',
-    chapters,
-    kind: CatalogMediaKind.manga,
-    parentId: item.id,
-    parentKey: 'series_id',
-    titleKey: 'title',
-  );
+  _validateContainedChapterIds(issues, prefix, chapters);
   for (var index = 0; index < chapters.length; index++) {
     seedRequirePositiveNumber(
       issues,
@@ -129,21 +120,48 @@ int? _seedMangaInt(Object? value) {
 }
 
 CatalogItemDto enrichMangaSeedItem(CatalogItemDto item) {
-  return withSeedPayload(item, {
-    'chapters': [
-      {
-        'id': '${item.id}-chapter-01',
-        'kind': 'manga',
-        'series_id': item.id,
-        'volume_number': int.tryParse(
-                MangaMetadata.fromJson(item.kindData).itemNumber ?? '') ??
-            1,
-        'chapter_number': 1,
-        'title': '${item.title} — Chapter 1',
-        'release_date': item.releaseDate?.toUtc().toIso8601String(),
-      },
-    ],
-  });
+  final data = Map<String, dynamic>.from(item.kindData)
+    ..remove('editions')
+    ..remove('releases');
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.manga,
+    origin: item.origin,
+    kindData: {
+      ...data,
+      'chapters': [
+        {
+          'id': '${item.id}-chapter-01',
+          'volume_number': int.tryParse(
+                  MangaMetadata.fromJson(item.kindData).itemNumber ?? '') ??
+              1,
+          'chapter_number': 1,
+          'title': '${item.title} — Chapter 1',
+          'release_date': item.releaseDate?.toUtc().toIso8601String(),
+        },
+      ],
+    },
+  );
+}
+
+void _validateContainedChapterIds(
+  List<String> issues,
+  String prefix,
+  List<Map<String, dynamic>> chapters,
+) {
+  final ids = <String>{};
+  for (var index = 0; index < chapters.length; index++) {
+    final id = chapters[index]['id']?.toString().trim() ?? '';
+    if (id.isEmpty || !ids.add(id)) {
+      issues.add('$prefix: chapters[$index] needs a unique non-empty id');
+    }
+    seedRequireText(
+      issues,
+      prefix,
+      'chapters[$index].title',
+      chapters[index]['title'],
+    );
+  }
 }
 
 List<CatalogItemDto> mangaSeedCatalogItems() => [
@@ -191,27 +209,6 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         characters: ['Guts', 'Griffith', 'Casca', 'Puck', 'Nosferatu Zodd'],
         storyArcs: ['The Black Swordsman Arc', 'Golden Age Arc'],
         genres: ['dark fantasy', 'sword and sorcery', 'action', 'tragedy'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-berserk-deluxe-01',
-            title: 'Berserk Deluxe Volume 1',
-            format: 'Hardcover',
-            publisher: 'Dark Horse Manga',
-            isbn: '9781506711980',
-            releaseDate: DateTime.utc(2019, 3, 26),
-            variants: [
-              CatalogVariantDto(
-                id: 'seed-var-berserk-deluxe-01',
-                name: 'Leatherette Foil Stamped',
-                variantType: 'physical',
-                isbn: '9781506711980',
-                coverPriceCents: 4999,
-                currency: 'USD',
-                isPrimary: true,
-              ),
-            ],
-          ),
-        ],
       ),
       seedCatalogItem(
         id: 'seed-manga-02',

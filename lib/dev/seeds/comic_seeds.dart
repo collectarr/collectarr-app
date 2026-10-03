@@ -72,31 +72,12 @@ List<String> validateComicSeedCatalog(CatalogItemDto item) {
 List<String> validateComicSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final issuesPayload = seedRequireObjectList(
-    issues,
-    prefix,
-    'issues',
-    item.payload['issues'],
-  );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'issues',
-    issuesPayload,
-    kind: CatalogMediaKind.comic,
-    parentId: item.id,
-    parentKey: 'work_id',
-    titleKey: 'title',
-  );
-  for (var index = 0; index < issuesPayload.length; index++) {
-    final issue = issuesPayload[index];
-    seedRequireText(
-      issues,
-      prefix,
-      'issues[$index].issue_number',
-      issue['issue_number'] ??
-          ComicCatalogItem.fromJson(item.kindData).issueNumber,
-    );
+  final metadata = ComicCatalogItem.fromJson(item.kindData);
+  seedRequireText(issues, prefix, 'issue_number', metadata.issueNumber);
+  if (item.kindData.containsKey('issues') ||
+      item.kindData.containsKey('editions') ||
+      item.kindData.containsKey('releases')) {
+    issues.add('$prefix must be a flat Comic Catalog Item.');
   }
   return issues;
 }
@@ -127,14 +108,9 @@ Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
   for (final item in items.where(
     (item) => item.mediaKind == CatalogMediaKind.comic,
   )) {
-    final issues = item.payload['issues'];
-    final issue = issues is List && issues.isNotEmpty ? issues.first : null;
-    final issueMap = issue is Map ? issue : const <String, dynamic>{};
-    final issueNumber = issueMap['issue_number']?.toString() ??
-        issueMap['number']?.toString() ??
-        ComicCatalogItem.fromJson(item.kindData).issueNumber ??
-        '1';
-    final issueId = issueMap['id']?.toString() ?? 'issue-01';
+    final issueNumber =
+        ComicCatalogItem.fromJson(item.kindData).issueNumber ?? '1';
+    final issueId = item.id;
     yield ComicTrackingUnit(
       id: 'seed-unit-comic-${item.id}-$issueId',
       libraryEntryRef: seedLibraryEntryRef(
@@ -149,26 +125,20 @@ Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
 }
 
 CatalogItemDto enrichComicSeedItem(CatalogItemDto item) {
-  final issues = [
-    for (final edition in seedEditionPayloads(item))
-      {
-        ...edition,
-        'id': edition['id']?.toString() ?? '${item.id}-issue-01',
-        'kind': 'comic',
-        'work_id': item.id,
-        'issue_number': edition['issue_number'] ??
-            ComicCatalogItem.fromJson(item.kindData).issueNumber ??
-            '1',
-        'title': edition['title'] ?? item.editionTitle ?? item.title,
-        'publisher': edition['publisher'] ?? item.publisher,
-        'imprint': edition['imprint'] ?? item.publisher,
-        'upc': edition['upc'] ?? item.barcode,
-        'release_date': edition['release_date'] ??
-            item.releaseDate?.toUtc().toIso8601String(),
-        'cover_image_url': edition['cover_image_url'] ?? item.coverImageUrl,
-      },
-  ];
-  return withSeedPayload(item, {'issues': issues});
+  final data = Map<String, dynamic>.from(item.kindData)
+    ..remove('issues')
+    ..remove('editions')
+    ..remove('releases');
+  final issueNumber = data.remove('item_number');
+  if (data['issue_number'] == null && issueNumber != null) {
+    data['issue_number'] = issueNumber;
+  }
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.comic,
+    kindData: data,
+    origin: item.origin,
+  );
 }
 
 List<CatalogItemDto> comicSeedCatalogItems() => [
@@ -224,26 +194,6 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         ],
         storyArcs: ['Chapter One'],
         genres: ['sci-fi', 'fantasy', 'space opera'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-saga-01-first',
-            title: 'Saga #1 (First Printing)',
-            format: 'Single Issue',
-            publisher: 'Image Comics',
-            releaseDate: DateTime.utc(2012, 3, 14),
-            variants: [
-              CatalogVariantDto(
-                id: 'seed-var-saga-01-dm',
-                name: 'Direct Market Cover A',
-                variantType: 'physical',
-                barcode: '70985301254200111',
-                coverPriceCents: 299,
-                currency: 'USD',
-                isPrimary: true,
-              ),
-            ],
-          ),
-        ],
       ),
       seedCatalogItem(
         id: 'seed-comic-02',

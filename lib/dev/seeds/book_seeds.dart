@@ -58,30 +58,20 @@ List<String> validateBookSeedCatalog(CatalogItemDto item) {
 List<String> validateBookSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final editions = seedRequireObjectList(
+  final printings = seedRequireObjectList(
     issues,
     prefix,
-    'editions',
-    item.payload['editions'],
+    'printings',
+    item.kindData['printings'],
   );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'editions',
-    editions,
-    kind: CatalogMediaKind.book,
-    parentId: item.id,
-    parentKey: 'work_id',
-    titleKey: 'display_title',
-  );
-  for (var index = 0; index < editions.length; index++) {
+  for (var index = 0; index < printings.length; index++) {
     seedRequireText(
-        issues, prefix, 'editions[$index].isbn', editions[index]['isbn']);
+        issues, prefix, 'printings[$index].isbn', printings[index]['isbn']);
     seedRequireText(
       issues,
       prefix,
-      'editions[$index].publisher',
-      editions[index]['publisher'],
+      'printings[$index].publisher',
+      printings[index]['publisher'],
     );
   }
   return issues;
@@ -125,26 +115,33 @@ Iterable<BookTrackingUnit> bookSeedTrackingUnits(
 int? _seedBookInt(String? value) => int.tryParse(value ?? '');
 
 CatalogItemDto enrichBookSeedItem(CatalogItemDto item) {
-  final editions = [
-    for (final edition in seedEditionPayloads(item))
-      {
-        ...edition,
-        'id': edition['id']?.toString() ?? '${item.id}-edition-01',
-        'kind': 'book',
-        'work_id': item.id,
-        'display_title': edition['title'] ?? item.editionTitle ?? item.title,
-        'format': edition['format'] ?? item.physicalFormat,
-        'binding': edition['binding'] ?? item.physicalFormat,
-        'publisher': edition['publisher'] ?? item.publisher,
-        'isbn': edition['isbn'] ?? item.barcode,
-        'language': edition['language'] ?? item.payload['language'],
-        'region': edition['region'] ?? item.payload['country'],
-        'publication_date': edition['release_date'] ??
-            item.releaseDate?.toUtc().toIso8601String(),
-        'page_count': item.payload['page_count'],
-      },
-  ];
-  return withSeedPayload(item, {'editions': editions});
+  final data = Map<String, dynamic>.from(item.kindData)
+    ..remove('editions')
+    ..remove('releases');
+  final metadata = BookCatalogMetadata.fromJson(data);
+  final printings = metadata.printings.isNotEmpty
+      ? metadata.printings
+      : [
+          BookCatalogPrinting(
+            id: '${item.id}-printing-01',
+            printingNumber: int.tryParse(metadata.itemNumber ?? ''),
+            title: metadata.editionTitle ?? metadata.title,
+            releaseDate: metadata.releaseDate,
+            releaseDateParts: metadata.releaseDateParts,
+            publisher: metadata.publisher,
+            language: metadata.language,
+            isbn: metadata.isbn ?? metadata.barcode,
+          ),
+        ];
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.book,
+    origin: item.origin,
+    kindData: {
+      ...data,
+      'printings': [for (final printing in printings) printing.toJson()],
+    },
+  );
 }
 
 List<CatalogItemDto> bookSeedCatalogItems() => [
@@ -198,35 +195,6 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         ],
         storyArcs: ['Arrakis Revolt'],
         genres: ['science fiction', 'space opera', 'philosophical fiction'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-dune-deluxe',
-            title: 'Dune Deluxe Edition',
-            format: 'Hardcover',
-            publisher: 'Ace Books',
-            isbn: '9780593099322',
-            releaseDate: DateTime.utc(2019, 10, 1),
-            variants: [
-              CatalogVariantDto(
-                id: 'seed-var-dune-deluxe',
-                name: 'Deluxe Hardcover w/ Stained Edges',
-                variantType: 'physical',
-                isbn: '9780593099322',
-                coverPriceCents: 4000,
-                currency: 'USD',
-                isPrimary: true,
-              ),
-            ],
-          ),
-          CatalogEditionDto(
-            id: 'seed-ed-dune-pb',
-            title: 'Mass Market Paperback',
-            format: 'Paperback',
-            publisher: 'Ace Books',
-            isbn: '9780441172719',
-            releaseDate: DateTime.utc(1990, 9, 1),
-          ),
-        ],
       ),
       seedCatalogItem(
         id: 'seed-book-02',

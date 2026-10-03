@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -67,17 +66,6 @@ CatalogItemDto withSeedPayload(
       ...additions,
     },
   );
-}
-
-/// Returns the declared common editions, or one deterministic fallback edition
-/// so every kind fixture exercises its edition/release mapping path.
-List<Map<String, dynamic>> seedEditionPayloads(CatalogItemDto item) {
-  final raw = item.kindData['editions'];
-  if (raw is! List) return const [];
-  return [
-    for (final value in raw)
-      if (value is Map) Map<String, dynamic>.from(value),
-  ];
 }
 
 CatalogItemDto enrichSeedItem(
@@ -296,85 +284,6 @@ List<Map<String, dynamic>> seedRequireObjectList(
   Object? value,
 ) {
   return _requireObjectList(issues, prefix, field, value);
-}
-
-void seedValidateChildren(
-  List<String> issues,
-  String prefix,
-  String field,
-  List<Map<String, dynamic>> children, {
-  CatalogMediaKind? kind,
-  required String parentId,
-  required String parentKey,
-  required String titleKey,
-}) {
-  final ids = <String>{};
-  for (var index = 0; index < children.length; index++) {
-    final child = children[index];
-    final childPrefix = '$field[$index]';
-    final id = child['id']?.toString().trim() ?? '';
-    _requireText(issues, prefix, '$childPrefix.id', child['id']);
-    if (id.isNotEmpty && !ids.add(id)) {
-      issues.add('$prefix: duplicate $field id $id');
-    }
-    if (kind != null && child['kind']?.toString() != kind.apiValue) {
-      issues.add('$prefix: $childPrefix.kind must be ${kind.apiValue}');
-    }
-    if (child[parentKey]?.toString() != parentId) {
-      issues.add('$prefix: $childPrefix.$parentKey must reference $parentId');
-    }
-    _requireText(issues, prefix, '$childPrefix.$titleKey', child[titleKey]);
-  }
-}
-
-void seedValidateReleases(
-  List<String> issues,
-  String prefix,
-  CatalogItemDto item,
-  Object? rawReleases, {
-  required CatalogMediaKind kind,
-  required String parentKey,
-  required String titleKey,
-}) {
-  final releases = _requireObjectList(issues, prefix, 'releases', rawReleases);
-  seedValidateChildren(
-    issues,
-    prefix,
-    'releases',
-    releases,
-    kind: kind,
-    parentId: item.id,
-    parentKey: parentKey,
-    titleKey: titleKey,
-  );
-  for (var index = 0; index < releases.length; index++) {
-    final media = _requireObjectList(
-      issues,
-      prefix,
-      'releases[$index].media',
-      releases[index]['media'],
-    );
-    for (var mediaIndex = 0; mediaIndex < media.length; mediaIndex++) {
-      final child = media[mediaIndex];
-      _requireText(issues, prefix, 'releases[$index].media[$mediaIndex].id',
-          child['id']);
-      if (child['release_id']?.toString() !=
-          releases[index]['id']?.toString()) {
-        issues.add(
-            '$prefix: releases[$index].media[$mediaIndex].release_id must reference the parent release');
-      }
-      _requirePositiveInt(
-          issues,
-          prefix,
-          'releases[$index].media[$mediaIndex].media_number',
-          child['media_number']);
-      _requireText(
-          issues,
-          prefix,
-          'releases[$index].media[$mediaIndex].media_type',
-          child['media_type']);
-    }
-  }
 }
 
 void seedValidateBarcode(

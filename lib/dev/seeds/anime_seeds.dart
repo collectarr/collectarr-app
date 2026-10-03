@@ -69,16 +69,7 @@ List<String> validateAnimeSeedCatalogGraph(CatalogItemDto item) {
     'episodes',
     item.payload['episodes'],
   );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'episodes',
-    episodes,
-    kind: CatalogMediaKind.anime,
-    parentId: item.id,
-    parentKey: 'series_id',
-    titleKey: 'title',
-  );
+  _validateContainedIds(issues, prefix, 'episodes', episodes);
   for (var index = 0; index < episodes.length; index++) {
     seedRequirePositiveInt(
       issues,
@@ -87,22 +78,21 @@ List<String> validateAnimeSeedCatalogGraph(CatalogItemDto item) {
       episodes[index]['episode_number'],
     );
   }
-  final releases = seedRequireObjectList(
+  final media = seedRequireObjectList(
     issues,
     prefix,
-    'releases',
-    item.payload['releases'],
+    'media',
+    item.kindData['media'],
   );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'releases',
-    releases,
-    kind: CatalogMediaKind.anime,
-    parentId: item.id,
-    parentKey: 'series_id',
-    titleKey: 'release_title',
-  );
+  _validateContainedIds(issues, prefix, 'media', media);
+  for (var index = 0; index < media.length; index++) {
+    seedRequirePositiveInt(
+        issues, prefix, 'media[$index].position', media[index]['position']);
+  }
+  if (item.kindData.containsKey('editions') ||
+      item.kindData.containsKey('releases')) {
+    issues.add('$prefix must not contain an edition/release graph.');
+  }
   return issues;
 }
 
@@ -169,8 +159,7 @@ CatalogItemDto enrichAnimeSeedItem(CatalogItemDto item) {
     for (var number = 1; number <= 2; number++)
       {
         'id': '${item.id}-episode-${number.toString().padLeft(2, '0')}',
-        'kind': 'anime',
-        'series_id': item.id,
+        'season_number': 1,
         'episode_number': number,
         'title': '${item.title} — Episode $number',
         'description': 'Seed episode $number for ${item.title}.',
@@ -182,30 +171,53 @@ CatalogItemDto enrichAnimeSeedItem(CatalogItemDto item) {
         'cover_image_url': item.coverImageUrl,
       },
   ];
-  final releases = [
-    for (final edition in seedEditionPayloads(item))
-      {
-        ...edition,
-        'id': edition['id']?.toString() ?? '${item.id}-release-01',
-        'kind': 'anime',
-        'series_id': item.id,
-        'release_title': edition['title'] ?? item.editionTitle ?? item.title,
-        'format': edition['format'] ?? item.physicalFormat,
-        'language': edition['language'] ?? item.payload['language'],
-        'region_code': edition['region'] ?? item.payload['country'],
-        'release_date': edition['release_date'] ??
-            item.releaseDate?.toUtc().toIso8601String(),
-        'publisher': edition['publisher'] ?? item.publisher,
-        'barcode': edition['barcode'] ?? item.barcode,
-        'media_count': item.payload['nr_discs'] ?? 1,
-        'audio_tracks': [item.payload['audio_tracks'] ?? 'Japanese'],
-        'subtitles': [item.payload['subtitles'] ?? 'English'],
-      },
-  ];
-  return withSeedPayload(item, {
-    'episodes': episodes,
-    'releases': releases,
-  });
+  final rawMedia = item.kindData['media'];
+  final media = rawMedia is List && rawMedia.isNotEmpty
+      ? [
+          for (var index = 0; index < rawMedia.length; index++)
+            if (rawMedia[index] is Map)
+              {
+                ...Map<String, dynamic>.from(rawMedia[index] as Map),
+                'position': index + 1,
+              },
+        ]
+      : [
+          {
+            'position': 1,
+            'media_number': 1,
+            'media_type': item.physicalFormat ?? 'Digital',
+            'title': item.editionTitle ?? item.title,
+            'episode_count': item.payload['episode_count'] ?? 1,
+            'runtime_minutes': item.payload['runtime_minutes'] ?? 24,
+            'region_code': item.payload['country'] ?? 'JP',
+            'audio_tracks': item.payload['audio_tracks'] ?? 'Japanese',
+            'subtitles': item.payload['subtitles'] ?? 'English',
+          },
+        ];
+  final data = Map<String, dynamic>.from(item.kindData)
+    ..remove('editions')
+    ..remove('releases');
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.anime,
+    kindData: {...data, 'episodes': episodes, 'media': media},
+    origin: item.origin,
+  );
+}
+
+void _validateContainedIds(
+  List<String> issues,
+  String prefix,
+  String field,
+  List<Map<String, dynamic>> values,
+) {
+  final ids = <String>{};
+  for (var index = 0; index < values.length; index++) {
+    final id = values[index]['id']?.toString().trim() ?? '';
+    if (id.isEmpty || !ids.add(id)) {
+      issues.add('$prefix: $field[$index] needs a unique non-empty id');
+    }
+  }
 }
 
 List<CatalogItemDto> animeSeedCatalogItems() => [
@@ -258,23 +270,45 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         ],
         storyArcs: ['Vicious & Julia Saga'],
         genres: ['space western', 'sci-fi', 'neo-noir', 'action'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-bebop-bd',
-            title: 'Complete Series 25th Anniversary Blu-ray',
-            format: 'Blu-ray',
-            publisher: 'Crunchyroll',
-            releaseDate: DateTime.utc(2023, 4, 4),
-            discs: const [
-              CatalogDiscDto(discNumber: 1, name: 'Sessions 1-7'),
-              CatalogDiscDto(discNumber: 2, name: 'Sessions 8-14'),
-              CatalogDiscDto(discNumber: 3, name: 'Sessions 15-20'),
-              CatalogDiscDto(
-                  discNumber: 4, name: 'Sessions 21-26 (The Real Folk Blues)'),
-              CatalogDiscDto(discNumber: 5, name: 'Bonus Features & Session 0'),
-            ],
-          ),
-        ],
+        payload: {
+          'media': [
+            {
+              'id': 'seed-anime-01-media-01',
+              'position': 1,
+              'media_number': 1,
+              'media_type': 'Blu-ray',
+              'title': 'Sessions 1-7'
+            },
+            {
+              'id': 'seed-anime-01-media-02',
+              'position': 2,
+              'media_number': 2,
+              'media_type': 'Blu-ray',
+              'title': 'Sessions 8-14'
+            },
+            {
+              'id': 'seed-anime-01-media-03',
+              'position': 3,
+              'media_number': 3,
+              'media_type': 'Blu-ray',
+              'title': 'Sessions 15-20'
+            },
+            {
+              'id': 'seed-anime-01-media-04',
+              'position': 4,
+              'media_number': 4,
+              'media_type': 'Blu-ray',
+              'title': 'Sessions 21-26 (The Real Folk Blues)'
+            },
+            {
+              'id': 'seed-anime-01-media-05',
+              'position': 5,
+              'media_number': 5,
+              'media_type': 'Blu-ray',
+              'title': 'Bonus Features & Session 0'
+            },
+          ],
+        },
       ),
       seedCatalogItem(
         id: 'seed-anime-02',

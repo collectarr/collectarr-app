@@ -98,6 +98,10 @@ void enrichBoardgameSeedPayload(
     () => item.releaseDate?.toUtc().toIso8601String(),
   );
   payload.putIfAbsent('favorite_player_count', () => 4);
+  payload.putIfAbsent('min_players', () => 1);
+  payload.putIfAbsent('max_players', () => 4);
+  payload.putIfAbsent('min_playtime_minutes', () => 45);
+  payload.putIfAbsent('max_playtime_minutes', () => 90);
   payload.putIfAbsent(
     'player_stats',
     () => <Map<String, dynamic>>[
@@ -121,42 +125,24 @@ List<String> validateBoardgameSeedCatalog(CatalogItemDto item) {
 List<String> validateBoardgameSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final editions = seedRequireObjectList(
+  final metadata = BoardGameMetadata.fromJson(item.kindData);
+  seedRequirePositiveInt(issues, prefix, 'min_players', metadata.minPlayers);
+  seedRequirePositiveInt(issues, prefix, 'max_players', metadata.maxPlayers);
+  seedRequirePositiveInt(
     issues,
     prefix,
-    'editions',
-    item.payload['editions'],
+    'min_playtime_minutes',
+    metadata.minPlaytimeMinutes,
   );
-  seedValidateChildren(
+  seedRequirePositiveInt(
     issues,
     prefix,
-    'editions',
-    editions,
-    kind: CatalogMediaKind.boardgame,
-    parentId: item.id,
-    parentKey: 'work_id',
-    titleKey: 'edition_title',
+    'max_playtime_minutes',
+    metadata.maxPlaytimeMinutes,
   );
-  for (var index = 0; index < editions.length; index++) {
-    final edition = editions[index];
-    seedRequirePositiveInt(
-      issues,
-      prefix,
-      'editions[$index].min_players',
-      edition['min_players'],
-    );
-    seedRequirePositiveInt(
-      issues,
-      prefix,
-      'editions[$index].max_players',
-      edition['max_players'],
-    );
-    seedRequirePositiveInt(
-      issues,
-      prefix,
-      'editions[$index].playing_time_minutes',
-      edition['playing_time_minutes'],
-    );
+  if (item.kindData.containsKey('editions') ||
+      item.kindData.containsKey('releases')) {
+    issues.add('$prefix must be a flat Board Game Catalog Item.');
   }
   return issues;
 }
@@ -186,31 +172,7 @@ Future<void> seedBoardgameDatabase(
   );
 }
 
-CatalogItemDto enrichBoardgameSeedItem(CatalogItemDto item) {
-  final editions = [
-    for (final edition in seedEditionPayloads(item))
-      {
-        ...edition,
-        'id': edition['id']?.toString() ?? '${item.id}-edition-01',
-        'kind': 'boardgame',
-        'work_id': item.id,
-        'edition_title': edition['title'] ?? item.editionTitle ?? item.title,
-        'format': edition['format'] ?? item.physicalFormat ?? 'Board Game',
-        'publisher': edition['publisher'] ?? item.publisher,
-        'barcode': edition['barcode'] ?? item.barcode,
-        'country': edition['country'] ?? item.payload['country'],
-        'language': edition['language'] ?? item.payload['language'],
-        'age_rating': edition['age_rating'] ?? item.payload['age_rating'],
-        'release_date': edition['release_date'] ??
-            item.releaseDate?.toUtc().toIso8601String(),
-        'release_status': edition['release_status'] ?? 'released',
-        'min_players': edition['min_players'] ?? 1,
-        'max_players': edition['max_players'] ?? 4,
-        'playing_time_minutes': edition['playing_time_minutes'] ?? 90,
-      },
-  ];
-  return withSeedPayload(item, {'editions': editions});
-}
+CatalogItemDto enrichBoardgameSeedItem(CatalogItemDto item) => item;
 
 List<CatalogItemDto> boardgameSeedCatalogItems() => [
       seedCatalogItem(

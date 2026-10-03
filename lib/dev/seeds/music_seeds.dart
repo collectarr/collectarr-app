@@ -45,35 +45,31 @@ void enrichMusicSeedPayload(
   final musicMap = payload['music'] is Map
       ? Map<String, dynamic>.from(payload['music'] as Map)
       : const <String, dynamic>{};
-  payload['music'] = {
-    ...musicMap,
-    'artist': _seedMusicArtist(item),
-    'label': item.publisher,
-    'format': item.physicalFormat ?? 'Digital',
-    'barcode': item.barcode,
-    'catalog_number': musicMap['catalog_number'] ?? 'SEED-${item.id}',
-    'release_date': item.releaseDate?.toUtc().toIso8601String(),
-    'original_release_date': item.releaseDate?.toUtc().toIso8601String(),
-    'recording_date': item.releaseDate?.toUtc().toIso8601String(),
-    'country': item.payload['country']?.toString(),
-    'genres': item.payload['genres'] ?? const <String>[],
-    'is_live': false,
-  };
+  payload
+    ..remove('music')
+    ..addAll(musicMap)
+    ..addAll({
+      'artist': _seedMusicArtist(item),
+      'label': item.publisher,
+      'format': item.physicalFormat ?? 'Digital',
+      'barcode': item.barcode,
+      'catalog_number': musicMap['catalog_number'] ?? 'SEED-${item.id}',
+      'release_date': item.releaseDate?.toUtc().toIso8601String(),
+      'original_release_date': item.releaseDate?.toUtc().toIso8601String(),
+      'recording_date': item.releaseDate?.toUtc().toIso8601String(),
+      'country': item.kindData['country']?.toString(),
+      'genres': item.kindData['genres'] ?? const <String>[],
+      'is_live': false,
+    });
 }
 
 List<String> validateMusicSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final music = item.payload['music'];
-  if (music is! Map) {
-    issues.add('$prefix: music payload is required');
-    return issues;
-  }
-  seedRequireText(
-      issues, prefix, 'music.catalog_number', music['catalog_number']);
-  final discs = music['discs'];
-  if (discs is! List || discs.isEmpty) {
-    issues.add('$prefix: music.discs must contain at least one disc');
+  final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
+  seedRequireText(issues, prefix, 'catalog_number', album.catalogNumber);
+  if (album.mediums.isEmpty) {
+    issues.add('$prefix: discs must contain at least one disc');
   }
   return issues;
 }
@@ -81,53 +77,38 @@ List<String> validateMusicSeedCatalog(CatalogItemDto item) {
 List<String> validateMusicSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final music = item.payload['music'];
-  if (music is! Map) return ['$prefix: music payload is required'];
-  final discs = seedRequireObjectList(
-    issues,
-    prefix,
-    'music.discs',
-    music['discs'],
-  );
-  for (var discIndex = 0; discIndex < discs.length; discIndex++) {
-    final disc = discs[discIndex];
-    seedRequireText(
-      issues,
-      prefix,
-      'music.discs[$discIndex].id',
-      disc['id'],
-    );
+  final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
+  for (var discIndex = 0; discIndex < album.mediums.length; discIndex++) {
+    final disc = album.mediums[discIndex];
+    seedRequireText(issues, prefix, 'discs[$discIndex].id', disc.id.value);
     seedRequirePositiveNumber(
       issues,
       prefix,
-      'music.discs[$discIndex].disc_number',
-      disc['disc_number'],
+      'discs[$discIndex].disc_number',
+      disc.mediumNumber,
     );
-    final tracks = seedRequireObjectList(
-      issues,
-      prefix,
-      'music.discs[$discIndex].tracks',
-      disc['tracks'],
-    );
-    for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
-      final track = tracks[trackIndex];
+    if (disc.tracks.isEmpty) {
+      issues.add('$prefix: discs[$discIndex].tracks must not be empty');
+    }
+    for (var trackIndex = 0; trackIndex < disc.tracks.length; trackIndex++) {
+      final track = disc.tracks[trackIndex];
       seedRequireText(
         issues,
         prefix,
-        'music.discs[$discIndex].tracks[$trackIndex].id',
-        track['id'],
+        'discs[$discIndex].tracks[$trackIndex].id',
+        track.id.value,
       );
       seedRequireText(
         issues,
         prefix,
-        'music.discs[$discIndex].tracks[$trackIndex].position',
-        track['position'],
+        'discs[$discIndex].tracks[$trackIndex].position',
+        track.position,
       );
       seedRequireText(
         issues,
         prefix,
-        'music.discs[$discIndex].tracks[$trackIndex].title',
-        track['title'],
+        'discs[$discIndex].tracks[$trackIndex].title',
+        track.title,
       );
     }
   }
@@ -159,10 +140,7 @@ List<String> validateMusicSeedEntry(MusicLibraryEntry item) {
 }
 
 CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
-  final rawMusic = item.payload['music'];
-  final source = rawMusic is Map
-      ? Map<String, dynamic>.from(rawMusic)
-      : <String, dynamic>{};
+  final source = Map<String, dynamic>.from(item.kindData);
   final rawTracks = source['tracks'] is Iterable
       ? (source['tracks'] as Iterable).toList(growable: false)
       : const <Object?>[];
@@ -202,21 +180,19 @@ CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
     });
   }
   return withSeedPayload(item, {
-    'music': {
-      ...source,
-      'artist': _seedMusicArtist(item),
-      'label': item.publisher,
-      'format': item.physicalFormat ?? 'Digital',
-      'barcode': item.barcode,
-      'catalog_number': source['catalog_number'] ?? 'SEED-${item.id}',
-      'release_date': item.releaseDate?.toUtc().toIso8601String(),
-      'original_release_date': item.releaseDate?.toUtc().toIso8601String(),
-      'recording_date': item.releaseDate?.toUtc().toIso8601String(),
-      'country': item.payload['country']?.toString(),
-      'genres': item.payload['genres'] ?? const <String>[],
-      'is_live': false,
-      'discs': discs,
-    },
+    ...source,
+    'artist': _seedMusicArtist(item),
+    'label': item.publisher,
+    'format': item.physicalFormat ?? 'Digital',
+    'barcode': item.barcode,
+    'catalog_number': source['catalog_number'] ?? 'SEED-${item.id}',
+    'release_date': item.releaseDate?.toUtc().toIso8601String(),
+    'original_release_date': item.releaseDate?.toUtc().toIso8601String(),
+    'recording_date': item.releaseDate?.toUtc().toIso8601String(),
+    'country': item.kindData['country']?.toString(),
+    'genres': item.kindData['genres'] ?? const <String>[],
+    'is_live': false,
+    'discs': discs,
   });
 }
 
@@ -348,26 +324,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
                 artist: 'Pink Floyd'),
           ],
         ),
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-dsotm-vinyl-50',
-            title: '50th Anniversary Remaster 180g Vinyl',
-            format: 'Vinyl',
-            publisher: 'Pink Floyd Records',
-            releaseDate: DateTime.utc(2023, 3, 24),
-            variants: [
-              CatalogVariantDto(
-                id: 'seed-var-dsotm-vinyl-50',
-                name: 'Gatefold 180g LP + Posters & Stickers',
-                variantType: 'physical',
-                barcode: '0190295996901',
-                coverPriceCents: 3499,
-                currency: 'USD',
-                isPrimary: true,
-              ),
-            ],
-          ),
-        ],
       ),
       seedCatalogItem(
         id: 'seed-music-02',

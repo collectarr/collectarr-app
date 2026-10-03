@@ -56,29 +56,10 @@ List<String> validateGameSeedCatalog(CatalogItemDto item) {
 List<String> validateGameSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final releases = seedRequireObjectList(
-    issues,
-    prefix,
-    'releases',
-    item.payload['releases'],
-  );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'releases',
-    releases,
-    kind: CatalogMediaKind.game,
-    parentId: item.id,
-    parentKey: 'work_id',
-    titleKey: 'release_title',
-  );
-  for (var index = 0; index < releases.length; index++) {
-    seedRequireText(
-      issues,
-      prefix,
-      'releases[$index].platform',
-      releases[index]['platform'],
-    );
+  seedRequireTextList(issues, prefix, 'platforms', item.kindData['platforms']);
+  if (item.kindData.containsKey('releases') ||
+      item.kindData.containsKey('editions')) {
+    issues.add('$prefix must be a flat Game Catalog Item.');
   }
   return issues;
 }
@@ -97,36 +78,7 @@ List<String> validateGameSeedEntry(GameLibraryEntry item) {
   return issues;
 }
 
-CatalogItemDto enrichGameSeedItem(CatalogItemDto item) {
-  final platforms = item.payload['platforms'];
-  final primaryPlatform = platforms is List && platforms.isNotEmpty
-      ? platforms.first.toString()
-      : item.physicalFormat ?? 'PC';
-  final releases = [
-    for (final edition in seedEditionPayloads(item))
-      {
-        ...edition,
-        'id': edition['id']?.toString() ?? '${item.id}-release-01',
-        'kind': 'game',
-        'work_id': item.id,
-        'release_title': edition['title'] ?? item.editionTitle ?? item.title,
-        'platform': edition['platform'] ?? primaryPlatform,
-        'release_date': edition['release_date'] ??
-            item.releaseDate?.toUtc().toIso8601String(),
-        'region_code': edition['region_code'] ??
-            edition['region'] ??
-            item.payload['country'],
-        'format': edition['format'] ?? item.physicalFormat,
-        'publisher': edition['publisher'] ?? item.publisher,
-        'catalog_number': edition['catalog_number'] ?? 'SEED-${item.id}',
-        'release_status': edition['release_status'] ?? 'released',
-        'language': edition['language'] ?? item.payload['language'],
-        'barcode': edition['barcode'] ?? item.barcode,
-        'cover_image_url': edition['cover_image_url'] ?? item.coverImageUrl,
-      },
-  ];
-  return withSeedPayload(item, {'releases': releases});
-}
+CatalogItemDto enrichGameSeedItem(CatalogItemDto item) => item;
 
 List<CatalogItemDto> gameSeedCatalogItems() => [
       seedCatalogItem(
@@ -184,26 +136,6 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
           'Dandelion'
         ],
         genres: ['action RPG', 'open world', 'dark fantasy'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-witcher-ps5',
-            title: 'Complete Edition PS5',
-            format: 'PlayStation 5',
-            publisher: 'CD Projekt Red',
-            releaseDate: DateTime.utc(2022, 12, 14),
-            variants: [
-              CatalogVariantDto(
-                id: 'seed-var-witcher-ps5',
-                name: 'Physical Disc Edition',
-                variantType: 'physical',
-                barcode: '850024479326',
-                coverPriceCents: 3999,
-                currency: 'USD',
-                isPrimary: true,
-              ),
-            ],
-          ),
-        ],
       ),
       seedCatalogItem(
         id: 'seed-game-02',

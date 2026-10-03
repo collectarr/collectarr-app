@@ -68,15 +68,7 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
     'seasons',
     item.payload['seasons'],
   );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'seasons',
-    seasons,
-    parentId: item.id,
-    parentKey: 'series_id',
-    titleKey: 'title',
-  );
+  _validateContainedIds(issues, prefix, 'seasons', seasons);
   for (var index = 0; index < seasons.length; index++) {
     final season = seasons[index];
     seedRequirePositiveInt(
@@ -99,15 +91,10 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
         'seasons[$index].episodes[$episodeIndex].id',
         episode['id'],
       );
-      seedRequireText(
-        issues,
-        prefix,
-        'seasons[$index].episodes[$episodeIndex].season_id',
-        episode['season_id'],
-      );
-      if (episode['season_id']?.toString() != season['id']?.toString()) {
+      final episodeId = episode['id']?.toString().trim() ?? '';
+      if (episodeId.isEmpty) {
         issues.add(
-          '$prefix: seasons[$index].episodes[$episodeIndex].season_id must reference the parent season',
+          '$prefix: seasons[$index].episodes[$episodeIndex].id is required',
         );
       }
       seedRequireText(
@@ -124,15 +111,31 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
       );
     }
   }
-  seedValidateReleases(
+  final media = seedRequireObjectList(
     issues,
     prefix,
-    item,
-    item.payload['releases'],
-    kind: CatalogMediaKind.tv,
-    parentKey: 'series_id',
-    titleKey: 'title',
+    'media',
+    item.kindData['media'],
   );
+  _validateContainedIds(issues, prefix, 'media', media);
+  for (var index = 0; index < media.length; index++) {
+    seedRequirePositiveInt(
+      issues,
+      prefix,
+      'media[$index].position',
+      media[index]['position'],
+    );
+    seedRequirePositiveInt(
+      issues,
+      prefix,
+      'media[$index].media_number',
+      media[index]['media_number'],
+    );
+  }
+  if (item.kindData.containsKey('releases') ||
+      item.kindData.containsKey('editions')) {
+    issues.add('$prefix must not contain a release graph.');
+  }
   return issues;
 }
 
@@ -207,8 +210,6 @@ CatalogItemDto enrichTvSeedItem(CatalogItemDto item) {
     for (var number = 1; number <= 2; number++)
       {
         'id': '${item.id}-episode-${number.toString().padLeft(2, '0')}',
-        'series_id': item.id,
-        'season_id': seasonId,
         'season_number': 1,
         'episode_number': number,
         'episode_title': '${item.title} — Episode $number',
@@ -221,72 +222,66 @@ CatalogItemDto enrichTvSeedItem(CatalogItemDto item) {
         'cover_image_url': item.coverImageUrl,
       },
   ];
-  final releaseId = '${item.id}-release-01';
-  final mediaId = '$releaseId-media-01';
-  final releases = [
-    {
-      'id': releaseId,
-      'kind': 'tv',
-      'series_id': item.id,
-      'title': item.editionTitle ?? '${item.title} Complete Series',
-      'format': item.physicalFormat,
-      'region_code': item.payload['country'],
-      'release_date': item.releaseDate?.toUtc().toIso8601String(),
-      'publisher': item.publisher,
-      'sku': item.barcode,
-      'episode_count': episodes.length,
-      'season_count': 1,
-      'runtime_minutes': item.payload['runtime_minutes'] ?? 42,
-      'language_audio': [item.payload['audio_tracks'] ?? 'English'],
-      'language_subtitles': [item.payload['subtitles'] ?? 'English'],
-      'content_rating': item.payload['age_rating'],
-      'media': [
+  final rawMedia = item.kindData['media'];
+  final media = rawMedia is List && rawMedia.isNotEmpty
+      ? [
+          for (var index = 0; index < rawMedia.length; index++)
+            if (rawMedia[index] is Map)
+              {
+                ...Map<String, dynamic>.from(rawMedia[index] as Map),
+                'position': index + 1,
+              },
+        ]
+      : [
+          {
+            'id': '${item.id}-media-01',
+            'position': 1,
+            'media_number': 1,
+            'media_type': item.physicalFormat ?? 'Digital',
+            'title': item.editionTitle ?? item.title,
+            'episode_count': episodes.length,
+            'runtime_minutes': item.payload['runtime_minutes'] ?? 42,
+            'region_code': item.payload['country'] ?? 'US',
+            'audio_tracks': item.payload['audio_tracks'] ?? 'English',
+            'subtitles': item.payload['subtitles'] ?? 'English',
+          },
+        ];
+  final data = Map<String, dynamic>.from(item.kindData)
+    ..remove('editions')
+    ..remove('releases');
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.tv,
+    origin: item.origin,
+    kindData: {
+      ...data,
+      'seasons': [
         {
-          'id': mediaId,
-          'release_id': releaseId,
-          'media_number': 1,
-          'media_type': item.physicalFormat,
-          'title': item.title,
+          'id': seasonId,
+          'season_number': 1,
+          'title': 'Season 1',
           'episode_count': episodes.length,
-          'runtime_minutes': item.payload['runtime_minutes'] ?? 42,
-          'region_code': item.payload['country'],
-          'color': item.payload['color'],
-          'audio_tracks': item.payload['audio_tracks'],
-          'subtitles': item.payload['subtitles'],
-          'layers': item.payload['layers'],
           'episodes': episodes,
         },
       ],
-      'episode_mappings': [
-        for (var index = 0; index < episodes.length; index++)
-          {
-            'id': '$releaseId-map-${(index + 1).toString().padLeft(2, '0')}',
-            'release_id': releaseId,
-            'media_id': mediaId,
-            'episode_id': episodes[index]['id'],
-            'disc_number': 1,
-            'sequence_number': index + 1,
-          },
-      ],
+      'media': media,
     },
-  ];
-  final enriched = withSeedPayload(item, {
-    'seasons': [
-      {
-        'id': seasonId,
-        'series_id': item.id,
-        'season_number': 1,
-        'title': 'Season 1',
-        'description': 'Seed season for ${item.title}.',
-        'air_date': item.releaseDate?.toUtc().toIso8601String(),
-        'episode_count': episodes.length,
-        'cover_image_url': item.coverImageUrl,
-        'episodes': episodes,
-      },
-    ],
-    'releases': releases,
-  });
-  return enriched;
+  );
+}
+
+void _validateContainedIds(
+  List<String> issues,
+  String prefix,
+  String field,
+  List<Map<String, dynamic>> values,
+) {
+  final ids = <String>{};
+  for (var index = 0; index < values.length; index++) {
+    final id = values[index]['id']?.toString().trim() ?? '';
+    if (id.isEmpty || !ids.add(id)) {
+      issues.add('$prefix: $field[$index] needs a unique non-empty id');
+    }
+  }
 }
 
 List<CatalogItemDto> tvSeedCatalogItems() => [
@@ -348,30 +343,80 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         ],
         storyArcs: ['Heisenberg Rise and Fall'],
         genres: ['crime', 'drama', 'thriller'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-bb-barrel',
-            title: 'Complete Series Money Barrel Collector\'s Edition',
-            format: 'Blu-ray',
-            publisher: 'Sony Pictures',
-            releaseDate: DateTime.utc(2013, 11, 26),
-            region: 'Region A',
-            discs: const [
-              CatalogDiscDto(discNumber: 1, name: 'Season 1 (Episodes 1-7)'),
-              CatalogDiscDto(discNumber: 2, name: 'Season 2 (Episodes 1-7)'),
-              CatalogDiscDto(discNumber: 3, name: 'Season 2 (Episodes 8-13)'),
-              CatalogDiscDto(discNumber: 4, name: 'Season 3 (Episodes 1-7)'),
-              CatalogDiscDto(discNumber: 5, name: 'Season 3 (Episodes 8-13)'),
-              CatalogDiscDto(discNumber: 6, name: 'Season 4 (Episodes 1-7)'),
-              CatalogDiscDto(discNumber: 7, name: 'Season 4 (Episodes 8-13)'),
-              CatalogDiscDto(discNumber: 8, name: 'Season 5 Part 1'),
-              CatalogDiscDto(
-                  discNumber: 9, name: 'Season 5 Part 2 (Final Episodes)'),
-              CatalogDiscDto(
-                  discNumber: 10, name: 'Bonus: No Half Measures Documentary'),
-            ],
-          ),
-        ],
+        payload: {
+          'media': [
+            {
+              'id': 'seed-tv-01-media-01',
+              'position': 1,
+              'media_number': 1,
+              'media_type': 'Blu-ray',
+              'title': 'Season 1 (Episodes 1-7)'
+            },
+            {
+              'id': 'seed-tv-01-media-02',
+              'position': 2,
+              'media_number': 2,
+              'media_type': 'Blu-ray',
+              'title': 'Season 2 (Episodes 1-7)'
+            },
+            {
+              'id': 'seed-tv-01-media-03',
+              'position': 3,
+              'media_number': 3,
+              'media_type': 'Blu-ray',
+              'title': 'Season 2 (Episodes 8-13)'
+            },
+            {
+              'id': 'seed-tv-01-media-04',
+              'position': 4,
+              'media_number': 4,
+              'media_type': 'Blu-ray',
+              'title': 'Season 3 (Episodes 1-7)'
+            },
+            {
+              'id': 'seed-tv-01-media-05',
+              'position': 5,
+              'media_number': 5,
+              'media_type': 'Blu-ray',
+              'title': 'Season 3 (Episodes 8-13)'
+            },
+            {
+              'id': 'seed-tv-01-media-06',
+              'position': 6,
+              'media_number': 6,
+              'media_type': 'Blu-ray',
+              'title': 'Season 4 (Episodes 1-7)'
+            },
+            {
+              'id': 'seed-tv-01-media-07',
+              'position': 7,
+              'media_number': 7,
+              'media_type': 'Blu-ray',
+              'title': 'Season 4 (Episodes 8-13)'
+            },
+            {
+              'id': 'seed-tv-01-media-08',
+              'position': 8,
+              'media_number': 8,
+              'media_type': 'Blu-ray',
+              'title': 'Season 5 Part 1'
+            },
+            {
+              'id': 'seed-tv-01-media-09',
+              'position': 9,
+              'media_number': 9,
+              'media_type': 'Blu-ray',
+              'title': 'Season 5 Part 2 (Final Episodes)'
+            },
+            {
+              'id': 'seed-tv-01-media-10',
+              'position': 10,
+              'media_number': 10,
+              'media_type': 'Blu-ray',
+              'title': 'Bonus: No Half Measures Documentary'
+            },
+          ],
+        },
       ),
       seedCatalogItem(
         id: 'seed-tv-02',
