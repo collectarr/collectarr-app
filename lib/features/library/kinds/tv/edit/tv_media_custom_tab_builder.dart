@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft_contract.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_crew_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_discs_tab.dart';
@@ -21,9 +20,13 @@ Widget? buildTvMediaCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final tvEdit = (draft.session.catalogItemSession is TvEditDraftContract)
-      ? (draft.session.catalogItemSession as TvEditDraftContract).tvEdit
-      : TvEditController(itemId: item.reference.id, catalogRef: item.reference);
+  final entryDraft = draft.session.catalogItemSession;
+  if (entryDraft is! TvEditDraftContract) {
+    throw StateError(
+      'TV tab "$tabId" requires the registered TV edit draft.',
+    );
+  }
+  final tvEdit = entryDraft.tvEdit;
 
   return switch (tabId) {
     'edition' => TvEditEditionTab(
@@ -32,8 +35,7 @@ Widget? buildTvMediaCustomTabView({
         physicalFormats: const [],
       ),
     'specs' => TvEditSpecsTab(
-        draft: draft,
-        tvEdit: tvEdit,
+        tvDraft: entryDraft,
         accent: accent,
         audioTrackOptions: const [],
         subtitleOptions: const [],

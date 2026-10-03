@@ -1,15 +1,13 @@
-import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_tab_helpers.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft_contract.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
 class TvEditSpecsTab extends StatelessWidget {
   const TvEditSpecsTab({
     super.key,
-    required this.draft,
-    required this.tvEdit,
+    required this.tvDraft,
     required this.accent,
     required this.audioTrackOptions,
     required this.subtitleOptions,
@@ -17,8 +15,7 @@ class TvEditSpecsTab extends StatelessWidget {
     required this.colorOptions,
   });
 
-  final LibraryEditShellState draft;
-  final TvEditController tvEdit;
+  final TvEditDraftContract tvDraft;
   final Color accent;
   final List<String> audioTrackOptions;
   final List<String> subtitleOptions;
@@ -38,13 +35,13 @@ class TvEditSpecsTab extends StatelessWidget {
               buildTvResponsiveFields([
                 LibraryVocabularyField(
                   label: 'Audio tracks',
-                  controller: tvEdit.audioTracksController,
+                  controller: tvDraft.audioTracksController,
                   options: audioTrackOptions,
                   multiSelect: true,
                 ),
                 LibraryVocabularyField(
                   label: 'Subtitles',
-                  controller: tvEdit.subtitlesController,
+                  controller: tvDraft.subtitlesController,
                   options: subtitleOptions,
                   multiSelect: true,
                 ),
@@ -53,16 +50,16 @@ class TvEditSpecsTab extends StatelessWidget {
               buildTvResponsiveFields([
                 LibraryVocabularyField(
                   label: 'Layers',
-                  controller: tvEdit.layersController,
+                  controller: tvDraft.layersController,
                   options: layersOptions,
                 ),
                 LibraryVocabularyField(
                   label: 'Color',
-                  controller: tvEdit.colorController,
+                  controller: tvDraft.colorController,
                   options: colorOptions,
                 ),
                 buildTvField(
-                  controller: tvEdit.nrDiscsController,
+                  controller: tvDraft.nrDiscsController,
                   label: 'Discs',
                   validator: optionalIntValidator,
                 ),
