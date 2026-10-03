@@ -97,9 +97,6 @@ final class CatalogItemDto {
   String? get originalTitle => _string(kindData['original_title']);
   String? get titleExtension => _string(kindData['title_extension']);
   List<String>? get searchAliases => _stringList(kindData['search_aliases']);
-  String? get synopsis => _string(
-        kindData['synopsis'] ?? kindData['description'],
-      );
   String? get coverImageUrl => _string(kindData['cover_image_url']);
   String? get thumbnailImageUrl => _string(kindData['thumbnail_image_url']);
   String? get coverImageData => _string(kindData['cover_image_data']);

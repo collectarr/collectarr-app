@@ -156,6 +156,10 @@ slice. This is progress, not completion of this plan:
 - `sort_key` interpretation now belongs to Game, Board Game, Manga, and Comic
   metadata projections; the generic transport no longer applies a
   cross-kind `sort_title` fallback or exposes a generic sort-key setter.
+- Synopsis reads now come from the kind-owned metadata in catalog projections;
+  the shared transport no longer interprets either `synopsis` or the legacy
+  `description` alias. Generic edit setters for this field remain to be
+  replaced by kind-owned draft commits.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
