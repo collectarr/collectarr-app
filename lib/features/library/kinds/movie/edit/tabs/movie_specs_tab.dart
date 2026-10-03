@@ -1,15 +1,13 @@
-import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_tab_helpers.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft_contract.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
 class MovieEditSpecsTab extends StatelessWidget {
   const MovieEditSpecsTab({
     super.key,
-    required this.draft,
-    required this.movieEdit,
+    required this.movieDraft,
     required this.accent,
     required this.audioTrackOptions,
     required this.subtitleOptions,
@@ -17,8 +15,7 @@ class MovieEditSpecsTab extends StatelessWidget {
     required this.colorOptions,
   });
 
-  final LibraryEditShellState draft;
-  final MovieEditController movieEdit;
+  final MovieEditDraftContract movieDraft;
   final Color accent;
   final List<String> audioTrackOptions;
   final List<String> subtitleOptions;
@@ -38,13 +35,13 @@ class MovieEditSpecsTab extends StatelessWidget {
               buildMovieResponsiveFields([
                 LibraryVocabularyField(
                   label: 'Audio tracks',
-                  controller: movieEdit.audioTracksController,
+                  controller: movieDraft.audioTracksController,
                   options: audioTrackOptions,
                   multiSelect: true,
                 ),
                 LibraryVocabularyField(
                   label: 'Subtitles',
-                  controller: movieEdit.subtitlesController,
+                  controller: movieDraft.subtitlesController,
                   options: subtitleOptions,
                   multiSelect: true,
                 ),
@@ -53,16 +50,16 @@ class MovieEditSpecsTab extends StatelessWidget {
               buildMovieResponsiveFields([
                 LibraryVocabularyField(
                   label: 'Layers',
-                  controller: movieEdit.layersController,
+                  controller: movieDraft.layersController,
                   options: layersOptions,
                 ),
                 LibraryVocabularyField(
                   label: 'Color',
-                  controller: movieEdit.colorController,
+                  controller: movieDraft.colorController,
                   options: colorOptions,
                 ),
                 buildMovieField(
-                  controller: movieEdit.nrDiscsController,
+                  controller: movieDraft.nrDiscsController,
                   label: 'Discs',
                   validator: optionalIntValidator,
                 ),

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft_contract.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_crew_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_discs_tab.dart';
@@ -21,10 +20,13 @@ Widget? buildMovieCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final movieEdit = (draft.session.catalogItemSession is MovieEditDraftContract)
-      ? (draft.session.catalogItemSession as MovieEditDraftContract).movieEdit
-      : MovieEditController(
-          itemId: item.reference.id, catalogRef: item.reference);
+  final catalogDraft = draft.session.catalogItemSession;
+  if (catalogDraft is! MovieEditDraftContract) {
+    throw StateError(
+      'Movie tab "$tabId" requires the registered Movie edit draft.',
+    );
+  }
+  final movieEdit = catalogDraft.movieEdit;
 
   return switch (tabId) {
     'edition' => MovieEditEditionTab(
@@ -33,8 +35,7 @@ Widget? buildMovieCustomTabView({
         physicalFormats: const [],
       ),
     'specs' => MovieEditSpecsTab(
-        draft: draft,
-        movieEdit: movieEdit,
+        movieDraft: catalogDraft,
         accent: accent,
         audioTrackOptions: const [],
         subtitleOptions: const [],

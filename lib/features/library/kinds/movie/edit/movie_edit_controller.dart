@@ -93,13 +93,6 @@ class MovieEditController {
   final List<EditableMovieCredit> crewCredits = [];
   final List<EditableUserExternalLink> userLinkEdits = [];
   final List<EditableUserExternalLink> userTrailerEdits = [];
-  static final _dummyController = TextEditingController();
-
-  TextEditingController get audioTracksController => _dummyController;
-  TextEditingController get subtitlesController => _dummyController;
-  TextEditingController get layersController => _dummyController;
-  TextEditingController get colorController => _dummyController;
-  TextEditingController get nrDiscsController => _dummyController;
 
   void initializeMovieEditors() {
     final creators = initialCreators;
