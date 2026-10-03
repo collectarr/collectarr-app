@@ -171,6 +171,10 @@ slice. This is progress, not completion of this plan:
   number, cover URLs, and barcode instead of indexing those values from its raw
   map. The old `AnimeMedia`/`AnimeRelease` consumers and raw maps still remain
   and must move to the single Anime catalog document before this kind is done.
+- Core now declares Anime and TV media, season, and episode shapes inside each
+  kind's schema module rather than centralizing those definitions in the shared
+  document module. The emitted field shapes are unchanged; App's remaining raw
+  Anime/TV metadata maps and legacy projections are still outstanding.
 - Development seeds for all nine kinds now place repeated item data in their
   kind document: media, seasons/episodes, printings, Music discs/tracks, and
   issue or platform details no longer require an edition/release graph. Seed
