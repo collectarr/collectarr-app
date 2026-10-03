@@ -60,10 +60,10 @@ slice. This is progress, not completion of this plan:
   JSON remains at persistence and Sync envelope boundaries. Music assigns the
   local entry identity during decode; Comic binds its typed metadata ID to the
   local entry identity.
-- Music's complete local entry now groups its personal values in a typed
-  `MusicPersonalData` object alongside `MusicAlbum` metadata. Its entry codec
-  preserves the existing persistence and Sync envelope shape; constructor
-  call sites and seed metadata use the typed models. The other eight kinds
+- Music and Book complete local entries now group their personal values in
+  `MusicPersonalData` and `BookPersonalData` alongside typed metadata. Their
+  entry codecs preserve the existing persistence and Sync envelope shape;
+  constructor call sites and seeds use the typed models. The other seven kinds
   still need their own typed personal aggregates and draft bindings.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.

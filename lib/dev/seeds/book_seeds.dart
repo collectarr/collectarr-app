@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/book/tracking/book_trackin
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 
@@ -774,19 +775,21 @@ List<BookLibraryEntry> bookSeedLibraryEntries(DateTime now) {
             seedCatalogRef(CatalogMediaKind.book, itemId).toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 300)),
         updatedAt: now,
-        isDigital: false,
-        condition: 'Near Mint',
-        details: const BookEntryDetails(
-          signedBy: 'Facsimile author signature',
-          dustJacketPresent: true,
-          dustJacketCondition: 'Fine',
+        personal: BookPersonalData(
+          isDigital: false,
+          condition: 'Near Mint',
+          details: BookEntryDetails(
+            signedBy: 'Facsimile author signature',
+            dustJacketPresent: true,
+            dustJacketCondition: 'Fine',
+          ),
+          purchaseDate: DateTime.utc(2021, 10, 1),
+          pricePaidCents: 2499,
+          currency: 'USD',
+          personalNotes: 'Deluxe physical copy on library shelf.',
+          purchaseStore: 'Barnes & Noble',
+          collectionStatus: 'collected',
         ),
-        purchaseDate: DateTime.utc(2021, 10, 1),
-        pricePaidCents: 2499,
-        currency: 'USD',
-        personalNotes: 'Deluxe physical copy on library shelf.',
-        purchaseStore: 'Barnes & Noble',
-        collectionStatus: 'collected',
       ),
   ];
 }

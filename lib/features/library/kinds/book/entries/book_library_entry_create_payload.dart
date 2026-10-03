@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
 
@@ -79,21 +80,23 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
     return BookLibraryEntry(
       id: LibraryEntryId(id),
       metadata: BookCatalogMetadata.fromJson(sourceCatalogItem.kindData),
+      personal: BookPersonalData(
+        isDigital: isDigital ?? existingIsDigital,
+        details: details.toDetails(),
+        condition: condition,
+        grade: grade,
+        purchaseDate: purchaseDate,
+        pricePaidCents: pricePaidCents,
+        currency: currency,
+        personalNotes: personalNotes,
+        locationId: locationId,
+        purchaseStore: purchaseStore,
+        collectionStatus: collectionStatus,
+        tags: tags,
+        ownerUserId: ownerUserId,
+        ownerLabel: this.ownerLabel ?? ownerLabel,
+      ),
       createdAt: createdAt,
-      isDigital: isDigital ?? existingIsDigital,
-      details: details.toDetails(),
-      condition: condition,
-      grade: grade,
-      purchaseDate: purchaseDate,
-      pricePaidCents: pricePaidCents,
-      currency: currency,
-      personalNotes: personalNotes,
-      locationId: locationId,
-      purchaseStore: purchaseStore,
-      collectionStatus: collectionStatus,
-      tags: tags,
-      ownerUserId: ownerUserId,
-      ownerLabel: this.ownerLabel ?? ownerLabel,
       updatedAt: createdAt,
     );
   }

@@ -24,6 +24,7 @@ export 'package:collectarr_app/features/library/kinds/book/add/book_catalog_cand
 export 'package:collectarr_app/features/library/kinds/book/book_physical_media_formats.dart';
 export 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+export 'package:collectarr_app/features/library/kinds/book/domain/book_personal_data.dart';
 export 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
