@@ -105,9 +105,11 @@ slice. This is progress, not completion of this plan:
   and key events instead of exposing arbitrary object maps. The App now writes
   cover date, variant description, and key events to the pinned contract, and
   its date form preserves partial cover dates when another field is edited.
-  The Comic metadata model still contains generic nested DTOs and raw payload
-  storage; removing those remains outstanding work. Its CLZ field ledger stays
-  provisional until a saved Edit-form capture is reviewed.
+  App-side Comic field filtering was removed so Core's kind-owned validator is
+  the only proposal allowlist. The Comic metadata model still contains generic
+  nested DTOs and raw payload storage; removing those remains outstanding
+  work. Its CLZ field ledger stays provisional until a saved Edit-form capture
+  is reviewed.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.
