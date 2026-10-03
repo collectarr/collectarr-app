@@ -17,6 +17,9 @@ claim completion of every cleanup item or literal CLZ parity.
 - All nine kind workspaces use Catalog Item data and local library entries.
   Add/Edit uses kind-owned fields with the shared dialog shell. Music contains
   its discs, tracks, credits, and artwork within the album catalog data.
+- App Admin catalog corrections and cover inspection consume root Catalog Item
+  fields. Kind-owned contributors read their own fields directly; the shared
+  Admin DTO no longer models Edition or Variant objects.
 - All nine local entry aggregates expose personal state through their
   kind-owned `personal` value. The flattened personal getters and `copyWith`
   facade have been removed from the entry aggregates.

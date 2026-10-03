@@ -32,6 +32,10 @@ slice. This is progress, not completion of this plan:
   records such as Book Series remain separate.
 - Core create/update, proposals, Admin corrections, seeds, indexing, search,
   identifier lookup, fingerprints, and schema exports use the root documents.
+- App Admin search, correction, cover inspection, and item summaries now read
+  root Catalog Item fields. Kind contributors interpret their own correction
+  fields; the Admin DTO no longer models editions or variants, and Core's
+  unused edition/variant lookup helpers have been removed.
 - Music proposal normalization now supplies a stable position/order default
   when a manual track omits them; component IDs and list order are preserved.
 - The App's duplicate `CatalogMusicItemDto`/disc/track transport graph has been
