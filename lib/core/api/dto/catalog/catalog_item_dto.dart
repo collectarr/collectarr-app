@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -122,10 +121,6 @@ final class CatalogItemDto {
   String? get physicalFormat => _string(kindData['physical_format']);
   String? get physicalFormatLabel => _string(kindData['physical_format_label']);
   String? get editionTitle => _string(kindData['edition_title']);
-  List<TrailerLinkDto> get trailerUrls => [
-        ..._linkList(kindData['trailer_urls']),
-        ..._linkList(kindData['external_links'], defaultKind: 'external'),
-      ];
   List<CatalogEditionDto> get editions =>
       _mapList(kindData['editions']).map(CatalogEditionDto.fromJson).toList();
 
@@ -228,7 +223,6 @@ final class CatalogItemDto {
     Object? releaseDateParts = _unset,
     Object? releaseYear = _unset,
     List<CatalogEditionDto>? editions,
-    List<TrailerLinkDto>? trailerUrls,
     Object? physicalFormat = _unset,
     Object? physicalFormatLabel = _unset,
     Object? editionTitle = _unset,
@@ -255,8 +249,6 @@ final class CatalogItemDto {
       if (!identical(releaseYear, _unset)) 'release_year': releaseYear,
       if (editions != null)
         'editions': [for (final edition in editions) edition.toJson()],
-      if (trailerUrls != null)
-        'trailer_urls': [for (final link in trailerUrls) link.toJson()],
       if (!identical(physicalFormat, _unset)) 'physical_format': physicalFormat,
       if (!identical(physicalFormatLabel, _unset))
         'physical_format_label': physicalFormatLabel,
@@ -304,14 +296,6 @@ const _transportFields = <String>{
 
 const _unset = Object();
 
-String? _string(Object? value) {
-  final result = value?.toString().trim();
-  return result == null || result.isEmpty ? null : result;
-}
-
-List<String>? _stringList(Object? value) =>
-    value is List ? value.whereType<String>().toList(growable: false) : null;
-
 List<Map<String, dynamic>> _mapList(Object? value) => value is List
     ? value
         .whereType<Map<dynamic, dynamic>>()
@@ -319,17 +303,10 @@ List<Map<String, dynamic>> _mapList(Object? value) => value is List
         .toList()
     : const <Map<String, dynamic>>[];
 
-List<TrailerLinkDto> _linkList(
-  Object? value, {
-  String? defaultKind,
-}) =>
-    [
-      for (final link in _mapList(value))
-        TrailerLinkDto.fromJson({
-          ...link,
-          if (link['kind'] == null &&
-              link['type'] == null &&
-              defaultKind != null)
-            'kind': defaultKind,
-        }),
-    ];
+String? _string(Object? value) {
+  final result = value?.toString().trim();
+  return result == null || result.isEmpty ? null : result;
+}
+
+List<String>? _stringList(Object? value) =>
+    value is List ? value.whereType<String>().toList(growable: false) : null;

@@ -144,6 +144,9 @@ slice. This is progress, not completion of this plan:
   for Books, Movies, and Manga decode or project their kind metadata directly.
   The generic `CatalogItemDto` no longer supplies a universal resolved-title
   or display-cover fallback.
+- Anime and TV link editors now decode their link lists through their own
+  metadata models. The shared catalog transport no longer parses generic
+  `trailer_urls` or `external_links` into a cross-kind link property.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
