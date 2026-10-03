@@ -45,10 +45,12 @@ Widget? buildTvMediaCustomTabView({
     'cast' => TvEditCastTab(
         accent: accent,
         tvEdit: tvEdit,
+        markDirty: markDirty,
       ),
     'crew' => TvEditCrewTab(
         accent: accent,
         tvEdit: tvEdit,
+        markDirty: markDirty,
       ),
     'discs' => TvEditDiscsTab(
         item: item,

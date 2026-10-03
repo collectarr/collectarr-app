@@ -8,10 +8,12 @@ class TvEditCrewTab extends StatelessWidget {
     super.key,
     required this.accent,
     required this.tvEdit,
+    required this.markDirty,
   });
 
   final Color accent;
   final TvEditController tvEdit;
+  final VoidCallback markDirty;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,7 @@ class TvEditCrewTab extends StatelessWidget {
       credits: tvEdit.crewCredits,
       onAdd: () =>
           tvEdit.crewCredits.add(EditableTvCredit.custom(role: 'Director')),
+      onChanged: markDirty,
     );
   }
 }

@@ -9,58 +9,68 @@ Widget buildTvCreditsTab({
   required Color accent,
   required List<EditableTvCredit> credits,
   required VoidCallback onAdd,
+  required VoidCallback onChanged,
 }) {
-  return EditTabShell(
-    children: [
-      EditSection(
-        title: title,
-        accent: accent,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (credits.isEmpty)
-              EditSectionStateMessage(
-                message: emptyMessage,
-                icon: Icons.person_outline,
-              )
-            else
-              Column(
-                children: [
-                  for (final credit in credits)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: credit.nameController,
-                              decoration:
-                                  const InputDecoration(labelText: 'Name'),
+  return StatefulBuilder(
+    builder: (context, setState) => EditTabShell(
+      children: [
+        EditSection(
+          title: title,
+          accent: accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (credits.isEmpty)
+                EditSectionStateMessage(
+                  message: emptyMessage,
+                  icon: Icons.person_outline,
+                )
+              else
+                Column(
+                  children: [
+                    for (final credit in credits)
+                      Padding(
+                        key: ObjectKey(credit),
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: credit.nameController,
+                                decoration:
+                                    const InputDecoration(labelText: 'Name'),
+                                onChanged: (_) => onChanged(),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextFormField(
-                              controller: credit.roleController,
-                              decoration:
-                                  const InputDecoration(labelText: 'Role'),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextFormField(
+                                controller: credit.roleController,
+                                decoration:
+                                    const InputDecoration(labelText: 'Role'),
+                                onChanged: (_) => onChanged(),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: () {
+                  onAdd();
+                  setState(() {});
+                  onChanged();
+                },
+                icon: const Icon(Icons.add),
+                label: Text(addLabel),
               ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: onAdd,
-              icon: const Icon(Icons.add),
-              label: Text(addLabel),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }
 
