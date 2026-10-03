@@ -123,7 +123,7 @@ final class BoardGameCollectionCsvProjection
       CatalogMediaKind.boardgame.apiValue,
       metadata?.title ?? boardgame?.title ?? entry.title,
       metadata?.itemNumber ?? '',
-      metadata?.variant ?? '',
+      metadata?.variantName ?? '',
       '',
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',

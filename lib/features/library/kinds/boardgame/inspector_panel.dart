@@ -161,9 +161,9 @@ class _BoardGameInspectorMain extends StatelessWidget {
         : null;
     final palette = appPalette(context);
     final releaseYear = adapter?.releaseDate?.year.toString();
-    final creatorsList = metadata?.creators
-            .map((Map<String, dynamic> c) => (c['name'] ?? '').toString())
-            .where((n) => n.trim().isNotEmpty)
+    final creatorsList = metadata?.credits
+            .map((credit) => credit.name)
+            .where((name) => name.trim().isNotEmpty)
             .toList() ??
         const [];
     final designerText = _joinNonEmpty(creatorsList);

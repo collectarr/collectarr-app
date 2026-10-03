@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgam
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -534,41 +535,32 @@ class BoardGameEditDraft
       final physicalFormat = _nullableText(physicalFormatController);
       final barcode = _nullableText(barcodeController);
       final variant = _nullableText(variantController);
-      final releaseDate = DateTime.tryParse(releaseDateController.text.trim());
-      final rawPayload = _withoutEditedFields(meta.rawPayload);
-      _writeRaw(rawPayload, 'edition_title', editionTitle);
-      _writeRaw(rawPayload, 'subtitle', _nullableText(subtitleController));
-      _writeRaw(rawPayload, 'platforms',
-          _splitValues(platformsController, fallback: const []));
-      _writeRaw(rawPayload, 'identifiers',
-          _splitValues(identifiersController, fallback: const []));
-      _writeRaw(rawPayload, 'contributors',
-          _splitValues(contributorsController, fallback: const []));
-      _writeRaw(rawPayload, 'original_language',
-          _nullableText(originalLanguageController));
-      _writeRaw(rawPayload, 'rankings',
-          _splitValues(rankingsController, fallback: const []));
-      _writeRaw(
-          rawPayload, 'playing_time_minutes', _intValue(playingTimeController));
-      _writeRaw(rawPayload, 'country', _nullableText(countryController));
-      _writeRaw(rawPayload, 'language', _nullableText(languageController));
-      _writeRaw(rawPayload, 'age_rating', _nullableText(ageRatingController));
-      _writeRaw(rawPayload, 'audience_rating',
-          _nullableText(audienceRatingController));
-      _writeRaw(
-          rawPayload, 'catalog_number', _nullableText(catalogNumberController));
-      _writeRaw(
-          rawPayload, 'release_status', _nullableText(releaseStatusController));
-      _writeRaw(rawPayload, 'release_date', releaseDate?.toIso8601String());
-      _writeRaw(
-        rawPayload,
-        'cover_image_url',
-        transport.coverImageUrl,
+      final releaseDate =
+          PartialDate.tryParse(releaseDateController.text.trim());
+      final updatedTransport = transport.copyWith(
+        originalTitle: originalTitle,
       );
       final updatedMeta = BoardGameMetadata(
-        title: transport.title,
+        title: updatedTransport.title,
+        sortKey: meta.sortKey,
         originalTitle: originalTitle,
+        localizedTitle: updatedTransport.localizedTitle,
+        titleExtension: updatedTransport.titleExtension,
+        subtitle: _nullableText(subtitleController),
+        searchAliases: meta.searchAliases,
         synopsis: meta.synopsis,
+        description: meta.description,
+        plotSummary: meta.plotSummary,
+        plotDescription: meta.plotDescription,
+        ageRating: _nullableText(ageRatingController),
+        audienceRating: _nullableText(audienceRatingController),
+        barcode: barcode,
+        catalogNumber: _nullableText(catalogNumberController),
+        itemNumber: itemNumber,
+        contributors: _editedCredits(contributorsController, meta.contributors),
+        country: _nullableText(countryController),
+        coverImageUrl: updatedTransport.coverImageUrl,
+        thumbnailImageUrl: updatedTransport.thumbnailImageUrl,
         yearPublished: year,
         minPlayers: minPlayers,
         maxPlayers: maxPlayers,
@@ -580,6 +572,8 @@ class BoardGameEditDraft
         complexityWeight: complexityWeight,
         designers: designers,
         artists: artists,
+        editionTitle: editionTitle,
+        externalLinks: meta.externalLinks,
         publishers: publishers,
         mechanics: mechanics,
         categories: categories,
@@ -587,20 +581,28 @@ class BoardGameEditDraft
         themes: themes,
         expansions: expansions,
         expansionFor: expansionFor,
+        genres: meta.genres,
+        identifiers:
+            _editedIdentifiers(identifiersController, meta.identifiers),
+        language: _nullableText(languageController),
         languages: languages,
+        originalLanguage: _nullableText(originalLanguageController),
+        physicalFormat: physicalFormat,
+        physicalFormatLabel: physicalFormat,
+        platforms: _splitValues(platformsController, fallback: const []),
+        playingTimeMinutes: _intValue(playingTimeController),
+        publisher: publishers.firstOrNull,
+        rankings: _splitValues(rankingsController, fallback: const []),
+        releaseDate: releaseDate,
+        releaseDateParts: releaseDate,
+        releaseStatus: _nullableText(releaseStatusController),
         bggRating: bggRating,
         bggRatingCount: bggRatingCount,
         bggRank: bggRank,
         seriesTitle: seriesTitle,
-        itemNumber: itemNumber,
-        physicalFormat: physicalFormat,
-        physicalFormatLabel: physicalFormat,
-        publisher: publishers.firstOrNull,
-        barcode: barcode,
-        variant: variant,
-        creators: meta.creators,
-        links: meta.links,
-        rawPayload: rawPayload,
+        seriesTags: meta.seriesTags,
+        variantName: variant,
+        characters: meta.characters,
       );
       return selection.copyWith(
         kindItem: selection.kindItem.kindCapability.mapTransport(
@@ -656,70 +658,6 @@ List<String> _splitValues(
   return values.isEmpty ? fallback : values;
 }
 
-Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
-  final cleaned = Map<String, dynamic>.from(rawPayload);
-  for (final key in [
-    'original_title',
-    'subtitle',
-    'platforms',
-    'identifiers',
-    'contributors',
-    'original_language',
-    'rankings',
-    'year_published',
-    'release_year',
-    'min_players',
-    'max_players',
-    'recommended_players',
-    'best_players',
-    'min_playtime_minutes',
-    'max_playtime_minutes',
-    'playing_time_minutes',
-    'minimum_age',
-    'min_age',
-    'complexity_weight',
-    'weight',
-    'designers',
-    'artists',
-    'publishers',
-    'publisher',
-    'mechanics',
-    'categories',
-    'families',
-    'themes',
-    'expansions',
-    'expansion_for',
-    'languages',
-    'bgg_rating',
-    'rating',
-    'bgg_rating_count',
-    'rating_count',
-    'users_rated',
-    'bgg_rank',
-    'rank',
-    'series',
-    'series_title',
-    'item_number',
-    'issue_number',
-    'physical_format',
-    'physical_format_label',
-    'edition_title',
-    'release_date',
-    'country',
-    'language',
-    'age_rating',
-    'audience_rating',
-    'catalog_number',
-    'release_status',
-    'cover_image_url',
-    'barcode',
-    'variant',
-  ]) {
-    cleaned.remove(key);
-  }
-  return cleaned;
-}
-
 LibraryEditSessionBundle createBoardGameEditDraft({
   required CatalogSearchCandidate item,
   LibraryEntryDispatch? libraryEntryDispatch,
@@ -755,19 +693,19 @@ LibraryEditSessionBundle createBoardGameEditDraft({
           '',
     ),
     subtitleController: textControllers.create(
-      text: _rawText(meta, 'subtitle'),
+      text: meta?.subtitle ?? '',
     ),
     platformsController: textControllers.create(
-      text: _rawList(meta, 'platforms'),
+      text: meta?.platforms.join(', ') ?? '',
     ),
     identifiersController: textControllers.create(
-      text: _rawList(meta, 'identifiers'),
+      text: meta?.identifiers.map((value) => value.value).join(', ') ?? '',
     ),
     contributorsController: textControllers.create(
-      text: _rawList(meta, 'contributors'),
+      text: meta?.contributors.map((value) => value.name).join(', ') ?? '',
     ),
     originalLanguageController: textControllers.create(
-      text: _rawText(meta, 'original_language'),
+      text: meta?.originalLanguage ?? '',
     ),
     minPlayersController: textControllers.create(
       text: meta?.minPlayers?.toString() ?? '',
@@ -788,7 +726,7 @@ LibraryEditSessionBundle createBoardGameEditDraft({
       text: meta?.maxPlaytimeMinutes?.toString() ?? '',
     ),
     playingTimeController: textControllers.create(
-      text: _rawText(meta, 'playing_time_minutes'),
+      text: meta?.playingTimeMinutes?.toString() ?? '',
     ),
     minimumAgeController: textControllers.create(
       text: meta?.minimumAge?.toString() ?? '',
@@ -824,7 +762,7 @@ LibraryEditSessionBundle createBoardGameEditDraft({
       text: meta?.expansionFor ?? '',
     ),
     rankingsController: textControllers.create(
-      text: _rawList(meta, 'rankings'),
+      text: meta?.rankings.join(', ') ?? '',
     ),
     languagesController: textControllers.create(
       text: meta?.languages.join(', ') ?? '',
@@ -851,30 +789,32 @@ LibraryEditSessionBundle createBoardGameEditDraft({
       text: meta?.barcode ?? '',
     ),
     catalogNumberController: textControllers.create(
-      text: _rawText(meta, 'catalog_number'),
+      text: meta?.catalogNumber ?? '',
     ),
     variantController: textControllers.create(
-      text: meta?.variant ?? '',
+      text: meta?.variantName ?? '',
     ),
     countryController: textControllers.create(
-      text: _rawText(meta, 'country'),
+      text: meta?.country ?? '',
     ),
     languageController: textControllers.create(
-      text: _rawText(meta, 'language'),
+      text: meta?.language ?? '',
     ),
     ageRatingController: textControllers.create(
-      text: _rawText(meta, 'age_rating'),
+      text: meta?.ageRating ?? '',
     ),
     audienceRatingController: textControllers.create(
-      text: _rawText(meta, 'audience_rating'),
+      text: meta?.audienceRating ?? '',
     ),
     releaseStatusController: textControllers.create(
-      text: _rawText(meta, 'release_status'),
+      text: meta?.releaseStatus ?? '',
     ),
     releaseDateController: textControllers.create(
-      text: item.boardGameCatalogFields.releaseDate == null
-          ? ''
-          : formatDate(item.boardGameCatalogFields.releaseDate!),
+      text: meta?.releaseDate?.isoString ??
+          meta?.releaseDateParts?.isoString ??
+          (item.boardGameCatalogFields.releaseDate == null
+              ? ''
+              : formatDate(item.boardGameCatalogFields.releaseDate!)),
     ),
     releaseYearController: textControllers.create(
       text: meta?.yearPublished?.toString() ??
@@ -889,21 +829,27 @@ LibraryEditSessionBundle createBoardGameEditDraft({
   );
 }
 
-String _rawText(BoardGameMetadata? metadata, String key) =>
-    metadata?.rawPayload[key]?.toString() ?? '';
-
-String _rawList(BoardGameMetadata? metadata, String key) {
-  final value = metadata?.rawPayload[key];
-  if (value is! Iterable) return '';
-  return value.map((entry) => entry.toString()).join(', ');
+List<BoardGameIdentifier> _editedIdentifiers(
+  TextEditingController controller,
+  List<BoardGameIdentifier> existing,
+) {
+  final values = _splitValues(controller, fallback: const []);
+  if (values.join(', ') == existing.map((value) => value.value).join(', ')) {
+    return existing;
+  }
+  return [
+    for (final value in values)
+      BoardGameIdentifier(identifierType: 'other', value: value),
+  ];
 }
 
-void _writeRaw(Map<String, dynamic> target, String key, Object? value) {
-  if (value == null ||
-      value is String && value.trim().isEmpty ||
-      value is Iterable && value.isEmpty) {
-    target.remove(key);
-    return;
+List<BoardGamePersonCredit> _editedCredits(
+  TextEditingController controller,
+  List<BoardGamePersonCredit> existing,
+) {
+  final values = _splitValues(controller, fallback: const []);
+  if (values.join(', ') == existing.map((value) => value.name).join(', ')) {
+    return existing;
   }
-  target[key] = value;
+  return [for (final value in values) BoardGamePersonCredit(name: value)];
 }

@@ -230,6 +230,12 @@ slice. This is progress, not completion of this plan:
   those values are not part of the Core document.
 - Removed the empty Game local mapper after the production reference search
   found only its own export. The active Game entry repository remains in use.
+- Board Game metadata now has explicit fields for the complete pinned Board
+  Game root contract, including typed identifiers, contributors, characters,
+  external links, and partial release dates. Manual Add, Edit, workspace,
+  inspection, and CSV projections consume those typed values; `rawPayload` and
+  its field aliases have been removed from the Board Game kind. This keeps the
+  existing provisional Board Game field set and does not establish CLZ parity.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
@@ -243,8 +249,8 @@ ownership and typed schema organization across all kinds; replacing the universa
 `PersonalStateDraft` and shared edit-section field assumptions with kind-owned
 bindings; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
-form organization. Anime, Board Game, Manga, and TV metadata still retain raw
-payload maps for fields not yet moved into their typed models. Game's
+form organization. Anime, Manga, and TV metadata still retain raw payload maps
+for fields not yet moved into their typed models. Game's
 PriceCharting identifier and valuation snapshots still need an ownership
 decision and are not in the Core contract. The nine field ledgers
 remain authoritative, and exact CLZ parity is only confirmed for Music until

@@ -16,7 +16,6 @@ CatalogSearchCandidate? buildBoardgameManualCandidate(
   final id = 'manual-boardgame-${DateTime.now().microsecondsSinceEpoch}';
   final BoardGameMetadata metadata = boardGameMetadataFromManualFormValues(
     values: draft.values,
-    id: id,
     title: title,
   );
   return CatalogSearchCandidate.fromItem(

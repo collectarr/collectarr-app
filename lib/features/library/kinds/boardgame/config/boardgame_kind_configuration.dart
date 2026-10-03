@@ -127,10 +127,10 @@ Iterable<String?> boardGameLinkedMetadataValues(
       metadata.itemNumber,
       metadata.publisher,
       ...metadata.publishers,
-      metadata.variant,
+      metadata.variantName,
       ...metadata.languages,
       ...metadata.categories,
-      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      ...metadata.credits.map((credit) => credit.name),
     ];
 
 BoardGameMetadata? boardGameLinkedMetadata(LibraryWorkspaceSource source) {
