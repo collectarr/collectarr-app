@@ -197,6 +197,10 @@ slice. This is progress, not completion of this plan:
   `publishing` wrapper objects.
 - The unused shared `BoardGameStatsDetailsDto` was removed after a full App
   source and fixture reference search found no callers.
+- The generic `CatalogEditionDto` and `CatalogVariantDto` were removed from the
+  App transport surface after the active-library audit found no production
+  consumers. Their remaining references are confined to old tests and
+  fixtures, which are deferred until the final test cleanup pass.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.

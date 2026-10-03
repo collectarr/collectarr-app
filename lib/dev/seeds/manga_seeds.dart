@@ -120,6 +120,7 @@ int? _seedMangaInt(Object? value) {
 }
 
 CatalogItemDto enrichMangaSeedItem(CatalogItemDto item) {
+  final metadata = MangaMetadata.fromJson(item.kindData);
   final data = Map<String, dynamic>.from(item.kindData)
     ..remove('editions')
     ..remove('releases');
@@ -132,12 +133,13 @@ CatalogItemDto enrichMangaSeedItem(CatalogItemDto item) {
       'chapters': [
         {
           'id': '${item.id}-chapter-01',
-          'volume_number': int.tryParse(
-                  MangaMetadata.fromJson(item.kindData).itemNumber ?? '') ??
-              1,
+          'volume_number': metadata.volumeNumber ?? 1,
           'chapter_number': 1,
-          'title': '${item.title} — Chapter 1',
-          'release_date': item.releaseDate?.toUtc().toIso8601String(),
+          'title': '${metadata.title} — Chapter 1',
+          'release_date': (metadata.localizedReleaseDate ??
+                  metadata.originalPublicationDate)
+              ?.toUtc()
+              .toIso8601String(),
         },
       ],
     },
