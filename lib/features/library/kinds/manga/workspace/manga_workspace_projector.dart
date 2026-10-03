@@ -25,7 +25,8 @@ final class MangaWorkspaceProjector
     final metadata = catalog.metadata;
     final entry =
         MangaLibraryEntryProjection.fromDispatch(source.libraryEntryDispatch);
-    final entryDetails = entry is MangaLibraryEntry ? entry.details : null;
+    final entryDetails =
+        entry is MangaLibraryEntry ? entry.personal.details : null;
 
     return MangaWorkspaceDto(
       common: _mangaCommonProjection(source, entity, metadata),

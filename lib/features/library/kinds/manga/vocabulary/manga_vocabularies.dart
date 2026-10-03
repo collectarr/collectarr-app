@@ -85,7 +85,7 @@ abstract final class MangaVocabularies {
         return item.copyWith(
             personal: item.personal.copyWith(
           tags: replacePickListDelimitedValue(
-            item.tags,
+            item.personal.tags,
             normalizedSourceValues,
             targetValue,
           ),
@@ -93,7 +93,7 @@ abstract final class MangaVocabularies {
     }
     final key = _entryDetailsKey(semanticName);
     if (key == null) return item;
-    final details = item.details.toJson()..[key] = targetValue;
+    final details = item.personal.details.toJson()..[key] = targetValue;
     return item.copyWith(
         personal: item.personal
             .copyWith(details: MangaEntryDetails.fromJson(details)));
@@ -117,11 +117,11 @@ abstract final class MangaVocabularies {
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {
-      'condition' => item.condition,
-      'grade' => item.grade,
-      'purchase_store' => item.purchaseStore,
-      'sold_to' => item.soldTo,
-      'collection_status' => item.collectionStatus,
+      'condition' => item.personal.condition,
+      'grade' => item.personal.grade,
+      'purchase_store' => item.personal.purchaseStore,
+      'sold_to' => item.personal.soldTo,
+      'collection_status' => item.personal.collectionStatus,
       _ => null,
     };
     if (standard != null) {
@@ -129,7 +129,7 @@ abstract final class MangaVocabularies {
       return;
     }
     if (semanticName == 'tags') {
-      yield* item.tags?.split(',') ?? const <String>[];
+      yield* item.personal.tags?.split(',') ?? const <String>[];
       return;
     }
     final key = switch (semanticName) {
@@ -144,7 +144,7 @@ abstract final class MangaVocabularies {
       _ => null,
     };
     if (key != null) {
-      yield* pickListTextValues(item.details.toJson()[key]);
+      yield* pickListTextValues(item.personal.details.toJson()[key]);
     }
   }
 

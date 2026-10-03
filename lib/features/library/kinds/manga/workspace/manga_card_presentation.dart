@@ -13,9 +13,10 @@ LibraryCardPresentation buildMangaCardPresentation(
 }) {
   final mangaDto =
       item.dto is MangaWorkspaceDto ? item.dto as MangaWorkspaceDto : null;
-  final entry =
-      MangaLibraryEntryProjection.fromDispatch(item.source.libraryEntryDispatch);
-  final mangaDetails = entry is MangaLibraryEntry ? entry.details : null;
+  final entry = MangaLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch);
+  final mangaDetails =
+      entry is MangaLibraryEntry ? entry.personal.details : null;
   final badges = <LibraryCardBadge>[];
 
   if (mangaDetails?.signedBy != null && mangaDetails!.signedBy!.isNotEmpty) {
@@ -36,11 +37,12 @@ LibraryCardPresentation buildMangaCardPresentation(
     );
   }
 
-  if (entry is MangaLibraryEntry && entry.grade?.trim().isNotEmpty == true) {
+  if (entry is MangaLibraryEntry &&
+      entry.personal.grade?.trim().isNotEmpty == true) {
     badges.add(
       LibraryCardBadge(
         icon: Icons.workspace_premium,
-        label: 'Grade ${entry.grade!.trim()}',
+        label: 'Grade ${entry.personal.grade!.trim()}',
       ),
     );
   }
@@ -48,11 +50,11 @@ LibraryCardPresentation buildMangaCardPresentation(
   Widget Function(Widget child)? overlay;
   if (mangaDetails?.gradingCompany != null &&
       entry is MangaLibraryEntry &&
-      entry.grade != null) {
+      entry.personal.grade != null) {
     overlay = (child) => SlabFrameOverlay.maybeWrap(
           rawOrSlabbed: 'slabbed',
           companyName: mangaDetails?.gradingCompany,
-          scoreLabel: entry.grade,
+          scoreLabel: entry.personal.grade,
           labelType: null,
           child: child,
         );

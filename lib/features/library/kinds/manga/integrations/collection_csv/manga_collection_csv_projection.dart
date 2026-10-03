@@ -140,28 +140,36 @@ final class MangaCollectionCsvProjection
   String? entryCollectionValue(LibraryWorkspaceSource entry) {
     final personalState =
         MangaLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is MangaLibraryEntry ? personalState.grade : null;
+    return personalState is MangaLibraryEntry
+        ? personalState.personal.grade
+        : null;
   }
 
   @override
   String? entryCondition(LibraryWorkspaceSource entry) {
     final personalState =
         MangaLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is MangaLibraryEntry ? personalState.condition : null;
+    return personalState is MangaLibraryEntry
+        ? personalState.personal.condition
+        : null;
   }
 
   @override
   int? entryIndexNumber(LibraryWorkspaceSource entry) {
     final personalState =
         MangaLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is MangaLibraryEntry ? personalState.indexNumber : null;
+    return personalState is MangaLibraryEntry
+        ? personalState.personal.indexNumber
+        : null;
   }
 
   @override
   String? entryTags(LibraryWorkspaceSource entry) {
     final personalState =
         MangaLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is MangaLibraryEntry ? personalState.tags : null;
+    return personalState is MangaLibraryEntry
+        ? personalState.personal.tags
+        : null;
   }
 
   @override
