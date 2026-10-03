@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 
+import 'anime_metadata_children.dart';
+
 enum AnimeFormat {
   tv('TV'),
   movie('Movie'),
@@ -79,57 +81,6 @@ enum AnimeSource {
     return AnimeSource.values.firstWhere(
       (e) => e.name == normalized || e.label.toLowerCase() == normalized,
       orElse: () => AnimeSource.other,
-    );
-  }
-}
-
-enum AnimeRelationType {
-  prequel('Prequel'),
-  sequel('Sequel'),
-  adaptation('Adaptation'),
-  spinOff('Spin-off'),
-  sideStory('Side-story'),
-  other('Other');
-
-  const AnimeRelationType(this.label);
-  final String label;
-
-  static AnimeRelationType fromString(String? value) {
-    if (value == null) return AnimeRelationType.other;
-    final normalized = value.trim().toLowerCase().replaceAll('-', '');
-    return AnimeRelationType.values.firstWhere(
-      (e) =>
-          e.name.toLowerCase() == normalized ||
-          e.label.toLowerCase().replaceAll('-', '') == normalized,
-      orElse: () => AnimeRelationType.other,
-    );
-  }
-}
-
-@immutable
-class AnimeRelation {
-  const AnimeRelation({
-    required this.relationType,
-    required this.targetTitle,
-    this.targetId,
-  });
-
-  final AnimeRelationType relationType;
-  final String targetTitle;
-  final String? targetId;
-
-  Map<String, dynamic> toJson() => {
-        'relation_type': relationType.name,
-        'target_title': targetTitle,
-        if (targetId != null) 'target_id': targetId,
-      };
-
-  factory AnimeRelation.fromJson(Map<String, dynamic> json) {
-    return AnimeRelation(
-      relationType:
-          AnimeRelationType.fromString(json['relation_type'] as String?),
-      targetTitle: (json['target_title'] as String?) ?? '',
-      targetId: json['target_id'] as String?,
     );
   }
 }
@@ -254,7 +205,6 @@ class AnimeMetadata implements JsonEncodable {
     this.themes = const [],
     this.country = 'JP',
     this.language = 'ja',
-    this.relations = const [],
     this.seriesTitle,
     this.itemNumber,
     this.editionTitle,
@@ -271,9 +221,15 @@ class AnimeMetadata implements JsonEncodable {
     this.subtitles,
     this.seriesTags,
     this.media = const [],
+    this.description,
+    this.contributors = const [],
+    this.characters = const [],
+    this.characterDetails = const [],
+    this.identifiers = const [],
+    this.seasons = const [],
+    this.episodes = const [],
     this.creators = const [],
     this.links = const [],
-    this.rawPayload = const <String, dynamic>{},
   });
 
   CatalogMediaKind get mediaKind => CatalogMediaKind.anime;
@@ -290,6 +246,7 @@ class AnimeMetadata implements JsonEncodable {
   final String? titleExtension;
   final String? sortKey;
   final String? synopsis;
+  final String? description;
   final String? ageRating;
   final String? audienceRating;
   final String? audioTracks;
@@ -321,7 +278,6 @@ class AnimeMetadata implements JsonEncodable {
   final List<String> themes;
   final String country;
   final String language;
-  final List<AnimeRelation> relations;
   final String? seriesTitle;
   final String? itemNumber;
   final String? editionTitle;
@@ -338,15 +294,19 @@ class AnimeMetadata implements JsonEncodable {
   final String? subtitles;
   final List<String>? seriesTags;
   final List<AnimeMediaMetadata> media;
-  final List<Map<String, dynamic>> creators;
+  final List<AnimePersonMetadata> creators;
+  final List<AnimePersonMetadata> contributors;
+  final List<AnimeCharacterMetadata> characters;
+  final List<AnimeCharacterMetadata> characterDetails;
+  final List<AnimeIdentifierMetadata> identifiers;
+  final List<AnimeSeasonMetadata> seasons;
+  final List<AnimeEpisodeMetadata> episodes;
   final List<TrailerLinkDto> links;
-  final Map<String, dynamic> rawPayload;
 
   DateTime? get releaseDate => releaseDateParts?.asDateTime;
 
   @override
   Map<String, dynamic> toJson() => {
-        ...rawPayload,
         'title': title,
         if (displayTitle != null) 'display_title': displayTitle,
         if (nativeTitle != null) 'native_title': nativeTitle,
@@ -357,6 +317,7 @@ class AnimeMetadata implements JsonEncodable {
         if (titleExtension != null) 'title_extension': titleExtension,
         if (sortKey != null) 'sort_key': sortKey,
         if (synopsis != null) 'synopsis': synopsis,
+        if (description != null) 'description': description,
         if (ageRating != null) 'age_rating': ageRating,
         if (audienceRating != null) 'audience_rating': audienceRating,
         if (audioTracks != null) 'audio_tracks': audioTracks,
@@ -392,8 +353,6 @@ class AnimeMetadata implements JsonEncodable {
         if (themes.isNotEmpty) 'themes': themes,
         'country': country,
         'language': language,
-        if (relations.isNotEmpty)
-          'relations': relations.map((e) => e.toJson()).toList(),
         if (seriesTitle != null) 'series_title': seriesTitle,
         if (itemNumber != null) 'item_number': itemNumber,
         if (editionTitle != null) 'edition_title': editionTitle,
@@ -411,7 +370,21 @@ class AnimeMetadata implements JsonEncodable {
         if (subtitles != null) 'subtitles': subtitles,
         if (seriesTags != null) 'series_tags': seriesTags,
         if (media.isNotEmpty) 'media': media.map((e) => e.toJson()).toList(),
-        if (creators.isNotEmpty) 'creators': creators,
+        if (contributors.isNotEmpty)
+          'contributors': contributors.map((e) => e.toJsonValue()).toList(),
+        if (characters.isNotEmpty)
+          'characters': characters.map((e) => e.toJsonValue()).toList(),
+        if (characterDetails.isNotEmpty)
+          'character_details':
+              characterDetails.map((e) => e.toJsonValue()).toList(),
+        if (identifiers.isNotEmpty)
+          'identifiers': identifiers.map((e) => e.toJsonValue()).toList(),
+        if (seasons.isNotEmpty)
+          'seasons': seasons.map((e) => e.toJson()).toList(),
+        if (episodes.isNotEmpty)
+          'episodes': episodes.map((e) => e.toJson()).toList(),
+        if (creators.isNotEmpty)
+          'creators': creators.map((e) => e.toJsonValue()).toList(),
         if (links.isNotEmpty) ...{
           if (links.any((l) => l.isTrailerLink))
             'trailer_urls': links
@@ -437,6 +410,7 @@ class AnimeMetadata implements JsonEncodable {
     String? titleExtension,
     String? sortKey,
     String? synopsis,
+    String? description,
     String? ageRating,
     String? audienceRating,
     String? audioTracks,
@@ -468,7 +442,6 @@ class AnimeMetadata implements JsonEncodable {
     List<String>? themes,
     String? country,
     String? language,
-    List<AnimeRelation>? relations,
     String? seriesTitle,
     String? itemNumber,
     String? editionTitle,
@@ -485,12 +458,17 @@ class AnimeMetadata implements JsonEncodable {
     String? subtitles,
     List<String>? seriesTags,
     List<AnimeMediaMetadata>? media,
-    List<Map<String, dynamic>>? creators,
+    List<AnimePersonMetadata>? creators,
+    List<AnimePersonMetadata>? contributors,
+    List<AnimeCharacterMetadata>? characters,
+    List<AnimeCharacterMetadata>? characterDetails,
+    List<AnimeIdentifierMetadata>? identifiers,
+    List<AnimeSeasonMetadata>? seasons,
+    List<AnimeEpisodeMetadata>? episodes,
     List<TrailerLinkDto>? links,
   }) {
     return AnimeMetadata(
       title: title ?? this.title,
-      rawPayload: rawPayload,
       displayTitle: displayTitle ?? this.displayTitle,
       nativeTitle: nativeTitle ?? this.nativeTitle,
       romajiTitle: romajiTitle ?? this.romajiTitle,
@@ -500,6 +478,7 @@ class AnimeMetadata implements JsonEncodable {
       titleExtension: titleExtension ?? this.titleExtension,
       sortKey: sortKey ?? this.sortKey,
       synopsis: synopsis ?? this.synopsis,
+      description: description ?? this.description,
       ageRating: ageRating ?? this.ageRating,
       audienceRating: audienceRating ?? this.audienceRating,
       audioTracks: audioTracks ?? this.audioTracks,
@@ -532,7 +511,6 @@ class AnimeMetadata implements JsonEncodable {
       themes: themes ?? this.themes,
       country: country ?? this.country,
       language: language ?? this.language,
-      relations: relations ?? this.relations,
       seriesTitle: seriesTitle ?? this.seriesTitle,
       itemNumber: itemNumber ?? this.itemNumber,
       editionTitle: editionTitle ?? this.editionTitle,
@@ -550,91 +528,22 @@ class AnimeMetadata implements JsonEncodable {
       seriesTags: seriesTags ?? this.seriesTags,
       media: media ?? this.media,
       creators: creators ?? this.creators,
+      contributors: contributors ?? this.contributors,
+      characters: characters ?? this.characters,
+      characterDetails: characterDetails ?? this.characterDetails,
+      identifiers: identifiers ?? this.identifiers,
+      seasons: seasons ?? this.seasons,
+      episodes: episodes ?? this.episodes,
       links: links ?? this.links,
     );
   }
 
   factory AnimeMetadata.fromJson(Map<String, dynamic> json) {
-    final rawPayload = Map<String, dynamic>.from(json)
-      ..remove('id')
-      ..remove('kind')
-      ..remove('snapshot_version')
-      ..remove('editions')
-      ..remove('series')
-      ..remove('discs')
-      ..remove('title')
-      ..remove('display_title')
-      ..remove('native_title')
-      ..remove('romaji_title')
-      ..remove('english_title')
-      ..remove('localized_title')
-      ..remove('original_title')
-      ..remove('title_extension')
-      ..remove('sort_key')
-      ..remove('synopsis')
-      ..remove('age_rating')
-      ..remove('audience_rating')
-      ..remove('audio_tracks')
-      ..remove('catalog_number')
-      ..remove('color')
-      ..remove('layers')
-      ..remove('plot_description')
-      ..remove('plot_summary')
-      ..remove('nr_discs')
-      ..remove('release_status')
-      ..remove('runtime_minutes')
-      ..remove('screen_ratio')
-      ..remove('subtitle')
-      ..remove('subtitles')
-      ..remove('series_tags')
-      ..remove('search_aliases')
-      ..remove('cover_image_url')
-      ..remove('thumbnail_image_url')
-      ..remove('cover_image_data')
-      ..remove('alternate_titles')
-      ..remove('format')
-      ..remove('season')
-      ..remove('season_year')
-      ..remove('episode_count')
-      ..remove('episode_runtime_minutes')
-      ..remove('airing_status')
-      ..remove('start_date')
-      ..remove('end_date')
-      ..remove('release_date')
-      ..remove('release_date_parts')
-      ..remove('release_year')
-      ..remove('studios')
-      ..remove('producers')
-      ..remove('licensors')
-      ..remove('source_material')
-      ..remove('genres')
-      ..remove('themes')
-      ..remove('country')
-      ..remove('language')
-      ..remove('relations')
-      ..remove('series_title')
-      ..remove('item_number')
-      ..remove('edition_title')
-      ..remove('physical_format')
-      ..remove('physical_format_label')
-      ..remove('publisher')
-      ..remove('barcode')
-      ..remove('variant_name')
-      ..remove('media')
-      ..remove('creators')
-      ..remove('trailer_urls')
-      ..remove('external_links');
     final rawMedia = (json['media'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
             .map(AnimeMediaMetadata.fromJson)
             .toList() ??
         const <AnimeMediaMetadata>[];
-
-    final rawCreators = (json['creators'] as List<dynamic>?)
-            ?.whereType<Map<String, dynamic>>()
-            .map((e) => Map<String, dynamic>.from(e))
-            .toList() ??
-        const <Map<String, dynamic>>[];
 
     final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
@@ -650,7 +559,6 @@ class AnimeMetadata implements JsonEncodable {
     ];
 
     return AnimeMetadata(
-      rawPayload: rawPayload,
       title: (json['title'] as String?) ?? '',
       displayTitle: json['display_title'] as String?,
       nativeTitle: json['native_title'] as String?,
@@ -661,6 +569,7 @@ class AnimeMetadata implements JsonEncodable {
       titleExtension: json['title_extension'] as String?,
       sortKey: json['sort_key'] as String?,
       synopsis: json['synopsis'] as String?,
+      description: json['description'] as String?,
       ageRating: json['age_rating'] as String?,
       audienceRating: json['audience_rating'] as String?,
       audioTracks: json['audio_tracks'] as String?,
@@ -723,19 +632,12 @@ class AnimeMetadata implements JsonEncodable {
           const [],
       country: (json['country'] as String?) ?? 'JP',
       language: (json['language'] as String?) ?? 'ja',
-      relations: (json['relations'] as List<dynamic>?)
-              ?.map((e) => AnimeRelation.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
       seriesTitle: json['series_title'] as String?,
       itemNumber: json['item_number'] as String?,
       editionTitle: json['edition_title'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
-      publisher: (json['publisher'] ??
-          ((json['studios'] as List?)?.isNotEmpty == true
-              ? (json['studios'] as List).first.toString()
-              : null)) as String?,
+      publisher: json['publisher'] as String?,
       barcode: json['barcode'] as String?,
       variant: json['variant_name'] as String?,
       nrDiscs: (json['nr_discs'] as num?)?.toInt(),
@@ -748,7 +650,36 @@ class AnimeMetadata implements JsonEncodable {
           ?.whereType<String>()
           .toList(growable: false),
       media: rawMedia,
-      creators: rawCreators,
+      contributors: decodeAnimeTypedValues(
+        json['contributors'],
+        'Anime contributors',
+        AnimePersonMetadata.fromJsonValue,
+      ),
+      characters: decodeAnimeTypedValues(
+        json['characters'],
+        'Anime characters',
+        AnimeCharacterMetadata.fromJsonValue,
+      ),
+      characterDetails: decodeAnimeObjectList(
+        json['character_details'],
+        'Anime character details',
+      ).map(AnimeCharacterMetadata.fromJson).toList(growable: false),
+      identifiers: decodeAnimeTypedValues(
+        json['identifiers'],
+        'Anime identifiers',
+        AnimeIdentifierMetadata.fromJsonValue,
+      ),
+      seasons: decodeAnimeObjectList(json['seasons'], 'Anime seasons')
+          .map(AnimeSeasonMetadata.fromJson)
+          .toList(growable: false),
+      episodes: decodeAnimeObjectList(json['episodes'], 'Anime episodes')
+          .map(AnimeEpisodeMetadata.fromJson)
+          .toList(growable: false),
+      creators: decodeAnimeTypedValues(
+        json['creators'],
+        'Anime creators',
+        AnimePersonMetadata.fromJsonValue,
+      ),
       links: rawLinks,
     );
   }

@@ -433,9 +433,8 @@ LibraryEditSessionBundle createAnimeEditDraft({
     initialCreators: [
       for (final creator in metadata.creators)
         AnimeCreditInput(
-          name: creator['name']?.toString() ?? '',
-          role: creator['role']?.toString() ?? creator['job']?.toString(),
-          sourceType: creator['source_type']?.toString() ?? 'provider',
+          name: creator.name,
+          role: creator.role,
         ),
     ],
     initialTrailerLinks: metadata.links,

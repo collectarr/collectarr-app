@@ -2039,9 +2039,16 @@
             "title": "Episode Title"
           },
           "id": {
-            "format": "uuid",
-            "title": "Id",
-            "type": "string"
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
           },
           "position": {
             "minimum": 0.0,
@@ -2061,7 +2068,6 @@
           }
         },
         "required": [
-          "id",
           "position"
         ],
         "title": "CatalogAnimeItemEpisodeResponse",
@@ -8305,9 +8311,16 @@
             "title": "Episode Title"
           },
           "id": {
-            "format": "uuid",
-            "title": "Id",
-            "type": "string"
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
           },
           "position": {
             "minimum": 0.0,
@@ -8339,7 +8352,6 @@
           }
         },
         "required": [
-          "id",
           "position"
         ],
         "title": "CatalogTvItemEpisodeResponse",

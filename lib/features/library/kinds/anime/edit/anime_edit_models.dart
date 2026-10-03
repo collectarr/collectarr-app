@@ -7,20 +7,18 @@ enum AnimeCreditKind { cast, crew }
 
 /// Structural credit input shared by the video editor host.
 ///
-/// Movie, TV, and Anime own the mapping from their provider/domain credit
-/// shapes into this editor value. The editor itself never carries a generic
-/// metadata map that could become a second video domain model.
+/// Each kind maps its typed credits into this editor value. The editor itself
+/// never carries a generic metadata map that could become a second video
+/// domain model.
 @immutable
 class AnimeCreditInput {
   const AnimeCreditInput({
     required this.name,
     this.role,
-    this.sourceType = 'provider',
   });
 
   final String name;
   final String? role;
-  final String sourceType;
 }
 
 const _videoCastRoleTags = <String>{
@@ -36,18 +34,15 @@ class EditableAnimeCredit {
   EditableAnimeCredit({
     required this.nameController,
     required this.roleController,
-    this.sourceType = 'custom',
   });
 
   factory EditableAnimeCredit.custom({
     String name = '',
     String role = '',
-    String sourceType = 'custom',
   }) {
     return EditableAnimeCredit(
       nameController: TextEditingController(text: name),
       roleController: TextEditingController(text: role),
-      sourceType: sourceType,
     );
   }
 
@@ -57,13 +52,11 @@ class EditableAnimeCredit {
       roleController: TextEditingController(
         text: input.role ?? '',
       ),
-      sourceType: input.sourceType,
     );
   }
 
   final TextEditingController nameController;
   final TextEditingController roleController;
-  final String sourceType;
 
   AnimeCreditInput toInput() {
     return AnimeCreditInput(
@@ -71,7 +64,6 @@ class EditableAnimeCredit {
       role: roleController.text.trim().isEmpty
           ? null
           : roleController.text.trim(),
-      sourceType: sourceType,
     );
   }
 

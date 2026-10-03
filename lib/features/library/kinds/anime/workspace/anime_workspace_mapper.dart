@@ -29,7 +29,8 @@ final class AnimeWorkspaceMapper {
         'episode_count': metadata.episodeCount,
       if (basePayload['status'] == null) 'status': metadata.airingStatus.name,
       if (basePayload['contributions'] == null && metadata.creators.isNotEmpty)
-        'contributions': metadata.creators,
+        'contributions':
+            metadata.creators.map((credit) => credit.toJsonValue()).toList(),
       'media': [for (final media in metadata.media) media.toJson()],
     };
     return AnimeMedia.fromJson(payload);

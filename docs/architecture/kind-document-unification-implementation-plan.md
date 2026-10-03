@@ -172,11 +172,11 @@ slice. This is progress, not completion of this plan:
   map. The old `AnimeMedia`/`AnimeRelease` consumers and raw maps still remain
   and must move to the single Anime catalog document before this kind is done.
 - `AnimeMetadata` now gives its recognized rating, audio, catalog number, video
-  presentation, plot, release-status, and series-tag fields explicit types and
-  serializes them from those properties. Its decoder no longer duplicates any
-  explicitly typed fields in the raw map, preventing stale raw values from
-  reappearing when an editor clears a field. The map still contains untyped
-  contained values and needs to be removed after their schemas are complete.
+  presentation, plot, release-status, and series-tag fields explicit types.
+  Creators, contributors, characters, identifiers, seasons, and episodes also
+  use Anime-owned value types matching Core's child schemas. The `rawPayload`
+  map has been removed from `AnimeMetadata`; unsupported Anime relation aliases
+  were removed after a production call-site audit found no consumers.
 - `TvSeriesMetadata` now owns the corresponding catalog-number, video, plot,
   release-status, subtitle, and series-tag fields as typed values. Like Anime,
   TV removes typed root fields from its raw map; untyped contained values remain.
@@ -289,10 +289,11 @@ ownership and typed schema organization across all kinds; replacing the universa
 `PersonalStateDraft` and shared edit-section field assumptions with kind-owned
 bindings; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
-form organization. Anime and TV metadata still retain raw payload maps for
-fields not yet moved into their typed models. Manga's root map has been removed,
-but App/Core field ownership differences remain under review against its
-provisional ledger. Game's
+form organization. The legacy `AnimeMedia` repository and workspace projections
+remain active alongside the flattened Anime document and still need migration.
+TV metadata and contained legacy TV projections still retain raw payload maps.
+Manga's root map has been removed, but App/Core field ownership differences
+remain under review against its provisional ledger. Game's
 PriceCharting identifier and valuation snapshots still need an ownership
 decision and are not in the Core contract. The nine field ledgers
 remain authoritative, and exact CLZ parity is only confirmed for Music until
