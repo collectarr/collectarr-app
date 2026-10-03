@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -121,9 +120,6 @@ final class CatalogItemDto {
   String? get physicalFormat => _string(kindData['physical_format']);
   String? get physicalFormatLabel => _string(kindData['physical_format_label']);
   String? get editionTitle => _string(kindData['edition_title']);
-  List<CatalogEditionDto> get editions =>
-      _mapList(kindData['editions']).map(CatalogEditionDto.fromJson).toList();
-
   CatalogEntityRef get catalogRef => CatalogEntityRef(
         kind: mediaKind,
         entityType: CatalogEntityTypeId.catalogItem,
@@ -222,7 +218,6 @@ final class CatalogItemDto {
     Object? releaseDate = _unset,
     Object? releaseDateParts = _unset,
     Object? releaseYear = _unset,
-    List<CatalogEditionDto>? editions,
     Object? physicalFormat = _unset,
     Object? physicalFormatLabel = _unset,
     Object? editionTitle = _unset,
@@ -247,8 +242,6 @@ final class CatalogItemDto {
       if (!identical(releaseDateParts, _unset))
         'release_date_parts': (releaseDateParts as PartialDate?)?.toJson(),
       if (!identical(releaseYear, _unset)) 'release_year': releaseYear,
-      if (editions != null)
-        'editions': [for (final edition in editions) edition.toJson()],
       if (!identical(physicalFormat, _unset)) 'physical_format': physicalFormat,
       if (!identical(physicalFormatLabel, _unset))
         'physical_format_label': physicalFormatLabel,
@@ -295,13 +288,6 @@ const _transportFields = <String>{
 };
 
 const _unset = Object();
-
-List<Map<String, dynamic>> _mapList(Object? value) => value is List
-    ? value
-        .whereType<Map<dynamic, dynamic>>()
-        .map((entry) => Map<String, dynamic>.from(entry))
-        .toList()
-    : const <Map<String, dynamic>>[];
 
 String? _string(Object? value) {
   final result = value?.toString().trim();

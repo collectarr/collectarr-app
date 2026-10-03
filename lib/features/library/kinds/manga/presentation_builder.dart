@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/catalog/manga_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -10,7 +11,6 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -47,16 +47,14 @@ class MangaLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <LibraryFormatBadgeDescriptor>[];
-    for (final edition in item.kindCapability
-        .mapTransport((transport) => transport)
-        .editions) {
-      final badge = mangaFormatBadge(
-        edition.physicalFormat,
-        label: edition.physicalFormatLabel,
-      );
-      if (badge == null || !seen.add(badge.key)) continue;
-      result.add(badge);
-    }
+    final format = item.kindCapability.mapTransport(
+      (transport) => MangaMetadata.fromJson(transport.kindData),
+    );
+    final badge = mangaFormatBadge(
+      format.physicalFormat,
+      label: format.physicalFormatLabel,
+    );
+    if (badge != null && seen.add(badge.key)) result.add(badge);
     return result;
   }
 
@@ -125,12 +123,6 @@ class MangaLibraryMediaPresentationBuilder
   }) {
     final hydratedMetadata = hydrated.mangaCatalogFields;
     final fallbackMetadata = fallback.mangaCatalogFields;
-    final hydratedEditions =
-        hydrated.kindCapability.mapTransport((transport) => transport.editions);
-    final fallbackEditions =
-        fallback.kindCapability.mapTransport((transport) => transport.editions);
-    final editions =
-        hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
     final coverImageUrl =
         hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
     final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
@@ -140,7 +132,6 @@ class MangaLibraryMediaPresentationBuilder
         hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
               coverImageUrl: coverImageUrl,
               thumbnailImageUrl: thumbnailImageUrl,
-              editions: editions,
             )));
   }
 

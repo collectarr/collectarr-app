@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +17,9 @@ class TvEditDiscsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final editions =
-        item.kindCapability.mapTransport((transport) => transport.editions);
+    final editions = item.kindCapability.mapTransport(
+      (transport) => TvSeriesMetadata.fromJson(transport.kindData).editions,
+    );
     final allDiscs = <(String, CatalogDiscDto)>[];
     for (final edition in editions) {
       for (final disc in edition.discs) {

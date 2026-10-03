@@ -45,14 +45,12 @@ class TvLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <LibraryFormatBadgeDescriptor>[];
-    for (final edition in item.tvCatalogFields.editions) {
-      final badge = tvFormatBadge(
-        edition.physicalFormat,
-        label: edition.physicalFormatLabel,
-      );
-      if (badge == null || !seen.add(badge.key)) continue;
-      result.add(badge);
-    }
+    final fields = item.tvCatalogFields;
+    final badge = tvFormatBadge(
+      fields.physicalFormat,
+      label: fields.physicalFormatLabel,
+    );
+    if (badge != null && seen.add(badge.key)) result.add(badge);
     return result;
   }
 
@@ -101,10 +99,6 @@ class TvLibraryMediaPresentationBuilder
   }) {
     final hydratedMetadata = hydrated.tvCatalogFields;
     final fallbackMetadata = fallback.tvCatalogFields;
-    final hydratedEditions = hydrated.tvCatalogFields.editions;
-    final fallbackEditions = fallback.tvCatalogFields.editions;
-    final editions =
-        hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
     final coverImageUrl =
         hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
     final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
@@ -114,7 +108,6 @@ class TvLibraryMediaPresentationBuilder
         hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
               coverImageUrl: coverImageUrl,
               thumbnailImageUrl: thumbnailImageUrl,
-              editions: editions,
             )));
   }
 

@@ -147,6 +147,12 @@ slice. This is progress, not completion of this plan:
 - Anime and TV link editors now decode their link lists through their own
   metadata models. The shared catalog transport no longer parses generic
   `trailer_urls` or `external_links` into a cross-kind link property.
+- Format badges for Anime, TV, and Manga now come from the selected item's
+  kind-level format fields; hydration no longer carries a generic `editions`
+  array. The shared `CatalogItemDto` no longer defines or serializes that
+  legacy edition collection. Its remaining per-kind edition models and legacy
+  editors still need to be audited and removed or replaced by supported
+  kind-owned contained data.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.

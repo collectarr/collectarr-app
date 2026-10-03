@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 
@@ -31,8 +30,6 @@ final class AnimeCatalogFields {
   String? get barcode => _metadata?.barcode;
   String? get physicalFormat => _metadata?.physicalFormat;
   String? get physicalFormatLabel => _metadata?.physicalFormatLabel;
-  List<CatalogEditionDto> get editions => _metadata?.editions ?? const [];
-
   bool get hasReleaseDate => releaseDate != null || releaseYear != null;
 }
 

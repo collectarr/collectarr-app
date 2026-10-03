@@ -43,14 +43,12 @@ class AnimeLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <LibraryFormatBadgeDescriptor>[];
-    for (final edition in item.animeCatalogFields.editions) {
-      final badge = animeFormatBadge(
-        edition.physicalFormat,
-        label: edition.physicalFormatLabel,
-      );
-      if (badge == null || !seen.add(badge.key)) continue;
-      result.add(badge);
-    }
+    final fields = item.animeCatalogFields;
+    final badge = animeFormatBadge(
+      fields.physicalFormat,
+      label: fields.physicalFormatLabel,
+    );
+    if (badge != null && seen.add(badge.key)) result.add(badge);
     return result;
   }
 
@@ -99,10 +97,6 @@ class AnimeLibraryMediaPresentationBuilder
   }) {
     final hydratedMetadata = hydrated.animeCatalogFields;
     final fallbackMetadata = fallback.animeCatalogFields;
-    final hydratedEditions = hydrated.animeCatalogFields.editions;
-    final fallbackEditions = fallback.animeCatalogFields.editions;
-    final editions =
-        hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
     final coverImageUrl =
         hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
     final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
@@ -112,7 +106,6 @@ class AnimeLibraryMediaPresentationBuilder
         hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
               coverImageUrl: coverImageUrl,
               thumbnailImageUrl: thumbnailImageUrl,
-              editions: editions,
             )));
   }
 
