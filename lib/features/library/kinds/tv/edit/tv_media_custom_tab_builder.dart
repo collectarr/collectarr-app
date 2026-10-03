@@ -30,7 +30,7 @@ Widget? buildTvMediaCustomTabView({
 
   return switch (tabId) {
     'edition' => TvEditEditionTab(
-        draft: draft,
+        tvEdit: tvEdit,
         accent: accent,
         physicalFormats: const [],
       ),
