@@ -25,7 +25,6 @@ final class TvWorkspaceProjector
       personal: PersonalCopyProjection.fromShelf(
         source,
       ),
-      series: catalog.series,
       metadata: catalog.metadata,
     );
   }
@@ -40,14 +39,14 @@ TvWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
 WorkspaceCommonProjection _tvCommonProjection(
   LibraryWorkspaceSource source,
   LibraryEntityRef node,
-  TvSeriesMetadata? metadata,
+  TvSeriesMetadata metadata,
 ) {
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: metadata?.title,
-    overrideSynopsis: metadata?.synopsis,
-    overrideReleaseDate: metadata?.releaseDate ?? metadata?.firstAirDate,
-    overrideCoverImageUrl: metadata?.coverImageUrl,
+    overrideTitle: metadata.title,
+    overrideSynopsis: metadata.synopsis,
+    overrideReleaseDate: metadata.releaseDate ?? metadata.firstAirDate,
+    overrideCoverImageUrl: metadata.coverImageUrl,
   );
 }

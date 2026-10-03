@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_fields.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
@@ -62,13 +61,14 @@ class TvLibraryMediaPresentationBuilder
   ) {
     final catalog = entry.catalogData;
     if (catalog is! TvWorkspaceCatalogData) return const [];
-    final identifier =
-        normalizeLibraryDuplicateIdentifier(catalog.metadata?.barcode);
+    final identifier = normalizeLibraryDuplicateIdentifier(
+      catalog.metadata.barcode,
+    );
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label: 'Identifier ${catalog.metadata!.barcode!.trim()}',
+        label: 'Identifier ${catalog.metadata.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -82,7 +82,7 @@ class TvLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! TvWorkspaceCatalogData) return const [];
     return [
-      for (final value in catalog.metadata?.links ?? const <TrailerLinkDto>[])
+      for (final value in catalog.metadata.links)
         if (value.url.trim().isNotEmpty)
           LibraryWorkspaceLinkSummary(
             url: value.url,

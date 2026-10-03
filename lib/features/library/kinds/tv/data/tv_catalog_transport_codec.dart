@@ -10,22 +10,25 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 
 final class TvCatalogTransportCodec
-    implements CatalogKindTransportCodec<TvSeries> {
+    implements CatalogKindTransportCodec<TvSeriesMetadata> {
   const TvCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.tv;
 
   @override
-  TvSeries decode(CatalogItemDto item) =>
-      TvSeries.fromJson(catalogTransportPayloadFor(item));
+  TvSeriesMetadata decode(CatalogItemDto item) =>
+      TvSeriesMetadata.fromJson(catalogTransportPayloadFor(item));
 
   @override
-  CatalogDisplaySummary summarize(String catalogItemId, TvSeries item) =>
+  CatalogDisplaySummary summarize(
+    String catalogItemId,
+    TvSeriesMetadata item,
+  ) =>
       CatalogDisplaySummary.root(
         kind: kind,
         id: catalogItemId,
@@ -85,7 +88,7 @@ final class TvCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    TvSeries item,
+    TvSeriesMetadata item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -95,7 +98,7 @@ final class TvCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(TvSeries item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(TvSeriesMetadata item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -110,9 +113,9 @@ final class TvCatalogTransportCodec
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final series = [for (final item in await listTransport(db)) decode(item)];
+    final items = await listTransport(db);
     return [
-      for (final item in series) summarize(item.id, item),
+      for (final item in items) summarize(item.id, decode(item)),
     ];
   }
 }

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -47,7 +46,7 @@ final class TvVideoDetailContribution extends ConsumerWidget {
     );
     final catalog = request.item.source.catalogData;
     final links = catalog is TvWorkspaceCatalogData
-        ? catalog.metadata?.links ?? const <TrailerLinkDto>[]
+        ? catalog.metadata.links
         : const <TrailerLinkDto>[];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

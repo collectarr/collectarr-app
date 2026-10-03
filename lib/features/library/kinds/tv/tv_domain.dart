@@ -29,7 +29,6 @@ export 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_pro
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
-export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_mapper.dart';
 
 // ---------------------------------------------------------------------------
 // TvPersonalOverlay
