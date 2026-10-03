@@ -97,19 +97,14 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         id: 'original_release_date',
         label: 'Original Release Date',
         value: (draft) => values(draft).originalReleaseDateParts,
-        setValue: (draft, value) {
-          values(draft).originalReleaseDateParts = value;
-          values(draft).originalReleaseDate = value?.asDateTime;
-        },
+        setValue: (draft, value) =>
+            values(draft).originalReleaseDateParts = value,
       ),
       LibraryPartialDateFieldSpec<TDraft>(
         id: 'recording_date',
         label: 'Recording Date',
         value: (draft) => values(draft).recordingDateParts,
-        setValue: (draft, value) {
-          values(draft).recordingDateParts = value;
-          values(draft).recordingDate = value?.asDateTime;
-        },
+        setValue: (draft, value) => values(draft).recordingDateParts = value,
       ),
       LibraryMultiVocabularyFieldSpec<TDraft, String>(
         id: 'studios',
@@ -174,10 +169,7 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         id: 'release_date',
         label: 'Release Date',
         value: (draft) => values(draft).releaseDateParts,
-        setValue: (draft, value) {
-          values(draft).releaseDateParts = value;
-          values(draft).releaseDate = value?.asDateTime;
-        },
+        setValue: (draft, value) => values(draft).releaseDateParts = value,
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'record_label',

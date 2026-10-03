@@ -20,11 +20,8 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
     this.catalogNumber = '',
     this.barcode = '',
     this.countryCode = '',
-    this.releaseDate,
     this.releaseDateParts,
-    this.originalReleaseDate,
     this.originalReleaseDateParts,
-    this.recordingDate,
     this.recordingDateParts,
     this.recordLabel = '',
     List<String> studios = const [],
@@ -77,11 +74,8 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
   String catalogNumber;
   String barcode;
   String countryCode;
-  DateTime? releaseDate;
   PartialDate? releaseDateParts;
-  DateTime? originalReleaseDate;
   PartialDate? originalReleaseDateParts;
-  DateTime? recordingDate;
   PartialDate? recordingDateParts;
   String recordLabel;
   List<String> studios;

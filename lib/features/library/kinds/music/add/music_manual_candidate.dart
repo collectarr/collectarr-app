@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/core/models/partial_date.dart';
 
 /// Builds the typed flat catalog candidate used by Music's manual Add flow.
 ///
@@ -54,8 +53,7 @@ Map<String, Object?>? buildMusicManualProposalData(
   }
 
   final artist = _textOrNull(draft.artist);
-  final releaseDateParts =
-      draft.releaseDateParts ?? _partsFromDate(draft.releaseDate);
+  final releaseDateParts = draft.releaseDateParts;
   final format = _textOrNull(draft.format);
   final barcode = _textOrNull(draft.barcode);
   final countryCode = _textOrNull(draft.countryCode);
@@ -64,10 +62,8 @@ Map<String, Object?>? buildMusicManualProposalData(
       : _textOrNull(musicCountryName(countryCode) ?? countryCode);
   final cover = _textOrNull(draft.coverImageUrl);
   final backCover = _textOrNull(draft.backCoverImageUrl);
-  final originalReleaseDateParts = draft.originalReleaseDateParts ??
-      _partsFromDate(draft.originalReleaseDate);
-  final recordingDateParts =
-      draft.recordingDateParts ?? _partsFromDate(draft.recordingDate);
+  final originalReleaseDateParts = draft.originalReleaseDateParts;
+  final recordingDateParts = draft.recordingDateParts;
 
   return {
     'title': title.trim(),
@@ -196,9 +192,6 @@ List<String> _creditNames(Iterable<MusicAddManualNamedCredit> credits) => [
       for (final credit in credits)
         if (credit.name.trim().isNotEmpty) credit.name.trim(),
     ];
-
-PartialDate? _partsFromDate(DateTime? date) =>
-    date == null ? null : PartialDate.fromDateTime(date);
 
 String? _textOrNull(String value) {
   final text = value.trim();

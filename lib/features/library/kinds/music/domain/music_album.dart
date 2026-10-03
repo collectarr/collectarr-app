@@ -21,16 +21,13 @@ final class MusicAlbum implements JsonEncodable {
     this.subtitle,
     this.artist,
     this.originalTitle,
-    this.originalReleaseDate,
     this.originalReleaseDateParts,
-    this.recordingDate,
     this.recordingDateParts,
     List<String> studios = const [],
     this.isLive,
     List<String> genres = const [],
     this.releaseType,
     this.releaseStatus,
-    this.releaseDate,
     this.releaseDateParts,
     this.publisher,
     this.countryCode,
@@ -77,16 +74,13 @@ final class MusicAlbum implements JsonEncodable {
   final String? subtitle;
   final String? artist;
   final String? originalTitle;
-  final DateTime? originalReleaseDate;
   final PartialDate? originalReleaseDateParts;
-  final DateTime? recordingDate;
   final PartialDate? recordingDateParts;
   final List<String> studios;
   final bool? isLive;
   final List<String> genres;
   final String? releaseType;
   final String? releaseStatus;
-  final DateTime? releaseDate;
 
   /// Preserves year/month precision from partial catalog dates.
   final PartialDate? releaseDateParts;
@@ -126,6 +120,10 @@ final class MusicAlbum implements JsonEncodable {
   final int revision;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  DateTime? get originalReleaseDate => originalReleaseDateParts?.asDateTime;
+  DateTime? get recordingDate => recordingDateParts?.asDateTime;
+  DateTime? get releaseDate => releaseDateParts?.asDateTime;
 
   List<String> get mediumTypes {
     final source = mediums.isEmpty
@@ -181,11 +179,9 @@ final class MusicAlbum implements JsonEncodable {
       subtitle: _text(json['subtitle']),
       artist: _text(json['artist']),
       originalTitle: _text(json['original_title']),
-      originalReleaseDate: _date(json['original_release_date']),
       originalReleaseDateParts: _partialDate(
         json['original_release_date_parts'] ?? json['original_release_date'],
       ),
-      recordingDate: _date(json['recording_date']),
       recordingDateParts: _partialDate(
         json['recording_date_parts'] ?? json['recording_date'],
       ),
@@ -194,7 +190,6 @@ final class MusicAlbum implements JsonEncodable {
       genres: _strings(json['genres']),
       releaseType: _text(json['release_type']),
       releaseStatus: _text(json['release_status']),
-      releaseDate: _date(json['release_date']),
       releaseDateParts: _partialDate(
         json['release_date_parts'] ?? json['release_date'],
       ),
@@ -254,15 +249,11 @@ final class MusicAlbum implements JsonEncodable {
         if (artist != null) 'artist': artist,
         if (originalTitle != null) 'original_title': originalTitle,
         if (originalReleaseDateParts != null)
-          'original_release_date': originalReleaseDateParts!.isoString
-        else if (originalReleaseDate != null)
-          'original_release_date': originalReleaseDate!.toIso8601String(),
+          'original_release_date': originalReleaseDateParts!.isoString,
         if (originalReleaseDateParts != null)
           'original_release_date_parts': originalReleaseDateParts!.toJson(),
         if (recordingDateParts != null)
-          'recording_date': recordingDateParts!.isoString
-        else if (recordingDate != null)
-          'recording_date': recordingDate!.toIso8601String(),
+          'recording_date': recordingDateParts!.isoString,
         if (recordingDateParts != null)
           'recording_date_parts': recordingDateParts!.toJson(),
         if (studios.isNotEmpty) 'studios': studios,
@@ -271,9 +262,7 @@ final class MusicAlbum implements JsonEncodable {
         if (releaseType != null) 'release_type': releaseType,
         if (releaseStatus != null) 'release_status': releaseStatus,
         if (releaseDateParts != null)
-          'release_date': releaseDateParts!.isoString
-        else if (releaseDate != null)
-          'release_date': releaseDate!.toIso8601String(),
+          'release_date': releaseDateParts!.isoString,
         if (releaseDateParts != null)
           'release_date_parts': releaseDateParts!.toJson(),
         if (publisher != null) 'publisher': publisher,

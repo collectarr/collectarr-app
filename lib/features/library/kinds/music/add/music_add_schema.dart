@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
 
@@ -27,8 +26,7 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
     AddSchema<MusicAddManualDraft>(
       title: (_) => 'Manual music album',
       validate: (draft) {
-        if ((draft.releaseDate?.year ?? draft.releaseDateParts?.year)
-            case final year? when year < 1) {
+        if (draft.releaseDateParts?.year case final year? when year < 1) {
           return 'Release year must be greater than zero';
         }
         if (draft.discs.any(
@@ -137,34 +135,21 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
             LibraryPartialDateFieldSpec<MusicAddManualDraft>(
               id: 'release_date',
               label: 'Release Date',
-              value: (draft) =>
-                  draft.releaseDateParts ?? _partsFromDate(draft.releaseDate),
-              setValue: (draft, value) {
-                draft.releaseDateParts = value;
-                draft.releaseDate = value?.asDateTime;
-              },
+              value: (draft) => draft.releaseDateParts,
+              setValue: (draft, value) => draft.releaseDateParts = value,
             ),
             LibraryPartialDateFieldSpec<MusicAddManualDraft>(
               id: 'original_release_date',
               label: 'Original Release Date',
-              value: (draft) =>
-                  draft.originalReleaseDateParts ??
-                  _partsFromDate(draft.originalReleaseDate),
-              setValue: (draft, value) {
-                draft.originalReleaseDateParts = value;
-                draft.originalReleaseDate = value?.asDateTime;
-              },
+              value: (draft) => draft.originalReleaseDateParts,
+              setValue: (draft, value) =>
+                  draft.originalReleaseDateParts = value,
             ),
             LibraryPartialDateFieldSpec<MusicAddManualDraft>(
               id: 'recording_date',
               label: 'Recording Date',
-              value: (draft) =>
-                  draft.recordingDateParts ??
-                  _partsFromDate(draft.recordingDate),
-              setValue: (draft, value) {
-                draft.recordingDateParts = value;
-                draft.recordingDate = value?.asDateTime;
-              },
+              value: (draft) => draft.recordingDateParts,
+              setValue: (draft, value) => draft.recordingDateParts = value,
             ),
           ],
         ),
@@ -303,9 +288,6 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
         ),
       ],
     );
-
-PartialDate? _partsFromDate(DateTime? value) =>
-    value == null ? null : PartialDate.fromDateTime(value);
 
 String? _nullable(String value) {
   final normalized = value.trim();

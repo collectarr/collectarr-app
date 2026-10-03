@@ -11,16 +11,13 @@ final class MusicAlbumFormValues {
     this.artist = '',
     this.artistCredits = const [],
     this.originalTitle = '',
-    this.originalReleaseDate,
     this.originalReleaseDateParts,
-    this.recordingDate,
     this.recordingDateParts,
     List<String> studios = const [],
     this.isLive,
     List<String> genres = const [],
     this.releaseType = '',
     this.releaseStatus = '',
-    this.releaseDate,
     this.releaseDateParts,
     this.publisher = '',
     this.countryCode = '',
@@ -51,26 +48,14 @@ final class MusicAlbumFormValues {
         artist: album.artist ?? '',
         artistCredits: List.of(album.artistCredits),
         originalTitle: album.originalTitle ?? '',
-        originalReleaseDate: album.originalReleaseDate,
-        originalReleaseDateParts: album.originalReleaseDateParts ??
-            (album.originalReleaseDate == null
-                ? null
-                : PartialDate.fromDateTime(album.originalReleaseDate!)),
-        recordingDate: album.recordingDate,
-        recordingDateParts: album.recordingDateParts ??
-            (album.recordingDate == null
-                ? null
-                : PartialDate.fromDateTime(album.recordingDate!)),
+        originalReleaseDateParts: album.originalReleaseDateParts,
+        recordingDateParts: album.recordingDateParts,
         studios: album.studios,
         isLive: album.isLive,
         genres: album.genres,
         releaseType: album.releaseType ?? '',
         releaseStatus: album.releaseStatus ?? '',
-        releaseDate: album.releaseDate,
-        releaseDateParts: album.releaseDateParts ??
-            (album.releaseDate == null
-                ? null
-                : PartialDate.fromDateTime(album.releaseDate!)),
+        releaseDateParts: album.releaseDateParts,
         publisher: album.publisher ?? '',
         countryCode: album.countryCode ?? '',
         language: album.language ?? '',
@@ -96,16 +81,13 @@ final class MusicAlbumFormValues {
   String artist;
   List<MusicArtistCredit> artistCredits;
   String originalTitle;
-  DateTime? originalReleaseDate;
   PartialDate? originalReleaseDateParts;
-  DateTime? recordingDate;
   PartialDate? recordingDateParts;
   List<String> studios;
   bool? isLive;
   List<String> genres;
   String releaseType;
   String releaseStatus;
-  DateTime? releaseDate;
   PartialDate? releaseDateParts;
   String publisher;
   String countryCode;
