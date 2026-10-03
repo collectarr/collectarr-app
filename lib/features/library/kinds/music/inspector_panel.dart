@@ -992,14 +992,8 @@ class _MusicProductDetails extends StatelessWidget {
         ('Country', country),
       if (release.language?.trim().isNotEmpty == true)
         ('Language', release.language!),
-      if (release.boxSetMembership != null) ...[
-        ('Part of box set', release.boxSetTitle ?? '-'),
-        if (release.boxSetMembership!.sequenceNumber != null)
-          (
-            'Box set position',
-            release.boxSetMembership!.sequenceNumber.toString()
-          ),
-      ],
+      if (release.boxSet?.trim().isNotEmpty == true)
+        ('Box Set', release.boxSet!),
       if (medium?.rpm != null) ('RPM', medium!.rpm.toString()),
       if (medium?.soundType?.trim().isNotEmpty == true)
         ('Sound', medium!.soundType!),

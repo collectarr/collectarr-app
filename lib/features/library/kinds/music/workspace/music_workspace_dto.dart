@@ -101,7 +101,7 @@ abstract class MusicWorkspaceProjectionValues
   String? get packaging => music.packaging;
 
   @override
-  String? get boxSet => music.boxSetTitle;
+  String? get boxSet => music.boxSet;
 
   @override
   String? get publisher => music.publisher;

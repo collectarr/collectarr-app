@@ -44,10 +44,9 @@ abstract final class MusicAlbumFormAdapter {
         rpm: values.rpm,
         spars: _text(values.spars),
         extra: _text(values.extra),
-        boxSetName: _text(values.boxSetName),
+        boxSet: _text(values.boxSet),
         coverImageUrl: _text(values.coverImageUrl),
         backCoverImageUrl: _text(values.backCoverImageUrl),
-        boxSetMembership: values.boxSetMembership,
         mediums: List.unmodifiable(mediums),
       );
 
@@ -84,7 +83,7 @@ abstract final class MusicAlbumFormAdapter {
         catalogNumber: _text(values.catalogNumber),
         packaging: _text(values.packaging),
         format: _formFormat(values),
-        boxSetName: _text(values.boxSetName),
+        boxSet: _text(values.boxSet),
         coverImageUrl: _text(values.coverImageUrl),
         coverImageKey: original.coverImageKey,
         backCoverImageUrl: _text(values.backCoverImageUrl),
@@ -100,7 +99,6 @@ abstract final class MusicAlbumFormAdapter {
         extra: _text(values.extra),
         externalLinks:
             List.unmodifiable(externalLinks ?? original.externalLinks),
-        boxSetMembership: values.boxSetMembership,
         revision: original.revision,
         createdAt: original.createdAt,
         updatedAt: original.updatedAt,
@@ -113,11 +111,7 @@ abstract final class MusicAlbumFormAdapter {
       );
 }
 
-String? _formFormat(MusicAlbumFormValues values) => _text(
-      values.physicalFormatLabel.isNotEmpty
-          ? values.physicalFormatLabel
-          : values.physicalFormat,
-    );
+String? _formFormat(MusicAlbumFormValues values) => _text(values.format);
 
 String? _text(String? value) {
   final normalized = value?.trim();

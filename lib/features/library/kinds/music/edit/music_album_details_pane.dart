@@ -102,7 +102,7 @@ class _MusicAlbumDetailsPaneState extends ConsumerState<MusicAlbumDetailsPane> {
               [_field('vinyl_color'), _field('vinyl_weight'), _field('rpm')])),
       _field('extra'),
       _field('spars'),
-      _field('box_set_name'),
+      _field('box_set'),
     ]);
     return LayoutBuilder(
         builder: (context, constraints) => constraints.maxWidth >= 720

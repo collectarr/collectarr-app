@@ -4,8 +4,6 @@ import 'package:collectarr_app/features/library/ui/primitives/library_form_contr
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
@@ -149,14 +147,9 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'format',
         label: 'Format',
-        value: (draft) => _nullable(
-          values(draft).physicalFormatLabel.isNotEmpty
-              ? values(draft).physicalFormatLabel
-              : values(draft).physicalFormat,
-        ),
+        value: (draft) => _nullable(values(draft).format),
         setValue: (draft, value) {
-          values(draft).physicalFormat = value ?? '';
-          values(draft).physicalFormatLabel = value ?? '';
+          values(draft).format = value ?? '';
         },
         options: _options(formatOptions ?? MusicVocabularies.format.builtIns),
         pickListKey: MusicVocabularyIds.format.value,
@@ -310,49 +303,13 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         pickListKey: MusicVocabularyIds.packaging.value,
         onManage: onManagePackaging == null ? null : (_) => onManagePackaging(),
       ),
-      _text<TDraft>(
-        id: 'box_set_ref',
-        label: 'Box set reference',
-        read: (draft) => values(draft).boxSetMembership?.boxSetRef.id ?? '',
-        write: (draft, value) {
-          final id = value.trim();
-          final current = values(draft).boxSetMembership;
-          values(draft).boxSetMembership = id.isEmpty
-              ? null
-              : MusicBoxSetMembership(
-                  boxSetRef: CatalogEntityRef(
-                    kind: CatalogMediaKind.music,
-                    entityType: const CatalogEntityTypeId('box_set'),
-                    id: id,
-                    rootId: current?.boxSetRef.rootId,
-                    parentId: current?.boxSetRef.parentId,
-                  ),
-                  sequenceNumber: current?.sequenceNumber,
-                );
-        },
-      ),
       LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'box_set_name',
+        id: 'box_set',
         label: 'Box Set',
-        value: (draft) => _nullable(values(draft).boxSetName),
-        setValue: (draft, value) => values(draft).boxSetName = value ?? '',
+        value: (draft) => _nullable(values(draft).boxSet),
+        setValue: (draft, value) => values(draft).boxSet = value ?? '',
         options: const [],
         pickListKey: 'box_set',
-      ),
-      LibraryNumberFieldSpec<TDraft>(
-        id: 'box_set_position',
-        label: 'Box set position',
-        value: (draft) =>
-            values(draft).boxSetMembership?.sequenceNumber?.toDouble(),
-        setValue: (draft, value) {
-          final current = values(draft).boxSetMembership;
-          if (current == null) return;
-          values(draft).boxSetMembership = MusicBoxSetMembership(
-            boxSetRef: current.boxSetRef,
-            sequenceNumber: value?.toInt(),
-          );
-        },
-        minimum: 1,
       ),
     ], include);
 

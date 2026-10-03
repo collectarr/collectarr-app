@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 /// A user-managed external link attached to a Music catalog item.
 ///
 /// Music owns the meaning of these links. Generic catalog transport may still
-/// serialize them as `external_links` or `trailer_urls` at the boundary.
+/// serialize them in the canonical `external_links` field.
 @immutable
 final class MusicExternalLink {
   const MusicExternalLink({

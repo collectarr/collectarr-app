@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'music_ids.dart';
 import 'music_medium.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'music_box_set_membership.dart';
 import 'music_external_link.dart';
 import 'music_album_relations.dart';
 import 'music_track.dart';
@@ -55,7 +54,7 @@ final class MusicAlbum implements JsonEncodable {
     this.rpm,
     this.spars,
     this.externalLinks = const [],
-    this.boxSetMembership,
+    this.boxSet,
     this.contributions = const [],
     this.artistCredits = const [],
     this.labels = const [],
@@ -63,7 +62,6 @@ final class MusicAlbum implements JsonEncodable {
     this.mediums = const [],
     this.mediumTypesSummary = const [],
     this.revision = 1,
-    this.boxSetName,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : studios = List<String>.unmodifiable(studios),
@@ -117,7 +115,7 @@ final class MusicAlbum implements JsonEncodable {
   final int? rpm;
   final String? spars;
   final List<MusicExternalLink> externalLinks;
-  final MusicBoxSetMembership? boxSetMembership;
+  final String? boxSet;
   final List<MusicAlbumContribution> contributions;
   final List<MusicArtistCredit> artistCredits;
   final List<MusicAlbumLabel> labels;
@@ -128,11 +126,8 @@ final class MusicAlbum implements JsonEncodable {
   /// loaded. When [mediums] are present, their values take precedence.
   final List<String> mediumTypesSummary;
   final int revision;
-  final String? boxSetName;
   final DateTime createdAt;
   final DateTime updatedAt;
-
-  String? get boxSetTitle => boxSetName ?? boxSetMembership?.boxSetRef.id;
 
   List<String> get mediumTypes {
     final source = mediums.isEmpty
@@ -227,7 +222,7 @@ final class MusicAlbum implements JsonEncodable {
       rpm: _int(json['rpm']),
       spars: _text(json['spars']),
       externalLinks: _externalLinks(json),
-      boxSetMembership: musicBoxSetMembershipFromJson(json),
+      boxSet: _text(json['box_set']),
       contributions: [
         for (final value in _maps(json['contributions']))
           MusicAlbumContribution.fromJson(value),
@@ -237,7 +232,7 @@ final class MusicAlbum implements JsonEncodable {
           MusicArtistCredit.fromJson(value),
       ],
       labels: [
-        for (final value in _maps(json['labels'] ?? json['label_info']))
+        for (final value in _maps(json['labels']))
           MusicAlbumLabel.fromJson(value),
       ],
       identifiers: [
@@ -247,12 +242,6 @@ final class MusicAlbum implements JsonEncodable {
       mediums: mediums,
       mediumTypesSummary: _strings(json['medium_types']),
       revision: _int(json['revision']) ?? 1,
-      boxSetName: _text(
-        json['box_set_name'] ??
-            json['box_set_title'] ??
-            (json['box_set'] as Map?)?['title'] ??
-            (json['box_set'] as Map?)?['name'],
-      ),
       createdAt: _dateTime(json['created_at']),
       updatedAt: _dateTime(json['updated_at']),
     );
@@ -321,8 +310,7 @@ final class MusicAlbum implements JsonEncodable {
         if (spars != null) 'spars': spars,
         if (externalLinks.isNotEmpty)
           'external_links': externalLinks.map((link) => link.toJson()).toList(),
-        if (boxSetMembership != null) 'box_set': boxSetMembership!.toJson(),
-        if (boxSetName != null) 'box_set_name': boxSetName,
+        if (boxSet != null) 'box_set': boxSet,
         if (contributions.isNotEmpty)
           'contributions':
               contributions.map((value) => value.toJson()).toList(),
@@ -335,32 +323,6 @@ final class MusicAlbum implements JsonEncodable {
           'identifiers': identifiers.map((value) => value.toJson()).toList(),
         'mediums': mediums.map((medium) => medium.toJson()).toList(),
       };
-}
-
-MusicBoxSetMembership? musicBoxSetMembershipFromJson(
-    Map<String, dynamic> json) {
-  final raw = json['box_set'];
-  if (raw is Map) {
-    try {
-      return MusicBoxSetMembership.fromJson(Map<String, dynamic>.from(raw));
-    } on FormatException {
-      return null;
-    }
-  }
-
-  // Core may expose a box-set relation using its scalar fields.
-  final rawRef = json['box_set_ref'] ?? json['box_set_id'];
-  if (rawRef != null) {
-    try {
-      return MusicBoxSetMembership.fromJson({
-        'box_set_ref': rawRef,
-        'sequence_number': json['box_set_position'],
-      });
-    } on FormatException {
-      return null;
-    }
-  }
-  return null;
 }
 
 String? _text(Object? value) {
@@ -414,12 +376,10 @@ List<String> _strings(Object? value) => value is Iterable
 List<MusicExternalLink> _externalLinks(Map<String, dynamic> json) {
   final values = <MusicExternalLink>[];
   final seen = <String>{};
-  for (final source in [json['external_links'], json['trailer_urls']]) {
-    for (final value in _maps(source)) {
-      final url = _text(value['url']);
-      if (url == null || !seen.add(url)) continue;
-      values.add(MusicExternalLink.fromJson(value));
-    }
+  for (final value in _maps(json['external_links'])) {
+    final url = _text(value['url']);
+    if (url == null || !seen.add(url)) continue;
+    values.add(MusicExternalLink.fromJson(value));
   }
   return values;
 }

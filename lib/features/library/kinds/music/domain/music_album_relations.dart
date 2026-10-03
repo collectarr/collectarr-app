@@ -25,10 +25,7 @@ final class MusicArtistCredit implements JsonEncodable {
   factory MusicArtistCredit.fromJson(Map<String, dynamic> json) =>
       MusicArtistCredit(
         id: _text(json['id']) ?? '',
-        creditedName: _text(json['credited_name'] ??
-                json['name'] ??
-                json['display_name']) ??
-            '',
+        creditedName: _text(json['credited_name'] ?? json['name']) ?? '',
         artistId: _text(json['artist_id'] ?? json['person_id']),
         sortName: _text(json['sort_name']),
         joinPhrase: _text(json['join_phrase']),
@@ -67,9 +64,8 @@ final class MusicAlbumLabel implements JsonEncodable {
       MusicAlbumLabel(
         id: _text(json['id']) ?? '',
         labelId: _text(json['label_id']),
-        labelName:
-            _text(json['label_name'] ?? json['name'] ?? json['label']) ?? '',
-        catalogNumber: _text(json['catalog_number'] ?? json['catalog-number']),
+        labelName: _text(json['label_name']) ?? '',
+        catalogNumber: _text(json['catalog_number']),
         sequence: _int(json['sequence']),
       );
 
@@ -126,7 +122,7 @@ final class MusicAlbumContribution implements JsonEncodable {
       role: _text(json['role']) ?? 'Artist',
       roleId: _text(json['role_id']),
       sequence: _int(json['sequence']),
-      displayName: _text(json['name'] ?? json['display_name']),
+      displayName: _text(json['name']),
       sortName: _text(json['sort_name']),
       imageUrl: _text(json['image_url']),
       createdAt: _dateTime(json['created_at']),

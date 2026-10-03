@@ -64,7 +64,7 @@ final class MusicCatalogMapper {
       if (album.rpm != null) 'rpm': album.rpm,
       if (album.extra != null) 'extra': album.extra,
       if (album.spars != null) 'spars': album.spars,
-      if (album.boxSetTitle != null) 'box_set': album.boxSetTitle,
+      if (album.boxSet != null) 'box_set': album.boxSet,
       if (_peopleForRole(album, 'Composer').isNotEmpty)
         'composers': _peopleForRole(album, 'Composer'),
       if (_peopleForRole(album, 'Conductor').isNotEmpty)
@@ -263,9 +263,7 @@ final class MusicCatalogMapper {
         final person = value is Map
             ? Map<String, dynamic>.from(value)
             : <String, dynamic>{'name': value};
-        final name = _text(
-          person['name'] ?? person['display_name'] ?? person['credited_name'],
-        );
+        final name = _text(person['name'] ?? person['credited_name']);
         final artistId = _text(person['artist_id'] ?? person['person_id']);
         if (name == null && artistId == null) continue;
         final sequence =
@@ -290,7 +288,6 @@ final class MusicCatalogMapper {
       ...catalogPayload,
       'country_code': catalogPayload['country'],
       'publisher': catalogPayload['label'],
-      'box_set_name': catalogPayload['box_set'],
       'medium_types': catalogPayload['format'] == null
           ? const <String>[]
           : [catalogPayload['format']],
