@@ -69,11 +69,10 @@ claim completion of every cleanup item or literal CLZ parity.
 - Anime and TV still have active `CatalogEditionDto` and Work/Release-shaped
   presentation adapters over their flat Catalog Item records. Replace these
   with kind-owned contained media/season/episode models, then remove the old
-  projection paths. Anime's primary workspace and transport codec now read
-  `AnimeMetadata` directly, and identifier lookup reads that same document.
-  Its old mixed catalog repository is now only a user-created episode store;
-  legacy Anime form adapters still need consolidation. TV's older workspace
-  projection remains active.
+  projection paths. Anime's workspace, transport codec, identifier lookup, and
+  manual Add now use `AnimeMetadata` directly. Its old mixed catalog repository
+  is now only a user-created episode store. Anime's edit controller and TV's
+  older workspace projection remain active and need migration.
 - `LibraryEntryPersonalSection` now renders its fields from kind-contributed
   specs for editor type, area, order, pick-list ownership, currency linkage,
   and status options; it no longer hardcodes universal field keys. The shared

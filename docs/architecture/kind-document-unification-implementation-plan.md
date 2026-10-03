@@ -204,10 +204,13 @@ slice. This is progress, not completion of this plan:
   vocabulary, and workspace projections consume that root document directly;
   seed data no longer manufactures edition or release nodes.
 - Anime workspace studio display now reads the typed `AnimeMetadata.studios`
-  value, and barcode/title lookup reads typed `AnimeMedia` fields for item
-  number, cover URLs, and barcode instead of indexing those values from its raw
-  map. The old `AnimeMedia`/`AnimeRelease` consumers and raw maps still remain
-  and must move to the single Anime catalog document before this kind is done.
+  value, and barcode/title lookup reads typed fields from the root
+  `AnimeMetadata` document. The manual Add draft and candidate builder now use
+  that same model instead of maintaining parallel `AnimeMediaFormValues` and
+  `AnimeReleaseFormValues`. Repeated media region data stays in the typed
+  contained-media list. The old Anime edit controller and workspace hierarchy
+  still include release-shaped adapters that need migration before this kind
+  is complete.
 - `AnimeMetadata` now gives its recognized rating, audio, catalog number, video
   presentation, plot, release-status, and series-tag fields explicit types.
   Creators, contributors, characters, identifiers, seasons, and episodes also
@@ -218,9 +221,10 @@ slice. This is progress, not completion of this plan:
   media, episodes, credits, characters, and identifiers as typed values. Its
   raw metadata payload has been removed. The separate legacy `TvSeries`
   workspace projection still has raw maps and remains to be migrated.
-- Removed the unreferenced Anime media edit dialog and the separate Anime
-  media/release schema exports. The current Add field specs remain in use; the
-  reachable media/release repository paths still need migration.
+- Removed the unreferenced Anime media edit dialog and separate Anime
+  media/release schema exports. The manual Add schema now edits `AnimeMetadata`
+  directly; obsolete form value and adapter files were removed. The reachable
+  edit controller and workspace hierarchy remain to be migrated.
 - Core now declares Anime and TV media, season, and episode shapes inside each
   kind's schema module rather than centralizing those definitions in the shared
   document module. Movie media, Book printings and series memberships, and
@@ -326,9 +330,9 @@ across all kinds; replacing the universal `PersonalStateDraft` with kind-owned
 typed drafts and moving remaining validation/serialization adapters out of the
 shared personal editor; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
-form organization. Anime's workspace, lookup, and catalog transport now read
-the flattened typed document. Legacy `AnimeMedia` and `AnimeRelease` form
-adapters remain to be consolidated or removed after the Add field audit.
+form organization. Anime's workspace, lookup, catalog transport, and manual
+Add now read or edit the flattened typed document. Its older edit controller
+and workspace hierarchy remain to be moved off `AnimeMedia`/`AnimeRelease`.
 The legacy TV workspace projection and its contained projection models still
 retain raw payload maps; the active root `TvSeriesMetadata` model no longer
 does.
