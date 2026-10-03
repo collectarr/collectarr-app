@@ -173,11 +173,13 @@ slice. This is progress, not completion of this plan:
   and must move to the single Anime catalog document before this kind is done.
 - `AnimeMetadata` now gives its recognized rating, audio, catalog number, video
   presentation, plot, release-status, and series-tag fields explicit types and
-  serializes them from those properties. The remaining arbitrary payload still
-  includes nested and older Anime values that need an ownership decision.
+  serializes them from those properties. Its decoder no longer duplicates any
+  explicitly typed fields in the raw map, preventing stale raw values from
+  reappearing when an editor clears a field. The map still contains untyped
+  contained values and needs to be removed after their schemas are complete.
 - `TvSeriesMetadata` now owns the corresponding catalog-number, video, plot,
-  release-status, subtitle, and series-tag fields as typed values. Its raw map
-  still carries contained IDs and other fields awaiting migration.
+  release-status, subtitle, and series-tag fields as typed values. Like Anime,
+  TV removes typed root fields from its raw map; untyped contained values remain.
 - Removed the unreferenced Anime media edit dialog and the separate Anime
   media/release schema exports. The current Add field specs remain in use; the
   reachable media/release repository paths still need migration.
