@@ -153,6 +153,9 @@ slice. This is progress, not completion of this plan:
   legacy edition collection. Its remaining per-kind edition models and legacy
   editors still need to be audited and removed or replaced by supported
   kind-owned contained data.
+- `sort_key` interpretation now belongs to Game, Board Game, Manga, and Comic
+  metadata projections; the generic transport no longer applies a
+  cross-kind `sort_title` fallback or exposes a generic sort-key setter.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.

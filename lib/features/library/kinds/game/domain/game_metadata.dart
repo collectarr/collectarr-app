@@ -70,19 +70,19 @@ class GameCatalogMetadata implements JsonEncodable {
     final companyRoles = _rawList('company_roles');
     final seriesTags = _rawList('series_tags');
     final externalLinks = [
-      ...links.where((link) => link.isExternalLink).map((link) => link.toJson()),
+      ...links
+          .where((link) => link.isExternalLink)
+          .map((link) => link.toJson()),
     ];
     final trailers = [
       ...links.where((link) => link.isTrailerLink).map((link) => link.toJson()),
     ];
     return {
       'title': title,
-      if (_rawText('sort_key') ?? _rawText('sort_title') case final value?)
-        'sort_key': value,
+      if (sortKey case final value?) 'sort_key': value,
       if (_rawText('localized_title') case final value?)
         'localized_title': value,
-      if (_rawText('original_title') case final value?)
-        'original_title': value,
+      if (_rawText('original_title') case final value?) 'original_title': value,
       if (_rawText('title_extension') case final value?)
         'title_extension': value,
       if (_rawText('subtitle') case final value?) 'subtitle': value,
@@ -96,8 +96,7 @@ class GameCatalogMetadata implements JsonEncodable {
       if (_rawText('audience_rating') case final value?)
         'audience_rating': value,
       if (barcode != null) 'barcode': barcode,
-      if (_rawText('catalog_number') case final value?)
-        'catalog_number': value,
+      if (_rawText('catalog_number') case final value?) 'catalog_number': value,
       if (companyRoles.isNotEmpty) 'company_roles': companyRoles,
       if (_rawMaps('contributors') case final values when values.isNotEmpty)
         'contributors': values,
@@ -117,8 +116,7 @@ class GameCatalogMetadata implements JsonEncodable {
       if (publishers.firstOrNull case final value?) 'publisher': value,
       if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
       if (releaseRegion != null) 'release_region': releaseRegion,
-      if (_rawText('release_status') case final value?)
-        'release_status': value,
+      if (_rawText('release_status') case final value?) 'release_status': value,
       if (seriesTags.isNotEmpty) 'series_tags': seriesTags,
       if (series != null) 'series_title': series,
       if (trailers.isNotEmpty) 'trailer_urls': trailers,
@@ -132,6 +130,8 @@ class GameCatalogMetadata implements JsonEncodable {
     final value = rawPayload[key]?.toString().trim();
     return value == null || value.isEmpty ? null : value;
   }
+
+  String? get sortKey => _rawText('sort_key');
 
   List<String> _rawList(String key) =>
       (rawPayload[key] as List?)?.map((value) => value.toString()).toList() ??

@@ -26,6 +26,7 @@ MangaCatalogFormValues mangaCatalogFormValuesFromMetadata(
 ) {
   final values = MangaCatalogFormValues(
     title: metadata.title,
+    sortTitle: metadata.sortKey ?? '',
     originalLanguage: metadata.language,
     status: metadata.publicationStatus.label,
     originalPublicationDate: metadata.originalPublicationDate,
@@ -111,7 +112,7 @@ MangaMedia mangaMediaFromCatalogFormValues({
 }) {
   final raw = Map<String, dynamic>.from(original.rawPayload);
   _write(raw, 'title', values.title.trim());
-  _write(raw, 'sort_title', _optional(values.sortTitle));
+  _write(raw, 'sort_key', _optional(values.sortTitle));
   _write(raw, 'subtitle', _optional(values.subtitle));
   _write(raw, 'description', _optional(values.description));
   _write(raw, 'synopsis', _optional(values.description));
@@ -213,6 +214,7 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
     barcode: _optional(values.barcode),
     variant: _optional(values.variant),
     rawPayload: {
+      if (_optional(values.sortTitle) case final sortKey?) 'sort_key': sortKey,
       if (_optional(values.characters) case final characters?)
         'characters': _split(characters),
       if (_optional(values.ageRating) case final ageRating?)

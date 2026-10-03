@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
@@ -192,33 +193,31 @@ class MovieEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(selection
-          .kindItem.kindCapability
-          .mapTransport((transport) => transport.copyWith(
-                title: fields
-                    .controller(MovieCanonicalEditField.title)
-                    .text
-                    .trim(),
-                displayTitle: emptyToNull(fields
-                    .controller(MovieCanonicalEditField.displayTitle)
-                    .text),
-                sortKey: emptyToNull(
-                    fields.controller(MovieCanonicalEditField.sortTitle).text),
-                originalTitle: emptyToNull(fields
-                    .controller(MovieCanonicalEditField.originalTitle)
-                    .text),
-                localizedTitle: emptyToNull(fields
-                    .controller(MovieCanonicalEditField.localizedTitle)
-                    .text),
-                searchAliases: aliases.isEmpty ? null : aliases,
-                synopsis: emptyToNull(
-                    fields.controller(MovieCanonicalEditField.synopsis).text),
-                coverImageUrl: emptyToNull(
-                    fields.controller(MovieCanonicalEditField.coverImage).text),
-                thumbnailImageUrl: emptyToNull(fields
-                    .controller(MovieCanonicalEditField.thumbnailImage)
-                    .text),
-              ))),
+      kindItem: CatalogSearchCandidate.fromItem(
+          selection.kindItem.kindCapability.mapTransport((transport) {
+        final updated = transport.copyWith(
+          title: fields.controller(MovieCanonicalEditField.title).text.trim(),
+          displayTitle: emptyToNull(
+              fields.controller(MovieCanonicalEditField.displayTitle).text),
+          originalTitle: emptyToNull(
+              fields.controller(MovieCanonicalEditField.originalTitle).text),
+          localizedTitle: emptyToNull(
+              fields.controller(MovieCanonicalEditField.localizedTitle).text),
+          searchAliases: aliases.isEmpty ? null : aliases,
+          synopsis: emptyToNull(
+              fields.controller(MovieCanonicalEditField.synopsis).text),
+          coverImageUrl: emptyToNull(
+              fields.controller(MovieCanonicalEditField.coverImage).text),
+          thumbnailImageUrl: emptyToNull(
+              fields.controller(MovieCanonicalEditField.thumbnailImage).text),
+        );
+        return _withMovieSortKey(
+          updated,
+          emptyToNull(
+            fields.controller(MovieCanonicalEditField.sortTitle).text,
+          ),
+        );
+      })),
     );
   }
 
@@ -378,6 +377,17 @@ class MovieEditDraft
   void dispose() {
     movieEdit.dispose();
   }
+}
+
+CatalogItemDto _withMovieSortKey(CatalogItemDto item, String? sortKey) {
+  final kindData = Map<String, dynamic>.from(item.kindData)
+    ..remove('sort_title');
+  if (sortKey == null) {
+    kindData.remove('sort_key');
+  } else {
+    kindData['sort_key'] = sortKey;
+  }
+  return item.withKindData(MovieCatalogMetadata.fromJson(kindData));
 }
 
 LibraryEditSessionBundle createMovieEditDraft({

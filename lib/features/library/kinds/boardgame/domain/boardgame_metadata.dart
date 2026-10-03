@@ -47,6 +47,8 @@ class BoardGameMetadata implements JsonEncodable {
 
   Map<String, dynamic> toSyncPayload() => toJson();
 
+  String? get sortKey => _boardGameText(rawPayload['sort_key']);
+
   final String title;
   final String? originalTitle;
   final String? synopsis;
@@ -323,4 +325,9 @@ class BoardGameMetadata implements JsonEncodable {
       links: rawLinks,
     );
   }
+}
+
+String? _boardGameText(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
 }

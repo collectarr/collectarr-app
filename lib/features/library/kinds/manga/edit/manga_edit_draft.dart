@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details_draft.dart';
@@ -256,33 +257,31 @@ class MangaEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(selection
-          .kindItem.kindCapability
-          .mapTransport((transport) => transport.copyWith(
-                title: fields
-                    .controller(MangaCanonicalEditField.title)
-                    .text
-                    .trim(),
-                displayTitle: emptyToNull(fields
-                    .controller(MangaCanonicalEditField.displayTitle)
-                    .text),
-                sortKey: emptyToNull(
-                    fields.controller(MangaCanonicalEditField.sortTitle).text),
-                originalTitle: emptyToNull(fields
-                    .controller(MangaCanonicalEditField.originalTitle)
-                    .text),
-                localizedTitle: emptyToNull(fields
-                    .controller(MangaCanonicalEditField.localizedTitle)
-                    .text),
-                searchAliases: aliases.isEmpty ? null : aliases,
-                synopsis: emptyToNull(
-                    fields.controller(MangaCanonicalEditField.synopsis).text),
-                coverImageUrl: emptyToNull(
-                    fields.controller(MangaCanonicalEditField.coverImage).text),
-                thumbnailImageUrl: emptyToNull(fields
-                    .controller(MangaCanonicalEditField.thumbnailImage)
-                    .text),
-              ))),
+      kindItem: CatalogSearchCandidate.fromItem(
+          selection.kindItem.kindCapability.mapTransport((transport) {
+        final updated = transport.copyWith(
+          title: fields.controller(MangaCanonicalEditField.title).text.trim(),
+          displayTitle: emptyToNull(
+              fields.controller(MangaCanonicalEditField.displayTitle).text),
+          originalTitle: emptyToNull(
+              fields.controller(MangaCanonicalEditField.originalTitle).text),
+          localizedTitle: emptyToNull(
+              fields.controller(MangaCanonicalEditField.localizedTitle).text),
+          searchAliases: aliases.isEmpty ? null : aliases,
+          synopsis: emptyToNull(
+              fields.controller(MangaCanonicalEditField.synopsis).text),
+          coverImageUrl: emptyToNull(
+              fields.controller(MangaCanonicalEditField.coverImage).text),
+          thumbnailImageUrl: emptyToNull(
+              fields.controller(MangaCanonicalEditField.thumbnailImage).text),
+        );
+        return _withMangaSortKey(
+          updated,
+          emptyToNull(
+            fields.controller(MangaCanonicalEditField.sortTitle).text,
+          ),
+        );
+      })),
     );
   }
 
@@ -443,6 +442,17 @@ class MangaEditDraft
     );
     return selection.copyWith(kindItem: updatedItem);
   }
+}
+
+CatalogItemDto _withMangaSortKey(CatalogItemDto item, String? sortKey) {
+  final kindData = Map<String, dynamic>.from(item.kindData)
+    ..remove('sort_title');
+  if (sortKey == null) {
+    kindData.remove('sort_key');
+  } else {
+    kindData['sort_key'] = sortKey;
+  }
+  return item.withKindData(MangaMetadata.fromJson(kindData));
 }
 
 LibraryEditSessionBundle createMangaEditDraft({

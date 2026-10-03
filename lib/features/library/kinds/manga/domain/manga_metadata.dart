@@ -134,6 +134,7 @@ class MangaMetadata implements JsonEncodable {
       _mangaMetadataText(rawPayload['cover_image_url']);
   String? get thumbnailImageUrl =>
       _mangaMetadataText(rawPayload['thumbnail_image_url']) ?? coverImageUrl;
+  String? get sortKey => _mangaMetadataText(rawPayload['sort_key']);
 
   Map<String, dynamic> toSyncPayload() => toJson();
 

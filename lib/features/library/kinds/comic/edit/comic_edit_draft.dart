@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/entry/comic_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
@@ -176,33 +177,31 @@ class ComicEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(selection
-          .kindItem.kindCapability
-          .mapTransport((transport) => transport.copyWith(
-                title: fields
-                    .controller(ComicCanonicalEditField.title)
-                    .text
-                    .trim(),
-                displayTitle: emptyToNull(fields
-                    .controller(ComicCanonicalEditField.displayTitle)
-                    .text),
-                sortKey: emptyToNull(
-                    fields.controller(ComicCanonicalEditField.sortTitle).text),
-                originalTitle: emptyToNull(fields
-                    .controller(ComicCanonicalEditField.originalTitle)
-                    .text),
-                localizedTitle: emptyToNull(fields
-                    .controller(ComicCanonicalEditField.localizedTitle)
-                    .text),
-                searchAliases: aliases.isEmpty ? null : aliases,
-                synopsis: emptyToNull(
-                    fields.controller(ComicCanonicalEditField.synopsis).text),
-                coverImageUrl: emptyToNull(
-                    fields.controller(ComicCanonicalEditField.coverImage).text),
-                thumbnailImageUrl: emptyToNull(fields
-                    .controller(ComicCanonicalEditField.thumbnailImage)
-                    .text),
-              ))),
+      kindItem: CatalogSearchCandidate.fromItem(
+          selection.kindItem.kindCapability.mapTransport((transport) {
+        final updated = transport.copyWith(
+          title: fields.controller(ComicCanonicalEditField.title).text.trim(),
+          displayTitle: emptyToNull(
+              fields.controller(ComicCanonicalEditField.displayTitle).text),
+          originalTitle: emptyToNull(
+              fields.controller(ComicCanonicalEditField.originalTitle).text),
+          localizedTitle: emptyToNull(
+              fields.controller(ComicCanonicalEditField.localizedTitle).text),
+          searchAliases: aliases.isEmpty ? null : aliases,
+          synopsis: emptyToNull(
+              fields.controller(ComicCanonicalEditField.synopsis).text),
+          coverImageUrl: emptyToNull(
+              fields.controller(ComicCanonicalEditField.coverImage).text),
+          thumbnailImageUrl: emptyToNull(
+              fields.controller(ComicCanonicalEditField.thumbnailImage).text),
+        );
+        return _withComicSortKey(
+          updated,
+          emptyToNull(
+            fields.controller(ComicCanonicalEditField.sortTitle).text,
+          ),
+        );
+      })),
     );
   }
 
@@ -307,6 +306,17 @@ class ComicEditDraft
     entryEdit.dispose();
     comicEdit.dispose();
   }
+}
+
+CatalogItemDto _withComicSortKey(CatalogItemDto item, String? sortKey) {
+  final kindData = Map<String, dynamic>.from(item.kindData)
+    ..remove('sort_title');
+  if (sortKey == null) {
+    kindData.remove('sort_key');
+  } else {
+    kindData['sort_key'] = sortKey;
+  }
+  return item.withKindData(ComicCatalogItem.fromJson(kindData));
 }
 
 LibraryEditSessionBundle createComicEditDraft({

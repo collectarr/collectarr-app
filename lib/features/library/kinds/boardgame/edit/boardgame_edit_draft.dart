@@ -301,36 +301,35 @@ class BoardGameEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(selection
-          .kindItem.kindCapability
-          .mapTransport((transport) => transport.copyWith(
-                title: fields
-                    .controller(BoardGameCanonicalEditField.title)
-                    .text
-                    .trim(),
-                displayTitle: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.displayTitle)
-                    .text),
-                sortKey: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.sortTitle)
-                    .text),
-                originalTitle: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.originalTitle)
-                    .text),
-                localizedTitle: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.localizedTitle)
-                    .text),
-                searchAliases: aliases.isEmpty ? null : aliases,
-                synopsis: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.synopsis)
-                    .text),
-                coverImageUrl: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.coverImage)
-                    .text),
-                thumbnailImageUrl: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.thumbnailImage)
-                    .text),
-              ))),
+      kindItem: CatalogSearchCandidate.fromItem(
+          selection.kindItem.kindCapability.mapTransport((transport) {
+        final updated = transport.copyWith(
+          title:
+              fields.controller(BoardGameCanonicalEditField.title).text.trim(),
+          displayTitle: emptyToNull(
+              fields.controller(BoardGameCanonicalEditField.displayTitle).text),
+          originalTitle: emptyToNull(fields
+              .controller(BoardGameCanonicalEditField.originalTitle)
+              .text),
+          localizedTitle: emptyToNull(fields
+              .controller(BoardGameCanonicalEditField.localizedTitle)
+              .text),
+          searchAliases: aliases.isEmpty ? null : aliases,
+          synopsis: emptyToNull(
+              fields.controller(BoardGameCanonicalEditField.synopsis).text),
+          coverImageUrl: emptyToNull(
+              fields.controller(BoardGameCanonicalEditField.coverImage).text),
+          thumbnailImageUrl: emptyToNull(fields
+              .controller(BoardGameCanonicalEditField.thumbnailImage)
+              .text),
+        );
+        return _withBoardGameSortKey(
+          updated,
+          emptyToNull(
+            fields.controller(BoardGameCanonicalEditField.sortTitle).text,
+          ),
+        );
+      })),
     );
   }
 
@@ -576,7 +575,7 @@ class BoardGameEditDraft
       final updatedMeta = BoardGameMetadata(
         title: transport.title,
         originalTitle: originalTitle,
-        synopsis: transport.synopsis,
+        synopsis: meta.synopsis,
         yearPublished: year,
         minPlayers: minPlayers,
         maxPlayers: maxPlayers,
@@ -621,6 +620,17 @@ class BoardGameEditDraft
     }
     return selection;
   }
+}
+
+CatalogItemDto _withBoardGameSortKey(CatalogItemDto item, String? sortKey) {
+  final kindData = Map<String, dynamic>.from(item.kindData)
+    ..remove('sort_title');
+  if (sortKey == null) {
+    kindData.remove('sort_key');
+  } else {
+    kindData['sort_key'] = sortKey;
+  }
+  return item.withKindData(BoardGameMetadata.fromJson(kindData));
 }
 
 String? _nullableText(TextEditingController controller) {

@@ -8,7 +8,7 @@ BoardGameCatalogFormValues boardGameCatalogFormValuesFromMetadata(
   return BoardGameCatalogFormValues(
     title: metadata.title,
     originalTitle: metadata.originalTitle ?? '',
-    sortTitle: _text(raw['sort_title'] ?? raw['sort_key']) ?? '',
+    sortTitle: metadata.sortKey ?? '',
     subtitle: _text(raw['subtitle']) ?? '',
     description: metadata.synopsis ?? '',
     originalLanguage: _text(raw['original_language']) ?? '',
@@ -73,7 +73,7 @@ BoardGameMetadata boardGameMetadataFromManualFormValues({
     'title': title.trim(),
     if (_optional(values.originalTitle) case final value?)
       'original_title': value,
-    if (_optional(values.sortTitle) case final value?) 'sort_title': value,
+    if (_optional(values.sortTitle) case final value?) 'sort_key': value,
     if (_optional(values.subtitle) case final value?) 'subtitle': value,
     if (_optional(values.description) case final value?) 'synopsis': value,
     if (_optional(values.originalLanguage) case final value?)

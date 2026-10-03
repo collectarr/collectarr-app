@@ -97,8 +97,6 @@ final class CatalogItemDto {
   String? get originalTitle => _string(kindData['original_title']);
   String? get titleExtension => _string(kindData['title_extension']);
   List<String>? get searchAliases => _stringList(kindData['search_aliases']);
-  String? get sortKey =>
-      _string(kindData['sort_key'] ?? kindData['sort_title']);
   String? get synopsis => _string(
         kindData['synopsis'] ?? kindData['description'],
       );
@@ -210,7 +208,6 @@ final class CatalogItemDto {
     Object? originalTitle = _unset,
     Object? titleExtension = _unset,
     Object? searchAliases = _unset,
-    Object? sortKey = _unset,
     Object? synopsis = _unset,
     Object? coverImageUrl = _unset,
     Object? thumbnailImageUrl = _unset,
@@ -230,7 +227,6 @@ final class CatalogItemDto {
       if (!identical(originalTitle, _unset)) 'original_title': originalTitle,
       if (!identical(titleExtension, _unset)) 'title_extension': titleExtension,
       if (!identical(searchAliases, _unset)) 'search_aliases': searchAliases,
-      if (!identical(sortKey, _unset)) 'sort_key': sortKey,
       if (!identical(synopsis, _unset)) 'synopsis': synopsis,
       if (!identical(coverImageUrl, _unset)) 'cover_image_url': coverImageUrl,
       if (!identical(thumbnailImageUrl, _unset))

@@ -4,21 +4,21 @@ import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_fo
 GameCatalogFormValues gameCatalogFormValuesFromMetadata(
   GameCatalogMetadata metadata,
 ) {
-  final raw = metadata.rawPayload;
   return GameCatalogFormValues(
     title: metadata.title,
-    sortTitle: _text(raw['sort_key'] ?? raw['sort_title']) ?? '',
-    subtitle: _text(raw['subtitle']) ?? '',
-    description: metadata.synopsis ?? _text(raw['description']) ?? '',
+    sortTitle: metadata.sortKey ?? '',
+    subtitle: _text(metadata.rawPayload['subtitle']) ?? '',
+    description:
+        metadata.synopsis ?? _text(metadata.rawPayload['description']) ?? '',
     publisher: metadata.publishers.firstOrNull ?? '',
     platforms: metadata.platforms,
-    identifiers: _stringList(raw['identifiers']),
-    companyRoles: _stringList(raw['company_roles']),
+    identifiers: _stringList(metadata.rawPayload['identifiers']),
+    companyRoles: _stringList(metadata.rawPayload['company_roles']),
     developers: metadata.developers,
     ageRatings: [if (metadata.ageRating case final value?) value],
     genres: metadata.genres,
-    searchAliases: _stringList(raw['search_aliases']),
-    originalLanguage: _text(raw['original_language']) ?? '',
+    searchAliases: _stringList(metadata.rawPayload['search_aliases']),
+    originalLanguage: _text(metadata.rawPayload['original_language']) ?? '',
     franchise: metadata.franchise ?? '',
     series: metadata.series ?? '',
     languages: metadata.languages,
@@ -28,12 +28,12 @@ GameCatalogFormValues gameCatalogFormValuesFromMetadata(
     region: metadata.releaseRegion ?? '',
     format: metadata.physicalFormat ?? '',
     releaseDate: metadata.releaseDate,
-    catalogNumber: _text(raw['catalog_number']) ?? '',
-    releaseStatus: _text(raw['release_status']) ?? '',
+    catalogNumber: _text(metadata.rawPayload['catalog_number']) ?? '',
+    releaseStatus: _text(metadata.rawPayload['release_status']) ?? '',
     language: metadata.languages.firstOrNull ?? '',
     barcode: metadata.barcode ?? '',
-    coverImageUrl: _text(raw['cover_image_url']) ?? '',
-    variant: _text(raw['variant_name']) ?? '',
+    coverImageUrl: _text(metadata.rawPayload['cover_image_url']) ?? '',
+    variant: _text(metadata.rawPayload['variant_name']) ?? '',
     backCoverImageUrl: '',
   );
 }
@@ -84,8 +84,7 @@ GameCatalogMetadata gameMetadataFromManualFormValues({
       'original_language': value,
     if (values.identifiers.isNotEmpty) 'identifiers': values.identifiers,
     if (values.companyRoles.isNotEmpty) 'company_roles': values.companyRoles,
-    if (values.searchAliases.isNotEmpty)
-      'search_aliases': values.searchAliases,
+    if (values.searchAliases.isNotEmpty) 'search_aliases': values.searchAliases,
   };
   return GameCatalogMetadata.fromJson(raw);
 }
