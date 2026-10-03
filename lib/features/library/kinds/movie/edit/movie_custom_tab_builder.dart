@@ -45,10 +45,12 @@ Widget? buildMovieCustomTabView({
     'cast' => MovieEditCastTab(
         accent: accent,
         movieEdit: movieEdit,
+        markDirty: markDirty,
       ),
     'crew' => MovieEditCrewTab(
         accent: accent,
         movieEdit: movieEdit,
+        markDirty: markDirty,
       ),
     'discs' => MovieEditDiscsTab(
         item: item,

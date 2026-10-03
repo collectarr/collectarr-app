@@ -8,10 +8,12 @@ class MovieEditCrewTab extends StatelessWidget {
     super.key,
     required this.accent,
     required this.movieEdit,
+    required this.markDirty,
   });
 
   final Color accent;
   final MovieEditController movieEdit;
+  final VoidCallback markDirty;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,7 @@ class MovieEditCrewTab extends StatelessWidget {
       credits: movieEdit.crewCredits,
       onAdd: () => movieEdit.crewCredits
           .add(EditableMovieCredit.custom(role: 'Director')),
+      onChanged: markDirty,
     );
   }
 }
