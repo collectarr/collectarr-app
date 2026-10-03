@@ -1,7 +1,6 @@
 import '../tv_module_dependencies.dart';
 import '../config/tv_kind_configuration.dart';
 import 'tv_manual_candidate.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   kind: CatalogMediaKind.tv,
@@ -38,14 +37,6 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
     if (format == 'digital' || format == 'ebook' || format == 'web') {
       return true;
     }
-    final series = payload['series'];
-    if (series is Map && series['is_digital'] is bool) {
-      return series['is_digital'] as bool;
-    }
-    final publishing = payload['publishing'];
-    if (publishing is Map && publishing['is_digital'] is bool) {
-      return publishing['is_digital'] as bool;
-    }
     return null;
   },
   search: LibraryAddSearchCapability(
@@ -78,14 +69,12 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => TvSeriesMetadata.fromJson(transport.kindData));
-              return metadata is TvSeriesMetadata
-                  ? [
-                      metadata.publisher,
-                      metadata.network,
-                      metadata.streamingService,
-                      ...metadata.productionCompanies,
-                    ]
-                  : const <Object?>[];
+              return [
+                metadata.publisher,
+                metadata.network,
+                metadata.streamingService,
+                ...metadata.productionCompanies,
+              ];
             },
           ),
           LibraryAddSearchRankField(
@@ -95,13 +84,11 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => TvSeriesMetadata.fromJson(transport.kindData));
-              return metadata is TvSeriesMetadata
-                  ? [
-                      metadata.firstAirDate?.year,
-                      metadata.lastAirDate?.year,
-                      metadata.releaseDate?.year,
-                    ]
-                  : const <Object?>[];
+              return [
+                metadata.firstAirDate?.year,
+                metadata.lastAirDate?.year,
+                metadata.releaseDate?.year,
+              ];
             },
           ),
         ],

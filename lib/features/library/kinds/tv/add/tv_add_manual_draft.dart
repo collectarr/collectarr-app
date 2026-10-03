@@ -1,13 +1,13 @@
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
 final class TvAddManualDraft implements LibraryKindAddDraft {
   TvAddManualDraft({
-    TvCatalogItemFormValues? values,
+    TvSeriesMetadata? metadata,
     this.catalogTitle = '',
-  }) : values = values ?? TvCatalogItemFormValues();
+  }) : metadata = metadata ?? const TvSeriesMetadata(title: '');
 
-  final TvCatalogItemFormValues values;
+  TvSeriesMetadata metadata;
   @override
   String catalogTitle;
 
