@@ -66,6 +66,9 @@ slice. This is progress, not completion of this plan:
   update, and seed construction use the typed models. Comic reading state is
   now contained in `ComicPersonalData`; the separate tracking and activity
   records remain separate.
+- The personal-field `copyWith` façade and flattened personal getters have
+  been removed from all nine entry aggregates. Call sites now read and update
+  personal values through the kind-owned `entry.personal` value.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.
@@ -76,13 +79,12 @@ slice. This is progress, not completion of this plan:
   pass targeted static analysis. Automated tests remain deferred until
   implementation and docs are complete, as requested.
 
-Still outstanding: removing business-field semantics from shared transport,
-the generic `PersonalStateDraft`, and shared edit-section assumptions;
-replacing the entry `copyWith` field façade with kind-owned update commands;
-auditing old media/workspace adapters and active consumers; and finishing the
-kind-owned field/schema/forms organization. The nine field ledgers remain
-authoritative, and exact CLZ parity is only confirmed for Music until the
-other reference captures are available.
+Still outstanding: removing business-field semantics and fallback aliases from
+shared transport; replacing the universal `PersonalStateDraft` and shared edit
+section assumptions with kind-owned bindings; auditing active edition/media
+projections and shared DTO graphs; and finishing kind-owned field/schema/form
+organization. The nine field ledgers remain authoritative, and exact CLZ parity
+is only confirmed for Music until the other reference captures are available.
 
 ## Architectural decisions
 
