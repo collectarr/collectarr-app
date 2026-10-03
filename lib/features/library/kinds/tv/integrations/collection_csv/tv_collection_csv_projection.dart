@@ -120,11 +120,10 @@ final class TvCollectionCsvProjection
     final catalog = entry.catalogData;
     final metadata =
         catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
-    final video = catalog is TvWorkspaceCatalogData ? catalog.video : null;
     return [
       entry.itemId,
       CatalogMediaKind.tv.apiValue,
-      metadata?.title ?? video?.title ?? entry.title,
+      metadata?.title ?? entry.title,
       metadata?.itemNumber ?? '',
       metadata?.variant ?? '',
       '',
@@ -135,9 +134,7 @@ final class TvCollectionCsvProjection
           metadata?.streamingService ??
           metadata?.productionCompanies.firstOrNull ??
           '',
-      _formatDate(metadata?.firstAirDate ??
-          video?.work.releaseDate ??
-          entry.catalogData?.releaseDate),
+      _formatDate(metadata?.firstAirDate ?? entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
   }

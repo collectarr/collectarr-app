@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
@@ -21,11 +21,10 @@ final class TvWorkspaceProjector
     requireEntityScope(entity, expectedScope ?? entity.scope);
     final catalog = _catalogFor(source);
     return TvWorkspaceDto(
-      common: _tvCommonProjection(source, entity, catalog.video),
+      common: _tvCommonProjection(source, entity, catalog.metadata),
       personal: PersonalCopyProjection.fromShelf(
         source,
       ),
-      video: catalog.video,
       series: catalog.series,
       metadata: catalog.metadata,
     );
@@ -41,13 +40,13 @@ TvWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
 WorkspaceCommonProjection _tvCommonProjection(
   LibraryWorkspaceSource source,
   LibraryEntityRef node,
-  TvCatalogItem video,
+  TvSeriesMetadata? metadata,
 ) {
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: video.work.title,
-    overrideSynopsis: video.work.synopsis,
-    overrideReleaseDate: video.work.releaseDate,
+    overrideTitle: metadata?.title,
+    overrideSynopsis: metadata?.synopsis,
+    overrideReleaseDate: metadata?.firstAirDate,
   );
 }

@@ -10,7 +10,7 @@ final class TvWorkspaceMapper {
   const TvWorkspaceMapper._();
 
   static TvSeries fromCatalogItem(CatalogItemDto item) {
-    final metadataPayload = item.toJson();
+    final metadataPayload = item.kindData;
     final basePayload = Map<String, dynamic>.from(metadataPayload);
     final metadata = TvSeriesMetadata.fromJson(metadataPayload);
 
@@ -18,9 +18,9 @@ final class TvWorkspaceMapper {
       ...basePayload,
       'id': item.id,
       'kind': 'tv',
-      'title': item.title,
-      if (basePayload['description'] == null && item.synopsis != null)
-        'description': item.synopsis,
+      'title': metadata.title,
+      if (basePayload['description'] == null && metadata.synopsis != null)
+        'description': metadata.synopsis,
       if (metadata.firstAirDate != null &&
           basePayload['original_air_date'] == null)
         'original_air_date': metadata.firstAirDate!.toIso8601String(),

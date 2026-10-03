@@ -15,7 +15,6 @@ export 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart
 export 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
-export 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
 export 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';

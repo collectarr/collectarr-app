@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -8,14 +7,12 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
   TvWorkspaceDto({
     required this.common,
     required this.personal,
-    required this.video,
     required this.series,
     this.metadata,
   });
 
   final WorkspaceCommonProjection common;
   final PersonalCopyProjection personal;
-  final TvCatalogItem video;
   final TvSeries series;
   final TvSeriesMetadata? metadata;
 
