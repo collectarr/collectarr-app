@@ -6,7 +6,9 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/features/library/metadata/library_field_entries.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
@@ -42,19 +44,41 @@ class LibraryEntryPersonalSection extends ConsumerStatefulWidget {
 class _LibraryEntryPersonalSectionState
     extends ConsumerState<LibraryEntryPersonalSection> {
   late final TextEditingController _ratingController;
-  List<String> _tags = const [];
-  List<String> _owners = const [];
-  List<String> _purchaseStores = const [];
+  Map<String, List<String>> _vocabularyOptions = const {};
   bool _optionsLoaded = false;
 
   LibraryEntryEditDraft get _draft => widget.draft;
   String get _kind => _draft.record.kind.apiValue;
+  String get _ratingKey =>
+      _fieldFor(
+        PersonalLibraryFieldArea.rating,
+        PersonalLibraryFieldEditor.rating,
+      )?.key ??
+      (throw StateError('The kind has no rating field editor.'));
+
+  PersonalLibraryFieldSpec? _fieldFor(
+    PersonalLibraryFieldArea area,
+    PersonalLibraryFieldEditor editor,
+  ) {
+    for (final field in _fieldsFor(area)) {
+      if (field.editor == editor) return field;
+    }
+    return null;
+  }
+
+  List<PersonalLibraryFieldSpec> _fieldsFor(PersonalLibraryFieldArea area) =>
+      personalFieldContributorFor(_draft.record.kind)
+          .fields
+          .where((field) => field.area == area)
+          .toList()
+        ..sort((left, right) =>
+            (left.editOrder ?? 999).compareTo(right.editOrder ?? 999));
 
   @override
   void initState() {
     super.initState();
     _ratingController = TextEditingController(
-      text: _draft.text('rating'),
+      text: _draft.text(_ratingKey),
     )..addListener(_ratingChanged);
     unawaited(_loadOptions());
   }
@@ -64,7 +88,7 @@ class _LibraryEntryPersonalSectionState
     super.didUpdateWidget(oldWidget);
     if (oldWidget.draft != widget.draft) {
       _ratingController.removeListener(_ratingChanged);
-      _ratingController.text = widget.draft.text('rating');
+      _ratingController.text = widget.draft.text(_ratingKey);
       _ratingController.addListener(_ratingChanged);
       unawaited(_loadOptions());
     }
@@ -79,30 +103,35 @@ class _LibraryEntryPersonalSectionState
 
   Future<void> _loadOptions() async {
     final db = ref.read(localDatabaseProvider);
-    final values = await Future.wait<Object>([
-      loadTagPickListOptions(
-        db,
-        mediaKind: _kind,
-        selectedTags: splitPickListValues(_draft.text('tags')),
-      ),
-      loadSingleValuePickListOptions(
-        db,
-        listName: UniversalVocabularies.owners.key,
-        mediaKind: _kind,
-        selectedValue: _draft.text('owner_label'),
-      ),
-      loadSingleValuePickListOptions(
-        db,
-        listName: UniversalVocabularies.purchaseStore.key,
-        mediaKind: _kind,
-        selectedValue: _draft.text('purchase_store'),
-      ),
+    final vocabularyFields = [
+      for (final field in _fieldsFor(PersonalLibraryFieldArea.personalFields))
+        if (field.editor == PersonalLibraryFieldEditor.singleVocabulary ||
+            field.editor == PersonalLibraryFieldEditor.multiVocabulary)
+          field,
+    ];
+    final values = await Future.wait([
+      for (final field in vocabularyFields)
+        if (field.editor == PersonalLibraryFieldEditor.multiVocabulary)
+          loadMultiValuePickListOptions(
+            db,
+            listName: field.vocabularyListName!,
+            mediaKind: _kind,
+            selectedValues: splitPickListValues(_draft.text(field.key)),
+          )
+        else
+          loadSingleValuePickListOptions(
+            db,
+            listName: field.vocabularyListName!,
+            mediaKind: _kind,
+            selectedValue: _draft.text(field.key),
+          ),
     ]);
     if (!mounted) return;
     setState(() {
-      _tags = values[0] as List<String>;
-      _owners = values[1] as List<String>;
-      _purchaseStores = values[2] as List<String>;
+      _vocabularyOptions = {
+        for (var index = 0; index < vocabularyFields.length; index++)
+          vocabularyFields[index].key: values[index],
+      };
       _optionsLoaded = true;
     });
   }
@@ -110,8 +139,8 @@ class _LibraryEntryPersonalSectionState
   void _ratingChanged() {
     final parsed = int.tryParse(_ratingController.text);
     final rating = parsed == 0 ? null : parsed;
-    if (_draft.number('rating') == rating) return;
-    _draft.set('rating', rating);
+    if (_draft.number(_ratingKey) == rating) return;
+    _draft.set(_ratingKey, rating);
     widget.onRatingChanged?.call(rating);
   }
 
@@ -128,13 +157,17 @@ class _LibraryEntryPersonalSectionState
     ]);
   }
 
-  void _setTags(List<String> values) {
-    _draft.set('tags', joinPickListValues(values) ?? '');
-    _draft.pendingChanges['vocabulary:${UniversalVocabularies.tags.key}'] =
+  void _setMultiVocabulary(
+    PersonalLibraryFieldSpec field,
+    List<String> values,
+  ) {
+    final listName = field.vocabularyListName!;
+    _draft.set(field.key, joinPickListValues(values) ?? '');
+    _draft.pendingChanges['vocabulary:$listName'] =
         LibraryVocabularyEditChange([
       for (final value in values)
         (
-          listName: UniversalVocabularies.tags.key,
+          listName: listName,
           value: value,
           mediaKind: _kind,
         ),
@@ -152,86 +185,19 @@ class _LibraryEntryPersonalSectionState
                     ? 2
                     : 1;
             final width = (constraints.maxWidth - 14 * (columns - 1)) / columns;
-            final fields = <Widget>[
-              LibraryFormField(
-                label: 'Purchase Date',
-                child: LibraryPartialDateInput(
-                  value: PartialDate.tryParse(
-                    _draft.values['purchase_date_parts'] ??
-                        _draft.values['purchase_date'],
-                  ),
-                  onChanged: (date) {
-                    _draft.set('purchase_date_parts', date?.toJson());
-                    _draft.set(
-                      'purchase_date',
-                      date?.asDateTime?.toIso8601String(),
-                    );
-                  },
-                ),
-              ),
-              _money('Purchase Price', 'price_paid_cents'),
-              if (_optionsLoaded)
-                _singleVocabulary(
-                  label: 'Purchase Store',
-                  keyName: 'purchase_store',
-                  listName: UniversalVocabularies.purchaseStore.key,
-                  options: _purchaseStores,
-                )
-              else
-                _text('Purchase Store', 'purchase_store'),
-              _money('Current Value', 'market_value_cents'),
-              if (_optionsLoaded)
-                _singleVocabulary(
-                  label: 'Owner',
-                  keyName: 'owner_label',
-                  listName: UniversalVocabularies.owners.key,
-                  options: _owners,
-                )
-              else
-                _text('Owner', 'owner_label'),
-              LibraryFormField(
-                label: 'Currency',
-                child: LibraryDropdownPickField<String>(
-                  label: 'Currency',
-                  value: _draft.text('currency').trim().isEmpty
-                      ? 'USD'
-                      : _draft.text('currency').trim().toUpperCase(),
-                  options: [
-                    for (final code in kLibraryCurrencyCodes)
-                      LibraryFieldOption(value: code, label: code),
-                  ],
-                  onChanged: (value) => _draft.set('currency', value),
-                ),
-              ),
-              if (_optionsLoaded)
-                LibraryFormField(
-                  label: 'Tags',
-                  child: MultiSelectPickListField(
-                    label: 'Tags',
-                    values: splitPickListValues(_draft.text('tags')),
-                    options: _tags,
-                    onChanged: _setTags,
-                  ),
-                )
-              else
-                _text('Tags', 'tags'),
-              LibraryFormField(
-                label: 'Last Cleaned Date',
-                child: LibraryPartialDateInput(
-                  value: PartialDate.tryParse(
-                    _draft.values['last_cleaned_date_parts'] ??
-                        _draft.values['last_cleaned_date'],
-                  ),
-                  onChanged: (date) {
-                    _draft.set('last_cleaned_date_parts', date?.toJson());
-                    _draft.set(
-                      'last_cleaned_date',
-                      date?.asDateTime?.toIso8601String(),
-                    );
-                  },
-                ),
-              ),
+            final fields = [
+              for (final field
+                  in _fieldsFor(PersonalLibraryFieldArea.personalFields))
+                _buildPersonalField(field),
             ];
+            final ratingField = _fieldFor(
+              PersonalLibraryFieldArea.rating,
+              PersonalLibraryFieldEditor.rating,
+            );
+            final notesField = _fieldFor(
+              PersonalLibraryFieldArea.notes,
+              PersonalLibraryFieldEditor.notes,
+            );
             fields.addAll(widget.kindSpecificFields);
 
             return Column(
@@ -246,23 +212,26 @@ class _LibraryEntryPersonalSectionState
                   ],
                 ),
                 const SizedBox(height: 14),
-                LibraryFormField(
-                  label: 'My Rating (0–10)',
-                  child: MediaRatingField(controller: _ratingController),
-                ),
-                const SizedBox(height: 12),
-                LibraryFormField(
-                  label: 'Notes',
-                  child: TextFormField(
-                    key: const ValueKey('library-entry-notes'),
-                    initialValue: _draft.text('personal_notes'),
-                    maxLines: 5,
-                    onChanged: (value) {
-                      _draft.set('personal_notes', value);
-                      widget.onNotesChanged?.call(value);
-                    },
+                if (ratingField != null)
+                  LibraryFormField(
+                    label: ratingField.label,
+                    child: MediaRatingField(controller: _ratingController),
                   ),
-                ),
+                if (notesField != null) ...[
+                  const SizedBox(height: 12),
+                  LibraryFormField(
+                    label: notesField.label,
+                    child: TextFormField(
+                      key: ValueKey('library-entry-${notesField.key}'),
+                      initialValue: _draft.text(notesField.key),
+                      maxLines: 5,
+                      onChanged: (value) {
+                        _draft.set(notesField.key, value);
+                        widget.onNotesChanged?.call(value);
+                      },
+                    ),
+                  ),
+                ],
                 if (widget.history != null) ...[
                   const SizedBox(height: 14),
                   widget.history!,
@@ -273,6 +242,64 @@ class _LibraryEntryPersonalSectionState
         ),
       );
 
+  Widget _buildPersonalField(PersonalLibraryFieldSpec field) {
+    switch (field.editor) {
+      case PersonalLibraryFieldEditor.partialDate:
+        final partsKey = '${field.key}_parts';
+        return LibraryFormField(
+          label: field.label,
+          child: LibraryPartialDateInput(
+            value: PartialDate.tryParse(
+              _draft.values[partsKey] ?? _draft.values[field.key],
+            ),
+            onChanged: (date) {
+              _draft.set(partsKey, date?.toJson());
+              _draft.set(field.key, date?.asDateTime?.toIso8601String());
+            },
+          ),
+        );
+      case PersonalLibraryFieldEditor.money:
+        return _money(field);
+      case PersonalLibraryFieldEditor.singleVocabulary:
+        return _optionsLoaded
+            ? _singleVocabulary(field)
+            : _text(field.label, field.key);
+      case PersonalLibraryFieldEditor.multiVocabulary:
+        if (!_optionsLoaded) return _text(field.label, field.key);
+        return LibraryFormField(
+          label: field.label,
+          child: MultiSelectPickListField(
+            label: field.label,
+            values: splitPickListValues(_draft.text(field.key)),
+            options: _vocabularyOptions[field.key] ?? const <String>[],
+            onChanged: (values) => _setMultiVocabulary(field, values),
+          ),
+        );
+      case PersonalLibraryFieldEditor.currency:
+        return LibraryFormField(
+          label: field.label,
+          child: LibraryDropdownPickField<String>(
+            label: field.label,
+            value: _draft.text(field.key).trim().isEmpty
+                ? 'USD'
+                : _draft.text(field.key).trim().toUpperCase(),
+            options: [
+              for (final code in kLibraryCurrencyCodes)
+                LibraryFieldOption(value: code, label: code),
+            ],
+            onChanged: (value) => _draft.set(field.key, value),
+          ),
+        );
+      case PersonalLibraryFieldEditor.rating:
+      case PersonalLibraryFieldEditor.notes:
+      case PersonalLibraryFieldEditor.collectionStatus:
+      case PersonalLibraryFieldEditor.integer:
+      case PersonalLibraryFieldEditor.location:
+      case null:
+        return const SizedBox.shrink();
+    }
+  }
+
   Widget _text(String label, String key) => LibraryFormField(
         label: label,
         child: TextFormField(
@@ -282,18 +309,15 @@ class _LibraryEntryPersonalSectionState
         ),
       );
 
-  Widget _money(String label, String key) => LibraryFormField(
-        label: label,
+  Widget _money(PersonalLibraryFieldSpec field) => LibraryFormField(
+        label: field.label,
         child: TextFormField(
-          key: ValueKey('library-entry-$key'),
-          initialValue: _draft.number(key) == null
+          key: ValueKey('library-entry-${field.key}'),
+          initialValue: _draft.number(field.key) == null
               ? ''
-              : (_draft.number(key)! / 100).toStringAsFixed(2),
+              : (_draft.number(field.key)! / 100).toStringAsFixed(2),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: InputDecoration(
-            prefixText:
-                '${_draft.text('currency').isEmpty ? 'USD' : _draft.text('currency')} ',
-          ),
+          decoration: InputDecoration(prefixText: _moneyCurrency(field)),
           validator: (value) => value == null ||
                   value.isEmpty ||
                   double.tryParse(value.replaceAll(',', '.')) != null
@@ -301,28 +325,35 @@ class _LibraryEntryPersonalSectionState
               : 'Enter an amount',
           onChanged: (raw) {
             final amount = double.tryParse(raw.replaceAll(',', '.'));
-            _draft.set(key, amount == null ? null : (amount * 100).round());
+            _draft.set(
+              field.key,
+              amount == null ? null : (amount * 100).round(),
+            );
           },
         ),
       );
 
-  Widget _singleVocabulary({
-    required String label,
-    required String keyName,
-    required String listName,
-    required List<String> options,
-  }) {
-    final current = _draft.text(keyName).trim();
+  String _moneyCurrency(PersonalLibraryFieldSpec field) {
+    final currencyKey = field.currencyFieldKey;
+    if (currencyKey == null) return 'USD ';
+    final currency = _draft.text(currencyKey).trim();
+    return '${currency.isEmpty ? 'USD' : currency} ';
+  }
+
+  Widget _singleVocabulary(PersonalLibraryFieldSpec field) {
+    final listName = field.vocabularyListName ?? field.key;
+    final options = _vocabularyOptions[field.key] ?? const <String>[];
+    final current = _draft.text(field.key).trim();
     final db = ref.read(localDatabaseProvider);
     return LibraryDropdownPickField<String>(
-      label: label,
+      label: field.label,
       value: current.isEmpty ? null : current,
       options: [
         for (final option in options)
           LibraryFieldOption(value: option, label: option),
       ],
       allowCustomValue: true,
-      onChanged: (value) => _setVocabulary(keyName, listName, value),
+      onChanged: (value) => _setVocabulary(field.key, listName, value),
       openPicker: (
               {required label, required selectedValue, required options}) =>
           showPickListSelectDialog(
@@ -371,41 +402,9 @@ class _LibraryEntryStatusStripState
         builder: (context, _) => LayoutBuilder(
           builder: (context, constraints) {
             final draft = widget.draft;
-            final fields = <Widget>[
-              LibraryFormField(
-                label: 'Collection Status',
-                child: DropdownButtonFormField<String>(
-                  initialValue: _status(draft.text('collection_status')),
-                  items: [
-                    for (final status in _statuses)
-                      DropdownMenuItem(value: status, child: Text(status)),
-                  ],
-                  onChanged: (status) => draft.set('collection_status', status),
-                ),
-              ),
-              LibraryFormField(
-                label: 'Index',
-                child: TextFormField(
-                  key: const ValueKey('entry-index'),
-                  initialValue: draft.number('index_number')?.toString() ?? '',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) =>
-                      draft.set('index_number', int.tryParse(value)),
-                ),
-              ),
-              LibraryFormField(
-                label: 'Quantity',
-                child: TextFormField(
-                  key: const ValueKey('entry-quantity'),
-                  initialValue: (draft.number('quantity') ?? 1).toString(),
-                  keyboardType: TextInputType.number,
-                  validator: (raw) =>
-                      (int.tryParse(raw ?? '') ?? 0) < 1 ? 'Minimum 1' : null,
-                  onChanged: (value) =>
-                      draft.set('quantity', int.tryParse(value) ?? 1),
-                ),
-              ),
-              _locationField(draft),
+            final specs = _fieldsFor(draft);
+            final fields = [
+              for (final spec in specs) _buildField(draft, spec),
             ];
             final wide = constraints.maxWidth >= 720;
             if (wide) {
@@ -414,7 +413,14 @@ class _LibraryEntryStatusStripState
                 children: [
                   for (var i = 0; i < fields.length; i++) ...[
                     if (i > 0) const SizedBox(width: 14),
-                    Expanded(flex: [2, 1, 1, 4][i], child: fields[i]),
+                    Expanded(
+                      flex: switch (specs[i].editor) {
+                        PersonalLibraryFieldEditor.collectionStatus => 2,
+                        PersonalLibraryFieldEditor.location => 4,
+                        _ => 1,
+                      },
+                      child: fields[i],
+                    ),
                   ],
                 ],
               );
@@ -432,11 +438,69 @@ class _LibraryEntryStatusStripState
         ),
       );
 
-  Widget _locationField(LibraryEntryEditDraft draft) {
-    final selectedId = draft.text('location_id');
+  List<PersonalLibraryFieldSpec> _fieldsFor(
+    LibraryEntryEditDraft draft,
+  ) =>
+      personalFieldContributorFor(draft.record.kind)
+          .fields
+          .where((field) => field.area == PersonalLibraryFieldArea.statusStrip)
+          .toList()
+        ..sort((left, right) =>
+            (left.editOrder ?? 999).compareTo(right.editOrder ?? 999));
+
+  Widget _buildField(
+    LibraryEntryEditDraft draft,
+    PersonalLibraryFieldSpec field,
+  ) {
+    switch (field.editor) {
+      case PersonalLibraryFieldEditor.collectionStatus:
+        final current = draft.text(field.key);
+        final value = field.options.contains(current)
+            ? current
+            : field.options.firstOrNull;
+        return LibraryFormField(
+          label: field.label,
+          child: DropdownButtonFormField<String>(
+            initialValue: value,
+            items: [
+              for (final option in field.options)
+                DropdownMenuItem(value: option, child: Text(option)),
+            ],
+            onChanged: (status) => draft.set(field.key, status),
+          ),
+        );
+      case PersonalLibraryFieldEditor.integer:
+        return LibraryFormField(
+          label: field.label,
+          child: TextFormField(
+            key: ValueKey('entry-${field.key}'),
+            initialValue: draft.number(field.key)?.toString() ?? '',
+            keyboardType: TextInputType.number,
+            onChanged: (value) => draft.set(field.key, int.tryParse(value)),
+          ),
+        );
+      case PersonalLibraryFieldEditor.location:
+        return _locationField(draft, field);
+      case PersonalLibraryFieldEditor.partialDate:
+      case PersonalLibraryFieldEditor.money:
+      case PersonalLibraryFieldEditor.singleVocabulary:
+      case PersonalLibraryFieldEditor.multiVocabulary:
+      case PersonalLibraryFieldEditor.currency:
+      case PersonalLibraryFieldEditor.rating:
+      case PersonalLibraryFieldEditor.notes:
+      case null:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _locationField(
+    LibraryEntryEditDraft draft,
+    PersonalLibraryFieldSpec field,
+  ) {
+    final selectedId = draft.text(field.key);
     final db = ref.read(localDatabaseProvider);
     return LibraryDropdownPickField<String>(
-      label: 'Location',
+      label: field.label,
       value: selectedId.isEmpty ? null : selectedId,
       options: [
         for (final location in _locations)
@@ -446,7 +510,7 @@ class _LibraryEntryStatusStripState
           ),
       ],
       clearOptionLabel: 'No location',
-      onChanged: (value) => draft.set('location_id', value),
+      onChanged: (value) => draft.set(field.key, value),
       openPicker: (
           {required label, required selectedValue, required options}) async {
         final selected = await showLocationPickerDialog(
@@ -461,15 +525,3 @@ class _LibraryEntryStatusStripState
     );
   }
 }
-
-const _statuses = [
-  'In Collection',
-  'For Sale',
-  'Wish List',
-  'On Order',
-  'Not in Collection',
-  'Sold',
-];
-
-String _status(String value) =>
-    _statuses.contains(value) ? value : 'In Collection';

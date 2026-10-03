@@ -45,9 +45,13 @@ slice. This is progress, not completion of this plan:
   unused generic inspector widget and shared disc/track DTOs were removed after
   the App source audit found no runtime callers; stale test imports remain for
   the deferred final test cleanup.
-- The shared personal editor now accepts kind-contributed fields. Music's
-  `Signed By` vocabulary loading and persistence live in its edit module; the
-  shared editor no longer switches on Music or reads its vocabulary directly.
+- The shared personal editor now renders personal fields from each kind's
+  contributed specifications. Those specs provide the field area, editor type,
+  display order, vocabulary list, currency relationship, and enum options.
+  The shared section no longer hardcodes universal field keys or switches on a
+  kind. Music's `Signed By` vocabulary loading and persistence remain in its
+  edit module. The unsupported `Quantity` control was removed because quantity
+  is not part of any kind's personal-data model.
 - Personal field registration no longer applies a global universal list. Each
   kind explicitly composes reusable common personal field specs with its own
   additions; the registry only combines those kind contributions.
@@ -311,11 +315,10 @@ slice. This is progress, not completion of this plan:
   pass targeted static analysis. Automated tests remain deferred until
   implementation and docs are complete, as requested.
 
-Still outstanding: removing the remaining business-field getters from shared
-transport and auditing kind decoder fallback aliases; completing field
-ownership and typed schema organization across all kinds; replacing the universal
-`PersonalStateDraft` and shared edit-section field assumptions with kind-owned
-bindings; removing active edition/media projections and duplicated shared DTO
+Still outstanding: completing field ownership and typed schema organization
+across all kinds; replacing the universal `PersonalStateDraft` with kind-owned
+typed drafts and moving remaining validation/serialization adapters out of the
+shared personal editor; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
 form organization. The legacy `AnimeMedia` repository and workspace projections
 remain active alongside the flattened Anime document and still need migration.

@@ -35,6 +35,16 @@ final List<PersonalLibraryFieldSpec> librarySyncablePersonalFields =
   libraryPersonalFields.where((field) => field.syncable),
 );
 
+LibraryPersonalFieldContributor personalFieldContributorFor(
+  CatalogMediaKind kind,
+) {
+  final contributor = collectarrKindPersonalFieldContributors[kind];
+  if (contributor == null) {
+    throw StateError('No personal field contributor is registered for $kind.');
+  }
+  return contributor;
+}
+
 bool isPersonalLibraryField(String key) =>
     libraryPersonalFields.any((field) => field.key == key);
 

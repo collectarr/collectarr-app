@@ -70,10 +70,14 @@ claim completion of every cleanup item or literal CLZ parity.
   presentation adapters over their flat Catalog Item records. Replace these
   with kind-owned contained media/season/episode models, then remove the old
   projection paths.
-- `PersonalStateDraft` and `LibraryEntryPersonalSection` still centralize
-  generic personal-field bindings. Move field identity, defaults, validation,
-  and save mapping into each kind while keeping the shared layer responsible
-  for rendering controls.
+- `LibraryEntryPersonalSection` now renders its fields from kind-contributed
+  specs for editor type, area, order, pick-list ownership, currency linkage,
+  and status options; it no longer hardcodes universal field keys. The shared
+  renderer still contains generic date/money/rating/notes adapters, and
+  `PersonalStateDraft` remains active. Move typed drafts and remaining
+  validation/serialization into the kind edit modules while keeping shared
+  controls and layout reusable. The unsaved `Quantity` control was removed;
+  no kind personal model defines quantity.
 - Old-named workspace/schema files and some kind-owned presentation adapters
   remain. The active entity scopes are only `catalog_item` and `library_entry`;
   no Work/Release scope or identity is part of the supported local record

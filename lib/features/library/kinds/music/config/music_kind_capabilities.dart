@@ -19,6 +19,14 @@ final musicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
       label: 'Storage slot',
       group: 'Storage',
     ),
+    PersonalLibraryFieldSpec(
+      key: 'last_cleaned_date',
+      label: 'Last cleaned date',
+      group: 'Maintenance',
+      editor: PersonalLibraryFieldEditor.partialDate,
+      area: PersonalLibraryFieldArea.personalFields,
+      editOrder: 7,
+    ),
   ],
 );
 
