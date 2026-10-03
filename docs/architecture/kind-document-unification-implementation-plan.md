@@ -69,6 +69,10 @@ slice. This is progress, not completion of this plan:
 - The personal-field `copyWith` façade and flattened personal getters have
   been removed from all nine entry aggregates. Call sites now read and update
   personal values through the kind-owned `entry.personal` value.
+- The App transport boundary no longer falls back to the old `name`, `aliases`,
+  cover URL, nested `publishing`, or `trailers` field shapes. The canonical
+  `variant_name` key is now read and written by the kind metadata models and
+  seed factory for every kind that has that field.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.
@@ -79,12 +83,13 @@ slice. This is progress, not completion of this plan:
   pass targeted static analysis. Automated tests remain deferred until
   implementation and docs are complete, as requested.
 
-Still outstanding: removing business-field semantics and fallback aliases from
-shared transport; replacing the universal `PersonalStateDraft` and shared edit
-section assumptions with kind-owned bindings; auditing active edition/media
-projections and shared DTO graphs; and finishing kind-owned field/schema/form
-organization. The nine field ledgers remain authoritative, and exact CLZ parity
-is only confirmed for Music until the other reference captures are available.
+Still outstanding: removing business-field semantics and the remaining fallback
+aliases from shared transport; replacing the universal `PersonalStateDraft` and
+shared edit-section field assumptions with kind-owned bindings; removing active
+edition/media projections and duplicated shared DTO graphs; and finishing
+kind-owned field, schema, and form organization. The nine field ledgers remain
+authoritative, and exact CLZ parity is only confirmed for Music until the other
+reference captures are available.
 
 ## Architectural decisions
 
