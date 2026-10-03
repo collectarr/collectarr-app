@@ -61,15 +61,13 @@ List<LibraryFieldSpec<TDraft>> gameMetadataFields<TDraft>({
         id: 'identifiers',
         label: 'Identifiers',
         value: (draft) => values(draft).identifiers.join(', '),
-        setValue: (draft, value) =>
-            values(draft).identifiers = _split(value),
+        setValue: (draft, value) => values(draft).identifiers = _split(value),
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'company_roles',
         label: 'Companies and roles',
         value: (draft) => values(draft).companyRoles.join(', '),
-        setValue: (draft, value) =>
-            values(draft).companyRoles = _split(value),
+        setValue: (draft, value) => values(draft).companyRoles = _split(value),
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'developers',
@@ -102,8 +100,7 @@ List<LibraryFieldSpec<TDraft>> gameMetadataFields<TDraft>({
         id: 'search_aliases',
         label: 'Search aliases',
         value: (draft) => values(draft).searchAliases.join(', '),
-        setValue: (draft, value) =>
-            values(draft).searchAliases = _split(value),
+        setValue: (draft, value) => values(draft).searchAliases = _split(value),
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'original_language',
@@ -116,6 +113,18 @@ List<LibraryFieldSpec<TDraft>> gameMetadataFields<TDraft>({
         label: 'Franchise',
         value: (draft) => values(draft).franchise,
         setValue: (draft, value) => values(draft).franchise = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'toy_subtype',
+        label: 'Toy subtype',
+        value: (draft) => values(draft).toySubtype,
+        setValue: (draft, value) => values(draft).toySubtype = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'toy_type',
+        label: 'Toy type',
+        value: (draft) => values(draft).toyType,
+        setValue: (draft, value) => values(draft).toyType = value,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'series',
@@ -227,8 +236,7 @@ List<LibraryFieldSpec<TDraft>> gameCatalogItemFields<TDraft>({
         id: 'release_year',
         label: 'Release year',
         value: (draft) => values(draft).releaseYear?.toDouble(),
-        setValue: (draft, value) =>
-            values(draft).releaseYear = value?.toInt(),
+        setValue: (draft, value) => values(draft).releaseYear = value?.toInt(),
         minimum: 1,
       ),
       LibraryTextFieldSpec<TDraft>(

@@ -137,7 +137,10 @@ List<LibraryDetailSectionSpec> _buildGameSectionSpecs(
     BuildContext context, LibraryInspectorRequest inspector,
     {required bool includeCopyDetails}) {
   final creditRows = libraryCreatorsGroupedByRole(
-    _gameMetadata(inspector.item)?.creators,
+    _gameMetadata(inspector.item)
+        ?.creators
+        .map((credit) => credit.toJson())
+        .toList(),
   );
   final sections = <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(
@@ -396,7 +399,9 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
       if (entry?.createdAt != null) ('Added', formatDate(entry!.createdAt!)),
       ('Modified', formatDate(item.source.updatedAt)),
     ];
-    final creditRows = libraryCreatorsGroupedByRole(metadata?.creators);
+    final creditRows = libraryCreatorsGroupedByRole(
+      metadata?.creators.map((credit) => credit.toJson()).toList(),
+    );
 
     return Column(
       children: [

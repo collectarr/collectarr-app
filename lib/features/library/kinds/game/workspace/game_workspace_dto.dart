@@ -29,12 +29,13 @@ final class GameWorkspaceDto implements LibraryWorkspaceDto {
   String? get currency => common.currency;
 
   // Domain convenience getters
-  String? get platform => metadata?.platform ?? game.platforms.firstOrNull;
+  String? get platform =>
+      metadata?.platforms.firstOrNull ?? game.platforms.firstOrNull;
   String? get franchise => metadata?.franchise;
-  String? get edition => metadata?.edition ?? game.edition;
+  String? get edition => metadata?.editionTitle ?? game.edition;
   String? get ageRating => metadata?.ageRating;
   String? get developer => metadata?.developers.firstOrNull;
-  String? get publisher => game.publisher ?? metadata?.publishers.firstOrNull ?? developer;
+  String? get publisher => game.publisher ?? metadata?.publisher ?? developer;
   String? get seriesTitle => null;
   String? get itemNumber => game.itemNumber;
   DateTime? get releaseDate => game.releaseDate ?? common.releaseDate;

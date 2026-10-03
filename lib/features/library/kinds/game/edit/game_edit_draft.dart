@@ -317,17 +317,17 @@ LibraryEditSessionBundle createGameEditDraft({
     (transport) => GameCatalogMetadata.fromJson(transport.kindData),
   );
   final developerNames = meta.creators
-      .where((c) =>
-          c['role']?.toString().toLowerCase().contains('developer') ?? false)
-      .map((c) => c['name']?.toString().trim() ?? '')
+      .where(
+          (credit) => credit.role?.toLowerCase().contains('developer') ?? false)
+      .map((credit) => credit.name.trim())
       .where((n) => n.isNotEmpty)
       .join(', ');
   final platforms = meta.platforms;
   final gameEdit = GameEditController(
     initialPlatforms: platforms.join(', '),
     initialDevelopers: developerNames,
-    initialSeriesTitle: meta.series ?? '',
-    initialPublisher: meta.publishers.join(', '),
+    initialSeriesTitle: meta.seriesTitle ?? '',
+    initialPublisher: meta.publisher ?? '',
     initialReleaseDate:
         meta.releaseDate != null ? formatDate(meta.releaseDate!) : '',
     initialReleaseYear: meta.releaseDate?.year.toString() ?? '',

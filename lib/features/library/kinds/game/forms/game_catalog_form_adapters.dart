@@ -7,33 +7,34 @@ GameCatalogFormValues gameCatalogFormValuesFromMetadata(
   return GameCatalogFormValues(
     title: metadata.title,
     sortTitle: metadata.sortKey ?? '',
-    subtitle: _text(metadata.rawPayload['subtitle']) ?? '',
-    description:
-        metadata.synopsis ?? _text(metadata.rawPayload['description']) ?? '',
-    publisher: metadata.publishers.firstOrNull ?? '',
+    subtitle: metadata.subtitle ?? '',
+    description: metadata.synopsis ?? metadata.description ?? '',
+    publisher: metadata.publisher ?? '',
     platforms: metadata.platforms,
-    identifiers: _stringList(metadata.rawPayload['identifiers']),
-    companyRoles: _stringList(metadata.rawPayload['company_roles']),
+    identifiers: metadata.identifiers.map((value) => value.value).toList(),
+    companyRoles: metadata.companyRoles,
     developers: metadata.developers,
     ageRatings: [if (metadata.ageRating case final value?) value],
     genres: metadata.genres,
-    searchAliases: _stringList(metadata.rawPayload['search_aliases']),
+    searchAliases: metadata.searchAliases,
     originalLanguage: metadata.originalLanguage ?? '',
     franchise: metadata.franchise ?? '',
-    series: metadata.series ?? '',
+    toySubtype: metadata.toySubtype ?? '',
+    toyType: metadata.toyType ?? '',
+    series: metadata.seriesTitle ?? '',
     languages: metadata.languages,
     country: metadata.country,
-    editionTitle: metadata.edition ?? '',
-    platform: metadata.platform ?? metadata.platforms.firstOrNull ?? '',
+    editionTitle: metadata.editionTitle ?? '',
+    platform: metadata.platforms.firstOrNull ?? '',
     region: metadata.releaseRegion ?? '',
     format: metadata.physicalFormat ?? '',
     releaseDate: metadata.releaseDate,
-    catalogNumber: _text(metadata.rawPayload['catalog_number']) ?? '',
-    releaseStatus: _text(metadata.rawPayload['release_status']) ?? '',
+    catalogNumber: metadata.catalogNumber ?? '',
+    releaseStatus: metadata.releaseStatus ?? '',
     language: metadata.languages.firstOrNull ?? '',
     barcode: metadata.barcode ?? '',
-    coverImageUrl: _text(metadata.rawPayload['cover_image_url']) ?? '',
-    variant: _text(metadata.rawPayload['variant_name']) ?? '',
+    coverImageUrl: metadata.coverImageUrl ?? '',
+    variant: metadata.variantName ?? '',
     backCoverImageUrl: '',
   );
 }
@@ -76,6 +77,8 @@ GameCatalogMetadata gameMetadataFromManualFormValues({
       'cover_image_url': value,
     if (values.developers.isNotEmpty) 'developers': values.developers,
     if (_optional(values.franchise) case final value?) 'franchise': value,
+    if (_optional(values.toySubtype) case final value?) 'toy_subtype': value,
+    if (_optional(values.toyType) case final value?) 'toy_type': value,
     if (_optional(values.series) case final value?) 'series_title': value,
     if (values.genres.isNotEmpty) 'genres': values.genres,
     if (values.ageRatings.firstOrNull case final value?) 'age_rating': value,
@@ -101,17 +104,4 @@ DateTime? _effectiveReleaseDate(GameCatalogFormValues values) {
 String? _optional(String value) {
   final normalized = value.trim();
   return normalized.isEmpty ? null : normalized;
-}
-
-String? _text(Object? value) => value?.toString().trim().letEmptyToNull();
-
-List<String> _stringList(Object? value) => value is List
-    ? [
-        for (final entry in value)
-          if (_text(entry) case final text?) text,
-      ]
-    : const [];
-
-extension on String {
-  String? letEmptyToNull() => isEmpty ? null : this;
 }

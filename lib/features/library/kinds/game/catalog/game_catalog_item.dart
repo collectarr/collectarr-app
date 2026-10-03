@@ -22,12 +22,12 @@ final class GameCatalogItem {
   String? get itemNumber => metadata.itemNumber;
   String? get coverImageUrl => item.coverImageUrl;
   String? get thumbnailImageUrl => item.thumbnailImageUrl ?? coverImageUrl;
-  String? get publisher => metadata.publishers.firstOrNull ?? item.publisher;
+  String? get publisher => metadata.publisher ?? item.publisher;
   DateTime? get releaseDate => metadata.releaseDate ?? item.releaseDate;
   int? get releaseYear => releaseDate?.year ?? item.releaseYear;
   String? get barcode => metadata.barcode ?? item.barcode;
-  String? get edition => metadata.edition ?? item.editionTitle;
-  String? get variant => item.variant ?? edition;
+  String? get edition => metadata.editionTitle ?? item.editionTitle;
+  String? get variant => metadata.variantName ?? edition;
   String? get country => metadata.country;
   String? get language => metadata.languages.firstOrNull;
   String? get physicalFormat =>

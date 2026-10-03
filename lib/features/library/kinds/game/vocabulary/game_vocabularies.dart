@@ -247,7 +247,7 @@ abstract final class GameVocabularies {
 }
 
 Iterable<String?> _platformCatalogValues(GameCatalogMetadata metadata) sync* {
-  yield* vocabularyValues([metadata.platform, metadata.platforms]);
+  yield* vocabularyValues(metadata.platforms);
 }
 
 Iterable<String?> _regionCatalogValues(GameCatalogMetadata metadata) {
@@ -256,7 +256,7 @@ Iterable<String?> _regionCatalogValues(GameCatalogMetadata metadata) {
 
 Iterable<String?> _editionCatalogValues(GameCatalogMetadata metadata) sync* {
   yield* vocabularyValues([
-    metadata.edition,
+    metadata.editionTitle,
     metadata.physicalFormatLabel,
     metadata.physicalFormat,
   ]);

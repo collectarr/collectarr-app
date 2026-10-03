@@ -121,12 +121,12 @@ final class GameCollectionCsvProjection
       entry.itemId,
       CatalogMediaKind.game.apiValue,
       metadata?.title ?? game?.title ?? entry.title,
-      metadata?.edition ?? '',
-      metadata?.platform ?? metadata?.edition ?? '',
-      metadata?.edition ?? '',
+      metadata?.editionTitle ?? '',
+      metadata?.platforms.firstOrNull ?? metadata?.editionTitle ?? '',
+      metadata?.editionTitle ?? '',
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
-      metadata?.publishers.firstOrNull ?? '',
+      metadata?.publisher ?? '',
       _formatDate(metadata?.releaseDate ??
           game?.releaseDate ??
           entry.catalogData?.releaseDate),

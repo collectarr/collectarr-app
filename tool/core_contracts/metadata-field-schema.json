@@ -2836,6 +2836,38 @@
     {
       "common": false,
       "editable": true,
+      "input": "text",
+      "key": "toy_subtype",
+      "kind": "game",
+      "label": "Toy subtype",
+      "normalized": false,
+      "scope": "catalog_item",
+      "section": "item",
+      "sourceEntityType": "catalog_game_item",
+      "sourceTable": "game_items",
+      "typed": false,
+      "valueType": "string",
+      "writeTarget": "core_canonical"
+    },
+    {
+      "common": false,
+      "editable": true,
+      "input": "text",
+      "key": "toy_type",
+      "kind": "game",
+      "label": "Toy type",
+      "normalized": false,
+      "scope": "catalog_item",
+      "section": "item",
+      "sourceEntityType": "catalog_game_item",
+      "sourceTable": "game_items",
+      "typed": false,
+      "valueType": "string",
+      "writeTarget": "core_canonical"
+    },
+    {
+      "common": false,
+      "editable": true,
       "input": "list",
       "key": "company_roles",
       "kind": "game",
@@ -7778,5 +7810,5 @@
       "writeTarget": "core_canonical"
     }
   ],
-  "generatedAt": "2026-10-03T14:36:15.916475Z"
+  "generatedAt": "2026-10-03T15:17:03.349609Z"
 }

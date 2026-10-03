@@ -64,7 +64,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
               final metadata = item.kindCapability.mapTransport(
                 (transport) => GameCatalogMetadata.fromJson(transport.kindData),
               );
-              return [metadata.platform, ...metadata.platforms];
+              return metadata.platforms;
             },
           ),
           LibraryAddSearchRankField(

@@ -90,12 +90,11 @@ final gameTransferableFields = <TransferableField>[
 ];
 
 Iterable<String?> gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
-      metadata.series,
+      metadata.seriesTitle,
       metadata.country,
       metadata.releaseRegion,
-      metadata.publishers.firstOrNull,
-      ...metadata.publishers,
-      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      metadata.publisher,
+      ...metadata.creators.map((credit) => credit.name),
       ...metadata.genres,
     ];
 
@@ -112,7 +111,7 @@ MetadataSearchQuery gameMetadataSearchQuery({
   return MetadataSearchQuery(
     query: title,
     barcode: metadata?.barcode,
-    publisher: metadata?.publishers.firstOrNull,
+    publisher: metadata?.publisher,
     year: metadata?.releaseDate?.year,
     limit: 5,
   );

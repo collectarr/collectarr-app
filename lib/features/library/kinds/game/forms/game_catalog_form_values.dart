@@ -18,6 +18,8 @@ final class GameCatalogFormValues {
     this.searchAliases = const [],
     this.originalLanguage = '',
     this.franchise = '',
+    this.toySubtype = '',
+    this.toyType = '',
     this.series = '',
     this.languages = const [],
     this.country = 'US',
@@ -50,6 +52,8 @@ final class GameCatalogFormValues {
   List<String> searchAliases;
   String originalLanguage;
   String franchise;
+  String toySubtype;
+  String toyType;
   String series;
   List<String> languages;
   String country;

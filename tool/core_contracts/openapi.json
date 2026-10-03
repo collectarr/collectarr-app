@@ -6132,6 +6132,28 @@
             ],
             "title": "Title Extension"
           },
+          "toy_subtype": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Toy Subtype"
+          },
+          "toy_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Toy Type"
+          },
           "trailer_urls": {
             "anyOf": [
               {

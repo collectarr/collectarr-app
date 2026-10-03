@@ -25,11 +25,10 @@ class GameStatsCapability implements LibraryStatsCapability {
     final metadata = _metadata(entry);
     if (catalog == null || metadata == null) return null;
     final secondary =
-        (metadata.publishers.firstOrNull ?? metadata.developers.firstOrNull)
-            ?.trim();
+        (metadata.publisher ?? metadata.developers.firstOrNull)?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup:
-          (metadata.series ?? metadata.franchise ?? metadata.title).trim(),
+          (metadata.seriesTitle ?? metadata.franchise ?? metadata.title).trim(),
       secondaryGroup: secondary,
       hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
       hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||

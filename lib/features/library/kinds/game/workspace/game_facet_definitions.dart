@@ -10,7 +10,6 @@ final gameLibraryFacetDefinitions =
     label: 'Platform',
     extractValues: (dto) => _values([
       ...?dto.metadata?.platforms,
-      dto.metadata?.platform,
       ...dto.game.platforms,
     ]),
   ),
@@ -18,8 +17,7 @@ final gameLibraryFacetDefinitions =
     id: GameFacetIds.publisher,
     label: 'Publisher',
     extractValues: (dto) => _values([
-      ...?dto.metadata?.publishers,
-      dto.metadata?.publishers.firstOrNull,
+      dto.metadata?.publisher,
       dto.publisher,
       dto.game.publisher,
     ]),

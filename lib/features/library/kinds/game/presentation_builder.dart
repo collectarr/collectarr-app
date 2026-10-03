@@ -179,7 +179,9 @@ class GameLibraryMediaPresentationBuilder
       ],
       sections: {
         'creators': LibraryMetadataSection(
-          values: metadata?.creators ?? const <Map<String, dynamic>>[],
+          values:
+              metadata?.creators.map((credit) => credit.toJson()).toList() ??
+                  const <Map<String, dynamic>>[],
           placement: LibraryMetadataSectionPlacement.credits,
           renderer: LibraryMetadataSectionRenderer.credits,
           completenessWeight: 12,

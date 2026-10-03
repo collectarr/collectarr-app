@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:flutter/material.dart';
@@ -82,13 +83,13 @@ class GameEditController {
     final platforms = splitPickListValues(platformsController.text);
 
     final existing = meta.creators;
-    final preserved = <Map<String, dynamic>>[];
+    final preserved = <GameCatalogPersonCredit>[];
     for (final entry in existing) {
-      final role = entry['role']?.toString().toLowerCase() ?? '';
+      final role = entry.role?.toLowerCase() ?? '';
       if (role.contains('developer')) {
         continue;
       }
-      preserved.add(Map<String, dynamic>.from(entry));
+      preserved.add(entry);
     }
 
     final developerNames = developersController.text
@@ -97,10 +98,10 @@ class GameEditController {
         .where((value) => value.isNotEmpty)
         .toList(growable: false);
 
-    final mergedCreators = <Map<String, dynamic>>[
+    final mergedCreators = <GameCatalogPersonCredit>[
       ...preserved,
       for (final name in developerNames)
-        <String, dynamic>{'name': name, 'role': 'Developer'},
+        GameCatalogPersonCredit(name: name, role: 'Developer'),
     ];
 
     final updatedPub = emptyToNull(publisherController.text);
@@ -118,17 +119,18 @@ class GameEditController {
 
     final updatedMetadata = meta.copyWith(
       platforms: platforms,
-      platform: platforms.firstOrNull ?? meta.platform,
       developers: developerNames.isNotEmpty ? developerNames : meta.developers,
       creators: mergedCreators.isNotEmpty ? mergedCreators : meta.creators,
-      series: emptyToNull(seriesTitleController.text) ?? meta.series,
-      publishers: updatedPub != null ? [updatedPub] : meta.publishers,
+      seriesTitle: emptyToNull(seriesTitleController.text) ?? meta.seriesTitle,
+      publisher: updatedPub ?? meta.publisher,
       franchise: updatedFranchise ?? meta.franchise,
       genres: genres,
       ageRating: updatedAgeRating ?? meta.ageRating,
       languages: languages,
       country: updatedCountry ?? meta.country,
-      releaseDate: parseDate(releaseDateController.text),
+      releaseDateParts: parseDate(releaseDateController.text) == null
+          ? meta.releaseDateParts
+          : PartialDate.fromDateTime(parseDate(releaseDateController.text)!),
     );
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
