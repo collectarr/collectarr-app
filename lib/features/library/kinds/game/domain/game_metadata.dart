@@ -19,6 +19,7 @@ class GameCatalogMetadata implements JsonEncodable {
     this.publishers = const [],
     this.franchise,
     this.series,
+    this.originalLanguage,
     this.genres = const [],
     this.ageRating,
     this.languages = const [],
@@ -50,6 +51,7 @@ class GameCatalogMetadata implements JsonEncodable {
   final List<String> publishers;
   final String? franchise;
   final String? series;
+  final String? originalLanguage;
   final List<String> genres;
   final String? ageRating;
   final List<String> languages;
@@ -113,7 +115,11 @@ class GameCatalogMetadata implements JsonEncodable {
       if (languages.firstOrNull case final value?) 'language': value,
       if (physicalFormat case final value?) 'physical_format': value,
       if (platforms.isNotEmpty) 'platforms': platforms,
+      if (languages.isNotEmpty) 'languages': languages,
       if (publishers.firstOrNull case final value?) 'publisher': value,
+      if (physicalFormatLabel case final value?) 'physical_format_label': value,
+      if (franchise case final value?) 'franchise': value,
+      if (originalLanguage case final value?) 'original_language': value,
       if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
       if (releaseRegion != null) 'release_region': releaseRegion,
       if (_rawText('release_status') case final value?) 'release_status': value,
@@ -157,6 +163,7 @@ class GameCatalogMetadata implements JsonEncodable {
     List<String>? publishers,
     String? franchise,
     String? series,
+    String? originalLanguage,
     List<String>? genres,
     String? ageRating,
     List<String>? languages,
@@ -184,6 +191,7 @@ class GameCatalogMetadata implements JsonEncodable {
       publishers: publishers ?? this.publishers,
       franchise: franchise ?? this.franchise,
       series: series ?? this.series,
+      originalLanguage: originalLanguage ?? this.originalLanguage,
       genres: genres ?? this.genres,
       ageRating: ageRating ?? this.ageRating,
       languages: languages ?? this.languages,
@@ -259,6 +267,7 @@ class GameCatalogMetadata implements JsonEncodable {
       series: json['series'] is Map
           ? (json['series'] as Map)['series_title'] as String?
           : (json['series'] as String? ?? json['series_title'] as String?),
+      originalLanguage: json['original_language'] as String?,
       genres: (json['genres'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
@@ -267,7 +276,9 @@ class GameCatalogMetadata implements JsonEncodable {
       languages: (json['languages'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
-          const [],
+          (json['language'] is String
+              ? [json['language'] as String]
+              : const []),
       country: (json['country'] as String?) ?? 'US',
       synopsis: (json['synopsis'] ?? json['description']) as String?,
       releaseDate: json['release_date'] != null

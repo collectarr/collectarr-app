@@ -18,7 +18,7 @@ GameCatalogFormValues gameCatalogFormValuesFromMetadata(
     ageRatings: [if (metadata.ageRating case final value?) value],
     genres: metadata.genres,
     searchAliases: _stringList(metadata.rawPayload['search_aliases']),
-    originalLanguage: _text(metadata.rawPayload['original_language']) ?? '',
+    originalLanguage: metadata.originalLanguage ?? '',
     franchise: metadata.franchise ?? '',
     series: metadata.series ?? '',
     languages: metadata.languages,
@@ -66,6 +66,7 @@ GameCatalogMetadata gameMetadataFromManualFormValues({
     if (_optional(values.region) case final value?) 'release_region': value,
     if (releaseDate case final value?) 'release_date': value.toIso8601String(),
     if (publisher != null) 'publisher': publisher,
+    if (languages.isNotEmpty) 'languages': languages,
     if (_optional(values.barcode) case final value?) 'barcode': value,
     if (_optional(values.variant) case final value?) 'variant_name': value,
     if (_optional(values.catalogNumber) case final value?)
