@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/calendar/universal_calendar_contributors.dart';
-import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
@@ -12,30 +13,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Provides all calendar events aggregated from collection data.
 final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   final db = ref.watch(localDatabaseProvider);
-  final collectionItems = await ref.watch(collectionSummariesProvider.future);
+  final libraryEntries = await ref.watch(collectionSummariesProvider.future);
   final watchSessions = await ref.watch(watchSessionsProvider.future);
   final loans = await LoanRepository(db).getAllLoans();
 
-  final catalogRefs = <CatalogEntityRef>{};
-  for (final item in collectionItems) {
-    if (item.catalogRef case final ref?) {
-      catalogRefs.add(ref.rootScope);
-    }
+  final libraryEntryRefs = <LibraryEntryRef>{};
+  for (final item in libraryEntries) {
+    libraryEntryRefs.add(item.ref);
   }
   for (final session in watchSessions) {
-    catalogRefs.add(session.targetRef.rootScope);
+    libraryEntryRefs.add(session.libraryEntryRef);
   }
 
-  final catalogByRef =
-      await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
-  String titleFor(CatalogEntityRef ref) =>
-      catalogByRef[ref.rootScope]?.primaryLabel ?? 'Unknown item';
+  final records = await LibraryEntryStore(db).list();
+  final titleByRef = <LibraryEntryRef, String>{
+    for (final record in records)
+      LibraryEntryRef(
+        kind: record.kind,
+        id: LibraryEntryId(record.id),
+      ): record.catalogItem.title,
+  };
+  String titleFor(LibraryEntryRef ref) => titleByRef[ref] ?? 'Unknown item';
 
   final events = <CalendarEvent>[];
 
   final calendarContext = LibraryCalendarContext(
     database: db,
-    catalogRefs: catalogRefs,
+    libraryEntryRefs: libraryEntryRefs,
     watchSessions: watchSessions,
     titleForRef: titleFor,
   );
@@ -44,7 +48,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   }
 
   final universalCalendarContext = UniversalCalendarContext(
-    collectionItems: collectionItems,
+    libraryEntries: libraryEntries,
     loans: loans,
     watchSessions: watchSessions,
     titleForRef: titleFor,

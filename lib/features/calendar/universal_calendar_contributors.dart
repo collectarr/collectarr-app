@@ -1,11 +1,12 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/calendar/calendar_event_contributor.dart';
 
-typedef UniversalCalendarTitleForRef = String Function(CatalogEntityRef ref);
+typedef UniversalCalendarTitleForRef = String Function(LibraryEntryRef ref);
 typedef UniversalCalendarKindPredicate = bool Function(CatalogMediaKind kind);
 
 /// Inputs for non-kind calendar contributions.
@@ -15,41 +16,38 @@ typedef UniversalCalendarKindPredicate = bool Function(CatalogMediaKind kind);
 /// contributor registry instead.
 final class UniversalCalendarContext {
   const UniversalCalendarContext({
-    required this.collectionItems,
+    required this.libraryEntries,
     required this.loans,
     required this.titleForRef,
     this.watchSessions = const [],
     this.hasKindContributor = _noKindContributor,
   });
 
-  final Iterable<CollectionItemSummary> collectionItems;
+  final Iterable<LibraryEntrySummary> libraryEntries;
   final Iterable<Loan> loans;
   final Iterable<WatchSession> watchSessions;
   final UniversalCalendarTitleForRef titleForRef;
   final UniversalCalendarKindPredicate hasKindContributor;
 }
 
-final class CollectionItemCalendarContributor
+final class LibraryEntryCalendarContributor
     implements CalendarEventContributor<UniversalCalendarContext> {
-  const CollectionItemCalendarContributor();
+  const LibraryEntryCalendarContributor();
 
   @override
   Iterable<CalendarEvent> contribute(UniversalCalendarContext context) sync* {
-    for (final item in context.collectionItems) {
+    for (final item in context.libraryEntries) {
       if (item.isDeleted) continue;
-      final catalogRef = item.catalogRef;
-      if (catalogRef == null) continue;
-      final title = context.titleForRef(catalogRef);
+      final title = context.titleForRef(item.ref);
 
       if (item.purchaseDate != null) {
         yield CalendarEvent(
           kind: CalendarEventKind.purchased,
           date: item.purchaseDate!,
           title: title,
-          eventId: 'owned-purchased:${item.ref.id.value}',
+          eventId: 'entry-purchased:${item.ref.id.value}',
           subtitle: item.purchaseStore,
-          catalogRef: catalogRef,
-          collectionItemRef: item.ref,
+          libraryEntryRef: item.ref,
         );
       }
     }
@@ -62,15 +60,15 @@ final class LoanCalendarContributor
 
   @override
   Iterable<CalendarEvent> contribute(UniversalCalendarContext context) sync* {
-    final ownedByRef = <CollectionItemRef, CollectionItemSummary>{
-      for (final item in context.collectionItems) item.ref: item,
+    final entryByRef = <LibraryEntryRef, LibraryEntrySummary>{
+      for (final item in context.libraryEntries) item.ref: item,
     };
 
     for (final loan in context.loans) {
-      final owned = ownedByRef[loan.collectionItemRef];
-      final catalogRef = owned?.catalogRef;
-      final title =
-          catalogRef == null ? 'Unknown item' : context.titleForRef(catalogRef);
+      final entry = entryByRef[loan.libraryEntryRef];
+      final title = entry == null
+          ? 'Unknown item'
+          : context.titleForRef(loan.libraryEntryRef);
 
       if (loan.dueDate != null) {
         yield CalendarEvent(
@@ -79,8 +77,7 @@ final class LoanCalendarContributor
           title: title,
           eventId: 'loan-due:${loan.id}',
           subtitle: 'Loaned to ${loan.borrowerName}',
-          collectionItemRef: loan.collectionItemRef,
-          catalogRef: catalogRef,
+          libraryEntryRef: loan.libraryEntryRef,
         );
       }
       if (loan.returnedDate != null) {
@@ -90,8 +87,7 @@ final class LoanCalendarContributor
           title: title,
           eventId: 'loan-return:${loan.id}',
           subtitle: 'Returned by ${loan.borrowerName}',
-          collectionItemRef: loan.collectionItemRef,
-          catalogRef: catalogRef,
+          libraryEntryRef: loan.libraryEntryRef,
         );
       }
     }
@@ -109,15 +105,15 @@ final class GenericWatchCalendarContributor
   Iterable<CalendarEvent> contribute(UniversalCalendarContext context) sync* {
     for (final session in context.watchSessions) {
       if (session.isDeleted ||
-          context.hasKindContributor(session.targetRef.mediaKind)) {
+          context.hasKindContributor(session.libraryEntryRef.kind)) {
         continue;
       }
       yield CalendarEvent(
         kind: CalendarEventKind.watched,
         date: session.watchedAt,
-        title: context.titleForRef(session.targetRef),
+        title: context.titleForRef(session.libraryEntryRef),
         eventId: 'watch:${session.id}',
-        catalogRef: session.targetRef,
+        libraryEntryRef: session.libraryEntryRef,
       );
     }
   }
@@ -125,7 +121,7 @@ final class GenericWatchCalendarContributor
 
 const universalCalendarContributors =
     <CalendarEventContributor<UniversalCalendarContext>>[
-  CollectionItemCalendarContributor(),
+  LibraryEntryCalendarContributor(),
   LoanCalendarContributor(),
   GenericWatchCalendarContributor(),
 ];

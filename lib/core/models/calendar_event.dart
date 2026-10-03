@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'catalog_entity_ref.dart';
-import 'collection_item_projection.dart';
+import 'library_entry_projection.dart';
 
 /// The category of a calendar event.
 enum CalendarEventKind {
@@ -22,8 +21,7 @@ class CalendarEvent {
     required this.title,
     this.eventId,
     this.subtitle,
-    this.catalogRef,
-    this.collectionItemRef,
+    this.libraryEntryRef,
   });
 
   final CalendarEventKind kind;
@@ -34,11 +32,8 @@ class CalendarEvent {
   final String? eventId;
   final String? subtitle;
 
-  /// Structural catalog target, if applicable.
-  final CatalogEntityRef? catalogRef;
-
-  /// Structural collection-item target, if applicable (for loans, purchases).
-  final CollectionItemRef? collectionItemRef;
+  /// The local entry whose catalog or personal data produced this event.
+  final LibraryEntryRef? libraryEntryRef;
 
   String get label => switch (kind) {
         CalendarEventKind.releaseDate => 'Release',
