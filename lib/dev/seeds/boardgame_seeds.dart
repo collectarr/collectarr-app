@@ -164,7 +164,7 @@ List<String> validateBoardgameSeedCatalogGraph(CatalogItemDto item) {
 List<String> validateBoardgameSeedEntry(BoardGameLibraryEntry item) {
   final issues = <String>[];
   final prefix = '${item.catalogItem.kind}/${item.id}';
-  final details = item.details;
+  final details = item.personal.details;
   seedRequireText(
       issues, prefix, 'boardgame.edition_language', details.editionLanguage);
   seedRequireText(

@@ -103,7 +103,7 @@ List<String> validateComicSeedCatalogGraph(CatalogItemDto item) {
 List<String> validateComicSeedEntry(ComicLibraryEntry item) {
   final issues = <String>[];
   final prefix = '${item.catalogItem.kind}/${item.id}';
-  final details = item.details;
+  final details = item.personal.details;
   seedRequireText(issues, prefix, 'comic.raw_or_slabbed', details.rawOrSlabbed);
   seedRequireText(issues, prefix, 'comic.page_quality', details.pageQuality);
   if (details.lastBagBoardDate == null) {
@@ -866,11 +866,13 @@ Future<void> seedComicReadingStates(LocalDatabase db, DateTime now) async {
     }
     await repository.upsert(
       item.copyWith(
-        reading: ComicReadingState(
-          rating: i.isEven ? 9 : 8,
-          status: i <= 12 ? 'completed' : 'in_progress',
-          startedAt: DateTime.utc(2022, 7, 1),
-          finishedAt: i <= 12 ? DateTime.utc(2022, 7, 2) : null,
+        personal: item.personal.copyWith(
+          reading: ComicReadingState(
+            rating: i.isEven ? 9 : 8,
+            status: i <= 12 ? 'completed' : 'in_progress',
+            startedAt: DateTime.utc(2022, 7, 1),
+            finishedAt: i <= 12 ? DateTime.utc(2022, 7, 2) : null,
+          ),
         ),
         updatedAt: now,
       ),

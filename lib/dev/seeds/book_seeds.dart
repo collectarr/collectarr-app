@@ -90,7 +90,7 @@ List<String> validateBookSeedCatalogGraph(CatalogItemDto item) {
 List<String> validateBookSeedEntry(BookLibraryEntry item) {
   final issues = <String>[];
   final prefix = '${item.catalogItem.kind}/${item.id}';
-  final details = item.details;
+  final details = item.personal.details;
   seedRequireText(issues, prefix, 'book.signed_by', details.signedBy);
   if (!details.dustJacketPresent) {
     issues.add('$prefix: book.dust_jacket_present must be true');

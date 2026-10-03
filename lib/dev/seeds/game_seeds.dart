@@ -86,7 +86,7 @@ List<String> validateGameSeedCatalogGraph(CatalogItemDto item) {
 List<String> validateGameSeedEntry(GameLibraryEntry item) {
   final issues = <String>[];
   final prefix = '${item.catalogItem.kind}/${item.id}';
-  final details = item.details;
+  final details = item.personal.details;
   seedRequireText(issues, prefix, 'game.completeness', details.completeness);
   seedRequireText(issues, prefix, 'game.core_region', details.coreRegion);
   seedRequireText(

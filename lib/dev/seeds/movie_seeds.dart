@@ -87,7 +87,7 @@ List<String> validateMovieSeedCatalogGraph(CatalogItemDto item) {
 List<String> validateMovieSeedEntry(MovieLibraryEntry item) {
   final issues = <String>[];
   final prefix = '${item.catalogItem.kind}/${item.id}';
-  final details = item.details;
+  final details = item.personal.details;
   seedRequireText(issues, prefix, 'movie.region', details.region);
   seedRequireText(issues, prefix, 'movie.packaging', details.packaging);
   seedRequireText(issues, prefix, 'movie.distributor', details.distributor);

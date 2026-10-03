@@ -139,7 +139,7 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
 List<String> validateTvSeedEntry(TvLibraryEntry item) {
   final issues = <String>[];
   final prefix = '${item.catalogItem.kind}/${item.id}';
-  final details = item.details;
+  final details = item.personal.details;
   seedRequireText(issues, prefix, 'tv.region', details.region);
   seedRequireText(issues, prefix, 'tv.packaging', details.packaging);
   seedRequireText(issues, prefix, 'tv.distributor', details.distributor);
