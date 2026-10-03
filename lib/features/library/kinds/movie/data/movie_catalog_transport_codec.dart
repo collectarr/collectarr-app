@@ -37,13 +37,15 @@ final class MovieCatalogTransportCodec
   }
 
   @override
-  CatalogDisplaySummary summarize(MovieCatalogMetadata item) =>
+  CatalogDisplaySummary summarize(
+    String catalogItemId,
+    MovieCatalogMetadata item,
+  ) =>
       CatalogDisplaySummary.root(
         kind: kind,
-        id: item.rawPayload['id']?.toString() ?? '',
+        id: catalogItemId,
         primaryLabel: item.title,
-        imageUrl: item.rawPayload['thumbnail_image_url']?.toString() ??
-            item.rawPayload['cover_image_url']?.toString(),
+        imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
 
   @override
@@ -123,7 +125,9 @@ final class MovieCatalogTransportCodec
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final items = await listTransport(db);
-    return [for (final item in items) summarize(decode(item))];
+    return [
+      for (final item in items) summarize(item.id, decode(item)),
+    ];
   }
 }
 

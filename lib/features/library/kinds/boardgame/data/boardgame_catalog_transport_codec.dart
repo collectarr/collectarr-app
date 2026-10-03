@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_l
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 
 final class BoardGameCatalogTransportCodec
@@ -31,10 +30,13 @@ final class BoardGameCatalogTransportCodec
   }
 
   @override
-  CatalogDisplaySummary summarize(BoardGameCatalogItem item) =>
+  CatalogDisplaySummary summarize(
+    String catalogItemId,
+    BoardGameCatalogItem item,
+  ) =>
       CatalogDisplaySummary.root(
         kind: kind,
-        id: item.id,
+        id: catalogItemId,
         primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
@@ -117,7 +119,8 @@ final class BoardGameCatalogTransportCodec
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     return [
-      for (final item in await listTransport(db)) summarize(decode(item)),
+      for (final item in await listTransport(db))
+        summarize(item.id, decode(item)),
     ];
   }
 }

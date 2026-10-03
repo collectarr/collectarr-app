@@ -30,10 +30,10 @@ final class MangaCatalogTransportCodec
   }
 
   @override
-  CatalogDisplaySummary summarize(MangaMedia item) =>
+  CatalogDisplaySummary summarize(String catalogItemId, MangaMedia item) =>
       CatalogDisplaySummary.root(
         kind: kind,
-        id: item.id,
+        id: catalogItemId,
         primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
@@ -116,7 +116,8 @@ final class MangaCatalogTransportCodec
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     return [
-      for (final item in await listTransport(db)) summarize(decode(item)),
+      for (final item in await listTransport(db))
+        summarize(item.id, decode(item)),
     ];
   }
 }

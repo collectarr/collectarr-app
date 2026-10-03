@@ -29,9 +29,10 @@ final class TvCatalogTransportCodec
       CatalogItemCacheRepository(db).upsert(_projection(item));
 
   @override
-  CatalogDisplaySummary summarize(TvSeries item) => CatalogDisplaySummary.root(
+  CatalogDisplaySummary summarize(String catalogItemId, TvSeries item) =>
+      CatalogDisplaySummary.root(
         kind: kind,
-        id: item.id,
+        id: catalogItemId,
         primaryLabel: item.title,
         imageUrl: item.coverImageUrl,
       );
@@ -115,7 +116,7 @@ final class TvCatalogTransportCodec
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final series = [for (final item in await listTransport(db)) decode(item)];
     return [
-      for (final item in series) summarize(item),
+      for (final item in series) summarize(item.id, item),
     ];
   }
 }

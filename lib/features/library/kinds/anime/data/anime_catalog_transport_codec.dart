@@ -31,10 +31,10 @@ final class AnimeCatalogTransportCodec
   }
 
   @override
-  CatalogDisplaySummary summarize(AnimeMedia item) =>
+  CatalogDisplaySummary summarize(String catalogItemId, AnimeMedia item) =>
       CatalogDisplaySummary.root(
         kind: kind,
-        id: item.id.value,
+        id: catalogItemId,
         primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
@@ -114,8 +114,10 @@ final class AnimeCatalogTransportCodec
       CatalogItemCacheRepository(db).findAll(kind: kind);
 
   @override
-  Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async =>
-      [for (final item in await listTransport(db)) summarize(decode(item))];
+  Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async => [
+        for (final item in await listTransport(db))
+          summarize(item.id, decode(item)),
+      ];
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {

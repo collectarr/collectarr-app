@@ -41,10 +41,13 @@ final class BookCatalogTransportCodec
   }
 
   @override
-  CatalogDisplaySummary summarize(BookCatalogMetadata item) =>
+  CatalogDisplaySummary summarize(
+    String catalogItemId,
+    BookCatalogMetadata item,
+  ) =>
       CatalogDisplaySummary.root(
         kind: kind,
-        id: item.transportId ?? '',
+        id: catalogItemId,
         primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
@@ -131,7 +134,9 @@ final class BookCatalogTransportCodec
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final items = await listTransport(db);
-    return [for (final item in items) summarize(decode(item))];
+    return [
+      for (final item in items) summarize(item.id, decode(item)),
+    ];
   }
 
   BookCatalogMetadata _catalogMetadata(CatalogItemDto item) {

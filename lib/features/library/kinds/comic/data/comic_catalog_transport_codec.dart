@@ -31,7 +31,9 @@ final class ComicCatalogTransportCodec
   }
 
   @override
-  CatalogDisplaySummary summarize(ComicCatalogItem item) => _comicSummary(item);
+  CatalogDisplaySummary summarize(
+          String catalogItemId, ComicCatalogItem item) =>
+      _comicSummary(catalogItemId, item);
 
   @override
   ComicWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
@@ -110,7 +112,8 @@ final class ComicCatalogTransportCodec
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     return [
-      for (final item in await listTransport(db)) summarize(decode(item)),
+      for (final item in await listTransport(db))
+        summarize(item.id, decode(item)),
     ];
   }
 }
@@ -123,11 +126,12 @@ int? _replacementValueFromPayload(CatalogItemDto item) {
   return nested is num ? nested.toInt() : null;
 }
 
-CatalogDisplaySummary _comicSummary(ComicCatalogItem item) {
+CatalogDisplaySummary _comicSummary(
+    String catalogItemId, ComicCatalogItem item) {
   final issue = item.issueNumber?.trim();
   return CatalogDisplaySummary.root(
     kind: CatalogMediaKind.comic,
-    id: item.id?.value ?? '',
+    id: catalogItemId,
     primaryLabel:
         issue == null || issue.isEmpty ? item.title : '${item.title} #$issue',
     imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,

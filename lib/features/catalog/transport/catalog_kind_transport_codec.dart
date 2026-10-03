@@ -69,7 +69,7 @@ abstract interface class CatalogKindTransportCodec<TCatalog>
   Future<void> upsert(LocalDatabase db, TCatalog item);
 
   /// Projects a concrete kind value for mixed/global read models.
-  CatalogDisplaySummary summarize(TCatalog item);
+  CatalogDisplaySummary summarize(String catalogItemId, TCatalog item);
 
   /// Decodes the transport payload into the owning kind's workspace data.
   ///
@@ -87,15 +87,15 @@ abstract interface class CatalogWorkspaceDataEnricher {
   Future<LibraryWorkspaceCatalogData> enrichWorkspaceData(
     LocalDatabase db,
     CatalogItemDto item,
-    LibraryWorkspaceCatalogData data,
-    {LibraryEntryRef? libraryEntryRef,}
-  );
+    LibraryWorkspaceCatalogData data, {
+    LibraryEntryRef? libraryEntryRef,
+  });
 }
 
 /// Runs the kind-entry summary projection at the transport boundary.
 extension CatalogKindTransportSummary on CatalogKindTransportBoundary {
   CatalogDisplaySummary summarizeTransport(CatalogItemDto item) {
     final codec = this as CatalogKindTransportCodec<dynamic>;
-    return codec.summarize(codec.decode(item));
+    return codec.summarize(item.id, codec.decode(item));
   }
 }

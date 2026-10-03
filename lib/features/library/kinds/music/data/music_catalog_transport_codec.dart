@@ -35,10 +35,10 @@ final class MusicCatalogTransportCodec
   }
 
   @override
-  CatalogDisplaySummary summarize(MusicAlbum item) =>
+  CatalogDisplaySummary summarize(String catalogItemId, MusicAlbum item) =>
       CatalogDisplaySummary.root(
         kind: kind,
-        id: item.id.value,
+        id: catalogItemId,
         primaryLabel: item.title,
         imageUrl: item.coverImageUrl,
       );
@@ -136,7 +136,9 @@ final class MusicCatalogTransportCodec
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final items = await listTransport(db);
-    return [for (final item in items) summarize(decode(item))];
+    return [
+      for (final item in items) summarize(item.id, decode(item)),
+    ];
   }
 }
 

@@ -30,9 +30,13 @@ final class GameCatalogTransportCodec
       CatalogItemCacheRepository(db).upsert(item.toCatalogItemDto());
 
   @override
-  CatalogDisplaySummary summarize(GameCatalogItem item) => CatalogDisplaySummary.root(
+  CatalogDisplaySummary summarize(
+    String catalogItemId,
+    GameCatalogItem item,
+  ) =>
+      CatalogDisplaySummary.root(
         kind: kind,
-        id: item.id,
+        id: catalogItemId,
         primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
@@ -115,7 +119,8 @@ final class GameCatalogTransportCodec
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     return [
-      for (final item in await listTransport(db)) summarize(decode(item)),
+      for (final item in await listTransport(db))
+        summarize(item.id, decode(item)),
     ];
   }
 }
