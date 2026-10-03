@@ -171,6 +171,10 @@ slice. This is progress, not completion of this plan:
   number, cover URLs, and barcode instead of indexing those values from its raw
   map. The old `AnimeMedia`/`AnimeRelease` consumers and raw maps still remain
   and must move to the single Anime catalog document before this kind is done.
+- `AnimeMetadata` now gives its recognized rating, audio, catalog number, video
+  presentation, plot, release-status, and series-tag fields explicit types and
+  serializes them from those properties. The remaining arbitrary payload still
+  includes nested and older Anime values that need an ownership decision.
 - Removed the unreferenced Anime media edit dialog and the separate Anime
   media/release schema exports. The current Add field specs remain in use; the
   reachable media/release repository paths still need migration.

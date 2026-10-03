@@ -223,6 +223,14 @@ class AnimeMetadata implements JsonEncodable {
     this.titleExtension,
     this.sortKey,
     this.synopsis,
+    this.ageRating,
+    this.audienceRating,
+    this.audioTracks,
+    this.catalogNumber,
+    this.color,
+    this.layers,
+    this.plotDescription,
+    this.plotSummary,
     this.searchAliases = const [],
     this.coverImageUrl,
     this.thumbnailImageUrl,
@@ -255,6 +263,13 @@ class AnimeMetadata implements JsonEncodable {
     this.publisher,
     this.barcode,
     this.variant,
+    this.nrDiscs,
+    this.releaseStatus,
+    this.runtimeMinutes,
+    this.screenRatio,
+    this.subtitle,
+    this.subtitles,
+    this.seriesTags,
     this.media = const [],
     this.creators = const [],
     this.links = const [],
@@ -275,6 +290,14 @@ class AnimeMetadata implements JsonEncodable {
   final String? titleExtension;
   final String? sortKey;
   final String? synopsis;
+  final String? ageRating;
+  final String? audienceRating;
+  final String? audioTracks;
+  final String? catalogNumber;
+  final String? color;
+  final String? layers;
+  final String? plotDescription;
+  final String? plotSummary;
   final List<String> searchAliases;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
@@ -307,6 +330,13 @@ class AnimeMetadata implements JsonEncodable {
   final String? publisher;
   final String? barcode;
   final String? variant;
+  final int? nrDiscs;
+  final String? releaseStatus;
+  final int? runtimeMinutes;
+  final String? screenRatio;
+  final String? subtitle;
+  final String? subtitles;
+  final List<String>? seriesTags;
   final List<AnimeMediaMetadata> media;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLinkDto> links;
@@ -327,6 +357,14 @@ class AnimeMetadata implements JsonEncodable {
         if (titleExtension != null) 'title_extension': titleExtension,
         if (sortKey != null) 'sort_key': sortKey,
         if (synopsis != null) 'synopsis': synopsis,
+        if (ageRating != null) 'age_rating': ageRating,
+        if (audienceRating != null) 'audience_rating': audienceRating,
+        if (audioTracks != null) 'audio_tracks': audioTracks,
+        if (catalogNumber != null) 'catalog_number': catalogNumber,
+        if (color != null) 'color': color,
+        if (layers != null) 'layers': layers,
+        if (plotDescription != null) 'plot_description': plotDescription,
+        if (plotSummary != null) 'plot_summary': plotSummary,
         if (searchAliases.isNotEmpty) 'search_aliases': searchAliases,
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
@@ -365,6 +403,13 @@ class AnimeMetadata implements JsonEncodable {
         if (publisher != null) 'publisher': publisher,
         if (barcode != null) 'barcode': barcode,
         if (variant != null) 'variant_name': variant,
+        if (nrDiscs != null) 'nr_discs': nrDiscs,
+        if (releaseStatus != null) 'release_status': releaseStatus,
+        if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
+        if (screenRatio != null) 'screen_ratio': screenRatio,
+        if (subtitle != null) 'subtitle': subtitle,
+        if (subtitles != null) 'subtitles': subtitles,
+        if (seriesTags != null) 'series_tags': seriesTags,
         if (media.isNotEmpty) 'media': media.map((e) => e.toJson()).toList(),
         if (creators.isNotEmpty) 'creators': creators,
         if (links.isNotEmpty) ...{
@@ -392,6 +437,14 @@ class AnimeMetadata implements JsonEncodable {
     String? titleExtension,
     String? sortKey,
     String? synopsis,
+    String? ageRating,
+    String? audienceRating,
+    String? audioTracks,
+    String? catalogNumber,
+    String? color,
+    String? layers,
+    String? plotDescription,
+    String? plotSummary,
     List<String>? searchAliases,
     String? coverImageUrl,
     String? thumbnailImageUrl,
@@ -424,6 +477,13 @@ class AnimeMetadata implements JsonEncodable {
     String? publisher,
     String? barcode,
     String? variant,
+    int? nrDiscs,
+    String? releaseStatus,
+    int? runtimeMinutes,
+    String? screenRatio,
+    String? subtitle,
+    String? subtitles,
+    List<String>? seriesTags,
     List<AnimeMediaMetadata>? media,
     List<Map<String, dynamic>>? creators,
     List<TrailerLinkDto>? links,
@@ -440,6 +500,14 @@ class AnimeMetadata implements JsonEncodable {
       titleExtension: titleExtension ?? this.titleExtension,
       sortKey: sortKey ?? this.sortKey,
       synopsis: synopsis ?? this.synopsis,
+      ageRating: ageRating ?? this.ageRating,
+      audienceRating: audienceRating ?? this.audienceRating,
+      audioTracks: audioTracks ?? this.audioTracks,
+      catalogNumber: catalogNumber ?? this.catalogNumber,
+      color: color ?? this.color,
+      layers: layers ?? this.layers,
+      plotDescription: plotDescription ?? this.plotDescription,
+      plotSummary: plotSummary ?? this.plotSummary,
       searchAliases: searchAliases ?? this.searchAliases,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
@@ -473,6 +541,13 @@ class AnimeMetadata implements JsonEncodable {
       publisher: publisher ?? this.publisher,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
+      nrDiscs: nrDiscs ?? this.nrDiscs,
+      releaseStatus: releaseStatus ?? this.releaseStatus,
+      runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
+      screenRatio: screenRatio ?? this.screenRatio,
+      subtitle: subtitle ?? this.subtitle,
+      subtitles: subtitles ?? this.subtitles,
+      seriesTags: seriesTags ?? this.seriesTags,
       media: media ?? this.media,
       creators: creators ?? this.creators,
       links: links ?? this.links,
@@ -482,7 +557,22 @@ class AnimeMetadata implements JsonEncodable {
   factory AnimeMetadata.fromJson(Map<String, dynamic> json) {
     final rawPayload = Map<String, dynamic>.from(json)
       ..remove('editions')
-      ..remove('series');
+      ..remove('series')
+      ..remove('age_rating')
+      ..remove('audience_rating')
+      ..remove('audio_tracks')
+      ..remove('catalog_number')
+      ..remove('color')
+      ..remove('layers')
+      ..remove('plot_description')
+      ..remove('plot_summary')
+      ..remove('nr_discs')
+      ..remove('release_status')
+      ..remove('runtime_minutes')
+      ..remove('screen_ratio')
+      ..remove('subtitle')
+      ..remove('subtitles')
+      ..remove('series_tags');
     final rawMedia = (json['media'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
             .map(AnimeMediaMetadata.fromJson)
@@ -520,6 +610,14 @@ class AnimeMetadata implements JsonEncodable {
       titleExtension: json['title_extension'] as String?,
       sortKey: json['sort_key'] as String?,
       synopsis: json['synopsis'] as String?,
+      ageRating: json['age_rating'] as String?,
+      audienceRating: json['audience_rating'] as String?,
+      audioTracks: json['audio_tracks'] as String?,
+      catalogNumber: json['catalog_number'] as String?,
+      color: json['color'] as String?,
+      layers: json['layers'] as String?,
+      plotDescription: json['plot_description'] as String?,
+      plotSummary: json['plot_summary'] as String?,
       searchAliases: (json['search_aliases'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
@@ -589,6 +687,15 @@ class AnimeMetadata implements JsonEncodable {
               : null)) as String?,
       barcode: json['barcode'] as String?,
       variant: json['variant_name'] as String?,
+      nrDiscs: (json['nr_discs'] as num?)?.toInt(),
+      releaseStatus: json['release_status'] as String?,
+      runtimeMinutes: (json['runtime_minutes'] as num?)?.toInt(),
+      screenRatio: json['screen_ratio'] as String?,
+      subtitle: json['subtitle'] as String?,
+      subtitles: json['subtitles'] as String?,
+      seriesTags: (json['series_tags'] as List<dynamic>?)
+          ?.whereType<String>()
+          .toList(growable: false),
       media: rawMedia,
       creators: rawCreators,
       links: rawLinks,
