@@ -116,82 +116,13 @@ final class MusicLibraryEntry implements JsonEncodable {
     MusicAlbum? metadata,
     MusicPersonalData? personal,
     Object? createdAt = _unset,
-    Object? isDigital = _unset,
-    Object? condition = _unset,
-    Object? grade = _unset,
-    Object? purchaseDate = _unset,
-    Object? pricePaidCents = _unset,
-    Object? currency = _unset,
-    Object? personalNotes = _unset,
-    Object? indexNumber = _unset,
-    Object? tags = _unset,
     DateTime? updatedAt,
     Object? deletedAt = _unset,
-    Object? soldAt = _unset,
-    Object? sellPriceCents = _unset,
-    Object? soldTo = _unset,
-    Object? ownerUserId = _unset,
-    Object? ownerLabel = _unset,
-    Object? locationId = _unset,
-    Object? purchaseStore = _unset,
-    Object? collectionStatus = _unset,
-    Object? marketValueCents = _unset,
-    MusicEntryDetails? details,
   }) {
     return MusicLibraryEntry(
       id: id ?? this.id,
       metadata: metadata ?? this.metadata,
-      personal: personal ??
-          MusicPersonalData(
-            isDigital: identical(isDigital, _unset)
-                ? this.isDigital
-                : isDigital as bool?,
-            condition: identical(condition, _unset)
-                ? this.condition
-                : condition as String?,
-            grade: identical(grade, _unset) ? this.grade : grade as String?,
-            purchaseDate: identical(purchaseDate, _unset)
-                ? this.purchaseDate
-                : purchaseDate as DateTime?,
-            pricePaidCents: identical(pricePaidCents, _unset)
-                ? this.pricePaidCents
-                : pricePaidCents as int?,
-            currency: identical(currency, _unset)
-                ? this.currency
-                : currency as String?,
-            personalNotes: identical(personalNotes, _unset)
-                ? this.personalNotes
-                : personalNotes as String?,
-            indexNumber: identical(indexNumber, _unset)
-                ? this.indexNumber
-                : indexNumber as int?,
-            tags: identical(tags, _unset) ? this.tags : tags as String?,
-            soldAt:
-                identical(soldAt, _unset) ? this.soldAt : soldAt as DateTime?,
-            sellPriceCents: identical(sellPriceCents, _unset)
-                ? this.sellPriceCents
-                : sellPriceCents as int?,
-            soldTo: identical(soldTo, _unset) ? this.soldTo : soldTo as String?,
-            ownerUserId: identical(ownerUserId, _unset)
-                ? this.ownerUserId
-                : ownerUserId as String?,
-            ownerLabel: identical(ownerLabel, _unset)
-                ? this.ownerLabel
-                : ownerLabel as String?,
-            locationId: identical(locationId, _unset)
-                ? this.locationId
-                : locationId as String?,
-            purchaseStore: identical(purchaseStore, _unset)
-                ? this.purchaseStore
-                : purchaseStore as String?,
-            collectionStatus: identical(collectionStatus, _unset)
-                ? this.collectionStatus
-                : collectionStatus as String?,
-            marketValueCents: identical(marketValueCents, _unset)
-                ? this.marketValueCents
-                : marketValueCents as int?,
-            details: details ?? this.details,
-          ),
+      personal: personal ?? this.personal,
       sourceCatalogRef: sourceCatalogRef,
       createdAt: identical(createdAt, _unset)
           ? this.createdAt
