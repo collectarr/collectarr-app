@@ -65,7 +65,7 @@ List<Widget> buildMusicCopyInspectorSections(
 ) {
   final sections = _buildMusicInspectorSections(context, request);
   final entryDetails =
-      MusicInspectorViewModel.from(request.item).entry?.details;
+      MusicInspectorViewModel.from(request.item).entry?.personal.details;
   if (entryDetails == null) return sections;
 
   final facts = <LibraryDetailField>[

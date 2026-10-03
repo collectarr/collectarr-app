@@ -13,8 +13,9 @@ List<LibraryDetailField> buildMusicPersonalDetailFields({
   required LibraryEntryDispatch? libraryEntryDispatch,
   required String? currency,
 }) {
-  final details =
-      MusicLibraryEntryProjection.fromDispatch(libraryEntryDispatch)?.details;
+  final details = MusicLibraryEntryProjection.fromDispatch(
+    libraryEntryDispatch,
+  )?.personal.details;
   final entry = MusicLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
   if (details == null || entry == null) {
     return const [];

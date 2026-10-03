@@ -146,14 +146,18 @@ final class MusicCollectionCsvProjection
   String? entryCollectionValue(LibraryWorkspaceSource entry) {
     final personalState =
         MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is MusicLibraryEntry ? personalState.grade : null;
+    return personalState is MusicLibraryEntry
+        ? personalState.personal.grade
+        : null;
   }
 
   @override
   String? entryCondition(LibraryWorkspaceSource entry) {
     final personalState =
         MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is MusicLibraryEntry ? personalState.condition : null;
+    return personalState is MusicLibraryEntry
+        ? personalState.personal.condition
+        : null;
   }
 
   @override
@@ -161,7 +165,7 @@ final class MusicCollectionCsvProjection
     final personalState =
         MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is MusicLibraryEntry
-        ? personalState.indexNumber
+        ? personalState.personal.indexNumber
         : null;
   }
 
@@ -169,7 +173,9 @@ final class MusicCollectionCsvProjection
   String? entryTags(LibraryWorkspaceSource entry) {
     final personalState =
         MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is MusicLibraryEntry ? personalState.tags : null;
+    return personalState is MusicLibraryEntry
+        ? personalState.personal.tags
+        : null;
   }
 
   @override

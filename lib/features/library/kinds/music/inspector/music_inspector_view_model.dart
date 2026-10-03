@@ -59,7 +59,7 @@ final class MusicInspectorViewModel {
   final MusicLibraryEntry? entry;
 
   MusicEntryMediumStorageView storageForMedium(int mediumNumber) {
-    final entryDetails = entry?.details;
+    final entryDetails = entry?.personal.details;
     final mediumId = mediums
         .where((medium) => medium.mediumNumber == mediumNumber)
         .firstOrNull

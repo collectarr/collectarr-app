@@ -1035,33 +1035,44 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
       inspector.libraryEntryDispatch,
     );
     final personalRows = <(String, String)>[
-      ('Index', entry?.indexNumber?.toString() ?? '-'),
-      if (entry?.isDigital != null)
-        ('Media entries', entry!.isDigital! ? 'Digital' : 'Physical'),
-      if (entry?.condition?.trim().isNotEmpty == true)
-        ('Condition', entry!.condition!),
-      if (entry?.grade?.trim().isNotEmpty == true) ('Grade', entry!.grade!),
+      ('Index', entry?.personal.indexNumber?.toString() ?? '-'),
+      if (entry?.personal.isDigital != null)
+        ('Media entries', entry!.personal.isDigital! ? 'Digital' : 'Physical'),
+      if (entry?.personal.condition?.trim().isNotEmpty == true)
+        ('Condition', entry!.personal.condition!),
+      if (entry?.personal.grade?.trim().isNotEmpty == true)
+        ('Grade', entry!.personal.grade!),
       if (source.locationPath?.trim().isNotEmpty == true)
         ('Location', source.locationPath!),
-      if (entry?.collectionStatus?.trim().isNotEmpty == true)
-        ('Collection status', entry!.collectionStatus!),
-      if (entry?.pricePaidCents != null)
-        ('Price paid', formatMoney(entry!.pricePaidCents, entry.currency)),
-      if (entry?.sellPriceCents != null)
-        ('Sell price', formatMoney(entry!.sellPriceCents, entry.currency)),
-      if (entry?.marketValueCents != null)
-        ('Market value', formatMoney(entry!.marketValueCents, entry.currency)),
-      if (entry?.purchaseDate != null)
-        ('Purchase date', formatDate(entry!.purchaseDate!)),
-      if (entry?.purchaseStore?.trim().isNotEmpty == true)
-        ('Purchase store', entry!.purchaseStore!),
-      if (entry?.details.signedBy?.trim().isNotEmpty == true)
-        ('Signed by', entry!.details.signedBy!),
-      if (entry?.details.lastCleanedDate != null)
-        ('Last cleaned', formatDate(entry!.details.lastCleanedDate!)),
-      if (entry?.tags?.trim().isNotEmpty == true) ('Tags', entry!.tags!),
-      if (entry?.personalNotes?.trim().isNotEmpty == true)
-        ('Notes', entry!.personalNotes!),
+      if (entry?.personal.collectionStatus?.trim().isNotEmpty == true)
+        ('Collection status', entry!.personal.collectionStatus!),
+      if (entry?.personal.pricePaidCents != null)
+        (
+          'Price paid',
+          formatMoney(entry!.personal.pricePaidCents, entry.personal.currency)
+        ),
+      if (entry?.personal.sellPriceCents != null)
+        (
+          'Sell price',
+          formatMoney(entry!.personal.sellPriceCents, entry.personal.currency)
+        ),
+      if (entry?.personal.marketValueCents != null)
+        (
+          'Market value',
+          formatMoney(entry!.personal.marketValueCents, entry.personal.currency)
+        ),
+      if (entry?.personal.purchaseDate != null)
+        ('Purchase date', formatDate(entry!.personal.purchaseDate!)),
+      if (entry?.personal.purchaseStore?.trim().isNotEmpty == true)
+        ('Purchase store', entry!.personal.purchaseStore!),
+      if (entry?.personal.details.signedBy?.trim().isNotEmpty == true)
+        ('Signed by', entry!.personal.details.signedBy!),
+      if (entry?.personal.details.lastCleanedDate != null)
+        ('Last cleaned', formatDate(entry!.personal.details.lastCleanedDate!)),
+      if (entry?.personal.tags?.trim().isNotEmpty == true)
+        ('Tags', entry!.personal.tags!),
+      if (entry?.personal.personalNotes?.trim().isNotEmpty == true)
+        ('Notes', entry!.personal.personalNotes!),
       if (entry?.createdAt != null) ('Added', formatDate(entry!.createdAt!)),
       ('Modified', formatNullableDate(entry?.updatedAt) ?? '-'),
     ];

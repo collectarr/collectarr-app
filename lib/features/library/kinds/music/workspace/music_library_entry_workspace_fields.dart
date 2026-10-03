@@ -40,7 +40,7 @@ abstract final class MusicLibraryEntryWorkspaceFields {
       final entry = MusicLibraryEntryProjection.fromDispatch(
         context.source.libraryEntryDispatch,
       );
-      return entry is MusicLibraryEntry ? entry.condition : null;
+      return entry is MusicLibraryEntry ? entry.personal.condition : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -119,7 +119,9 @@ abstract final class MusicLibraryEntryWorkspaceFields {
       final entry = MusicLibraryEntryProjection.fromDispatch(
         context.source.libraryEntryDispatch,
       );
-      return entry is MusicLibraryEntry ? entry.details.signedBy : null;
+      return entry is MusicLibraryEntry
+          ? entry.personal.details.signedBy
+          : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -132,7 +134,7 @@ abstract final class MusicLibraryEntryWorkspaceFields {
       final entry = MusicLibraryEntryProjection.fromDispatch(
         context.source.libraryEntryDispatch,
       );
-      return entry is MusicLibraryEntry ? entry.grade : null;
+      return entry is MusicLibraryEntry ? entry.personal.grade : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -147,7 +149,7 @@ abstract final class MusicLibraryEntryWorkspaceFields {
       );
       if (entry is! MusicLibraryEntry) return null;
       final values = [
-        for (final medium in entry.details.media) ...[
+        for (final medium in entry.personal.details.media) ...[
           if (medium.storageDevice?.trim().isNotEmpty == true)
             medium.storageDevice!.trim(),
           if (medium.storageSlot?.trim().isNotEmpty == true)
@@ -183,7 +185,7 @@ abstract final class MusicLibraryEntryWorkspaceFields {
       final entry = MusicLibraryEntryProjection.fromDispatch(
         context.source.libraryEntryDispatch,
       );
-      return entry is MusicLibraryEntry ? entry.indexNumber : null;
+      return entry is MusicLibraryEntry ? entry.personal.indexNumber : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -196,7 +198,9 @@ abstract final class MusicLibraryEntryWorkspaceFields {
       final entry = MusicLibraryEntryProjection.fromDispatch(
         context.source.libraryEntryDispatch,
       );
-      return entry is MusicLibraryEntry ? entry.details.lastCleanedDate : null;
+      return entry is MusicLibraryEntry
+          ? entry.personal.details.lastCleanedDate
+          : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -209,7 +213,7 @@ abstract final class MusicLibraryEntryWorkspaceFields {
         return null;
       }
       final entry = item.value as MusicLibraryEntry;
-      if (entry.condition?.trim() != currentLabel.trim()) return null;
+      if (entry.personal.condition?.trim() != currentLabel.trim()) return null;
       final next = replacement?.trim();
       return UpdateLibraryEntryCommand(
         libraryEntryRef: LibraryEntryRef(

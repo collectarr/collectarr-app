@@ -215,7 +215,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
           entry.libraryEntryDispatch,
         );
         return total +
-            (personalState?.details.signedBy?.trim().isNotEmpty == true
+            (personalState?.personal.details.signedBy?.trim().isNotEmpty == true
                 ? 1
                 : 0);
       },
