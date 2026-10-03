@@ -214,6 +214,13 @@ slice. This is progress, not completion of this plan:
   form, including player/play-time details, ratings, people, languages, themes,
   and expansion data. The form uses Core's `min_age` and `variant_name` keys;
   App's pinned contract was regenerated. This does not establish CLZ parity.
+- Core's Game document and response now retain the active App fields
+  `franchise`, `original_language`, `languages`, and the normalized
+  `physical_format_label`; App's kind model writes those fields explicitly and
+  the pinned contract was regenerated. Game's remaining untyped fields still
+  need an ownership pass.
+- Removed the empty Game local mapper after the production reference search
+  found only its own export. The active Game entry repository remains in use.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
@@ -227,10 +234,10 @@ ownership and typed schema organization across all kinds; replacing the universa
 `PersonalStateDraft` and shared edit-section field assumptions with kind-owned
 bindings; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
-form organization. Board Game metadata still retains a raw payload for fields
-that have not yet moved into its typed model. The nine field ledgers remain
-authoritative, and exact CLZ parity is only confirmed for Music until the other
-reference captures are available.
+form organization. Board Game and Game metadata still retain raw payloads for
+fields that have not yet moved into their typed models. The nine field ledgers
+remain authoritative, and exact CLZ parity is only confirmed for Music until
+the other reference captures are available.
 
 ## Architectural decisions
 
