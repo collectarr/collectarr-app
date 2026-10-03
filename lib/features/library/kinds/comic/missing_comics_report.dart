@@ -106,7 +106,8 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
       continue;
     }
     if (options.excludeOnOrder &&
-        dto.libraryEntry?.collectionStatus?.trim().toLowerCase() == 'on_order') {
+        dto.libraryEntry?.personal.collectionStatus?.trim().toLowerCase() ==
+            'on_order') {
       continue;
     }
     if (options.excludeUnreleased &&

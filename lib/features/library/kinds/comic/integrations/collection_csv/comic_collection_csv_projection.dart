@@ -135,20 +135,27 @@ final class ComicCollectionCsvProjection
 
   @override
   String? entryCollectionValue(LibraryWorkspaceSource entry) =>
-      ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)?.grade;
+      ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
+          ?.personal
+          .grade;
 
   @override
   String? entryCondition(LibraryWorkspaceSource entry) =>
-      ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)?.condition;
+      ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
+          ?.personal
+          .condition;
 
   @override
   int? entryIndexNumber(LibraryWorkspaceSource entry) =>
       ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
-          ?.indexNumber;
+          ?.personal
+          .indexNumber;
 
   @override
   String? entryTags(LibraryWorkspaceSource entry) =>
-      ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)?.tags;
+      ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
+          ?.personal
+          .tags;
 
   @override
   List<String> entryCellsBeforeLocation(
@@ -157,7 +164,7 @@ final class ComicCollectionCsvProjection
   }) {
     final personalState =
         ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    final details = personalState?.details;
+    final details = personalState?.personal.details;
     if (!clzFriendly) return const [];
     return [_formatMoney(details?.coverPriceCents, clzFriendly: true)];
   }
@@ -169,7 +176,7 @@ final class ComicCollectionCsvProjection
   }) {
     final personalState =
         ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    final details = personalState?.details;
+    final details = personalState?.personal.details;
     return [
       if (!clzFriendly)
         _formatMoney(details?.coverPriceCents, clzFriendly: false),

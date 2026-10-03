@@ -85,7 +85,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => ComicLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.tags?.split(','),
+    )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
     id: 'publisher',
@@ -110,20 +110,24 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     missingValueLabel: 'Missing grade',
     value: (item) => ComicLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.grade,
+    )?.personal.grade,
     matches: (item, value) => value == LibraryFilterDefinition.missingValue
         ? item.source.isEntry &&
             (ComicLibraryEntryProjection.fromDispatch(
                             item.source.libraryEntryDispatch)
-                        ?.grade ==
+                        ?.personal
+                        .grade ==
                     null ||
                 ComicLibraryEntryProjection.fromDispatch(
                         item.source.libraryEntryDispatch)!
+                    .personal
                     .grade!
                     .trim()
                     .isEmpty)
-        : ComicLibraryEntryProjection.fromDispatch(item.source.libraryEntryDispatch)
-                ?.grade
+        : ComicLibraryEntryProjection.fromDispatch(
+                    item.source.libraryEntryDispatch)
+                ?.personal
+                .grade
                 ?.trim() ==
             value,
   ),
@@ -133,7 +137,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     anyLabel: 'Any condition',
     value: (item) => ComicLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.condition,
+    )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
     id: 'country',
@@ -191,11 +195,14 @@ bool? comicQuickViewMatcher(
 ) {
   return switch (view) {
     LibraryQuickView.missingGrade => item.source.isEntry &&
-        (ComicLibraryEntryProjection.fromDispatch(item.source.libraryEntryDispatch)
-                    ?.grade ==
+        (ComicLibraryEntryProjection.fromDispatch(
+                        item.source.libraryEntryDispatch)
+                    ?.personal
+                    .grade ==
                 null ||
             ComicLibraryEntryProjection.fromDispatch(
                     item.source.libraryEntryDispatch)!
+                .personal
                 .grade!
                 .trim()
                 .isEmpty),

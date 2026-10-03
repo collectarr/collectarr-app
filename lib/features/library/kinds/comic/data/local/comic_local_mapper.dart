@@ -8,64 +8,28 @@ import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_
 
 import 'package:drift/drift.dart';
 
-
-
 final class ComicLocalMapper {
-
   const ComicLocalMapper._();
 
-
-
-
-
-
-
-
-
-
-
   static ComicReadingRowsCompanion toReadingRow(ComicLibraryEntry item) {
-
     return ComicReadingRowsCompanion.insert(
-
       libraryEntryRefKey: LibraryEntryRef(
-
         kind: CatalogMediaKind.comic,
-
         id: LibraryEntryId(item.id.value),
-
       ).key,
-
-      rating: Value(item.reading.rating),
-
-      status: Value(item.reading.status),
-
-      startedAt: Value(item.reading.startedAt),
-
-      finishedAt: Value(item.reading.finishedAt),
-
+      rating: Value(item.personal.reading.rating),
+      status: Value(item.personal.reading.status),
+      startedAt: Value(item.personal.reading.startedAt),
+      finishedAt: Value(item.personal.reading.finishedAt),
     );
-
   }
-
-
 
   static ComicReadingState fromReadingRow(ComicReadingRow row) {
-
     return ComicReadingState(
-
       rating: row.rating,
-
       status: row.status,
-
       startedAt: row.startedAt,
-
       finishedAt: row.finishedAt,
-
     );
-
   }
-
-
-
 }

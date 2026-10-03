@@ -14,7 +14,7 @@ LibraryCardPresentation buildComicCardPresentation(
   final libraryEntry = item.dto is ComicWorkspaceDto
       ? (item.dto as ComicWorkspaceDto).libraryEntry
       : null;
-  final comicDetails = libraryEntry?.details;
+  final comicDetails = libraryEntry?.personal.details;
   final badges = <LibraryCardBadge>[];
 
   if (comicDetails?.keyComic == true) {
@@ -28,11 +28,11 @@ LibraryCardPresentation buildComicCardPresentation(
     );
   }
 
-  if (libraryEntry?.grade?.trim().isNotEmpty == true) {
+  if (libraryEntry?.personal.grade?.trim().isNotEmpty == true) {
     badges.add(
       LibraryCardBadge(
         icon: Icons.workspace_premium,
-        label: 'Grade ${libraryEntry!.grade!.trim()}',
+        label: 'Grade ${libraryEntry!.personal.grade!.trim()}',
       ),
     );
   }
@@ -41,11 +41,11 @@ LibraryCardPresentation buildComicCardPresentation(
   if (comicDetails?.rawOrSlabbed != null ||
       comicDetails?.gradingCompany != null ||
       comicDetails?.labelType != null ||
-      libraryEntry?.grade != null) {
+      libraryEntry?.personal.grade != null) {
     overlay = (child) => SlabFrameOverlay.maybeWrap(
           rawOrSlabbed: comicDetails?.rawOrSlabbed,
           companyName: comicDetails?.gradingCompany,
-          scoreLabel: libraryEntry?.grade,
+          scoreLabel: libraryEntry?.personal.grade,
           labelType: comicDetails?.labelType,
           child: child,
         );

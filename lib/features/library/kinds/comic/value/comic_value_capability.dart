@@ -20,14 +20,15 @@ class ComicValueCapability implements LibraryValueCapability {
     ].where((candidate) {
       final libraryEntry = candidate.personalState;
       return libraryEntry != null &&
-          libraryEntry.details.coverPriceCents != null &&
-          libraryEntry.currency != null;
+          libraryEntry.personal.details.coverPriceCents != null &&
+          libraryEntry.personal.currency != null;
     }).toList(growable: false);
     if (valuedEntries.isEmpty) {
       return null;
     }
     final currencies = {
-      for (final candidate in valuedEntries) candidate.personalState!.currency!,
+      for (final candidate in valuedEntries)
+        candidate.personalState!.personal.currency!,
     };
     return LibraryCollectionValueSummary(
       valuedCount: valuedEntries.length,
@@ -36,7 +37,8 @@ class ComicValueCapability implements LibraryValueCapability {
           : valuedEntries.fold<int>(
               0,
               (total, candidate) {
-                return total + candidate.personalState!.details.coverPriceCents!;
+                return total +
+                    candidate.personalState!.personal.details.coverPriceCents!;
               },
             ),
       currency: currencies.length == 1 ? currencies.single : null,

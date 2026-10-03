@@ -158,8 +158,7 @@ List<_ComicInspectorTab> _comicInspectorTabs(
             accentColor: request.accent,
             children: [
               LibraryDetailFieldTable(
-                  fields:
-                      _valueFacts(item, request.libraryEntry))
+                  fields: _valueFacts(item, request.libraryEntry))
             ],
           ),
           if (libraryEntry != null) ...[
@@ -562,7 +561,7 @@ List<LibraryDetailField> _collectorFacts(ComicLibraryEntry? libraryEntry) {
     return const [];
   }
   final rows = <LibraryDetailField>[];
-  final comic = libraryEntry.details;
+  final comic = libraryEntry.personal.details;
   if (comic.rawOrSlabbed?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
         label: 'Raw / Slabbed', value: comic.rawOrSlabbed!.trim()));
@@ -629,7 +628,8 @@ List<LibraryDetailField> _valueFacts(
   if (libraryEntry.pricePaidCents != null) {
     rows.add(LibraryDetailField(
         label: 'Paid',
-        value: formatMoney(libraryEntry.pricePaidCents, libraryEntry.currency)));
+        value:
+            formatMoney(libraryEntry.pricePaidCents, libraryEntry.currency)));
   }
   if (snapshot.unrealizedGainLossCents != null) {
     rows.add(LibraryDetailField(
@@ -645,7 +645,7 @@ List<LibraryDetailField> _noteFacts(
   ComicLibraryEntry? libraryEntry,
 ) {
   final rows = <LibraryDetailField>[];
-  final personalNotes = libraryEntry?.personalNotes?.trim();
+  final personalNotes = libraryEntry?.personal.personalNotes?.trim();
   if (personalNotes != null && personalNotes.isNotEmpty) {
     rows.add(LibraryDetailField(label: 'Personal', value: personalNotes));
   }

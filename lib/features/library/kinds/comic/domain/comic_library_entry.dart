@@ -39,30 +39,8 @@ final class ComicLibraryEntry implements JsonEncodable {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
-  bool? get isDigital => personal.isDigital;
-  String? get condition => personal.condition;
-  String? get grade => personal.grade;
-  DateTime? get purchaseDate => personal.purchaseDate;
-  int? get pricePaidCents => personal.pricePaidCents;
-  String? get currency => personal.currency;
-  String? get personalNotes => personal.personalNotes;
-  int? get indexNumber => personal.indexNumber;
-  String? get tags => personal.tags;
-  DateTime? get soldAt => personal.soldAt;
-  int? get sellPriceCents => personal.sellPriceCents;
-  String? get soldTo => personal.soldTo;
-  String? get ownerUserId => personal.ownerUserId;
-  String? get ownerLabel => personal.ownerLabel;
-  String? get locationId => personal.locationId;
-  String? get purchaseStore => personal.purchaseStore;
-  String? get collectionStatus => personal.collectionStatus;
-  int? get marketValueCents => personal.marketValueCents;
-  ComicEntryDetails get details => personal.details;
-  ComicReadingState get reading => personal.reading;
-
   String get itemId => id.value;
   bool get isDeleted => deletedAt != null;
-  bool get isSold => soldAt != null;
 
   @override
   Map<String, dynamic> toJson() => {
@@ -138,55 +116,55 @@ final class ComicLibraryEntry implements JsonEncodable {
       other is ComicLibraryEntry &&
           id == other.id &&
           _sameInstant(createdAt, other.createdAt) &&
-          isDigital == other.isDigital &&
-          condition == other.condition &&
-          grade == other.grade &&
-          _sameInstant(purchaseDate, other.purchaseDate) &&
-          pricePaidCents == other.pricePaidCents &&
-          currency == other.currency &&
-          personalNotes == other.personalNotes &&
-          indexNumber == other.indexNumber &&
-          tags == other.tags &&
+          personal.isDigital == other.personal.isDigital &&
+          personal.condition == other.personal.condition &&
+          personal.grade == other.personal.grade &&
+          _sameInstant(personal.purchaseDate, other.personal.purchaseDate) &&
+          personal.pricePaidCents == other.personal.pricePaidCents &&
+          personal.currency == other.personal.currency &&
+          personal.personalNotes == other.personal.personalNotes &&
+          personal.indexNumber == other.personal.indexNumber &&
+          personal.tags == other.personal.tags &&
           _sameInstant(updatedAt, other.updatedAt) &&
           _sameInstant(deletedAt, other.deletedAt) &&
-          _sameInstant(soldAt, other.soldAt) &&
-          sellPriceCents == other.sellPriceCents &&
-          soldTo == other.soldTo &&
-          ownerUserId == other.ownerUserId &&
-          ownerLabel == other.ownerLabel &&
-          locationId == other.locationId &&
-          purchaseStore == other.purchaseStore &&
-          collectionStatus == other.collectionStatus &&
-          marketValueCents == other.marketValueCents &&
-          details == other.details &&
-          reading == other.reading;
+          _sameInstant(personal.soldAt, other.personal.soldAt) &&
+          personal.sellPriceCents == other.personal.sellPriceCents &&
+          personal.soldTo == other.personal.soldTo &&
+          personal.ownerUserId == other.personal.ownerUserId &&
+          personal.ownerLabel == other.personal.ownerLabel &&
+          personal.locationId == other.personal.locationId &&
+          personal.purchaseStore == other.personal.purchaseStore &&
+          personal.collectionStatus == other.personal.collectionStatus &&
+          personal.marketValueCents == other.personal.marketValueCents &&
+          personal.details == other.personal.details &&
+          personal.reading == other.personal.reading;
 
   @override
   int get hashCode => Object.hashAll([
         id,
         createdAt?.toUtc(),
-        isDigital,
-        condition,
-        grade,
-        purchaseDate?.toUtc(),
-        pricePaidCents,
-        currency,
-        personalNotes,
-        indexNumber,
-        tags,
+        personal.isDigital,
+        personal.condition,
+        personal.grade,
+        personal.purchaseDate?.toUtc(),
+        personal.pricePaidCents,
+        personal.currency,
+        personal.personalNotes,
+        personal.indexNumber,
+        personal.tags,
         updatedAt.toUtc(),
         deletedAt?.toUtc(),
-        soldAt?.toUtc(),
-        sellPriceCents,
-        soldTo,
-        ownerUserId,
-        ownerLabel,
-        locationId,
-        purchaseStore,
-        collectionStatus,
-        marketValueCents,
-        details,
-        reading,
+        personal.soldAt?.toUtc(),
+        personal.sellPriceCents,
+        personal.soldTo,
+        personal.ownerUserId,
+        personal.ownerLabel,
+        personal.locationId,
+        personal.purchaseStore,
+        personal.collectionStatus,
+        personal.marketValueCents,
+        personal.details,
+        personal.reading,
       ]);
 }
 

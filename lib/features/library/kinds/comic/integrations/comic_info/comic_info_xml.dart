@@ -46,16 +46,18 @@ class ComicInfoXml {
 
       // Personal fields from the typed Comic collection item.
       if (entry != null) {
-        _optionalElement(builder, 'Notes', entry.personalNotes);
-        if (entry.reading.rating != null && entry.reading.rating! > 0) {
+        _optionalElement(builder, 'Notes', entry.personal.personalNotes);
+        if (entry.personal.reading.rating != null &&
+            entry.personal.reading.rating! > 0) {
           // ComicInfo uses 0-5 scale; our rating is 0-10, map accordingly
           final comicInfoRating =
-              (entry.reading.rating! / 2).round().clamp(0, 5);
+              (entry.personal.reading.rating! / 2).round().clamp(0, 5);
           _optionalElement(
               builder, 'CommunityRating', comicInfoRating.toStringAsFixed(1));
         }
-        if (entry.tags != null && entry.tags!.trim().isNotEmpty) {
-          _optionalElement(builder, 'Tags', entry.tags);
+        if (entry.personal.tags != null &&
+            entry.personal.tags!.trim().isNotEmpty) {
+          _optionalElement(builder, 'Tags', entry.personal.tags);
         }
       }
     });

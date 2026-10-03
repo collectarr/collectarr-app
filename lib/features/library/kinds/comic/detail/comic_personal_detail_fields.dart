@@ -13,8 +13,9 @@ List<LibraryDetailField> buildComicPersonalDetailFields({
   required LibraryEntryDispatch? libraryEntryDispatch,
   required String? currency,
 }) {
-  final details =
-      ComicLibraryEntryProjection.fromDispatch(libraryEntryDispatch)?.details;
+  final details = ComicLibraryEntryProjection.fromDispatch(libraryEntryDispatch)
+      ?.personal
+      .details;
   if (details == null || details.coverPriceCents == null) {
     return const [];
   }

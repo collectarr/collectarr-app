@@ -13,7 +13,7 @@ abstract final class ComicLibraryEntryWorkspaceFields {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.condition,
     label: 'Condition',
-    getValue: (context) => _entry(context)?.condition,
+    getValue: (context) => _entry(context)?.personal.condition,
     entityScope: LibraryEntityScope.libraryEntry,
   );
 
@@ -29,7 +29,7 @@ abstract final class ComicLibraryEntryWorkspaceFields {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, int?>(
     id: ComicFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => _entry(context)?.pricePaidCents,
+    getValue: (context) => _entry(context)?.personal.pricePaidCents,
     entityScope: LibraryEntityScope.libraryEntry,
   );
 
@@ -47,7 +47,7 @@ abstract final class ComicLibraryEntryWorkspaceFields {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, int?>(
     id: ComicFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => _entry(context)?.reading.rating,
+    getValue: (context) => _entry(context)?.personal.reading.rating,
     entityScope: LibraryEntityScope.libraryEntry,
   );
 
@@ -79,7 +79,7 @@ abstract final class ComicLibraryEntryWorkspaceFields {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.grade,
     label: 'Grade',
-    getValue: (context) => _entry(context)?.grade,
+    getValue: (context) => _entry(context)?.personal.grade,
     entityScope: LibraryEntityScope.libraryEntry,
   );
 
@@ -196,13 +196,14 @@ abstract final class ComicLibraryEntryWorkspaceFields {
   );
 }
 
-ComicLibraryEntry? _entry(LibraryProjectionContext<ComicWorkspaceDto> context) =>
+ComicLibraryEntry? _entry(
+        LibraryProjectionContext<ComicWorkspaceDto> context) =>
     context.dto.libraryEntry;
 
 ComicEntryDetails? _entryDetails(
   LibraryProjectionContext<ComicWorkspaceDto> context,
 ) =>
-    _entry(context)?.details;
+    _entry(context)?.personal.details;
 
 final comicLibraryEntryWorkspaceFieldDefinitions = [
   ComicLibraryEntryWorkspaceFields.status,
@@ -337,8 +338,8 @@ final comicLibraryEntryWorkspaceColumnDefinitions = [
   ),
   columnFromField<ComicKind, ComicWorkspaceDto, int?>(
     ComicLibraryEntryWorkspaceFields.pricePaid,
-    cellValue: (context) => Text(
-        _formatCents(_entry(context)?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        _entry(context)?.personal.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -349,7 +350,7 @@ final comicLibraryEntryWorkspaceColumnDefinitions = [
     label: 'Rating',
     getValue: ComicLibraryEntryWorkspaceFields.rating.getValue,
     cellValue: (context) =>
-        Text(_entry(context)?.reading.rating?.toString() ?? ''),
+        Text(_entry(context)?.personal.reading.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
 ];

@@ -74,7 +74,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
               )),
             )
             .value;
-    final db = libraryEntryRef == null ? null : ref.watch(localDatabaseProvider);
+    final db =
+        libraryEntryRef == null ? null : ref.watch(localDatabaseProvider);
     final adapter = dto is ComicWorkspaceDto ? dto : null;
     final comicDto = dto is ComicWorkspaceDto ? dto : null;
     final referenceLabel = (adapter?.itemNumber?.trim().isNotEmpty == true
@@ -122,22 +123,24 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             : 'Not entry';
     final synopsis = comic?.synopsis?.trim();
     const String? plotDescription = null;
-    final comicDetails = libraryEntry?.details;
+    final comicDetails = libraryEntry?.personal.details;
     final slabLabel = librarySlabMarkerLabel(
       comicDetails?.rawOrSlabbed,
       comicDetails?.gradingCompany,
     );
-    final slabGrade = libraryEntry?.grade?.trim();
+    final slabGrade = libraryEntry?.personal.grade?.trim();
     final showSlabOverlay =
         comicDetails?.rawOrSlabbed?.trim().toLowerCase() == 'slabbed' &&
             slabLabel != null &&
             slabGrade != null &&
             slabGrade.isNotEmpty;
-    final currentValue = libraryEntry?.marketValueCents != null
-        ? formatMoney(libraryEntry!.marketValueCents, libraryEntry.currency)
+    final currentValue = libraryEntry?.personal.marketValueCents != null
+        ? formatMoney(libraryEntry!.personal.marketValueCents,
+            libraryEntry.personal.currency)
         : null;
     final gradeValueLabel = [
-      if (libraryEntry?.grade?.trim().isNotEmpty == true) libraryEntry!.grade!.trim(),
+      if (libraryEntry?.personal.grade?.trim().isNotEmpty == true)
+        libraryEntry!.personal.grade!.trim(),
       if (currentValue != null) currentValue,
     ].join('  •  ');
     final keyReason = comicDetails?.keyReason?.trim().isNotEmpty == true
@@ -149,7 +152,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
       if (seriesLabel != null) seriesLabel,
       if (referenceLabel.trim().isNotEmpty) referenceLabel,
       if (editionLabel.trim().isNotEmpty) editionLabel,
-      if (libraryEntry?.grade?.trim().isNotEmpty == true) libraryEntry!.grade!.trim(),
+      if (libraryEntry?.personal.grade?.trim().isNotEmpty == true)
+        libraryEntry!.personal.grade!.trim(),
     ].join(' ');
 
     return LayoutBuilder(
@@ -186,9 +190,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                     LibraryInteractiveCover(
                       title: dto.primaryLabel,
                       itemNumber: adapter?.itemNumber,
-                      imageUrl: back
-                          ? null
-                          : (dto.imageUrl ?? comic?.coverImageUrl),
+                      imageUrl:
+                          back ? null : (dto.imageUrl ?? comic?.coverImageUrl),
                       localBytes: back ? localBack : localFront,
                       libraryEntryRef: back ? null : libraryEntryRef,
                       accentColor: request.accent,

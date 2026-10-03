@@ -35,19 +35,19 @@ final class ComicLibraryEntryCreatePayload
     ComicLibraryEntry item,
   ) {
     return ComicLibraryEntryCreatePayload(
-      details: ComicEntryDetailsCodec().draftFromDetails(item.details),
-      condition: item.condition,
-      grade: item.grade,
-      purchaseDate: item.purchaseDate,
-      pricePaidCents: item.pricePaidCents,
-      currency: item.currency,
-      personalNotes: item.personalNotes,
-      locationId: item.locationId,
-      purchaseStore: item.purchaseStore,
-      ownerLabel: item.ownerLabel,
-      collectionStatus: item.collectionStatus,
-      isDigital: item.isDigital,
-      tags: item.tags,
+      details: ComicEntryDetailsCodec().draftFromDetails(item.personal.details),
+      condition: item.personal.condition,
+      grade: item.personal.grade,
+      purchaseDate: item.personal.purchaseDate,
+      pricePaidCents: item.personal.pricePaidCents,
+      currency: item.personal.currency,
+      personalNotes: item.personal.personalNotes,
+      locationId: item.personal.locationId,
+      purchaseStore: item.personal.purchaseStore,
+      ownerLabel: item.personal.ownerLabel,
+      collectionStatus: item.personal.collectionStatus,
+      isDigital: item.personal.isDigital,
+      tags: item.personal.tags,
     );
   }
 

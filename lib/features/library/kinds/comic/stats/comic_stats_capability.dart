@@ -63,7 +63,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
 
   static int countKeyComics(Iterable<LibraryWorkspaceSource> entries) {
     return entries.where((entry) => entry.isEntry).where((entry) {
-      return _comicLibraryEntry(entry)?.details.keyComic == true;
+      return _comicLibraryEntry(entry)?.personal.details.keyComic == true;
     }).length;
   }
 

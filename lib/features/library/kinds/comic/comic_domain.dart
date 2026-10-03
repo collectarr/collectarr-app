@@ -39,8 +39,8 @@ final class ComicPersonalOverlay {
       trackingSummary: source.trackingSummary,
       wishlistItem: source.wishlistItem,
       locationPath: source.locationPath,
-      lastBagBoardDate: libraryEntry?.details.lastBagBoardDate,
-      signedBy: libraryEntry?.details.signedBy,
+      lastBagBoardDate: libraryEntry?.personal.details.lastBagBoardDate,
+      signedBy: libraryEntry?.personal.details.signedBy,
       updatedAt: source.updatedAt,
     );
   }
@@ -53,7 +53,7 @@ final class ComicPersonalOverlay {
   final String? signedBy;
   final DateTime? updatedAt;
 
-  ComicEntryDetails? get _comicDetails => libraryEntry?.details;
+  ComicEntryDetails? get _comicDetails => libraryEntry?.personal.details;
 
   bool get isSlabbed => _comicDetails?.rawOrSlabbed == 'Slabbed';
   bool get keyComic => _comicDetails?.keyComic ?? false;

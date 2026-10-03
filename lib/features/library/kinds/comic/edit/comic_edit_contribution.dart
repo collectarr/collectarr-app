@@ -18,7 +18,7 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
   conditions: ComicVocabularies.condition.builtIns,
   collectionValueOptions: ComicVocabularies.grade.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
-    ComicLibraryEntry item => item.grade,
+    ComicLibraryEntry item => item.personal.grade,
     _ => null,
   },
   defaultCondition: 'Near Mint',
@@ -74,22 +74,22 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
   entryTransferUpdatePayloadBuilder: (_, updated) {
     final typed = comicTransferLibraryEntry(updated);
     return ComicLibraryEntryUpdatePayload.partial(
-      condition: Patch.set(typed.condition),
-      grade: Patch.set(typed.grade),
-      personalNotes: Patch.set(typed.personalNotes),
-      locationId: Patch.set(typed.locationId),
-      tags: Patch.set(typed.tags),
-      currency: Patch.set(typed.currency),
-      soldTo: Patch.set(typed.soldTo),
-      purchaseStore: Patch.set(typed.purchaseStore),
-      pricePaidCents: Patch.set(typed.pricePaidCents),
-      sellPriceCents: Patch.set(typed.sellPriceCents),
-      indexNumber: Patch.set(typed.indexNumber),
-      purchaseDate: Patch.set(typed.purchaseDate),
-      soldAt: Patch.set(typed.soldAt),
+      condition: Patch.set(typed.personal.condition),
+      grade: Patch.set(typed.personal.grade),
+      personalNotes: Patch.set(typed.personal.personalNotes),
+      locationId: Patch.set(typed.personal.locationId),
+      tags: Patch.set(typed.personal.tags),
+      currency: Patch.set(typed.personal.currency),
+      soldTo: Patch.set(typed.personal.soldTo),
+      purchaseStore: Patch.set(typed.personal.purchaseStore),
+      pricePaidCents: Patch.set(typed.personal.pricePaidCents),
+      sellPriceCents: Patch.set(typed.personal.sellPriceCents),
+      indexNumber: Patch.set(typed.personal.indexNumber),
+      purchaseDate: Patch.set(typed.personal.purchaseDate),
+      soldAt: Patch.set(typed.personal.soldAt),
       details: Patch.set(
         const ComicEntryDetailsCodec().draftFromDetails(
-          typed.details,
+          typed.personal.details,
         ),
       ),
     );
