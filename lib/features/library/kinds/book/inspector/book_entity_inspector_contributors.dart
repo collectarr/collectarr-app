@@ -68,9 +68,10 @@ List<Widget> buildBookCopyInspectorSections(
     accent: request.accent,
     onFilterByValue: request.onFilterByValue,
   );
-  final entry = BookLibraryEntryProjection.fromDispatch(request.libraryEntryDispatch);
+  final entry =
+      BookLibraryEntryProjection.fromDispatch(request.libraryEntryDispatch);
   if (entry == null) return sections;
-  final details = entry.details;
+  final details = entry.personal.details;
   final facts = <LibraryDetailField>[
     if (details.signedBy?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Signed by', value: details.signedBy!.trim()),

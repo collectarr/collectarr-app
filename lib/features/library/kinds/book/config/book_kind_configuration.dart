@@ -31,53 +31,53 @@ TransferableField bookTransferField({
 final bookUniversalTransferableFields =
     TransferableField.universalForTyped<BookLibraryEntry>(
   decode: (value) => value as BookLibraryEntry,
-  readCondition: (item) => item.condition,
+  readCondition: (item) => item.personal.condition,
   writeCondition: (item, value) =>
       item.copyWith(personal: item.personal.copyWith(condition: value)),
-  readPersonalNotes: (item) => item.personalNotes,
+  readPersonalNotes: (item) => item.personal.personalNotes,
   writePersonalNotes: (item, value) => item.copyWith(
     personal: item.personal.copyWith(personalNotes: value),
   ),
-  readLocationId: (item) => item.locationId,
+  readLocationId: (item) => item.personal.locationId,
   writeLocationId: (item, value) =>
       item.copyWith(personal: item.personal.copyWith(locationId: value)),
-  readTags: (item) => item.tags,
+  readTags: (item) => item.personal.tags,
   writeTags: (item, value) =>
       item.copyWith(personal: item.personal.copyWith(tags: value)),
-  readCurrency: (item) => item.currency,
+  readCurrency: (item) => item.personal.currency,
   writeCurrency: (item, value) =>
       item.copyWith(personal: item.personal.copyWith(currency: value)),
-  readSoldTo: (item) => item.soldTo,
+  readSoldTo: (item) => item.personal.soldTo,
   writeSoldTo: (item, value) =>
       item.copyWith(personal: item.personal.copyWith(soldTo: value)),
-  readPurchaseStore: (item) => item.purchaseStore,
+  readPurchaseStore: (item) => item.personal.purchaseStore,
   writePurchaseStore: (item, value) =>
       item.copyWith(personal: item.personal.copyWith(purchaseStore: value)),
-  readPricePaidCents: (item) => item.pricePaidCents?.toString(),
+  readPricePaidCents: (item) => item.personal.pricePaidCents?.toString(),
   writePricePaidCents: (item, value) => item.copyWith(
     personal: item.personal.copyWith(
       pricePaidCents: value == null ? null : int.tryParse(value),
     ),
   ),
-  readSellPriceCents: (item) => item.sellPriceCents?.toString(),
+  readSellPriceCents: (item) => item.personal.sellPriceCents?.toString(),
   writeSellPriceCents: (item, value) => item.copyWith(
     personal: item.personal.copyWith(
       sellPriceCents: value == null ? null : int.tryParse(value),
     ),
   ),
-  readIndexNumber: (item) => item.indexNumber?.toString(),
+  readIndexNumber: (item) => item.personal.indexNumber?.toString(),
   writeIndexNumber: (item, value) => item.copyWith(
     personal: item.personal.copyWith(
       indexNumber: value == null ? null : int.tryParse(value),
     ),
   ),
-  readPurchaseDate: (item) => item.purchaseDate?.toIso8601String(),
+  readPurchaseDate: (item) => item.personal.purchaseDate?.toIso8601String(),
   writePurchaseDate: (item, value) => item.copyWith(
     personal: item.personal.copyWith(
       purchaseDate: value == null ? null : DateTime.tryParse(value),
     ),
   ),
-  readSoldAt: (item) => item.soldAt?.toIso8601String(),
+  readSoldAt: (item) => item.personal.soldAt?.toIso8601String(),
   writeSoldAt: (item, value) => item.copyWith(
     personal: item.personal.copyWith(
       soldAt: value == null ? null : DateTime.tryParse(value),
@@ -91,7 +91,7 @@ final bookTransferableFields = <TransferableField>[
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.grade,
+    read: (item) => item.personal.grade,
     write: (item, value) =>
         item.copyWith(personal: item.personal.copyWith(grade: value)),
   ),
@@ -100,7 +100,7 @@ final bookTransferableFields = <TransferableField>[
     label: 'Signed by',
     icon: Icons.draw_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.details.signedBy,
+    read: (item) => item.personal.details.signedBy,
     write: (item, value) {
       return item.copyWith(
         personal: item.personal.copyWith(
@@ -115,7 +115,7 @@ final bookTransferableFields = <TransferableField>[
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
     scope: LibraryEntityScope.libraryEntry,
-    read: (item) => item.details.dustJacketPresent ? 'true' : null,
+    read: (item) => item.personal.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
         personal: item.personal.copyWith(
@@ -132,7 +132,7 @@ final bookTransferableFields = <TransferableField>[
     icon: Icons.grade_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEntityScope.libraryEntry,
-    read: (item) => item.details.dustJacketCondition,
+    read: (item) => item.personal.details.dustJacketCondition,
     write: (item, value) {
       return item.copyWith(
         personal: item.personal.copyWith(

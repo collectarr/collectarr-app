@@ -16,7 +16,7 @@ abstract final class BookLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = BookLibraryEntryProjection.fromDispatch(
           context.source.libraryEntryDispatch);
-      return entry is BookLibraryEntry ? entry.condition : null;
+      return entry is BookLibraryEntry ? entry.personal.condition : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -94,7 +94,7 @@ abstract final class BookLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = BookLibraryEntryProjection.fromDispatch(
           context.source.libraryEntryDispatch);
-      return entry is BookLibraryEntry ? entry.details.signedBy : null;
+      return entry is BookLibraryEntry ? entry.personal.details.signedBy : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );

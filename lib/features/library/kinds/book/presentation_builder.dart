@@ -416,19 +416,20 @@ class BookLibraryMediaPresentationBuilder
     final entry = typedEntry is BookLibraryEntry ? typedEntry : null;
     final rating = source.trackingSummary?.rating;
     final personalFacts = <LibraryDetailField>[
-      if (entry?.condition?.trim().isNotEmpty == true)
+      if (entry?.personal.condition?.trim().isNotEmpty == true)
         LibraryDetailField(
           label: 'Condition',
-          value: entry!.condition!.trim(),
+          value: entry!.personal.condition!.trim(),
         ),
-      if (entry?.grade?.trim().isNotEmpty == true)
+      if (entry?.personal.grade?.trim().isNotEmpty == true)
         LibraryDetailField(
           label: 'Grade',
-          value: entry!.grade!.trim(),
+          value: entry!.personal.grade!.trim(),
         ),
-      if (entry?.collectionStatus?.trim().isNotEmpty == true)
+      if (entry?.personal.collectionStatus?.trim().isNotEmpty == true)
         LibraryDetailField(
-            label: 'Collection Status', value: entry!.collectionStatus!.trim()),
+            label: 'Collection Status',
+            value: entry!.personal.collectionStatus!.trim()),
       if (rating != null)
         LibraryDetailField(label: 'Rating', value: rating.toString()),
       if (source.locationPath?.trim().isNotEmpty == true)
@@ -442,10 +443,10 @@ class BookLibraryMediaPresentationBuilder
           label: 'Notes',
           value: source.libraryEntrySummary!.notes!.trim(),
         ),
-      if (entry?.tags?.trim().isNotEmpty == true)
+      if (entry?.personal.tags?.trim().isNotEmpty == true)
         LibraryDetailField(
           label: 'Tags',
-          value: entry!.tags!.trim(),
+          value: entry!.personal.tags!.trim(),
         ),
     ];
     if (showPersonalDetails && personalFacts.isNotEmpty) {

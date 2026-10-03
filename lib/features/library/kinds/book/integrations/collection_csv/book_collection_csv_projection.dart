@@ -134,26 +134,38 @@ final class BookCollectionCsvProjection
 
   @override
   String? entryCollectionValue(LibraryWorkspaceSource entry) {
-    final personalState = BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is BookLibraryEntry ? personalState.grade : null;
+    final personalState =
+        BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is BookLibraryEntry
+        ? personalState.personal.grade
+        : null;
   }
 
   @override
   String? entryCondition(LibraryWorkspaceSource entry) {
-    final personalState = BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is BookLibraryEntry ? personalState.condition : null;
+    final personalState =
+        BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is BookLibraryEntry
+        ? personalState.personal.condition
+        : null;
   }
 
   @override
   int? entryIndexNumber(LibraryWorkspaceSource entry) {
-    final personalState = BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is BookLibraryEntry ? personalState.indexNumber : null;
+    final personalState =
+        BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is BookLibraryEntry
+        ? personalState.personal.indexNumber
+        : null;
   }
 
   @override
   String? entryTags(LibraryWorkspaceSource entry) {
-    final personalState = BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is BookLibraryEntry ? personalState.tags : null;
+    final personalState =
+        BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is BookLibraryEntry
+        ? personalState.personal.tags
+        : null;
   }
 
   @override
