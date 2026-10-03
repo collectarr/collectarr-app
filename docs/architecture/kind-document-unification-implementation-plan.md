@@ -372,6 +372,9 @@ slice. This is progress, not completion of this plan:
 - The Music contract checker now compares the pinned schema's root, disc, and
   track property sets with the active mapper allowlists. Its previous DTO path
   pointed to a deleted file.
+- Removed the App-only `MusicAlbumLabel` rows. Core exposes one item-level
+  `label` value, so Music no longer serializes a second label/catalog-number
+  representation that the canonical document cannot preserve.
 
 Still outstanding: replacing the universal `PersonalStateDraft` with
 kind-owned edit drafts/bindings and moving validation/serialization out of the
@@ -430,13 +433,16 @@ Use the current working code as evidence. Do not claim exact CLZ parity for
 the other eight kinds without reference captures. Preserve their supported
 fields while applying the shared architecture.
 
-Important Music discrepancies to resolve include old `MusicAlbum` fields
-outside the current Core contract, generic track/disc DTOs, credits represented
-both as role lists and contributions, partial/full date duplication, matrix
-data represented in both catalog discs and personal medium details. Core now
-limits Music discs and tracks to the fields recorded in the ledger. Track
-headers and playback/file metadata remain App-local where still used; they are
-not part of Core's canonical contract.
+The earlier Music discrepancy list is partly stale. The parallel generic
+track/disc DTOs have been removed. Artist credits are a distinct display-order
+credit from role-based personnel; the latter are normalized as typed
+contributions in App and encoded into Core's kind-owned role lists. Matrix
+numbers now live only on the contained Music disc. The App model still exposes
+both full-date and partial-date views of the same canonical date; audit their
+consumers before simplifying that representation. Core limits Music discs and
+tracks to the fields recorded in the ledger. Track headers and playback/file
+metadata remain App-local where used; they are not part of Core's canonical
+contract.
 
 ## Phase 2 — Core root document persistence for all kinds
 
