@@ -124,74 +124,95 @@ class TvSeasonMetadata {
 }
 
 @immutable
-class TvPhysicalReleaseMetadata {
-  const TvPhysicalReleaseMetadata({
-    required this.id,
-    required this.title,
-    this.seasonOrSeriesBoxSet,
-    this.region,
-    this.discCount,
-    this.packaging,
-    this.hdrFormats = const [],
-    this.audioTracks = const [],
-    this.subtitles = const [],
-    this.releaseDate,
-    this.barcode,
+class TvMediaMetadata implements JsonEncodable {
+  const TvMediaMetadata({
+    required this.position,
+    this.id,
+    this.mediaNumber,
+    this.mediaType,
+    this.title,
+    this.episodeCount,
+    this.runtimeMinutes,
+    this.regionCode,
+    this.encoding,
+    this.aspectRatio,
+    this.audioTracks,
+    this.subtitles,
+    this.resolution,
+    this.hdrFormat,
+    this.color,
+    this.layers,
+    this.frameRate,
+    this.bitDepth,
   });
 
-  final String id;
-  final String title;
-  final String? seasonOrSeriesBoxSet;
-  final String? region;
-  final int? discCount;
-  final String? packaging;
-  final List<String> hdrFormats;
-  final List<String> audioTracks;
-  final List<String> subtitles;
-  final DateTime? releaseDate;
-  final String? barcode;
+  final int position;
+  final String? id;
+  final int? mediaNumber;
+  final String? mediaType;
+  final String? title;
+  final int? episodeCount;
+  final int? runtimeMinutes;
+  final String? regionCode;
+  final String? encoding;
+  final String? aspectRatio;
+  final String? audioTracks;
+  final String? subtitles;
+  final String? resolution;
+  final String? hdrFormat;
+  final String? color;
+  final String? layers;
+  final String? frameRate;
+  final int? bitDepth;
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        if (seasonOrSeriesBoxSet != null)
-          'season_or_series_box_set': seasonOrSeriesBoxSet,
-        if (region != null) 'region': region,
-        if (discCount != null) 'disc_count': discCount,
-        if (packaging != null) 'packaging': packaging,
-        if (hdrFormats.isNotEmpty) 'hdr_formats': hdrFormats,
-        if (audioTracks.isNotEmpty) 'audio_tracks': audioTracks,
-        if (subtitles.isNotEmpty) 'subtitles': subtitles,
-        if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
-        if (barcode != null) 'barcode': barcode,
-      };
-
-  factory TvPhysicalReleaseMetadata.fromJson(Map<String, dynamic> json) {
-    return TvPhysicalReleaseMetadata(
-      id: (json['id'] as String?) ?? '',
-      title: (json['title'] as String?) ?? '',
-      seasonOrSeriesBoxSet: json['season_or_series_box_set'] as String?,
-      region: json['region'] as String?,
-      discCount: _asInt(json['disc_count']),
-      packaging: json['packaging'] as String?,
-      hdrFormats: (json['hdr_formats'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const [],
-      audioTracks: (json['audio_tracks'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const [],
-      subtitles: (json['subtitles'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const [],
-      releaseDate: json['release_date'] != null
-          ? DateTime.tryParse(json['release_date'] as String)
-          : null,
-      barcode: json['barcode'] as String?,
+  factory TvMediaMetadata.fromJson(Map<String, dynamic> json) {
+    final position = _asInt(json['position']);
+    if (position == null || position < 1) {
+      throw const FormatException('TV media requires a positive position.');
+    }
+    return TvMediaMetadata(
+      position: position,
+      id: json['id'] as String?,
+      mediaNumber: _asInt(json['media_number']),
+      mediaType: json['media_type'] as String?,
+      title: json['title'] as String?,
+      episodeCount: _asInt(json['episode_count']),
+      runtimeMinutes: _asInt(json['runtime_minutes']),
+      regionCode: json['region_code'] as String?,
+      encoding: json['encoding'] as String?,
+      aspectRatio: json['aspect_ratio'] as String?,
+      audioTracks: json['audio_tracks'] as String?,
+      subtitles: json['subtitles'] as String?,
+      resolution: json['resolution'] as String?,
+      hdrFormat: json['hdr_format'] as String?,
+      color: json['color'] as String?,
+      layers: json['layers'] as String?,
+      frameRate: json['frame_rate'] as String?,
+      bitDepth: _asInt(json['bit_depth']),
     );
   }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'position': position,
+        if (id != null) 'id': id,
+        if (mediaNumber != null) 'media_number': mediaNumber,
+        if (mediaType != null) 'media_type': mediaType,
+        if (title != null) 'title': title,
+        if (episodeCount != null) 'episode_count': episodeCount,
+        if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
+        if (regionCode != null) 'region_code': regionCode,
+        if (encoding != null) 'encoding': encoding,
+        if (aspectRatio != null) 'aspect_ratio': aspectRatio,
+        if (audioTracks != null) 'audio_tracks': audioTracks,
+        if (subtitles != null) 'subtitles': subtitles,
+        if (resolution != null) 'resolution': resolution,
+        if (hdrFormat != null) 'hdr_format': hdrFormat,
+        if (color != null) 'color': color,
+        if (layers != null) 'layers': layers,
+        if (frameRate != null) 'frame_rate': frameRate,
+        if (bitDepth != null) 'bit_depth': bitDepth,
+      };
 }
 
 @immutable
@@ -227,7 +248,7 @@ class TvSeriesMetadata implements JsonEncodable {
     this.cast = const [],
     this.crew = const [],
     this.seasons = const [],
-    this.releases = const [],
+    this.media = const [],
     this.series,
     this.seriesTitle,
     this.seasonNumber,
@@ -246,7 +267,6 @@ class TvSeriesMetadata implements JsonEncodable {
     this.variant,
     this.creators = const [],
     this.links = const [],
-    this.editions = const [],
     this.rawPayload = const <String, dynamic>{},
   });
 
@@ -284,7 +304,7 @@ class TvSeriesMetadata implements JsonEncodable {
   final List<TvPersonCredit> cast;
   final List<TvPersonCredit> crew;
   final List<TvSeasonMetadata> seasons;
-  final List<TvPhysicalReleaseMetadata> releases;
+  final List<TvMediaMetadata> media;
   final CatalogSeriesDetailsDto? series;
   final String? seriesTitle;
   final int? seasonNumber;
@@ -303,7 +323,6 @@ class TvSeriesMetadata implements JsonEncodable {
   final String? variant;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLinkDto> links;
-  final List<CatalogEditionDto> editions;
   final Map<String, dynamic> rawPayload;
 
   DateTime? get releaseDate => releaseDateParts?.asDateTime;
@@ -349,8 +368,7 @@ class TvSeriesMetadata implements JsonEncodable {
         if (crew.isNotEmpty) 'crew': crew.map((e) => e.toJson()).toList(),
         if (seasons.isNotEmpty)
           'seasons': seasons.map((e) => e.toJson()).toList(),
-        if (releases.isNotEmpty)
-          'releases': releases.map((e) => e.toJson()).toList(),
+        if (media.isNotEmpty) 'media': media.map((e) => e.toJson()).toList(),
         if (seriesTitle != null) 'series_title': seriesTitle,
         if (seasonNumber != null) 'season_number': seasonNumber,
         if (episodeNumber != null) 'episode_number': episodeNumber,
@@ -381,8 +399,6 @@ class TvSeriesMetadata implements JsonEncodable {
                 .map((e) => e.toJson())
                 .toList(),
         },
-        if (editions.isNotEmpty)
-          'editions': editions.map((e) => e.toJson()).toList(),
       };
 
   TvSeriesMetadata copyWith({
@@ -416,7 +432,7 @@ class TvSeriesMetadata implements JsonEncodable {
     List<TvPersonCredit>? cast,
     List<TvPersonCredit>? crew,
     List<TvSeasonMetadata>? seasons,
-    List<TvPhysicalReleaseMetadata>? releases,
+    List<TvMediaMetadata>? media,
     CatalogSeriesDetailsDto? series,
     String? seriesTitle,
     int? seasonNumber,
@@ -435,7 +451,6 @@ class TvSeriesMetadata implements JsonEncodable {
     String? variant,
     List<Map<String, dynamic>>? creators,
     List<TrailerLinkDto>? links,
-    List<CatalogEditionDto>? editions,
   }) {
     return TvSeriesMetadata(
       title: title ?? this.title,
@@ -470,7 +485,7 @@ class TvSeriesMetadata implements JsonEncodable {
       cast: cast ?? this.cast,
       crew: crew ?? this.crew,
       seasons: seasons ?? this.seasons,
-      releases: releases ?? this.releases,
+      media: media ?? this.media,
       series: series ?? this.series,
       seriesTitle: seriesTitle ?? this.seriesTitle,
       seasonNumber: seasonNumber ?? this.seasonNumber,
@@ -489,12 +504,13 @@ class TvSeriesMetadata implements JsonEncodable {
       variant: variant ?? this.variant,
       creators: creators ?? this.creators,
       links: links ?? this.links,
-      editions: editions ?? this.editions,
     );
   }
 
   factory TvSeriesMetadata.fromJson(Map<String, dynamic> json) {
-    final rawPayload = Map<String, dynamic>.from(json);
+    final rawPayload = Map<String, dynamic>.from(json)
+      ..remove('editions')
+      ..remove('releases');
     final seriesRaw = json['series'];
     final series = seriesRaw is Map
         ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
@@ -582,9 +598,8 @@ class TvSeriesMetadata implements JsonEncodable {
               ?.map((e) => TvSeasonMetadata.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      releases: (json['releases'] as List<dynamic>?)
-              ?.map((e) =>
-                  TvPhysicalReleaseMetadata.fromJson(e as Map<String, dynamic>))
+      media: (json['media'] as List<dynamic>?)
+              ?.map((e) => TvMediaMetadata.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
       series: series ??
@@ -612,12 +627,6 @@ class TvSeriesMetadata implements JsonEncodable {
       variant: json['variant_name'] as String?,
       creators: rawCreators,
       links: rawLinks,
-      editions: (json['editions'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((e) =>
-                  CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
-              .toList() ??
-          const <CatalogEditionDto>[],
     );
   }
 }

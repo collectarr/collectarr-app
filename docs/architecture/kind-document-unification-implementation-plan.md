@@ -170,6 +170,12 @@ slice. This is progress, not completion of this plan:
   kind document: media, seasons/episodes, printings, Music discs/tracks, and
   issue or platform details no longer require an edition/release graph. Seed
   validation checks the contained values and their stable IDs in place.
+- TV root media now uses the kind-owned `TvMediaMetadata` shape matching Core's
+  `TV_MEDIA` document. TV metadata no longer serializes generic editions or a
+  parallel physical-release list, and its media tab and vocabulary readers use
+  the contained root values. The older TV workspace `TvRelease` projection and
+  editor are still outstanding and are not represented as part of the Core
+  document.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.

@@ -298,21 +298,19 @@ Iterable<String?> _physicalFormatCatalogValues(
   yield* vocabularyValues([
     metadata.physicalFormatLabel,
     metadata.physicalFormat,
+    metadata.media.map((media) => media.mediaType),
   ]);
 }
 
 Iterable<String?> _regionCatalogValues(TvSeriesMetadata metadata) {
   return vocabularyValues([
     metadata.region,
-    metadata.releases.map((release) => release.region),
+    metadata.media.map((media) => media.regionCode),
   ]);
 }
 
 Iterable<String?> _packagingCatalogValues(TvSeriesMetadata metadata) {
-  return vocabularyValues([
-    metadata.packaging,
-    metadata.releases.map((release) => release.packaging),
-  ]);
+  return vocabularyValues([metadata.packaging]);
 }
 
 Iterable<String?> _distributorCatalogValues(TvSeriesMetadata metadata) {
@@ -320,20 +318,23 @@ Iterable<String?> _distributorCatalogValues(TvSeriesMetadata metadata) {
 }
 
 Iterable<String?> _screenRatioCatalogValues(TvSeriesMetadata metadata) {
-  return vocabularyValues([metadata.screenRatio]);
+  return vocabularyValues([
+    metadata.screenRatio,
+    metadata.media.map((media) => media.aspectRatio),
+  ]);
 }
 
 Iterable<String?> _audioCatalogValues(TvSeriesMetadata metadata) {
   return vocabularyValues([
     metadata.audioTracks,
-    metadata.releases.expand((release) => release.audioTracks),
+    metadata.media.map((media) => media.audioTracks),
   ]);
 }
 
 Iterable<String?> _subtitlesCatalogValues(TvSeriesMetadata metadata) {
   return vocabularyValues([
     metadata.subtitles,
-    metadata.releases.expand((release) => release.subtitles),
+    metadata.media.map((media) => media.subtitles),
   ]);
 }
 

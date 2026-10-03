@@ -460,9 +460,7 @@ LibraryEditSessionBundle createTvEditDraft({
   );
   final releaseMediaEdit = TvReleaseMediaEditController(
     item: item.kindCapability.mapTransport((transport) => transport),
-    initialDiscCount: tv.releases
-        .map((release) => release.discCount ?? 0)
-        .fold<int>(0, (max, count) => count > max ? count : max),
+    initialDiscCount: tv.media.length,
   );
   tvEdit.initializeTvEditors();
 

@@ -2,10 +2,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
-/// Builds the TV-entry workspace graph from the catalog snapshot.
-///
-/// Translates the catalog snapshot into the typed TV domain graph used by
-/// workspace fields and hierarchy code.
+/// Projects a flat TV catalog document into the active workspace view model.
 final class TvWorkspaceMapper {
   const TvWorkspaceMapper._();
 
@@ -36,15 +33,11 @@ final class TvWorkspaceMapper {
         'episode_count': metadata.episodeCount,
       if (metadata.status != null && basePayload['status'] == null)
         'status': metadata.status,
+      'media': [for (final media in metadata.media) media.toJson()],
       if (metadata.seasons.isNotEmpty)
         'seasons': [
           for (final season in metadata.seasons)
             _seasonPayload(item.id, season),
-        ],
-      if (metadata.releases.isNotEmpty)
-        'releases': [
-          for (final release in metadata.releases)
-            _releasePayload(item.id, release),
         ],
       if (basePayload['contributions'] == null)
         'contributions': [
@@ -76,35 +69,6 @@ final class TvWorkspaceMapper {
             'episode_number': episode.number,
           },
       ],
-    };
-  }
-
-  static Map<String, dynamic> _releasePayload(
-    String seriesId,
-    TvPhysicalReleaseMetadata release,
-  ) {
-    final media = [
-      for (var number = 1; number <= (release.discCount ?? 0); number++)
-        {
-          'id': '${release.id}:media:$number',
-          'release_id': release.id,
-          'media_number': number,
-          'media_type': 'disc',
-          'title': 'Disc $number',
-        },
-    ];
-    return {
-      ...release.toJson(),
-      'id': release.id,
-      'series_id': seriesId,
-      'title': release.title,
-      if (release.region != null) 'region_code': release.region,
-      if (release.barcode != null) 'sku': release.barcode,
-      if (release.packaging != null) 'case_type': release.packaging,
-      if (release.discCount != null) 'media_count': release.discCount,
-      if (release.audioTracks.isNotEmpty) 'language_audio': release.audioTracks,
-      if (release.subtitles.isNotEmpty) 'language_subtitles': release.subtitles,
-      'media': media,
     };
   }
 

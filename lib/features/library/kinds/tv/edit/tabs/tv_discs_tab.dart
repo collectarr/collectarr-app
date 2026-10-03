@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -17,51 +16,48 @@ class TvEditDiscsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final editions = item.kindCapability.mapTransport(
-      (transport) => TvSeriesMetadata.fromJson(transport.kindData).editions,
+    final media = item.kindCapability.mapTransport(
+      (transport) => TvSeriesMetadata.fromJson(transport.kindData).media,
     );
-    final allDiscs = <(String, CatalogDiscDto)>[];
-    for (final edition in editions) {
-      for (final disc in edition.discs) {
-        allDiscs.add((edition.title, disc));
-      }
-    }
     return EditTabShell(
       children: [
         EditSection(
-          title: 'Provider disc metadata',
+          title: 'Catalog media',
           accent: accent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const EditSectionStateMessage(
                 message:
-                    'Read-only: disc metadata is synced from provider/Core metadata.',
+                    'Read-only: media metadata is supplied by the catalog document.',
                 icon: Icons.lock_outline,
               ),
               const SizedBox(height: 10),
-              if (allDiscs.isEmpty)
+              if (media.isEmpty)
                 const EditSectionStateMessage(
-                  message: 'No disc data available yet.',
+                  message: 'No media data available yet.',
                   icon: Icons.album_outlined,
                 )
               else
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final (editionTitle, disc) in allDiscs)
+                    for (final row in media)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 6),
                         child: Row(
                           children: [
-                            Icon(Icons.album,
+                            Icon(Icons.album_outlined,
                                 size: 16, color: appPalette(context).textMuted),
                             const SizedBox(width: 8),
-                            Text(disc.discName ?? 'Disc ${disc.discNumber}',
+                            Text(
+                                row.title ??
+                                    row.mediaType ??
+                                    'Media ${row.position}',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w700)),
                             const Spacer(),
-                            Text(editionTitle,
+                            Text('Media ${row.mediaNumber ?? row.position}',
                                 style: TextStyle(
                                     color: appPalette(context).textMuted,
                                     fontSize: 12)),
@@ -74,11 +70,11 @@ class TvEditDiscsTab extends StatelessWidget {
           ),
         ),
         EditSection(
-          title: 'Local disc notes',
+          title: 'Local media notes',
           accent: accent,
           child: const EditSectionStateMessage(
             message:
-                'Use the release details tab for package/disc notes and the episode map tab for disc assignments.',
+                'Use the personal details tab for package notes. Episode-to-media assignments remain kind-owned.',
             icon: Icons.edit_note,
           ),
         ),
