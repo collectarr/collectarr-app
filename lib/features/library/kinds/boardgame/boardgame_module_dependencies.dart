@@ -20,6 +20,7 @@ export 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_ca
 export 'package:collectarr_app/features/library/kinds/boardgame/boardgame_physical_media_formats.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_personal_data.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/edit_presentation_builder.dart';

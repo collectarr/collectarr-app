@@ -10,6 +10,7 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
@@ -556,27 +557,30 @@ List<BoardGameLibraryEntry> boardgameSeedLibraryEntries(DateTime now) {
         ).toCatalogItemRef(),
         createdAt: now.subtract(Duration(days: 600 - (i * 25))),
         updatedAt: now,
-        isDigital: false,
-        condition: i.isEven ? 'Near Mint' : 'Very Good',
-        details: BoardgameEntryDetails(
-          editionLanguage: 'English',
-          editionRegion: 'US',
-          componentCondition: i.isEven ? 'Near Mint' : 'Very Good',
-          componentCompleteness: i == 1 ? 'Complete' : 'Complete with inserts',
-          missingPiecesNotes: i == 1 ? null : 'No missing components',
-          isSleeved: i.isOdd,
-          hasCustomInsert: i == 1,
-          hasPaintedMiniatures: i <= 4,
-          storageNotes: i == 1 ? 'Dedicated board-game cabinet' : null,
+        personal: BoardGamePersonalData(
+          isDigital: false,
+          condition: i.isEven ? 'Near Mint' : 'Very Good',
+          details: BoardgameEntryDetails(
+            editionLanguage: 'English',
+            editionRegion: 'US',
+            componentCondition: i.isEven ? 'Near Mint' : 'Very Good',
+            componentCompleteness:
+                i == 1 ? 'Complete' : 'Complete with inserts',
+            missingPiecesNotes: i == 1 ? null : 'No missing components',
+            isSleeved: i.isOdd,
+            hasCustomInsert: i == 1,
+            hasPaintedMiniatures: i <= 4,
+            storageNotes: i == 1 ? 'Dedicated board-game cabinet' : null,
+          ),
+          purchaseDate: DateTime.utc(2017 + i, i % 12 + 1, 1),
+          pricePaidCents: i == 1 ? 14000 : 4500 + (i * 250),
+          currency: 'USD',
+          personalNotes: i == 1
+              ? 'All characters unlocked.'
+              : 'Complete retail copy with rulebook and components.',
+          purchaseStore: i.isEven ? 'Local Game Store' : 'Miniature Market',
+          collectionStatus: 'collected',
         ),
-        purchaseDate: DateTime.utc(2017 + i, i % 12 + 1, 1),
-        pricePaidCents: i == 1 ? 14000 : 4500 + (i * 250),
-        currency: 'USD',
-        personalNotes: i == 1
-            ? 'All characters unlocked.'
-            : 'Complete retail copy with rulebook and components.',
-        purchaseStore: i.isEven ? 'Local Game Store' : 'Miniature Market',
-        collectionStatus: 'collected',
       ),
   ];
 }
