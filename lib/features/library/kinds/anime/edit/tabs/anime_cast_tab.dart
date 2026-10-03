@@ -8,10 +8,12 @@ class AnimeEditCastTab extends StatelessWidget {
     super.key,
     required this.accent,
     required this.animeEdit,
+    required this.markDirty,
   });
 
   final Color accent;
   final AnimeEditController animeEdit;
+  final VoidCallback markDirty;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,7 @@ class AnimeEditCastTab extends StatelessWidget {
       credits: animeEdit.castCredits,
       onAdd: () =>
           animeEdit.castCredits.add(EditableAnimeCredit.custom(role: 'Actor')),
+      onChanged: markDirty,
     );
   }
 }

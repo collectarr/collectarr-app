@@ -8,10 +8,12 @@ class AnimeEditCrewTab extends StatelessWidget {
     super.key,
     required this.accent,
     required this.animeEdit,
+    required this.markDirty,
   });
 
   final Color accent;
   final AnimeEditController animeEdit;
+  final VoidCallback markDirty;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,7 @@ class AnimeEditCrewTab extends StatelessWidget {
       credits: animeEdit.crewCredits,
       onAdd: () => animeEdit.crewCredits
           .add(EditableAnimeCredit.custom(role: 'Director')),
+      onChanged: markDirty,
     );
   }
 }

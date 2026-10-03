@@ -45,10 +45,12 @@ Widget? buildAnimeMediaCustomTabView({
     'cast' => AnimeEditCastTab(
         accent: accent,
         animeEdit: animeEdit,
+        markDirty: markDirty,
       ),
     'crew' => AnimeEditCrewTab(
         accent: accent,
         animeEdit: animeEdit,
+        markDirty: markDirty,
       ),
     'discs' => AnimeEditDiscsTab(
         item: item,
