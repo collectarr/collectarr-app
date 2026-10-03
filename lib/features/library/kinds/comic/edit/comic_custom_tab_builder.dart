@@ -21,9 +21,6 @@ Widget? buildComicCustomTabView({
 }) {
   final metadata = item.kindCapability.mapTransport(
       (transport) => ComicCatalogItem.fromJson(transport.kindData));
-  if (metadata is! ComicCatalogItem) {
-    throw StateError('Expected ComicCatalogItem for comic edit tabs');
-  }
   final media = metadata.id?.value == item.reference.id
       ? metadata
       : metadata.copyWith(id: ComicCatalogItemId(item.reference.id));

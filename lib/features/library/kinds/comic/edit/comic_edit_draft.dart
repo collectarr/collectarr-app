@@ -322,8 +322,7 @@ LibraryEditSessionBundle createComicEditDraft({
   );
   final comicEdit = ComicEditController(
     item: item.kindCapability.mapTransport(
-            (transport) => ComicCatalogItem.fromJson(transport.kindData))
-        as ComicCatalogItem,
+        (transport) => ComicCatalogItem.fromJson(transport.kindData)),
     itemImages: const [],
   );
   comicEdit.initialize();

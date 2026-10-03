@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
@@ -35,7 +33,7 @@ final class ComicTrackingStateCodec
         TrackingStorageRead(
           trackingStorageRowFromColumns(
             id: row.id,
-                        libraryEntryRefKey: row.libraryEntryRefKey,
+            libraryEntryRefKey: row.libraryEntryRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -62,7 +60,7 @@ final class ComicTrackingStateCodec
     await db.into(db.comicTrackingRows).insertOnConflictUpdate(
           ComicTrackingRowsCompanion.insert(
             id: entry.id,
-                        libraryEntryRefKey: entry.libraryEntryRef.key,
+            libraryEntryRefKey: entry.libraryEntryRef.key,
             sourceType: Value(entry.sourceTypeApiValue),
             status: Value(entry.statusStorageValue),
             rating: Value(entry.rating),
@@ -194,7 +192,6 @@ final class ComicTrackingStateCodec
       deletedAt: row.deletedAt,
     );
   }
-
 }
 
 int? _int(Object? value) {

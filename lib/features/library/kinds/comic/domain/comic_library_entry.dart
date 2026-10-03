@@ -2,10 +2,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
 import 'package:flutter/foundation.dart';
 

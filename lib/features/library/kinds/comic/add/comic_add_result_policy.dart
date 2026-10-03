@@ -34,6 +34,5 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
 bool _comicItemIsVariant(CatalogSearchCandidate item) {
   final metadata = item.kindCapability.mapTransport(
       (transport) => ComicCatalogItem.fromJson(transport.kindData));
-  return metadata is ComicCatalogItem &&
-      metadata.variant?.trim().isNotEmpty == true;
+  return metadata.variant?.trim().isNotEmpty == true;
 }
