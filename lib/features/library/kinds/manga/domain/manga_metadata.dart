@@ -122,7 +122,6 @@ class MangaMetadata implements JsonEncodable {
     this.publisher,
     this.barcode,
     this.variant,
-    this.editions = const [],
     this.creators = const [],
     this.links = const [],
     this.rawPayload = const <String, dynamic>{},
@@ -175,7 +174,6 @@ class MangaMetadata implements JsonEncodable {
   final String? publisher;
   final String? barcode;
   final String? variant;
-  final List<CatalogEditionDto> editions;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLinkDto> links;
   final Map<String, dynamic> rawPayload;
@@ -228,8 +226,6 @@ class MangaMetadata implements JsonEncodable {
         if (publisher != null) 'publisher': publisher,
         if (barcode != null) 'barcode': barcode,
         if (variant != null) 'variant_name': variant,
-        if (editions.isNotEmpty)
-          'editions': editions.map((e) => e.toJson()).toList(),
         if (creators.isNotEmpty) 'creators': creators,
         if (links.isNotEmpty) ...{
           if (links.any((l) => l.isTrailerLink))
@@ -283,7 +279,6 @@ class MangaMetadata implements JsonEncodable {
     String? publisher,
     String? barcode,
     String? variant,
-    List<CatalogEditionDto>? editions,
     List<Map<String, dynamic>>? creators,
     List<TrailerLinkDto>? links,
   }) {
@@ -328,27 +323,19 @@ class MangaMetadata implements JsonEncodable {
       publisher: publisher ?? this.publisher,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
-      editions: editions ?? this.editions,
       creators: creators ?? this.creators,
       links: links ?? this.links,
     );
   }
 
   factory MangaMetadata.fromJson(Map<String, dynamic> json) {
-    final rawPayload = Map<String, dynamic>.from(json);
+    final rawPayload = Map<String, dynamic>.from(json)..remove('editions');
     final seriesRaw = json['series'];
     final series = seriesRaw is Map
         ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
         : null;
     final resolvedSeriesTitle =
         (json['series_title'] ?? series?.seriesTitle) as String?;
-
-    final rawEditions = (json['editions'] as List<dynamic>?)
-            ?.whereType<Map<String, dynamic>>()
-            .map((e) =>
-                CatalogEditionDto.fromJson(canonicalMangaEditionPayload(e)))
-            .toList() ??
-        const <CatalogEditionDto>[];
 
     final rawCreators = (json['creators'] as List<dynamic>?)
             ?.whereType<Map<Object?, Object?>>()
@@ -434,58 +421,10 @@ class MangaMetadata implements JsonEncodable {
       publisher: json['publisher'] as String?,
       barcode: json['barcode'] as String?,
       variant: json['variant_name'] as String?,
-      editions: rawEditions,
       creators: rawCreators,
       links: rawLinks,
     );
   }
-}
-
-Map<String, dynamic> canonicalMangaEditionPayload(
-  Map<String, dynamic> json,
-) {
-  final metadata = <String, dynamic>{};
-  final rawMetadata = json['metadata'];
-  if (rawMetadata is Map) {
-    metadata.addAll(Map<String, dynamic>.from(rawMetadata));
-  }
-
-  for (final key in [
-    'display_title',
-    'edition_statement',
-    'binding',
-    'imprint',
-    'country',
-    'isbn10',
-    'isbn13',
-    'barcode',
-    'page_count',
-    'cover_image_key',
-    'description',
-  ]) {
-    final value = json[key];
-    if (value != null) metadata.putIfAbsent(key, () => value);
-  }
-
-  return {
-    ...json,
-    'title': json['title'] ??
-        json['display_title'] ??
-        json['edition_title'] ??
-        json['name'] ??
-        'Edition',
-    if (json['release_date'] == null && json['publication_date'] != null)
-      'release_date': json['publication_date'],
-    if (json['isbn'] == null) 'isbn': json['isbn13'] ?? json['isbn10'],
-    if (json['upc'] == null && json['barcode'] != null) 'upc': json['barcode'],
-    if (json['region'] == null && json['country'] != null)
-      'region': json['country'],
-    if (json['physical_format'] == null && json['format'] != null)
-      'physical_format': json['format'],
-    if (json['physical_format_label'] == null && json['binding'] != null)
-      'physical_format_label': json['binding'],
-    if (metadata.isNotEmpty) 'metadata': metadata,
-  };
 }
 
 String? _mangaMetadataText(Object? value) {

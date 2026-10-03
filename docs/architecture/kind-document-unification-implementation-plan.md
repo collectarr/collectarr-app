@@ -176,6 +176,11 @@ slice. This is progress, not completion of this plan:
   the contained root values. The older TV workspace `TvRelease` projection and
   editor are still outstanding and are not represented as part of the Core
   document.
+- Manga metadata no longer exposes a generic `CatalogEditionDto` list or
+  release conversion helpers. Manual Add writes its edition, format, and
+  identifier values directly on the Manga document; the unused release
+  prefill/update adapters were removed. The older Manga workspace hierarchy is
+  still a separate outstanding migration.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
