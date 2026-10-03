@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
@@ -61,13 +63,22 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
 
   BookLibraryEntry toLibraryEntry({
     required String id,
+    required CatalogItemDto sourceCatalogItem,
     required DateTime createdAt,
     required bool? existingIsDigital,
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
+    if (sourceCatalogItem.mediaKind != CatalogMediaKind.book) {
+      throw ArgumentError.value(
+        sourceCatalogItem.mediaKind,
+        'sourceCatalogItem',
+        'Book entries require a Book catalog item.',
+      );
+    }
     return BookLibraryEntry(
       id: LibraryEntryId(id),
+      metadata: BookCatalogMetadata.fromJson(sourceCatalogItem.kindData),
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,
       details: details.toDetails(),

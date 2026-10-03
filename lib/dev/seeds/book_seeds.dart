@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -11,9 +10,8 @@ import 'package:collectarr_app/features/library/kinds/book/tracking/book_trackin
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_entry_repository.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 
 final bookDevSeedContributor = TypedDevSeedKindContributor<BookLibraryEntry>(
   kind: CatalogMediaKind.book,
@@ -761,29 +759,37 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
     ];
 
-List<BookLibraryEntry> bookSeedLibraryEntries(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.book, 15))
-        BookLibraryEntry(
-          id: LibraryEntryId('seed-entry-$itemId'),
-          sourceCatalogRef:
-              seedCatalogRef(CatalogMediaKind.book, itemId).toCatalogItemRef(),
-          createdAt: now.subtract(const Duration(days: 300)),
-          updatedAt: now,
-          isDigital: false,
-          condition: 'Near Mint',
-          details: const BookEntryDetails(
-            signedBy: 'Facsimile author signature',
-            dustJacketPresent: true,
-            dustJacketCondition: 'Fine',
-          ),
-          purchaseDate: DateTime.utc(2021, 10, 1),
-          pricePaidCents: 2499,
-          currency: 'USD',
-          personalNotes: 'Deluxe physical copy on library shelf.',
-          purchaseStore: 'Barnes & Noble',
-          collectionStatus: 'collected',
+List<BookLibraryEntry> bookSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in bookSeedCatalogItems())
+      item.id: BookCatalogMetadata.fromJson(item.kindData),
+  };
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.book, 15))
+      BookLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId] ??
+            (throw StateError('Missing Book seed catalog item: $itemId')),
+        sourceCatalogRef:
+            seedCatalogRef(CatalogMediaKind.book, itemId).toCatalogItemRef(),
+        createdAt: now.subtract(const Duration(days: 300)),
+        updatedAt: now,
+        isDigital: false,
+        condition: 'Near Mint',
+        details: const BookEntryDetails(
+          signedBy: 'Facsimile author signature',
+          dustJacketPresent: true,
+          dustJacketCondition: 'Fine',
         ),
-    ];
+        purchaseDate: DateTime.utc(2021, 10, 1),
+        pricePaidCents: 2499,
+        currency: 'USD',
+        personalNotes: 'Deluxe physical copy on library shelf.',
+        purchaseStore: 'Barnes & Noble',
+        collectionStatus: 'collected',
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> bookSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)

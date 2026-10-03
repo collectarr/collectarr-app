@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_entry_repository.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_library_entry_update_payload.dart';
@@ -14,8 +13,9 @@ final bookEntryContributor = TypedEntryKindContributor<BookLibraryEntry>(
       BookEntryRepository(database).findById(LibraryEntryId(id)),
   upsert: (database, item) => BookEntryRepository(database).upsert(item),
   listActive: (database) => BookEntryRepository(database).listActive(),
-  createItem: ({
+  createItemWithCatalog: ({
     required payload,
+    required sourceCatalogItem,
     required id,
     required createdAt,
     required existingIsDigital,
@@ -27,6 +27,7 @@ final bookEntryContributor = TypedEntryKindContributor<BookLibraryEntry>(
     }
     return payload.toLibraryEntry(
       id: id,
+      sourceCatalogItem: sourceCatalogItem,
       createdAt: createdAt,
       existingIsDigital: existingIsDigital,
       ownerUserId: ownerUserId,
