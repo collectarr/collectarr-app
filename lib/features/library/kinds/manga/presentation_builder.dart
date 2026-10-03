@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/catalog/manga_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
@@ -209,7 +208,6 @@ class MangaLibraryMediaPresentationBuilder
     final metadata =
         catalog is MangaWorkspaceCatalogData ? catalog.metadata : null;
     final series = metadata?.series;
-    const CatalogPublishingDetailsDto? publishing = null;
     const String? musicCatalogNumber = null;
     const String? musicAlbumStatus = null;
     const String? ageRating = null;
@@ -270,30 +268,16 @@ class MangaLibraryMediaPresentationBuilder
               formatPresentationNullableDate(releaseDate) ??
                   releaseDate?.year.toString(),
             )),
-        if (publishing?.pageCount != null)
+        if (metadata?.pageCount != null)
           LibraryDetailField(
-              label: 'Pages', value: publishing!.pageCount.toString()),
+              label: 'Pages', value: metadata!.pageCount.toString()),
         if (musicCatalogNumber != null)
           LibraryDetailField(label: 'Catalog No.', value: musicCatalogNumber),
-        if (publishing?.coverPriceCents != null)
-          LibraryDetailField(
-              label: 'Cover Price',
-              value: formatPresentationMoney(
-                publishing!.coverPriceCents,
-                publishing.currency,
-              )),
-        if (publishing?.imprint != null)
+        if (metadata?.imprint != null)
           LibraryDetailField(
               label: 'Imprint',
-              value: publishing!.imprint!,
-              onTap: tapFor(publishing.imprint)),
-        if (publishing?.seriesGroup != null)
-          LibraryDetailField(
-              label: 'Series Group',
-              value: publishing!.seriesGroup!,
-              onTap: tapFor(publishing.seriesGroup)),
-        if (publishing?.subtitle != null)
-          LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
+              value: metadata!.imprint!,
+              onTap: tapFor(metadata.imprint)),
         if (country != null)
           LibraryDetailField(label: 'Country', value: country),
         if (musicAlbumStatus != null)

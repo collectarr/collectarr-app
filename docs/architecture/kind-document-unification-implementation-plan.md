@@ -180,7 +180,9 @@ slice. This is progress, not completion of this plan:
   release conversion helpers. Manual Add writes its edition, format, and
   identifier values directly on the Manga document; the unused release
   prefill/update adapters were removed. The older Manga workspace hierarchy is
-  still a separate outstanding migration.
+  still a separate outstanding migration. Manga presentation now reads its
+  typed page count and imprint fields directly instead of a permanently-null
+  shared publishing DTO.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
