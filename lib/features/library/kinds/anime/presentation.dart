@@ -217,13 +217,15 @@ class AnimeLibraryMediaPresentationBuilder
             value: seriesTitle,
             onTap: tapFor(seriesTitle),
           ),
-        if (item.node.scope != LibraryEntityScope.catalogItem && variant != null)
+        if (item.node.scope != LibraryEntityScope.catalogItem &&
+            variant != null)
           LibraryDetailField(
             label: 'Format / Edition',
             value: variant,
             onTap: tapFor(variant),
           ),
-        if (item.node.scope != LibraryEntityScope.catalogItem && barcode != null)
+        if (item.node.scope != LibraryEntityScope.catalogItem &&
+            barcode != null)
           LibraryDetailField(label: 'UPC / Barcode', value: barcode),
       ],
       contextFacts: [
@@ -368,7 +370,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => AnimeLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.tags?.split(','),
+    )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
     id: 'publisher',
@@ -392,7 +394,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     anyLabel: 'Any condition',
     value: (item) => AnimeLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.condition,
+    )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
     id: 'country',

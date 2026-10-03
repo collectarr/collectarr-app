@@ -7,8 +7,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_entry_dis
 final class AnimeLibraryEntryProjection {
   const AnimeLibraryEntryProjection._();
 
-  static AnimeLibraryEntry? fromDispatch(
-      LibraryEntryDispatch? dispatch) {
+  static AnimeLibraryEntry? fromDispatch(LibraryEntryDispatch? dispatch) {
     final value = dispatch?.value;
     return value is AnimeLibraryEntry ? value : null;
   }
@@ -20,22 +19,22 @@ final class AnimeLibraryEntryProjection {
         id: LibraryEntryId(item.id.value),
       ),
       sourceCatalogRef: item.sourceCatalogRef,
-      isDigital: item.isDigital,
+      isDigital: item.personal.isDigital,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
       deletedAt: item.deletedAt,
-      purchaseDate: item.purchaseDate,
-      purchaseStore: item.purchaseStore,
-      pricePaidCents: item.pricePaidCents,
-      currency: item.currency,
-      soldAt: item.soldAt,
-      soldTo: item.soldTo,
-      sellPriceCents: item.sellPriceCents,
-      marketValueCents: item.marketValueCents,
-      ownerLabel: item.ownerLabel,
-      locationId: item.locationId,
-      notes: item.personalNotes,
-      hasNotes: item.personalNotes?.trim().isNotEmpty == true,
+      purchaseDate: item.personal.purchaseDate,
+      purchaseStore: item.personal.purchaseStore,
+      pricePaidCents: item.personal.pricePaidCents,
+      currency: item.personal.currency,
+      soldAt: item.personal.soldAt,
+      soldTo: item.personal.soldTo,
+      sellPriceCents: item.personal.sellPriceCents,
+      marketValueCents: item.personal.marketValueCents,
+      ownerLabel: item.personal.ownerLabel,
+      locationId: item.personal.locationId,
+      notes: item.personal.personalNotes,
+      hasNotes: item.personal.personalNotes?.trim().isNotEmpty == true,
     );
   }
 }

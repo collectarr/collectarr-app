@@ -16,7 +16,7 @@ abstract final class AnimeLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = AnimeLibraryEntryProjection.fromDispatch(
           context.source.libraryEntryDispatch);
-      return entry is AnimeLibraryEntry ? entry.condition : null;
+      return entry is AnimeLibraryEntry ? entry.personal.condition : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
