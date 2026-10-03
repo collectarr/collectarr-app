@@ -1,60 +1,5 @@
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_form_values.dart';
-
-MangaCatalogFormValues mangaCatalogFormValuesFromMedia(MangaMedia media) {
-  final raw = media.rawPayload;
-  return MangaCatalogFormValues(
-    title: media.title,
-    sortTitle: media.sortTitle ?? '',
-    subtitle: media.subtitle ?? '',
-    description: media.description ?? '',
-    originalLanguage: media.originalLanguage ?? '',
-    status: media.status ?? '',
-    firstPublicationDate: media.firstPublicationDate,
-    originalPublicationDate: media.originalPublicationDate,
-    genres: _stringList(raw['genres']),
-    searchAliases: _stringList(raw['search_aliases']),
-  );
-}
-
-MangaMedia mangaMediaFromCatalogFormValues({
-  required MangaMedia original,
-  required MangaCatalogFormValues values,
-}) {
-  final raw = Map<String, dynamic>.from(original.rawPayload);
-  _write(raw, 'title', values.title.trim());
-  _write(raw, 'sort_key', _optional(values.sortTitle));
-  _write(raw, 'subtitle', _optional(values.subtitle));
-  _write(raw, 'description', _optional(values.description));
-  _write(raw, 'synopsis', _optional(values.description));
-  _write(raw, 'original_language', _optional(values.originalLanguage));
-  _write(raw, 'status', _optional(values.status));
-  _write(raw, 'first_publication_date',
-      values.firstPublicationDate?.toIso8601String());
-  _write(raw, 'original_publication_date',
-      values.originalPublicationDate?.toIso8601String());
-  raw['genres'] = List<String>.unmodifiable(values.genres);
-  raw['search_aliases'] = List<String>.unmodifiable(values.searchAliases);
-
-  return MangaMedia(
-    id: original.id,
-    title: values.title.trim(),
-    sortTitle: _optional(values.sortTitle),
-    subtitle: _optional(values.subtitle),
-    description: _optional(values.description),
-    originalLanguage: _optional(values.originalLanguage),
-    status: _optional(values.status),
-    firstPublicationDate: values.firstPublicationDate,
-    originalPublicationDate: values.originalPublicationDate,
-    chapters: original.chapters,
-    characterAppearances: original.characterAppearances,
-    contributions: original.contributions,
-    identifiers: original.identifiers,
-    series: original.series,
-    rawPayload: raw,
-  );
-}
 
 MangaMetadata mangaMetadataFromManualCatalogFormValues({
   required MangaCatalogFormValues values,
@@ -108,25 +53,10 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
   );
 }
 
-void _write(Map<String, dynamic> target, String key, Object? value) {
-  if (value == null || value is String && value.trim().isEmpty) {
-    target.remove(key);
-  } else {
-    target[key] = value;
-  }
-}
-
 String? _optional(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
-
-List<String> _stringList(Object? value) => value is Iterable
-    ? value
-        .map((entry) => entry.toString().trim())
-        .where((entry) => entry.isNotEmpty)
-        .toList(growable: false)
-    : const <String>[];
 
 List<String> _split(String value) => value
     .split(RegExp(r'[,\r\n]+'))

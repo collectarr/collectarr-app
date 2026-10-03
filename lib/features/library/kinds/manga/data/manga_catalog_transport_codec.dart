@@ -10,22 +10,22 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 
 final class MangaCatalogTransportCodec
-    implements CatalogKindTransportCodec<MangaMedia> {
+    implements CatalogKindTransportCodec<MangaMetadata> {
   const MangaCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.manga;
 
   @override
-  MangaMedia decode(CatalogItemDto item) =>
-      MangaMedia.fromJson(catalogTransportPayloadFor(item));
+  MangaMetadata decode(CatalogItemDto item) =>
+      MangaMetadata.fromJson(catalogTransportPayloadFor(item));
 
   @override
-  CatalogDisplaySummary summarize(String catalogItemId, MangaMedia item) =>
+  CatalogDisplaySummary summarize(String catalogItemId, MangaMetadata item) =>
       CatalogDisplaySummary.root(
         kind: kind,
         id: catalogItemId,
@@ -85,7 +85,7 @@ final class MangaCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    MangaMedia item,
+    MangaMetadata item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -95,7 +95,7 @@ final class MangaCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(MangaMedia item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(MangaMetadata item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,

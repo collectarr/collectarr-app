@@ -8,82 +8,6 @@ typedef MangaFormValuesReader<TDraft> = MangaCatalogFormValues Function(
   TDraft draft,
 );
 
-List<LibraryFieldSpec<TDraft>> mangaWorkFields<TDraft>({
-  required MangaFormValuesReader<TDraft> values,
-  bool includeTitle = true,
-}) =>
-    [
-      if (includeTitle)
-        LibraryTextFieldSpec<TDraft>(
-          id: 'title',
-          label: 'Title',
-          value: (draft) => values(draft).title,
-          setValue: (draft, value) => values(draft).title = value,
-        ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'sort_title',
-        label: 'Sort title',
-        value: (draft) => values(draft).sortTitle,
-        setValue: (draft, value) => values(draft).sortTitle = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'subtitle',
-        label: 'Subtitle',
-        value: (draft) => values(draft).subtitle,
-        setValue: (draft, value) => values(draft).subtitle = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'synopsis',
-        label: 'Description',
-        value: (draft) => values(draft).description,
-        setValue: (draft, value) => values(draft).description = value,
-        maxLines: 4,
-      ),
-    ];
-
-List<LibraryFieldSpec<TDraft>> mangaPublicationFields<TDraft>({
-  required MangaFormValuesReader<TDraft> values,
-}) =>
-    [
-      LibraryTextFieldSpec<TDraft>(
-        id: 'original_language',
-        label: 'Original language',
-        value: (draft) => values(draft).originalLanguage,
-        setValue: (draft, value) => values(draft).originalLanguage = value,
-      ),
-      LibraryDateFieldSpec<TDraft>(
-        id: 'first_publication_date',
-        label: 'First publication date',
-        value: (draft) => values(draft).firstPublicationDate,
-        setValue: (draft, value) => values(draft).firstPublicationDate = value,
-      ),
-      LibraryDateFieldSpec<TDraft>(
-        id: 'original_publication_date',
-        label: 'Original publication date',
-        value: (draft) => values(draft).originalPublicationDate,
-        setValue: (draft, value) =>
-            values(draft).originalPublicationDate = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'status',
-        label: 'Publication status',
-        value: (draft) => values(draft).status,
-        setValue: (draft, value) => values(draft).status = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'genres',
-        label: 'Genres',
-        value: (draft) => values(draft).genres.join(', '),
-        setValue: (draft, value) => values(draft).genres = _split(value),
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'search_aliases',
-        label: 'Search aliases',
-        value: (draft) => values(draft).searchAliases.join(', '),
-        setValue: (draft, value) => values(draft).searchAliases = _split(value),
-      ),
-    ];
-
 List<LibraryFieldSpec<TDraft>> mangaReleaseFields<TDraft>({
   required MangaFormValuesReader<TDraft> values,
   Set<String>? include,
@@ -225,10 +149,3 @@ LibraryFieldSpec<TDraft> _vocabularyOrText<TDraft>({
     onManage: onManage == null ? null : (_) => onManage(),
   );
 }
-
-List<String> _split(String value) => value
-    .split(RegExp(r'[,\r\n]+'))
-    .map((entry) => entry.trim())
-    .where((entry) => entry.isNotEmpty)
-    .toSet()
-    .toList(growable: false);

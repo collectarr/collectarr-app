@@ -1,5 +1,4 @@
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-export 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy.dart';

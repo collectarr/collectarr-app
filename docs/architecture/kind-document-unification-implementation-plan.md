@@ -236,6 +236,11 @@ slice. This is progress, not completion of this plan:
   inspection, and CSV projections consume those typed values; `rawPayload` and
   its field aliases have been removed from the Board Game kind. This keeps the
   existing provisional Board Game field set and does not establish CLZ parity.
+- Manga's Catalog Item transport now decodes the kind-owned `MangaMetadata`
+  model instead of the parallel `MangaMedia` projection. Removed the unused
+  standalone Manga media edit dialog/schema and its work/publication wrappers;
+  the shared kind Add/Edit and workspace paths remain active. Manga metadata's
+  remaining raw payload fields are still outstanding.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
