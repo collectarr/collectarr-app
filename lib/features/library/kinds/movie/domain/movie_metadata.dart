@@ -173,7 +173,7 @@ class MovieCatalogMetadata implements JsonEncodable {
       if (packaging != null) 'packaging': packaging,
       if (distributor != null) 'distributor': distributor,
       if (hdr != null) 'hdr': hdr,
-      if (variant != null) 'variant': variant,
+      if (variant != null) 'variant_name': variant,
       if (itemNumber != null) 'item_number': itemNumber,
       if (seriesTitle != null) 'series_title': seriesTitle,
       if (series != null && series!.hasData) ...{
@@ -418,7 +418,7 @@ class MovieCatalogMetadata implements JsonEncodable {
       packaging: (json['packaging'] ?? videoRaw['packaging']) as String?,
       distributor: (json['distributor'] ?? videoRaw['distributor']) as String?,
       hdr: (json['hdr'] ?? videoRaw['hdr']) as String?,
-      variant: json['variant'] as String?,
+      variant: json['variant_name'] as String?,
       itemNumber: (json['item_number'] ?? json['issue_number']) as String?,
       series: series.hasData ? series : null,
       seriesTitle: resolvedSeriesTitle,

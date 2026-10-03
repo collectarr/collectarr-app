@@ -252,7 +252,7 @@ class AnimeMetadata implements JsonEncodable {
           'physical_format_label': physicalFormatLabel,
         if (publisher != null) 'publisher': publisher,
         if (barcode != null) 'barcode': barcode,
-        if (variant != null) 'variant': variant,
+        if (variant != null) 'variant_name': variant,
         if (editions.isNotEmpty)
           'editions': editions.map((e) => e.toJson()).toList(),
         if (creators.isNotEmpty) 'creators': creators,
@@ -448,7 +448,7 @@ class AnimeMetadata implements JsonEncodable {
               ? (json['studios'] as List).first.toString()
               : null)) as String?,
       barcode: json['barcode'] as String?,
-      variant: json['variant'] as String?,
+      variant: json['variant_name'] as String?,
       editions: rawEditions,
       creators: rawCreators,
       links: rawLinks,

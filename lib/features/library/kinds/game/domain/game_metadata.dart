@@ -124,8 +124,7 @@ class GameCatalogMetadata implements JsonEncodable {
       if (trailers.isNotEmpty) 'trailer_urls': trailers,
       if (_rawText('thumbnail_image_url') case final value?)
         'thumbnail_image_url': value,
-      if (_rawText('variant_name') ?? _rawText('variant') case final value?)
-        'variant_name': value,
+      if (_rawText('variant_name') case final value?) 'variant_name': value,
     };
   }
 

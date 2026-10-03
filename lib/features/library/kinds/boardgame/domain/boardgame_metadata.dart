@@ -126,7 +126,7 @@ class BoardGameMetadata implements JsonEncodable {
           'physical_format_label': physicalFormatLabel,
         if (publisher != null) 'publisher': publisher,
         if (barcode != null) 'barcode': barcode,
-        if (variant != null) 'variant': variant,
+        if (variant != null) 'variant_name': variant,
         if (creators.isNotEmpty) 'creators': creators,
         if (links.isNotEmpty) ...{
           if (links.any((l) => l.isTrailerLink))
@@ -318,7 +318,7 @@ class BoardGameMetadata implements JsonEncodable {
               ? (json['publishers'] as List).first.toString()
               : null)) as String?,
       barcode: json['barcode'] as String?,
-      variant: json['variant'] as String?,
+      variant: json['variant_name'] as String?,
       creators: rawCreators,
       links: rawLinks,
     );

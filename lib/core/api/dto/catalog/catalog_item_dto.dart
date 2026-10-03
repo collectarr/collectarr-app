@@ -93,27 +93,19 @@ final class CatalogItemDto {
   // They are never serialized separately: Core and the local cache retain
   // every canonical value only in kindData, and kind-entry codecs remain the
   // source for semantic behavior.
-  String get title => _string(kindData['title'] ?? kindData['name']) ?? '';
+  String get title => _string(kindData['title']) ?? '';
   String? get displayTitle => _string(kindData['display_title']);
   String? get localizedTitle => _string(kindData['localized_title']);
   String? get originalTitle => _string(kindData['original_title']);
   String? get titleExtension => _string(kindData['title_extension']);
-  List<String>? get searchAliases => _stringList(
-        kindData['search_aliases'] ?? kindData['aliases'],
-      );
+  List<String>? get searchAliases => _stringList(kindData['search_aliases']);
   String? get sortKey =>
       _string(kindData['sort_key'] ?? kindData['sort_title']);
   String? get synopsis => _string(
-        kindData['synopsis'] ?? kindData['description'] ?? kindData['overview'],
+        kindData['synopsis'] ?? kindData['description'],
       );
-  String? get coverImageUrl => _string(
-        kindData['cover_image_url'] ??
-            kindData['cover_url'] ??
-            kindData['poster_url'],
-      );
-  String? get thumbnailImageUrl => _string(
-        kindData['thumbnail_image_url'] ?? kindData['thumbnail_url'],
-      );
+  String? get coverImageUrl => _string(kindData['cover_image_url']);
+  String? get thumbnailImageUrl => _string(kindData['thumbnail_image_url']);
   String? get coverImageData => _string(kindData['cover_image_data']);
   PartialDate? get releaseDateParts => PartialDate.tryParse(
         kindData['release_date_parts'] ?? kindData['release_date'],
@@ -121,35 +113,17 @@ final class CatalogItemDto {
   DateTime? get releaseDate => releaseDateParts?.asDateTime;
   int? get releaseYear =>
       (kindData['release_year'] as num?)?.toInt() ?? releaseDateParts?.year;
-  String? get itemNumber => _string(
-        kindData['item_number'] ??
-            (kindData['publishing'] as Map?)?['issue_number'],
-      );
-  String? get variant => _string(
-        kindData['variant'] ?? (kindData['publishing'] as Map?)?['variant'],
-      );
-  String? get publisher => _string(
-        kindData['publisher'] ??
-            (kindData['publishing'] as Map?)?['original_publisher'],
-      );
-  String? get barcode => _string(
-        kindData['barcode'] ?? (kindData['publishing'] as Map?)?['barcode'],
-      );
+  String? get itemNumber =>
+      _string(kindData['item_number'] ?? kindData['issue_number']);
+  String? get variant => _string(kindData['variant_name']);
+  String? get publisher => _string(kindData['publisher']);
+  String? get barcode => _string(kindData['barcode']);
   String? get identifierCode => barcode;
-  String? get physicalFormat => _string(
-        kindData['physical_format'] ??
-            (kindData['publishing'] as Map?)?['physical_format'],
-      );
-  String? get physicalFormatLabel => _string(
-        kindData['physical_format_label'] ??
-            (kindData['publishing'] as Map?)?['physical_format_label'],
-      );
-  String? get editionTitle => _string(
-        kindData['edition_title'] ??
-            (kindData['publishing'] as Map?)?['edition_title'],
-      );
+  String? get physicalFormat => _string(kindData['physical_format']);
+  String? get physicalFormatLabel => _string(kindData['physical_format_label']);
+  String? get editionTitle => _string(kindData['edition_title']);
   List<TrailerLinkDto> get trailerUrls => [
-        ..._linkList(kindData['trailer_urls'] ?? kindData['trailers']),
+        ..._linkList(kindData['trailer_urls']),
         ..._linkList(kindData['external_links'], defaultKind: 'external'),
       ];
   List<CatalogEditionDto> get editions =>

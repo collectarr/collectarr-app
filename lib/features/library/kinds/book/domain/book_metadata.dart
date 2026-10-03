@@ -116,7 +116,7 @@ class BookCatalogMetadata implements JsonEncodable {
       if (language != null) 'language': language,
       if (publisher != null) 'publisher': publisher,
       if (barcode != null) 'barcode': barcode,
-      if (variant != null) 'variant': variant,
+      if (variant != null) 'variant_name': variant,
       if (editionTitle != null) 'edition_title': editionTitle,
       if (physicalFormat != null) 'physical_format': physicalFormat,
       if (physicalFormatLabel != null)
@@ -317,7 +317,7 @@ class BookCatalogMetadata implements JsonEncodable {
           publishing.originalPublisher ??
           json['original_publisher']) as String?,
       barcode: json['barcode'] as String?,
-      variant: json['variant'] as String?,
+      variant: json['variant_name'] as String?,
       editionTitle: json['edition_title'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,

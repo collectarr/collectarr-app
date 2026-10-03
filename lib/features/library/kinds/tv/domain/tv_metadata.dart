@@ -328,7 +328,7 @@ class TvSeriesMetadata implements JsonEncodable {
         if (audioTracks != null) 'audio_tracks': audioTracks,
         if (subtitles != null) 'subtitles': subtitles,
         if (barcode != null) 'barcode': barcode,
-        if (variant != null) 'variant': variant,
+        if (variant != null) 'variant_name': variant,
         if (creators.isNotEmpty) 'creators': creators,
         if (links.isNotEmpty) ...{
           if (links.any((l) => l.isTrailerLink))
@@ -538,7 +538,7 @@ class TvSeriesMetadata implements JsonEncodable {
           (json['audio_tracks'] ?? videoRaw['audio_tracks']) as String?,
       subtitles: (json['subtitles'] ?? videoRaw['subtitles']) as String?,
       barcode: json['barcode'] as String?,
-      variant: json['variant'] as String?,
+      variant: json['variant_name'] as String?,
       creators: rawCreators,
       links: rawLinks,
       editions: (json['editions'] as List<dynamic>?)

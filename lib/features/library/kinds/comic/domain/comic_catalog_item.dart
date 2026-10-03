@@ -473,7 +473,7 @@ class ComicCatalogItem implements JsonEncodable {
           const [],
       isKeyComic: json['is_key_comic'] as bool? ?? false,
       keyReason: json['key_reason'] as String?,
-      variant: (json['variant_name'] ?? json['variant']) as String?,
+      variant: json['variant_name'] as String?,
       variantDescription: json['variant_description'] as String?,
       barcode: json['barcode'] as String?,
       series: series.hasData ? series : null,

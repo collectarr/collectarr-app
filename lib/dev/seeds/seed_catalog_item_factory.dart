@@ -75,7 +75,7 @@ CatalogItemDto seedCatalogItem({
       'physical_format_label': physicalFormatLabel,
     if (resolvedPublisher != null) 'publisher': resolvedPublisher,
     if (resolvedBarcode != null) 'barcode': resolvedBarcode,
-    if (variant != null) 'variant': variant,
+    if (variant != null) 'variant_name': variant,
     if (country != null) 'country': country,
     if (language != null) 'language': language,
     if (ageRating != null) 'age_rating': ageRating,
