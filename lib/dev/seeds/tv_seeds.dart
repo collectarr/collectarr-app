@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_reposi
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
 final tvDevSeedContributor = TypedDevSeedKindContributor<TvLibraryEntry>(
@@ -999,22 +1000,24 @@ List<TvLibraryEntry> tvSeedLibraryEntries(DateTime now) {
             seedCatalogRef(CatalogMediaKind.tv, itemId).toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 280)),
         updatedAt: now,
-        isDigital: false,
-        condition: 'Near Mint',
-        details: const TvEntryDetails(
-          features: 'Commentary, deleted scenes, making-of documentary',
-          hdrFormats: ['HDR10', 'Dolby Vision'],
-          boxSetName: 'Complete Series Box Set',
-          region: 'Region Free',
-          packaging: 'Collector box',
-          distributor: 'Warner Bros. Home Entertainment',
+        personal: TvPersonalData(
+          isDigital: false,
+          condition: 'Near Mint',
+          details: TvEntryDetails(
+            features: 'Commentary, deleted scenes, making-of documentary',
+            hdrFormats: ['HDR10', 'Dolby Vision'],
+            boxSetName: 'Complete Series Box Set',
+            region: 'Region Free',
+            packaging: 'Collector box',
+            distributor: 'Warner Bros. Home Entertainment',
+          ),
+          purchaseDate: DateTime.utc(2022, 5, 10),
+          pricePaidCents: 4999,
+          currency: 'USD',
+          personalNotes: 'Complete box set in pristine condition.',
+          purchaseStore: 'Amazon',
+          collectionStatus: 'collected',
         ),
-        purchaseDate: DateTime.utc(2022, 5, 10),
-        pricePaidCents: 4999,
-        currency: 'USD',
-        personalNotes: 'Complete box set in pristine condition.',
-        purchaseStore: 'Amazon',
-        collectionStatus: 'collected',
       ),
   ];
 }
