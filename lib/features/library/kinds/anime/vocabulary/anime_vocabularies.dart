@@ -319,23 +319,20 @@ Iterable<String?> _physicalFormatCatalogValues(AnimeMetadata metadata) sync* {
   yield* vocabularyValues([
     metadata.physicalFormatLabel,
     metadata.physicalFormat,
-    metadata.editions.map((edition) => edition.physicalFormatLabel),
-    metadata.editions.map((edition) => edition.physicalFormat),
+    metadata.media.map((media) => media.mediaType),
   ]);
 }
 
 Iterable<String?> _regionCatalogValues(AnimeMetadata metadata) sync* {
   yield* vocabularyValues([
     metadata.country,
-    metadata.editions.map((edition) => edition.region),
+    metadata.media.map((media) => media.regionCode),
   ]);
 }
 
 Iterable<String?> _packagingCatalogValues(AnimeMetadata metadata) sync* {
   yield* vocabularyValues([
-    metadata.editions.map(
-      (edition) => _rawText(edition.metadata?['packaging']),
-    ),
+    metadata.media.map((media) => media.mediaType),
   ]);
 }
 
@@ -343,18 +340,11 @@ Iterable<String?> _distributorCatalogValues(AnimeMetadata metadata) sync* {
   yield* vocabularyValues([
     metadata.publisher,
     metadata.studios,
-    metadata.editions.map((edition) => edition.publisher),
   ]);
 }
 
 Iterable<String?> _hdrCatalogValues(AnimeMetadata metadata) sync* {
   yield* vocabularyValues([
-    metadata.editions.map((edition) =>
-        ((edition.metadata?['hdr_formats'] as Iterable?)?.map(_rawText))),
+    metadata.media.map((media) => media.hdrFormat),
   ]);
-}
-
-String? _rawText(Object? value) {
-  final text = value?.toString().trim();
-  return text == null || text.isEmpty ? null : text;
 }

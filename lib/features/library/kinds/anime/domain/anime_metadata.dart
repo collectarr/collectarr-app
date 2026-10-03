@@ -135,6 +135,82 @@ class AnimeRelation {
 }
 
 @immutable
+class AnimeMediaMetadata implements JsonEncodable {
+  const AnimeMediaMetadata({
+    required this.position,
+    this.id,
+    this.mediaNumber,
+    this.mediaType,
+    this.title,
+    this.episodeCount,
+    this.runtimeMinutes,
+    this.regionCode,
+    this.encoding,
+    this.aspectRatio,
+    this.audioTracks,
+    this.subtitles,
+    this.resolution,
+    this.hdrFormat,
+  });
+
+  final int position;
+  final String? id;
+  final int? mediaNumber;
+  final String? mediaType;
+  final String? title;
+  final int? episodeCount;
+  final int? runtimeMinutes;
+  final String? regionCode;
+  final String? encoding;
+  final String? aspectRatio;
+  final String? audioTracks;
+  final String? subtitles;
+  final String? resolution;
+  final String? hdrFormat;
+
+  factory AnimeMediaMetadata.fromJson(Map<String, dynamic> json) {
+    final position = (json['position'] as num?)?.toInt();
+    if (position == null || position < 1) {
+      throw const FormatException('Anime media requires a positive position.');
+    }
+    return AnimeMediaMetadata(
+      position: position,
+      id: json['id'] as String?,
+      mediaNumber: (json['media_number'] as num?)?.toInt(),
+      mediaType: json['media_type'] as String?,
+      title: json['title'] as String?,
+      episodeCount: (json['episode_count'] as num?)?.toInt(),
+      runtimeMinutes: (json['runtime_minutes'] as num?)?.toInt(),
+      regionCode: json['region_code'] as String?,
+      encoding: json['encoding'] as String?,
+      aspectRatio: json['aspect_ratio'] as String?,
+      audioTracks: json['audio_tracks'] as String?,
+      subtitles: json['subtitles'] as String?,
+      resolution: json['resolution'] as String?,
+      hdrFormat: json['hdr_format'] as String?,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'position': position,
+        if (id != null) 'id': id,
+        if (mediaNumber != null) 'media_number': mediaNumber,
+        if (mediaType != null) 'media_type': mediaType,
+        if (title != null) 'title': title,
+        if (episodeCount != null) 'episode_count': episodeCount,
+        if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
+        if (regionCode != null) 'region_code': regionCode,
+        if (encoding != null) 'encoding': encoding,
+        if (aspectRatio != null) 'aspect_ratio': aspectRatio,
+        if (audioTracks != null) 'audio_tracks': audioTracks,
+        if (subtitles != null) 'subtitles': subtitles,
+        if (resolution != null) 'resolution': resolution,
+        if (hdrFormat != null) 'hdr_format': hdrFormat,
+      };
+}
+
+@immutable
 class AnimeMetadata implements JsonEncodable {
   const AnimeMetadata({
     this.title = '',
@@ -180,7 +256,7 @@ class AnimeMetadata implements JsonEncodable {
     this.publisher,
     this.barcode,
     this.variant,
-    this.editions = const [],
+    this.media = const [],
     this.creators = const [],
     this.links = const [],
     this.rawPayload = const <String, dynamic>{},
@@ -233,7 +309,7 @@ class AnimeMetadata implements JsonEncodable {
   final String? publisher;
   final String? barcode;
   final String? variant;
-  final List<CatalogEditionDto> editions;
+  final List<AnimeMediaMetadata> media;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLinkDto> links;
   final Map<String, dynamic> rawPayload;
@@ -294,8 +370,7 @@ class AnimeMetadata implements JsonEncodable {
         if (publisher != null) 'publisher': publisher,
         if (barcode != null) 'barcode': barcode,
         if (variant != null) 'variant_name': variant,
-        if (editions.isNotEmpty)
-          'editions': editions.map((e) => e.toJson()).toList(),
+        if (media.isNotEmpty) 'media': media.map((e) => e.toJson()).toList(),
         if (creators.isNotEmpty) 'creators': creators,
         if (links.isNotEmpty) ...{
           if (links.any((l) => l.isTrailerLink))
@@ -355,7 +430,7 @@ class AnimeMetadata implements JsonEncodable {
     String? publisher,
     String? barcode,
     String? variant,
-    List<CatalogEditionDto>? editions,
+    List<AnimeMediaMetadata>? media,
     List<Map<String, dynamic>>? creators,
     List<TrailerLinkDto>? links,
   }) {
@@ -405,14 +480,13 @@ class AnimeMetadata implements JsonEncodable {
       publisher: publisher ?? this.publisher,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
-      editions: editions ?? this.editions,
+      media: media ?? this.media,
       creators: creators ?? this.creators,
       links: links ?? this.links,
     );
   }
 
   factory AnimeMetadata.fromJson(Map<String, dynamic> json) {
-    final rawPayload = Map<String, dynamic>.from(json);
     final seriesRaw = json['series'];
     final series = seriesRaw is Map
         ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
@@ -420,12 +494,12 @@ class AnimeMetadata implements JsonEncodable {
     final resolvedSeriesTitle =
         (json['series_title'] ?? series?.seriesTitle) as String?;
 
-    final rawEditions = (json['editions'] as List<dynamic>?)
+    final rawPayload = Map<String, dynamic>.from(json)..remove('editions');
+    final rawMedia = (json['media'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
-            .map(
-                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .map(AnimeMediaMetadata.fromJson)
             .toList() ??
-        const <CatalogEditionDto>[];
+        const <AnimeMediaMetadata>[];
 
     final rawCreators = (json['creators'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
@@ -531,7 +605,7 @@ class AnimeMetadata implements JsonEncodable {
               : null)) as String?,
       barcode: json['barcode'] as String?,
       variant: json['variant_name'] as String?,
-      editions: rawEditions,
+      media: rawMedia,
       creators: rawCreators,
       links: rawLinks,
     );

@@ -2,9 +2,7 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.d
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
-/// Builds the Anime-entry workspace graph from the catalog snapshot.
-///
-/// Converts the catalog snapshot into typed Anime media and release values.
+/// Builds the Anime workspace projection from the flat kind document.
 final class AnimeWorkspaceMapper {
   const AnimeWorkspaceMapper._();
 
@@ -32,37 +30,8 @@ final class AnimeWorkspaceMapper {
       if (basePayload['status'] == null) 'status': metadata.airingStatus.name,
       if (basePayload['contributions'] == null && metadata.creators.isNotEmpty)
         'contributions': metadata.creators,
-      'releases': metadata.editions.isNotEmpty
-          ? [
-              for (final edition in metadata.editions)
-                _releasePayload(item.id, edition),
-            ]
-          : (basePayload['releases'] is Iterable
-              ? basePayload['releases']
-              : const <dynamic>[]),
+      'media': [for (final media in metadata.media) media.toJson()],
     };
     return AnimeMedia.fromJson(payload);
-  }
-
-  static Map<String, dynamic> _releasePayload(
-    String seriesId,
-    CatalogEditionDto edition,
-  ) {
-    final metadata = edition.metadata ?? const <String, dynamic>{};
-    return {
-      ...edition.toJson(),
-      'id': edition.id,
-      'kind': 'anime',
-      'series_id': seriesId,
-      'release_title': edition.title,
-      if (edition.physicalFormatLabel != null)
-        'format': edition.physicalFormatLabel,
-      if (edition.region != null) 'region_code': edition.region,
-      if (edition.upc != null) 'barcode': edition.upc,
-      if (edition.discs.isNotEmpty) 'media_count': edition.discs.length,
-      if (metadata['audio_tracks'] is Iterable)
-        'audio_tracks': metadata['audio_tracks'],
-      if (metadata['subtitles'] is Iterable) 'subtitles': metadata['subtitles'],
-    };
   }
 }

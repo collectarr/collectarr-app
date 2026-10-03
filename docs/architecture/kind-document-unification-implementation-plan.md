@@ -162,6 +162,14 @@ slice. This is progress, not completion of this plan:
   replaced by kind-owned draft commits.
 - Comic search previews now read the issue number from `ComicCatalogItem`, and
   the shared `itemNumber` projection no longer falls back to `issue_number`.
+- Anime physical media is now represented by an Anime-owned `media` value with
+  the Core document's required `position` and typed media fields. Anime edit,
+  vocabulary, and workspace projections consume that root document directly;
+  seed data no longer manufactures edition or release nodes.
+- Development seeds for all nine kinds now place repeated item data in their
+  kind document: media, seasons/episodes, printings, Music discs/tracks, and
+  issue or platform details no longer require an edition/release graph. Seed
+  validation checks the contained values and their stable IDs in place.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
