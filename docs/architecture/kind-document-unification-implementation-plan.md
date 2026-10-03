@@ -84,6 +84,13 @@ slice. This is progress, not completion of this plan:
   `issue_number`, `overview`, nested TV `video`, or alternate TV rating and
   publisher shapes. The pinned kind ledgers remain the source for canonical
   field keys.
+- Movie workspace, Add preview, links, CSV, and contained-media editing now
+  consume `MovieCatalogMetadata` directly. The duplicate `MovieCatalogItem`
+  snapshot and mapper were removed. Movie media and disc rows are represented
+  by the kind-owned `MovieMediaMetadata` type and validate their required
+  positive media number. The Movie decoder now reads root media fields instead
+  of the nested `video` shape and no longer reads `issue_number`, `sort_title`,
+  or the duplicate root `discs` payload.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.
@@ -95,7 +102,9 @@ slice. This is progress, not completion of this plan:
   implementation and docs are complete, as requested.
 
 Still outstanding: removing business-field semantics and the remaining fallback
-aliases from shared transport and the other kind codecs; replacing the universal
+aliases from shared transport and the other kind codecs; completing Movie's
+remaining raw transport payload and provisional fields against its pinned
+ledger; replacing the universal
 `PersonalStateDraft` and shared edit-section field assumptions with kind-owned
 bindings; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
