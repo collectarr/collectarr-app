@@ -8,14 +8,18 @@ claim completion of every cleanup item or literal CLZ parity.
 - Core serves source-neutral Catalog Items and accepts user proposals. Provider
   search and provider ingest are not part of the App/Core product flow.
 - App stores one complete, independently editable `LibraryEntryRecord` per
-  local collectible. Kind metadata and personal values are separate maps on
-  that same record. `source_catalog_ref` records provenance only.
+  local collectible. Each kind owns typed metadata and personal-data models;
+  entry codecs encode them as JSON only at persistence and Sync boundaries.
+  `source_catalog_ref` records provenance only.
 - App Drift starts from schema version 1 and has no upgrade chain. The default
   native database is `collectarr-library.sqlite`; implementation work does not
   reset or overwrite an existing database.
 - All nine kind workspaces use Catalog Item data and local library entries.
   Add/Edit uses kind-owned fields with the shared dialog shell. Music contains
   its discs, tracks, credits, and artwork within the album catalog data.
+- All nine local entry aggregates expose personal state through their
+  kind-owned `personal` value. The flattened personal getters and `copyWith`
+  facade have been removed from the entry aggregates.
 - Local edits, Add, duplicate, import, delete, and attachment changes use the
   mutation transaction before the final entry snapshot is queued for Sync.
 - CSV v1 exports and imports complete local entry envelopes. Imports create
@@ -58,6 +62,17 @@ claim completion of every cleanup item or literal CLZ parity.
   Movies, and Games requires their Edit-form captures. Manga, Anime, TV, and
   Board Games need an explicitly chosen reference; their ledgers remain
   provisional.
+- `CatalogItemDto` still contains shared business-field getters and alias
+  fallbacks. Production consumers must move to their kind-owned typed models or
+  read-only projections before those getters can be removed safely.
+- Anime and TV still have active `CatalogEditionDto` and Work/Release-shaped
+  presentation adapters over their flat Catalog Item records. Replace these
+  with kind-owned contained media/season/episode models, then remove the old
+  projection paths.
+- `PersonalStateDraft` and `LibraryEntryPersonalSection` still centralize
+  generic personal-field bindings. Move field identity, defaults, validation,
+  and save mapping into each kind while keeping the shared layer responsible
+  for rendering controls.
 - Old-named workspace/schema files and some kind-owned presentation adapters
   remain. The active entity scopes are only `catalog_item` and `library_entry`;
   no Work/Release scope or identity is part of the supported local record
