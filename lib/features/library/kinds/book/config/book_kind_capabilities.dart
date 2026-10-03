@@ -1,9 +1,11 @@
 import '../book_module_dependencies.dart';
 import 'book_kind_configuration.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final bookKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.book,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'signed_by',
       label: 'Signed by',

@@ -2,10 +2,12 @@ import '../anime_module_dependencies.dart';
 import 'anime_kind_configuration.dart';
 import '../add/anime_add_contribution.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final animeKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.anime,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'features',
       label: 'Features',

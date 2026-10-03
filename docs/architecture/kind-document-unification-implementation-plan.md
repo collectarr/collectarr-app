@@ -48,6 +48,9 @@ slice. This is progress, not completion of this plan:
 - The shared personal editor now accepts kind-contributed fields. Music's
   `Signed By` vocabulary loading and persistence live in its edit module; the
   shared editor no longer switches on Music or reads its vocabulary directly.
+- Personal field registration no longer applies a global universal list. Each
+  kind explicitly composes reusable common personal field specs with its own
+  additions; the registry only combines those kind contributions.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
@@ -213,9 +216,6 @@ Confirmed areas needing changes:
 - `edit/sections/library_entry_personal_section.dart`: literal field keys and
   supported-field assumptions live in a common widget. Make the renderer accept
   kind-contributed field specifications/bindings; keep primitive widgets shared.
-- `metadata/library_field_entries.dart`: `kUniversalPersonalLibraryFields`
-  defines business keys and sync policy centrally. Replace it with composition
-  of the kinds' personal field definitions.
 - `core/models/library_entry_projection.dart`: reduce shared personal projection
   assumptions and obsolete parent-copy semantics; keep only the display/action
   interface actually needed by mixed-kind consumers.

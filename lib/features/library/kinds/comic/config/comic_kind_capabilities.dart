@@ -2,6 +2,7 @@ import '../comic_module_dependencies.dart';
 import 'comic_kind_configuration.dart';
 import '../actions/comic_missing_issues_action.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final comicKindPresentation = comicLibraryCatalogItemPresentation;
 
@@ -61,6 +62,7 @@ final comicKindTrackingTopology = const LibraryTrackingTopology(
 final comicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.comic,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'last_bag_board_date',
       label: 'Last bag/board date',

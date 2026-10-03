@@ -1,10 +1,12 @@
 import '../tv_module_dependencies.dart';
 import 'tv_kind_configuration.dart';
 import '../add/tv_add_contribution.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final tvKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.tv,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'features',
       label: 'Features',

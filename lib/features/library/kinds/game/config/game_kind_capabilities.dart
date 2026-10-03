@@ -1,5 +1,6 @@
 import '../game_module_dependencies.dart';
 import 'game_kind_configuration.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final gameKindPresentation = gamesLibraryMediaPresentation;
 
@@ -57,6 +58,7 @@ final gameKindTrackingTopology = const LibraryTrackingTopology(
 final gameKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.game,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'game_completeness',
       label: 'Game completeness',

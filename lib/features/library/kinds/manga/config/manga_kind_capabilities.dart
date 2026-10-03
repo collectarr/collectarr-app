@@ -1,9 +1,11 @@
 import '../manga_module_dependencies.dart';
 import 'manga_kind_configuration.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final mangaKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.manga,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'raw_or_slabbed',
       label: 'Raw or slabbed',

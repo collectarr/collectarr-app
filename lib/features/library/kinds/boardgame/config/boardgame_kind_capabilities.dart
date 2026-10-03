@@ -1,5 +1,11 @@
 import '../boardgame_module_dependencies.dart';
 import 'boardgame_kind_configuration.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
+
+final boardGameKindPersonalFieldContributor = LibraryPersonalFieldContributor(
+  kind: CatalogMediaKind.boardgame,
+  fields: commonPersonalLibraryFields,
+);
 
 final boardGameKindPresentation = boardGamesLibraryMediaPresentation;
 

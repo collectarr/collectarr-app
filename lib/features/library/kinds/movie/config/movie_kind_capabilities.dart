@@ -1,9 +1,11 @@
 import '../movie_module_dependencies.dart';
 import 'movie_kind_configuration.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final movieKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.movie,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'features',
       label: 'Features',
