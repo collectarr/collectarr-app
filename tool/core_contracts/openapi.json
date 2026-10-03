@@ -4423,6 +4423,17 @@
             ],
             "title": "Name"
           },
+          "real_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Real Name"
+          },
           "role": {
             "anyOf": [
               {
