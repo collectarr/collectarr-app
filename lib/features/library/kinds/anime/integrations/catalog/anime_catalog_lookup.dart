@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 
 final class AnimeCatalogLookup implements CatalogKindLookup {
   AnimeCatalogLookup(this._db);
@@ -26,8 +26,12 @@ final class AnimeCatalogLookup implements CatalogKindLookup {
   Future<CatalogSearchHit?> _findByBarcode(String barcode) async {
     final normalized = normalizeCatalogLookupValue(barcode);
     if (normalized.isEmpty) return null;
-    for (final media in await AnimeRepository(_db).search()) {
-      if (_matchesBarcode(media, normalized)) return _hit(media);
+    final items = await CatalogItemCacheRepository(_db).findAll(kind: kind);
+    for (final item in items) {
+      final metadata = AnimeMetadata.fromJson(item.kindData);
+      if (_matchesBarcode(metadata, normalized)) {
+        return _hit(item.id, metadata);
+      }
     }
     return null;
   }
@@ -39,42 +43,37 @@ final class AnimeCatalogLookup implements CatalogKindLookup {
     final normalizedTitle = normalizeCatalogLookupTitle(title);
     if (normalizedTitle.isEmpty) return null;
     final normalizedItemNumber = itemNumber?.trim();
-    for (final media in await AnimeRepository(_db).search()) {
-      if (normalizeCatalogLookupTitle(media.title) != normalizedTitle) {
+    final items = await CatalogItemCacheRepository(_db).findAll(kind: kind);
+    for (final item in items) {
+      final metadata = AnimeMetadata.fromJson(item.kindData);
+      if (normalizeCatalogLookupTitle(metadata.title) != normalizedTitle) {
         continue;
       }
       if (normalizedItemNumber != null &&
           normalizedItemNumber.isNotEmpty &&
-          _itemNumber(media)?.trim() != normalizedItemNumber) {
+          metadata.itemNumber?.trim() != normalizedItemNumber) {
         continue;
       }
-      return _hit(media);
+      return _hit(item.id, metadata);
     }
     return null;
   }
 
-  CatalogSearchHit _hit(AnimeMedia media) {
+  CatalogSearchHit _hit(String id, AnimeMetadata metadata) {
     return catalogLookupHit(
       kind: kind,
-      id: media.id.value,
-      title: media.title,
-      subtitle: _itemNumber(media),
+      id: id,
+      title: metadata.title,
+      subtitle: metadata.itemNumber,
     );
   }
 
-  bool _matchesBarcode(AnimeMedia media, String normalized) {
-    if (_same(media.barcode, normalized)) return true;
-    for (final identifier in media.identifiers) {
+  bool _matchesBarcode(AnimeMetadata metadata, String normalized) {
+    if (_same(metadata.barcode, normalized)) return true;
+    for (final identifier in metadata.identifiers) {
       if (_same(identifier.value, normalized)) return true;
     }
-    for (final release in media.releases) {
-      if (_same(release.barcode, normalized)) return true;
-    }
     return false;
-  }
-
-  String? _itemNumber(AnimeMedia media) {
-    return media.itemNumber;
   }
 
   bool _same(String? value, String normalized) {

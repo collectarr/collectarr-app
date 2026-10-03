@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_custom_episode_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session.dart';
@@ -111,10 +111,10 @@ Future<void> seedAnimeDatabase(
   Iterable<CatalogItemDto> items,
   DateTime now,
 ) async {
-  final repository = AnimeRepository(db);
+  final repository = AnimeCustomEpisodeRepository(db);
   final customEpisodes = animeSeedCustomEpisodes(now);
   for (final episode in customEpisodes) {
-    await repository.upsertCustomEpisode(episode);
+    await repository.upsert(episode);
   }
 }
 

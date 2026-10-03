@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_custom_episode_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
@@ -28,7 +28,7 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeSyncCodec {
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
-    return AnimeRepository(db).upsertCustomEpisode(episode);
+    return AnimeCustomEpisodeRepository(db).upsert(episode);
   }
 
   @override
@@ -36,7 +36,7 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeSyncCodec {
     LocalDatabase db,
     String id,
   ) async {
-    final episode = await AnimeRepository(db).findCustomEpisodeById(
+    final episode = await AnimeCustomEpisodeRepository(db).findById(
       AnimeEpisodeId(id),
     );
     if (episode == null) return null;
