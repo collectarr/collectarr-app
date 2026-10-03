@@ -1,52 +1,35 @@
-import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft_contract.dart';
+import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
 import 'package:flutter/material.dart';
 
 class MovieEditEditionTab extends StatelessWidget {
   const MovieEditEditionTab({
     super.key,
-    required this.draft,
+    required this.movieEdit,
     required this.accent,
     required this.physicalFormats,
   });
 
-  final LibraryEditShellState draft;
+  final MovieEditController movieEdit;
   final Color accent;
   final List<PhysicalMediaFormat> physicalFormats;
 
   @override
   Widget build(BuildContext context) {
-    final movieEdit = (draft.session.catalogItemSession
-            is MovieEditDraftContract)
-        ? (draft.session.catalogItemSession as MovieEditDraftContract).movieEdit
-        : null;
-
-    final editionTitleController =
-        movieEdit?.editionTitleController ?? TextEditingController();
-    final variantController =
-        movieEdit?.variantController ?? TextEditingController();
-    final barcodeController =
-        movieEdit?.barcodeController ?? TextEditingController();
-    final physicalFormatController =
-        movieEdit?.physicalFormatLabelController ?? TextEditingController();
-
     return EditTabShell(
       children: [
         EditSection(
           title: 'Edition',
           accent: accent,
           child: LibraryReleaseIdentityFields(
-            editionTitleController: editionTitleController,
-            variantController: variantController,
-            barcodeController: barcodeController,
-            releaseDateController:
-                movieEdit?.releaseDateController ?? TextEditingController(),
-            releaseYearController:
-                movieEdit?.releaseYearController ?? TextEditingController(),
-            physicalFormatController: physicalFormatController,
+            editionTitleController: movieEdit.editionTitleController,
+            variantController: movieEdit.variantController,
+            barcodeController: movieEdit.barcodeController,
+            releaseDateController: movieEdit.releaseDateController,
+            releaseYearController: movieEdit.releaseYearController,
+            physicalFormatController: movieEdit.physicalFormatLabelController,
             physicalFormatOptions: [
               for (final format in physicalFormats) format.label,
             ],
@@ -54,15 +37,13 @@ class MovieEditEditionTab extends StatelessWidget {
               final normalized = emptyToNull(value ?? '');
               final selected = _physicalFormatForLabel(normalized);
               final previousLabel =
-                  _physicalFormatLabelForId(movieEdit?.physicalFormatId);
-              final variant = variantController.text.trim();
+                  _physicalFormatLabelForId(movieEdit.physicalFormatId);
+              final variant = movieEdit.variantController.text.trim();
               final shouldReplaceVariant =
                   variant.isEmpty || previousLabel == variant;
-              if (movieEdit != null) {
-                movieEdit.physicalFormatId = selected?.id;
-              }
+              movieEdit.physicalFormatId = selected?.id;
               if (selected != null && shouldReplaceVariant) {
-                variantController.text = selected.label;
+                movieEdit.variantController.text = selected.label;
               }
             },
             editionTitleLabel: 'Edition title',

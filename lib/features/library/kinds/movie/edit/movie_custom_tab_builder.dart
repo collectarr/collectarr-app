@@ -30,7 +30,7 @@ Widget? buildMovieCustomTabView({
 
   return switch (tabId) {
     'edition' => MovieEditEditionTab(
-        draft: draft,
+        movieEdit: movieEdit,
         accent: accent,
         physicalFormats: const [],
       ),
