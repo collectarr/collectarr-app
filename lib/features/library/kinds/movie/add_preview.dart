@@ -24,9 +24,7 @@ class _MovieAddPreviewPane extends StatelessWidget {
     final selectedItem = request.item;
     if (selectedItem == null) return const SizedBox.shrink();
     final title = selectedItem.summary.primaryLabel;
-    final itemNumber = selectedItem.kindCapability
-        .mapTransport((transport) => transport)
-        .payload['item_number'] as String?;
+    final itemNumber = selectedItem.movieCatalogFields.itemNumber;
     final synopsis = selectedItem.movieCatalogFields.synopsis;
     final coverUrl = selectedItem.movieCatalogFields.coverImageUrl;
     final rows = libraryAddMetadataRowsForItem(selectedItem, request.type);

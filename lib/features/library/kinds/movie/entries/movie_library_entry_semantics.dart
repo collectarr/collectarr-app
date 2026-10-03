@@ -8,12 +8,12 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 LibraryEntryFormatHint resolveMovieEntryFormatHint(
   CatalogSearchCandidate item,
 ) {
-  final transport = item.kindCapability.mapTransport((transport) => transport);
-  final format = transport.physicalFormat;
+  final metadata = item.movieCatalogFields.metadata;
+  final format = metadata?.physicalFormat;
   return (
     format: format,
     label: moviePhysicalMediaFormatLabel(format) ??
-        (item.movieCatalogFields.titleExtension ?? transport.editionTitle)
+        (item.movieCatalogFields.titleExtension ?? metadata?.editionTitle)
             ?.trim(),
   );
 }

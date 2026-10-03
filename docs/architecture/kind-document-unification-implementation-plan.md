@@ -105,7 +105,9 @@ slice. This is progress, not completion of this plan:
   kind data, keeping envelope identity outside metadata. The Movie ledger is
   synchronized to the contract, but remains provisional: the saved CLZ Edit
   form is unavailable and App-local media details still need an ownership
-  review.
+  review. The workspace projection no longer retains a second transport DTO;
+  Add previews, format hints, lookup, and calendar dates read the typed Movie
+  document rather than generic transport field getters.
 - Book workspace, Add preview, links, CSV, author spotlight, statistics, and
   editing now consume `BookCatalogMetadata` directly. The duplicate
   `BookCatalogItem` snapshot and mapper were removed. Printings, credits,

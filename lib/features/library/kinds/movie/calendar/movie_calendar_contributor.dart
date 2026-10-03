@@ -21,9 +21,10 @@ final class MovieCalendarContributor implements LibraryCalendarContributor {
       if (ref.kind != kind) continue;
       final item = await _loadItem(context, ref.id.value);
       if (item == null) continue;
-      final date = item.releaseDate;
-      if (date == null) continue;
       final metadata = MovieCatalogMetadata.fromJson(item.kindData);
+      final date =
+          metadata.releaseDate ?? metadata.releaseDateParts?.asDateTime;
+      if (date == null) continue;
       events.add(CalendarEvent(
         kind: CalendarEventKind.releaseDate,
         date: DateTime.utc(date.year, date.month, date.day),

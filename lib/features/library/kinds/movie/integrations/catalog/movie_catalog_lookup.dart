@@ -27,7 +27,7 @@ final class MovieCatalogLookup implements CatalogKindLookup {
     final normalized = normalizeCatalogLookupValue(barcode);
     if (normalized.isEmpty) return null;
     for (final item in await _items()) {
-      if (_same(item.barcode, normalized)) return _hit(item);
+      if (_same(_metadata(item).barcode, normalized)) return _hit(item);
     }
     return null;
   }
@@ -40,13 +40,13 @@ final class MovieCatalogLookup implements CatalogKindLookup {
     if (normalizedTitle.isEmpty) return null;
     final normalizedItemNumber = itemNumber?.trim();
     for (final item in await _items()) {
-      if (normalizeCatalogLookupTitle(item.title) != normalizedTitle) {
+      final metadata = _metadata(item);
+      if (normalizeCatalogLookupTitle(metadata.title) != normalizedTitle) {
         continue;
       }
       if (normalizedItemNumber != null &&
           normalizedItemNumber.isNotEmpty &&
-          MovieCatalogMetadata.fromJson(item.kindData).itemNumber?.trim() !=
-              normalizedItemNumber) {
+          metadata.itemNumber?.trim() != normalizedItemNumber) {
         continue;
       }
       return _hit(item);
@@ -55,7 +55,7 @@ final class MovieCatalogLookup implements CatalogKindLookup {
   }
 
   CatalogSearchHit _hit(CatalogItemDto item) {
-    final metadata = MovieCatalogMetadata.fromJson(item.kindData);
+    final metadata = _metadata(item);
     return catalogLookupHit(
       kind: kind,
       id: item.id,
@@ -73,4 +73,7 @@ final class MovieCatalogLookup implements CatalogKindLookup {
   bool _same(String? value, String normalized) {
     return value != null && normalizeCatalogLookupValue(value) == normalized;
   }
+
+  MovieCatalogMetadata _metadata(CatalogItemDto item) =>
+      MovieCatalogMetadata.fromJson(item.kindData);
 }

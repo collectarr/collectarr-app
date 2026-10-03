@@ -10,23 +10,18 @@ final class MovieWorkspaceCatalogData
   MovieWorkspaceCatalogData({
     required this.ref,
     required this.metadata,
-    required CatalogItemDto transport,
-  }) : _transport = transport;
+  });
 
   factory MovieWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
     return MovieWorkspaceCatalogData(
       ref: item.catalogRef,
       metadata: MovieCatalogMetadata.fromJson(item.kindData),
-      transport: item,
     );
   }
 
   @override
   final CatalogEntityRef ref;
   final MovieCatalogMetadata metadata;
-  final CatalogItemDto _transport;
-
-  CatalogItemDto get transport => _transport;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.movie;

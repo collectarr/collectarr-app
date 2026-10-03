@@ -37,11 +37,11 @@ class MovieLibraryMediaPresentationBuilder
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
-    final transport =
-        item.kindCapability.mapTransport((transport) => transport);
+    final metadata = item.movieCatalogFields.metadata;
+    if (metadata == null) return const [];
     final badge = movieFormatBadge(
-      transport.physicalFormat,
-      label: moviePhysicalMediaFormatLabel(transport.physicalFormat),
+      metadata.physicalFormat,
+      label: moviePhysicalMediaFormatLabel(metadata.physicalFormat),
     );
     return badge == null ? const [] : [badge];
   }
@@ -131,11 +131,13 @@ class MovieLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.movieCatalogFields.releaseDate;
+    final fields = item.movieCatalogFields;
+    final metadata = fields.metadata;
+    final releaseDate = fields.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.kindCapability.mapTransport((transport) => transport).publisher
+        metadata?.publisher
       ),
       (
         'Released',
@@ -148,17 +150,14 @@ class MovieLibraryMediaPresentationBuilder
           previewLabels.labelFor('item_number', fallback: 'Number'),
           item.movieCatalogFields.itemNumber
         ),
-      if (item.kindCapability.mapTransport((transport) => transport).variant !=
-          null)
+      if (metadata?.variant != null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.kindCapability.mapTransport((transport) => transport).variant
+          metadata?.variant
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
+        metadata?.barcode
       ),
     ];
   }
@@ -307,29 +306,18 @@ class MovieLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildMovieSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber = item.movieCatalogFields.itemNumber?.trim();
+  final fields = item.movieCatalogFields;
+  final metadata = fields.metadata;
+  final itemNumber = fields.itemNumber?.trim();
   final subtitle = [
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .publisher
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata?.publisher?.trim() case final value? when value.isNotEmpty)
       value,
-    if ((item.movieCatalogFields.releaseYear ??
-            item.movieCatalogFields.releaseDate?.year)
-        case final year?)
+    if ((fields.releaseYear ?? fields.releaseDate?.year) case final year?)
       year.toString(),
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .physicalFormat
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata?.physicalFormat?.trim() case final value?
+        when value.isNotEmpty)
       value,
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata?.barcode?.trim() case final value? when value.isNotEmpty)
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(
@@ -337,8 +325,7 @@ LibraryAddSearchResultDisplay _buildMovieSearchResultDisplay(
         ? item.summary.primaryLabel
         : '${item.summary.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
-    year: item.movieCatalogFields.releaseYear ??
-        item.movieCatalogFields.releaseDate?.year,
+    year: fields.releaseYear ?? fields.releaseDate?.year,
     detailLine: null,
   );
 }

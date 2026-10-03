@@ -3,27 +3,27 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadat
 
 /// Catalog fields consumed by the Movie kind.
 final class MovieCatalogFields {
-  const MovieCatalogFields._(this._candidate, this._metadata);
+  const MovieCatalogFields._(this._candidate, this.metadata);
 
   final CatalogSearchCandidate _candidate;
-  final MovieCatalogMetadata? _metadata;
+  final MovieCatalogMetadata? metadata;
 
   String get title => _candidate.summary.primaryLabel;
-  String? get displayTitle => _metadata?.displayTitle;
-  String? get localizedTitle => _metadata?.localizedTitle;
-  String? get originalTitle => _metadata?.originalTitle;
-  String? get titleExtension => _metadata?.titleExtension;
-  List<String> get searchAliases => _metadata?.searchAliases ?? const [];
-  String? get sortKey => _metadata?.sortTitle;
-  String? get itemNumber => _metadata?.itemNumber;
-  String? get synopsis => _metadata?.synopsis ?? _metadata?.description;
+  String? get displayTitle => metadata?.displayTitle;
+  String? get localizedTitle => metadata?.localizedTitle;
+  String? get originalTitle => metadata?.originalTitle;
+  String? get titleExtension => metadata?.titleExtension;
+  List<String> get searchAliases => metadata?.searchAliases ?? const [];
+  String? get sortKey => metadata?.sortTitle;
+  String? get itemNumber => metadata?.itemNumber;
+  String? get synopsis => metadata?.synopsis ?? metadata?.description;
   String? get coverImageUrl =>
-      _metadata?.coverImageUrl ?? _candidate.summary.imageUrl;
-  String? get thumbnailImageUrl => _metadata?.thumbnailImageUrl;
-  String? get physicalFormat => _metadata?.physicalFormat;
+      metadata?.coverImageUrl ?? _candidate.summary.imageUrl;
+  String? get thumbnailImageUrl => metadata?.thumbnailImageUrl;
+  String? get physicalFormat => metadata?.physicalFormat;
   DateTime? get releaseDate =>
-      _metadata?.releaseDate ?? _metadata?.releaseDateParts?.asDateTime;
-  int? get releaseYear => _metadata?.releaseYear;
+      metadata?.releaseDate ?? metadata?.releaseDateParts?.asDateTime;
+  int? get releaseYear => metadata?.releaseYear ?? releaseDate?.year;
 
   bool get hasReleaseDate => releaseDate != null || releaseYear != null;
 }
