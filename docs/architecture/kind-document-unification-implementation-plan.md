@@ -262,12 +262,14 @@ slice. This is progress, not completion of this plan:
   The unused local mapper, release-named Add draft, TV domain umbrella with
   obsolete display-level enums, and unreachable discs tab were also removed.
   Root-level and season-contained episodes share one typed season projection;
-  episode-to-media assignments remain dialog-local and are not persisted.
+  episode-to-media assignments now persist through `media_id` references to
+  contained TV media values in the same Catalog Item update.
 - Manga metadata no longer exposes a generic `CatalogEditionDto` list or
   release conversion helpers. Manual Add writes its edition, format, and
   identifier values directly on the Manga document; the unused release
-  prefill/update adapters were removed. The older Manga workspace hierarchy is
-  still a separate outstanding migration. Manga presentation now reads its
+  prefill/update adapters were removed. The shelf's volume grouping remains a
+  reusable series presentation over Catalog Items, not an editable Work or
+  Release graph. Manga presentation now reads its
   typed page count and imprint fields directly instead of a permanently-null
   shared publishing DTO. Its `series_title`, `volume_name`, and string-valued
   `volume_number` now map directly to the Core Manga document; the nested

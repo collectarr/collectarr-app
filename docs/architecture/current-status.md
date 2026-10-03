@@ -1,6 +1,6 @@
 # Current Architecture Status
 
-Last reviewed: 2026-10-03. This report reflects the source tree and does not
+Last reviewed: 2026-10-04. This report reflects the source tree and does not
 claim completion of every cleanup item or literal CLZ parity.
 
 ## Implemented
@@ -79,8 +79,9 @@ claim completion of every cleanup item or literal CLZ parity.
   repository, mapper, empty local mapper, and release-named Add draft are gone;
   unused display-level enums and an unreachable discs tab are gone as well.
   Custom episodes and watch history remain local personal records. Root-level
-  episodes are merged with season-contained episodes for display; episode to
-  media assignments are still dialog-local and are not persisted.
+  episodes are merged with season-contained episodes for display; TV episode
+  to media assignments use each contained media item's stable ID and persist
+  with the Catalog Item document.
 - Game's PriceCharting reference and tiered valuation snapshots are stored in
   its local entry details and survive local persistence and Sync. They are not
   canonical Core metadata. Game workspace valuation columns read from the local
