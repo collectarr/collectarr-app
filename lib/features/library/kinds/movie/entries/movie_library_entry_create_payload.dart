@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
 
@@ -80,21 +81,23 @@ final class MovieLibraryEntryCreatePayload
     return MovieLibraryEntry(
       id: LibraryEntryId(id),
       metadata: MovieCatalogMetadata.fromJson(sourceCatalogItem.kindData),
+      personal: MoviePersonalData(
+        isDigital: isDigital ?? existingIsDigital,
+        details: details.toDetails(),
+        condition: condition,
+        grade: grade,
+        purchaseDate: purchaseDate,
+        pricePaidCents: pricePaidCents,
+        currency: currency,
+        personalNotes: personalNotes,
+        locationId: locationId,
+        purchaseStore: purchaseStore,
+        collectionStatus: collectionStatus,
+        tags: tags,
+        ownerUserId: ownerUserId,
+        ownerLabel: this.ownerLabel ?? ownerLabel,
+      ),
       createdAt: createdAt,
-      isDigital: isDigital ?? existingIsDigital,
-      details: details.toDetails(),
-      condition: condition,
-      grade: grade,
-      purchaseDate: purchaseDate,
-      pricePaidCents: pricePaidCents,
-      currency: currency,
-      personalNotes: personalNotes,
-      locationId: locationId,
-      purchaseStore: purchaseStore,
-      collectionStatus: collectionStatus,
-      tags: tags,
-      ownerUserId: ownerUserId,
-      ownerLabel: this.ownerLabel ?? ownerLabel,
       updatedAt: createdAt,
     );
   }
