@@ -1,16 +1,13 @@
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 
 final class AnimeAddManualDraft implements LibraryKindAddDraft {
   AnimeAddManualDraft({
-    AnimeMediaFormValues? media,
-    AnimeReleaseFormValues? release,
+    AnimeMetadata? metadata,
     this.catalogTitle = '',
-  })  : media = media ?? AnimeMediaFormValues(),
-        release = release ?? AnimeReleaseFormValues();
+  }) : metadata = metadata ?? const AnimeMetadata();
 
-  final AnimeMediaFormValues media;
-  final AnimeReleaseFormValues release;
+  AnimeMetadata metadata;
   @override
   String catalogTitle;
 
