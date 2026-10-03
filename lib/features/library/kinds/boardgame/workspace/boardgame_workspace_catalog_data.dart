@@ -1,7 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
@@ -11,34 +9,36 @@ final class BoardGameWorkspaceCatalogData
         LibraryWorkspaceCatalogSynopsisData {
   BoardGameWorkspaceCatalogData({
     required this.ref,
-    required this.boardgame,
     required this.metadata,
   });
 
   factory BoardGameWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
-    final boardgame = BoardGameCatalogMapper.mapMetadataItemToBoardGame(item);
     return BoardGameWorkspaceCatalogData(
       ref: item.catalogRef,
-      boardgame: boardgame,
-      metadata: boardgame.metadata,
+      metadata: BoardGameMetadata.fromJson(item.kindData),
     );
   }
 
   @override
   final CatalogEntityRef ref;
-  final BoardGameCatalogItem boardgame;
   final BoardGameMetadata metadata;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
   @override
-  String get title => boardgame.title;
+  String get title => metadata.title;
   @override
-  String? get synopsis => boardgame.synopsis;
+  String? get synopsis => metadata.synopsis;
   @override
-  DateTime? get releaseDate => boardgame.releaseDate;
+  DateTime? get releaseDate =>
+      metadata.releaseDate?.asDateTime ??
+      metadata.releaseDateParts?.asDateTime ??
+      (metadata.yearPublished == null
+          ? null
+          : DateTime(metadata.yearPublished!));
   @override
-  String? get coverImageUrl => boardgame.coverImageUrl;
+  String? get coverImageUrl => metadata.coverImageUrl;
   @override
-  String? get thumbnailImageUrl => boardgame.coverImageUrl;
+  String? get thumbnailImageUrl =>
+      metadata.thumbnailImageUrl ?? metadata.coverImageUrl;
 }

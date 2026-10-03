@@ -56,8 +56,8 @@ class BoardGameLibraryMediaPresentationBuilder
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
-    final transport =
-        item.kindCapability.mapTransport((transport) => transport);
+    final transport = item.boardGameCatalogFields.metadata;
+    if (transport == null) return const [];
     final badge = boardGameFormatBadge(
       transport.physicalFormat,
       label: transport.physicalFormatLabel,
@@ -71,13 +71,13 @@ class BoardGameLibraryMediaPresentationBuilder
   ) {
     final catalog = entry.catalogData;
     if (catalog is! BoardGameWorkspaceCatalogData) return const [];
-    final item = catalog.boardgame;
-    final identifier = normalizeLibraryDuplicateIdentifier(item.barcode);
+    final metadata = catalog.metadata;
+    final identifier = normalizeLibraryDuplicateIdentifier(metadata.barcode);
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label: 'Identifier ${item.barcode!.trim()}',
+        label: 'Identifier ${metadata.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -132,11 +132,13 @@ class BoardGameLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.boardGameCatalogFields.releaseDate;
+    final fields = item.boardGameCatalogFields;
+    final metadata = fields.metadata;
+    final releaseDate = fields.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.kindCapability.mapTransport((transport) => transport).publisher
+        metadata?.publisher ?? metadata?.publishers.firstOrNull
       ),
       (
         'Released',
@@ -149,17 +151,14 @@ class BoardGameLibraryMediaPresentationBuilder
           previewLabels.labelFor('item_number', fallback: 'Number'),
           item.boardGameCatalogFields.itemNumber
         ),
-      if (item.kindCapability.mapTransport((transport) => transport).variant !=
-          null)
+      if (metadata?.variantName != null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.kindCapability.mapTransport((transport) => transport).variant
+          metadata?.variantName
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
+        metadata?.barcode
       ),
     ];
   }
@@ -283,29 +282,19 @@ class BoardGameLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildBoardGameSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber = item.boardGameCatalogFields.itemNumber?.trim();
+  final fields = item.boardGameCatalogFields;
+  final metadata = fields.metadata;
+  final itemNumber = fields.itemNumber?.trim();
   final subtitle = [
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .publisher
-            ?.trim()
+    if ((metadata?.publisher ?? metadata?.publishers.firstOrNull)?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if ((item.boardGameCatalogFields.releaseYear ??
-            item.boardGameCatalogFields.releaseDate?.year)
-        case final year?)
+    if ((fields.releaseYear ?? fields.releaseDate?.year) case final year?)
       year.toString(),
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .physicalFormatLabel
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata?.physicalFormatLabel?.trim() case final value?
+        when value.isNotEmpty)
       value,
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata?.barcode?.trim() case final value? when value.isNotEmpty)
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(
@@ -313,8 +302,7 @@ LibraryAddSearchResultDisplay _buildBoardGameSearchResultDisplay(
         ? item.summary.primaryLabel
         : '${item.summary.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
-    year: item.boardGameCatalogFields.releaseYear ??
-        item.boardGameCatalogFields.releaseDate?.year,
+    year: fields.releaseYear ?? fields.releaseDate?.year,
     detailLine: null,
   );
 }

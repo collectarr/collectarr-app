@@ -9,25 +9,24 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 
 final class BoardGameCatalogTransportCodec
-    implements CatalogKindTransportCodec<BoardGameCatalogItem> {
+    implements CatalogKindTransportCodec<BoardGameMetadata> {
   const BoardGameCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
 
   @override
-  BoardGameCatalogItem decode(CatalogItemDto item) =>
-      BoardGameCatalogMapper.mapMetadataItemToBoardGame(item);
+  BoardGameMetadata decode(CatalogItemDto item) =>
+      BoardGameMetadata.fromJson(item.kindData);
 
   @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
-    BoardGameCatalogItem item,
+    BoardGameMetadata item,
   ) =>
       CatalogDisplaySummary.root(
         kind: kind,
@@ -88,7 +87,7 @@ final class BoardGameCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    BoardGameCatalogItem item,
+    BoardGameMetadata item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -98,10 +97,10 @@ final class BoardGameCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(BoardGameCatalogItem item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(BoardGameMetadata item) =>
       catalogDerivedDataFor(
         kind: kind,
-        metadata: item.metadata,
+        metadata: item,
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );

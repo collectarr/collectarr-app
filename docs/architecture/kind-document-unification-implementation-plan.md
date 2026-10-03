@@ -114,6 +114,11 @@ slice. This is progress, not completion of this plan:
   existing subjects, back-cover image, original-language/publication details,
   edition details, binding, dimensions, and audiobook length. The Book ledger
   remains provisional because its saved Edit-form capture is unavailable.
+- Board Game transport, workspace, facets, Add previews, inspector, duplicate
+  detection, and CSV now consume `BoardGameMetadata` directly. The duplicate
+  `BoardGameCatalogItem` wrapper and mapper were removed after a production
+  caller audit; the separate typed ID used by play-session activity remains.
+  Board Game field ownership remains provisional and does not claim CLZ parity.
 - Comic's Core item schema now retains its existing form values for cover date,
   variant description, key events, volume number, and volume start year. Comic
   response schemas type creators, characters, links, story arcs, identifiers,

@@ -11,8 +11,6 @@ final boardgameLibraryFacetDefinitions =
     extractValues: (dto) => _boardGameFacetValues([
       ...dto.metadata.publishers,
       dto.metadata.publisher,
-      ...dto.boardgame.publishers,
-      dto.boardgame.publisher,
       dto.publisher,
     ]),
   ),
@@ -21,7 +19,6 @@ final boardgameLibraryFacetDefinitions =
     label: 'Designer',
     extractValues: (dto) => _boardGameFacetValues([
       ...dto.metadata.designers,
-      ...dto.boardgame.designers,
     ]),
   ),
   LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
@@ -29,7 +26,6 @@ final boardgameLibraryFacetDefinitions =
     label: 'Mechanic',
     extractValues: (dto) => _boardGameFacetValues([
       ...dto.metadata.mechanics,
-      ...dto.boardgame.mechanics,
     ]),
   ),
   LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
@@ -37,7 +33,6 @@ final boardgameLibraryFacetDefinitions =
     label: 'Category',
     extractValues: (dto) => _boardGameFacetValues([
       ...dto.metadata.categories,
-      ...dto.boardgame.categories,
     ]),
   ),
   LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
@@ -45,7 +40,6 @@ final boardgameLibraryFacetDefinitions =
     label: 'Family',
     extractValues: (dto) => _boardGameFacetValues([
       ...dto.metadata.families,
-      ...dto.boardgame.families,
     ]),
   ),
   LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
@@ -53,7 +47,6 @@ final boardgameLibraryFacetDefinitions =
     label: 'Theme',
     extractValues: (dto) => _boardGameFacetValues([
       ...dto.metadata.themes,
-      ...dto.boardgame.themes,
     ]),
   ),
 ];

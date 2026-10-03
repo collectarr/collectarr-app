@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -7,13 +6,11 @@ final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
   BoardGameWorkspaceDto({
     required this.common,
     required this.personal,
-    required this.boardgame,
     required this.metadata,
   });
 
   final WorkspaceCommonProjection common;
   final PersonalCopyProjection personal;
-  final BoardGameCatalogItem boardgame;
   final BoardGameMetadata metadata;
 
   String get title => common.title;
@@ -27,19 +24,24 @@ final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
 
   String? get synopsis => common.synopsis;
   String? get currency => common.currency;
-  String? get publisher => boardgame.publisher;
+  String? get publisher =>
+      metadata.publisher ?? metadata.publishers.firstOrNull;
   String? get seriesTitle => metadata.seriesTitle;
-  String? get itemNumber => boardgame.itemNumber;
-  DateTime? get releaseDate => boardgame.releaseDate ?? common.releaseDate;
-  String? get country => boardgame.country;
-  String? get language => boardgame.language;
-  String? get identifierCode => boardgame.barcode;
+  String? get itemNumber => metadata.itemNumber;
+  DateTime? get releaseDate =>
+      metadata.releaseDate?.asDateTime ??
+      metadata.releaseDateParts?.asDateTime ??
+      common.releaseDate;
+  String? get country => metadata.country;
+  String? get language => metadata.language ?? metadata.languages.firstOrNull;
+  String? get identifierCode => metadata.barcode;
   String? get barcode => identifierCode;
-  String? get variant => boardgame.variant;
-  String? get referenceFormatLabel => boardgame.format;
+  String? get variant => metadata.variantName;
+  String? get referenceFormatLabel =>
+      metadata.physicalFormatLabel ?? metadata.physicalFormat;
   String? get format => referenceFormatLabel;
-  String? get ageRating => boardgame.ageRating;
-  String? get audienceRating => boardgame.audienceRating;
+  String? get ageRating => metadata.ageRating;
+  String? get audienceRating => metadata.audienceRating;
   int? get minPlayers => metadata.minPlayers;
   int? get maxPlayers => metadata.maxPlayers;
   int? get minimumAge => metadata.minimumAge;

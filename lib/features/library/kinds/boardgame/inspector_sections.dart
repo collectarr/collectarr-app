@@ -21,10 +21,11 @@ class BoardGamePlayStatsSection extends ConsumerWidget {
     if (dto is! BoardGameWorkspaceDto) {
       return const SizedBox.shrink();
     }
-    final boardgame = dto.boardgame;
     final metadata = dto.metadata;
     final sessionStats = ref
-        .watch(boardGamePlayStatsProvider(BoardGameCatalogItemId(boardgame.id)))
+        .watch(boardGamePlayStatsProvider(
+          BoardGameCatalogItemId(request.item.node.catalogItemId),
+        ))
         .asData
         ?.value;
     final playCount = sessionStats?.playCount;
@@ -60,30 +61,30 @@ class BoardGamePlayStatsSection extends ConsumerWidget {
     ];
 
     final chipSections = <Widget>[
-      if (boardgame.mechanics.isNotEmpty)
+      if (metadata.mechanics.isNotEmpty)
         LibraryDetailChipGroupWidget(
           label: 'Mechanics',
-          values: boardgame.mechanics,
+          values: metadata.mechanics,
         ),
-      if (boardgame.categories.isNotEmpty) ...[
-        if (boardgame.mechanics.isNotEmpty) const SizedBox(height: 8),
+      if (metadata.categories.isNotEmpty) ...[
+        if (metadata.mechanics.isNotEmpty) const SizedBox(height: 8),
         LibraryDetailChipGroupWidget(
           label: 'Categories',
-          values: boardgame.categories,
+          values: metadata.categories,
         ),
       ],
-      if (boardgame.expansions.isNotEmpty) ...[
-        if (boardgame.mechanics.isNotEmpty || boardgame.categories.isNotEmpty)
+      if (metadata.expansions.isNotEmpty) ...[
+        if (metadata.mechanics.isNotEmpty || metadata.categories.isNotEmpty)
           const SizedBox(height: 8),
         LibraryDetailChipGroupWidget(
           label: 'Expansions',
-          values: boardgame.expansions,
+          values: metadata.expansions,
         ),
       ],
       if (sessionStats?.mostPlayedWith.isNotEmpty == true) ...[
-        if (boardgame.mechanics.isNotEmpty ||
-            boardgame.categories.isNotEmpty ||
-            boardgame.expansions.isNotEmpty)
+        if (metadata.mechanics.isNotEmpty ||
+            metadata.categories.isNotEmpty ||
+            metadata.expansions.isNotEmpty)
           const SizedBox(height: 8),
         LibraryDetailChipGroupWidget(
           label: 'Most played with',
@@ -91,9 +92,9 @@ class BoardGamePlayStatsSection extends ConsumerWidget {
         ),
       ],
       if (sessionStats?.winStats.isNotEmpty == true) ...[
-        if (boardgame.mechanics.isNotEmpty ||
-            boardgame.categories.isNotEmpty ||
-            boardgame.expansions.isNotEmpty ||
+        if (metadata.mechanics.isNotEmpty ||
+            metadata.categories.isNotEmpty ||
+            metadata.expansions.isNotEmpty ||
             sessionStats!.mostPlayedWith.isNotEmpty)
           const SizedBox(height: 8),
         LibraryDetailChipGroupWidget(

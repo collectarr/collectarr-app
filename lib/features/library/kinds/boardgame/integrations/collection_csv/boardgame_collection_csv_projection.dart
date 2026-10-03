@@ -116,19 +116,17 @@ final class BoardGameCollectionCsvProjection
     final catalog = entry.catalogData;
     final metadata =
         catalog is BoardGameWorkspaceCatalogData ? catalog.metadata : null;
-    final boardgame =
-        catalog is BoardGameWorkspaceCatalogData ? catalog.boardgame : null;
     return [
       entry.itemId,
       CatalogMediaKind.boardgame.apiValue,
-      metadata?.title ?? boardgame?.title ?? entry.title,
+      metadata?.title ?? entry.title,
       metadata?.itemNumber ?? '',
       metadata?.variantName ?? '',
       '',
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? metadata?.publishers.firstOrNull ?? '',
-      _formatDate(boardgame?.releaseDate ?? entry.catalogData?.releaseDate),
+      _formatDate(entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
   }
