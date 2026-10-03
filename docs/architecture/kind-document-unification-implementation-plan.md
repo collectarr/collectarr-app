@@ -189,6 +189,12 @@ slice. This is progress, not completion of this plan:
   Manga chapters are also defined by their owning Core kind modules. The
   emitted field shapes are unchanged; App's remaining raw Anime/TV metadata
   maps and legacy projections are still outstanding.
+- Anime and TV no longer accept a separate untyped root `discs` array. Their
+  physical package contents use the kind-owned `media` list, while `nr_discs`
+  remains a scalar catalog field. This removes an obsolete duplicate payload
+  shape from the Core schema and App's residual raw-field maps. Core's OpenAPI
+  and Catalog Item contract bundle were regenerated, and the verified bundle
+  is pinned in App.
 - Development seeds for all nine kinds now place repeated item data in their
   kind document: media, seasons/episodes, printings, Music discs/tracks, and
   issue or platform details no longer require an edition/release graph. Seed

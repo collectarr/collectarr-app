@@ -2318,21 +2318,6 @@
             ],
             "title": "Description"
           },
-          "discs": {
-            "anyOf": [
-              {
-                "items": {
-                  "additionalProperties": true,
-                  "type": "object"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Discs"
-          },
           "edition_title": {
             "anyOf": [
               {
@@ -8610,21 +8595,6 @@
               }
             ],
             "title": "Description"
-          },
-          "discs": {
-            "anyOf": [
-              {
-                "items": {
-                  "additionalProperties": true,
-                  "type": "object"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Discs"
           },
           "edition_title": {
             "anyOf": [

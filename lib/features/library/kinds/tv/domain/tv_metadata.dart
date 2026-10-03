@@ -555,6 +555,7 @@ class TvSeriesMetadata implements JsonEncodable {
       ..remove('editions')
       ..remove('releases')
       ..remove('series')
+      ..remove('discs')
       ..remove('title')
       ..remove('display_title')
       ..remove('original_title')

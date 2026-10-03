@@ -561,6 +561,7 @@ class AnimeMetadata implements JsonEncodable {
       ..remove('snapshot_version')
       ..remove('editions')
       ..remove('series')
+      ..remove('discs')
       ..remove('title')
       ..remove('display_title')
       ..remove('native_title')

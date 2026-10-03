@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "4652dcf6e08c5f3a14ea21f59797ccd3276c09de",
+  "coreCommit": "83058eba0a46280bded7db524e3df21535db5b21",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-03T15:17:03.349609Z",
+  "generatedAt": "2026-10-03T17:10:52.215506Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -401,14 +401,6 @@
             {
               "type": "string"
             },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "discs": {
-          "anyOf": [
-            {},
             {
               "type": "null"
             }
@@ -9075,14 +9067,6 @@
             {
               "type": "string"
             },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "discs": {
-          "anyOf": [
-            {},
             {
               "type": "null"
             }
