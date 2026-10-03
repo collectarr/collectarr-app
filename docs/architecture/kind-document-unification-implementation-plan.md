@@ -57,7 +57,7 @@ slice. This is progress, not completion of this plan:
   additions; the registry only combines those kind contributions.
 - All nine local entry aggregates now hold kind-owned typed metadata rather
   than a second raw catalog map: `MusicAlbum`, `MovieCatalogMetadata`,
-  `TvSeriesMetadata`, `AnimeMetadata`, `BookCatalogMetadata`,
+  `TvMetadata`, `AnimeMetadata`, `BookCatalogMetadata`,
   `ComicCatalogItem`, `MangaMetadata`, `GameCatalogMetadata`, and
   `BoardGameMetadata`. Add validates the selected kind and builds the typed
   value at the kind boundary; seed fixtures also construct typed metadata.
@@ -220,10 +220,10 @@ slice. This is progress, not completion of this plan:
   use Anime-owned value types matching Core's child schemas. The `rawPayload`
   map has been removed from `AnimeMetadata`; unsupported Anime relation aliases
   were removed after a production call-site audit found no consumers.
-- `TvSeriesMetadata` owns its recognized catalog fields and contained seasons,
+- `TvMetadata` owns its recognized catalog fields and contained seasons,
   media, episodes, credits, characters, and identifiers as typed values. Its
-  raw metadata payload has been removed. The separate legacy `TvSeries`
-  workspace projection still has raw maps and remains to be migrated.
+  raw metadata payload and the separate `TvSeries` workspace projection have
+  been removed; TV workspace and inspectors now project from the typed root.
 - Removed the unreferenced Anime media edit dialog and separate Anime
   media/release schema exports. The manual Add schema now edits `AnimeMetadata`
   directly; obsolete form value and adapter files were removed. The episode
@@ -242,11 +242,10 @@ slice. This is progress, not completion of this plan:
   shape from the Core schema and App's residual raw-field maps. Core's OpenAPI
   and Catalog Item contract bundle were regenerated, and the verified bundle
   is pinned in App.
-- TV manual Add now edits `TvSeriesMetadata` directly. Its candidate and
-  proposal are built from the typed model, and the parallel
-  `TvCatalogItemFormValues` shape has been removed. TV's old Edit repository
-  and tabs still consume `TvSeries`/`TvRelease` and remain to be moved to the
-  root document.
+- TV manual Add edits `TvMetadata` directly. Its candidate and proposal are
+  built from the typed model, and the parallel `TvCatalogItemFormValues` shape
+  has been removed. The old TV Edit repository and tabs were subsequently
+  moved to the root document and the unused Work/Release model graph removed.
 - Development seeds for all nine kinds now place repeated item data in their
   kind document: media, seasons/episodes, printings, Music discs/tracks, and
   issue or platform details no longer require an edition/release graph. Seed
@@ -255,10 +254,15 @@ slice. This is progress, not completion of this plan:
   `TV_MEDIA` document. TV metadata no longer serializes generic editions or a
   parallel physical-release list, and its media tab and vocabulary readers use
   the contained root values. TV's transport codec, workspace projection, and
-  identifier lookup now consume `TvSeriesMetadata` directly; the synthetic
-  `TvSeries` workspace conversion and its raw-map field reads are removed. The
-  older TV repository and edit tabs still consume `TvSeries`/`TvRelease` and
-  remain to be moved to the root document.
+  identifier lookup now consume `TvMetadata` directly. Manual Add,
+  hierarchy, season tracking, episode ratings, and the media/episode Edit tabs
+  also use its typed contained values. The unused `TvRepository`,
+  `TvCoreMapper`, and Work/Release-shaped TV model graph were removed. Local
+  custom episodes and watch/tracking records remain separate personal data.
+  The unused local mapper, release-named Add draft, TV domain umbrella with
+  obsolete display-level enums, and unreachable discs tab were also removed.
+  Root-level and season-contained episodes share one typed season projection;
+  episode-to-media assignments remain dialog-local and are not persisted.
 - Manga metadata no longer exposes a generic `CatalogEditionDto` list or
   release conversion helpers. Manual Add writes its edition, format, and
   identifier values directly on the Manga document; the unused release
@@ -345,9 +349,10 @@ graphs from the remaining kinds; and finishing kind-owned field, schema, and
 form organization. Anime's workspace, lookup, catalog transport, manual Add,
 and episode hierarchy now use the flattened typed document. Its current Edit
 UI still has a custom controller with duplicate field controllers to move into
-the shared typed form infrastructure. TV's workspace no longer uses the legacy
-`TvSeries` projection or raw payload maps; the older TV edit repository and
-tabs remain to be moved to the root `TvSeriesMetadata` document.
+the shared typed form infrastructure. TV workspace, manual Add, hierarchy,
+tracking, and Edit tabs now consume `TvMetadata` and its contained typed
+values; custom episodes and watch history remain separate local personal
+records.
 Manga's root map has been removed, but App/Core field ownership differences
 remain under review against its provisional ledger. Game's
 PriceCharting identifier and valuation snapshots still need an ownership

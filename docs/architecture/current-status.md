@@ -66,17 +66,18 @@ claim completion of every cleanup item or literal CLZ parity.
   kind-owned transport document. Business-field getters and cross-kind aliases
   have been removed. Development fixture helpers still have convenience
   inputs that need a separate kind-ownership review.
-- TV still has a Work/Release-shaped edit repository and presentation path over
-  its flat Catalog Item records. Replace it with kind-owned contained
-  media/season/episode models, then remove that old edit path. Anime's
-  workspace, transport codec, identifier lookup, manual Add, and episode
-  hierarchy now use `AnimeMetadata` directly. The
-  obsolete Anime media/release models and media-parent episode model are gone;
-  the old mixed repository is now only a user-created episode store. Anime's
-  custom Edit field controllers remain active. TV's workspace, transport
-  codec, identifier lookup, and manual Add now use `TvSeriesMetadata` directly;
-  the parallel TV Add form values are gone. The old TV repository and Edit tabs
-  still depend on `TvSeries`/`TvRelease`.
+- Anime's workspace, transport codec, identifier lookup, manual Add, and
+  episode hierarchy use `AnimeMetadata` directly. The obsolete Anime
+  media/release models and media-parent episode model are gone; the old mixed
+  repository is now only a user-created episode store. Anime's custom Edit
+  field controllers remain active. TV workspace, transport, lookup, Add,
+  hierarchy, season tracking, episode ratings, and media Edit tabs use
+  `TvMetadata` and its contained typed values. The TV Work/Release model graph,
+  repository, mapper, empty local mapper, and release-named Add draft are gone;
+  unused display-level enums and an unreachable discs tab are gone as well.
+  Custom episodes and watch history remain local personal records. Root-level
+  episodes are merged with season-contained episodes for display; episode to
+  media assignments are still dialog-local and are not persisted.
 - `LibraryEntryPersonalSection` now renders its fields from kind-contributed
   specs for editor type, area, order, pick-list ownership, currency linkage,
   and status options; it no longer hardcodes universal field keys. The shared
