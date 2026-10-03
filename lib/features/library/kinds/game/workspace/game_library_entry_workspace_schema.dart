@@ -16,7 +16,7 @@ abstract final class GameLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.source.libraryEntryDispatch);
-      return entry is GameLibraryEntry ? entry.condition : null;
+      return entry is GameLibraryEntry ? entry.personal.condition : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -86,7 +86,7 @@ abstract final class GameLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.source.libraryEntryDispatch);
-      return entry is GameLibraryEntry ? entry.collectionStatus : null;
+      return entry is GameLibraryEntry ? entry.personal.collectionStatus : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -98,7 +98,9 @@ abstract final class GameLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.source.libraryEntryDispatch);
-      return entry is GameLibraryEntry ? entry.details.completeness : null;
+      return entry is GameLibraryEntry
+          ? entry.personal.details.completeness
+          : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -110,7 +112,7 @@ abstract final class GameLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.source.libraryEntryDispatch);
-      return entry is GameLibraryEntry ? entry.details.hasBox : null;
+      return entry is GameLibraryEntry ? entry.personal.details.hasBox : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -122,7 +124,9 @@ abstract final class GameLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.source.libraryEntryDispatch);
-      return entry is GameLibraryEntry ? entry.details.hasManual : null;
+      return entry is GameLibraryEntry
+          ? entry.personal.details.hasManual
+          : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -134,7 +138,9 @@ abstract final class GameLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.source.libraryEntryDispatch);
-      return entry is GameLibraryEntry ? entry.details.priceChartingId : null;
+      return entry is GameLibraryEntry
+          ? entry.personal.details.priceChartingId
+          : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -147,7 +153,9 @@ abstract final class GameLibraryEntryWorkspaceFields {
       final entry = GameLibraryEntryProjection.fromDispatch(
         context.source.libraryEntryDispatch,
       );
-      return entry is GameLibraryEntry ? entry.details.coreRegion : null;
+      return entry is GameLibraryEntry
+          ? entry.personal.details.coreRegion
+          : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -159,7 +167,9 @@ abstract final class GameLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.source.libraryEntryDispatch);
-      return entry is GameLibraryEntry ? entry.details.valueIsLocked : null;
+      return entry is GameLibraryEntry
+          ? entry.personal.details.valueIsLocked
+          : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );

@@ -44,7 +44,8 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionView item) {
   final entry =
       GameLibraryEntryProjection.fromDispatch(item.source.libraryEntryDispatch);
   final completion = entry is GameLibraryEntry
-      ? entry.collectionStatus?.trim() ?? (item.source.isEntry ? 'Entry' : null)
+      ? entry.personal.collectionStatus?.trim() ??
+          (item.source.isEntry ? 'Entry' : null)
       : (item.source.isEntry ? 'Entry' : null);
 
   if (releasePlatform != null && releasePlatform.isNotEmpty) {

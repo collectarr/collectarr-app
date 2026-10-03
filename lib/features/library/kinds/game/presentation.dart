@@ -65,7 +65,7 @@ final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => GameLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.tags?.split(','),
+    )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
     id: 'publisher',
@@ -89,7 +89,7 @@ final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     anyLabel: 'Any condition',
     value: (item) => GameLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.condition,
+    )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
     id: 'country',

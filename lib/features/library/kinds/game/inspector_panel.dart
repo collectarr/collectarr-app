@@ -336,8 +336,8 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
     final adapter = dto is GameWorkspaceDto ? dto : null;
     final gameDto = dto is GameWorkspaceDto ? dto : null;
     final metadata = _gameMetadata(item);
-    final typedEntry =
-        GameLibraryEntryProjection.fromDispatch(item.source.libraryEntryDispatch);
+    final typedEntry = GameLibraryEntryProjection.fromDispatch(
+        item.source.libraryEntryDispatch);
     final entry = typedEntry is GameLibraryEntry ? typedEntry : null;
     final releaseYear = adapter?.releaseDate?.year;
     final detailRows = <(String, String)>[
@@ -367,25 +367,32 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Barcode', gameDto!.barcode!),
       if (metadata?.genres.isNotEmpty == true)
         ('Genres', metadata!.genres.join(', ')),
-      if (entry?.tags?.trim().isNotEmpty == true) ('Tags', entry!.tags!),
+      if (entry?.personal.tags?.trim().isNotEmpty == true)
+        ('Tags', entry!.personal.tags!),
     ];
     final personalRows = <(String, String)>[
-      if (entry?.condition?.trim().isNotEmpty == true)
-        ('Condition', entry!.condition!),
-      if (entry?.collectionStatus?.trim().isNotEmpty == true)
-        ('Collection status', entry!.collectionStatus!),
+      if (entry?.personal.condition?.trim().isNotEmpty == true)
+        ('Condition', entry!.personal.condition!),
+      if (entry?.personal.collectionStatus?.trim().isNotEmpty == true)
+        ('Collection status', entry!.personal.collectionStatus!),
       if (item.source.locationPath?.trim().isNotEmpty == true)
         ('Location', item.source.locationPath!),
-      if (entry?.ownerLabel?.trim().isNotEmpty == true)
-        ('Owner', entry!.ownerLabel!),
-      if (entry?.pricePaidCents != null)
-        ('Price paid', formatMoney(entry!.pricePaidCents, entry.currency)),
-      if (entry?.marketValueCents != null)
-        ('Current value', formatMoney(entry!.marketValueCents, entry.currency)),
-      if (entry?.purchaseDate != null)
-        ('Purchase date', formatDate(entry!.purchaseDate!)),
-      if (entry?.purchaseStore?.trim().isNotEmpty == true)
-        ('Purchase store', entry!.purchaseStore!),
+      if (entry?.personal.ownerLabel?.trim().isNotEmpty == true)
+        ('Owner', entry!.personal.ownerLabel!),
+      if (entry?.personal.pricePaidCents != null)
+        (
+          'Price paid',
+          formatMoney(entry!.personal.pricePaidCents, entry.personal.currency)
+        ),
+      if (entry?.personal.marketValueCents != null)
+        (
+          'Current value',
+          formatMoney(entry!.personal.marketValueCents, entry.personal.currency)
+        ),
+      if (entry?.personal.purchaseDate != null)
+        ('Purchase date', formatDate(entry!.personal.purchaseDate!)),
+      if (entry?.personal.purchaseStore?.trim().isNotEmpty == true)
+        ('Purchase store', entry!.personal.purchaseStore!),
       if (entry?.createdAt != null) ('Added', formatDate(entry!.createdAt!)),
       ('Modified', formatDate(item.source.updatedAt)),
     ];
