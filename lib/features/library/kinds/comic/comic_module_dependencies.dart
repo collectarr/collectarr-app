@@ -24,7 +24,6 @@ export 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result
 export 'package:collectarr_app/features/library/kinds/comic/add/comic_cover_scan_hints.dart';
 export 'package:collectarr_app/features/library/kinds/comic/add_preview.dart';
 export 'package:collectarr_app/features/library/kinds/comic/comic_physical_media_formats.dart';
-export 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/comic/detail/comic_personal_detail_fields.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';

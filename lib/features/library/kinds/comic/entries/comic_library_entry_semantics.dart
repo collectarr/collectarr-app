@@ -8,12 +8,12 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 LibraryEntryFormatHint resolveComicEntryFormatHint(
   CatalogSearchCandidate item,
 ) {
-  final transport = item.kindCapability.mapTransport((transport) => transport);
-  final format = transport.physicalFormat;
+  final metadata = item.comicCatalogFields.metadata;
+  final format = metadata?.physicalFormat;
   return (
     format: format,
     label: format ??
-        (item.comicCatalogFields.titleExtension ?? transport.editionTitle)
+        (item.comicCatalogFields.titleExtension ?? metadata?.editionTitle)
             ?.trim(),
   );
 }

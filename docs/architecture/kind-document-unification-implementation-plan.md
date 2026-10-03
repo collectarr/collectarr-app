@@ -141,6 +141,10 @@ slice. This is progress, not completion of this plan:
   statistics, CSV, and ComicInfo projections read those typed fields. The
   Comic Add/Edit adapter preserves typed fields it does not expose. Its CLZ
   field ledger stays provisional until a saved Edit-form capture is reviewed.
+- Comic Add field projections and digital-format hints now read
+  `ComicCatalogItem` directly instead of falling back to semantic getters on
+  the generic transport DTO. The single-use `ComicCoreMapper` forwarding class
+  was removed; transport identity remains separate at the catalog boundary.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.
