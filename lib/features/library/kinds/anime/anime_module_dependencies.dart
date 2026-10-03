@@ -28,6 +28,7 @@ export 'package:collectarr_app/features/library/kinds/anime/anime_physical_media
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
+export 'package:collectarr_app/features/library/kinds/anime/domain/anime_personal_data.dart';
 export 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_presentation_builder.dart';
 export 'package:collectarr_app/features/library/kinds/anime/edit_dialog.dart';

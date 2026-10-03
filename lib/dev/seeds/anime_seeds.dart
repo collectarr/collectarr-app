@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_track
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
@@ -859,23 +860,25 @@ List<AnimeLibraryEntry> animeSeedLibraryEntries(DateTime now) {
             seedCatalogRef(CatalogMediaKind.anime, itemId).toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 180)),
         updatedAt: now,
-        isDigital: false,
-        condition: 'Mint',
-        details: const AnimeEntryDetails(
-          features: 'Artbook, soundtrack CD, bonus episodes',
-          hdrFormats: ['HDR10'],
-          boxSetName: 'Collector Edition Box',
-          region: 'Region A/B',
-          packaging: 'Rigid slipcase',
-          distributor: 'Crunchyroll',
+        personal: AnimePersonalData(
+          isDigital: false,
+          condition: 'Mint',
+          details: AnimeEntryDetails(
+            features: 'Artbook, soundtrack CD, bonus episodes',
+            hdrFormats: ['HDR10'],
+            boxSetName: 'Collector Edition Box',
+            region: 'Region A/B',
+            packaging: 'Rigid slipcase',
+            distributor: 'Crunchyroll',
+          ),
+          purchaseDate: DateTime.utc(2023, 3, 15),
+          pricePaidCents: 5999,
+          currency: 'USD',
+          personalNotes:
+              'Import Japanese/English collector\'s edition with artbook.',
+          purchaseStore: 'RightStuf / Crunchyroll Store',
+          collectionStatus: 'collected',
         ),
-        purchaseDate: DateTime.utc(2023, 3, 15),
-        pricePaidCents: 5999,
-        currency: 'USD',
-        personalNotes:
-            'Import Japanese/English collector\'s edition with artbook.',
-        purchaseStore: 'RightStuf / Crunchyroll Store',
-        collectionStatus: 'collected',
       ),
   ];
 }
