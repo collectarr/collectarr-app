@@ -78,6 +78,11 @@ claim completion of every cleanup item or literal CLZ parity.
   Custom episodes and watch history remain local personal records. Root-level
   episodes are merged with season-contained episodes for display; episode to
   media assignments are still dialog-local and are not persisted.
+- Game's PriceCharting reference and tiered valuation snapshots are stored in
+  its local entry details and survive local persistence and Sync. They are not
+  canonical Core metadata. Game workspace valuation columns read from the local
+  entry; Core-only catalog rows have no local valuation data. The current form
+  exposes the reference ID but does not provide a valuation snapshot editor.
 - `LibraryEntryPersonalSection` now renders its fields from kind-contributed
   specs for editor type, area, order, pick-list ownership, currency linkage,
   and status options; it no longer hardcodes universal field keys. The shared

@@ -312,9 +312,12 @@ slice. This is progress, not completion of this plan:
   singular-platform and plural-publisher aliases. Partial release dates are
   preserved through the App model. Core and App now also expose and pin
   `toy_subtype` and `toy_type`, which the Game inspector already displayed.
-  The Add field schema exposes those two values. Game's PriceCharting
-  identifier and multi-tier valuation ownership still needs a separate review;
-  those values are not part of the Core document.
+  The Add field schema exposes those two values. The PriceCharting reference and
+  tiered valuation snapshots are App-local Game entry details, not canonical
+  Core metadata. They now serialize with the local entry and remain available
+  to Game workspace valuation columns; edits preserve existing snapshots. The
+  current form exposes the PriceCharting reference but has no snapshot editor.
+  The duplicate metadata copy and unused tier wrapper have been removed.
 - Removed the empty Game local mapper after the production reference search
   found only its own export. The active Game entry repository remains in use.
 - Board Game metadata now has explicit fields for the complete pinned Board
@@ -354,11 +357,11 @@ tracking, and Edit tabs now consume `TvMetadata` and its contained typed
 values; custom episodes and watch history remain separate local personal
 records.
 Manga's root map has been removed, but App/Core field ownership differences
-remain under review against its provisional ledger. Game's
-PriceCharting identifier and valuation snapshots still need an ownership
-decision and are not in the Core contract. The nine field ledgers
-remain authoritative, and exact CLZ parity is only confirmed for Music until
-the other reference captures are available.
+remain under review against its provisional ledger. Game's PriceCharting
+reference and valuation snapshots are owned by the local Game entry and remain
+outside the Core contract. The nine field ledgers remain authoritative, and
+exact CLZ parity is only confirmed for Music until the other reference captures
+are available.
 
 ## Architectural decisions
 
