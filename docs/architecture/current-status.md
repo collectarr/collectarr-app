@@ -62,9 +62,10 @@ claim completion of every cleanup item or literal CLZ parity.
   Movies, and Games requires their Edit-form captures. Manga, Anime, TV, and
   Board Games need an explicitly chosen reference; their ledgers remain
   provisional.
-- `CatalogItemDto` still contains shared business-field getters and alias
-  fallbacks. Production consumers must move to their kind-owned typed models or
-  read-only projections before those getters can be removed safely.
+- `CatalogItemDto` now exposes only structural identity, provenance, and the
+  kind-owned transport document. Business-field getters and cross-kind aliases
+  have been removed. Development fixture helpers still have convenience
+  inputs that need a separate kind-ownership review.
 - Anime and TV still have active `CatalogEditionDto` and Work/Release-shaped
   presentation adapters over their flat Catalog Item records. Replace these
   with kind-owned contained media/season/episode models, then remove the old
