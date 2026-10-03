@@ -30,7 +30,7 @@ Widget? buildAnimeMediaCustomTabView({
 
   return switch (tabId) {
     'edition' => AnimeEditEditionTab(
-        draft: draft,
+        animeEdit: animeEdit,
         accent: accent,
         physicalFormats: const [],
       ),

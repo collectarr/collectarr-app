@@ -1,52 +1,35 @@
-import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
 import 'package:flutter/material.dart';
 
 class AnimeEditEditionTab extends StatelessWidget {
   const AnimeEditEditionTab({
     super.key,
-    required this.draft,
+    required this.animeEdit,
     required this.accent,
     required this.physicalFormats,
   });
 
-  final LibraryEditShellState draft;
+  final AnimeEditController animeEdit;
   final Color accent;
   final List<PhysicalMediaFormat> physicalFormats;
 
   @override
   Widget build(BuildContext context) {
-    final animeEdit = (draft.session.catalogItemSession
-            is AnimeEditDraftContract)
-        ? (draft.session.catalogItemSession as AnimeEditDraftContract).animeEdit
-        : null;
-
-    final editionTitleController =
-        animeEdit?.editionTitleController ?? TextEditingController();
-    final variantController =
-        animeEdit?.variantController ?? TextEditingController();
-    final barcodeController =
-        animeEdit?.barcodeController ?? TextEditingController();
-    final physicalFormatController =
-        animeEdit?.physicalFormatLabelController ?? TextEditingController();
-
     return EditTabShell(
       children: [
         EditSection(
           title: 'Edition',
           accent: accent,
           child: LibraryReleaseIdentityFields(
-            editionTitleController: editionTitleController,
-            variantController: variantController,
-            barcodeController: barcodeController,
-            releaseDateController:
-                animeEdit?.releaseDateController ?? TextEditingController(),
-            releaseYearController:
-                animeEdit?.releaseYearController ?? TextEditingController(),
-            physicalFormatController: physicalFormatController,
+            editionTitleController: animeEdit.editionTitleController,
+            variantController: animeEdit.variantController,
+            barcodeController: animeEdit.barcodeController,
+            releaseDateController: animeEdit.releaseDateController,
+            releaseYearController: animeEdit.releaseYearController,
+            physicalFormatController: animeEdit.physicalFormatLabelController,
             physicalFormatOptions: [
               for (final format in physicalFormats) format.label,
             ],
@@ -54,15 +37,13 @@ class AnimeEditEditionTab extends StatelessWidget {
               final normalized = emptyToNull(value ?? '');
               final selected = _physicalFormatForLabel(normalized);
               final previousLabel =
-                  _physicalFormatLabelForId(animeEdit?.physicalFormatId);
-              final variant = variantController.text.trim();
+                  _physicalFormatLabelForId(animeEdit.physicalFormatId);
+              final variant = animeEdit.variantController.text.trim();
               final shouldReplaceVariant =
                   variant.isEmpty || previousLabel == variant;
-              if (animeEdit != null) {
-                animeEdit.physicalFormatId = selected?.id;
-              }
+              animeEdit.physicalFormatId = selected?.id;
               if (selected != null && shouldReplaceVariant) {
-                variantController.text = selected.label;
+                animeEdit.variantController.text = selected.label;
               }
             },
             editionTitleLabel: 'Edition title',
