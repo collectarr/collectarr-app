@@ -5,9 +5,9 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata_children.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_models.dart';
 
 class AnimeEditController {
@@ -15,39 +15,9 @@ class AnimeEditController {
     this.ref,
     required this.itemId,
     required this.catalogRef,
-    this.initialRuntime = '',
-    this.initialAgeRating = '',
-    this.initialAudienceRating = '',
-    this.initialGenres = '',
-    this.initialEditionTitle = '',
-    this.initialVariant = '',
-    this.initialBarcode = '',
-    this.initialPhysicalFormatLabel = '',
-    this.initialPhysicalFormatId,
-    this.initialPublisher = '',
-    this.initialCountry = '',
-    this.initialLanguage = '',
-    this.initialReleaseDate = '',
-    this.initialReleaseYear = '',
     this.initialCreators = const <AnimeCreditInput>[],
     this.initialTrailerLinks = const <TrailerLinkDto>[],
-  })  : runtimeController = TextEditingController(text: initialRuntime),
-        ageRatingController = TextEditingController(text: initialAgeRating),
-        audienceRatingController =
-            TextEditingController(text: initialAudienceRating),
-        genresEditController = TextEditingController(text: initialGenres),
-        editionTitleController =
-            TextEditingController(text: initialEditionTitle),
-        variantController = TextEditingController(text: initialVariant),
-        barcodeController = TextEditingController(text: initialBarcode),
-        physicalFormatLabelController =
-            TextEditingController(text: initialPhysicalFormatLabel),
-        physicalFormatId = initialPhysicalFormatId,
-        publisherController = TextEditingController(text: initialPublisher),
-        countryController = TextEditingController(text: initialCountry),
-        languageController = TextEditingController(text: initialLanguage),
-        releaseDateController = TextEditingController(text: initialReleaseDate),
-        releaseYearController = TextEditingController(text: initialReleaseYear);
+  });
 
   final WidgetRef? ref;
   final String itemId;
@@ -56,38 +26,8 @@ class AnimeEditController {
         kind: catalogRef.kind,
         id: LibraryEntryId(itemId),
       );
-  final String initialRuntime;
-  final String initialAgeRating;
-  final String initialAudienceRating;
-  final String initialGenres;
-  final String initialEditionTitle;
-  final String initialVariant;
-  final String initialBarcode;
-  final String initialPhysicalFormatLabel;
-  final String? initialPhysicalFormatId;
-  final String initialPublisher;
-  final String initialCountry;
-  final String initialLanguage;
-  final String initialReleaseDate;
-  final String initialReleaseYear;
   final List<AnimeCreditInput> initialCreators;
   final List<TrailerLinkDto> initialTrailerLinks;
-
-  final TextEditingController runtimeController;
-  final TextEditingController ageRatingController;
-  final TextEditingController audienceRatingController;
-  final TextEditingController genresEditController;
-
-  final TextEditingController editionTitleController;
-  final TextEditingController variantController;
-  final TextEditingController barcodeController;
-  final TextEditingController physicalFormatLabelController;
-  String? physicalFormatId;
-  final TextEditingController publisherController;
-  final TextEditingController countryController;
-  final TextEditingController languageController;
-  final TextEditingController releaseDateController;
-  final TextEditingController releaseYearController;
 
   final List<EditableAnimeCredit> castCredits = [];
   final List<EditableAnimeCredit> crewCredits = [];
@@ -102,6 +42,34 @@ class AnimeEditController {
     crewCredits.addAll(
       splitAnimeCredits(creators, kind: AnimeCreditKind.crew),
     );
+  }
+
+  List<AnimePersonMetadata> buildUpdatedCreators() {
+    final edited = [
+      ...castCredits,
+      ...crewCredits,
+    ].where((credit) => credit.nameController.text.trim().isNotEmpty).toList();
+    final ordered = [
+      for (var index = 0; index < edited.length; index++)
+        (credit: edited[index], index: index),
+    ]..sort((left, right) {
+        final leftPosition =
+            left.credit.originalIndex ?? initialCreators.length + left.index;
+        final rightPosition =
+            right.credit.originalIndex ?? initialCreators.length + right.index;
+        return leftPosition.compareTo(rightPosition);
+      });
+    var nextSequence = initialCreators
+            .map((credit) => credit.source?.sequence ?? -1)
+            .fold<int>(
+                -1, (current, value) => value > current ? value : current) +
+        1;
+    return [
+      for (final row in ordered)
+        row.credit.toMetadata(
+          newSequence: row.credit.source == null ? nextSequence++ : null,
+        ),
+    ];
   }
 
   Future<void> loadUserExternalLinks() async {
@@ -139,19 +107,6 @@ class AnimeEditController {
   }
 
   void dispose() {
-    runtimeController.dispose();
-    ageRatingController.dispose();
-    audienceRatingController.dispose();
-    genresEditController.dispose();
-    editionTitleController.dispose();
-    variantController.dispose();
-    barcodeController.dispose();
-    physicalFormatLabelController.dispose();
-    publisherController.dispose();
-    countryController.dispose();
-    languageController.dispose();
-    releaseDateController.dispose();
-    releaseYearController.dispose();
     for (final credit in castCredits) {
       credit.dispose();
     }

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata_children.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/editable_user_external_link.dart';
@@ -15,10 +16,14 @@ class AnimeCreditInput {
   const AnimeCreditInput({
     required this.name,
     this.role,
+    this.source,
+    this.originalIndex,
   });
 
   final String name;
   final String? role;
+  final AnimePersonMetadata? source;
+  final int? originalIndex;
 }
 
 const _videoCastRoleTags = <String>{
@@ -34,6 +39,8 @@ class EditableAnimeCredit {
   EditableAnimeCredit({
     required this.nameController,
     required this.roleController,
+    required this.source,
+    required this.originalIndex,
   });
 
   factory EditableAnimeCredit.custom({
@@ -43,6 +50,8 @@ class EditableAnimeCredit {
     return EditableAnimeCredit(
       nameController: TextEditingController(text: name),
       roleController: TextEditingController(text: role),
+      source: null,
+      originalIndex: null,
     );
   }
 
@@ -52,11 +61,15 @@ class EditableAnimeCredit {
       roleController: TextEditingController(
         text: input.role ?? '',
       ),
+      source: input.source,
+      originalIndex: input.originalIndex,
     );
   }
 
   final TextEditingController nameController;
   final TextEditingController roleController;
+  final AnimePersonMetadata? source;
+  final int? originalIndex;
 
   AnimeCreditInput toInput() {
     return AnimeCreditInput(
@@ -64,6 +77,32 @@ class EditableAnimeCredit {
       role: roleController.text.trim().isEmpty
           ? null
           : roleController.text.trim(),
+      source: source,
+      originalIndex: originalIndex,
+    );
+  }
+
+  AnimePersonMetadata toMetadata({int? newSequence}) {
+    final input = toInput();
+    final original = input.source;
+    final nameChanged = original != null && input.name != original.name;
+    final roleChanged = original != null && input.role != original.role;
+    return AnimePersonMetadata(
+      name: input.name,
+      id: original?.id,
+      personId: original?.personId,
+      artistId: original?.artistId,
+      role: input.role,
+      roleId: roleChanged ? null : original?.roleId,
+      sequence: original?.sequence ?? newSequence,
+      creditedName: original != null && original.creditedName == original.name
+          ? input.name
+          : original?.creditedName,
+      joinPhrase: original?.joinPhrase,
+      imageUrl: original?.imageUrl,
+      sortName: nameChanged ? null : original?.sortName,
+      instrument: original?.instrument,
+      stringValue: original?.stringValue == true && input.role == null,
     );
   }
 

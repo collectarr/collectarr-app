@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
-import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
@@ -11,7 +10,6 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
@@ -32,7 +30,20 @@ enum AnimeCanonicalEditField {
   searchAliases,
   synopsis,
   coverImage,
-  thumbnailImage
+  thumbnailImage,
+  episodeRuntime,
+  genres,
+  editionTitle,
+  variant,
+  barcode,
+  physicalFormatLabel,
+  publisher,
+  country,
+  language,
+  releaseDate,
+  releaseYear,
+  ageRating,
+  audienceRating,
 }
 
 class AnimeEditDraft
@@ -58,6 +69,7 @@ class AnimeEditDraft
     required this.episodeNumberController,
     required this.episodeRatings,
     required this.animeEdit,
+    this.physicalFormatId,
   });
 
   final AnimeLibraryEntry? libraryEntry;
@@ -92,6 +104,8 @@ class AnimeEditDraft
   final Map<String, int> episodeRatings;
   @override
   final AnimeEditController animeEdit;
+  @override
+  String? physicalFormatId;
 
   @override
   JsonEncodable toDetailsDraft() => AnimeEntryDetailsDraft(
@@ -198,6 +212,12 @@ class AnimeEditDraft
         .map((entry) => entry.trim())
         .where((entry) => entry.isNotEmpty)
         .toList();
+    final genreText = fields.controller(AnimeCanonicalEditField.genres).text;
+    final genres = genreText
+        .split(RegExp(r'[,\r\n]+'))
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
     return selection.copyWith(
       kindItem: CatalogSearchCandidate.fromItem(
           selection.kindItem.kindCapability.mapTransport((transport) {
@@ -220,6 +240,48 @@ class AnimeEditDraft
           sortKey: emptyToNull(
             fields.controller(AnimeCanonicalEditField.sortTitle).text,
           ),
+          episodeRuntimeMinutes: int.tryParse(
+            fields.controller(AnimeCanonicalEditField.episodeRuntime).text,
+          ),
+          genres: genres,
+          editionTitle: emptyToNull(
+            fields.controller(AnimeCanonicalEditField.editionTitle).text,
+          ),
+          variant: emptyToNull(
+            fields.controller(AnimeCanonicalEditField.variant).text,
+          ),
+          barcode: emptyToNull(
+            fields.controller(AnimeCanonicalEditField.barcode).text,
+          ),
+          physicalFormat: physicalFormatId,
+          physicalFormatLabel: emptyToNull(
+            fields.controller(AnimeCanonicalEditField.physicalFormatLabel).text,
+          ),
+          publisher: emptyToNull(
+            fields.controller(AnimeCanonicalEditField.publisher).text,
+          ),
+          country: emptyToNull(
+                fields.controller(AnimeCanonicalEditField.country).text,
+              ) ??
+              'JP',
+          language: emptyToNull(
+                fields.controller(AnimeCanonicalEditField.language).text,
+              ) ??
+              'ja',
+          startDate: parseDate(
+            fields.controller(AnimeCanonicalEditField.releaseDate).text,
+          ),
+          releaseYear: int.tryParse(
+            fields.controller(AnimeCanonicalEditField.releaseYear).text,
+          ),
+          ageRating: emptyToNull(
+            fields.controller(AnimeCanonicalEditField.ageRating).text,
+          ),
+          audienceRating: emptyToNull(
+            fields.controller(AnimeCanonicalEditField.audienceRating).text,
+          ),
+          creators: animeEdit.buildUpdatedCreators(),
+          links: animeEdit.buildUpdatedTrailerUrls(metadata.links),
         );
         final updated = AnimeMetadata.fromJson(applyJsonFieldPatch(edited, {
           'display_title': emptyToNull(
@@ -244,6 +306,44 @@ class AnimeEditDraft
           'sort_key': emptyToNull(
             fields.controller(AnimeCanonicalEditField.sortTitle).text,
           ),
+          'episode_runtime_minutes': int.tryParse(
+            fields.controller(AnimeCanonicalEditField.episodeRuntime).text,
+          ),
+          'genres': genres,
+          'edition_title': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.editionTitle).text,
+          ),
+          'variant_name': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.variant).text,
+          ),
+          'barcode': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.barcode).text,
+          ),
+          'physical_format': physicalFormatId,
+          'physical_format_label': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.physicalFormatLabel).text,
+          ),
+          'publisher': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.publisher).text,
+          ),
+          'country': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.country).text,
+          ),
+          'language': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.language).text,
+          ),
+          'start_date': parseDate(
+            fields.controller(AnimeCanonicalEditField.releaseDate).text,
+          )?.toIso8601String(),
+          'release_year': int.tryParse(
+            fields.controller(AnimeCanonicalEditField.releaseYear).text,
+          ),
+          'age_rating': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.ageRating).text,
+          ),
+          'audience_rating': emptyToNull(
+            fields.controller(AnimeCanonicalEditField.audienceRating).text,
+          ),
         }));
         return transport.replacingKindData(updated);
       })),
@@ -255,7 +355,8 @@ class AnimeEditDraft
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
   ) {
-    final metadata = item.animeCatalogFields;
+    final metadata = item.kindCapability.mapTransport(
+        (transport) => AnimeMetadata.fromJson(transport.kindData));
     fields.create(AnimeCanonicalEditField.title, initialValue: metadata.title);
     fields.create(AnimeCanonicalEditField.displayTitle,
         initialValue: metadata.displayTitle ?? '');
@@ -273,6 +374,62 @@ class AnimeEditDraft
         initialValue: metadata.coverImageUrl ?? '');
     fields.create(AnimeCanonicalEditField.thumbnailImage,
         initialValue: metadata.thumbnailImageUrl ?? '');
+    fields.create(
+      AnimeCanonicalEditField.episodeRuntime,
+      initialValue: metadata.episodeRuntimeMinutes?.toString() ?? '',
+    );
+    fields.create(
+      AnimeCanonicalEditField.genres,
+      initialValue: metadata.genres.join(', '),
+    );
+    fields.create(
+      AnimeCanonicalEditField.editionTitle,
+      initialValue: metadata.editionTitle ?? metadata.titleExtension ?? '',
+    );
+    fields.create(
+      AnimeCanonicalEditField.variant,
+      initialValue: metadata.variant ?? '',
+    );
+    fields.create(
+      AnimeCanonicalEditField.barcode,
+      initialValue: metadata.barcode ?? '',
+    );
+    fields.create(
+      AnimeCanonicalEditField.physicalFormatLabel,
+      initialValue: metadata.physicalFormatLabel ?? metadata.variant ?? '',
+    );
+    fields.create(
+      AnimeCanonicalEditField.publisher,
+      initialValue: metadata.publisher ?? '',
+    );
+    fields.create(
+      AnimeCanonicalEditField.country,
+      initialValue: metadata.country,
+    );
+    fields.create(
+      AnimeCanonicalEditField.language,
+      initialValue: metadata.language,
+    );
+    fields.create(
+      AnimeCanonicalEditField.releaseDate,
+      initialValue:
+          metadata.startDate == null ? '' : formatDate(metadata.startDate!),
+    );
+    fields.create(
+      AnimeCanonicalEditField.releaseYear,
+      initialValue: (metadata.releaseYear ?? metadata.seasonYear)?.toString() ??
+          metadata.startDate?.year.toString() ??
+          '',
+    );
+    fields.create(
+      AnimeCanonicalEditField.ageRating,
+      initialValue: metadata.ageRating ?? '',
+    );
+    fields.create(
+      AnimeCanonicalEditField.audienceRating,
+      initialValue: metadata.audienceRating ?? '',
+    );
+    physicalFormatId = metadata.physicalFormat;
     return LibraryEditFormSchema(
       fields: [
         LibraryEditFormFieldSpec(
@@ -345,39 +502,6 @@ class AnimeEditDraft
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     var result = selection;
-    final metadata = result.kindItem.kindCapability.mapTransport(
-        (transport) => AnimeMetadata.fromJson(transport.kindData));
-    final parsedGenres = animeEdit.genresEditController.text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toList();
-    result = result.copyWith(
-      kindItem: result.kindItem.kindCapability.mapTransport(
-        (transport) => CatalogSearchCandidate.fromItem(
-          transport.replacingKindData(
-            metadata.copyWith(
-              episodeRuntimeMinutes:
-                  int.tryParse(animeEdit.runtimeController.text),
-              genres: parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
-              editionTitle: emptyToNull(animeEdit.editionTitleController.text),
-              variant: emptyToNull(animeEdit.variantController.text),
-              barcode: emptyToNull(animeEdit.barcodeController.text),
-              physicalFormat: animeEdit.physicalFormatId,
-              physicalFormatLabel:
-                  emptyToNull(animeEdit.physicalFormatLabelController.text),
-              publisher: emptyToNull(animeEdit.publisherController.text),
-              country: emptyToNull(animeEdit.countryController.text) ??
-                  metadata.country,
-              language: emptyToNull(animeEdit.languageController.text) ??
-                  metadata.language,
-              startDate: parseDate(animeEdit.releaseDateController.text),
-              links: animeEdit.buildUpdatedTrailerUrls(metadata.links),
-            ),
-          ),
-        ),
-      ),
-    );
     if (result.tracking != null) {
       final seasonNumber = int.tryParse(seasonNumberController.text);
       final episodeNumber = int.tryParse(episodeNumberController.text);
@@ -397,14 +521,6 @@ class AnimeEditDraft
     }
     return result;
   }
-
-  @override
-  TextEditingController get releaseDateController =>
-      animeEdit.releaseDateController;
-
-  @override
-  TextEditingController get releaseYearController =>
-      animeEdit.releaseYearController;
 
   void dispose() {
     seasonNumberController.dispose();
@@ -426,27 +542,13 @@ LibraryEditSessionBundle createAnimeEditDraft({
   final animeEdit = AnimeEditController(
     itemId: item.reference.id,
     catalogRef: item.reference,
-    initialRuntime: metadata.episodeRuntimeMinutes?.toString() ?? '',
-    initialGenres: metadata.genres.join(', '),
-    initialEditionTitle: metadata.editionTitle ?? metadata.titleExtension ?? '',
-    initialVariant: metadata.variant ?? '',
-    initialBarcode: metadata.barcode ?? '',
-    initialPhysicalFormatLabel:
-        metadata.physicalFormatLabel ?? metadata.variant ?? '',
-    initialPhysicalFormatId: metadata.physicalFormat,
-    initialPublisher: metadata.publisher ?? '',
-    initialCountry: metadata.country,
-    initialLanguage: metadata.language,
-    initialReleaseDate:
-        metadata.startDate == null ? '' : formatDate(metadata.startDate!),
-    initialReleaseYear: metadata.seasonYear?.toString() ??
-        metadata.startDate?.year.toString() ??
-        '',
     initialCreators: [
-      for (final creator in metadata.creators)
+      for (var index = 0; index < metadata.creators.length; index++)
         AnimeCreditInput(
-          name: creator.name,
-          role: creator.role,
+          name: metadata.creators[index].name,
+          role: metadata.creators[index].role,
+          source: metadata.creators[index],
+          originalIndex: index,
         ),
     ],
     initialTrailerLinks: metadata.links,

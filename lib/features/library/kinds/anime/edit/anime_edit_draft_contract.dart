@@ -15,8 +15,8 @@ abstract class AnimeEditDraftContract
   TextEditingController get distributorController;
   TextEditingController get featuresController;
   TextEditingController get boxSetNameController;
-  TextEditingController get releaseDateController;
-  TextEditingController get releaseYearController;
+  String? get physicalFormatId;
+  set physicalFormatId(String? value);
   List<String> get hdrFormats;
   AnimeEditController get animeEdit;
 }

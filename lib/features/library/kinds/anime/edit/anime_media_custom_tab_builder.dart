@@ -30,7 +30,8 @@ Widget? buildAnimeMediaCustomTabView({
 
   return switch (tabId) {
     'edition' => AnimeEditEditionTab(
-        animeEdit: animeEdit,
+        draft: draft,
+        animeDraft: catalogDraft,
         accent: accent,
         physicalFormats: const [],
       ),
@@ -63,7 +64,6 @@ Widget? buildAnimeMediaCustomTabView({
       ),
     'media' => AnimeEditMediaTab(
         draft: draft,
-        animeEdit: animeEdit,
         accent: accent,
         countryOptions: const [],
         languageOptions: const [],
