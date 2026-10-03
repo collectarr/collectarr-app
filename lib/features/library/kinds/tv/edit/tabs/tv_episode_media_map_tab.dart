@@ -79,8 +79,7 @@ class TvEpisodeMediaMapTab extends ConsumerWidget {
                 for (final media in mediaEdit.tvMediaDraft)
                   media.mediaNumber ?? media.position,
                 if (mediaEdit.tvMediaDraft.isEmpty) 1,
-                for (final assignment
-                    in mediaEdit.tvEpisodeDiscAssignments.values)
+                for (final assignment in mediaEdit.assignedDiscNumbers)
                   assignment,
               }.toList()
                 ..sort();
@@ -89,7 +88,7 @@ class TvEpisodeMediaMapTab extends ConsumerWidget {
                 children: [
                   const EditSectionStateMessage(
                     message:
-                        'Move episodes between discs here. The current mapping is staged locally in the dialog.',
+                        'Assign each episode to a disc. Changes are saved with this Catalog Item.',
                     icon: Icons.info_outline,
                   ),
                   const SizedBox(height: 12),
@@ -147,9 +146,15 @@ class TvEpisodeMediaMapTab extends ConsumerWidget {
                                         child: LibraryDropdownPickField<int>(
                                           label: 'Disc',
                                           value: mediaEdit
-                                                  .tvEpisodeDiscAssignments[episode
-                                                      .id ??
-                                                  '${season.seasonNumber}:${episode.episodeNumber ?? episode.position}'] ??
+                                                  .discAssignmentForEpisode(
+                                                episodeId: episode.id ?? '',
+                                                seasonNumber:
+                                                    episode.seasonNumber ??
+                                                        season.seasonNumber,
+                                                episodeNumber:
+                                                    episode.episodeNumber ??
+                                                        episode.position,
+                                              ) ??
                                               (discNumbers.isEmpty
                                                   ? 1
                                                   : discNumbers.first),
@@ -176,8 +181,7 @@ class TvEpisodeMediaMapTab extends ConsumerWidget {
                                             }
                                             mediaEdit
                                                 .updateTvEpisodeDiscAssignment(
-                                              episode.id ??
-                                                  '${season.seasonNumber}:${episode.episodeNumber ?? episode.position}',
+                                              episode.id ?? '',
                                               seasonNumber:
                                                   episode.seasonNumber ??
                                                       season.seasonNumber,

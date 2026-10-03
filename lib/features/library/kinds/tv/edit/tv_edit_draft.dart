@@ -247,7 +247,9 @@ class TvEditDraft
             fields.controller(TvCanonicalEditField.sortTitle).text,
           ),
         }));
-        return transport.replacingKindData(updated);
+        return transport.replacingKindData(
+          mediaEdit.applyEpisodeMediaAssignments(updated),
+        );
       })),
     );
   }

@@ -26,7 +26,7 @@ class TvCatalogMediaTab extends StatelessWidget {
             children: [
               const EditSectionStateMessage(
                 message:
-                    'Media is contained in the Catalog Item document. Episode assignments are staged in the Episode map tab.',
+                    'Media and episode assignments are stored in the Catalog Item document.',
                 icon: Icons.info_outline,
               ),
               const SizedBox(height: 10),

@@ -221,6 +221,7 @@ class TvEpisodeMetadata {
   const TvEpisodeMetadata({
     required this.position,
     this.id,
+    this.mediaId,
     this.seasonNumber,
     this.episodeNumber,
     this.episodeTitle,
@@ -235,6 +236,7 @@ class TvEpisodeMetadata {
 
   final int position;
   final String? id;
+  final String? mediaId;
   final int? seasonNumber;
   final int? episodeNumber;
   final String? episodeTitle;
@@ -250,6 +252,7 @@ class TvEpisodeMetadata {
 
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
+        if (mediaId != null) 'media_id': mediaId,
         if (seasonNumber != null) 'season_number': seasonNumber,
         if (episodeNumber != null) 'episode_number': episodeNumber,
         if (episodeTitle != null) 'episode_title': episodeTitle,
@@ -272,6 +275,7 @@ class TvEpisodeMetadata {
     return TvEpisodeMetadata(
       position: position,
       id: json['id'] as String?,
+      mediaId: json['media_id'] as String?,
       seasonNumber: _asInt(json['season_number']),
       episodeNumber: _asInt(json['episode_number']),
       episodeTitle: json['episode_title'] as String?,
@@ -284,6 +288,22 @@ class TvEpisodeMetadata {
       pageCount: _asInt(json['page_count']),
     );
   }
+
+  TvEpisodeMetadata withMediaId(String? value) => TvEpisodeMetadata(
+        position: position,
+        id: id,
+        mediaId: value,
+        seasonNumber: seasonNumber,
+        episodeNumber: episodeNumber,
+        episodeTitle: episodeTitle,
+        title: title,
+        description: description,
+        overview: overview,
+        airDate: airDate,
+        originalAirDate: originalAirDate,
+        runtimeMinutes: runtimeMinutes,
+        pageCount: pageCount,
+      );
 }
 
 @immutable
@@ -381,6 +401,27 @@ class TvMediaMetadata implements JsonEncodable {
   final String? layers;
   final String? frameRate;
   final int? bitDepth;
+
+  TvMediaMetadata withId(String value) => TvMediaMetadata(
+        position: position,
+        id: value,
+        mediaNumber: mediaNumber,
+        mediaType: mediaType,
+        title: title,
+        episodeCount: episodeCount,
+        runtimeMinutes: runtimeMinutes,
+        regionCode: regionCode,
+        encoding: encoding,
+        aspectRatio: aspectRatio,
+        audioTracks: audioTracks,
+        subtitles: subtitles,
+        resolution: resolution,
+        hdrFormat: hdrFormat,
+        color: color,
+        layers: layers,
+        frameRate: frameRate,
+        bitDepth: bitDepth,
+      );
 
   factory TvMediaMetadata.fromJson(Map<String, dynamic> json) {
     final position = _asInt(json['position']);
