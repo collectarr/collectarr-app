@@ -111,14 +111,6 @@ final class CatalogItemDto {
         id: id,
       );
 
-  CatalogEntityRef catalogRefForTarget(CatalogEntityRef? targetRef) {
-    if (targetRef == null) return catalogRef;
-    return targetRef.copyWith(
-      kind: mediaKind,
-      rootId: targetRef.rootId ?? (targetRef.id == id ? null : id),
-    );
-  }
-
   factory CatalogItemDto.fromEnvelope(CatalogItemEnvelopeDto envelope) {
     return CatalogItemDto.raw(
       id: envelope.id,
