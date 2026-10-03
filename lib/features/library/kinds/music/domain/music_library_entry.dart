@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:flutter/foundation.dart';
 
 /// Complete Music-collection item state.
@@ -13,7 +15,7 @@ import 'package:flutter/foundation.dart';
 final class MusicLibraryEntry implements JsonEncodable {
   const MusicLibraryEntry({
     required this.id,
-    this.catalogData = const {},
+    required this.metadata,
     this.sourceCatalogRef,
     this.createdAt,
     this.isDigital,
@@ -40,13 +42,13 @@ final class MusicLibraryEntry implements JsonEncodable {
   });
 
   final LibraryEntryId id;
-  final Map<String, dynamic> catalogData;
+  final MusicAlbum metadata;
   final CatalogItemRef? sourceCatalogRef;
 
   CatalogItemDto get catalogItem => CatalogItemDto.raw(
         id: id.value,
         mediaKind: CatalogMediaKind.music,
-        kindData: catalogData,
+        kindData: _catalogData(metadata),
         origin: CatalogItemOrigin.privateLocal,
       );
   final DateTime? createdAt;
@@ -76,9 +78,10 @@ final class MusicLibraryEntry implements JsonEncodable {
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 
+  @override
   Map<String, dynamic> toJson() => {
         'id': id.value,
-        'catalog_data': catalogData,
+        'catalog_data': _catalogData(metadata),
         'source_catalog_ref': sourceCatalogRef?.toJson(),
         'created_at': createdAt?.toUtc().toIso8601String(),
         'is_digital': isDigital,
@@ -115,11 +118,20 @@ final class MusicLibraryEntry implements JsonEncodable {
       );
     }
 
+    final id = LibraryEntryId(json['id'] as String);
+    final rawCatalogData = json['catalog_data'];
+    if (rawCatalogData is! Map) {
+      throw const FormatException(
+        'A Music library entry requires typed catalog metadata.',
+      );
+    }
     final item = MusicLibraryEntry(
-      id: LibraryEntryId(json['id'] as String),
-      catalogData: json['catalog_data'] is Map
-          ? Map<String, dynamic>.from(json['catalog_data'] as Map)
-          : const {},
+      id: id,
+      metadata: MusicCatalogMapper.fromCatalogPayload({
+        ...Map<String, dynamic>.from(rawCatalogData),
+        'id': id.value,
+        'kind': CatalogMediaKind.music.apiValue,
+      }),
       sourceCatalogRef: json['source_catalog_ref'] is Map
           ? CatalogItemRef.fromJson(
               Map<String, dynamic>.from(json['source_catalog_ref'] as Map))
@@ -152,6 +164,7 @@ final class MusicLibraryEntry implements JsonEncodable {
 
   MusicLibraryEntry copyWith({
     LibraryEntryId? id,
+    MusicAlbum? metadata,
     Object? createdAt = _unset,
     Object? isDigital = _unset,
     Object? condition = _unset,
@@ -177,8 +190,8 @@ final class MusicLibraryEntry implements JsonEncodable {
   }) {
     return MusicLibraryEntry(
       id: id ?? this.id,
-      catalogData: this.catalogData,
-      sourceCatalogRef: this.sourceCatalogRef,
+      metadata: metadata ?? this.metadata,
+      sourceCatalogRef: sourceCatalogRef,
       createdAt: identical(createdAt, _unset)
           ? this.createdAt
           : createdAt as DateTime?,
@@ -235,6 +248,11 @@ final class MusicLibraryEntry implements JsonEncodable {
 }
 
 const Object _unset = Object();
+
+Map<String, dynamic> _catalogData(MusicAlbum metadata) =>
+    Map<String, dynamic>.from(metadata.toJson())
+      ..remove('id')
+      ..remove('kind');
 
 DateTime? _date(Object? value) {
   if (value is! String || value.trim().isEmpty) return null;

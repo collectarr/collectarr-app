@@ -20,14 +20,8 @@ List<LibraryDetailField> buildMusicPersonalDetailFields({
     return const [];
   }
   final discNumbers = <String, int>{};
-  final rawDiscs = entry.catalogData['discs'];
-  if (rawDiscs is Iterable) {
-    for (final rawDisc in rawDiscs) {
-      if (rawDisc is! Map) continue;
-      final id = rawDisc['id'];
-      final number = rawDisc['disc_number'];
-      if (id is String && number is int) discNumbers[id] = number;
-    }
+  for (final medium in entry.metadata.mediums) {
+    discNumbers[medium.id.value] = medium.mediumNumber;
   }
   final storage = [
     for (final medium in details.media) ...[

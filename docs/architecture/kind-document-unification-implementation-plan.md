@@ -51,6 +51,11 @@ slice. This is progress, not completion of this plan:
 - Personal field registration no longer applies a global universal list. Each
   kind explicitly composes reusable common personal field specs with its own
   additions; the registry only combines those kind contributions.
+- `MusicLibraryEntry` now stores `MusicAlbum` metadata as a typed value instead
+  of a parallel catalog map. New-entry creation receives the selected Music
+  item and assigns the local entry identity while decoding it; JSON remains at
+  the persistence and Sync envelope boundary. The other eight entry models
+  still need the same typed consolidation.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_draft.dart';
@@ -78,13 +79,28 @@ final class MusicLibraryEntryCreatePayload
 
   MusicLibraryEntry toLibraryEntry({
     required String id,
+    required CatalogItemDto sourceCatalogItem,
     required DateTime createdAt,
     required bool? existingIsDigital,
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
+    if (sourceCatalogItem.mediaKind != CatalogMediaKind.music) {
+      throw ArgumentError.value(
+        sourceCatalogItem.mediaKind,
+        'sourceCatalogItem',
+        'Music entries require a Music catalog item.',
+      );
+    }
+    final localCatalogItem = CatalogItemDto.raw(
+      id: id,
+      mediaKind: CatalogMediaKind.music,
+      kindData: sourceCatalogItem.kindData,
+      origin: CatalogItemOrigin.privateLocal,
+    );
     final item = MusicLibraryEntry(
       id: LibraryEntryId(id),
+      metadata: MusicCatalogMapper.mapMetadataItemToMusic(localCatalogItem),
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,
       details: details.toDetails(),

@@ -34,6 +34,16 @@ typedef EntryKindCreate<TItem> = TItem Function({
   required String? ownerLabel,
 });
 
+typedef EntryKindCreateWithCatalog<TItem> = TItem Function({
+  required LibraryEntryCreatePayload payload,
+  required CatalogItemDto sourceCatalogItem,
+  required String id,
+  required DateTime createdAt,
+  required bool? existingIsDigital,
+  required String? ownerUserId,
+  required String? ownerLabel,
+});
+
 typedef EntryKindUpdate<TItem> = TItem Function({
   required TItem existing,
   required LibraryEntryUpdatePayload payload,
@@ -134,7 +144,8 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
     required this.findById,
     required this.upsert,
     required this.listActive,
-    required this.createItem,
+    this.createItem,
+    this.createItemWithCatalog,
     required this.updateItem,
     required this.toJson,
     required this.fromJson,
@@ -143,14 +154,15 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
     required this.itemId,
     required this.markDeleted,
     required this.updateItemLocation,
-  });
+  }) : assert((createItem == null) != (createItemWithCatalog == null));
 
   @override
   final CatalogMediaKind kind;
   final EntryKindFind<TItem> findById;
   final EntryKindUpsert<TItem> upsert;
   final EntryKindList<TItem> listActive;
-  final EntryKindCreate<TItem> createItem;
+  final EntryKindCreate<TItem>? createItem;
+  final EntryKindCreateWithCatalog<TItem>? createItemWithCatalog;
   final EntryKindUpdate<TItem> updateItem;
   final EntryKindToJson<TItem> toJson;
   final EntryKindFromJson<TItem> fromJson;
@@ -210,14 +222,25 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
       throw StateError('The source catalog item is unavailable locally.');
     }
     final sourceEntry = await LibraryEntryStore(database).find(kind, source.id);
-    final personal = createItem(
-      payload: payload,
-      id: id,
-      createdAt: createdAt,
-      existingIsDigital: existingIsDigital,
-      ownerUserId: ownerUserId,
-      ownerLabel: ownerLabel,
-    );
+    final createWithCatalog = createItemWithCatalog;
+    final personal = createWithCatalog == null
+        ? createItem!(
+            payload: payload,
+            id: id,
+            createdAt: createdAt,
+            existingIsDigital: existingIsDigital,
+            ownerUserId: ownerUserId,
+            ownerLabel: ownerLabel,
+          )
+        : createWithCatalog(
+            payload: payload,
+            sourceCatalogItem: source,
+            id: id,
+            createdAt: createdAt,
+            existingIsDigital: existingIsDigital,
+            ownerUserId: ownerUserId,
+            ownerLabel: ownerLabel,
+          );
     final item = fromJson({
       ...toJson(personal),
       'catalog_data': source.kindData,
@@ -293,8 +316,9 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
     JsonMap payload,
   ) async {
     final record = LibraryEntryRecord.fromJson(payload);
-    if (record.kind != kind)
+    if (record.kind != kind) {
       throw const FormatException('Library entry kind mismatch.');
+    }
     await LibraryEntryStore(database).put(record);
     final item = fromJson(record.toKindJson());
     return _mutationResult(database, item);
