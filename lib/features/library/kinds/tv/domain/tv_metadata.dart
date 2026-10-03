@@ -230,6 +230,15 @@ class TvSeriesMetadata implements JsonEncodable {
     this.thumbnailImageUrl,
     this.coverImageData,
     this.synopsis,
+    this.catalogNumber,
+    this.color,
+    this.layers,
+    this.nrDiscs,
+    this.plotDescription,
+    this.plotSummary,
+    this.releaseStatus,
+    this.subtitle,
+    this.seriesTags,
     this.firstAirDate,
     this.lastAirDate,
     this.releaseDateParts,
@@ -285,6 +294,15 @@ class TvSeriesMetadata implements JsonEncodable {
   final String? thumbnailImageUrl;
   final String? coverImageData;
   final String? synopsis;
+  final String? catalogNumber;
+  final String? color;
+  final String? layers;
+  final int? nrDiscs;
+  final String? plotDescription;
+  final String? plotSummary;
+  final String? releaseStatus;
+  final String? subtitle;
+  final List<String>? seriesTags;
   final DateTime? firstAirDate;
   final DateTime? lastAirDate;
   final PartialDate? releaseDateParts;
@@ -340,6 +358,15 @@ class TvSeriesMetadata implements JsonEncodable {
         if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
         if (coverImageData != null) 'cover_image_data': coverImageData,
         if (synopsis != null) 'synopsis': synopsis,
+        if (catalogNumber != null) 'catalog_number': catalogNumber,
+        if (color != null) 'color': color,
+        if (layers != null) 'layers': layers,
+        if (nrDiscs != null) 'nr_discs': nrDiscs,
+        if (plotDescription != null) 'plot_description': plotDescription,
+        if (plotSummary != null) 'plot_summary': plotSummary,
+        if (releaseStatus != null) 'release_status': releaseStatus,
+        if (subtitle != null) 'subtitle': subtitle,
+        if (seriesTags != null) 'series_tags': seriesTags,
         if (firstAirDate != null)
           'first_air_date': firstAirDate!.toIso8601String(),
         if (lastAirDate != null)
@@ -411,6 +438,15 @@ class TvSeriesMetadata implements JsonEncodable {
     String? thumbnailImageUrl,
     String? coverImageData,
     String? synopsis,
+    String? catalogNumber,
+    String? color,
+    String? layers,
+    int? nrDiscs,
+    String? plotDescription,
+    String? plotSummary,
+    String? releaseStatus,
+    String? subtitle,
+    List<String>? seriesTags,
     DateTime? firstAirDate,
     DateTime? lastAirDate,
     PartialDate? releaseDateParts,
@@ -462,6 +498,15 @@ class TvSeriesMetadata implements JsonEncodable {
       thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
       coverImageData: coverImageData ?? this.coverImageData,
       synopsis: synopsis ?? this.synopsis,
+      catalogNumber: catalogNumber ?? this.catalogNumber,
+      color: color ?? this.color,
+      layers: layers ?? this.layers,
+      nrDiscs: nrDiscs ?? this.nrDiscs,
+      plotDescription: plotDescription ?? this.plotDescription,
+      plotSummary: plotSummary ?? this.plotSummary,
+      releaseStatus: releaseStatus ?? this.releaseStatus,
+      subtitle: subtitle ?? this.subtitle,
+      seriesTags: seriesTags ?? this.seriesTags,
       firstAirDate: firstAirDate ?? this.firstAirDate,
       lastAirDate: lastAirDate ?? this.lastAirDate,
       releaseDateParts: releaseDateParts ?? this.releaseDateParts,
@@ -506,7 +551,16 @@ class TvSeriesMetadata implements JsonEncodable {
     final rawPayload = Map<String, dynamic>.from(json)
       ..remove('editions')
       ..remove('releases')
-      ..remove('series');
+      ..remove('series')
+      ..remove('catalog_number')
+      ..remove('color')
+      ..remove('layers')
+      ..remove('nr_discs')
+      ..remove('plot_description')
+      ..remove('plot_summary')
+      ..remove('release_status')
+      ..remove('subtitle')
+      ..remove('series_tags');
 
     final rawCreators = (json['creators'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
@@ -548,6 +602,17 @@ class TvSeriesMetadata implements JsonEncodable {
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       coverImageData: json['cover_image_data'] as String?,
       synopsis: json['synopsis'] as String?,
+      catalogNumber: json['catalog_number'] as String?,
+      color: json['color'] as String?,
+      layers: json['layers'] as String?,
+      nrDiscs: _asInt(json['nr_discs']),
+      plotDescription: json['plot_description'] as String?,
+      plotSummary: json['plot_summary'] as String?,
+      releaseStatus: json['release_status'] as String?,
+      subtitle: json['subtitle'] as String?,
+      seriesTags: (json['series_tags'] as List<dynamic>?)
+          ?.whereType<String>()
+          .toList(growable: false),
       firstAirDate: json['first_air_date'] != null
           ? DateTime.tryParse(json['first_air_date'] as String)
           : null,

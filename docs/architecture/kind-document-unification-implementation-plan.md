@@ -175,6 +175,9 @@ slice. This is progress, not completion of this plan:
   presentation, plot, release-status, and series-tag fields explicit types and
   serializes them from those properties. The remaining arbitrary payload still
   includes nested and older Anime values that need an ownership decision.
+- `TvSeriesMetadata` now owns the corresponding catalog-number, video, plot,
+  release-status, subtitle, and series-tag fields as typed values. Its raw map
+  still carries contained IDs and other fields awaiting migration.
 - Removed the unreferenced Anime media edit dialog and the separate Anime
   media/release schema exports. The current Add field specs remain in use; the
   reachable media/release repository paths still need migration.
