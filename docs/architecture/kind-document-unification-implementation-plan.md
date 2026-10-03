@@ -217,8 +217,17 @@ slice. This is progress, not completion of this plan:
 - Core's Game document and response now retain the active App fields
   `franchise`, `original_language`, `languages`, and the normalized
   `physical_format_label`; App's kind model writes those fields explicitly and
-  the pinned contract was regenerated. Game's remaining untyped fields still
-  need an ownership pass.
+  the pinned contract was regenerated.
+- Game metadata now has explicit properties for the complete pinned Game root
+  field set instead of retaining a `rawPayload` map. Identifier objects and
+  string identifiers, person credits, and links have Game-owned value types;
+  canonical decoding no longer accepts nested `game`/`series` wrappers or
+  singular-platform and plural-publisher aliases. Partial release dates are
+  preserved through the App model. Core and App now also expose and pin
+  `toy_subtype` and `toy_type`, which the Game inspector already displayed.
+  The Add field schema exposes those two values. Game's PriceCharting
+  identifier and multi-tier valuation ownership still needs a separate review;
+  those values are not part of the Core document.
 - Removed the empty Game local mapper after the production reference search
   found only its own export. The active Game entry repository remains in use.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
@@ -234,8 +243,10 @@ ownership and typed schema organization across all kinds; replacing the universa
 `PersonalStateDraft` and shared edit-section field assumptions with kind-owned
 bindings; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
-form organization. Board Game and Game metadata still retain raw payloads for
-fields that have not yet moved into their typed models. The nine field ledgers
+form organization. Anime, Board Game, Manga, and TV metadata still retain raw
+payload maps for fields not yet moved into their typed models. Game's
+PriceCharting identifier and valuation snapshots still need an ownership
+decision and are not in the Core contract. The nine field ledgers
 remain authoritative, and exact CLZ parity is only confirmed for Music until
 the other reference captures are available.
 

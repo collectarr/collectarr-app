@@ -85,8 +85,9 @@ The labels below describe field ownership only. They do not imply separate edita
 | Field | Scope | Description |
 |---|---|---|
 | `title`, `franchise`, `series`, `genres` | Catalog Item Metadata | Canonical game IP and series |
-| `developers`, `publishers` | Catalog Item Metadata | Game studio and publisher |
+| `developers`, `publisher` | Catalog Item Metadata | Game studio and publisher |
 | `platform`, `releaseRegion`, `edition` | Catalog Item Metadata | Console platform, region, and edition |
+| `toySubtype`, `toyType` | Catalog Item Metadata | Game and toy classification |
 | `barcode`, `ageRating`, `languages` | Catalog Item Metadata | Package identifiers and rating |
 | `completeness` (Loose, CIB, New, Sealed) | Personal Data | Packaging completeness |
 | `hasBox`, `hasManual`, `valueLocked` | Personal Data | Box/manual presence and valuation lock |
