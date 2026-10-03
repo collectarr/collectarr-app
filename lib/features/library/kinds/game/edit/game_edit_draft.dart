@@ -314,32 +314,28 @@ LibraryEditSessionBundle createGameEditDraft({
   final entry = GameLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
   final game = entry?.personal.details;
   final meta = item.kindCapability.mapTransport(
-              (transport) => GameCatalogMetadata.fromJson(transport.kindData))
-          is GameCatalogMetadata
-      ? item.kindCapability.mapTransport(
-              (transport) => GameCatalogMetadata.fromJson(transport.kindData))
-          as GameCatalogMetadata
-      : null;
-  final developerNames = (meta?.creators ?? const <Map<String, dynamic>>[])
+    (transport) => GameCatalogMetadata.fromJson(transport.kindData),
+  );
+  final developerNames = meta.creators
       .where((c) =>
           c['role']?.toString().toLowerCase().contains('developer') ?? false)
       .map((c) => c['name']?.toString().trim() ?? '')
       .where((n) => n.isNotEmpty)
       .join(', ');
-  final platforms = meta?.platforms ?? const <String>[];
+  final platforms = meta.platforms;
   final gameEdit = GameEditController(
     initialPlatforms: platforms.join(', '),
     initialDevelopers: developerNames,
-    initialSeriesTitle: meta?.series ?? '',
-    initialPublisher: meta?.publishers.join(', ') ?? '',
+    initialSeriesTitle: meta.series ?? '',
+    initialPublisher: meta.publishers.join(', '),
     initialReleaseDate:
-        meta?.releaseDate != null ? formatDate(meta!.releaseDate!) : '',
-    initialReleaseYear: meta?.releaseDate?.year.toString() ?? '',
-    initialFranchise: meta?.franchise ?? '',
-    initialGenres: meta?.genres.join(', ') ?? '',
-    initialAgeRating: meta?.ageRating ?? '',
-    initialLanguage: meta?.languages.join(', ') ?? '',
-    initialCountry: meta?.country ?? '',
+        meta.releaseDate != null ? formatDate(meta.releaseDate!) : '',
+    initialReleaseYear: meta.releaseDate?.year.toString() ?? '',
+    initialFranchise: meta.franchise ?? '',
+    initialGenres: meta.genres.join(', '),
+    initialAgeRating: meta.ageRating ?? '',
+    initialLanguage: meta.languages.join(', '),
+    initialCountry: meta.country,
   );
 
   final draft = GameEditDraft(

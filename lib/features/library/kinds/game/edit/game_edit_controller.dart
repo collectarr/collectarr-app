@@ -56,7 +56,7 @@ class GameEditController {
       splitPickListValues(developersController.text),
     );
     genreOptions = _mergePickListOptions(
-      meta?.genres ?? const <String>[],
+      meta.genres,
     );
     platformOptions = splitPickListValues(platformsController.text);
   }

@@ -61,11 +61,10 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.kindCapability.mapTransport((transport) =>
-                  GameCatalogMetadata.fromJson(transport.kindData));
-              return metadata is GameCatalogMetadata
-                  ? [metadata.platform, ...metadata.platforms]
-                  : const <Object?>[];
+              final metadata = item.kindCapability.mapTransport(
+                (transport) => GameCatalogMetadata.fromJson(transport.kindData),
+              );
+              return [metadata.platform, ...metadata.platforms];
             },
           ),
           LibraryAddSearchRankField(
@@ -73,14 +72,13 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindCapability.mapTransport((transport) =>
-                  GameCatalogMetadata.fromJson(transport.kindData));
-              return metadata is GameCatalogMetadata
-                  ? [
-                      item.gameCatalogFields.releaseYear,
-                      metadata.releaseDate?.year
-                    ]
-                  : [item.gameCatalogFields.releaseYear];
+              final metadata = item.kindCapability.mapTransport(
+                (transport) => GameCatalogMetadata.fromJson(transport.kindData),
+              );
+              return [
+                item.gameCatalogFields.releaseYear,
+                metadata.releaseDate?.year,
+              ];
             },
           ),
         ],
