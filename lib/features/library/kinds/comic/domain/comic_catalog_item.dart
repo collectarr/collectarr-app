@@ -141,6 +141,159 @@ final class ComicStoryArc implements JsonEncodable {
 }
 
 @immutable
+final class ComicCreator implements JsonEncodable {
+  const ComicCreator({
+    this.id,
+    this.personId,
+    this.artistId,
+    this.name,
+    this.role,
+    this.roleId,
+    this.sequence,
+    this.creditedName,
+    this.joinPhrase,
+    this.imageUrl,
+    this.sortName,
+    this.instrument,
+  });
+
+  final String? id;
+  final String? personId;
+  final String? artistId;
+  final String? name;
+  final String? role;
+  final String? roleId;
+  final int? sequence;
+  final String? creditedName;
+  final String? joinPhrase;
+  final String? imageUrl;
+  final String? sortName;
+  final String? instrument;
+
+  factory ComicCreator.fromValue(Object value) {
+    if (value is String) return ComicCreator(name: value);
+    if (value is! Map) {
+      throw const FormatException('Comic creators must be strings or objects.');
+    }
+    final json = Map<String, dynamic>.from(value);
+    return ComicCreator(
+      id: json['id'] as String?,
+      personId: json['person_id'] as String?,
+      artistId: json['artist_id'] as String?,
+      name: json['name'] as String?,
+      role: json['role'] as String?,
+      roleId: json['role_id'] as String?,
+      sequence: (json['sequence'] as num?)?.toInt(),
+      creditedName: json['credited_name'] as String?,
+      joinPhrase: json['join_phrase'] as String?,
+      imageUrl: json['image_url'] as String?,
+      sortName: json['sort_name'] as String?,
+      instrument: json['instrument'] as String?,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        if (personId != null) 'person_id': personId,
+        if (artistId != null) 'artist_id': artistId,
+        if (name != null) 'name': name,
+        if (role != null) 'role': role,
+        if (roleId != null) 'role_id': roleId,
+        if (sequence != null) 'sequence': sequence,
+        if (creditedName != null) 'credited_name': creditedName,
+        if (joinPhrase != null) 'join_phrase': joinPhrase,
+        if (imageUrl != null) 'image_url': imageUrl,
+        if (sortName != null) 'sort_name': sortName,
+        if (instrument != null) 'instrument': instrument,
+      };
+
+  Object toJsonValue() => id == null &&
+          personId == null &&
+          artistId == null &&
+          role == null &&
+          roleId == null &&
+          sequence == null &&
+          creditedName == null &&
+          joinPhrase == null &&
+          imageUrl == null &&
+          sortName == null &&
+          instrument == null
+      ? name ?? ''
+      : toJson();
+}
+
+@immutable
+final class ComicCharacter implements JsonEncodable {
+  const ComicCharacter({
+    this.id,
+    this.characterId,
+    this.name,
+    this.realName,
+    this.aliases = const [],
+    this.role,
+    this.description,
+    this.imageUrl,
+  });
+
+  final String? id;
+  final String? characterId;
+  final String? name;
+  final String? realName;
+  final List<String> aliases;
+  final String? role;
+  final String? description;
+  final String? imageUrl;
+
+  factory ComicCharacter.fromValue(Object value) {
+    if (value is String) return ComicCharacter(name: value);
+    if (value is! Map) {
+      throw const FormatException(
+          'Comic characters must be strings or objects.');
+    }
+    final json = Map<String, dynamic>.from(value);
+    final aliasesValue = json['aliases'];
+    if (aliasesValue != null &&
+        (aliasesValue is! List ||
+            aliasesValue.any((value) => value is! String))) {
+      throw const FormatException('Comic character aliases must be strings.');
+    }
+    return ComicCharacter(
+      id: json['id'] as String?,
+      characterId: json['character_id'] as String?,
+      name: json['name'] as String?,
+      realName: json['real_name'] as String?,
+      aliases: (aliasesValue as List<dynamic>?)?.cast<String>() ?? const [],
+      role: json['role'] as String?,
+      description: json['description'] as String?,
+      imageUrl: json['image_url'] as String?,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        if (characterId != null) 'character_id': characterId,
+        if (name != null) 'name': name,
+        if (realName != null) 'real_name': realName,
+        if (aliases.isNotEmpty) 'aliases': aliases,
+        if (role != null) 'role': role,
+        if (description != null) 'description': description,
+        if (imageUrl != null) 'image_url': imageUrl,
+      };
+
+  Object toJsonValue() => id == null &&
+          characterId == null &&
+          realName == null &&
+          aliases.isEmpty &&
+          role == null &&
+          description == null &&
+          imageUrl == null
+      ? name ?? ''
+      : toJson();
+}
+
+@immutable
 class ComicKeyEvent {
   const ComicKeyEvent({
     required this.type,
@@ -275,9 +428,9 @@ class ComicCatalogItem implements JsonEncodable {
   final List<String> editors;
   final List<String> coverArtists;
   final List<ComicCreatorCredit> creatorCredits;
-  final List<String> characters;
-  final List<Map<String, dynamic>> characterDetails;
-  final List<Map<String, dynamic>> creators;
+  final List<ComicCharacter> characters;
+  final List<ComicCharacter> characterDetails;
+  final List<ComicCreator> creators;
   final List<ComicStoryArc> storyArcs;
   final List<ComicKeyEvent> keyEvents;
   final bool isKeyComic;
@@ -354,10 +507,17 @@ class ComicCatalogItem implements JsonEncodable {
       if (genres.isNotEmpty) 'genres': genres,
       if (searchAliases.isNotEmpty) 'search_aliases': searchAliases,
       if (synopsis != null) 'synopsis': synopsis,
-      if (characters.isNotEmpty) 'characters': characters,
-      if (characterDetails.isNotEmpty) 'character_details': characterDetails,
+      if (characters.isNotEmpty)
+        'characters': [
+          for (final character in characters) character.toJsonValue()
+        ],
+      if (characterDetails.isNotEmpty)
+        'character_details': [
+          for (final character in characterDetails) character.toJson(),
+        ],
       if (contributors.isNotEmpty) 'contributors': contributors,
-      if (creators.isNotEmpty) 'creators': creators,
+      if (creators.isNotEmpty)
+        'creators': [for (final creator in creators) creator.toJsonValue()],
       if (storyArcs.isNotEmpty)
         'story_arcs': [for (final arc in storyArcs) arc.toJsonValue()],
       if (keyEvents.isNotEmpty)
@@ -417,9 +577,9 @@ class ComicCatalogItem implements JsonEncodable {
     List<String>? editors,
     List<String>? coverArtists,
     List<ComicCreatorCredit>? creatorCredits,
-    List<String>? characters,
-    List<Map<String, dynamic>>? characterDetails,
-    List<Map<String, dynamic>>? creators,
+    List<ComicCharacter>? characters,
+    List<ComicCharacter>? characterDetails,
+    List<ComicCreator>? creators,
     List<ComicStoryArc>? storyArcs,
     List<ComicKeyEvent>? keyEvents,
     bool? isKeyComic,
@@ -524,16 +684,6 @@ class ComicCatalogItem implements JsonEncodable {
       }
     }
 
-    final rawCreators = (json['creators'] as List<dynamic>?)
-            ?.whereType<Map<String, dynamic>>()
-            .toList(growable: true) ??
-        <Map<String, dynamic>>[];
-
-    final rawCharDetails = (json['character_details'] as List<dynamic>?)
-            ?.whereType<Map<String, dynamic>>()
-            .toList(growable: false) ??
-        const <Map<String, dynamic>>[];
-
     return ComicCatalogItem(
       id: json['id'] is String && (json['id'] as String).isNotEmpty
           ? ComicCatalogItemId(json['id'] as String)
@@ -592,12 +742,24 @@ class ComicCatalogItem implements JsonEncodable {
               .toList() ??
           const [],
       creatorCredits: creatorCredits,
-      characters: (json['characters'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const [],
-      characterDetails: rawCharDetails,
-      creators: rawCreators,
+      characters: _comicChildList<ComicCharacter>(
+        json['characters'],
+        'characters',
+        ComicCharacter.fromValue,
+        allowStrings: true,
+      ),
+      characterDetails: _comicChildList<ComicCharacter>(
+        json['character_details'],
+        'character_details',
+        ComicCharacter.fromValue,
+        allowStrings: false,
+      ),
+      creators: _comicChildList<ComicCreator>(
+        json['creators'],
+        'creators',
+        ComicCreator.fromValue,
+        allowStrings: true,
+      ),
       storyArcs:
           (json['story_arcs'] as List<dynamic>?)?.map<ComicStoryArc>((value) {
                 if (value is! Map && value is! String) {
@@ -644,6 +806,25 @@ class ComicCatalogItem implements JsonEncodable {
 String? _comicText(Object? value) {
   final text = value?.toString().trim();
   return text == null || text.isEmpty ? null : text;
+}
+
+List<T> _comicChildList<T>(
+  Object? value,
+  String field,
+  T Function(Object value) decode, {
+  required bool allowStrings,
+}) {
+  if (value == null) return List<T>.empty(growable: false);
+  if (value is! List) {
+    throw FormatException('Comic $field must be a list.');
+  }
+  return List<T>.unmodifiable([
+    for (final child in value)
+      if (child is Map || allowStrings && child is String)
+        decode(child as Object)
+      else
+        throw FormatException('Comic $field contains an invalid value.'),
+  ]);
 }
 
 DateTime? _comicDate(Object? value) {

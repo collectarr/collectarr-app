@@ -131,7 +131,9 @@ class ComicStatsCapability implements LibraryStatsCapability {
       (entry) =>
           _comicMetadata(entry)
               ?.characters
-              .where((name) => name.trim().isNotEmpty) ??
+              .map((character) => character.name?.trim())
+              .whereType<String>()
+              .where((name) => name.isNotEmpty) ??
           const <String>[],
     );
   }
@@ -158,7 +160,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     if (meta.creatorCredits.isNotEmpty) {
       return meta.creatorCredits.map((credit) => credit.name);
     }
-    return meta.creators.map((credit) => credit['name']?.toString() ?? '');
+    return meta.creators.map((credit) => credit.name ?? '');
   }
 
   static Map<String, int> _countMany(

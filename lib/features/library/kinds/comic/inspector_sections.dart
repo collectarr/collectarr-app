@@ -97,8 +97,16 @@ List<_ComicInspectorTab> _comicInspectorTabs(
           .where((name) => name.isNotEmpty)
           .toList(growable: false) ??
       const <String>[];
-  final characters = catalogItem?.characters ?? const <String>[];
-  final creators = catalogItem?.creators ?? const <Map<String, dynamic>>[];
+  final characters = catalogItem?.characters
+          .map((character) => character.name?.trim())
+          .whereType<String>()
+          .where((name) => name.isNotEmpty)
+          .toList(growable: false) ??
+      const <String>[];
+  final creators = catalogItem?.creators
+          .map((creator) => creator.toJson())
+          .toList(growable: false) ??
+      const <Map<String, dynamic>>[];
   final libraryEntry =
       ComicLibraryEntryProjection.fromDispatch(request.libraryEntryDispatch);
 

@@ -307,13 +307,18 @@ class ComicLibraryCatalogItemPresentationBuilder
       ],
       sections: {
         'creators': LibraryMetadataSection(
-          values: metadata.creators,
+          values: metadata.creators
+              .map((creator) => creator.toJson())
+              .toList(growable: false),
           placement: LibraryMetadataSectionPlacement.credits,
           renderer: LibraryMetadataSectionRenderer.credits,
           completenessWeight: 12,
         ),
         'characters': LibraryMetadataSection(
-          values: metadata.characters,
+          values: metadata.characters
+              .map((character) => character.name)
+              .whereType<String>()
+              .toList(growable: false),
           placement: LibraryMetadataSectionPlacement.credits,
           completenessWeight: 6,
         ),

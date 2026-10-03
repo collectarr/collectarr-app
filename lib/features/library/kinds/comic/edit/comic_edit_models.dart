@@ -135,32 +135,24 @@ class EditableComicCharacter {
 }
 
 List<EditableComicCreator> initComicCreators(ComicCatalogItem item) {
-  final payload = item.toSyncPayload();
-  final creators = payload['creators'];
-  if (creators is List) {
-    return [
-      for (final creator in creators.whereType<Map<String, dynamic>>())
-        EditableComicCreator.fromMetadata(creator),
-    ];
-  }
-  return const [];
+  return [
+    for (final creator in item.creators)
+      EditableComicCreator.fromMetadata(creator.toJson()),
+  ];
 }
 
 List<EditableComicCharacter> initComicCharacters(ComicCatalogItem item) {
-  final payload = item.toSyncPayload();
-  final characterDetails = payload['character_details'];
-  if (characterDetails is List && characterDetails.isNotEmpty) {
+  if (item.characterDetails.isNotEmpty) {
     return [
-      for (final character
-          in characterDetails.whereType<Map<String, dynamic>>())
-        EditableComicCharacter.fromMetadata(character),
+      for (final character in item.characterDetails)
+        EditableComicCharacter.fromMetadata(character.toJson()),
     ];
   }
-  final characters = payload['characters'];
-  if (characters is List) {
+  if (item.characters.isNotEmpty) {
     return [
-      for (final characterName in characters.map((c) => c.toString()))
-        EditableComicCharacter.custom(characterName),
+      for (final character in item.characters)
+        if (character.name?.trim().isNotEmpty == true)
+          EditableComicCharacter.fromMetadata(character.toJson()),
     ];
   }
   return const [];
@@ -185,18 +177,13 @@ LibraryEditSelection applyComicSelectionEdits(
             (character['name']?.toString().trim().isNotEmpty ?? false),
       )
       .toList(growable: false);
-  final characterNames = characterDetails
-      .map((character) => character['name']!.toString())
-      .toList(growable: false);
+  final typedCharacterDetails =
+      characterDetails.map(ComicCharacter.fromValue).toList(growable: false);
+  final typedCreators =
+      mappedCreators.map(ComicCreator.fromValue).toList(growable: false);
   final current = selection.kindItem.kindCapability.mapTransport(
-              (transport) => ComicCatalogItem.fromJson(transport.kindData))
-          is ComicCatalogItem
-      ? selection.kindItem.kindCapability.mapTransport(
-              (transport) => ComicCatalogItem.fromJson(transport.kindData))
-          as ComicCatalogItem
-      : ComicCatalogItem.fromJson(selection.kindItem.kindCapability
-          .mapTransport((transport) => transport)
-          .payload);
+    (transport) => ComicCatalogItem.fromJson(transport.kindData),
+  );
 
   final existingTrailerLinks = current.links.where((l) => l.isTrailerLink);
   final newComicLinks = <ComicLink>[
@@ -214,11 +201,13 @@ LibraryEditSelection applyComicSelectionEdits(
   ];
 
   final updatedMetadata = current.copyWith(
-    creators: mappedCreators.isNotEmpty ? mappedCreators : current.creators,
-    characterDetails: characterDetails.isNotEmpty
-        ? characterDetails
+    creators: typedCreators.isNotEmpty ? typedCreators : current.creators,
+    characterDetails: typedCharacterDetails.isNotEmpty
+        ? typedCharacterDetails
         : current.characterDetails,
-    characters: characterNames.isNotEmpty ? characterNames : current.characters,
+    characters: typedCharacterDetails.isNotEmpty
+        ? typedCharacterDetails
+        : current.characters,
     links: newComicLinks,
   );
 
