@@ -1,7 +1,5 @@
 import 'package:drift/drift.dart';
 
-import 'package:collectarr_app/core/models/library_entry_ref.dart';
-
 class MusicTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get libraryEntryRefKey => text()();

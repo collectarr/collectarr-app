@@ -146,11 +146,5 @@ String? _text(Object? value) {
   return text == null || text.isEmpty ? null : text;
 }
 
-int? _int(Object? value) {
-  if (value is int) return value;
-  if (value is num) return value.toInt();
-  return int.tryParse(value?.toString().trim() ?? '');
-}
-
 DateTime? _date(Object? value) =>
     DateTime.tryParse(value?.toString().trim() ?? '')?.toUtc();

@@ -1,15 +1,10 @@
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
-import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -769,19 +764,6 @@ String? _durationLabel(int? durationMs) {
   final minutes = totalSeconds ~/ 60;
   final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
   return '$minutes:$seconds';
-}
-
-String? _mediumDurationLabel(MusicMedium medium) {
-  final durations = medium.tracks
-      .where((track) => !track.isHeader && track.durationMs != null)
-      .map((track) => track.durationMs!);
-  var total = 0;
-  var hasDuration = false;
-  for (final duration in durations) {
-    total += duration;
-    hasDuration = true;
-  }
-  return hasDuration ? _durationLabel(total) : null;
 }
 
 int? _durationMs(String value) {

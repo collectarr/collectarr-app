@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
@@ -56,13 +54,14 @@ final class MusicCatalogTransportCodec
   Future<LibraryWorkspaceCatalogData> enrichWorkspaceData(
     LocalDatabase db,
     CatalogItemDto item,
-    LibraryWorkspaceCatalogData data,
-    {LibraryEntryRef? libraryEntryRef,}
-  ) async {
+    LibraryWorkspaceCatalogData data, {
+    LibraryEntryRef? libraryEntryRef,
+  }) async {
     if (data is! MusicWorkspaceCatalogData || libraryEntryRef == null) {
       return data;
     }
-    final summary = await MusicListeningRepository(db).getSummary(libraryEntryRef);
+    final summary =
+        await MusicListeningRepository(db).getSummary(libraryEntryRef);
     return data.copyWith(listeningSummary: summary);
   }
 

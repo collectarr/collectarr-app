@@ -56,6 +56,9 @@ slice. This is progress, not completion of this plan:
   item and assigns the local entry identity while decoding it; JSON remains at
   the persistence and Sync envelope boundary. The other eight entry models
   still need the same typed consolidation.
+- The empty Music entry-local mapper and an unused track-duration helper were
+  removed after checking the app, tests, and integration-test trees for callers.
+  Music listening and tracking tables remain registered and in use.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
