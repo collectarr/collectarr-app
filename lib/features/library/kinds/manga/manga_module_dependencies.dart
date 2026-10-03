@@ -23,6 +23,7 @@ export 'package:collectarr_app/features/library/kinds/manga/add/manga_catalog_ca
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
+export 'package:collectarr_app/features/library/kinds/manga/domain/manga_personal_data.dart';
 export 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/manga/edit_presentation_builder.dart';

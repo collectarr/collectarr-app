@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/manga/entries/manga_gradin
 import 'package:collectarr_app/features/library/kinds/manga/entries/manga_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_entry_projection.dart';
 
@@ -704,34 +705,36 @@ List<MangaLibraryEntry> mangaSeedLibraryEntries(DateTime now) {
             seedCatalogRef(CatalogMediaKind.manga, itemId).toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 210)),
         updatedAt: now,
-        isDigital: false,
-        condition: 'Mint',
-        details: const MangaEntryDetails(
-          grading: MangaGradingDetails(
-            rawOrSlabbed: 'Slabbed',
-            gradingCompany: 'CGC',
-            graderNotes: 'White pages; clean spine and corners.',
-            labelType: 'Modern',
-            customLabel: 'Deluxe creator edition',
-            pageQuality: 'White pages',
-            certificationNumber: 'CGC-MANGA-0001',
+        personal: MangaPersonalData(
+          isDigital: false,
+          condition: 'Mint',
+          details: MangaEntryDetails(
+            grading: MangaGradingDetails(
+              rawOrSlabbed: 'Slabbed',
+              gradingCompany: 'CGC',
+              graderNotes: 'White pages; clean spine and corners.',
+              labelType: 'Modern',
+              customLabel: 'Deluxe creator edition',
+              pageQuality: 'White pages',
+              certificationNumber: 'CGC-MANGA-0001',
+            ),
+            signature: MangaSignatureDetails(signedBy: 'Takehiko Inoue'),
+            obiStripPresent: true,
+            slipcoverPresent: true,
+            dustJacketPresent: true,
+            dustJacketCondition: 'Excellent',
+            boxSetOuterCondition: 'Very good',
+            insertsPresent: true,
+            printing: '1st Print',
+            localizedEdition: 'VIZ Media',
           ),
-          signature: MangaSignatureDetails(signedBy: 'Takehiko Inoue'),
-          obiStripPresent: true,
-          slipcoverPresent: true,
-          dustJacketPresent: true,
-          dustJacketCondition: 'Excellent',
-          boxSetOuterCondition: 'Very good',
-          insertsPresent: true,
-          printing: '1st Print',
-          localizedEdition: 'VIZ Media',
+          purchaseDate: DateTime.utc(2022, 9, 1),
+          pricePaidCents: 1999,
+          currency: 'USD',
+          personalNotes: 'Physical volume with dust jacket.',
+          purchaseStore: 'Barnes & Noble',
+          collectionStatus: 'collected',
         ),
-        purchaseDate: DateTime.utc(2022, 9, 1),
-        pricePaidCents: 1999,
-        currency: 'USD',
-        personalNotes: 'Physical volume with dust jacket.',
-        purchaseStore: 'Barnes & Noble',
-        collectionStatus: 'collected',
       ),
   ];
 }
