@@ -242,6 +242,11 @@ slice. This is progress, not completion of this plan:
   shape from the Core schema and App's residual raw-field maps. Core's OpenAPI
   and Catalog Item contract bundle were regenerated, and the verified bundle
   is pinned in App.
+- TV manual Add now edits `TvSeriesMetadata` directly. Its candidate and
+  proposal are built from the typed model, and the parallel
+  `TvCatalogItemFormValues` shape has been removed. TV's old Edit repository
+  and tabs still consume `TvSeries`/`TvRelease` and remain to be moved to the
+  root document.
 - Development seeds for all nine kinds now place repeated item data in their
   kind document: media, seasons/episodes, printings, Music discs/tracks, and
   issue or platform details no longer require an edition/release graph. Seed

@@ -74,8 +74,9 @@ claim completion of every cleanup item or literal CLZ parity.
   obsolete Anime media/release models and media-parent episode model are gone;
   the old mixed repository is now only a user-created episode store. Anime's
   custom Edit field controllers remain active. TV's workspace, transport
-  codec, and identifier lookup now read `TvSeriesMetadata` directly; the old
-  TV repository and edit tabs still depend on `TvSeries`/`TvRelease`.
+  codec, identifier lookup, and manual Add now use `TvSeriesMetadata` directly;
+  the parallel TV Add form values are gone. The old TV repository and Edit tabs
+  still depend on `TvSeries`/`TvRelease`.
 - `LibraryEntryPersonalSection` now renders its fields from kind-contributed
   specs for editor type, area, order, pick-list ownership, currency linkage,
   and status options; it no longer hardcodes universal field keys. The shared
