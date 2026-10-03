@@ -16,7 +16,7 @@ abstract final class BoardGameLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = BoardGameLibraryEntryProjection.fromDispatch(
           context.source.libraryEntryDispatch);
-      return entry is BoardGameLibraryEntry ? entry.condition : null;
+      return entry is BoardGameLibraryEntry ? entry.personal.condition : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );
@@ -122,7 +122,8 @@ final boardgameLibraryEntryWorkspaceSortDefinitions = [
   ),
 ];
 
-final boardgameLibraryEntryWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+final boardgameLibraryEntryWorkspaceDefaultVisibleColumns =
+    <LibraryFieldIdRuntime>{
   BoardGameFieldIds.status,
   BoardGameFieldIds.rating,
   BoardGameFieldIds.condition,

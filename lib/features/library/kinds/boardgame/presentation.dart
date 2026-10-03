@@ -51,7 +51,7 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => BoardGameLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.tags?.split(','),
+    )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
     id: 'publisher',
@@ -75,7 +75,7 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     anyLabel: 'Any condition',
     value: (item) => BoardGameLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.condition,
+    )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
     id: 'country',

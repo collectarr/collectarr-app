@@ -35,29 +35,8 @@ final class BoardGameLibraryEntry implements JsonEncodable {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
-  bool? get isDigital => personal.isDigital;
-  String? get condition => personal.condition;
-  String? get grade => personal.grade;
-  DateTime? get purchaseDate => personal.purchaseDate;
-  int? get pricePaidCents => personal.pricePaidCents;
-  String? get currency => personal.currency;
-  String? get personalNotes => personal.personalNotes;
-  int? get indexNumber => personal.indexNumber;
-  String? get tags => personal.tags;
-  DateTime? get soldAt => personal.soldAt;
-  int? get sellPriceCents => personal.sellPriceCents;
-  String? get soldTo => personal.soldTo;
-  String? get ownerUserId => personal.ownerUserId;
-  String? get ownerLabel => personal.ownerLabel;
-  String? get locationId => personal.locationId;
-  String? get purchaseStore => personal.purchaseStore;
-  String? get collectionStatus => personal.collectionStatus;
-  int? get marketValueCents => personal.marketValueCents;
-  BoardgameEntryDetails get details => personal.details;
-
   String get itemId => id.value;
   bool get isDeleted => deletedAt != null;
-  bool get isSold => soldAt != null;
 
   @override
   Map<String, dynamic> toJson() => {

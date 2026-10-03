@@ -135,30 +135,38 @@ final class BoardGameCollectionCsvProjection
 
   @override
   String? entryCollectionValue(LibraryWorkspaceSource entry) {
-    final personalState =
-        BoardGameLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is BoardGameLibraryEntry ? personalState.grade : null;
+    final personalState = BoardGameLibraryEntryProjection.fromDispatch(
+        entry.libraryEntryDispatch);
+    return personalState is BoardGameLibraryEntry
+        ? personalState.personal.grade
+        : null;
   }
 
   @override
   String? entryCondition(LibraryWorkspaceSource entry) {
-    final personalState =
-        BoardGameLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is BoardGameLibraryEntry ? personalState.condition : null;
+    final personalState = BoardGameLibraryEntryProjection.fromDispatch(
+        entry.libraryEntryDispatch);
+    return personalState is BoardGameLibraryEntry
+        ? personalState.personal.condition
+        : null;
   }
 
   @override
   int? entryIndexNumber(LibraryWorkspaceSource entry) {
-    final personalState =
-        BoardGameLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is BoardGameLibraryEntry ? personalState.indexNumber : null;
+    final personalState = BoardGameLibraryEntryProjection.fromDispatch(
+        entry.libraryEntryDispatch);
+    return personalState is BoardGameLibraryEntry
+        ? personalState.personal.indexNumber
+        : null;
   }
 
   @override
   String? entryTags(LibraryWorkspaceSource entry) {
-    final personalState =
-        BoardGameLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is BoardGameLibraryEntry ? personalState.tags : null;
+    final personalState = BoardGameLibraryEntryProjection.fromDispatch(
+        entry.libraryEntryDispatch);
+    return personalState is BoardGameLibraryEntry
+        ? personalState.personal.tags
+        : null;
   }
 
   @override
