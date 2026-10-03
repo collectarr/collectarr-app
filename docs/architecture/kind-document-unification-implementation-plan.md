@@ -205,6 +205,9 @@ slice. This is progress, not completion of this plan:
   and encode into the canonical contained `discs -> tracks` document shape.
   The obsolete generic inspector and Core API disc/track DTOs are gone; Music's
   active model and editor remain the only production owners of track data.
+- Generic Core API DTOs for publishing, series, video, and game detail objects
+  have been removed. Development fixtures now use seed-only typed values, and
+  the seed factory no longer accepts `Object` or arbitrary JSON detail maps.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
@@ -362,9 +365,7 @@ Confirmed areas needing changes:
 - `catalog_disc_dto.dart` and `catalog_track_dto.dart`: Music fields are defined
   outside Music, and several disc getters always return null. Replace consumers
   with Music's typed contained models and remove the generic stubs.
-- `catalog_edition_dto.dart`, `catalog_variant_dto.dart`,
-  `catalog_publishing_details_dto.dart`, `catalog_series_details_dto.dart`,
-  `video_catalog_details_dto.dart`, `game_catalog_details_dto.dart`, and
+- `catalog_edition_dto.dart`, `catalog_variant_dto.dart`, and
   `boardgame_stats_details_dto.dart`: inventory active consumers, move valid
   fields into their kinds, then delete obsolete transport graphs and aliases.
 - `edit/draft/personal_state_draft.dart`: shared controllers currently define
