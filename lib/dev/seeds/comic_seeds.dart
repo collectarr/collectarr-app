@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -16,6 +15,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_e
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
 
 final comicDevSeedContributor = TypedDevSeedKindContributor<ComicLibraryEntry>(
@@ -792,34 +792,45 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
     ];
 
-List<ComicLibraryEntry> comicSeedLibraryEntries(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.comic, 15))
-        ComicLibraryEntry(
-          id: LibraryEntryId('seed-entry-$itemId'),
-          sourceCatalogRef:
-              seedCatalogRef(CatalogMediaKind.comic, itemId).toCatalogItemRef(),
-          createdAt: now.subtract(const Duration(days: 260)),
-          updatedAt: now,
-          isDigital: false,
-          condition: 'Near Mint',
-          grade: '9.8',
-          details: ComicEntryDetails(
-            rawOrSlabbed: 'raw',
-            gradingCompany: 'CGC',
-            pageQuality: 'White Pages',
-            keyComic: true,
-            keyCategory: 'First appearance',
-            lastBagBoardDate: DateTime.utc(2024, 6, 1),
-          ),
-          purchaseDate: DateTime.utc(2022, 7, 1),
-          pricePaidCents: 4999,
-          currency: 'USD',
-          personalNotes:
-              'Bagged & boarded in mylar with acid-free backing board.',
-          purchaseStore: 'Midtown Comics',
-          collectionStatus: 'collected',
+List<ComicLibraryEntry> comicSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in comicSeedCatalogItems())
+      item.id: ComicCatalogItem.fromJson({
+        ...item.kindData,
+        'id': 'seed-entry-${item.id}',
+      }).copyWith(id: ComicCatalogItemId('seed-entry-${item.id}')),
+  };
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.comic, 15))
+      ComicLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId] ??
+            (throw StateError('Missing Comic seed catalog item: $itemId')),
+        sourceCatalogRef:
+            seedCatalogRef(CatalogMediaKind.comic, itemId).toCatalogItemRef(),
+        createdAt: now.subtract(const Duration(days: 260)),
+        updatedAt: now,
+        isDigital: false,
+        condition: 'Near Mint',
+        grade: '9.8',
+        details: ComicEntryDetails(
+          rawOrSlabbed: 'raw',
+          gradingCompany: 'CGC',
+          pageQuality: 'White Pages',
+          keyComic: true,
+          keyCategory: 'First appearance',
+          lastBagBoardDate: DateTime.utc(2024, 6, 1),
         ),
-    ];
+        purchaseDate: DateTime.utc(2022, 7, 1),
+        pricePaidCents: 4999,
+        currency: 'USD',
+        personalNotes:
+            'Bagged & boarded in mylar with acid-free backing board.',
+        purchaseStore: 'Midtown Comics',
+        collectionStatus: 'collected',
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> comicSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)

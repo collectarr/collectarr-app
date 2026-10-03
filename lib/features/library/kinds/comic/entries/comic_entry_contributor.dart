@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_update_payload.dart';
@@ -14,8 +13,9 @@ final comicEntryContributor = TypedEntryKindContributor<ComicLibraryEntry>(
       ComicEntryRepository(database).findById(LibraryEntryId(id)),
   upsert: (database, item) => ComicEntryRepository(database).upsert(item),
   listActive: (database) => ComicEntryRepository(database).listActive(),
-  createItem: ({
+  createItemWithCatalog: ({
     required payload,
+    required sourceCatalogItem,
     required id,
     required createdAt,
     required existingIsDigital,
@@ -27,6 +27,7 @@ final comicEntryContributor = TypedEntryKindContributor<ComicLibraryEntry>(
     }
     return payload.toLibraryEntry(
       id: id,
+      sourceCatalogItem: sourceCatalogItem,
       createdAt: createdAt,
       existingIsDigital: existingIsDigital,
       ownerUserId: ownerUserId,

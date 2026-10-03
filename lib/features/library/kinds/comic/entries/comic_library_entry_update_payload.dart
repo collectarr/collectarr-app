@@ -8,7 +8,8 @@ import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_
 /// The common-looking personal fields intentionally live in this Comic
 /// payload. This keeps Comic detail validation and persistence reconstruction
 /// in the Comic vertical.
-final class ComicLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload {
+final class ComicLibraryEntryUpdatePayload
+    implements LibraryEntryUpdatePayload {
   const ComicLibraryEntryUpdatePayload({
     required this.condition,
     required this.grade,
@@ -107,6 +108,7 @@ final class ComicLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload 
 
     return ComicLibraryEntry(
       id: existing.id,
+      metadata: existing.metadata,
       createdAt: existing.createdAt ?? updatedAt,
       isDigital: isDigital.when(
         unchanged: () => existing.isDigital,

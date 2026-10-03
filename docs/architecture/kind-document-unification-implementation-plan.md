@@ -51,41 +51,31 @@ slice. This is progress, not completion of this plan:
 - Personal field registration no longer applies a global universal list. Each
   kind explicitly composes reusable common personal field specs with its own
   additions; the registry only combines those kind contributions.
-- `MusicLibraryEntry` now stores `MusicAlbum` metadata as a typed value instead
-  of a parallel catalog map. New-entry creation receives the selected Music
-  item and assigns the local entry identity while decoding it; JSON remains at
-  the persistence and Sync envelope boundary. The remaining Comic entry model
-  still needs the same typed consolidation. `BookLibraryEntry` has now joined
-  this path with `BookCatalogMetadata`; Book Add and seed construction decode
-  that typed value at the kind boundary instead of storing a second raw map.
-  `AnimeLibraryEntry` now follows the same typed metadata boundary using
-  `AnimeMetadata`, including its Add creation callback and seed fixtures.
-  `BoardGameLibraryEntry` now stores `BoardGameMetadata` with the same strict
-  create/decode and seed behavior.
-  `MangaLibraryEntry` now stores `MangaMetadata`, including its selected
-  catalog data during Add and typed seed construction.
-  `GameLibraryEntry` now stores `GameCatalogMetadata`, with explicit kind
-  validation on Add and typed seed construction.
-  `MovieLibraryEntry` now stores `MovieCatalogMetadata`; Add validates its
-  source kind and Movie seeds construct entries from typed catalog metadata.
-  `TvLibraryEntry` now stores `TvSeriesMetadata`, including its contained
-  seasons and episodes, and TV Add and seed fixtures use that type.
+- All nine local entry aggregates now hold kind-owned typed metadata rather
+  than a second raw catalog map: `MusicAlbum`, `MovieCatalogMetadata`,
+  `TvSeriesMetadata`, `AnimeMetadata`, `BookCatalogMetadata`,
+  `ComicCatalogItem`, `MangaMetadata`, `GameCatalogMetadata`, and
+  `BoardGameMetadata`. Add validates the selected kind and builds the typed
+  value at the kind boundary; seed fixtures also construct typed metadata.
+  JSON remains at persistence and Sync envelope boundaries. Music assigns the
+  local entry identity during decode; Comic binds its typed metadata ID to the
+  local entry identity.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
-- Core sources compile and the changed Music App sources pass targeted static
-  analysis. Automated tests remain deferred until implementation and docs are
-  complete, as requested.
+- Core sources compile, and the changed per-kind App entry, Add, and seed files
+  pass targeted static analysis. Automated tests remain deferred until
+  implementation and docs are complete, as requested.
 
-Still outstanding: App's equivalent typed-entry consolidation for the other
-eight kinds; removing business-field semantics from shared transport, draft,
-and metadata registries; auditing old media/workspace adapters and their active
-consumers; and finishing the kind-owned field/schema/forms organization. The
-nine field ledgers remain authoritative, and exact CLZ parity is only confirmed
-for Music until the other reference captures are available.
+Still outstanding: removing business-field semantics from shared transport,
+draft, and metadata registries; auditing old media/workspace adapters and their
+active consumers; and finishing the kind-owned field/schema/forms
+organization. The nine field ledgers remain authoritative, and exact CLZ
+parity is only confirmed for Music until the other reference captures are
+available.
 
 ## Architectural decisions
 
