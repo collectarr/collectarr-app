@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 
 /// Game owns the mapping from game releases to calendar dates.
 final class GameCalendarContributor implements LibraryCalendarContributor {
@@ -24,12 +25,13 @@ final class GameCalendarContributor implements LibraryCalendarContributor {
       final item =
           loadItem != null ? await loadItem!(id) : await _loadItem(context, id);
       if (item == null) continue;
-      final date = item.releaseDate;
+      final metadata = GameCatalogMetadata.fromJson(item.kindData);
+      final date = metadata.releaseDate;
       if (date == null) continue;
       events.add(CalendarEvent(
         kind: CalendarEventKind.releaseDate,
         date: DateTime.utc(date.year, date.month, date.day),
-        title: item.title,
+        title: metadata.title,
         eventId: 'game-item:$id',
         libraryEntryRef: ref,
       ));

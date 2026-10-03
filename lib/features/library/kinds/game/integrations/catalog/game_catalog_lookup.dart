@@ -40,7 +40,8 @@ final class GameCatalogLookup implements CatalogKindLookup {
     if (normalizedTitle.isEmpty) return null;
     final normalizedItemNumber = itemNumber?.trim();
     for (final item in await _items()) {
-      if (normalizeCatalogLookupTitle(item.title) != normalizedTitle) {
+      final metadata = GameCatalogMetadata.fromJson(item.kindData);
+      if (normalizeCatalogLookupTitle(metadata.title) != normalizedTitle) {
         continue;
       }
       if (normalizedItemNumber != null &&
@@ -55,26 +56,27 @@ final class GameCatalogLookup implements CatalogKindLookup {
 
   Future<List<CatalogItemDto>> _items() async {
     final items = await CatalogItemCacheRepository(_db).findAll(kind: kind);
-    return items..sort((left, right) => left.title.compareTo(right.title));
+    return items
+      ..sort((left, right) =>
+          _metadata(left).title.compareTo(_metadata(right).title));
   }
 
   CatalogSearchHit _hit(CatalogItemDto item) {
     return catalogLookupHit(
       kind: kind,
       id: item.id,
-      title: item.title,
+      title: _metadata(item).title,
       subtitle: _itemNumber(item),
     );
   }
 
   bool _matchesBarcode(CatalogItemDto item, String normalized) {
-    return _same(item.barcode, normalized);
+    return _same(_metadata(item).barcode, normalized);
   }
 
   String? _itemNumber(CatalogItemDto item) {
-    final metadata = GameCatalogMetadata.fromJson(item.kindData);
-    final value =
-        metadata.itemNumber ?? item.payload['edition_title']?.toString();
+    final metadata = _metadata(item);
+    final value = metadata.itemNumber ?? metadata.editionTitle;
     final text = value?.toString().trim();
     return text == null || text.isEmpty ? null : text;
   }
@@ -82,4 +84,7 @@ final class GameCatalogLookup implements CatalogKindLookup {
   bool _same(String? value, String normalized) {
     return value != null && normalizeCatalogLookupValue(value) == normalized;
   }
+
+  GameCatalogMetadata _metadata(CatalogItemDto item) =>
+      GameCatalogMetadata.fromJson(item.kindData);
 }

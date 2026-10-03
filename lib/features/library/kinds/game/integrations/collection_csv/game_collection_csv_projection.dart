@@ -116,20 +116,17 @@ final class GameCollectionCsvProjection
     final catalog = entry.catalogData;
     final metadata =
         catalog is GameWorkspaceCatalogData ? catalog.metadata : null;
-    final game = catalog is GameWorkspaceCatalogData ? catalog.game : null;
     return [
       entry.itemId,
       CatalogMediaKind.game.apiValue,
-      metadata?.title ?? game?.title ?? entry.title,
+      metadata?.title ?? entry.title,
       metadata?.editionTitle ?? '',
       metadata?.platforms.firstOrNull ?? metadata?.editionTitle ?? '',
       metadata?.editionTitle ?? '',
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? '',
-      _formatDate(metadata?.releaseDate ??
-          game?.releaseDate ??
-          entry.catalogData?.releaseDate),
+      _formatDate(metadata?.releaseDate ?? entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
   }

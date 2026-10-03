@@ -119,6 +119,11 @@ slice. This is progress, not completion of this plan:
   `BoardGameCatalogItem` wrapper and mapper were removed after a production
   caller audit; the separate typed ID used by play-session activity remains.
   Board Game field ownership remains provisional and does not claim CLZ parity.
+- Game transport, workspace, facets, Add previews, calendar, lookup, and CSV
+  now consume `GameCatalogMetadata` directly. The duplicate `GameCatalogItem`
+  wrapper and mapper were removed after moving the remaining lookup and calendar
+  reads to the kind model. Game's field ledger remains provisional; this change
+  does not establish CLZ parity.
 - Comic's Core item schema now retains its existing form values for cover date,
   variant description, key events, volume number, and volume start year. Comic
   response schemas type creators, characters, links, story arcs, identifiers,

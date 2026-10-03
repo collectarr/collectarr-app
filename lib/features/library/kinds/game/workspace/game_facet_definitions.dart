@@ -9,24 +9,22 @@ final gameLibraryFacetDefinitions =
     id: GameFacetIds.platform,
     label: 'Platform',
     extractValues: (dto) => _values([
-      ...?dto.metadata?.platforms,
-      ...dto.game.platforms,
+      ...dto.metadata.platforms,
     ]),
   ),
   LibraryFacetDefinition<GameKind, GameWorkspaceDto, String>(
     id: GameFacetIds.publisher,
     label: 'Publisher',
     extractValues: (dto) => _values([
-      dto.metadata?.publisher,
+      dto.metadata.publisher,
       dto.publisher,
-      dto.game.publisher,
     ]),
   ),
   LibraryFacetDefinition<GameKind, GameWorkspaceDto, String>(
     id: GameFacetIds.developer,
     label: 'Developer',
     extractValues: (dto) => _values([
-      ...?dto.metadata?.developers,
+      ...dto.metadata.developers,
       dto.developer,
     ]),
   ),
@@ -39,8 +37,7 @@ final gameLibraryFacetDefinitions =
     id: GameFacetIds.genre,
     label: 'Genre',
     extractValues: (dto) => _values([
-      ...?dto.metadata?.genres,
-      ...dto.game.genres,
+      ...dto.metadata.genres,
     ]),
   ),
   LibraryFacetDefinition<GameKind, GameWorkspaceDto, String>(
@@ -48,7 +45,7 @@ final gameLibraryFacetDefinitions =
     label: 'Region',
     extractValues: (dto) => _values([
       dto.region,
-      dto.metadata?.country,
+      dto.metadata.country,
     ]),
   ),
 ];

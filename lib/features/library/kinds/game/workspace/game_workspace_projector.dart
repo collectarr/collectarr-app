@@ -24,15 +24,14 @@ final class GameWorkspaceProjector
       common: WorkspaceCommonProjection.fromStructuralShelf(
         source,
         entity,
-        overrideTitle: catalog.game.title,
-        overrideSynopsis: catalog.game.synopsis,
-        overrideReleaseDate: catalog.game.releaseDate,
-        overrideCoverImageUrl: catalog.game.coverImageUrl,
+        overrideTitle: catalog.metadata.title,
+        overrideSynopsis: catalog.metadata.synopsis,
+        overrideReleaseDate: catalog.metadata.releaseDate,
+        overrideCoverImageUrl: catalog.metadata.coverImageUrl,
       ),
       personal: PersonalCopyProjection.fromShelf(
         source,
       ),
-      game: catalog.game,
       metadata: catalog.metadata,
     );
   }

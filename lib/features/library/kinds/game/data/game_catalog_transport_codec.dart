@@ -9,26 +9,24 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 
 final class GameCatalogTransportCodec
-    implements CatalogKindTransportCodec<GameCatalogItem> {
+    implements CatalogKindTransportCodec<GameCatalogMetadata> {
   const GameCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.game;
 
   @override
-  GameCatalogItem decode(CatalogItemDto item) =>
-      GameCatalogMapper.mapMetadataItemToGame(item);
+  GameCatalogMetadata decode(CatalogItemDto item) =>
+      GameCatalogMetadata.fromJson(item.kindData);
 
   @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
-    GameCatalogItem item,
+    GameCatalogMetadata item,
   ) =>
       CatalogDisplaySummary.root(
         kind: kind,
@@ -54,7 +52,7 @@ final class GameCatalogTransportCodec
       contributor: contributor,
       listName: listName,
       metadata: [
-        for (final item in await listTransport(db)) decode(item).metadata,
+        for (final item in await listTransport(db)) decode(item),
       ],
       normalizedValues: normalizedValues,
     );
@@ -89,11 +87,11 @@ final class GameCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    GameCatalogItem item,
+    GameCatalogMetadata item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
-      derived: _derivedDataFromTyped(item.metadata),
+      derived: _derivedDataFromTyped(item),
       pickLists: pickLists,
       serialAuthority: serialAuthority,
     );

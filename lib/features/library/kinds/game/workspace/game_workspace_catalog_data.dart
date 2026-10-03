@@ -1,7 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
@@ -11,34 +9,31 @@ final class GameWorkspaceCatalogData
         LibraryWorkspaceCatalogSynopsisData {
   GameWorkspaceCatalogData({
     required this.ref,
-    required this.game,
     required this.metadata,
   });
 
   factory GameWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
-    final metadata = GameCatalogMetadata.fromJson(item.payload);
     return GameWorkspaceCatalogData(
       ref: item.catalogRef,
-      game: GameCatalogMapper.mapMetadataItemToGame(item),
-      metadata: metadata,
+      metadata: GameCatalogMetadata.fromJson(item.kindData),
     );
   }
 
   @override
   final CatalogEntityRef ref;
-  final GameCatalogItem game;
-  final GameCatalogMetadata? metadata;
+  final GameCatalogMetadata metadata;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.game;
   @override
-  String get title => game.title;
+  String get title => metadata.title;
   @override
-  String? get synopsis => game.synopsis;
+  String? get synopsis => metadata.synopsis;
   @override
-  DateTime? get releaseDate => game.releaseDate;
+  DateTime? get releaseDate => metadata.releaseDate;
   @override
-  String? get coverImageUrl => game.coverImageUrl;
+  String? get coverImageUrl => metadata.coverImageUrl;
   @override
-  String? get thumbnailImageUrl => game.coverImageUrl;
+  String? get thumbnailImageUrl =>
+      metadata.thumbnailImageUrl ?? metadata.coverImageUrl;
 }

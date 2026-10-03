@@ -31,7 +31,8 @@ class GameLibraryMediaPresentationBuilder
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
-    final itemDto = item.kindCapability.mapTransport((transport) => transport);
+    final itemDto = item.gameCatalogFields.metadata;
+    if (itemDto == null) return const [];
     final badge = gameFormatBadge(
       itemDto.physicalFormat,
       label: itemDto.physicalFormatLabel,
@@ -45,13 +46,13 @@ class GameLibraryMediaPresentationBuilder
   ) {
     final catalog = entry.catalogData;
     if (catalog is! GameWorkspaceCatalogData) return const [];
-    final item = catalog.game;
-    final identifier = normalizeLibraryDuplicateIdentifier(item.barcode);
+    final metadata = catalog.metadata;
+    final identifier = normalizeLibraryDuplicateIdentifier(metadata.barcode);
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label: 'Identifier ${item.barcode!.trim()}',
+        label: 'Identifier ${metadata.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -106,11 +107,13 @@ class GameLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.gameCatalogFields.releaseDate;
+    final fields = item.gameCatalogFields;
+    final metadata = fields.metadata;
+    final releaseDate = fields.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.kindCapability.mapTransport((transport) => transport).publisher
+        metadata?.publisher ?? metadata?.developers.firstOrNull
       ),
       (
         'Released',
@@ -123,17 +126,14 @@ class GameLibraryMediaPresentationBuilder
           previewLabels.labelFor('item_number', fallback: 'Number'),
           item.gameCatalogFields.itemNumber
         ),
-      if (item.kindCapability.mapTransport((transport) => transport).variant !=
-          null)
+      if ((metadata?.variantName ?? metadata?.editionTitle) != null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.kindCapability.mapTransport((transport) => transport).variant
+          metadata?.variantName ?? metadata?.editionTitle
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
+        metadata?.barcode
       ),
     ];
   }
@@ -207,29 +207,19 @@ class GameLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildGameSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber = item.gameCatalogFields.itemNumber?.trim();
+  final fields = item.gameCatalogFields;
+  final metadata = fields.metadata;
+  final itemNumber = fields.itemNumber?.trim();
   final subtitle = [
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .publisher
-            ?.trim()
+    if ((metadata?.publisher ?? metadata?.developers.firstOrNull)?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if ((item.gameCatalogFields.releaseYear ??
-            item.gameCatalogFields.releaseDate?.year)
-        case final year?)
+    if ((fields.releaseYear ?? fields.releaseDate?.year) case final year?)
       year.toString(),
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .physicalFormatLabel
-            ?.trim()
+    if ((metadata?.physicalFormatLabel ?? metadata?.physicalFormat)?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata?.barcode?.trim() case final value? when value.isNotEmpty)
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(
@@ -237,8 +227,7 @@ LibraryAddSearchResultDisplay _buildGameSearchResultDisplay(
         ? item.summary.primaryLabel
         : '${item.summary.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
-    year: item.gameCatalogFields.releaseYear ??
-        item.gameCatalogFields.releaseDate?.year,
+    year: fields.releaseYear ?? fields.releaseDate?.year,
     detailLine: null,
   );
 }
