@@ -187,7 +187,6 @@ final class TvCatalogMapper {
             (disc) => TvCatalogMediaRef(
               id: '${edition.id}:disc:${disc.discNumber}',
               title: disc.discName,
-              formatLabel: disc.discFormat,
               discNumber: disc.discNumber,
               audioTracks: audioTracksList,
               subtitles: subtitlesList,

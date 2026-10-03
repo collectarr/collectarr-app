@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "a57c087fef9dcceae5430dc5ea464e91b33f99d8",
-  "description": "Proposal shape retained after Core projects submissions onto fields recognized for the declared kind. Unknown incoming fields are omitted.",
+  "coreCommit": "b16540b3bed0924394ed931b9860b1cfa4e68dfb",
+  "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-02T14:53:05.381161Z",
+  "generatedAt": "2026-10-03T02:49:55.371084Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -93,6 +93,9 @@
                     ]
                   },
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -103,34 +106,13 @@
                     ]
                   },
                   "image_url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "role": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -177,6 +159,9 @@
                         ]
                       },
                       "description": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -187,34 +172,13 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -260,6 +224,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -270,34 +237,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -310,24 +259,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -338,6 +273,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -393,6 +331,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -403,34 +344,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -443,24 +366,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -471,6 +380,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -496,334 +408,7 @@
         },
         "discs": {
           "anyOf": [
-            {
-              "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "disc_number": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_track_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "medium_number": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "medium_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "missing_track_positions": {
-                    "anyOf": [
-                      {
-                        "items": {
-                          "type": "integer"
-                        },
-                        "type": "array"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "rpm": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sound_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "spars": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "track_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "tracks": {
-                    "anyOf": [
-                      {
-                        "items": {
-                          "additionalProperties": false,
-                          "properties": {
-                            "artist": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "bitrate_kbps": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "composition": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "disc_number": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "duration": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "duration_ms": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "duration_seconds": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "file_size_bytes": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "indent_level": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "instrument": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "is_header": {
-                              "anyOf": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "offset_ms": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "parent_header_id": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "position": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "recording_id": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "title": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "track_number": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "type": "object"
-                        },
-                        "type": "array"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "vinyl_color": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "vinyl_weight": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                },
-                "type": "object"
-              },
-              "type": "array"
-            },
+            {},
             {
               "type": "null"
             }
@@ -904,6 +489,45 @@
                       }
                     ]
                   },
+                  "id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "original_air_date": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "day": {
+                                "type": "integer"
+                              },
+                              "month": {
+                                "type": "integer"
+                              },
+                              "year": {
+                                "type": "integer"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "overview": {
                     "anyOf": [
                       {
@@ -925,14 +549,7 @@
                     ]
                   },
                   "position": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "integer"
                   },
                   "runtime_minutes": {
                     "anyOf": [
@@ -965,6 +582,9 @@
                     ]
                   }
                 },
+                "required": [
+                  "position"
+                ],
                 "type": "object"
               },
               "type": "array"
@@ -981,6 +601,9 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -991,44 +614,16 @@
                     ]
                   },
                   "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "position": {
                     "anyOf": [
@@ -1041,34 +636,13 @@
                     ]
                   },
                   "site": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -1104,7 +678,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "identifier_type": {
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -1113,6 +687,10 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "identifier_type": {
+                        "minLength": 1,
+                        "type": "string"
                       },
                       "is_primary": {
                         "anyOf": [
@@ -1135,16 +713,14 @@
                         ]
                       },
                       "value": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "minLength": 1,
+                        "type": "string"
                       }
                     },
+                    "required": [
+                      "identifier_type",
+                      "value"
+                    ],
                     "type": "object"
                   }
                 ]
@@ -1235,7 +811,7 @@
                   "episode_count": {
                     "anyOf": [
                       {
-                        "type": "string"
+                        "type": "integer"
                       },
                       {
                         "type": "null"
@@ -1243,6 +819,16 @@
                     ]
                   },
                   "hdr_format": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -1271,6 +857,9 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "position": {
+                    "type": "integer"
                   },
                   "region_code": {
                     "anyOf": [
@@ -1323,6 +912,9 @@
                     ]
                   }
                 },
+                "required": [
+                  "position"
+                ],
                 "type": "object"
               },
               "type": "array"
@@ -1423,28 +1015,7 @@
         },
         "release_date_parts": {
           "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              ]
-            },
+            {},
             {
               "type": "null"
             }
@@ -1541,7 +1112,7 @@
                   "episode_count": {
                     "anyOf": [
                       {
-                        "type": "string"
+                        "type": "integer"
                       },
                       {
                         "type": "null"
@@ -1613,6 +1184,45 @@
                                 }
                               ]
                             },
+                            "id": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "original_air_date": {
+                              "anyOf": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "additionalProperties": false,
+                                      "properties": {
+                                        "day": {
+                                          "type": "integer"
+                                        },
+                                        "month": {
+                                          "type": "integer"
+                                        },
+                                        "year": {
+                                          "type": "integer"
+                                        }
+                                      },
+                                      "type": "object"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
                             "overview": {
                               "anyOf": [
                                 {
@@ -1634,14 +1244,7 @@
                               ]
                             },
                             "position": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
+                              "type": "integer"
                             },
                             "runtime_minutes": {
                               "anyOf": [
@@ -1674,6 +1277,9 @@
                               ]
                             }
                           },
+                          "required": [
+                            "position"
+                          ],
                           "type": "object"
                         },
                         "type": "array"
@@ -1683,15 +1289,47 @@
                       }
                     ]
                   },
-                  "season_number": {
+                  "id": {
                     "anyOf": [
                       {
-                        "type": "integer"
+                        "type": "string"
                       },
                       {
                         "type": "null"
                       }
                     ]
+                  },
+                  "release_date": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "day": {
+                                "type": "integer"
+                              },
+                              "month": {
+                                "type": "integer"
+                              },
+                              "year": {
+                                "type": "integer"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "season_number": {
+                    "type": "integer"
                   },
                   "title": {
                     "anyOf": [
@@ -1704,6 +1342,9 @@
                     ]
                   }
                 },
+                "required": [
+                  "season_number"
+                ],
                 "type": "object"
               },
               "type": "array"
@@ -1798,6 +1439,9 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -1808,44 +1452,16 @@
                     ]
                   },
                   "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "position": {
                     "anyOf": [
@@ -1858,34 +1474,13 @@
                     ]
                   },
                   "site": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -1991,6 +1586,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -2001,34 +1599,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -2041,24 +1621,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -2069,6 +1635,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -2142,6 +1711,9 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -2152,44 +1724,16 @@
                     ]
                   },
                   "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "position": {
                     "anyOf": [
@@ -2202,34 +1746,13 @@
                     ]
                   },
                   "site": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -2278,7 +1801,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "identifier_type": {
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -2287,6 +1810,10 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "identifier_type": {
+                        "minLength": 1,
+                        "type": "string"
                       },
                       "is_primary": {
                         "anyOf": [
@@ -2309,16 +1836,14 @@
                         ]
                       },
                       "value": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "minLength": 1,
+                        "type": "string"
                       }
                     },
+                    "required": [
+                      "identifier_type",
+                      "value"
+                    ],
                     "type": "object"
                   }
                 ]
@@ -2520,28 +2045,7 @@
         },
         "release_date_parts": {
           "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              ]
-            },
+            {},
             {
               "type": "null"
             }
@@ -2729,6 +2233,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -2739,34 +2246,17 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "minLength": 1,
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -2779,24 +2269,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -2807,6 +2283,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -2865,6 +2344,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -2875,34 +2357,17 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "minLength": 1,
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -2915,24 +2380,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -2943,6 +2394,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -2986,6 +2440,9 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -2996,44 +2453,16 @@
                     ]
                   },
                   "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "position": {
                     "anyOf": [
@@ -3046,34 +2475,13 @@
                     ]
                   },
                   "site": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -3109,7 +2517,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "identifier_type": {
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -3118,6 +2526,10 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "identifier_type": {
+                        "minLength": 1,
+                        "type": "string"
                       },
                       "is_primary": {
                         "anyOf": [
@@ -3140,14 +2552,8 @@
                         ]
                       },
                       "value": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "minLength": 1,
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -3291,6 +2697,16 @@
               "items": {
                 "additionalProperties": false,
                 "properties": {
+                  "id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "isbn": {
                     "anyOf": [
                       {
@@ -3421,28 +2837,7 @@
         },
         "release_date_parts": {
           "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              ]
-            },
+            {},
             {
               "type": "null"
             }
@@ -3475,6 +2870,59 @@
           "anyOf": [
             {
               "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "series_memberships": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "display_number": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sequence": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "series_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "series_id"
+                ],
+                "type": "object"
+              },
+              "type": "array"
             },
             {
               "type": "null"
@@ -3668,6 +3116,9 @@
                     ]
                   },
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -3678,34 +3129,13 @@
                     ]
                   },
                   "image_url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "role": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -3752,6 +3182,9 @@
                         ]
                       },
                       "description": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -3762,34 +3195,13 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -3825,6 +3237,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -3835,34 +3250,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -3875,24 +3272,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -3903,6 +3286,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -3968,6 +3354,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -3978,34 +3367,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -4018,24 +3389,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -4046,6 +3403,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -4106,6 +3466,9 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -4116,44 +3479,16 @@
                     ]
                   },
                   "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "position": {
                     "anyOf": [
@@ -4166,34 +3501,13 @@
                     ]
                   },
                   "site": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -4229,7 +3543,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "identifier_type": {
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -4238,6 +3552,10 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "identifier_type": {
+                        "minLength": 1,
+                        "type": "string"
                       },
                       "is_primary": {
                         "anyOf": [
@@ -4260,16 +3578,14 @@
                         ]
                       },
                       "value": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "minLength": 1,
+                        "type": "string"
                       }
                     },
+                    "required": [
+                      "identifier_type",
+                      "value"
+                    ],
                     "type": "object"
                   }
                 ]
@@ -4442,28 +3758,7 @@
         },
         "release_date_parts": {
           "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              ]
-            },
+            {},
             {
               "type": "null"
             }
@@ -4547,14 +3842,7 @@
                     "additionalProperties": false,
                     "properties": {
                       "description": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "end_date": {
                         "anyOf": [
@@ -4585,7 +3873,7 @@
                           }
                         ]
                       },
-                      "name": {
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -4595,15 +3883,11 @@
                           }
                         ]
                       },
+                      "name": {
+                        "type": "string"
+                      },
                       "publisher": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "start_date": {
                         "anyOf": [
@@ -4805,6 +4089,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -4815,34 +4102,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -4855,24 +4124,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -4883,6 +4138,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -4938,6 +4196,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -4948,34 +4209,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -4988,24 +4231,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -5016,6 +4245,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -5069,6 +4301,9 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -5079,44 +4314,16 @@
                     ]
                   },
                   "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "position": {
                     "anyOf": [
@@ -5129,34 +4336,13 @@
                     ]
                   },
                   "site": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -5192,7 +4378,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "identifier_type": {
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -5201,6 +4387,10 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "identifier_type": {
+                        "minLength": 1,
+                        "type": "string"
                       },
                       "is_primary": {
                         "anyOf": [
@@ -5223,16 +4413,14 @@
                         ]
                       },
                       "value": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "minLength": 1,
+                        "type": "string"
                       }
                     },
+                    "required": [
+                      "identifier_type",
+                      "value"
+                    ],
                     "type": "object"
                   }
                 ]
@@ -5368,28 +4556,7 @@
         },
         "release_date_parts": {
           "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              ]
-            },
+            {},
             {
               "type": "null"
             }
@@ -5513,6 +4680,9 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -5523,44 +4693,16 @@
                     ]
                   },
                   "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "position": {
                     "anyOf": [
@@ -5573,34 +4715,13 @@
                     ]
                   },
                   "site": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -5681,6 +4802,16 @@
                     "anyOf": [
                       {
                         "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
                       },
                       {
                         "type": "null"
@@ -5786,6 +4917,9 @@
                     ]
                   },
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -5796,34 +4930,13 @@
                     ]
                   },
                   "image_url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "role": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -5870,6 +4983,9 @@
                         ]
                       },
                       "description": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -5880,34 +4996,13 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -5943,6 +5038,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -5953,34 +5051,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -5993,24 +5073,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -6021,6 +5087,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -6076,6 +5145,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -6086,34 +5158,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -6126,24 +5180,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -6154,6 +5194,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -6204,6 +5247,9 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -6214,44 +5260,16 @@
                     ]
                   },
                   "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "position": {
                     "anyOf": [
@@ -6264,34 +5282,13 @@
                     ]
                   },
                   "site": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -6327,7 +5324,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "identifier_type": {
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -6336,6 +5333,10 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "identifier_type": {
+                        "minLength": 1,
+                        "type": "string"
                       },
                       "is_primary": {
                         "anyOf": [
@@ -6358,16 +5359,14 @@
                         ]
                       },
                       "value": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "minLength": 1,
+                        "type": "string"
                       }
                     },
+                    "required": [
+                      "identifier_type",
+                      "value"
+                    ],
                     "type": "object"
                   }
                 ]
@@ -6540,28 +5539,7 @@
         },
         "release_date_parts": {
           "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              ]
-            },
+            {},
             {
               "type": "null"
             }
@@ -6797,6 +5775,9 @@
                     ]
                   },
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -6807,34 +5788,13 @@
                     ]
                   },
                   "image_url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "role": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -6881,6 +5841,9 @@
                         ]
                       },
                       "description": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -6891,34 +5854,13 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -6964,6 +5906,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -6974,34 +5919,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -7014,24 +5941,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -7042,6 +5955,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -7097,6 +6013,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -7107,34 +6026,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -7147,24 +6048,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -7175,6 +6062,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -7198,341 +6088,6 @@
             }
           ]
         },
-        "discs": {
-          "anyOf": [
-            {
-              "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "disc_number": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_track_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "medium_number": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "medium_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "missing_track_positions": {
-                    "anyOf": [
-                      {
-                        "items": {
-                          "type": "integer"
-                        },
-                        "type": "array"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "rpm": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sound_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "spars": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "track_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "tracks": {
-                    "anyOf": [
-                      {
-                        "items": {
-                          "additionalProperties": false,
-                          "properties": {
-                            "artist": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "bitrate_kbps": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "composition": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "disc_number": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "duration": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "duration_ms": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "duration_seconds": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "file_size_bytes": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "indent_level": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "instrument": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "is_header": {
-                              "anyOf": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "offset_ms": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "parent_header_id": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "position": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "recording_id": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "title": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "track_number": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "type": "object"
-                        },
-                        "type": "array"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "vinyl_color": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "vinyl_weight": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                },
-                "type": "object"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "edition_title": {
           "anyOf": [
             {
@@ -7550,6 +6105,9 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -7560,44 +6118,16 @@
                     ]
                   },
                   "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "position": {
                     "anyOf": [
@@ -7610,34 +6140,13 @@
                     ]
                   },
                   "site": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -7738,6 +6247,16 @@
                       }
                     ]
                   },
+                  "id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "layers": {
                     "anyOf": [
                       {
@@ -7749,7 +6268,6 @@
                     ]
                   },
                   "media_number": {
-                    "minimum": 1,
                     "type": "integer"
                   },
                   "media_type": {
@@ -7916,28 +6434,7 @@
         },
         "release_date_parts": {
           "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              ]
-            },
+            {},
             {
               "type": "null"
             }
@@ -8071,6 +6568,9 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -8081,44 +6581,16 @@
                     ]
                   },
                   "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "position": {
                     "anyOf": [
@@ -8131,34 +6603,13 @@
                     ]
                   },
                   "site": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -8210,7 +6661,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "credited_name": {
+                      "artist_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -8219,28 +6670,33 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "image_url": {
+                        "type": "string"
                       },
                       "instrument": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
+                        "type": "string"
+                      },
+                      "person_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -8251,14 +6707,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "role_id": {
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -8269,6 +6721,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -8346,7 +6801,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "credited_name": {
+                      "artist_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -8355,28 +6810,33 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "image_url": {
+                        "type": "string"
                       },
                       "instrument": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
+                        "type": "string"
+                      },
+                      "person_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -8387,14 +6847,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "role_id": {
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -8405,6 +6861,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -8442,7 +6901,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "credited_name": {
+                      "artist_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -8451,28 +6910,33 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "image_url": {
+                        "type": "string"
                       },
                       "instrument": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
+                        "type": "string"
+                      },
+                      "person_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -8483,14 +6947,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "role_id": {
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -8501,6 +6961,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -8540,10 +7003,52 @@
               "items": {
                 "additionalProperties": false,
                 "properties": {
-                  "disc_number": {
+                  "bp_disc_id": {
                     "anyOf": [
                       {
-                        "minimum": 1,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "cddb_id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "disc_number": {
+                    "type": "integer"
+                  },
+                  "expected_track_count": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "leadout_offset": {
+                    "anyOf": [
+                      {
                         "type": "integer"
                       },
                       {
@@ -8571,10 +7076,93 @@
                       }
                     ]
                   },
+                  "medium_type": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "missing_track_count": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "missing_track_positions": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "rpm": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sound_type": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "spars": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "title": {
                     "anyOf": [
                       {
                         "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "toc": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "track_count": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
                       },
                       {
                         "type": "null"
@@ -8597,10 +7185,86 @@
                                 }
                               ]
                             },
+                            "bitrate_kbps": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "composition": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
                             "duration_ms": {
                               "anyOf": [
                                 {
                                   "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "file_size_bytes": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "id": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "indent_level": {
+                              "type": "integer"
+                            },
+                            "instrument": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "is_header": {
+                              "type": "boolean"
+                            },
+                            "offset_ms": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "parent_header_id": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
                                 },
                                 {
                                   "type": "null"
@@ -8624,10 +7288,23 @@
                                 }
                               ]
                             },
-                            "title": {
+                            "position_order": {
                               "anyOf": [
                                 {
-                                  "minLength": 1,
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "title": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "track_hash": {
+                              "anyOf": [
+                                {
                                   "type": "string"
                                 },
                                 {
@@ -8642,6 +7319,26 @@
                           "type": "object"
                         },
                         "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "vinyl_color": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "vinyl_weight": {
+                    "anyOf": [
+                      {
+                        "type": "string"
                       },
                       {
                         "type": "null"
@@ -8672,7 +7369,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "credited_name": {
+                      "artist_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -8681,28 +7378,33 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "image_url": {
+                        "type": "string"
                       },
                       "instrument": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
+                        "type": "string"
+                      },
+                      "person_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -8713,14 +7415,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "role_id": {
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -8731,6 +7429,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -8751,6 +7452,16 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -8914,7 +7625,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "credited_name": {
+                      "artist_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -8923,28 +7634,33 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "image_url": {
+                        "type": "string"
                       },
                       "instrument": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
+                        "type": "string"
+                      },
+                      "person_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -8955,14 +7671,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "role_id": {
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -8973,6 +7685,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -9078,7 +7793,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "credited_name": {
+                      "artist_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -9087,28 +7802,33 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "image_url": {
+                        "type": "string"
                       },
                       "instrument": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
+                        "type": "string"
+                      },
+                      "person_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -9119,14 +7839,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "role_id": {
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -9137,6 +7853,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -9239,28 +7958,7 @@
         },
         "release_date_parts": {
           "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              ]
-            },
+            {},
             {
               "type": "null"
             }
@@ -9287,7 +7985,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "credited_name": {
+                      "artist_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -9296,28 +7994,33 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "image_url": {
+                        "type": "string"
                       },
                       "instrument": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
+                        "type": "string"
+                      },
+                      "person_id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -9328,14 +8031,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "role_id": {
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -9346,6 +8045,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -9539,6 +8241,9 @@
                     ]
                   },
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -9549,34 +8254,13 @@
                     ]
                   },
                   "image_url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "role": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -9623,6 +8307,9 @@
                         ]
                       },
                       "description": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -9633,34 +8320,13 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -9706,6 +8372,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -9716,34 +8385,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -9756,24 +8407,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -9784,6 +8421,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -9839,6 +8479,9 @@
                         ]
                       },
                       "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -9849,34 +8492,16 @@
                         ]
                       },
                       "image_url": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
+                      },
+                      "instrument": {
+                        "type": "string"
                       },
                       "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "person_id": {
                         "anyOf": [
@@ -9889,24 +8514,10 @@
                         ]
                       },
                       "role": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "role_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string"
                       },
                       "sequence": {
                         "anyOf": [
@@ -9917,6 +8528,9 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "sort_name": {
+                        "type": "string"
                       }
                     },
                     "type": "object"
@@ -9942,334 +8556,7 @@
         },
         "discs": {
           "anyOf": [
-            {
-              "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "disc_number": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_track_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "medium_number": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "medium_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "missing_track_positions": {
-                    "anyOf": [
-                      {
-                        "items": {
-                          "type": "integer"
-                        },
-                        "type": "array"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "rpm": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sound_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "spars": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "track_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "tracks": {
-                    "anyOf": [
-                      {
-                        "items": {
-                          "additionalProperties": false,
-                          "properties": {
-                            "artist": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "bitrate_kbps": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "composition": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "disc_number": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "duration": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "duration_ms": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "duration_seconds": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "file_size_bytes": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "indent_level": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "instrument": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "is_header": {
-                              "anyOf": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "offset_ms": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "parent_header_id": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "position": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "recording_id": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "title": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "track_number": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "type": "object"
-                        },
-                        "type": "array"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "vinyl_color": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "vinyl_weight": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                },
-                "type": "object"
-              },
-              "type": "array"
-            },
+            {},
             {
               "type": "null"
             }
@@ -10350,6 +8637,45 @@
                       }
                     ]
                   },
+                  "id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "original_air_date": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "day": {
+                                "type": "integer"
+                              },
+                              "month": {
+                                "type": "integer"
+                              },
+                              "year": {
+                                "type": "integer"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "overview": {
                     "anyOf": [
                       {
@@ -10371,14 +8697,7 @@
                     ]
                   },
                   "position": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "integer"
                   },
                   "runtime_minutes": {
                     "anyOf": [
@@ -10411,6 +8730,9 @@
                     ]
                   }
                 },
+                "required": [
+                  "position"
+                ],
                 "type": "object"
               },
               "type": "array"
@@ -10427,6 +8749,9 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -10437,44 +8762,16 @@
                     ]
                   },
                   "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "position": {
                     "anyOf": [
@@ -10487,34 +8784,13 @@
                     ]
                   },
                   "site": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -10550,7 +8826,7 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "identifier_type": {
+                      "id": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -10559,6 +8835,10 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "identifier_type": {
+                        "minLength": 1,
+                        "type": "string"
                       },
                       "is_primary": {
                         "anyOf": [
@@ -10581,16 +8861,14 @@
                         ]
                       },
                       "value": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "minLength": 1,
+                        "type": "string"
                       }
                     },
+                    "required": [
+                      "identifier_type",
+                      "value"
+                    ],
                     "type": "object"
                   }
                 ]
@@ -10671,7 +8949,7 @@
                   "bit_depth": {
                     "anyOf": [
                       {
-                        "type": "string"
+                        "type": "integer"
                       },
                       {
                         "type": "null"
@@ -10701,7 +8979,7 @@
                   "episode_count": {
                     "anyOf": [
                       {
-                        "type": "string"
+                        "type": "integer"
                       },
                       {
                         "type": "null"
@@ -10719,6 +8997,16 @@
                     ]
                   },
                   "hdr_format": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -10757,6 +9045,9 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "position": {
+                    "type": "integer"
                   },
                   "region_code": {
                     "anyOf": [
@@ -10809,6 +9100,9 @@
                     ]
                   }
                 },
+                "required": [
+                  "position"
+                ],
                 "type": "object"
               },
               "type": "array"
@@ -10909,28 +9203,7 @@
         },
         "release_date_parts": {
           "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              ]
-            },
+            {},
             {
               "type": "null"
             }
@@ -11027,7 +9300,7 @@
                   "episode_count": {
                     "anyOf": [
                       {
-                        "type": "string"
+                        "type": "integer"
                       },
                       {
                         "type": "null"
@@ -11099,6 +9372,45 @@
                                 }
                               ]
                             },
+                            "id": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "original_air_date": {
+                              "anyOf": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "additionalProperties": false,
+                                      "properties": {
+                                        "day": {
+                                          "type": "integer"
+                                        },
+                                        "month": {
+                                          "type": "integer"
+                                        },
+                                        "year": {
+                                          "type": "integer"
+                                        }
+                                      },
+                                      "type": "object"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
                             "overview": {
                               "anyOf": [
                                 {
@@ -11120,14 +9432,7 @@
                               ]
                             },
                             "position": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
+                              "type": "integer"
                             },
                             "runtime_minutes": {
                               "anyOf": [
@@ -11160,6 +9465,9 @@
                               ]
                             }
                           },
+                          "required": [
+                            "position"
+                          ],
                           "type": "object"
                         },
                         "type": "array"
@@ -11169,15 +9477,47 @@
                       }
                     ]
                   },
-                  "season_number": {
+                  "id": {
                     "anyOf": [
                       {
-                        "type": "integer"
+                        "type": "string"
                       },
                       {
                         "type": "null"
                       }
                     ]
+                  },
+                  "release_date": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "day": {
+                                "type": "integer"
+                              },
+                              "month": {
+                                "type": "integer"
+                              },
+                              "year": {
+                                "type": "integer"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "season_number": {
+                    "type": "integer"
                   },
                   "title": {
                     "anyOf": [
@@ -11190,6 +9530,9 @@
                     ]
                   }
                 },
+                "required": [
+                  "season_number"
+                ],
                 "type": "object"
               },
               "type": "array"
@@ -11284,6 +9627,9 @@
                 "additionalProperties": false,
                 "properties": {
                   "description": {
+                    "type": "string"
+                  },
+                  "id": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -11294,44 +9640,16 @@
                     ]
                   },
                   "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "position": {
                     "anyOf": [
@@ -11344,34 +9662,13 @@
                     ]
                   },
                   "site": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "title": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   }
                 },
                 "type": "object"

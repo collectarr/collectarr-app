@@ -195,7 +195,6 @@ final class AnimeCatalogMapper {
             (disc) => AnimeCatalogMediaRef(
               id: '${edition.id}:disc:${disc.discNumber}',
               title: disc.discName,
-              formatLabel: disc.discFormat,
               discNumber: disc.discNumber,
               audioTracks: audioTracksList,
               subtitles: subtitlesList,

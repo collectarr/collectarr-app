@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 
 /// Builds the typed flat catalog candidate used by Music's manual Add flow.
@@ -35,13 +35,9 @@ CatalogSearchCandidate? buildMusicManualCandidate(
     ...proposal,
     'discs': _candidateDiscs(draft, id),
   };
-  final musicItem = CatalogMusicItemDto.fromJson(itemJson);
-  final item = CatalogItemDto.raw(
-    id: id,
-    mediaKind: CatalogMediaKind.music,
-    origin: CatalogItemOrigin.privateLocal,
-    kindData: musicItem.toJson(),
-  );
+  final musicItem = MusicCatalogMapper.fromCatalogPayload(itemJson);
+  final item = MusicCatalogMapper.toCatalogItemDto(musicItem)
+      .withOrigin(CatalogItemOrigin.privateLocal);
   return CatalogSearchCandidate.fromItem(item);
 }
 

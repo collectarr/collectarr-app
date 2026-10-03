@@ -2012,8 +2012,63 @@
         "title": "CanonicalCorrectionTargetResponse",
         "type": "object"
       },
+      "CatalogAnimeItemEpisodeResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "episode_number": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Episode Number"
+          },
+          "episode_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Episode Title"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "position": {
+            "minimum": 0.0,
+            "title": "Position",
+            "type": "integer"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "id",
+          "position"
+        ],
+        "title": "CatalogAnimeItemEpisodeResponse",
+        "type": "object"
+      },
       "CatalogAnimeItemIdentifierResponse": {
-        "additionalProperties": false,
+        "additionalProperties": true,
         "properties": {
           "id": {
             "format": "uuid",
@@ -2045,6 +2100,39 @@
           "normalized_value"
         ],
         "title": "CatalogAnimeItemIdentifierResponse",
+        "type": "object"
+      },
+      "CatalogAnimeItemMediaResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "media_number": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media Number"
+          },
+          "position": {
+            "minimum": 0.0,
+            "title": "Position",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "position"
+        ],
+        "title": "CatalogAnimeItemMediaResponse",
         "type": "object"
       },
       "CatalogAnimeItemResponse": {
@@ -2258,8 +2346,7 @@
           },
           "episodes": {
             "items": {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/components/schemas/CatalogAnimeItemEpisodeResponse"
             },
             "title": "Episodes",
             "type": "array"
@@ -2371,8 +2458,7 @@
           },
           "media": {
             "items": {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/components/schemas/CatalogAnimeItemMediaResponse"
             },
             "title": "Media",
             "type": "array"
@@ -3257,7 +3343,7 @@
         "type": "object"
       },
       "CatalogBookItemCreditResponse": {
-        "additionalProperties": false,
+        "additionalProperties": true,
         "properties": {
           "id": {
             "format": "uuid",
@@ -3322,7 +3408,7 @@
         "type": "object"
       },
       "CatalogBookItemIdentifierResponse": {
-        "additionalProperties": false,
+        "additionalProperties": true,
         "properties": {
           "id": {
             "format": "uuid",
@@ -3363,7 +3449,7 @@
         "type": "object"
       },
       "CatalogBookItemPrintingResponse": {
-        "additionalProperties": false,
+        "additionalProperties": true,
         "properties": {
           "id": {
             "format": "uuid",
@@ -3850,6 +3936,13 @@
             ],
             "title": "Series Group"
           },
+          "series_memberships": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogBookItemSeriesMembershipResponse"
+            },
+            "title": "Series Memberships",
+            "type": "array"
+          },
           "series_tags": {
             "anyOf": [
               {
@@ -3974,6 +4067,49 @@
           "revision"
         ],
         "title": "CatalogBookItemResponse",
+        "type": "object"
+      },
+      "CatalogBookItemSeriesMembershipResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "display_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Number"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "sequence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sequence"
+          },
+          "series_id": {
+            "format": "uuid",
+            "title": "Series Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "series_id"
+        ],
+        "title": "CatalogBookItemSeriesMembershipResponse",
         "type": "object"
       },
       "CatalogComicItemIdentifierResponse": {
@@ -5967,7 +6103,7 @@
         "type": "object"
       },
       "CatalogMovieItemMediaResponse": {
-        "additionalProperties": false,
+        "additionalProperties": true,
         "properties": {
           "aspect_ratio": {
             "anyOf": [
@@ -6669,15 +6805,61 @@
       },
       "CatalogMusicDiscResponse": {
         "properties": {
+          "bp_disc_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bp Disc Id"
+          },
+          "cddb_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cddb Id"
+          },
           "disc_number": {
             "minimum": 1.0,
             "title": "Disc Number",
             "type": "integer"
           },
+          "expected_track_count": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Track Count"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
             "type": "string"
+          },
+          "leadout_offset": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leadout Offset"
           },
           "matrix_number_side_a": {
             "anyOf": [
@@ -6701,6 +6883,70 @@
             ],
             "title": "Matrix Number Side B"
           },
+          "medium_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Medium Type"
+          },
+          "missing_track_count": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Missing Track Count"
+          },
+          "missing_track_positions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Track Positions",
+            "type": "array"
+          },
+          "rpm": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rpm"
+          },
+          "sound_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sound Type"
+          },
+          "spars": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spars"
+          },
           "title": {
             "anyOf": [
               {
@@ -6712,12 +6958,57 @@
             ],
             "title": "Title"
           },
+          "toc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Toc"
+          },
+          "track_count": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Track Count"
+          },
           "tracks": {
             "items": {
               "$ref": "#/components/schemas/CatalogMusicTrackResponse"
             },
             "title": "Tracks",
             "type": "array"
+          },
+          "vinyl_color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vinyl Color"
+          },
+          "vinyl_weight": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vinyl Weight"
           }
         },
         "required": [
@@ -7194,6 +7485,29 @@
             ],
             "title": "Artist"
           },
+          "bitrate_kbps": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bitrate Kbps"
+          },
+          "composition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Composition"
+          },
           "duration_ms": {
             "anyOf": [
               {
@@ -7206,10 +7520,68 @@
             ],
             "title": "Duration Ms"
           },
+          "file_size_bytes": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Size Bytes"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
             "type": "string"
+          },
+          "indent_level": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Indent Level",
+            "type": "integer"
+          },
+          "instrument": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instrument"
+          },
+          "is_header": {
+            "default": false,
+            "title": "Is Header",
+            "type": "boolean"
+          },
+          "offset_ms": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offset Ms"
+          },
+          "parent_header_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Header Id"
           },
           "position": {
             "maxLength": 16,
@@ -7227,6 +7599,17 @@
             "minLength": 1,
             "title": "Title",
             "type": "string"
+          },
+          "track_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Track Hash"
           }
         },
         "required": [
@@ -7264,8 +7647,75 @@
         "title": "CatalogSearchItemEnvelope",
         "type": "object"
       },
+      "CatalogTvItemEpisodeResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "episode_number": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Episode Number"
+          },
+          "episode_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Episode Title"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "position": {
+            "minimum": 0.0,
+            "title": "Position",
+            "type": "integer"
+          },
+          "season_number": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Season Number"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "id",
+          "position"
+        ],
+        "title": "CatalogTvItemEpisodeResponse",
+        "type": "object"
+      },
       "CatalogTvItemIdentifierResponse": {
-        "additionalProperties": false,
+        "additionalProperties": true,
         "properties": {
           "id": {
             "format": "uuid",
@@ -7297,6 +7747,39 @@
           "normalized_value"
         ],
         "title": "CatalogTvItemIdentifierResponse",
+        "type": "object"
+      },
+      "CatalogTvItemMediaResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "media_number": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media Number"
+          },
+          "position": {
+            "minimum": 0.0,
+            "title": "Position",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "position"
+        ],
+        "title": "CatalogTvItemMediaResponse",
         "type": "object"
       },
       "CatalogTvItemResponse": {
@@ -7510,8 +7993,7 @@
           },
           "episodes": {
             "items": {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/components/schemas/CatalogTvItemEpisodeResponse"
             },
             "title": "Episodes",
             "type": "array"
@@ -7623,8 +8105,7 @@
           },
           "media": {
             "items": {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/components/schemas/CatalogTvItemMediaResponse"
             },
             "title": "Media",
             "type": "array"
@@ -7784,8 +8265,7 @@
             "anyOf": [
               {
                 "items": {
-                  "additionalProperties": true,
-                  "type": "object"
+                  "$ref": "#/components/schemas/CatalogTvItemSeasonResponse"
                 },
                 "type": "array"
               },
@@ -7914,6 +8394,45 @@
           "media"
         ],
         "title": "CatalogTvItemResponse",
+        "type": "object"
+      },
+      "CatalogTvItemSeasonResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "episodes": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogTvItemEpisodeResponse"
+            },
+            "title": "Episodes",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "season_number": {
+            "minimum": 0.0,
+            "title": "Season Number",
+            "type": "integer"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "id",
+          "season_number"
+        ],
+        "title": "CatalogTvItemSeasonResponse",
         "type": "object"
       },
       "CharacterAppearanceResponse": {

@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_catalog_remote_source.dart';
 import 'package:dio/dio.dart';
 
@@ -20,7 +21,10 @@ Future<List<Map<String, dynamic>>> searchMusicCatalogItems({
     offset: query.offset ?? 0,
     cancelToken: cancelToken,
   );
-  return [for (final item in results) item.toSearchJson()];
+  return [
+    for (final item in results)
+      MusicCatalogMapper.toCatalogItemDto(item).toEnvelope().toJson(),
+  ];
 }
 
 CatalogSearchCandidate musicCatalogTransportFromCoreItem(
@@ -28,10 +32,10 @@ CatalogSearchCandidate musicCatalogTransportFromCoreItem(
 ) =>
     item;
 
-CatalogMusicItemDto musicCatalogItemFromCandidate(
+MusicAlbum musicCatalogItemFromCandidate(
   CatalogSearchCandidate item,
 ) {
   return item.kindCapability.mapTransport((transport) {
-    return CatalogMusicItemDto.fromCatalogSearchPayload(transport.payload);
+    return MusicCatalogMapper.fromCatalogPayload(transport.payload);
   });
 }

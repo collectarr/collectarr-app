@@ -101,14 +101,9 @@ class MusicLibraryMediaPresentationBuilder
     final album = musicCatalogItemFromCandidate(item);
     final artist = album.artist?.trim();
     final format = album.format?.trim();
-    final trackCount = album.discs.isEmpty
-        ? null
-        : album.discs.fold<int>(
-            0,
-            (total, disc) => total + disc.tracks.length,
-          );
-    final country = album.country?.trim();
-    final label = album.label?.trim();
+    final trackCount = album.mediums.isEmpty ? null : album.trackCount;
+    final country = album.countryCode?.trim();
+    final label = album.publisher?.trim();
     final catalogNumber = album.catalogNumber?.trim();
     final barcode = album.barcode?.trim();
     final detailParts = <String>[
@@ -138,25 +133,25 @@ class MusicLibraryMediaPresentationBuilder
     return [
       (
         previewLabels.labelFor('label', fallback: 'Label'),
-        album.label,
+        album.publisher,
       ),
       (
         'Released',
-        album.releaseDate ?? item.musicCatalogFields.releaseYear?.toString(),
+        album.releaseDateParts?.isoString ??
+            album.releaseDate?.year.toString() ??
+            item.musicCatalogFields.releaseYear?.toString(),
       ),
       ('Format', album.format),
-      ('Country', album.country),
+      ('Country', album.countryCode),
       ('Cat No', album.catalogNumber),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
         album.barcode,
       ),
-      if (album.discs.isNotEmpty)
+      if (album.mediums.isNotEmpty)
         (
           'Tracks',
-          album.discs
-              .fold<int>(0, (total, disc) => total + disc.tracks.length)
-              .toString(),
+          album.trackCount.toString(),
         ),
     ];
   }

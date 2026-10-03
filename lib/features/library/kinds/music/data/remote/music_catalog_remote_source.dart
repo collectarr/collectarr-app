@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:dio/dio.dart';
 
 /// Remote access to the source-neutral Music Catalog Item API.
@@ -11,7 +12,7 @@ final class MusicCatalogRemoteSource {
 
   final ApiClient _api;
 
-  Future<List<CatalogMusicItemDto>> search({
+  Future<List<MusicAlbum>> search({
     String? query,
     String? barcode,
     String? artist,
@@ -35,10 +36,10 @@ final class MusicCatalogRemoteSource {
       },
       cancelToken: cancelToken,
     );
-    return [for (final row in rows) CatalogMusicItemDto.fromJson(row)];
+    return [for (final row in rows) MusicCatalogMapper.fromCatalogPayload(row)];
   }
 
-  Future<CatalogMusicItemDto> getById(
+  Future<MusicAlbum> getById(
     String itemId, {
     CancelToken? cancelToken,
   }) async {
@@ -46,6 +47,6 @@ final class MusicCatalogRemoteSource {
       '/api/v1/metadata/music/items/${Uri.encodeComponent(itemId)}',
       cancelToken: cancelToken,
     );
-    return CatalogMusicItemDto.fromJson(json);
+    return MusicCatalogMapper.fromCatalogPayload(json);
   }
 }

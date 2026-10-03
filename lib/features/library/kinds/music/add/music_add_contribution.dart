@@ -64,7 +64,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              return [musicCatalogItemFromCandidate(item).label];
+              return [musicCatalogItemFromCandidate(item).publisher];
             },
           ),
           LibraryAddSearchRankField(

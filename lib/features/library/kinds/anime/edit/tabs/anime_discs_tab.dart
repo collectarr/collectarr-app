@@ -58,12 +58,6 @@ class AnimeEditDiscsTab extends StatelessWidget {
                             Text(disc.discName ?? 'Disc ${disc.discNumber}',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w700)),
-                            if (disc.discFormat != null) ...[
-                              const SizedBox(width: 6),
-                              Text('(${disc.discFormat})',
-                                  style: TextStyle(
-                                      color: appPalette(context).textMuted)),
-                            ],
                             const Spacer(),
                             Text(editionTitle,
                                 style: TextStyle(

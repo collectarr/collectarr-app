@@ -2,7 +2,6 @@ import '../music_module_dependencies.dart';
 import 'music_kind_configuration.dart';
 import '../actions/music_log_listen_action.dart';
 import '../add/music_add_contribution.dart';
-import '../data/remote/catalog_music_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
 final musicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
@@ -62,7 +61,7 @@ final musicKindIdentity = const LibraryKindIdentity(
 );
 
 final musicKindMetadata = const LibraryMetadataCapability(
-  catalogMetadataDecoder: CatalogMusicItemDto.fromCatalogSearchPayload,
+  catalogMetadataDecoder: MusicCatalogMapper.fromCatalogPayload,
   searchQueryBuilder: musicMetadataSearchQuery,
   catalogSearchBuilder: searchMusicCatalogItems,
   catalogSearchResultsAreDetailed: true,

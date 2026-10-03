@@ -2617,10 +2617,10 @@
       "kind": "boardgame",
       "label": "Identifiers",
       "normalized": false,
-      "scope": "identifier",
+      "scope": "catalog_item",
       "section": "relations",
       "sourceEntityType": "catalog_boardgame_item",
-      "sourceTable": "boardgame_item_identifiers",
+      "sourceTable": "boardgame_items",
       "typed": false,
       "valueType": "string_list",
       "writeTarget": "core_canonical"
@@ -2633,10 +2633,10 @@
       "kind": "game",
       "label": "Identifiers",
       "normalized": false,
-      "scope": "identifier",
+      "scope": "catalog_item",
       "section": "relations",
       "sourceEntityType": "catalog_game_item",
-      "sourceTable": "game_item_identifiers",
+      "sourceTable": "game_items",
       "typed": false,
       "valueType": "string_list",
       "writeTarget": "core_canonical"
@@ -5785,13 +5785,13 @@
       "kind": "boardgame",
       "label": "Series tags",
       "normalized": false,
-      "scope": "tags",
+      "scope": "catalog_item",
       "section": "regional",
-      "sourceEntityType": "entity_tag",
-      "sourceTable": "entity_tags",
+      "sourceEntityType": "catalog_boardgame_item",
+      "sourceTable": "boardgame_items",
       "typed": false,
       "valueType": "string_list",
-      "writeTarget": "core_canonical_relation"
+      "writeTarget": "core_canonical"
     },
     {
       "common": false,
@@ -5801,13 +5801,13 @@
       "kind": "book",
       "label": "Series tags",
       "normalized": false,
-      "scope": "tags",
+      "scope": "catalog_item",
       "section": "regional",
-      "sourceEntityType": "entity_tag",
-      "sourceTable": "entity_tags",
+      "sourceEntityType": "catalog_book_item",
+      "sourceTable": "book_items",
       "typed": false,
       "valueType": "string_list",
-      "writeTarget": "core_canonical_relation"
+      "writeTarget": "core_canonical"
     },
     {
       "common": false,
@@ -5833,13 +5833,13 @@
       "kind": "game",
       "label": "Series tags",
       "normalized": false,
-      "scope": "tags",
+      "scope": "catalog_item",
       "section": "regional",
-      "sourceEntityType": "entity_tag",
-      "sourceTable": "entity_tags",
+      "sourceEntityType": "catalog_game_item",
+      "sourceTable": "game_items",
       "typed": false,
       "valueType": "string_list",
-      "writeTarget": "core_canonical_relation"
+      "writeTarget": "core_canonical"
     },
     {
       "common": false,
@@ -5865,13 +5865,13 @@
       "kind": "movie",
       "label": "Series tags",
       "normalized": false,
-      "scope": "tags",
+      "scope": "catalog_item",
       "section": "regional",
       "sourceEntityType": "catalog_movie_item",
       "sourceTable": "movie_items",
       "typed": false,
       "valueType": "string_list",
-      "writeTarget": "core_canonical_relation"
+      "writeTarget": "core_canonical"
     },
     {
       "common": false,
@@ -6617,13 +6617,13 @@
       "kind": "game",
       "label": "Trailer URLs",
       "normalized": false,
-      "scope": "relations",
+      "scope": "catalog_item",
       "section": "relations",
-      "sourceEntityType": "entity_link",
-      "sourceTable": "entity_links",
+      "sourceEntityType": "catalog_game_item",
+      "sourceTable": "game_items",
       "typed": false,
       "valueType": "link_list",
-      "writeTarget": "core_canonical_relation"
+      "writeTarget": "core_canonical"
     },
     {
       "common": false,
@@ -6633,13 +6633,13 @@
       "kind": "movie",
       "label": "Trailer URLs",
       "normalized": false,
-      "scope": "relations",
+      "scope": "catalog_item",
       "section": "relations",
       "sourceEntityType": "catalog_movie_item",
       "sourceTable": "movie_items",
       "typed": false,
       "valueType": "link_list",
-      "writeTarget": "core_canonical_relation"
+      "writeTarget": "core_canonical"
     },
     {
       "common": false,
@@ -6681,13 +6681,13 @@
       "kind": "boardgame",
       "label": "External links",
       "normalized": false,
-      "scope": "relations",
+      "scope": "catalog_item",
       "section": "relations",
-      "sourceEntityType": "entity_link",
-      "sourceTable": "entity_links",
+      "sourceEntityType": "catalog_boardgame_item",
+      "sourceTable": "boardgame_items",
       "typed": false,
       "valueType": "link_list",
-      "writeTarget": "core_canonical_relation"
+      "writeTarget": "core_canonical"
     },
     {
       "common": false,
@@ -6697,13 +6697,13 @@
       "kind": "book",
       "label": "External links",
       "normalized": false,
-      "scope": "relations",
+      "scope": "catalog_item",
       "section": "relations",
-      "sourceEntityType": "entity_link",
-      "sourceTable": "entity_links",
+      "sourceEntityType": "catalog_book_item",
+      "sourceTable": "book_items",
       "typed": false,
       "valueType": "link_list",
-      "writeTarget": "core_canonical_relation"
+      "writeTarget": "core_canonical"
     },
     {
       "common": false,
@@ -6729,13 +6729,13 @@
       "kind": "game",
       "label": "External links",
       "normalized": false,
-      "scope": "relations",
+      "scope": "catalog_item",
       "section": "relations",
-      "sourceEntityType": "entity_link",
-      "sourceTable": "entity_links",
+      "sourceEntityType": "catalog_game_item",
+      "sourceTable": "game_items",
       "typed": false,
       "valueType": "link_list",
-      "writeTarget": "core_canonical_relation"
+      "writeTarget": "core_canonical"
     },
     {
       "common": false,
@@ -6761,13 +6761,13 @@
       "kind": "movie",
       "label": "External links",
       "normalized": false,
-      "scope": "relations",
+      "scope": "catalog_item",
       "section": "relations",
       "sourceEntityType": "catalog_movie_item",
       "sourceTable": "movie_items",
       "typed": false,
       "valueType": "link_list",
-      "writeTarget": "core_canonical_relation"
+      "writeTarget": "core_canonical"
     },
     {
       "common": false,
@@ -7074,5 +7074,5 @@
       "writeTarget": "core_canonical"
     }
   ],
-  "generatedAt": "2026-10-02T14:53:05.381161Z"
+  "generatedAt": "2026-10-03T02:49:55.371084Z"
 }

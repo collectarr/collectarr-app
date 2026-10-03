@@ -22,23 +22,35 @@ Read applicable AGENTS.md files in each repository. Preserve current changes;
 other work has been occurring in App and Sync. Inspect current code before
 relying on previous audit counts or assuming that a reported defect remains.
 
-Music Core has already been partially changed:
+## Current implementation status — 2026-10-03
 
-- `MusicItem.discs` is now a JSONB column; disc/track ORM classes were removed.
-- Proposal creation, Admin corrections, seed creation, worker indexing, entity
-  resolution, and schema exports were adapted.
-- Typed response models and component UUIDs remain.
-- Core contracts were exported and copied into App's pinned bundle.
-- Existing schema/reference assertions were adjusted, but tests were not run.
-- Ruff was installed in Core's virtual environment; lint cleanup was not completed.
+The current working trees already contain the first coordinated implementation
+slice. This is progress, not completion of this plan:
 
-Finish and review this implementation rather than rebuilding it from scratch.
-In particular, `normalize_music_discs` currently reads `track['position']`,
-while the proposal schema only requires a track title. Restore the intended
-position default or make the input contract require position consistently.
-Check import cycles, ID preservation, ordering, and duplicate validation.
-The stored response shape and accepted proposal shape must have explicit,
-consistent conversion rules.
+- Core now stores contained media, episodes, seasons, printings, credits, and
+  identifiers in typed root documents for all nine kinds. Independent reusable
+  records such as Book Series remain separate.
+- Core create/update, proposals, Admin corrections, seeds, indexing, search,
+  identifier lookup, fingerprints, and schema exports use the root documents.
+- Music proposal normalization now supplies a stable position/order default
+  when a manual track omits them; component IDs and list order are preserved.
+- The App's duplicate `CatalogMusicItemDto`/disc/track transport graph has been
+  removed. `MusicAlbum`, `MusicMedium`, and `MusicTrack` are the typed Music
+  models at the Core transport boundary; the mapper translates only actual
+  wire/domain naming differences and preserves contained fields.
+- Core schema and OpenAPI artifacts were regenerated and their pinned copies
+  synced into App. Sync already accepts the complete `library_entry` envelope
+  and personal-only activity entities, so this slice did not change Sync code.
+- Core sources compile and the changed Music App sources pass targeted static
+  analysis. Automated tests remain deferred until implementation and docs are
+  complete, as requested.
+
+Still outstanding: App's equivalent typed-entry consolidation for the other
+eight kinds; removing business-field semantics from shared transport, draft,
+and metadata registries; auditing old media/workspace adapters and their active
+consumers; and finishing the kind-owned field/schema/forms organization. The
+nine field ledgers remain authoritative, and exact CLZ parity is only confirmed
+for Music until the other reference captures are available.
 
 ## Architectural decisions
 
@@ -81,9 +93,12 @@ Important Music discrepancies to resolve include old `MusicAlbum` fields
 outside the current Core contract, generic track/disc DTOs, credits represented
 both as role lists and contributions, partial/full date duplication, matrix
 data represented in both catalog discs and personal medium details, and
-track-header fields present in App but missing from the current Core track schema.
-Keep supported header functionality and give canonical structure fields a
-single kind-owned schema; do not silently drop them through a mapper.
+remaining differences between credits represented as role lists and
+contributions, partial/full date duplication, and matrix data represented in
+both catalog discs and personal medium details. Track header fields are now
+part of the Core track schema. Keep supported header functionality and give
+canonical structure fields a single kind-owned schema; do not silently drop
+them through a mapper.
 
 ## Phase 2 — Core root document persistence for all kinds
 

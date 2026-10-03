@@ -1,20 +1,20 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 
-/// Maps one flat Core Music Catalog Item into the local Music domain model.
-/// Discs and tracks remain contained children of this concrete album edition.
+/// Converts the Core Music document at the API boundary into the Music domain
+/// aggregate. The domain aggregate remains the only typed representation of
+/// album, disc, and track fields in App.
 final class MusicCatalogMapper {
   const MusicCatalogMapper._();
 
-  /// Encodes the local Music item using the Core Catalog Item shape.
-  /// Local persistence fields such as `mediums` and timestamps do not belong
-  /// in the Core payload; contained media is encoded as `discs` and `tracks`.
+  /// Encodes the local Music item using Core's flattened catalog document.
+  /// Local-only fields such as file paths and timestamps are not sent to Core.
   static CatalogItemDto toCatalogItemDto(MusicAlbum album) {
     final music = <String, dynamic>{
       'id': album.id.value,
-      'kind': 'music',
+      'kind': CatalogMediaKind.music.apiValue,
       'revision': album.revision,
       'title': album.title,
       if (album.sortTitle != null) 'sort_title': album.sortTitle,
@@ -104,24 +104,32 @@ final class MusicCatalogMapper {
               'id': medium.id.value,
               'disc_number': medium.mediumNumber,
               if (medium.title != null) 'title': medium.title,
+              if (medium.mediumType != null) 'medium_type': medium.mediumType,
+              if (medium.trackCount != null) 'track_count': medium.trackCount,
+              if (medium.expectedTrackCount != null)
+                'expected_track_count': medium.expectedTrackCount,
+              if (medium.missingTrackCount != null)
+                'missing_track_count': medium.missingTrackCount,
+              if (medium.missingTrackPositions.isNotEmpty)
+                'missing_track_positions': medium.missingTrackPositions,
+              if (medium.toc != null) 'toc': medium.toc,
+              if (medium.cddbId != null) 'cddb_id': medium.cddbId,
+              if (medium.leadoutOffset != null)
+                'leadout_offset': medium.leadoutOffset,
+              if (medium.bpDiscId != null) 'bp_disc_id': medium.bpDiscId,
               if (medium.matrixNumberSideA != null)
                 'matrix_number_side_a': medium.matrixNumberSideA,
               if (medium.matrixNumberSideB != null)
                 'matrix_number_side_b': medium.matrixNumberSideB,
+              if (medium.soundType != null) 'sound_type': medium.soundType,
+              if (medium.vinylColor != null) 'vinyl_color': medium.vinylColor,
+              if (medium.vinylWeight != null)
+                'vinyl_weight': medium.vinylWeight,
+              if (medium.rpm != null) 'rpm': medium.rpm,
+              if (medium.spars != null) 'spars': medium.spars,
               'tracks': [
                 for (var index = 0; index < medium.tracks.length; index++)
-                  {
-                    'id': medium.tracks[index].id.value,
-                    'position': medium.tracks[index].position,
-                    'position_order': medium.tracks[index].positionOrder ??
-                        int.tryParse(medium.tracks[index].position) ??
-                        index + 1,
-                    'title': medium.tracks[index].title,
-                    if (medium.tracks[index].artist != null)
-                      'artist': medium.tracks[index].artist,
-                    if (medium.tracks[index].durationMs != null)
-                      'duration_ms': medium.tracks[index].durationMs,
-                  },
+                  _trackToCatalogData(medium.tracks[index], index),
               ],
             },
         ],
@@ -134,110 +142,139 @@ final class MusicCatalogMapper {
     );
   }
 
+  static Map<String, Object?> _trackToCatalogData(
+          MusicTrack track, int index) =>
+      {
+        'id': track.id.value,
+        'position': track.position,
+        'position_order':
+            track.positionOrder ?? int.tryParse(track.position) ?? index + 1,
+        'title': track.title,
+        if (track.artist != null) 'artist': track.artist,
+        if (track.composition != null) 'composition': track.composition,
+        if (track.durationMs != null) 'duration_ms': track.durationMs,
+        if (track.offsetMs != null) 'offset_ms': track.offsetMs,
+        if (track.bitrateKbps != null) 'bitrate_kbps': track.bitrateKbps,
+        if (track.fileSizeBytes != null) 'file_size_bytes': track.fileSizeBytes,
+        if (track.trackHash != null) 'track_hash': track.trackHash,
+        if (track.instrument != null) 'instrument': track.instrument,
+        'is_header': track.isHeader,
+        'indent_level': track.indentLevel,
+        if (track.parentHeaderId != null)
+          'parent_header_id': track.parentHeaderId,
+      };
+
   static MusicAlbum mapDtoToMusic(CatalogItemDto dto) =>
       mapMetadataItemToMusic(dto);
 
-  static MusicAlbum mapMetadataItemToMusic(CatalogItemDto item) {
-    final payload = catalogTransportPayloadFor(item);
-    return _fromTypedDto(CatalogMusicItemDto.fromJson(payload));
-  }
+  static MusicAlbum mapMetadataItemToMusic(CatalogItemDto item) =>
+      fromCatalogPayload(catalogTransportPayloadFor(item));
 
-  static MusicAlbum _fromTypedDto(CatalogMusicItemDto item) {
-    final discPayloads = <Map<String, dynamic>>[];
-    final orderedDiscs = [...item.discs]
-      ..sort((left, right) => left.discNumber.compareTo(right.discNumber));
-    for (final disc in orderedDiscs) {
-      final mediumId = disc.id;
-      final orderedTracks = [...disc.tracks]..sort(
-          (left, right) => left.positionOrder.compareTo(right.positionOrder));
-      discPayloads.add({
-        'id': mediumId,
-        'album_id': item.id,
-        'medium_number': disc.discNumber,
-        if (disc.title != null) 'title': disc.title,
-        if (disc.matrixNumberSideA != null)
-          'matrix_number_side_a': disc.matrixNumberSideA,
-        if (disc.matrixNumberSideB != null)
-          'matrix_number_side_b': disc.matrixNumberSideB,
-        if (item.format != null) 'medium_type': item.format,
-        'tracks': [
-          for (final track in orderedTracks)
-            {
-              'id': track.id,
-              'medium_id': mediumId,
-              'position': track.position,
-              'position_order': track.positionOrder,
-              'title': track.title,
-              if (track.artist != null) 'artist': track.artist,
-              if (track.durationMs != null) 'duration_ms': track.durationMs,
-            },
-        ],
-      });
+  /// Decodes the flat Core Music item or the domain's own serialized shape.
+  /// `discs` → `mediums` is the only structural API/domain translation.
+  static MusicAlbum fromCatalogPayload(Map<String, dynamic> payload) {
+    if (payload['mediums'] is List) {
+      return MusicAlbum.fromJson(payload);
     }
 
-    return MusicAlbum.fromJson({
-      'id': item.id,
-      'kind': 'music',
-      'revision': item.revision,
-      'title': item.title,
-      if (item.sortTitle != null) 'sort_title': item.sortTitle,
-      if (item.subtitle != null) 'subtitle': item.subtitle,
-      if (item.artist != null) 'artist': item.artist,
-      if (item.originalReleaseDate != null)
-        'original_release_date': item.originalReleaseDate,
-      if (item.originalReleaseDateParts != null)
-        'original_release_date_parts': item.originalReleaseDateParts,
-      if (item.recordingDate != null) 'recording_date': item.recordingDate,
-      if (item.recordingDateParts != null)
-        'recording_date_parts': item.recordingDateParts,
-      if (item.releaseDate != null) 'release_date': item.releaseDate,
-      if (item.releaseDateParts != null)
-        'release_date_parts': item.releaseDateParts,
-      if (item.label != null) 'publisher': item.label,
-      if (item.format != null) 'format': item.format,
-      if (item.format != null) 'medium_types': [item.format],
-      if (item.barcode != null) 'barcode': item.barcode,
-      if (item.catalogNumber != null) 'catalog_number': item.catalogNumber,
-      if (item.genres.isNotEmpty) 'genres': item.genres,
-      if (item.packaging != null) 'packaging': item.packaging,
-      if (item.studios.isNotEmpty) 'studios': item.studios,
-      if (item.country != null) 'country_code': item.country,
-      if (item.isLive != null) 'is_live': item.isLive,
-      if (item.soundTypes.isNotEmpty) 'sound_types': item.soundTypes,
-      if (item.vinylColor != null) 'vinyl_color': item.vinylColor,
-      if (item.vinylWeight != null) 'vinyl_weight': item.vinylWeight,
-      if (item.rpm != null) 'rpm': item.rpm,
-      if (item.extra != null) 'extra': item.extra,
-      if (item.spars != null) 'spars': item.spars,
-      if (item.boxSet != null) 'box_set_name': item.boxSet,
-      if (item.artistCredits.isNotEmpty) 'artist_credits': item.artistCredits,
-      if (item.externalLinks.isNotEmpty) 'external_links': item.externalLinks,
-      if (item.coverImageUrl != null) 'cover_image_url': item.coverImageUrl,
-      if (item.backCoverImageUrl != null)
-        'back_cover_image_url': item.backCoverImageUrl,
-      if (item.thumbnailImageUrl != null)
-        'thumbnail_image_url': item.thumbnailImageUrl,
-      'contributions': _contributions(item),
-      'mediums': discPayloads,
-    });
-  }
+    final catalogPayload = Map<String, dynamic>.from(payload)
+      ..remove('snapshot_version');
+    const coreFields = <String>{
+      'id',
+      'kind',
+      'revision',
+      'title',
+      'sort_title',
+      'subtitle',
+      'artist',
+      'artist_credits',
+      'original_release_date',
+      'original_release_date_parts',
+      'recording_date',
+      'recording_date_parts',
+      'release_date',
+      'release_date_parts',
+      'label',
+      'format',
+      'barcode',
+      'catalog_number',
+      'genres',
+      'packaging',
+      'studios',
+      'country',
+      'is_live',
+      'sound_types',
+      'vinyl_color',
+      'vinyl_weight',
+      'rpm',
+      'extra',
+      'spars',
+      'box_set',
+      'composers',
+      'conductors',
+      'choruses',
+      'compositions',
+      'orchestras',
+      'songwriters',
+      'producers',
+      'engineers',
+      'musicians',
+      'external_links',
+      'cover_image_url',
+      'back_cover_image_url',
+      'thumbnail_image_url',
+      'discs',
+    };
+    final unsupported = catalogPayload.keys.where(
+      (key) => !coreFields.contains(key),
+    );
+    if (unsupported.isNotEmpty) {
+      throw FormatException(
+        'Unrecognized Music Catalog Item field "${unsupported.first}".',
+      );
+    }
 
-  static List<Map<String, Object?>> _contributions(CatalogMusicItemDto item) {
-    final result = <Map<String, Object?>>[];
-    void add(String role, Iterable<Map<String, Object?>> people) {
-      for (final person in people) {
+    final id = _text(catalogPayload['id']);
+    if (id == null || id.isEmpty) {
+      throw const FormatException('Music Catalog Item requires an id.');
+    }
+    if (_text(catalogPayload['kind']) case final kind? when kind != 'music') {
+      throw FormatException('Expected a Music Catalog Item, received $kind.');
+    }
+    final discs = _maps(catalogPayload['discs']);
+    final contributionRows = <Map<String, dynamic>>[];
+    for (final role in const [
+      'composers',
+      'conductors',
+      'songwriters',
+      'producers',
+      'engineers',
+      'musicians',
+      'choruses',
+      'compositions',
+      'orchestras',
+    ]) {
+      final values = catalogPayload[role];
+      if (values is! Iterable) continue;
+      final normalizedRole = _roleLabel(role);
+      for (final value in values) {
+        final person = value is Map
+            ? Map<String, dynamic>.from(value)
+            : <String, dynamic>{'name': value};
         final name = _text(
           person['name'] ?? person['display_name'] ?? person['credited_name'],
         );
-        final personId = _text(person['person_id'] ?? person['id']) ?? name;
-        if (personId == null) continue;
-        result.add({
-          'id': _text(person['contribution_id']) ??
-              '${item.id}:$role:${result.length + 1}',
-          'album_id': item.id,
-          'person_id': personId,
-          'role': _text(person['role']) ?? role,
-          'sequence': result.length + 1,
+        final artistId = _text(person['artist_id'] ?? person['person_id']);
+        if (name == null && artistId == null) continue;
+        final sequence =
+            _int(person['sequence']) ?? contributionRows.length + 1;
+        contributionRows.add({
+          'id': _text(person['contribution_id'] ?? person['id']) ??
+              '$id:$role:$sequence',
+          'album_id': id,
+          'person_id': artistId ?? name,
+          'role': _text(person['role']) ?? normalizedRole,
+          'sequence': sequence,
           if (name != null) 'name': name,
           if (_text(person['sort_name']) case final sortName?)
             'sort_name': sortName,
@@ -247,27 +284,42 @@ final class MusicCatalogMapper {
       }
     }
 
-    add('Composer', item.composers);
-    add('Conductor', item.conductors);
-    add('Songwriter', item.songwriters);
-    add('Producer', item.producers);
-    add('Engineer', item.engineers);
-    add('Musician', item.musicians);
-    for (final role in [
-      ('Chorus', item.choruses),
-      ('Composition', item.compositions),
-      ('Orchestra', item.orchestras),
-    ]) {
-      add(
-        role.$1,
-        [
-          for (var index = 0; index < role.$2.length; index++)
-            <String, Object?>{'name': role.$2[index]},
-        ],
-      );
-    }
-    return result;
+    final localPayload = <String, dynamic>{
+      ...catalogPayload,
+      'country_code': catalogPayload['country'],
+      'publisher': catalogPayload['label'],
+      'box_set_name': catalogPayload['box_set'],
+      'medium_types': catalogPayload['format'] == null
+          ? const <String>[]
+          : [catalogPayload['format']],
+      'contributions': contributionRows,
+      'mediums': [
+        for (final disc in discs)
+          {
+            ...disc,
+            'id': _text(disc['id']) ?? '$id:disc:${disc['disc_number']}',
+            'album_id': id,
+            'medium_number': disc['medium_number'] ?? disc['disc_number'],
+            'medium_type': disc['medium_type'] ?? payload['format'],
+            'tracks': _tracksForDisc(disc, id),
+          },
+      ],
+    };
+    return MusicAlbum.fromJson(localPayload);
   }
+
+  static String _roleLabel(String key) => switch (key) {
+        'composers' => 'Composer',
+        'conductors' => 'Conductor',
+        'songwriters' => 'Songwriter',
+        'producers' => 'Producer',
+        'engineers' => 'Engineer',
+        'musicians' => 'Musician',
+        'choruses' => 'Chorus',
+        'compositions' => 'Composition',
+        'orchestras' => 'Orchestra',
+        _ => key,
+      };
 }
 
 List<Map<String, Object?>> _peopleForRole(MusicAlbum album, String role) => [
@@ -291,7 +343,36 @@ List<String> _namesForRole(MusicAlbum album, String role) => [
           contribution.displayName ?? contribution.personId,
     ];
 
+List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
+    ? [
+        for (final entry in value)
+          if (entry is Map) Map<String, dynamic>.from(entry),
+      ]
+    : const <Map<String, dynamic>>[];
+
+List<Map<String, dynamic>> _tracksForDisc(
+  Map<String, dynamic> disc,
+  String albumId,
+) {
+  final discNumber = _int(disc['disc_number'] ?? disc['medium_number']) ?? 1;
+  final discId = _text(disc['id']) ?? '$albumId:disc:$discNumber';
+  final tracks = _maps(disc['tracks']);
+  return [
+    for (var index = 0; index < tracks.length; index++)
+      {
+        ...tracks[index],
+        'id': _text(tracks[index]['id']) ??
+            '$albumId:disc:$discNumber:track:${index + 1}',
+        'medium_id': discId,
+        'position_order': _int(tracks[index]['position_order']) ?? index + 1,
+      },
+  ];
+}
+
 String? _text(Object? value) {
   final normalized = value?.toString().trim();
   return normalized == null || normalized.isEmpty ? null : normalized;
 }
+
+int? _int(Object? value) =>
+    value is num ? value.toInt() : int.tryParse(value?.toString().trim() ?? '');

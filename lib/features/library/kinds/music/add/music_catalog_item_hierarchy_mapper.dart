@@ -1,25 +1,23 @@
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 
-/// Projects a flat Music catalog item and its contained discs/tracks directly
-/// into the shared hierarchy UI.
+/// Projects a Music catalog item and its contained discs/tracks into the
+/// shared hierarchy UI.
 final class MusicCatalogItemHierarchyMapper {
   const MusicCatalogItemHierarchyMapper._();
 
-  static List<LibraryHierarchyNode> toLibraryNodes(
-    CatalogMusicItemDto item,
-  ) {
-    final discs = [...item.discs]
-      ..sort((left, right) => left.discNumber.compareTo(right.discNumber));
+  static List<LibraryHierarchyNode> toLibraryNodes(MusicAlbum item) {
+    final discs = [...item.mediums]
+      ..sort((left, right) => left.mediumNumber.compareTo(right.mediumNumber));
     return [for (final disc in discs) _discNode(item, disc)];
   }
 
-  static LibraryHierarchyNode _discNode(
-    CatalogMusicItemDto item,
-    CatalogMusicDiscDto disc,
-  ) {
+  static LibraryHierarchyNode _discNode(MusicAlbum item, MusicMedium disc) {
     final tracks = [...disc.tracks]..sort((left, right) {
-        final order = left.positionOrder.compareTo(right.positionOrder);
+        final order =
+            (left.positionOrder ?? 0).compareTo(right.positionOrder ?? 0);
         return order != 0 ? order : left.position.compareTo(right.position);
       });
     final details = tracks.isEmpty
@@ -28,30 +26,29 @@ final class MusicCatalogItemHierarchyMapper {
     final title = disc.title?.trim();
 
     return LibraryHierarchyNode(
-      id: disc.id,
-      label: title == null || title.isEmpty ? 'Disc ${disc.discNumber}' : title,
+      id: disc.id.value,
+      label:
+          title == null || title.isEmpty ? 'Disc ${disc.mediumNumber}' : title,
       secondaryLabel: details,
       level: tracks.isEmpty
           ? LibraryHierarchyLevel.leaf
           : LibraryHierarchyLevel.container,
       imageUrl: item.coverImageUrl,
       totalCount: tracks.isEmpty ? null : tracks.length,
-      children: [
-        for (final track in tracks) _trackNode(item, disc, track),
-      ],
+      children: [for (final track in tracks) _trackNode(item, disc, track)],
       extras: {
         'kind': 'music_item_disc',
-        'catalogItemId': item.id,
-        'discId': disc.id,
-        'discNumber': disc.discNumber,
+        'catalogItemId': item.id.value,
+        'discId': disc.id.value,
+        'discNumber': disc.mediumNumber,
       },
     );
   }
 
   static LibraryHierarchyNode _trackNode(
-    CatalogMusicItemDto item,
-    CatalogMusicDiscDto disc,
-    CatalogMusicTrackDto track,
+    MusicAlbum item,
+    MusicMedium disc,
+    MusicTrack track,
   ) {
     final position = track.position.trim();
     final details = <String>[];
@@ -63,16 +60,16 @@ final class MusicCatalogItemHierarchyMapper {
     }
 
     return LibraryHierarchyNode(
-      id: track.id,
+      id: track.id.value,
       label:
-          '${position.isEmpty ? track.positionOrder : position}. ${track.title}',
+          '${position.isEmpty ? track.positionOrder ?? 0 : position}. ${track.title}',
       secondaryLabel: details.isEmpty ? null : details.join(' / '),
       imageUrl: item.coverImageUrl,
       extras: {
         'kind': 'music_item_track',
-        'catalogItemId': item.id,
-        'discId': disc.id,
-        'trackId': track.id,
+        'catalogItemId': item.id.value,
+        'discId': disc.id.value,
+        'trackId': track.id.value,
         'position': position,
         if (track.durationMs != null) 'durationMs': track.durationMs,
       },
