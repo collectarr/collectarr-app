@@ -45,7 +45,8 @@ final class MovieCatalogLookup implements CatalogKindLookup {
       }
       if (normalizedItemNumber != null &&
           normalizedItemNumber.isNotEmpty &&
-          item.itemNumber?.trim() != normalizedItemNumber) {
+          MovieCatalogMetadata.fromJson(item.kindData).itemNumber?.trim() !=
+              normalizedItemNumber) {
         continue;
       }
       return _hit(item);
@@ -62,7 +63,7 @@ final class MovieCatalogLookup implements CatalogKindLookup {
           metadata.localizedTitle ??
           metadata.originalTitle ??
           metadata.title,
-      subtitle: item.itemNumber,
+      subtitle: metadata.itemNumber,
     );
   }
 

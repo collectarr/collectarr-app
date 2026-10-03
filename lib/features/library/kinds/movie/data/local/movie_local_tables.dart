@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 /// Complete Movie-collection item state.
 
-
 class MovieTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get libraryEntryRefKey => text()();

@@ -15,6 +15,7 @@ final class MovieCatalogFields {
   String? get titleExtension => _metadata?.titleExtension;
   List<String> get searchAliases => _metadata?.searchAliases ?? const [];
   String? get sortKey => _metadata?.sortTitle;
+  String? get itemNumber => _metadata?.itemNumber;
   String? get synopsis => _metadata?.synopsis ?? _metadata?.description;
   String? get coverImageUrl =>
       _metadata?.coverImageUrl ?? _candidate.summary.imageUrl;

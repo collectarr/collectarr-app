@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 
 final class MangaCatalogLookup implements CatalogKindLookup {
   MangaCatalogLookup(this._db);
@@ -83,7 +84,8 @@ final class MangaCatalogLookup implements CatalogKindLookup {
   }
 
   String? _itemNumber(CatalogItemDto item) {
-    return _text(item.itemNumber) ?? _text(item.payload['volume_number']);
+    final metadata = MangaMetadata.fromJson(item.kindData);
+    return _text(metadata.itemNumber) ?? _text(item.payload['volume_number']);
   }
 
   String? _text(Object? value) {

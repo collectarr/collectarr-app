@@ -29,7 +29,7 @@ class MovieLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required CatalogSearchCandidate item,
   }) =>
-      item.kindCapability.mapTransport((transport) => transport).itemNumber;
+      item.movieCatalogFields.itemNumber;
 
   @override
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
@@ -133,13 +133,10 @@ class MovieLibraryMediaPresentationBuilder
             ? item.movieCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.kindCapability
-              .mapTransport((transport) => transport)
-              .itemNumber !=
-          null)
+      if (item.movieCatalogFields.itemNumber != null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.kindCapability.mapTransport((transport) => transport).itemNumber
+          item.movieCatalogFields.itemNumber
         ),
       if (item.kindCapability.mapTransport((transport) => transport).variant !=
           null)
@@ -300,10 +297,7 @@ class MovieLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildMovieSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber = item.kindCapability
-      .mapTransport((transport) => transport)
-      .itemNumber
-      ?.trim();
+  final itemNumber = item.movieCatalogFields.itemNumber?.trim();
   final subtitle = [
     if (item.kindCapability
             .mapTransport((transport) => transport)

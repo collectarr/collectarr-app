@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/catalog_transport_summary_registry.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 
 final class MangaHierarchyMapper {
   const MangaHierarchyMapper._();
@@ -116,7 +117,11 @@ final class MangaHierarchyMapper {
   }
 
   static int _volumeNumber(CatalogItemDto item) =>
-      _intValue(item.payload['volume_number'] ?? item.itemNumber) ?? 0;
+      _intValue(
+        item.payload['volume_number'] ??
+            MangaMetadata.fromJson(item.kindData).itemNumber,
+      ) ??
+      0;
 
   static Map<String, dynamic>? _mapValue(Object? value) {
     if (value is! Map) return null;

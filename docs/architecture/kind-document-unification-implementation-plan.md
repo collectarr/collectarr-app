@@ -160,6 +160,8 @@ slice. This is progress, not completion of this plan:
   the shared transport no longer interprets either `synopsis` or the legacy
   `description` alias. Generic edit setters for this field remain to be
   replaced by kind-owned draft commits.
+- Comic search previews now read the issue number from `ComicCatalogItem`, and
+  the shared `itemNumber` projection no longer falls back to `issue_number`.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.

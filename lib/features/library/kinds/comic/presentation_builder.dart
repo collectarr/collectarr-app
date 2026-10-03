@@ -30,7 +30,7 @@ class ComicLibraryCatalogItemPresentationBuilder
   String? buildAddPreviewItemNumber({
     required CatalogSearchCandidate item,
   }) =>
-      item.kindCapability.mapTransport((transport) => transport).itemNumber;
+      item.comicCatalogFields.itemNumber;
 
   @override
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
@@ -171,13 +171,10 @@ class ComicLibraryCatalogItemPresentationBuilder
             ? item.comicCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.kindCapability
-              .mapTransport((transport) => transport)
-              .itemNumber !=
-          null)
+      if (item.comicCatalogFields.itemNumber != null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.kindCapability.mapTransport((transport) => transport).itemNumber
+          item.comicCatalogFields.itemNumber
         ),
       if (item.kindCapability.mapTransport((transport) => transport).variant !=
           null)
@@ -353,10 +350,7 @@ class ComicLibraryCatalogItemPresentationBuilder
 LibraryAddSearchResultDisplay _buildComicSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber = item.kindCapability
-      .mapTransport((transport) => transport)
-      .itemNumber
-      ?.trim();
+  final itemNumber = item.comicCatalogFields.itemNumber?.trim();
   final subtitle = [
     if (item.kindCapability
             .mapTransport((transport) => transport)

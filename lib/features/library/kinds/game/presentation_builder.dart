@@ -23,7 +23,7 @@ class GameLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required CatalogSearchCandidate item,
   }) =>
-      item.kindCapability.mapTransport((transport) => transport).itemNumber;
+      item.gameCatalogFields.itemNumber;
 
   @override
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
@@ -108,13 +108,10 @@ class GameLibraryMediaPresentationBuilder
             ? item.gameCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.kindCapability
-              .mapTransport((transport) => transport)
-              .itemNumber !=
-          null)
+      if (item.gameCatalogFields.itemNumber != null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.kindCapability.mapTransport((transport) => transport).itemNumber
+          item.gameCatalogFields.itemNumber
         ),
       if (item.kindCapability.mapTransport((transport) => transport).variant !=
           null)
@@ -198,10 +195,7 @@ class GameLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildGameSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber = item.kindCapability
-      .mapTransport((transport) => transport)
-      .itemNumber
-      ?.trim();
+  final itemNumber = item.gameCatalogFields.itemNumber?.trim();
   final subtitle = [
     if (item.kindCapability
             .mapTransport((transport) => transport)

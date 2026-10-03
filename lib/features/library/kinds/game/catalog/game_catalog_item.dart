@@ -19,7 +19,7 @@ final class GameCatalogItem {
   String? get displayTitle => item.displayTitle;
   String? get originalTitle => item.originalTitle;
   String? get synopsis => metadata.synopsis;
-  String? get itemNumber => item.itemNumber;
+  String? get itemNumber => metadata.itemNumber;
   String? get coverImageUrl => item.coverImageUrl;
   String? get thumbnailImageUrl => item.thumbnailImageUrl ?? coverImageUrl;
   String? get publisher => metadata.publishers.firstOrNull ?? item.publisher;

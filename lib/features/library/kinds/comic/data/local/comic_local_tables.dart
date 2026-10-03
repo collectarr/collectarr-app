@@ -3,7 +3,6 @@ import 'package:drift/drift.dart';
 /// Complete Comic-collection item state. Generic entry storage is retained only
 /// as the kind-entry local persistence surface.
 
-
 class ComicReadingRows extends Table {
   TextColumn get libraryEntryRefKey => text()();
   IntColumn get rating => integer().nullable()();

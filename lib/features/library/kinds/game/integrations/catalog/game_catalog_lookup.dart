@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 
 final class GameCatalogLookup implements CatalogKindLookup {
   GameCatalogLookup(this._db);
@@ -71,7 +72,9 @@ final class GameCatalogLookup implements CatalogKindLookup {
   }
 
   String? _itemNumber(CatalogItemDto item) {
-    final value = item.itemNumber ?? item.payload['edition_title']?.toString();
+    final metadata = GameCatalogMetadata.fromJson(item.kindData);
+    final value =
+        metadata.itemNumber ?? item.payload['edition_title']?.toString();
     final text = value?.toString().trim();
     return text == null || text.isEmpty ? null : text;
   }

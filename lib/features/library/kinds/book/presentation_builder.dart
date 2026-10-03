@@ -154,13 +154,10 @@ class BookLibraryMediaPresentationBuilder
             ? item.bookCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.kindCapability
-              .mapTransport((transport) => transport)
-              .itemNumber !=
-          null)
+      if (item.bookCatalogFields.itemNumber != null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.kindCapability.mapTransport((transport) => transport).itemNumber
+          item.bookCatalogFields.itemNumber
         ),
       if (item.kindCapability.mapTransport((transport) => transport).variant !=
           null)

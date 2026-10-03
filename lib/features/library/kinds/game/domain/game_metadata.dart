@@ -132,6 +132,7 @@ class GameCatalogMetadata implements JsonEncodable {
   }
 
   String? get sortKey => _rawText('sort_key');
+  String? get itemNumber => _rawText('item_number');
 
   List<String> _rawList(String key) =>
       (rawPayload[key] as List?)?.map((value) => value.toString()).toList() ??

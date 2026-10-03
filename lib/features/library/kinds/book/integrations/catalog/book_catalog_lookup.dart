@@ -67,7 +67,7 @@ final class BookCatalogLookup implements CatalogKindLookup {
       id: item.id,
       title:
           metadata.localizedTitle ?? metadata.originalTitle ?? metadata.title,
-      subtitle: item.itemNumber ?? _firstIdentifier(item),
+      subtitle: metadata.itemNumber ?? _firstIdentifier(item),
     );
   }
 
@@ -109,7 +109,8 @@ final class BookCatalogLookup implements CatalogKindLookup {
   }
 
   String? _firstIdentifier(CatalogItemDto item) =>
-      item.itemNumber ?? _identifierValues(item).firstOrNull;
+      BookCatalogMetadata.fromJson(item.kindData).itemNumber ??
+      _identifierValues(item).firstOrNull;
 
   bool _same(String value, String normalized) =>
       normalizeCatalogLookupValue(value) == normalized;

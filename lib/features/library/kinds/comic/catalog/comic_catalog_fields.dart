@@ -17,6 +17,7 @@ final class ComicCatalogFields {
   String? get titleExtension => _item?.titleExtension;
   List<String> get searchAliases => _item?.searchAliases ?? const [];
   String? get sortKey => _metadata?.sortTitle;
+  String? get itemNumber => _metadata?.issueNumber;
   String? get synopsis => _metadata?.synopsis;
   String? get coverImageUrl =>
       _item?.coverImageUrl ?? _candidate.summary.imageUrl;

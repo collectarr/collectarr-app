@@ -17,6 +17,7 @@ final class MangaCatalogFields {
   String? get titleExtension => _item?.titleExtension;
   List<String> get searchAliases => _item?.searchAliases ?? const [];
   String? get sortKey => _metadata?.sortKey;
+  String? get itemNumber => _metadata?.itemNumber;
   String? get synopsis => null;
   String? get coverImageUrl =>
       _item?.coverImageUrl ?? _candidate.summary.imageUrl;

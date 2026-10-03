@@ -23,9 +23,7 @@ class _ComicAddPreviewPane extends StatelessWidget {
     final selectedItem = request.item;
     if (selectedItem == null) return const SizedBox.shrink();
     final title = selectedItem.summary.primaryLabel;
-    final itemNumber = selectedItem.kindCapability
-        .mapTransport((transport) => transport)
-        .payload['item_number'] as String?;
+    final itemNumber = selectedItem.comicCatalogFields.itemNumber;
     final displayEditionLabel = (selectedItem.kindCapability
             .mapTransport((transport) => transport)
             .payload['edition_title'] as String?) ??

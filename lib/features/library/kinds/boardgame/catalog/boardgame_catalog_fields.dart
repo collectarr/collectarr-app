@@ -17,6 +17,7 @@ final class BoardGameCatalogFields {
   String? get titleExtension => _item?.titleExtension;
   List<String> get searchAliases => _item?.searchAliases ?? const [];
   String? get sortKey => _metadata?.sortKey;
+  String? get itemNumber => _metadata?.itemNumber;
   String? get synopsis => _metadata?.synopsis;
   String? get coverImageUrl =>
       _item?.coverImageUrl ?? _candidate.summary.imageUrl;

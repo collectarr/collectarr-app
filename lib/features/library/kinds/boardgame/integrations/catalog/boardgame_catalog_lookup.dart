@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 
 final class BoardGameCatalogLookup implements CatalogKindLookup {
   BoardGameCatalogLookup(this._db);
@@ -79,7 +80,7 @@ final class BoardGameCatalogLookup implements CatalogKindLookup {
   }
 
   String? _itemNumber(CatalogItemDto item) {
-    final value = item.itemNumber ?? item.payload['item_number'];
+    final value = BoardGameMetadata.fromJson(item.kindData).itemNumber;
     final text = value?.toString().trim();
     return text == null || text.isEmpty ? null : text;
   }

@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 import 'package:flutter/material.dart';
 
-final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues> comicCatalogItemEditSchema =
-    EditSchema(
+final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
+    comicCatalogItemEditSchema = EditSchema(
   title: (_) => 'Edit comic',
   validate: (_, values) {
     final pageCount = values.pageCount;

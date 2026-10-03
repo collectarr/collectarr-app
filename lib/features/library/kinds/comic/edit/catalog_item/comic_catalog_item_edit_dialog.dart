@@ -73,7 +73,8 @@ class _ComicCatalogItemEditDialogState
               transport.withKindData(updatedMedia),
             ),
           );
-          await commitLibraryEdit(context,
+          await commitLibraryEdit(
+            context,
             LibraryEditSelection(kindItem: updated),
           );
         },

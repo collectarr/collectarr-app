@@ -26,7 +26,7 @@ final class ComicTrackingUnitCodec implements TrackingUnitStorageCodec {
         fromStorageRow(
           trackingUnitStorageRowFromColumns(
             id: row.id,
-                        trackingEntryId: row.trackingEntryId,
+            trackingEntryId: row.trackingEntryId,
             libraryEntryRefKey: row.libraryEntryRefKey,
             completedAt: row.completedAt,
             updatedAt: row.updatedAt,
@@ -51,7 +51,7 @@ final class ComicTrackingUnitCodec implements TrackingUnitStorageCodec {
     return fromStorageRow(
       trackingUnitStorageRowFromColumns(
         id: row.id,
-                trackingEntryId: row.trackingEntryId,
+        trackingEntryId: row.trackingEntryId,
         libraryEntryRefKey: row.libraryEntryRefKey,
         completedAt: row.completedAt,
         updatedAt: row.updatedAt,
@@ -67,7 +67,7 @@ final class ComicTrackingUnitCodec implements TrackingUnitStorageCodec {
       return db.into(db.comicTrackingUnitRows).insertOnConflictUpdate(
             ComicTrackingUnitRowsCompanion.insert(
               id: unit.id,
-                            trackingEntryId: Value(unit.trackingEntryId),
+              trackingEntryId: Value(unit.trackingEntryId),
               libraryEntryRefKey: unit.libraryEntryRef.key,
               completedAt: unit.completedAt,
               updatedAt: unit.updatedAt,
@@ -124,7 +124,7 @@ final class ComicTrackingUnitCodec implements TrackingUnitStorageCodec {
         : const _ComicCoordinates(null);
     return ComicTrackingUnit(
       id: row.id,
-            trackingEntryId: row.trackingEntryId,
+      trackingEntryId: row.trackingEntryId,
       libraryEntryRef: row.libraryEntryRef,
       issueNumber: typedCoordinates.issueNumber,
       completedAt: row.completedAt,

@@ -106,8 +106,6 @@ final class CatalogItemDto {
   DateTime? get releaseDate => releaseDateParts?.asDateTime;
   int? get releaseYear =>
       (kindData['release_year'] as num?)?.toInt() ?? releaseDateParts?.year;
-  String? get itemNumber =>
-      _string(kindData['item_number'] ?? kindData['issue_number']);
   String? get variant => _string(kindData['variant_name']);
   String? get publisher => _string(kindData['publisher']);
   String? get barcode => _string(kindData['barcode']);
