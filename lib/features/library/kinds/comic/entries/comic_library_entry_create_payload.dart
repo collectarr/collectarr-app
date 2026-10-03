@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
 
@@ -90,20 +91,22 @@ final class ComicLibraryEntryCreatePayload
         'id': sourceCatalogItem.id,
       }).copyWith(id: ComicCatalogItemId(id)),
       createdAt: createdAt,
-      isDigital: isDigital ?? existingIsDigital,
-      details: details.toDetails(),
-      condition: condition,
-      grade: grade,
-      purchaseDate: purchaseDate,
-      pricePaidCents: pricePaidCents,
-      currency: currency,
-      personalNotes: personalNotes,
-      locationId: locationId,
-      purchaseStore: purchaseStore,
-      collectionStatus: collectionStatus,
-      tags: tags,
-      ownerUserId: ownerUserId,
-      ownerLabel: this.ownerLabel ?? ownerLabel,
+      personal: ComicPersonalData(
+        isDigital: isDigital ?? existingIsDigital,
+        details: details.toDetails(),
+        condition: condition,
+        grade: grade,
+        purchaseDate: purchaseDate,
+        pricePaidCents: pricePaidCents,
+        currency: currency,
+        personalNotes: personalNotes,
+        locationId: locationId,
+        purchaseStore: purchaseStore,
+        collectionStatus: collectionStatus,
+        tags: tags,
+        ownerUserId: ownerUserId,
+        ownerLabel: this.ownerLabel ?? ownerLabel,
+      ),
       updatedAt: createdAt,
     );
   }

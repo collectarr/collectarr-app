@@ -110,92 +110,94 @@ final class ComicLibraryEntryUpdatePayload
       id: existing.id,
       metadata: existing.metadata,
       createdAt: existing.createdAt ?? updatedAt,
-      isDigital: isDigital.when(
-        unchanged: () => existing.isDigital,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      details: resolvedDetails,
-      condition: condition.when(
-        unchanged: () => existing.condition,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      grade: grade.when(
-        unchanged: () => existing.grade,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      purchaseDate: purchaseDate.when(
-        unchanged: () => existing.purchaseDate,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      pricePaidCents: pricePaidCents.when(
-        unchanged: () => existing.pricePaidCents,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      currency: currency.when(
-        unchanged: () => existing.currency,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      personalNotes: personalNotes.when(
-        unchanged: () => existing.personalNotes,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      locationId: locationId.when(
-        unchanged: () => existing.locationId,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      purchaseStore: purchaseStore.when(
-        unchanged: () => existing.purchaseStore,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      collectionStatus: collectionStatus.when(
-        unchanged: () => existing.collectionStatus,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      tags: tags.when(
-        unchanged: () => existing.tags,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      soldAt: soldAt.when(
-        unchanged: () => existing.soldAt,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      sellPriceCents: sellPriceCents.when(
-        unchanged: () => existing.sellPriceCents,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      soldTo: soldTo.when(
-        unchanged: () => existing.soldTo,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      marketValueCents: marketValueCents.when(
-        unchanged: () => existing.marketValueCents,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      ownerUserId: existing.ownerUserId ?? fallbackOwnerUserId,
-      ownerLabel: existing.ownerLabel ?? fallbackOwnerLabel,
-      indexNumber: indexNumber.when(
-        unchanged: () => existing.indexNumber,
-        set: (value) => value,
-        clear: () => null,
+      personal: existing.personal.copyWith(
+        isDigital: isDigital.when(
+          unchanged: () => existing.isDigital,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        details: resolvedDetails,
+        condition: condition.when(
+          unchanged: () => existing.condition,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        grade: grade.when(
+          unchanged: () => existing.grade,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        purchaseDate: purchaseDate.when(
+          unchanged: () => existing.purchaseDate,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        pricePaidCents: pricePaidCents.when(
+          unchanged: () => existing.pricePaidCents,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        currency: currency.when(
+          unchanged: () => existing.currency,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        personalNotes: personalNotes.when(
+          unchanged: () => existing.personalNotes,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        locationId: locationId.when(
+          unchanged: () => existing.locationId,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        purchaseStore: purchaseStore.when(
+          unchanged: () => existing.purchaseStore,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        collectionStatus: collectionStatus.when(
+          unchanged: () => existing.collectionStatus,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        tags: tags.when(
+          unchanged: () => existing.tags,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        soldAt: soldAt.when(
+          unchanged: () => existing.soldAt,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        sellPriceCents: sellPriceCents.when(
+          unchanged: () => existing.sellPriceCents,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        soldTo: soldTo.when(
+          unchanged: () => existing.soldTo,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        marketValueCents: marketValueCents.when(
+          unchanged: () => existing.marketValueCents,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        ownerUserId: existing.ownerUserId ?? fallbackOwnerUserId,
+        ownerLabel: existing.ownerLabel ?? fallbackOwnerLabel,
+        indexNumber: indexNumber.when(
+          unchanged: () => existing.indexNumber,
+          set: (value) => value,
+          clear: () => null,
+        ),
+        reading: existing.reading,
       ),
       updatedAt: updatedAt,
       deletedAt: existing.deletedAt,
-      reading: existing.reading,
     );
   }
 }

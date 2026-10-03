@@ -60,12 +60,12 @@ slice. This is progress, not completion of this plan:
   JSON remains at persistence and Sync envelope boundaries. Music assigns the
   local entry identity during decode; Comic binds its typed metadata ID to the
   local entry identity.
-- Music, Book, Anime, Board Games, Games, Manga, Movies, and TV complete local
-  entries now group their personal values in kind-owned `*PersonalData` models
-  alongside typed metadata. Their entry codecs preserve the existing
-  persistence and Sync envelope shape; constructor call sites and seeds use
-  the typed models. Comic still needs its typed personal aggregate and draft
-  binding.
+- All nine complete local entries now group their personal values in
+  kind-owned `*PersonalData` models alongside typed metadata. Their entry
+  codecs preserve the existing persistence and Sync envelope shape; Add,
+  update, and seed construction use the typed models. Comic reading state is
+  now contained in `ComicPersonalData`; the separate tracking and activity
+  records remain separate.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.
@@ -77,11 +77,12 @@ slice. This is progress, not completion of this plan:
   implementation and docs are complete, as requested.
 
 Still outstanding: removing business-field semantics from shared transport,
-draft, and metadata registries; auditing old media/workspace adapters and their
-active consumers; and finishing the kind-owned field/schema/forms
-organization. The nine field ledgers remain authoritative, and exact CLZ
-parity is only confirmed for Music until the other reference captures are
-available.
+the generic `PersonalStateDraft`, and shared edit-section assumptions;
+replacing the entry `copyWith` field façade with kind-owned update commands;
+auditing old media/workspace adapters and active consumers; and finishing the
+kind-owned field/schema/forms organization. The nine field ledgers remain
+authoritative, and exact CLZ parity is only confirmed for Music until the
+other reference captures are available.
 
 ## Architectural decisions
 

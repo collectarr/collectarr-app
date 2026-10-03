@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_e
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
 
@@ -810,24 +811,26 @@ List<ComicLibraryEntry> comicSeedLibraryEntries(DateTime now) {
             seedCatalogRef(CatalogMediaKind.comic, itemId).toCatalogItemRef(),
         createdAt: now.subtract(const Duration(days: 260)),
         updatedAt: now,
-        isDigital: false,
-        condition: 'Near Mint',
-        grade: '9.8',
-        details: ComicEntryDetails(
-          rawOrSlabbed: 'raw',
-          gradingCompany: 'CGC',
-          pageQuality: 'White Pages',
-          keyComic: true,
-          keyCategory: 'First appearance',
-          lastBagBoardDate: DateTime.utc(2024, 6, 1),
+        personal: ComicPersonalData(
+          isDigital: false,
+          condition: 'Near Mint',
+          grade: '9.8',
+          details: ComicEntryDetails(
+            rawOrSlabbed: 'raw',
+            gradingCompany: 'CGC',
+            pageQuality: 'White Pages',
+            keyComic: true,
+            keyCategory: 'First appearance',
+            lastBagBoardDate: DateTime.utc(2024, 6, 1),
+          ),
+          purchaseDate: DateTime.utc(2022, 7, 1),
+          pricePaidCents: 4999,
+          currency: 'USD',
+          personalNotes:
+              'Bagged & boarded in mylar with acid-free backing board.',
+          purchaseStore: 'Midtown Comics',
+          collectionStatus: 'collected',
         ),
-        purchaseDate: DateTime.utc(2022, 7, 1),
-        pricePaidCents: 4999,
-        currency: 'USD',
-        personalNotes:
-            'Bagged & boarded in mylar with acid-free backing board.',
-        purchaseStore: 'Midtown Comics',
-        collectionStatus: 'collected',
       ),
   ];
 }
