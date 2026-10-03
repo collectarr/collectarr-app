@@ -47,6 +47,7 @@ WorkspaceCommonProjection _tvCommonProjection(
     node,
     overrideTitle: metadata?.title,
     overrideSynopsis: metadata?.synopsis,
-    overrideReleaseDate: metadata?.firstAirDate,
+    overrideReleaseDate: metadata?.releaseDate ?? metadata?.firstAirDate,
+    overrideCoverImageUrl: metadata?.coverImageUrl,
   );
 }

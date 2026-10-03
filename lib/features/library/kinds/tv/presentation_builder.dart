@@ -37,7 +37,7 @@ class TvLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required CatalogSearchCandidate item,
   }) =>
-      item.kindCapability.mapTransport((transport) => transport).itemNumber;
+      item.tvCatalogFields.itemNumber;
 
   @override
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
@@ -45,9 +45,7 @@ class TvLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <LibraryFormatBadgeDescriptor>[];
-    for (final edition in item.kindCapability
-        .mapTransport((transport) => transport)
-        .editions) {
+    for (final edition in item.tvCatalogFields.editions) {
       final badge = tvFormatBadge(
         edition.physicalFormat,
         label: edition.physicalFormatLabel,
@@ -103,10 +101,8 @@ class TvLibraryMediaPresentationBuilder
   }) {
     final hydratedMetadata = hydrated.tvCatalogFields;
     final fallbackMetadata = fallback.tvCatalogFields;
-    final hydratedEditions =
-        hydrated.kindCapability.mapTransport((transport) => transport.editions);
-    final fallbackEditions =
-        fallback.kindCapability.mapTransport((transport) => transport.editions);
+    final hydratedEditions = hydrated.tvCatalogFields.editions;
+    final fallbackEditions = fallback.tvCatalogFields.editions;
     final editions =
         hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
     final coverImageUrl =
@@ -147,7 +143,7 @@ class TvLibraryMediaPresentationBuilder
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.kindCapability.mapTransport((transport) => transport).publisher
+        item.tvCatalogFields.publisher
       ),
       (
         'Released',
@@ -155,25 +151,19 @@ class TvLibraryMediaPresentationBuilder
             ? item.tvCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.kindCapability
-              .mapTransport((transport) => transport)
-              .itemNumber !=
-          null)
+      if (item.tvCatalogFields.itemNumber != null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.kindCapability.mapTransport((transport) => transport).itemNumber
+          item.tvCatalogFields.itemNumber
         ),
-      if (item.kindCapability.mapTransport((transport) => transport).variant !=
-          null)
+      if (item.tvCatalogFields.variant != null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.kindCapability.mapTransport((transport) => transport).variant
+          item.tvCatalogFields.variant
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
+        item.tvCatalogFields.barcode
       ),
     ];
   }
@@ -315,32 +305,20 @@ class TvLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildTvSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber = item.kindCapability
-      .mapTransport((transport) => transport)
-      .itemNumber
-      ?.trim();
+  final itemNumber = item.tvCatalogFields.itemNumber?.trim();
   final subtitle = [
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .publisher
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (item.tvCatalogFields.publisher?.trim() case final value?
+        when value.isNotEmpty)
       value,
     if ((item.tvCatalogFields.releaseYear ??
             item.tvCatalogFields.releaseDate?.year)
         case final year?)
       year.toString(),
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .physicalFormatLabel
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (item.tvCatalogFields.physicalFormatLabel?.trim() case final value?
+        when value.isNotEmpty)
       value,
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (item.tvCatalogFields.barcode?.trim() case final value?
+        when value.isNotEmpty)
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(

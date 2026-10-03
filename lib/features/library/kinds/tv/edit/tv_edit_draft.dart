@@ -18,7 +18,6 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_st
 import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/entries/tv_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -327,56 +326,53 @@ class TvEditDraft
     final episodeNumber = int.tryParse(episodeNumberController.text);
     final metadata = result.kindItem.kindCapability.mapTransport(
         (transport) => TvSeriesMetadata.fromJson(transport.kindData));
-    if (metadata is TvSeriesMetadata) {
-      final parsedGenres = tvEdit.genresEditController.text
-          .split(RegExp(r'[,\r\n]+'))
-          .map((value) => value.trim())
-          .where((value) => value.isNotEmpty)
-          .toList();
-      result = result.copyWith(
-        kindItem: result.kindItem.kindCapability.mapTransport(
-          (transport) => CatalogSearchCandidate.fromItem(
-            transport.withKindData(
-              metadata.copyWith(
-                episodeRuntimeMinutes:
-                    int.tryParse(tvEdit.runtimeController.text),
-                genres:
-                    parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
-                cast: tvEdit.castCredits
-                    .map((credit) => TvPersonCredit(
-                          name: credit.nameController.text.trim(),
-                          role: emptyToNull(credit.roleController.text.trim()),
-                        ))
-                    .where((credit) => credit.name.isNotEmpty)
-                    .toList(),
-                crew: tvEdit.crewCredits
-                    .map((credit) => TvPersonCredit(
-                          name: credit.nameController.text.trim(),
-                          role: emptyToNull(credit.roleController.text.trim()),
-                        ))
-                    .where((credit) => credit.name.isNotEmpty)
-                    .toList(),
-                contentRating: emptyToNull(tvEdit.ageRatingController.text),
-                variant: emptyToNull(tvEdit.variantController.text),
-                barcode: emptyToNull(tvEdit.barcodeController.text),
-                physicalFormat: tvEdit.physicalFormatId,
-                physicalFormatLabel:
-                    emptyToNull(tvEdit.physicalFormatLabelController.text),
-                publisher: emptyToNull(tvEdit.publisherController.text),
-                country: emptyToNull(tvEdit.countryController.text) ??
-                    metadata.country,
-                originalLanguage: emptyToNull(tvEdit.languageController.text) ??
-                    metadata.originalLanguage,
-                firstAirDate: parseDate(tvEdit.releaseDateController.text),
-                links: tvEdit.buildUpdatedTrailerUrls(metadata.links),
-                seasonNumber: seasonNumber ?? metadata.seasonNumber,
-                episodeNumber: episodeNumber ?? metadata.episodeNumber,
-              ),
+    final parsedGenres = tvEdit.genresEditController.text
+        .split(RegExp(r'[,\r\n]+'))
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList();
+    result = result.copyWith(
+      kindItem: result.kindItem.kindCapability.mapTransport(
+        (transport) => CatalogSearchCandidate.fromItem(
+          transport.withKindData(
+            metadata.copyWith(
+              episodeRuntimeMinutes:
+                  int.tryParse(tvEdit.runtimeController.text),
+              genres: parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
+              cast: tvEdit.castCredits
+                  .map((credit) => TvPersonCredit(
+                        name: credit.nameController.text.trim(),
+                        role: emptyToNull(credit.roleController.text.trim()),
+                      ))
+                  .where((credit) => credit.name.isNotEmpty)
+                  .toList(),
+              crew: tvEdit.crewCredits
+                  .map((credit) => TvPersonCredit(
+                        name: credit.nameController.text.trim(),
+                        role: emptyToNull(credit.roleController.text.trim()),
+                      ))
+                  .where((credit) => credit.name.isNotEmpty)
+                  .toList(),
+              contentRating: emptyToNull(tvEdit.ageRatingController.text),
+              variant: emptyToNull(tvEdit.variantController.text),
+              barcode: emptyToNull(tvEdit.barcodeController.text),
+              physicalFormat: tvEdit.physicalFormatId,
+              physicalFormatLabel:
+                  emptyToNull(tvEdit.physicalFormatLabelController.text),
+              publisher: emptyToNull(tvEdit.publisherController.text),
+              country: emptyToNull(tvEdit.countryController.text) ??
+                  metadata.country,
+              originalLanguage: emptyToNull(tvEdit.languageController.text) ??
+                  metadata.originalLanguage,
+              firstAirDate: parseDate(tvEdit.releaseDateController.text),
+              links: tvEdit.buildUpdatedTrailerUrls(metadata.links),
+              seasonNumber: seasonNumber ?? metadata.seasonNumber,
+              episodeNumber: episodeNumber ?? metadata.episodeNumber,
             ),
           ),
         ),
-      );
-    }
+      ),
+    );
     if (result.tracking != null) {
       final episodeRatings = this.episodeRatings.isEmpty
           ? null
@@ -420,42 +416,37 @@ LibraryEditSessionBundle createTvEditDraft({
   final video = entry?.personal.details;
   final metadata = item.kindCapability.mapTransport(
       (transport) => TvSeriesMetadata.fromJson(transport.kindData));
-  final tv = metadata is TvSeriesMetadata ? metadata : null;
+  final tv = metadata;
   final tvEdit = TvEditController(
     itemId: item.reference.id,
     catalogRef: item.reference,
-    initialRuntime: tv?.episodeRuntimeMinutes?.toString() ?? '',
-    initialAgeRating: tv?.contentRating ?? '',
-    initialGenres: tv?.genres.join(', ') ?? '',
-    initialEditionTitle: (item.tvCatalogFields.titleExtension ??
-                item.kindCapability
-                    .mapTransport((transport) => transport)
-                    .editionTitle)
-            ?.trim() ??
-        '',
-    initialVariant: tv?.variant ?? '',
-    initialBarcode: tv?.barcode ?? '',
-    initialPhysicalFormatLabel: tv?.physicalFormatLabel ?? tv?.variant ?? '',
-    initialPhysicalFormatId: tv?.physicalFormat,
-    initialPublisher: tv?.publisher ?? tv?.network ?? '',
-    initialCountry: tv?.country ?? '',
-    initialLanguage: tv?.originalLanguage ?? '',
+    initialRuntime: tv.episodeRuntimeMinutes?.toString() ?? '',
+    initialAgeRating: tv.contentRating ?? '',
+    initialGenres: tv.genres.join(', '),
+    initialEditionTitle: (tv.titleExtension ?? tv.editionTitle)?.trim() ?? '',
+    initialVariant: tv.variant ?? '',
+    initialBarcode: tv.barcode ?? '',
+    initialPhysicalFormatLabel: tv.physicalFormatLabel ?? tv.variant ?? '',
+    initialPhysicalFormatId: tv.physicalFormat,
+    initialPublisher: tv.publisher ?? tv.network ?? '',
+    initialCountry: tv.country,
+    initialLanguage: tv.originalLanguage,
     initialReleaseDate:
-        tv?.firstAirDate == null ? '' : formatDate(tv!.firstAirDate!),
-    initialReleaseYear: tv?.firstAirDate?.year.toString() ?? '',
+        tv.firstAirDate == null ? '' : formatDate(tv.firstAirDate!),
+    initialReleaseYear: tv.firstAirDate?.year.toString() ?? '',
     initialCreators: [
-      for (final creator in tv?.creators ?? const <Map<String, dynamic>>[])
+      for (final creator in tv.creators)
         TvCreditInput(
           name: creator['name']?.toString() ?? '',
           role: creator['role']?.toString() ?? creator['job']?.toString(),
           sourceType: creator['source_type']?.toString() ?? 'provider',
         ),
     ],
-    initialTrailerLinks: tv?.links ?? const <TrailerLinkDto>[],
+    initialTrailerLinks: tv.links,
   );
   final releaseMediaEdit = TvReleaseMediaEditController(
     item: item.kindCapability.mapTransport((transport) => transport),
-    initialDiscCount: tv?.releases
+    initialDiscCount: tv.releases
         .map((release) => release.discCount ?? 0)
         .fold<int>(0, (max, count) => count > max ? count : max),
   );
@@ -477,10 +468,10 @@ LibraryEditSessionBundle createTvEditDraft({
     nrDiscsController: textControllers.create(text: ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
     seasonNumberController: TextEditingController(
-      text: tv?.seasonNumber?.toString() ?? '',
+      text: tv.seasonNumber?.toString() ?? '',
     ),
     episodeNumberController: TextEditingController(
-      text: tv?.episodeNumber?.toString() ?? '',
+      text: tv.episodeNumber?.toString() ?? '',
     ),
     episodeRatings: const <String, int>{},
     tvEdit: tvEdit,

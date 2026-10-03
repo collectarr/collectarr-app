@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 
@@ -197,10 +198,21 @@ class TvPhysicalReleaseMetadata {
 class TvSeriesMetadata implements JsonEncodable {
   const TvSeriesMetadata({
     required this.title,
+    this.displayTitle,
     this.originalTitle,
+    this.localizedTitle,
+    this.titleExtension,
+    this.editionTitle,
+    this.sortKey,
+    this.searchAliases = const [],
+    this.coverImageUrl,
+    this.thumbnailImageUrl,
+    this.coverImageData,
     this.synopsis,
     this.firstAirDate,
     this.lastAirDate,
+    this.releaseDateParts,
+    this.releaseYear,
     this.status,
     this.network,
     this.streamingService,
@@ -243,10 +255,21 @@ class TvSeriesMetadata implements JsonEncodable {
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
+  final String? displayTitle;
   final String? originalTitle;
+  final String? localizedTitle;
+  final String? titleExtension;
+  final String? editionTitle;
+  final String? sortKey;
+  final List<String> searchAliases;
+  final String? coverImageUrl;
+  final String? thumbnailImageUrl;
+  final String? coverImageData;
   final String? synopsis;
   final DateTime? firstAirDate;
   final DateTime? lastAirDate;
+  final PartialDate? releaseDateParts;
+  final int? releaseYear;
   final String? status;
   final String? network;
   final String? streamingService;
@@ -283,16 +306,32 @@ class TvSeriesMetadata implements JsonEncodable {
   final List<CatalogEditionDto> editions;
   final Map<String, dynamic> rawPayload;
 
+  DateTime? get releaseDate => releaseDateParts?.asDateTime;
+
   @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'title': title,
+        if (displayTitle != null) 'display_title': displayTitle,
         if (originalTitle != null) 'original_title': originalTitle,
+        if (localizedTitle != null) 'localized_title': localizedTitle,
+        if (titleExtension != null) 'title_extension': titleExtension,
+        if (editionTitle != null) 'edition_title': editionTitle,
+        if (sortKey != null) 'sort_key': sortKey,
+        if (searchAliases.isNotEmpty) 'search_aliases': searchAliases,
+        if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+        if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+        if (coverImageData != null) 'cover_image_data': coverImageData,
         if (synopsis != null) 'synopsis': synopsis,
         if (firstAirDate != null)
           'first_air_date': firstAirDate!.toIso8601String(),
         if (lastAirDate != null)
           'last_air_date': lastAirDate!.toIso8601String(),
+        if (releaseDateParts != null) ...{
+          'release_date': releaseDateParts!.isoString,
+          'release_date_parts': releaseDateParts!.toJson(),
+        },
+        if (releaseYear != null) 'release_year': releaseYear,
         if (status != null) 'status': status,
         if (network != null) 'network': network,
         if (streamingService != null) 'streaming_service': streamingService,
@@ -348,10 +387,21 @@ class TvSeriesMetadata implements JsonEncodable {
 
   TvSeriesMetadata copyWith({
     String? title,
+    String? displayTitle,
     String? originalTitle,
+    String? localizedTitle,
+    String? titleExtension,
+    String? editionTitle,
+    String? sortKey,
+    List<String>? searchAliases,
+    String? coverImageUrl,
+    String? thumbnailImageUrl,
+    String? coverImageData,
     String? synopsis,
     DateTime? firstAirDate,
     DateTime? lastAirDate,
+    PartialDate? releaseDateParts,
+    int? releaseYear,
     String? status,
     String? network,
     String? streamingService,
@@ -390,10 +440,21 @@ class TvSeriesMetadata implements JsonEncodable {
     return TvSeriesMetadata(
       title: title ?? this.title,
       rawPayload: rawPayload,
+      displayTitle: displayTitle ?? this.displayTitle,
       originalTitle: originalTitle ?? this.originalTitle,
+      localizedTitle: localizedTitle ?? this.localizedTitle,
+      titleExtension: titleExtension ?? this.titleExtension,
+      editionTitle: editionTitle ?? this.editionTitle,
+      sortKey: sortKey ?? this.sortKey,
+      searchAliases: searchAliases ?? this.searchAliases,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
+      coverImageData: coverImageData ?? this.coverImageData,
       synopsis: synopsis ?? this.synopsis,
       firstAirDate: firstAirDate ?? this.firstAirDate,
       lastAirDate: lastAirDate ?? this.lastAirDate,
+      releaseDateParts: releaseDateParts ?? this.releaseDateParts,
+      releaseYear: releaseYear ?? this.releaseYear,
       status: status ?? this.status,
       network: network ?? this.network,
       streamingService: streamingService ?? this.streamingService,
@@ -471,7 +532,19 @@ class TvSeriesMetadata implements JsonEncodable {
     return TvSeriesMetadata(
       rawPayload: rawPayload,
       title: (json['title'] as String?) ?? '',
+      displayTitle: json['display_title'] as String?,
       originalTitle: json['original_title'] as String?,
+      localizedTitle: json['localized_title'] as String?,
+      titleExtension: json['title_extension'] as String?,
+      editionTitle: json['edition_title'] as String?,
+      sortKey: json['sort_key'] as String?,
+      searchAliases: (json['search_aliases'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+      coverImageUrl: json['cover_image_url'] as String?,
+      thumbnailImageUrl: json['thumbnail_image_url'] as String?,
+      coverImageData: json['cover_image_data'] as String?,
       synopsis: (json['synopsis'] ?? json['overview']) as String?,
       firstAirDate: json['first_air_date'] != null
           ? DateTime.tryParse(json['first_air_date'] as String)
@@ -479,6 +552,10 @@ class TvSeriesMetadata implements JsonEncodable {
       lastAirDate: json['last_air_date'] != null
           ? DateTime.tryParse(json['last_air_date'] as String)
           : null,
+      releaseDateParts: PartialDate.tryParse(
+        json['release_date_parts'] ?? json['release_date'],
+      ),
+      releaseYear: (json['release_year'] as num?)?.toInt(),
       status: json['status'] as String?,
       network: json['network'] as String?,
       streamingService: json['streaming_service'] as String?,

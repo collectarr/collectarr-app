@@ -37,9 +37,10 @@ final class TvWorkspaceCatalogData
   @override
   String? get synopsis => metadata?.synopsis;
   @override
-  DateTime? get releaseDate => metadata?.firstAirDate;
+  DateTime? get releaseDate => metadata?.releaseDate ?? metadata?.firstAirDate;
   @override
-  String? get coverImageUrl => series.coverImageUrl;
+  String? get coverImageUrl => metadata?.coverImageUrl ?? series.coverImageUrl;
   @override
-  String? get thumbnailImageUrl => series.thumbnailImageUrl ?? coverImageUrl;
+  String? get thumbnailImageUrl =>
+      metadata?.thumbnailImageUrl ?? series.thumbnailImageUrl ?? coverImageUrl;
 }

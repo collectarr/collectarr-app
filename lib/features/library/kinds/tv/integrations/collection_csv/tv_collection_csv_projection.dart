@@ -134,7 +134,10 @@ final class TvCollectionCsvProjection
           metadata?.streamingService ??
           metadata?.productionCompanies.firstOrNull ??
           '',
-      _formatDate(metadata?.firstAirDate ?? entry.catalogData?.releaseDate),
+      metadata?.releaseDateParts?.isoString ??
+          _formatDate(metadata?.releaseDate ??
+              metadata?.firstAirDate ??
+              entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
   }
