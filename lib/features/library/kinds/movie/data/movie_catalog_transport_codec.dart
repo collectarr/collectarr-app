@@ -134,7 +134,5 @@ final class MovieCatalogTransportCodec
 int? _replacementValueFromPayload(CatalogItemDto item) {
   final direct = item.payload['cover_price_cents'];
   if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
+  return null;
 }

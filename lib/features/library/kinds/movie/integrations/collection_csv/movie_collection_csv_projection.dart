@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library
 import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 
 /// Movie's semantic contribution to the collection CSV host.
 ///
@@ -126,7 +127,7 @@ final class MovieCollectionCsvProjection
       metadata?.variant ?? '',
       metadata?.editionTitle ?? '',
       metadata?.physicalFormat ?? '',
-      metadata?.physicalFormatLabel ?? '',
+      moviePhysicalMediaFormatLabel(metadata?.physicalFormat) ?? '',
       metadata?.studio ?? metadata?.publisher ?? '',
       _formatDate(metadata?.releaseDate ??
           metadata?.releaseDateParts?.asDateTime ??

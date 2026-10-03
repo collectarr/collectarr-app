@@ -39,7 +39,7 @@ class MovieLibraryMediaPresentationBuilder
         item.kindCapability.mapTransport((transport) => transport);
     final badge = movieFormatBadge(
       transport.physicalFormat,
-      label: transport.physicalFormatLabel,
+      label: moviePhysicalMediaFormatLabel(transport.physicalFormat),
     );
     return badge == null ? const [] : [badge];
   }
@@ -177,10 +177,6 @@ class MovieLibraryMediaPresentationBuilder
     final metadata = item.source.catalogData is MovieWorkspaceCatalogData
         ? (item.source.catalogData! as MovieWorkspaceCatalogData).metadata
         : null;
-    final series = metadata?.series;
-    final hasVolume = series?.hasVolume ?? false;
-    final hasSeason = series?.hasSeason ?? false;
-    final hasEpisode = series?.hasEpisode ?? false;
     final runtime = metadata?.runtimeMinutes;
     final screenRatio = metadata?.screenRatio?.trim();
     final audioTracks = metadata?.audioTracks?.trim();
@@ -200,29 +196,11 @@ class MovieLibraryMediaPresentationBuilder
               label: 'Original Title', value: metadata!.originalTitle!),
         if (metadata?.sortTitle != null)
           LibraryDetailField(label: 'Sort Title', value: metadata!.sortTitle!),
-        if (series?.seriesTitle != null)
+        if (metadata?.seriesTitle != null)
           LibraryDetailField(
               label: 'Series',
-              value: series!.seriesTitle!,
-              onTap: tapFor(series.seriesTitle)),
-        if (hasVolume && !hasSeason)
-          LibraryDetailField(
-              label: 'Volume',
-              value: series!.volumeName ??
-                  _movieVolumeLabel(series.volumeNumber != null
-                      ? double.tryParse(series.volumeNumber!)
-                      : null)),
-        if (hasSeason && hasEpisode)
-          LibraryDetailField(
-              label: 'Season / Episode',
-              value:
-                  'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}'),
-        if (hasSeason && !hasEpisode)
-          LibraryDetailField(
-              label: 'Season', value: 'Season ${series!.seasonNumber}'),
-        if (hasEpisode && !hasSeason)
-          LibraryDetailField(
-              label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
+              value: metadata!.seriesTitle!,
+              onTap: tapFor(metadata.seriesTitle)),
         LibraryDetailField(
             label: 'Edition no.',
             value: genericLibraryDash(itemNumber),
@@ -319,15 +297,6 @@ class MovieLibraryMediaPresentationBuilder
   }
 }
 
-String _movieVolumeLabel(double? volumeNumber) {
-  if (volumeNumber == null) return 'Vol. -';
-  final rounded = volumeNumber.roundToDouble();
-  final value = (volumeNumber - rounded).abs() < 1e-9
-      ? rounded.toInt().toString()
-      : volumeNumber.toString();
-  return 'Vol. $value';
-}
-
 LibraryAddSearchResultDisplay _buildMovieSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
@@ -348,7 +317,7 @@ LibraryAddSearchResultDisplay _buildMovieSearchResultDisplay(
       year.toString(),
     if (item.kindCapability
             .mapTransport((transport) => transport)
-            .physicalFormatLabel
+            .physicalFormat
             ?.trim()
         case final value? when value.isNotEmpty)
       value,

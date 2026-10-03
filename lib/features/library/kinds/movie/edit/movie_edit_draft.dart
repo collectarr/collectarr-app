@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
@@ -346,8 +347,6 @@ class MovieEditDraft
       variant: emptyToNull(movieEdit.variantController.text),
       barcode: emptyToNull(movieEdit.barcodeController.text),
       physicalFormat: movieEdit.physicalFormatId,
-      physicalFormatLabel:
-          emptyToNull(movieEdit.physicalFormatLabelController.text),
       publisher: emptyToNull(movieEdit.publisherController.text),
       country: emptyToNull(movieEdit.countryController.text) ?? meta.country,
       language: emptyToNull(movieEdit.languageController.text) ?? meta.language,
@@ -411,7 +410,9 @@ LibraryEditSessionBundle createMovieEditDraft({
     initialVariant: movie.variant ?? '',
     initialBarcode: movie.barcode ?? '',
     initialPhysicalFormatLabel:
-        movie.physicalFormatLabel ?? movie.variant ?? '',
+        moviePhysicalMediaFormatLabel(movie.physicalFormat) ??
+            movie.variant ??
+            '',
     initialPhysicalFormatId: movie.physicalFormat,
     initialPublisher: movie.publisher ?? movie.studio ?? '',
     initialCountry: movie.country ?? '',

@@ -315,7 +315,6 @@ Iterable<String?> _physicalFormatCatalogValues(
   MovieCatalogMetadata metadata,
 ) sync* {
   yield* vocabularyValues([
-    metadata.physicalFormatLabel,
     metadata.physicalFormat,
   ]);
 }

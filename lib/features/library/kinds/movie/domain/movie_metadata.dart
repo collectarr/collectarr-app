@@ -1,4 +1,5 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -139,7 +140,6 @@ class MovieCatalogMetadata implements JsonEncodable {
     this.barcode,
     this.catalogNumber,
     this.physicalFormat,
-    this.physicalFormatLabel,
     this.publisher,
     this.region,
     this.packaging,
@@ -147,7 +147,6 @@ class MovieCatalogMetadata implements JsonEncodable {
     this.hdr,
     this.variant,
     this.itemNumber,
-    this.series,
     this.seriesTitle,
     this.audioTracks,
     this.subtitles,
@@ -165,7 +164,6 @@ class MovieCatalogMetadata implements JsonEncodable {
     this.creators = const [],
     this.contributors = const [],
     this.links = const [],
-    this.rawPayload = const <String, dynamic>{},
   });
 
   CatalogMediaKind get mediaKind => CatalogMediaKind.movie;
@@ -205,7 +203,6 @@ class MovieCatalogMetadata implements JsonEncodable {
   final String? barcode;
   final String? catalogNumber;
   final String? physicalFormat;
-  final String? physicalFormatLabel;
   final String? publisher;
   final String? region;
   final String? packaging;
@@ -213,7 +210,6 @@ class MovieCatalogMetadata implements JsonEncodable {
   final String? hdr;
   final String? variant;
   final String? itemNumber;
-  final CatalogSeriesDetailsDto? series;
   final String? seriesTitle;
   final String? audioTracks;
   final String? subtitles;
@@ -231,20 +227,12 @@ class MovieCatalogMetadata implements JsonEncodable {
   final List<Map<String, dynamic>> creators;
   final List<Map<String, dynamic>> contributors;
   final List<TrailerLinkDto> links;
-  final Map<String, dynamic> rawPayload;
 
   int? get releaseYear => releaseDateParts?.year ?? releaseDate?.year;
 
   @override
   Map<String, dynamic> toJson() {
-    if (rawPayload.containsKey('releases') ||
-        rawPayload.containsKey('editions')) {
-      throw StateError(
-        'Movie Catalog Item cannot contain nested Release data.',
-      );
-    }
     return {
-      ...rawPayload,
       'title': title,
       if (displayTitle != null) 'display_title': displayTitle,
       if (localizedTitle != null) 'localized_title': localizedTitle,
@@ -291,8 +279,6 @@ class MovieCatalogMetadata implements JsonEncodable {
       if (editionTitle != null) 'edition_title': editionTitle,
       if (barcode != null) 'barcode': barcode,
       if (physicalFormat != null) 'physical_format': physicalFormat,
-      if (physicalFormatLabel != null)
-        'physical_format_label': physicalFormatLabel,
       if (publisher != null) 'publisher': publisher,
       if (region != null) 'region': region,
       if (packaging != null) 'packaging': packaging,
@@ -301,10 +287,6 @@ class MovieCatalogMetadata implements JsonEncodable {
       if (variant != null) 'variant_name': variant,
       if (itemNumber != null) 'item_number': itemNumber,
       if (seriesTitle != null) 'series_title': seriesTitle,
-      if (series != null && series!.hasData) ...{
-        'series': series!.toJson(),
-        ...series!.toJson(),
-      },
       if (audioTracks != null) 'audio_tracks': audioTracks,
       if (subtitles != null) 'subtitles': subtitles,
       if (color != null) 'color': color,
@@ -361,7 +343,6 @@ class MovieCatalogMetadata implements JsonEncodable {
     String? barcode,
     String? catalogNumber,
     String? physicalFormat,
-    String? physicalFormatLabel,
     String? publisher,
     String? region,
     String? packaging,
@@ -369,7 +350,6 @@ class MovieCatalogMetadata implements JsonEncodable {
     String? hdr,
     String? variant,
     String? itemNumber,
-    CatalogSeriesDetailsDto? series,
     String? seriesTitle,
     String? audioTracks,
     String? subtitles,
@@ -390,7 +370,6 @@ class MovieCatalogMetadata implements JsonEncodable {
   }) {
     return MovieCatalogMetadata(
       title: title ?? this.title,
-      rawPayload: rawPayload,
       displayTitle: displayTitle ?? this.displayTitle,
       localizedTitle: localizedTitle ?? this.localizedTitle,
       titleExtension: titleExtension ?? this.titleExtension,
@@ -423,7 +402,6 @@ class MovieCatalogMetadata implements JsonEncodable {
       barcode: barcode ?? this.barcode,
       catalogNumber: catalogNumber ?? this.catalogNumber,
       physicalFormat: physicalFormat ?? this.physicalFormat,
-      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
       region: region ?? this.region,
       packaging: packaging ?? this.packaging,
@@ -431,7 +409,6 @@ class MovieCatalogMetadata implements JsonEncodable {
       hdr: hdr ?? this.hdr,
       variant: variant ?? this.variant,
       itemNumber: itemNumber ?? this.itemNumber,
-      series: series ?? this.series,
       seriesTitle: seriesTitle ?? this.seriesTitle,
       audioTracks: audioTracks ?? this.audioTracks,
       subtitles: subtitles ?? this.subtitles,
@@ -453,16 +430,6 @@ class MovieCatalogMetadata implements JsonEncodable {
   }
 
   factory MovieCatalogMetadata.fromJson(Map<String, dynamic> json) {
-    if (json.containsKey('releases') || json.containsKey('editions')) {
-      throw const FormatException(
-        'Movie Catalog Item cannot contain nested Release data.',
-      );
-    }
-    final rawPayload = Map<String, dynamic>.from(json)
-      ..remove('video')
-      ..remove('issue_number')
-      ..remove('sort_title')
-      ..remove('discs');
     final rawCreators = (json['creators'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
             .map((e) => Map<String, dynamic>.from(e))
@@ -484,15 +451,7 @@ class MovieCatalogMetadata implements JsonEncodable {
 
     final media = _movieMediaList(json['media']);
 
-    final seriesRaw = json['series'];
-    final series = seriesRaw is Map
-        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
-        : CatalogSeriesDetailsDto.fromJson(json);
-    final resolvedSeriesTitle =
-        (json['series_title'] ?? series.seriesTitle) as String?;
-
     return MovieCatalogMetadata(
-      rawPayload: rawPayload,
       title: (json['title'] as String?) ?? '',
       displayTitle: json['display_title'] as String?,
       localizedTitle: json['localized_title'] as String?,
@@ -564,7 +523,6 @@ class MovieCatalogMetadata implements JsonEncodable {
       editionTitle: json['edition_title'] as String?,
       barcode: json['barcode'] as String?,
       physicalFormat: json['physical_format'] as String?,
-      physicalFormatLabel: json['physical_format_label'] as String?,
       publisher: json['publisher'] as String?,
       region: json['region'] as String?,
       packaging: json['packaging'] as String?,
@@ -572,8 +530,7 @@ class MovieCatalogMetadata implements JsonEncodable {
       hdr: json['hdr'] as String?,
       variant: json['variant_name'] as String?,
       itemNumber: json['item_number'] as String?,
-      series: series.hasData ? series : null,
-      seriesTitle: resolvedSeriesTitle,
+      seriesTitle: json['series_title'] as String?,
       audioTracks: json['audio_tracks'] as String?,
       subtitles: json['subtitles'] as String?,
       color: json['color'] as String?,

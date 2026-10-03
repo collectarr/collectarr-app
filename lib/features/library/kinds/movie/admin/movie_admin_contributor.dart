@@ -114,9 +114,7 @@ class MovieAdminContributor implements LibraryAdminContributor {
         ),
         adminPhysicalFormatCorrectionField(
           key: 'physical_format',
-          read: (item) =>
-              item.canonicalFieldValues['physical_format'] ??
-              item.canonicalFieldValues['physical_format_label'],
+          read: (item) => item.canonicalFieldValues['physical_format'],
         ),
         adminRelatedListCorrectionField(
           key: 'series_tags',

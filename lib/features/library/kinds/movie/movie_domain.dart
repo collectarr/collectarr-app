@@ -1,7 +1,5 @@
 export 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_tables.dart';
-export 'package:collectarr_app/features/library/kinds/movie/data/local/movie_entry_local_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/movie/data/movie_entry_repository.dart';
-export 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 export 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/movie/domain/movie_tracking.dart';
 export 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';

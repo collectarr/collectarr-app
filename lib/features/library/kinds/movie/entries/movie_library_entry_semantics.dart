@@ -12,8 +12,7 @@ LibraryEntryFormatHint resolveMovieEntryFormatHint(
   final format = transport.physicalFormat;
   return (
     format: format,
-    label: transport.physicalFormatLabel ??
-        format ??
+    label: moviePhysicalMediaFormatLabel(format) ??
         (item.movieCatalogFields.titleExtension ?? transport.editionTitle)
             ?.trim(),
   );

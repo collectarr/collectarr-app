@@ -44,6 +44,15 @@ const moviePhysicalMediaFormats = [
   ),
 ];
 
+String? moviePhysicalMediaFormatLabel(String? id) {
+  final normalized = id?.trim().toLowerCase();
+  if (normalized == null || normalized.isEmpty) return null;
+  for (final format in moviePhysicalMediaFormats) {
+    if (format.id.toLowerCase() == normalized) return format.label;
+  }
+  return null;
+}
+
 LibraryFormatBadgeDescriptor? movieFormatBadge(String? id, {String? label}) =>
     resolveLibraryFormatBadge(
       key: id,

@@ -106,8 +106,7 @@ class MovieStatsCapability implements LibraryStatsCapability {
     for (final entry in entries) {
       if (!entry.isEntry) continue;
       final metadata = _metadata(entry);
-      final seriesTitle =
-          (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();
+      final seriesTitle = metadata?.seriesTitle?.trim();
       final number = numberFor(entry);
       if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
         continue;
@@ -134,7 +133,7 @@ class MovieStatsCapability implements LibraryStatsCapability {
   static int? _seasonNumber(LibraryWorkspaceSource entry) {
     final metadata = _metadata(entry);
     final itemNumber = int.tryParse(metadata?.itemNumber?.trim() ?? '');
-    return itemNumber ?? metadata?.series?.seasonNumber;
+    return itemNumber;
   }
 
   static int totalRuntimeMinutes(Iterable<LibraryWorkspaceSource> entries) {
@@ -176,10 +175,7 @@ class MovieStatsCapability implements LibraryStatsCapability {
     return _countMany(
       entries,
       (metadata) => [
-        if (metadata.physicalFormatLabel?.trim().isNotEmpty == true)
-          metadata.physicalFormatLabel!,
-        if (metadata.physicalFormatLabel?.trim().isEmpty != false &&
-            metadata.physicalFormat?.trim().isNotEmpty == true)
+        if (metadata.physicalFormat?.trim().isNotEmpty == true)
           metadata.physicalFormat!,
       ],
     );

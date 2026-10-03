@@ -1,5 +1,6 @@
 import '../movie_module_dependencies.dart';
 import '../config/movie_kind_configuration.dart';
+import '../catalog/movie_catalog_fields.dart';
 import 'movie_manual_candidate.dart';
 
 final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
@@ -30,28 +31,8 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),
-  digitalCopyFlagBuilder: (item) {
-    final payload =
-        item.kindCapability.mapTransport((transport) => transport).payload;
-    final direct = payload['is_digital'];
-    if (direct is bool) return direct;
-    final format =
-        (payload['physical_format'] ?? payload['physical_format_label'])
-            ?.toString()
-            .toLowerCase();
-    if (format == 'digital' || format == 'ebook' || format == 'web') {
-      return true;
-    }
-    final series = payload['series'];
-    if (series is Map && series['is_digital'] is bool) {
-      return series['is_digital'] as bool;
-    }
-    final publishing = payload['publishing'];
-    if (publishing is Map && publishing['is_digital'] is bool) {
-      return publishing['is_digital'] as bool;
-    }
-    return null;
-  },
+  digitalCopyFlagBuilder: (item) =>
+      item.movieCatalogFields.physicalFormat?.trim().toLowerCase() == 'digital',
   search: LibraryAddSearchCapability(
     input: LibraryAddSearchInputCapability(
       initialAdvancedFilters: {
@@ -72,7 +53,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport((transport) =>
                   MovieCatalogMetadata.fromJson(transport.kindData));
-              return [metadata.seriesTitle, metadata.series?.seriesTitle];
+              return [metadata.seriesTitle];
             },
           ),
           LibraryAddSearchRankField(

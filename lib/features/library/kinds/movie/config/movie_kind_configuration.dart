@@ -153,7 +153,6 @@ final movieTransferableFields = <TransferableField>[
 
 Iterable<String?> movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
       metadata.seriesTitle,
-      metadata.series?.seriesTitle,
       metadata.itemNumber,
       metadata.publisher,
       metadata.studio,

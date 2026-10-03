@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalo
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:flutter/material.dart';
 
 Widget buildMovieAddPreviewPane(
@@ -94,19 +95,12 @@ class _MovieAddPreviewPane extends StatelessWidget {
                                   .toString(),
                               accent: request.accent,
                             ),
-                          if ((selectedItem.kindCapability
-                                          .mapTransport((transport) => transport)
-                                          .payload['physical_format_label']
-                                      as String?)
-                                  ?.trim()
-                                  .isNotEmpty ==
-                              true)
+                          if (selectedItem.movieCatalogFields.physicalFormat
+                              case final format?
+                              when moviePhysicalMediaFormatLabel(format) !=
+                                  null)
                             LibraryAddResultBadge(
-                              (selectedItem.kindCapability
-                                          .mapTransport((transport) => transport)
-                                          .payload['physical_format_label']
-                                      as String)
-                                  .trim(),
+                              moviePhysicalMediaFormatLabel(format)!,
                               accent: request.accent,
                             ),
                         ],
