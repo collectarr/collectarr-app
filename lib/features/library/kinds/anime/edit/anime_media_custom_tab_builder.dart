@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_crew_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_discs_tab.dart';
@@ -21,10 +20,13 @@ Widget? buildAnimeMediaCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final animeEdit = (draft.session.catalogItemSession is AnimeEditDraftContract)
-      ? (draft.session.catalogItemSession as AnimeEditDraftContract).animeEdit
-      : AnimeEditController(
-          itemId: item.reference.id, catalogRef: item.reference);
+  final catalogDraft = draft.session.catalogItemSession;
+  if (catalogDraft is! AnimeEditDraftContract) {
+    throw StateError(
+      'Anime tab "$tabId" requires the registered Anime edit draft.',
+    );
+  }
+  final animeEdit = catalogDraft.animeEdit;
 
   return switch (tabId) {
     'edition' => AnimeEditEditionTab(
@@ -33,8 +35,7 @@ Widget? buildAnimeMediaCustomTabView({
         physicalFormats: const [],
       ),
     'specs' => AnimeEditSpecsTab(
-        draft: draft,
-        animeEdit: animeEdit,
+        animeDraft: catalogDraft,
         accent: accent,
         audioTrackOptions: const [],
         subtitleOptions: const [],

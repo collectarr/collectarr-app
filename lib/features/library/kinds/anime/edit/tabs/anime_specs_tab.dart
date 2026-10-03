@@ -1,15 +1,13 @@
-import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_tab_helpers.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
 class AnimeEditSpecsTab extends StatelessWidget {
   const AnimeEditSpecsTab({
     super.key,
-    required this.draft,
-    required this.animeEdit,
+    required this.animeDraft,
     required this.accent,
     required this.audioTrackOptions,
     required this.subtitleOptions,
@@ -17,8 +15,7 @@ class AnimeEditSpecsTab extends StatelessWidget {
     required this.colorOptions,
   });
 
-  final LibraryEditShellState draft;
-  final AnimeEditController animeEdit;
+  final AnimeEditDraftContract animeDraft;
   final Color accent;
   final List<String> audioTrackOptions;
   final List<String> subtitleOptions;
@@ -38,13 +35,13 @@ class AnimeEditSpecsTab extends StatelessWidget {
               buildAnimeResponsiveFields([
                 LibraryVocabularyField(
                   label: 'Audio tracks',
-                  controller: animeEdit.audioTracksController,
+                  controller: animeDraft.audioTracksController,
                   options: audioTrackOptions,
                   multiSelect: true,
                 ),
                 LibraryVocabularyField(
                   label: 'Subtitles',
-                  controller: animeEdit.subtitlesController,
+                  controller: animeDraft.subtitlesController,
                   options: subtitleOptions,
                   multiSelect: true,
                 ),
@@ -53,16 +50,16 @@ class AnimeEditSpecsTab extends StatelessWidget {
               buildAnimeResponsiveFields([
                 LibraryVocabularyField(
                   label: 'Layers',
-                  controller: animeEdit.layersController,
+                  controller: animeDraft.layersController,
                   options: layersOptions,
                 ),
                 LibraryVocabularyField(
                   label: 'Color',
-                  controller: animeEdit.colorController,
+                  controller: animeDraft.colorController,
                   options: colorOptions,
                 ),
                 buildAnimeField(
-                  controller: animeEdit.nrDiscsController,
+                  controller: animeDraft.nrDiscsController,
                   label: 'Discs',
                   validator: optionalIntValidator,
                 ),
