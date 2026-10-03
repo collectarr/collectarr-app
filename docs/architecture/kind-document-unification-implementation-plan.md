@@ -176,8 +176,10 @@ slice. This is progress, not completion of this plan:
   reachable media/release repository paths still need migration.
 - Core now declares Anime and TV media, season, and episode shapes inside each
   kind's schema module rather than centralizing those definitions in the shared
-  document module. The emitted field shapes are unchanged; App's remaining raw
-  Anime/TV metadata maps and legacy projections are still outstanding.
+  document module. Movie media, Book printings and series memberships, and
+  Manga chapters are also defined by their owning Core kind modules. The
+  emitted field shapes are unchanged; App's remaining raw Anime/TV metadata
+  maps and legacy projections are still outstanding.
 - Development seeds for all nine kinds now place repeated item data in their
   kind document: media, seasons/episodes, printings, Music discs/tracks, and
   issue or platform details no longer require an edition/release graph. Seed
