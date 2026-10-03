@@ -182,7 +182,11 @@ slice. This is progress, not completion of this plan:
   prefill/update adapters were removed. The older Manga workspace hierarchy is
   still a separate outstanding migration. Manga presentation now reads its
   typed page count and imprint fields directly instead of a permanently-null
-  shared publishing DTO.
+  shared publishing DTO. Its `series_title`, `volume_name`, and string-valued
+  `volume_number` now map directly to the Core Manga document; the nested
+  generic `series` DTO and `item_number` alias were removed. The local serial
+  authority remains responsible for reusable series grouping, while the item
+  document keeps only its own series title and volume facts.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.

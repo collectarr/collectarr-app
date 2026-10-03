@@ -62,9 +62,7 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => MangaMetadata.fromJson(transport.kindData));
-              return metadata is MangaMetadata
-                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                  : const <Object?>[];
+              return [metadata.seriesTitle];
             },
           ),
           LibraryAddSearchRankField(
@@ -74,9 +72,7 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => MangaMetadata.fromJson(transport.kindData));
-              return metadata is MangaMetadata
-                  ? [metadata.itemNumber, metadata.volumeNumber]
-                  : const <Object?>[];
+              return [metadata.volumeNumber?.toString()];
             },
           ),
           LibraryAddSearchRankField(
@@ -86,13 +82,11 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => MangaMetadata.fromJson(transport.kindData));
-              return metadata is MangaMetadata
-                  ? [
-                      metadata.publisher,
-                      metadata.originalPublisher,
-                      metadata.localizedPublisher,
-                    ]
-                  : const <Object?>[];
+              return [
+                metadata.publisher,
+                metadata.originalPublisher,
+                metadata.localizedPublisher,
+              ];
             },
           ),
           LibraryAddSearchRankField(
@@ -102,12 +96,10 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => MangaMetadata.fromJson(transport.kindData));
-              return metadata is MangaMetadata
-                  ? [
-                      metadata.originalPublicationDate?.year,
-                      metadata.localizedReleaseDate?.year,
-                    ]
-                  : const <Object?>[];
+              return [
+                metadata.originalPublicationDate?.year,
+                metadata.localizedReleaseDate?.year,
+              ];
             },
           ),
         ],

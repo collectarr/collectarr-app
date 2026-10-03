@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_form_values.dart';
@@ -61,7 +60,6 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
   required MangaCatalogFormValues values,
   required String id,
   required String title,
-  CatalogSeriesDetailsDto? series,
 }) {
   final normalizedTitle = title.trim();
   final publicationDate = values.publicationYear == null
@@ -73,14 +71,13 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
     originalPublisher: _optional(values.publisher),
     localizedPublisher: _optional(values.imprint),
     volumeNumber: int.tryParse(values.volumeNumber.trim()),
-    itemNumber: _optional(values.volumeNumber),
+    volumeName: _optional(values.seriesGroup),
     originalPublicationDate: publicationDate,
     localizedReleaseDate: values.releaseDate,
     isbn: _optional(values.isbn),
     language: _optional(values.language) ?? 'ja',
     country: _optional(values.country) ?? 'JP',
     genres: List<String>.unmodifiable(values.genres),
-    series: series ?? _manualSeries(values),
     seriesTitle: _optional(values.seriesTitle),
     editionTitle: _optional(values.releaseTitle),
     pageCount: values.pageCount,
@@ -103,27 +100,11 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
       if (_optional(values.country) case final country?) 'country': country,
       if (publicationDate != null)
         'publication_date': publicationDate.toIso8601String(),
-      if (_optional(values.seriesGroup) case final group?)
-        'series_group': group,
       if (_optional(values.backCoverImageUrl) case final backCover?)
         'back_cover_image_url': backCover,
       if (_optional(values.coverImageUrl) case final cover?)
         'cover_image_url': cover,
     },
-  );
-}
-
-CatalogSeriesDetailsDto? _manualSeries(MangaCatalogFormValues values) {
-  final title = _optional(values.seriesTitle);
-  final group = _optional(values.seriesGroup);
-  if (title == null && group == null && _optional(values.seriesId) == null) {
-    return null;
-  }
-  return CatalogSeriesDetailsDto(
-    seriesId: _optional(values.seriesId),
-    seriesTitle: title ?? group,
-    volumeName: group,
-    volumeNumber: _optional(values.volumeNumber),
   );
 }
 

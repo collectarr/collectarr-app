@@ -85,7 +85,7 @@ final class MangaCatalogLookup implements CatalogKindLookup {
 
   String? _itemNumber(CatalogItemDto item) {
     final metadata = MangaMetadata.fromJson(item.kindData);
-    return _text(metadata.itemNumber) ?? _text(item.payload['volume_number']);
+    return metadata.volumeNumber?.toString();
   }
 
   String? _text(Object? value) {

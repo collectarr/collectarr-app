@@ -111,9 +111,8 @@ class MangaMetadata implements JsonEncodable {
     this.translator,
     this.readingDirection = MangaReadingDirection.rightToLeft,
     this.relations = const [],
-    this.series,
     this.seriesTitle,
-    this.itemNumber,
+    this.volumeName,
     this.editionTitle,
     this.pageCount,
     this.imprint,
@@ -163,9 +162,8 @@ class MangaMetadata implements JsonEncodable {
   final String? translator;
   final MangaReadingDirection readingDirection;
   final List<String> relations;
-  final CatalogSeriesDetailsDto? series;
   final String? seriesTitle;
-  final String? itemNumber;
+  final String? volumeName;
   final String? editionTitle;
   final int? pageCount;
   final String? imprint;
@@ -195,7 +193,7 @@ class MangaMetadata implements JsonEncodable {
         if (originalPublisher != null) 'original_publisher': originalPublisher,
         if (localizedPublisher != null)
           'localized_publisher': localizedPublisher,
-        if (volumeNumber != null) 'volume_number': volumeNumber,
+        if (volumeNumber != null) 'volume_number': volumeNumber.toString(),
         if (totalVolumes != null) 'total_volumes': totalVolumes,
         if (chapterCount != null) 'chapter_count': chapterCount,
         if (originalPublicationDate != null)
@@ -213,10 +211,7 @@ class MangaMetadata implements JsonEncodable {
         'reading_direction': readingDirection.name,
         if (relations.isNotEmpty) 'relations': relations,
         if (seriesTitle != null) 'series_title': seriesTitle,
-        if (series != null && series!.hasData) ...{
-          'series': series!.toJson(),
-        },
-        if (itemNumber != null) 'item_number': itemNumber,
+        if (volumeName != null) 'volume_name': volumeName,
         if (editionTitle != null) 'edition_title': editionTitle,
         if (pageCount != null) 'page_count': pageCount,
         if (imprint != null) 'imprint': imprint,
@@ -268,9 +263,8 @@ class MangaMetadata implements JsonEncodable {
     String? translator,
     MangaReadingDirection? readingDirection,
     List<String>? relations,
-    CatalogSeriesDetailsDto? series,
     String? seriesTitle,
-    String? itemNumber,
+    String? volumeName,
     String? editionTitle,
     int? pageCount,
     String? imprint,
@@ -312,9 +306,8 @@ class MangaMetadata implements JsonEncodable {
       translator: translator ?? this.translator,
       readingDirection: readingDirection ?? this.readingDirection,
       relations: relations ?? this.relations,
-      series: series ?? this.series,
       seriesTitle: seriesTitle ?? this.seriesTitle,
-      itemNumber: itemNumber ?? this.itemNumber,
+      volumeName: volumeName ?? this.volumeName,
       editionTitle: editionTitle ?? this.editionTitle,
       pageCount: pageCount ?? this.pageCount,
       imprint: imprint ?? this.imprint,
@@ -329,13 +322,10 @@ class MangaMetadata implements JsonEncodable {
   }
 
   factory MangaMetadata.fromJson(Map<String, dynamic> json) {
-    final rawPayload = Map<String, dynamic>.from(json)..remove('editions');
-    final seriesRaw = json['series'];
-    final series = seriesRaw is Map
-        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
-        : null;
-    final resolvedSeriesTitle =
-        (json['series_title'] ?? series?.seriesTitle) as String?;
+    final rawPayload = Map<String, dynamic>.from(json)
+      ..remove('editions')
+      ..remove('series')
+      ..remove('item_number');
 
     final rawCreators = (json['creators'] as List<dynamic>?)
             ?.whereType<Map<Object?, Object?>>()
@@ -380,7 +370,7 @@ class MangaMetadata implements JsonEncodable {
           json['publication_status'] as String?),
       originalPublisher: json['original_publisher'] as String?,
       localizedPublisher: json['localized_publisher'] as String?,
-      volumeNumber: (json['volume_number'] as num?)?.toInt(),
+      volumeNumber: int.tryParse(json['volume_number']?.toString() ?? ''),
       totalVolumes: (json['total_volumes'] as num?)?.toInt(),
       chapterCount: (json['chapter_count'] as num?)?.toInt(),
       originalPublicationDate: json['original_publication_date'] != null
@@ -409,10 +399,8 @@ class MangaMetadata implements JsonEncodable {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      series: series,
-      seriesTitle: resolvedSeriesTitle,
-      itemNumber:
-          (json['item_number'] ?? json['volume_number']?.toString()) as String?,
+      seriesTitle: json['series_title'] as String?,
+      volumeName: json['volume_name'] as String?,
       editionTitle: json['edition_title'] as String?,
       pageCount: (json['page_count'] as num?)?.toInt(),
       imprint: json['imprint'] as String?,

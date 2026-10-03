@@ -33,9 +33,8 @@ final class MangaWorkspaceDto implements LibraryWorkspaceDto {
       metadata?.publisher ??
       metadata?.localizedPublisher ??
       metadata?.originalPublisher;
-  String? get seriesTitle =>
-      metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
-  String? get itemNumber => metadata?.itemNumber;
+  String? get seriesTitle => metadata?.seriesTitle;
+  String? get itemNumber => metadata?.volumeNumber?.toString();
   DateTime? get releaseDate =>
       metadata?.localizedReleaseDate ??
       metadata?.originalPublicationDate ??

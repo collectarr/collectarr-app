@@ -160,8 +160,7 @@ final mangaTransferableFields = <TransferableField>[
 
 Iterable<String?> mangaLinkedMetadataValues(MangaMetadata metadata) => [
       metadata.seriesTitle,
-      metadata.series?.seriesTitle,
-      metadata.itemNumber,
+      metadata.volumeNumber?.toString(),
       metadata.publisher,
       metadata.originalPublisher,
       metadata.localizedPublisher,
@@ -186,7 +185,7 @@ MetadataSearchQuery mangaMetadataSearchQuery({
   return MetadataSearchQuery(
     query: title,
     barcode: metadata?.barcode ?? metadata?.isbn,
-    issueNumber: metadata?.itemNumber,
+    issueNumber: metadata?.volumeNumber?.toString(),
     publisher: metadata?.publisher,
     year: (metadata?.localizedReleaseDate ?? metadata?.originalPublicationDate)
         ?.year,

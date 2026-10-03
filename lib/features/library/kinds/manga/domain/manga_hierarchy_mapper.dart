@@ -119,7 +119,7 @@ final class MangaHierarchyMapper {
   static int _volumeNumber(CatalogItemDto item) =>
       _intValue(
         item.payload['volume_number'] ??
-            MangaMetadata.fromJson(item.kindData).itemNumber,
+            MangaMetadata.fromJson(item.kindData).volumeNumber?.toString(),
       ) ??
       0;
 

@@ -19,8 +19,7 @@ final class MangaSerialAuthorityContributor
   ) sync* {
     for (final value in metadata) {
       if (value is! MangaMetadata) continue;
-      final title =
-          (value.seriesTitle ?? value.series?.seriesTitle ?? '').trim();
+      final title = (value.seriesTitle ?? '').trim();
       if (title.isEmpty) {
         final itemTitle = value.title.trim();
         if (itemTitle.isEmpty) continue;
@@ -35,7 +34,6 @@ final class MangaSerialAuthorityContributor
         mediaKind: kind,
         title: title,
         sortTitle: title,
-        coreSeriesId: value.series?.seriesId,
       );
     }
   }
@@ -66,21 +64,14 @@ final class MangaSerialAuthorityContributor
     for (final item in items) {
       if (!wanted.contains(item.id)) continue;
 
-      final payload = Map<String, dynamic>.from(item.payload)
-        ..['series_title'] = seriesTitle;
-      final series = <String, dynamic>{'series_title': seriesTitle};
-      if (coreSeriesId != null && coreSeriesId.trim().isNotEmpty) {
-        series['series_id'] = coreSeriesId;
-      }
-      payload['series'] = series;
+      final kindData = Map<String, dynamic>.from(item.kindData)
+        ..['series_title'] = seriesTitle
+        ..remove('series');
       await catalog.upsertTransportItems([
         CatalogItemDto.raw(
           id: item.id,
           mediaKind: kind,
-          kindData: {
-            ...item.kindData,
-            ...payload,
-          },
+          kindData: kindData,
         ),
       ]);
     }
@@ -92,14 +83,12 @@ final class MangaSerialAuthorityContributor
       'id': item.id,
       'title': item.title,
     });
-    final seriesTitle =
-        (metadata.seriesTitle ?? metadata.series?.seriesTitle)?.trim();
+    final seriesTitle = metadata.seriesTitle?.trim();
     return SerialAuthorityCatalogRecord(
       itemId: item.id,
       title: item.title,
       seriesTitle:
           seriesTitle == null || seriesTitle.isEmpty ? null : seriesTitle,
-      coreSeriesId: metadata.series?.seriesId,
     );
   }
 }

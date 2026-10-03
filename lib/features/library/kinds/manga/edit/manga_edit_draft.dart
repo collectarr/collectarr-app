@@ -399,7 +399,6 @@ class MangaEditDraft
     final updatedMetadata = meta.copyWith(
       pageCount: count ?? meta.pageCount,
       volumeNumber: volumeNumber ?? meta.volumeNumber,
-      itemNumber: volumeNumber?.toString() ?? meta.itemNumber,
       editionTitle: editionTitle ?? meta.editionTitle,
       variant: variant ?? meta.variant,
       imprint: impr ?? meta.imprint,
@@ -498,7 +497,7 @@ LibraryEditSessionBundle createMangaEditDraft({
       text: metadata.barcode ?? metadata.isbn ?? '',
     ),
     volumeNumberController: textControllers.create(
-      text: metadata.itemNumber ?? metadata.volumeNumber?.toString() ?? '',
+      text: metadata.volumeNumber?.toString() ?? '',
     ),
     editionTitleController: textControllers.create(
       text: metadata.editionTitle ?? '',

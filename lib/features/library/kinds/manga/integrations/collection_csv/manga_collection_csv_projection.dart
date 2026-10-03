@@ -120,7 +120,7 @@ final class MangaCollectionCsvProjection
       entry.itemId,
       CatalogMediaKind.manga.apiValue,
       metadata?.title ?? entry.title,
-      metadata?.itemNumber ?? '',
+      metadata?.volumeNumber?.toString() ?? '',
       metadata?.variant ?? '',
       metadata?.editionTitle ?? '',
       metadata?.physicalFormat ?? '',

@@ -65,9 +65,10 @@ class MangaLibraryMediaPresentationBuilder
     if (catalog is! MangaWorkspaceCatalogData) return const [];
     final item = catalog.metadata;
     final candidates = <LibraryDuplicateCandidate>[];
+    final volumeNumber = item.volumeNumber?.toString();
     final entryLabel = [
       item.title,
-      if (item.itemNumber?.trim() case final value? when value.isNotEmpty)
+      if (volumeNumber?.trim() case final value? when value.isNotEmpty)
         '#$value',
     ].join(' ');
     final identifier =
@@ -84,7 +85,7 @@ class MangaLibraryMediaPresentationBuilder
       );
     }
     final title = normalizeLibraryDuplicateToken(item.title);
-    final issue = normalizeLibraryDuplicateToken(item.itemNumber);
+    final issue = normalizeLibraryDuplicateToken(volumeNumber);
     if (title == null || issue == null) return candidates;
     final publisher = normalizeLibraryDuplicateToken(item.publisher) ?? '';
     final year = (item.localizedReleaseDate ?? item.originalPublicationDate)
@@ -94,7 +95,7 @@ class MangaLibraryMediaPresentationBuilder
     final variant = normalizeLibraryDuplicateToken(item.variant) ?? '';
     final labelParts = [
       item.title,
-      '#${item.itemNumber!.trim()}',
+      '#${volumeNumber!.trim()}',
       if (item.publisher?.trim() case final value? when value.isNotEmpty) value,
       if (year.isNotEmpty) year,
       if (item.variant?.trim() case final value? when value.isNotEmpty) value,
@@ -207,14 +208,12 @@ class MangaLibraryMediaPresentationBuilder
     final catalog = item.source.catalogData;
     final metadata =
         catalog is MangaWorkspaceCatalogData ? catalog.metadata : null;
-    final series = metadata?.series;
     const String? musicCatalogNumber = null;
     const String? musicAlbumStatus = null;
     const String? ageRating = null;
     const String? audienceRating = null;
-    final hasVolume = series?.hasVolume ?? false;
-    final hasSeason = series?.hasSeason ?? false;
-    final hasEpisode = series?.hasEpisode ?? false;
+    final hasVolume = metadata?.volumeName?.trim().isNotEmpty == true ||
+        metadata?.volumeNumber != null;
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
@@ -223,29 +222,16 @@ class MangaLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
-        if (series?.seriesTitle != null)
+        if (metadata?.seriesTitle != null)
           LibraryDetailField(
               label: 'Series',
-              value: series!.seriesTitle!,
-              onTap: tapFor(series.seriesTitle)),
-        if (hasVolume && !hasSeason)
+              value: metadata!.seriesTitle!,
+              onTap: tapFor(metadata.seriesTitle)),
+        if (hasVolume)
           LibraryDetailField(
               label: 'Volume',
-              value: series!.volumeName ??
-                  _mangaVolumeLabel(series.volumeNumber != null
-                      ? double.tryParse(series.volumeNumber!)
-                      : null)),
-        if (hasSeason && hasEpisode)
-          LibraryDetailField(
-              label: 'Season / Episode',
-              value:
-                  'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}'),
-        if (hasSeason && !hasEpisode)
-          LibraryDetailField(
-              label: 'Season', value: 'Season ${series!.seasonNumber}'),
-        if (hasEpisode && !hasSeason)
-          LibraryDetailField(
-              label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
+              value: metadata?.volumeName ??
+                  _mangaVolumeLabel(metadata?.volumeNumber?.toDouble())),
         LibraryDetailField(
             label: itemNumberLabel,
             value: genericLibraryDash(itemNumber),

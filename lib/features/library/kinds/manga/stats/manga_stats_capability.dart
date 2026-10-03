@@ -25,9 +25,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
     final catalog = entry.catalogData;
     final metadata = _mangaMetadata(entry);
     if (catalog == null || metadata == null) return null;
-    final primary =
-        (metadata.seriesTitle ?? metadata.series?.seriesTitle ?? catalog.title)
-            .trim();
+    final primary = (metadata.seriesTitle ?? catalog.title).trim();
     final secondary = (metadata.publisher ??
             metadata.originalPublisher ??
             metadata.localizedPublisher)
@@ -43,10 +41,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
       hasReleaseDate: metadata.localizedReleaseDate != null ||
           metadata.originalPublicationDate != null ||
           catalog.releaseDate != null,
-      hasItemNumber: (metadata.itemNumber ?? metadata.volumeNumber?.toString())
-              ?.trim()
-              .isNotEmpty ==
-          true,
+      hasItemNumber: metadata.volumeNumber != null,
     );
   }
 
@@ -124,22 +119,11 @@ class MangaStatsCapability implements LibraryStatsCapability {
   }
 
   static String? _seriesTitle(MangaMetadata metadata) {
-    final title = metadata.seriesTitle ?? metadata.series?.seriesTitle;
-    final trimmed = title?.trim();
+    final trimmed = metadata.seriesTitle?.trim();
     return trimmed == null || trimmed.isEmpty ? null : trimmed;
   }
 
-  static int? _volumeNumber(MangaMetadata metadata) {
-    if (metadata.volumeNumber != null) return metadata.volumeNumber;
-    final seriesNumber = metadata.series?.volumeNumber;
-    if (seriesNumber != null) {
-      final parsed = int.tryParse(seriesNumber.trim());
-      if (parsed != null) return parsed;
-    }
-    final itemNumber = metadata.itemNumber?.trim();
-    if (itemNumber == null || itemNumber.isEmpty) return null;
-    return int.tryParse(itemNumber);
-  }
+  static int? _volumeNumber(MangaMetadata metadata) => metadata.volumeNumber;
 }
 
 class _MissingNumberSummary {
