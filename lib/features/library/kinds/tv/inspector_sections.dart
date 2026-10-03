@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/kinds/tv/inspector/session_histo
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/hierarchy/tv_upcoming_episodes_section.dart';
-import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';

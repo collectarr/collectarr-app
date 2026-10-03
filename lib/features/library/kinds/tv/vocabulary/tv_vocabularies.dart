@@ -156,7 +156,7 @@ abstract final class TvVocabularies {
   static const physicalFormat = VocabularyDefinition<String>(
     id: TvVocabularyIds.physicalFormat,
     label: 'Format',
-    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(
       _physicalFormatCatalogValues,
     ),
     builtIns: [
@@ -170,8 +170,7 @@ abstract final class TvVocabularies {
   static const region = VocabularyDefinition<String>(
     id: TvVocabularyIds.region,
     label: 'Region',
-    valuesFrom:
-        TypedVocabularyProjector<TvSeriesMetadata>(_regionCatalogValues),
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(_regionCatalogValues),
     builtIns: [
       'Region A / Region 1',
       'Region B / Region 2',
@@ -183,7 +182,7 @@ abstract final class TvVocabularies {
   static const packaging = VocabularyDefinition<String>(
     id: TvVocabularyIds.packaging,
     label: 'Packaging',
-    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(
       _packagingCatalogValues,
     ),
     builtIns: [
@@ -199,7 +198,7 @@ abstract final class TvVocabularies {
   static const distributor = VocabularyDefinition<String>(
     id: TvVocabularyIds.distributor,
     label: 'Distributor / Studio',
-    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(
       _distributorCatalogValues,
     ),
     builtIns: [
@@ -216,7 +215,7 @@ abstract final class TvVocabularies {
   static const screenRatio = VocabularyDefinition<String>(
     id: TvVocabularyIds.screenRatio,
     label: 'Screen Ratio',
-    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(
       _screenRatioCatalogValues,
     ),
     builtIns: [
@@ -230,7 +229,7 @@ abstract final class TvVocabularies {
   static const audio = VocabularyDefinition<String>(
     id: TvVocabularyIds.audio,
     label: 'Audio',
-    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(_audioCatalogValues),
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(_audioCatalogValues),
     builtIns: [
       'Dolby Atmos',
       'DTS-HD Master Audio 5.1',
@@ -243,7 +242,7 @@ abstract final class TvVocabularies {
   static const subtitles = VocabularyDefinition<String>(
     id: TvVocabularyIds.subtitles,
     label: 'Subtitles',
-    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(
       _subtitlesCatalogValues,
     ),
     builtIns: [
@@ -258,8 +257,7 @@ abstract final class TvVocabularies {
   static const network = VocabularyDefinition<String>(
     id: TvVocabularyIds.network,
     label: 'Original Network',
-    valuesFrom:
-        TypedVocabularyProjector<TvSeriesMetadata>(_networkCatalogValues),
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(_networkCatalogValues),
     builtIns: [
       'HBO',
       'Netflix',
@@ -293,7 +291,7 @@ abstract final class TvVocabularies {
 }
 
 Iterable<String?> _physicalFormatCatalogValues(
-  TvSeriesMetadata metadata,
+  TvMetadata metadata,
 ) sync* {
   yield* vocabularyValues([
     metadata.physicalFormatLabel,
@@ -302,42 +300,42 @@ Iterable<String?> _physicalFormatCatalogValues(
   ]);
 }
 
-Iterable<String?> _regionCatalogValues(TvSeriesMetadata metadata) {
+Iterable<String?> _regionCatalogValues(TvMetadata metadata) {
   return vocabularyValues([
     metadata.region,
     metadata.media.map((media) => media.regionCode),
   ]);
 }
 
-Iterable<String?> _packagingCatalogValues(TvSeriesMetadata metadata) {
+Iterable<String?> _packagingCatalogValues(TvMetadata metadata) {
   return vocabularyValues([metadata.packaging]);
 }
 
-Iterable<String?> _distributorCatalogValues(TvSeriesMetadata metadata) {
+Iterable<String?> _distributorCatalogValues(TvMetadata metadata) {
   return vocabularyValues([metadata.distributor]);
 }
 
-Iterable<String?> _screenRatioCatalogValues(TvSeriesMetadata metadata) {
+Iterable<String?> _screenRatioCatalogValues(TvMetadata metadata) {
   return vocabularyValues([
     metadata.screenRatio,
     metadata.media.map((media) => media.aspectRatio),
   ]);
 }
 
-Iterable<String?> _audioCatalogValues(TvSeriesMetadata metadata) {
+Iterable<String?> _audioCatalogValues(TvMetadata metadata) {
   return vocabularyValues([
     metadata.audioTracks,
     metadata.media.map((media) => media.audioTracks),
   ]);
 }
 
-Iterable<String?> _subtitlesCatalogValues(TvSeriesMetadata metadata) {
+Iterable<String?> _subtitlesCatalogValues(TvMetadata metadata) {
   return vocabularyValues([
     metadata.subtitles,
     metadata.media.map((media) => media.subtitles),
   ]);
 }
 
-Iterable<String?> _networkCatalogValues(TvSeriesMetadata metadata) {
+Iterable<String?> _networkCatalogValues(TvMetadata metadata) {
   return vocabularyValues([metadata.network]);
 }

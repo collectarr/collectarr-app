@@ -24,7 +24,7 @@ class TvEditLinksTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final catalogLinks = item.kindCapability.mapTransport(
-      (transport) => TvSeriesMetadata.fromJson(transport.kindData).links,
+      (transport) => TvMetadata.fromJson(transport.kindData).links,
     );
     return EditTabShell(
       children: [

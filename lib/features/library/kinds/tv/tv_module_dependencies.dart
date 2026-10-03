@@ -23,7 +23,6 @@ export 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
 export 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_pane.dart';
 export 'package:collectarr_app/features/library/kinds/tv/add/tv_catalog_candidate_projection.dart';
-export 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/tv/detail/tv_video_detail_contribution.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';

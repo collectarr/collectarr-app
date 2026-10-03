@@ -192,9 +192,4 @@ int? _int(Object? value) {
   return int.tryParse(value?.toString().trim() ?? '');
 }
 
-double? _number(Object? value) {
-  if (value is num) return value.toDouble();
-  return double.tryParse(value?.toString().trim() ?? '');
-}
-
 DateTime? _date(Object? value) => DateTime.tryParse(value?.toString() ?? '');

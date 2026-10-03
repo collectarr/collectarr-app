@@ -76,8 +76,8 @@ final class TvCatalogLookup implements CatalogKindLookup {
   Future<List<CatalogItemDto>> _items() =>
       CatalogItemCacheRepository(_db).findAll(kind: kind);
 
-  TvSeriesMetadata _metadata(CatalogItemDto item) =>
-      TvSeriesMetadata.fromJson(item.kindData);
+  TvMetadata _metadata(CatalogItemDto item) =>
+      TvMetadata.fromJson(item.kindData);
 
   bool _same(String? value, String normalized) =>
       value != null && normalizeCatalogLookupValue(value) == normalized;

@@ -6,7 +6,7 @@ final class TvCatalogFields {
   const TvCatalogFields._(this._candidate, this._metadata);
 
   final CatalogSearchCandidate _candidate;
-  final TvSeriesMetadata? _metadata;
+  final TvMetadata? _metadata;
 
   String get title => _candidate.summary.primaryLabel;
   String? get displayTitle => _metadata?.displayTitle;
@@ -37,7 +37,7 @@ extension TvCatalogCandidateFields on CatalogSearchCandidate {
   TvCatalogFields get tvCatalogFields {
     try {
       final metadata = kindCapability.mapTransport(
-        (item) => TvSeriesMetadata.fromJson(item.kindData),
+        (item) => TvMetadata.fromJson(item.kindData),
       );
       return TvCatalogFields._(this, metadata);
     } on StateError {

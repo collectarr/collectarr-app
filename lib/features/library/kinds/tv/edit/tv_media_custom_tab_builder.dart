@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/domain/library_entity_scope.dart
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft_contract.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_crew_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_discs_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_edition_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_media_tab.dart';
@@ -51,10 +50,6 @@ Widget? buildTvMediaCustomTabView({
         accent: accent,
         tvEdit: tvEdit,
         markDirty: markDirty,
-      ),
-    'discs' => TvEditDiscsTab(
-        item: item,
-        accent: accent,
       ),
     'links' => TvEditLinksTab(
         item: item,

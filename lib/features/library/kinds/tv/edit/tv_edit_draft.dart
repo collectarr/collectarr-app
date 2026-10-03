@@ -10,9 +10,8 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
@@ -59,7 +58,7 @@ class TvEditDraft
     required this.episodeNumberController,
     required this.episodeRatings,
     required this.tvEdit,
-    required this.releaseMediaEdit,
+    required this.mediaEdit,
   });
 
   final TvLibraryEntry? libraryEntry;
@@ -94,7 +93,7 @@ class TvEditDraft
   final Map<String, int> episodeRatings;
   @override
   final TvEditController tvEdit;
-  final TvReleaseMediaEditController releaseMediaEdit;
+  final TvMediaEditController mediaEdit;
 
   @override
   JsonEncodable toDetailsDraft() => TvEntryDetailsDraft(
@@ -204,7 +203,7 @@ class TvEditDraft
     return selection.copyWith(
       kindItem: CatalogSearchCandidate.fromItem(
           selection.kindItem.kindCapability.mapTransport((transport) {
-        final metadata = TvSeriesMetadata.fromJson(transport.kindData);
+        final metadata = TvMetadata.fromJson(transport.kindData);
         final edited = metadata.copyWith(
           title: fields.controller(TvCanonicalEditField.title).text.trim(),
           displayTitle: emptyToNull(
@@ -224,7 +223,7 @@ class TvEditDraft
             fields.controller(TvCanonicalEditField.sortTitle).text,
           ),
         );
-        final updated = TvSeriesMetadata.fromJson(applyJsonFieldPatch(edited, {
+        final updated = TvMetadata.fromJson(applyJsonFieldPatch(edited, {
           'display_title': emptyToNull(
             fields.controller(TvCanonicalEditField.displayTitle).text,
           ),
@@ -350,8 +349,8 @@ class TvEditDraft
     var result = selection;
     final seasonNumber = int.tryParse(seasonNumberController.text);
     final episodeNumber = int.tryParse(episodeNumberController.text);
-    final metadata = result.kindItem.kindCapability.mapTransport(
-        (transport) => TvSeriesMetadata.fromJson(transport.kindData));
+    final metadata = result.kindItem.kindCapability
+        .mapTransport((transport) => TvMetadata.fromJson(transport.kindData));
     final parsedGenres = tvEdit.genresEditController.text
         .split(RegExp(r'[,\r\n]+'))
         .map((value) => value.trim())
@@ -434,8 +433,8 @@ LibraryEditSessionBundle createTvEditDraft({
 }) {
   final entry = TvLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
   final video = entry?.personal.details;
-  final metadata = item.kindCapability.mapTransport(
-      (transport) => TvSeriesMetadata.fromJson(transport.kindData));
+  final metadata = item.kindCapability
+      .mapTransport((transport) => TvMetadata.fromJson(transport.kindData));
   final tv = metadata;
   final tvEdit = TvEditController(
     itemId: item.reference.id,
@@ -464,7 +463,7 @@ LibraryEditSessionBundle createTvEditDraft({
     ],
     initialTrailerLinks: tv.links,
   );
-  final releaseMediaEdit = TvReleaseMediaEditController(
+  final mediaEdit = TvMediaEditController(
     item: item.kindCapability.mapTransport((transport) => transport),
     initialDiscCount: tv.media.length,
   );
@@ -493,7 +492,7 @@ LibraryEditSessionBundle createTvEditDraft({
     ),
     episodeRatings: const <String, int>{},
     tvEdit: tvEdit,
-    releaseMediaEdit: releaseMediaEdit,
+    mediaEdit: mediaEdit,
   );
   return LibraryEditSessionBundle(
     catalogItemSession: draft,

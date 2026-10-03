@@ -1,12 +1,11 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -14,19 +13,19 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TvEpisodeDiscMapTab extends ConsumerWidget {
-  const TvEpisodeDiscMapTab({
+class TvEpisodeMediaMapTab extends ConsumerWidget {
+  const TvEpisodeMediaMapTab({
     super.key,
     required this.type,
     required this.item,
     required this.accent,
-    required this.releaseMediaEdit,
+    required this.mediaEdit,
   });
 
   final LibraryKindRegistration type;
   final CatalogItemDto item;
   final Color accent;
-  final TvReleaseMediaEditController releaseMediaEdit;
+  final TvMediaEditController mediaEdit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,19 +42,19 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
         EditSection(
           title: 'Episode map',
           accent: accent,
-          child: FutureBuilder<TvSeries?>(
-            future: releaseMediaEdit.tvSeriesFuture ??=
-                releaseMediaEdit.loadTvSeriesSnapshot(),
+          child: FutureBuilder<TvMetadata?>(
+            future: mediaEdit.metadataFuture ??=
+                mediaEdit.loadMetadataSnapshot(),
             builder: (context, snapshot) {
-              final series = snapshot.data ?? releaseMediaEdit.tvSeriesSnapshot;
+              final metadata = snapshot.data ?? mediaEdit.metadataSnapshot;
               if (snapshot.connectionState == ConnectionState.waiting &&
-                  series == null) {
+                  metadata == null) {
                 return const EditSectionStateMessage(
                   message: 'Loading TV episodes...',
                   icon: Icons.hourglass_empty,
                 );
               }
-              if (series == null) {
+              if (metadata == null) {
                 return _manualEpisodeFallbackSection(
                   context,
                   accent: accent,
@@ -65,7 +64,7 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                   ref: ref,
                 );
               }
-              final episodes = releaseMediaEdit.flattenTvEpisodes(series);
+              final episodes = mediaEdit.flattenTvEpisodes(metadata);
               if (episodes.isEmpty) {
                 return _manualEpisodeFallbackSection(
                   context,
@@ -77,11 +76,11 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                 );
               }
               final discNumbers = <int>{
-                for (final media in releaseMediaEdit.tvReleaseMediaDraft)
-                  media.mediaNumber ?? 1,
-                if (releaseMediaEdit.tvReleaseMediaDraft.isEmpty) 1,
+                for (final media in mediaEdit.tvMediaDraft)
+                  media.mediaNumber ?? media.position,
+                if (mediaEdit.tvMediaDraft.isEmpty) 1,
                 for (final assignment
-                    in releaseMediaEdit.tvEpisodeDiscAssignments.values)
+                    in mediaEdit.tvEpisodeDiscAssignments.values)
                   assignment,
               }.toList()
                 ..sort();
@@ -94,12 +93,10 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                     icon: Icons.info_outline,
                   ),
                   const SizedBox(height: 12),
-                  for (final season in series.seasons.isNotEmpty
-                      ? series.seasons
-                      : <TvSeason>[
-                          TvSeason(
-                            id: '${series.id}:season:1',
-                            seriesId: series.id,
+                  for (final season in metadata.seasonsWithEpisodes.isNotEmpty
+                      ? metadata.seasonsWithEpisodes
+                      : <TvSeasonMetadata>[
+                          TvSeasonMetadata(
                             seasonNumber: 1,
                             episodes: episodes,
                           ),
@@ -137,8 +134,10 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                                       Expanded(
                                         flex: 4,
                                         child: Text(
-                                          releaseMediaEdit
-                                              .tvEpisodeLabel(episode),
+                                          mediaEdit.tvEpisodeLabel(
+                                            episode,
+                                            seasonNumber: season.seasonNumber,
+                                          ),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
@@ -147,9 +146,10 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                                         flex: 2,
                                         child: LibraryDropdownPickField<int>(
                                           label: 'Disc',
-                                          value: releaseMediaEdit
-                                                      .tvEpisodeDiscAssignments[
-                                                  episode.id] ??
+                                          value: mediaEdit
+                                                  .tvEpisodeDiscAssignments[episode
+                                                      .id ??
+                                                  '${season.seasonNumber}:${episode.episodeNumber ?? episode.position}'] ??
                                               (discNumbers.isEmpty
                                                   ? 1
                                                   : discNumbers.first),
@@ -174,15 +174,16 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                                             if (value == null) {
                                               return;
                                             }
-                                            releaseMediaEdit
+                                            mediaEdit
                                                 .updateTvEpisodeDiscAssignment(
-                                              episode.id,
+                                              episode.id ??
+                                                  '${season.seasonNumber}:${episode.episodeNumber ?? episode.position}',
                                               seasonNumber:
-                                                  episode.seasonNumber ?? 0,
-                                              episodeNumber: episode
-                                                      .episodeNumber
-                                                      ?.toInt() ??
-                                                  0,
+                                                  episode.seasonNumber ??
+                                                      season.seasonNumber,
+                                              episodeNumber:
+                                                  episode.episodeNumber ??
+                                                      episode.position,
                                               discNumber: value,
                                             );
                                           },
@@ -227,7 +228,7 @@ Widget _manualEpisodeFallbackSection(
     children: [
       const EditSectionStateMessage(
         message:
-            'No provider TV series data is available yet. Add custom episodes manually below.',
+            'No Core TV catalog data is available yet. Add custom episodes manually below.',
         icon: Icons.edit_note,
       ),
       const SizedBox(height: 12),

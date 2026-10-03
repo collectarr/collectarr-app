@@ -3,11 +3,11 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 
 final class TvAddManualDraft implements LibraryKindAddDraft {
   TvAddManualDraft({
-    TvSeriesMetadata? metadata,
+    TvMetadata? metadata,
     this.catalogTitle = '',
-  }) : metadata = metadata ?? const TvSeriesMetadata(title: '');
+  }) : metadata = metadata ?? const TvMetadata(title: '');
 
-  TvSeriesMetadata metadata;
+  TvMetadata metadata;
   @override
   String catalogTitle;
 

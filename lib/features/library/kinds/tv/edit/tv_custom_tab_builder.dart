@@ -2,9 +2,9 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_custom_tab_builder.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episode_disc_map_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episode_media_map_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episodes_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_release_media_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_catalog_media_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
 import 'package:flutter/material.dart';
 
@@ -29,23 +29,23 @@ Widget? buildTvCustomTabView({
       markDirty: markDirty,
     );
   }
-  final releaseMediaEdit = tvDraft.releaseMediaEdit;
+  final mediaEdit = tvDraft.mediaEdit;
   return switch (tabId) {
     'episodes' || 'tv_episodes' => TvEpisodesTab(
         type: draft.type,
         item: item.kindCapability.mapTransport((transport) => transport),
         accent: accent,
-        releaseMediaEdit: releaseMediaEdit,
+        mediaEdit: mediaEdit,
       ),
-    'release_media' => TvReleaseMediaTab(
+    'catalog_media' => TvCatalogMediaTab(
         accent: accent,
-        releaseMediaEdit: releaseMediaEdit,
+        mediaEdit: mediaEdit,
       ),
-    'episode_map' => TvEpisodeDiscMapTab(
+    'episode_media_map' => TvEpisodeMediaMapTab(
         type: draft.type,
         item: item.kindCapability.mapTransport((transport) => transport),
         accent: accent,
-        releaseMediaEdit: releaseMediaEdit,
+        mediaEdit: mediaEdit,
       ),
     _ => buildTvMediaCustomTabView(
         tabId: tabId,

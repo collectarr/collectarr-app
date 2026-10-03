@@ -108,8 +108,8 @@ class TvLibraryMediaPresentationBuilder
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
       hydrated.kindCapability.mapTransport((transport) {
-        final metadata = TvSeriesMetadata.fromJson(transport.kindData);
-        final updated = TvSeriesMetadata.fromJson(applyJsonFieldPatch(
+        final metadata = TvMetadata.fromJson(transport.kindData);
+        final updated = TvMetadata.fromJson(applyJsonFieldPatch(
           metadata,
           {
             'cover_image_url': coverImageUrl,

@@ -6,16 +6,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'tv_tracking_state.dart';
 import 'tv_tracking_state_codec.dart';
 
-/// Loads the complete TV tracking aggregate for a series at the TV boundary.
+/// Loads the complete TV tracking aggregate for a Catalog Item at the TV boundary.
 ///
 /// Generic Collection exposes only [TrackingSummary]. Episode ratings are TV
 /// semantics, so the TV inspector resolves its concrete lifecycle locally.
-final tvTrackingStateBySeriesIdProvider =
+final tvTrackingStateByCatalogItemIdProvider =
     FutureProvider.autoDispose.family<TvTrackingState?, String>(
-  (ref, seriesId) async {
+  (ref, catalogItemId) async {
     final libraryEntryRef = LibraryEntryRef(
       kind: CatalogMediaKind.tv,
-      id: LibraryEntryId(seriesId),
+      id: LibraryEntryId(catalogItemId),
     );
     final entries = await TvTrackingStateCodec().listFromStorage(
       ref.watch(localDatabaseProvider),

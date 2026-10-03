@@ -73,7 +73,7 @@ class _TvTrackingEditorExtensionState
   Widget build(BuildContext context) {
     final lifecycle = ref
         .watch(
-          tvTrackingStateBySeriesIdProvider(
+          tvTrackingStateByCatalogItemIdProvider(
             widget.summary.libraryEntryRef.id.value,
           ),
         )

@@ -104,7 +104,7 @@ class TvStatsCapability implements LibraryStatsCapability {
     return best;
   }
 
-  static TvSeriesMetadata? _metadata(LibraryWorkspaceSource entry) {
+  static TvMetadata? _metadata(LibraryWorkspaceSource entry) {
     final catalog = entry.catalogData;
     return catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
   }

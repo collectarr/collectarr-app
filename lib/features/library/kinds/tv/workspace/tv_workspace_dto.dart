@@ -11,7 +11,7 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
 
   final WorkspaceCommonProjection common;
   final PersonalCopyProjection personal;
-  final TvSeriesMetadata metadata;
+  final TvMetadata metadata;
 
   String get title => common.title;
   String? get coverImageUrl => common.coverImageUrl;

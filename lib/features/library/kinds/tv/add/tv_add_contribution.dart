@@ -58,7 +58,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
             containsWeight: 48,
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
-                  (transport) => TvSeriesMetadata.fromJson(transport.kindData));
+                  (transport) => TvMetadata.fromJson(transport.kindData));
               return [metadata.seriesTitle];
             },
           ),
@@ -68,7 +68,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
             containsWeight: 24,
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
-                  (transport) => TvSeriesMetadata.fromJson(transport.kindData));
+                  (transport) => TvMetadata.fromJson(transport.kindData));
               return [
                 metadata.publisher,
                 metadata.network,
@@ -83,7 +83,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
             containsWeight: 20,
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
-                  (transport) => TvSeriesMetadata.fromJson(transport.kindData));
+                  (transport) => TvMetadata.fromJson(transport.kindData));
               return [
                 metadata.firstAirDate?.year,
                 metadata.lastAirDate?.year,
@@ -112,8 +112,12 @@ Future<List<LibraryHierarchyNode>> fetchTvSeasons({
   final item = await api
       .getCatalogItemJson(kind: CatalogMediaKind.tv, id: itemId)
       .timeout(const Duration(seconds: 60));
-  final series = TvCoreMapper.fromCatalogItemJson(item);
-  return TvHierarchyMapper.toLibraryNodes(series.seasons);
+  final catalogItem = CatalogItemDto.fromJson(item);
+  if (catalogItem.mediaKind != CatalogMediaKind.tv) {
+    throw StateError('TV hierarchy received ${catalogItem.kind} data');
+  }
+  final metadata = TvMetadata.fromJson(catalogItem.kindData);
+  return TvHierarchyMapper.toLibraryNodes(metadata.seasonsWithEpisodes);
 }
 
 List<LibraryAddAdvancedFilterField<String>> buildTvAddAdvancedFilterFields(

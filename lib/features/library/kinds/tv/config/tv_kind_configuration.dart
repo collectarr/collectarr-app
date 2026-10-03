@@ -142,7 +142,7 @@ final tvTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
+Iterable<String?> tvLinkedMetadataValues(TvMetadata metadata) => [
       metadata.seriesTitle,
       metadata.itemNumber,
       metadata.publisher,
@@ -155,7 +155,7 @@ Iterable<String?> tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
       ...metadata.genres,
     ];
 
-TvSeriesMetadata? tvLinkedMetadata(LibraryWorkspaceSource source) {
+TvMetadata? tvLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
 }

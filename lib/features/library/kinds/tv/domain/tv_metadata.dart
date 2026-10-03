@@ -433,8 +433,8 @@ class TvMediaMetadata implements JsonEncodable {
 }
 
 @immutable
-class TvSeriesMetadata implements JsonEncodable {
-  const TvSeriesMetadata({
+class TvMetadata implements JsonEncodable {
+  const TvMetadata({
     required this.title,
     this.displayTitle,
     this.originalTitle,
@@ -572,6 +572,39 @@ class TvSeriesMetadata implements JsonEncodable {
 
   DateTime? get releaseDate => releaseDateParts?.asDateTime;
 
+  /// Returns seasons with root-level episode records merged into their season.
+  ///
+  /// Core responses may provide episodes either nested under seasons or in the
+  /// root episode list. The UI consumes one ordered season projection while
+  /// the transport model preserves both document fields as received.
+  List<TvSeasonMetadata> get seasonsWithEpisodes {
+    if (episodes.isEmpty) return seasons;
+
+    final seasonsByNumber = <int, TvSeasonMetadata>{
+      for (final season in seasons) season.seasonNumber: season,
+    };
+    final rootEpisodesBySeason = <int, List<TvEpisodeMetadata>>{};
+    for (final episode in episodes) {
+      rootEpisodesBySeason
+          .putIfAbsent(episode.seasonNumber ?? 0, () => <TvEpisodeMetadata>[])
+          .add(episode);
+    }
+    final seasonNumbers = <int>{
+      ...seasonsByNumber.keys,
+      ...rootEpisodesBySeason.keys,
+    }.toList()
+      ..sort();
+
+    return [
+      for (final seasonNumber in seasonNumbers)
+        _mergeRootEpisodesIntoSeason(
+          seasonsByNumber[seasonNumber],
+          rootEpisodesBySeason[seasonNumber] ?? const [],
+          seasonNumber,
+        ),
+    ];
+  }
+
   @override
   Map<String, dynamic> toJson() => {
         'title': title,
@@ -664,7 +697,7 @@ class TvSeriesMetadata implements JsonEncodable {
         },
       };
 
-  TvSeriesMetadata copyWith({
+  TvMetadata copyWith({
     String? title,
     String? displayTitle,
     String? originalTitle,
@@ -733,7 +766,7 @@ class TvSeriesMetadata implements JsonEncodable {
         (cast == null && crew == null
             ? this.creators
             : [...cast ?? this.cast, ...crew ?? this.crew]);
-    return TvSeriesMetadata(
+    return TvMetadata(
       title: title ?? this.title,
       displayTitle: displayTitle ?? this.displayTitle,
       originalTitle: originalTitle ?? this.originalTitle,
@@ -799,7 +832,7 @@ class TvSeriesMetadata implements JsonEncodable {
     );
   }
 
-  factory TvSeriesMetadata.fromJson(Map<String, dynamic> json) {
+  factory TvMetadata.fromJson(Map<String, dynamic> json) {
     final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
@@ -817,7 +850,7 @@ class TvSeriesMetadata implements JsonEncodable {
     final resolvedEpisodeNumber = (json['episode_number'] as num?)?.toInt();
     final resolvedSeriesTitle = json['series_title'] as String?;
 
-    return TvSeriesMetadata(
+    return TvMetadata(
       title: (json['title'] as String?) ?? '',
       displayTitle: json['display_title'] as String?,
       originalTitle: json['original_title'] as String?,
@@ -924,6 +957,41 @@ class TvSeriesMetadata implements JsonEncodable {
     );
   }
 }
+
+TvSeasonMetadata _mergeRootEpisodesIntoSeason(
+  TvSeasonMetadata? season,
+  List<TvEpisodeMetadata> rootEpisodes,
+  int seasonNumber,
+) {
+  if (season == null) {
+    return TvSeasonMetadata(
+      seasonNumber: seasonNumber,
+      episodes: List<TvEpisodeMetadata>.unmodifiable(rootEpisodes),
+    );
+  }
+  final seen = <String>{
+    for (final episode in season.episodes) _episodeIdentity(episode),
+  };
+  final mergedEpisodes = [
+    ...season.episodes,
+    for (final episode in rootEpisodes)
+      if (seen.add(_episodeIdentity(episode))) episode,
+  ];
+  return TvSeasonMetadata(
+    seasonNumber: season.seasonNumber,
+    id: season.id,
+    title: season.title,
+    description: season.description,
+    airDate: season.airDate,
+    releaseDate: season.releaseDate,
+    episodeCount: season.episodeCount,
+    episodes: List<TvEpisodeMetadata>.unmodifiable(mergedEpisodes),
+  );
+}
+
+String _episodeIdentity(TvEpisodeMetadata episode) =>
+    episode.id ??
+    '${episode.seasonNumber ?? 0}:${episode.episodeNumber ?? episode.position}';
 
 List<String> _stringValues(Object? value, String label) {
   if (value == null) return const [];

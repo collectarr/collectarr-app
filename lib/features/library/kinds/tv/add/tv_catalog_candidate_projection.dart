@@ -6,7 +6,7 @@ CatalogSearchCandidate tvCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
 ) {
   return item.kindCapability.mapTransport((transport) {
-    final metadata = TvSeriesMetadata.fromJson(
+    final metadata = TvMetadata.fromJson(
       catalogTransportPayloadFor(transport),
     );
     return item.kindCapability.replacingKindData(metadata);

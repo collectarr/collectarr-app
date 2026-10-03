@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_personal_data.dart';
 import 'package:flutter/foundation.dart';
@@ -21,7 +20,7 @@ final class TvLibraryEntry implements JsonEncodable {
   });
 
   final LibraryEntryId id;
-  final TvSeriesMetadata metadata;
+  final TvMetadata metadata;
   final CatalogItemRef? sourceCatalogRef;
   final TvPersonalData personal;
 
@@ -69,7 +68,7 @@ final class TvLibraryEntry implements JsonEncodable {
 
     return TvLibraryEntry(
       id: LibraryEntryId(json['id'] as String),
-      metadata: TvSeriesMetadata.fromJson(
+      metadata: TvMetadata.fromJson(
         Map<String, dynamic>.from(rawCatalogData),
       ),
       personal: TvPersonalData.fromJson(json),
@@ -85,7 +84,7 @@ final class TvLibraryEntry implements JsonEncodable {
 
   TvLibraryEntry copyWith({
     LibraryEntryId? id,
-    TvSeriesMetadata? metadata,
+    TvMetadata? metadata,
     TvPersonalData? personal,
     Object? createdAt = _unset,
     DateTime? updatedAt,

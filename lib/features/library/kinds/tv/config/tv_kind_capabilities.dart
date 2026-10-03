@@ -82,7 +82,7 @@ final tvKindIdentity = const LibraryKindIdentity(
 );
 
 final tvKindMetadata = const LibraryMetadataCapability(
-  catalogMetadataDecoder: TvSeriesMetadata.fromJson,
+  catalogMetadataDecoder: TvMetadata.fromJson,
   searchQueryBuilder: tvMetadataSearchQuery,
 );
 
@@ -135,8 +135,7 @@ final tvKindInspector = LibraryInspectorCapability(
   ),
 );
 
-final tvKindLinkedMetadata =
-    TypedLibraryLinkedMetadataCapability<TvSeriesMetadata>(
+final tvKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<TvMetadata>(
   tvLinkedMetadata,
   tvLinkedMetadataValues,
 );

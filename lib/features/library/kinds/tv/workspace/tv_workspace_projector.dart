@@ -39,7 +39,7 @@ TvWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
 WorkspaceCommonProjection _tvCommonProjection(
   LibraryWorkspaceSource source,
   LibraryEntityRef node,
-  TvSeriesMetadata metadata,
+  TvMetadata metadata,
 ) {
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,

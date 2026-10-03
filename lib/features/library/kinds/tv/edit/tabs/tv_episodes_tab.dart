@@ -10,8 +10,8 @@ import 'package:collectarr_app/features/library/kinds/tv/edit/widgets/tv_episode
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -23,13 +23,13 @@ class TvEpisodesTab extends ConsumerWidget {
     required this.type,
     required this.item,
     required this.accent,
-    required this.releaseMediaEdit,
+    required this.mediaEdit,
   });
 
   final LibraryKindRegistration type;
   final CatalogItemDto item;
   final Color accent;
-  final TvReleaseMediaEditController releaseMediaEdit;
+  final TvMediaEditController mediaEdit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -48,32 +48,32 @@ class TvEpisodesTab extends ConsumerWidget {
         ref.watch(trackingUnitsByLibraryEntryRefProvider(entryRef));
     final watchSessions =
         ref.watch(watchSessionsByLibraryEntryRefProvider(entryRef));
-    final future = releaseMediaEdit.tvSeriesFuture ??=
-        releaseMediaEdit.loadTvSeriesSnapshot();
+    final future =
+        mediaEdit.metadataFuture ??= mediaEdit.loadMetadataSnapshot();
 
     return EditTabShell(
       children: [
         EditSection(
           title: 'Episodes',
           accent: accent,
-          child: FutureBuilder<TvSeries?>(
+          child: FutureBuilder<TvMetadata?>(
             future: future,
             builder: (context, snapshot) {
-              final series = snapshot.data ?? releaseMediaEdit.tvSeriesSnapshot;
-              final providerEpisodes = series == null
-                  ? const <TvEpisode>[]
-                  : releaseMediaEdit.flattenTvEpisodes(series);
+              final metadata = snapshot.data ?? mediaEdit.metadataSnapshot;
+              final catalogEpisodes = metadata == null
+                  ? const <TvEpisodeMetadata>[]
+                  : mediaEdit.flattenTvEpisodes(metadata);
               final customEpisodes = _sortedCustomEpisodes(customEpisodesAsync);
               final rows = _mergedEpisodeRows(
-                providerEpisodes: providerEpisodes,
+                catalogEpisodes: catalogEpisodes,
                 customEpisodes: customEpisodes,
                 trackedUnits: trackedUnits,
                 watchSessions: watchSessions,
-                releaseMediaEdit: releaseMediaEdit,
+                mediaEdit: mediaEdit,
               );
 
               if (snapshot.connectionState == ConnectionState.waiting &&
-                  series == null &&
+                  metadata == null &&
                   customEpisodesAsync.isLoading &&
                   rows.isEmpty) {
                 return const EditSectionStateMessage(
@@ -89,7 +89,7 @@ class TvEpisodesTab extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          series == null
+                          metadata == null
                               ? 'Local episode overrides'
                               : 'Episodes',
                           style: Theme.of(context)
@@ -112,7 +112,7 @@ class TvEpisodesTab extends ConsumerWidget {
                   const SizedBox(height: 10),
                   if (rows.isEmpty)
                     EditSectionStateMessage(
-                      message: series == null
+                      message: metadata == null
                           ? 'No local episodes yet.'
                           : 'No episodes found for this series yet.',
                       icon: Icons.play_circle_outline,
@@ -122,7 +122,7 @@ class TvEpisodesTab extends ConsumerWidget {
                       _buildSeasonCard(
                         context,
                         seasonTitle: 'Season ${season.seasonNumber}',
-                        imageUrl: season.posterUrl ?? _seriesImageUrl(series),
+                        imageUrl: season.posterUrl ?? _seriesImageUrl(metadata),
                         episodes: season.episodes,
                         trackedUnits: trackedUnits,
                         watchSessions: watchSessions,
@@ -204,36 +204,39 @@ List<TvCustomEpisode> _sortedCustomEpisodes(
 }
 
 List<_EpisodeRowData> _mergedEpisodeRows({
-  required List<TvEpisode> providerEpisodes,
+  required List<TvEpisodeMetadata> catalogEpisodes,
   required List<TvCustomEpisode> customEpisodes,
   required List<TrackingUnitSummary> trackedUnits,
   required List<WatchSession> watchSessions,
-  required TvReleaseMediaEditController releaseMediaEdit,
+  required TvMediaEditController mediaEdit,
 }) {
   final rowsByKey = <String, _EpisodeRowData>{};
 
-  for (final episode in providerEpisodes) {
-    rowsByKey['${episode.seasonNumber}:${episode.episodeNumber}'] =
-        _EpisodeRowData(
-      seasonNumber: episode.seasonNumber ?? 0,
-      episodeNumber: episode.episodeNumber?.toInt() ?? 0,
-      title: episode.title?.isEmpty ?? true ? 'Untitled' : episode.title!,
+  for (final episode in catalogEpisodes) {
+    final seasonNumber = episode.seasonNumber ?? 0;
+    final episodeNumber = episode.episodeNumber ?? episode.position;
+    final episodeId = episode.id ?? '$seasonNumber:$episodeNumber';
+    final title = episode.episodeTitle ?? episode.title;
+    rowsByKey['$seasonNumber:$episodeNumber'] = _EpisodeRowData(
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
+      title: title?.isEmpty ?? true ? 'Untitled' : title!,
       overview: episode.description,
-      airDate: _formatDate(episode.airDate),
+      airDate: _formatDate(episode.airDate?.asDateTime),
       runtimeMinutes: episode.runtimeMinutes,
-      stillImageUrl: episode.coverImageUrl,
+      stillImageUrl: null,
       localImagePath: null,
       thumbnailImageUrl: null,
-      discNumber: releaseMediaEdit.discAssignmentForEpisode(
-        episodeId: episode.id,
-        seasonNumber: episode.seasonNumber ?? 0,
-        episodeNumber: episode.episodeNumber?.toInt() ?? 0,
+      discNumber: mediaEdit.discAssignmentForEpisode(
+        episodeId: episodeId,
+        seasonNumber: seasonNumber,
+        episodeNumber: episodeNumber,
       ),
       watched: _episodeWatched(
         trackedUnits: trackedUnits,
         watchSessions: watchSessions,
-        seasonNumber: episode.seasonNumber ?? 0,
-        episodeNumber: episode.episodeNumber?.toInt() ?? 0,
+        seasonNumber: seasonNumber,
+        episodeNumber: episodeNumber,
       ),
       rating: null,
       customEpisode: null,
@@ -252,7 +255,7 @@ List<_EpisodeRowData> _mergedEpisodeRows({
       stillImageUrl: episode.stillImageUrl,
       localImagePath: episode.localImagePath,
       thumbnailImageUrl: episode.thumbnailImageUrl,
-      discNumber: releaseMediaEdit.discAssignmentForEpisode(
+      discNumber: mediaEdit.discAssignmentForEpisode(
         episodeId: episode.id.value,
         seasonNumber: episode.seasonNumber,
         episodeNumber: episode.episodeNumber,
@@ -399,9 +402,4 @@ String? _formatDate(DateTime? value) {
   return value.toIso8601String().split('T').first;
 }
 
-String? _seriesImageUrl(TvSeries? series) {
-  if (series == null) return null;
-  final raw = series.rawPayload;
-  return (raw['poster_url'] ?? raw['backdrop_url'] ?? raw['cover_image_url'])
-      as String?;
-}
+String? _seriesImageUrl(TvMetadata? metadata) => metadata?.coverImageUrl;

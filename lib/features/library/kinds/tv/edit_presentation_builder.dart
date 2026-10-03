@@ -23,10 +23,10 @@ const _tvMediaTabs = [
     sectionIds: ['tv_episodes'],
   ),
   LibraryEditTabSpec(
-    id: 'episode_map',
+    id: 'episode_media_map',
     icon: Icons.route_outlined,
-    label: 'Disc map',
-    sectionIds: ['tv_episode_disc_map'],
+    label: 'Media map',
+    sectionIds: ['tv_episode_media_map'],
   ),
   LibraryEditTabSpec(
     id: 'cast',
@@ -69,10 +69,10 @@ const _tvMediaTabs = [
 const _tvAllTabs = [
   ..._tvMediaTabs,
   LibraryEditTabSpec(
-    id: 'release_media',
+    id: 'catalog_media',
     icon: Icons.album_outlined,
-    label: 'Edition Details',
-    sectionIds: ['release_details', 'video_specs'],
+    label: 'Media details',
+    sectionIds: ['media_details', 'video_specs'],
   ),
 ];
 

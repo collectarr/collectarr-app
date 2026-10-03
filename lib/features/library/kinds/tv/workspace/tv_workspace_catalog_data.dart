@@ -14,7 +14,7 @@ final class TvWorkspaceCatalogData
 
   factory TvWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
     final metadataPayload = item.kindData;
-    final metadata = TvSeriesMetadata.fromJson(metadataPayload);
+    final metadata = TvMetadata.fromJson(metadataPayload);
     return TvWorkspaceCatalogData(
       ref: item.catalogRef,
       metadata: metadata,
@@ -23,7 +23,7 @@ final class TvWorkspaceCatalogData
 
   @override
   final CatalogEntityRef ref;
-  final TvSeriesMetadata metadata;
+  final TvMetadata metadata;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.tv;

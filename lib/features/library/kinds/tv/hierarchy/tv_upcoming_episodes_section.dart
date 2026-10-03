@@ -29,15 +29,15 @@ class TvUpcomingEpisodesSection extends ConsumerWidget {
         final upcoming = <_UpcomingEpisodeItem>[];
         for (final season in seasons) {
           for (final episode in season.episodes) {
-            final airDate = episode.airDate;
+            final airDate = episode.airDate?.asDateTime;
             if (airDate == null || !airDate.isAfter(now)) {
               continue;
             }
             upcoming.add(
               _UpcomingEpisodeItem(
-                seasonNumber: season.seasonNumber ?? 0,
-                episodeNumber: episode.episodeNumber?.toInt() ?? 0,
-                title: episode.title,
+                seasonNumber: season.seasonNumber,
+                episodeNumber: episode.episodeNumber ?? episode.position,
+                title: episode.episodeTitle ?? episode.title,
                 airDate: airDate,
               ),
             );

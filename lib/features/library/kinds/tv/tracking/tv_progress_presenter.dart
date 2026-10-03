@@ -1,12 +1,9 @@
 import 'dart:math' as math;
 
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_identity.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_summary.dart';
@@ -15,7 +12,7 @@ class VideoProgressPresenter {
   const VideoProgressPresenter();
 
   VideoProgressSummary build({
-    required List<TvSeason> seasons,
+    required List<TvSeasonMetadata> seasons,
     required List<TrackingUnitSummary> trackedUnits,
     required List<WatchSession> watchSessions,
     DateTime? now,
@@ -84,7 +81,7 @@ class VideoProgressPresenter {
   }
 
   VideoSeasonProgressSummary seasonSummary({
-    required TvSeason season,
+    required TvSeasonMetadata season,
     required List<TrackingUnitSummary> trackedUnits,
     required List<WatchSession> watchSessions,
     DateTime? now,
@@ -143,7 +140,7 @@ class VideoProgressPresenter {
   }
 
   List<VideoEpisodeProgressSummary> episodeRows({
-    required TvSeason season,
+    required TvSeasonMetadata season,
     required List<TrackingUnitSummary> trackedUnits,
     required List<WatchSession> watchSessions,
   }) {
@@ -164,8 +161,8 @@ class VideoProgressPresenter {
       final identity = VideoEpisodeIdentity(
         seasonNumber: _seasonNumber(season),
         episodeNumber: _episodeNumber(episode),
-        title: episode.title,
-        airDate: episode.airDate,
+        title: _episodeTitle(episode),
+        airDate: episode.airDate?.asDateTime,
         runtimeMinutes: episode.runtimeMinutes,
       );
       final key = _episodeKey(
@@ -188,13 +185,17 @@ class VideoProgressPresenter {
     return rows;
   }
 
-  static List<TvSeason> _regularSeasons(List<TvSeason> seasons) {
+  static List<TvSeasonMetadata> _regularSeasons(
+    List<TvSeasonMetadata> seasons,
+  ) {
     final regular =
         seasons.where((season) => _seasonNumber(season) > 0).toList();
     return regular.isEmpty ? seasons : regular;
   }
 
-  static List<_SeasonEpisode> _flattenEpisodes(List<TvSeason> seasons) {
+  static List<_SeasonEpisode> _flattenEpisodes(
+    List<TvSeasonMetadata> seasons,
+  ) {
     final result = <_SeasonEpisode>[];
     for (final season in seasons) {
       for (final episode in season.episodes) {
@@ -222,8 +223,8 @@ class VideoProgressPresenter {
     return airDate == null || !airDate.isAfter(now);
   }
 
-  static bool _isEpisodeReleased(TvEpisode episode, DateTime now) {
-    final airDate = episode.airDate;
+  static bool _isEpisodeReleased(TvEpisodeMetadata episode, DateTime now) {
+    final airDate = episode.airDate?.asDateTime;
     return airDate == null || !airDate.isAfter(now);
   }
 
@@ -379,12 +380,12 @@ class VideoProgressPresenter {
     int episodeNumber,
   ) {
     for (final item in episodes) {
-      if (item.season.seasonNumber == seasonNumber &&
-          item.episode.episodeNumber == episodeNumber) {
+      if (_seasonNumber(item.season) == seasonNumber &&
+          _episodeNumber(item.episode) == episodeNumber) {
         return VideoEpisodeIdentity(
           seasonNumber: seasonNumber,
           episodeNumber: episodeNumber,
-          title: item.episode.title,
+          title: _episodeTitle(item.episode),
           airDate: _episodeAirDate(item),
           runtimeMinutes: item.episode.runtimeMinutes,
         );
@@ -410,7 +411,7 @@ class VideoProgressPresenter {
         return VideoEpisodeIdentity(
           seasonNumber: _seasonNumber(item.season),
           episodeNumber: _episodeNumber(item.episode),
-          title: item.episode.title,
+          title: _episodeTitle(item.episode),
           airDate: _episodeAirDate(item),
           runtimeMinutes: item.episode.runtimeMinutes,
         );
@@ -419,7 +420,7 @@ class VideoProgressPresenter {
     return null;
   }
 
-  static int? _firstRegularSeasonNumber(List<TvSeason> seasons) {
+  static int? _firstRegularSeasonNumber(List<TvSeasonMetadata> seasons) {
     for (final season in seasons) {
       if (_seasonNumber(season) > 0) {
         return _seasonNumber(season);
@@ -429,7 +430,7 @@ class VideoProgressPresenter {
   }
 
   static String _seasonStatusLabel({
-    required TvSeason season,
+    required TvSeasonMetadata season,
     required int watchedCount,
     required int releaseCount,
     required int totalCount,
@@ -458,8 +459,8 @@ class VideoProgressPresenter {
 class _SeasonEpisode {
   const _SeasonEpisode(this.season, this.episode);
 
-  final TvSeason season;
-  final TvEpisode episode;
+  final TvSeasonMetadata season;
+  final TvEpisodeMetadata episode;
 }
 
 String _episodeKey({
@@ -477,9 +478,13 @@ String _episodeKeyForSeasonEpisode(_SeasonEpisode episode) {
 }
 
 DateTime? _episodeAirDate(_SeasonEpisode episode) {
-  return episode.episode.airDate;
+  return episode.episode.airDate?.asDateTime;
 }
 
-int _seasonNumber(TvSeason season) => season.seasonNumber ?? 0;
+int _seasonNumber(TvSeasonMetadata season) => season.seasonNumber;
 
-int _episodeNumber(TvEpisode episode) => episode.episodeNumber?.toInt() ?? 0;
+int _episodeNumber(TvEpisodeMetadata episode) =>
+    episode.episodeNumber ?? episode.position;
+
+String? _episodeTitle(TvEpisodeMetadata episode) =>
+    episode.episodeTitle ?? episode.title;

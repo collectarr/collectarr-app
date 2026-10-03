@@ -225,7 +225,7 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
 LibraryTextFieldSpec<TvAddManualDraft> _text({
   required String id,
   required String label,
-  required String Function(TvSeriesMetadata metadata) read,
+  required String Function(TvMetadata metadata) read,
   required void Function(TvAddManualDraft draft, String value) write,
   int maxLines = 1,
 }) =>
@@ -240,7 +240,7 @@ LibraryTextFieldSpec<TvAddManualDraft> _text({
 LibraryNumberFieldSpec<TvAddManualDraft> _number({
   required String id,
   required String label,
-  required num? Function(TvSeriesMetadata metadata) read,
+  required num? Function(TvMetadata metadata) read,
   required void Function(TvAddManualDraft draft, num? value) write,
   required num minimum,
 }) =>
@@ -255,7 +255,7 @@ LibraryNumberFieldSpec<TvAddManualDraft> _number({
 LibraryVocabularyFieldSpec<TvAddManualDraft, String> _vocabulary({
   required String id,
   required String label,
-  required String Function(TvSeriesMetadata metadata) read,
+  required String Function(TvMetadata metadata) read,
   required void Function(TvAddManualDraft draft, String? value) write,
   required Iterable<String> options,
   FutureOr<void> Function()? onManage,
@@ -281,7 +281,7 @@ void _writeNullableFields(
 ) {
   final payload = Map<String, dynamic>.from(draft.metadata.toJson())
     ..addAll(fields);
-  draft.metadata = TvSeriesMetadata.fromJson(payload);
+  draft.metadata = TvMetadata.fromJson(payload);
 }
 
 String? _nullable(String? value) {

@@ -14,20 +14,20 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 
 final class TvCatalogTransportCodec
-    implements CatalogKindTransportCodec<TvSeriesMetadata> {
+    implements CatalogKindTransportCodec<TvMetadata> {
   const TvCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.tv;
 
   @override
-  TvSeriesMetadata decode(CatalogItemDto item) =>
-      TvSeriesMetadata.fromJson(catalogTransportPayloadFor(item));
+  TvMetadata decode(CatalogItemDto item) =>
+      TvMetadata.fromJson(catalogTransportPayloadFor(item));
 
   @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
-    TvSeriesMetadata item,
+    TvMetadata item,
   ) =>
       CatalogDisplaySummary.root(
         kind: kind,
@@ -88,7 +88,7 @@ final class TvCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    TvSeriesMetadata item,
+    TvMetadata item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -98,7 +98,7 @@ final class TvCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(TvSeriesMetadata item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(TvMetadata item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,

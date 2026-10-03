@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/hierarchy/tv_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_section.dart';
@@ -100,7 +100,7 @@ final class TvVideoDetailContribution extends ConsumerWidget {
 List<WatchHistoryTargetOption> _watchHistoryTargets({
   required LibraryDetailPageRequest request,
   required CatalogEntityRef catalogRef,
-  required AsyncValue<List<TvSeason>> seasonsAsync,
+  required AsyncValue<List<TvSeasonMetadata>> seasonsAsync,
 }) =>
     [
       WatchHistoryTargetOption(
@@ -111,15 +111,17 @@ List<WatchHistoryTargetOption> _watchHistoryTargets({
         data: (seasons) => [
           for (final season in seasons) ...[
             WatchHistoryTargetOption(
-              label: season.title ?? 'Season ${season.seasonNumber ?? 0}',
-              subtitle: 'Season ${season.seasonNumber ?? 0}',
+              label: season.title ?? 'Season ${season.seasonNumber}',
+              subtitle: 'Season ${season.seasonNumber}',
               seasonNumber: season.seasonNumber,
             ),
             for (final episode in season.episodes)
               WatchHistoryTargetOption(
-                label: episode.title ?? 'Episode ${episode.episodeNumber ?? 0}',
+                label: episode.episodeTitle ??
+                    episode.title ??
+                    'Episode ${episode.episodeNumber ?? episode.position}',
                 seasonNumber: season.seasonNumber,
-                episodeNumber: episode.episodeNumber?.toInt(),
+                episodeNumber: episode.episodeNumber ?? episode.position,
                 episodeId: episode.id,
                 subtitle:
                     'Season ${season.seasonNumber} • Episode ${episode.episodeNumber}',
