@@ -115,7 +115,6 @@ class _CanonicalItemSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final edition = item.primaryEdition;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.3),
@@ -159,8 +158,8 @@ class _CanonicalItemSummary extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     _MiniChip(label: item.kind),
-                    if (edition?.formatLabel != null)
-                      _MiniChip(label: edition!.formatLabel!),
+                    if (item.displayPhysicalFormat case final format?)
+                      _MiniChip(label: format),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -168,19 +167,6 @@ class _CanonicalItemSummary extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    _Fact(
-                      label: 'Editions',
-                      value: item.editions.length.toString(),
-                    ),
-                    _Fact(
-                      label: 'Variants',
-                      value: item.editions
-                          .fold<int>(
-                            0,
-                            (count, edition) => count + edition.variants.length,
-                          )
-                          .toString(),
-                    ),
                     for (final field in metadataFields.take(10))
                       if (field
                           .displayValue(field.read(item))
@@ -192,10 +178,6 @@ class _CanonicalItemSummary extends StatelessWidget {
                         ),
                   ],
                 ),
-                if (item.editions.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  _AdminItemVariantSummary(item: item),
-                ],
                 if (bundleReleases.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   _BundleReleaseSummaryList(bundleReleases: bundleReleases),
@@ -326,10 +308,10 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
   void initState() {
     super.initState();
     _coverController = TextEditingController(
-      text: item.primaryVariant?.coverImageUrl ?? '',
+      text: item.coverImageUrl ?? '',
     );
     _thumbnailController = TextEditingController(
-      text: item.primaryVariant?.thumbnailImageUrl ?? '',
+      text: item.thumbnailImageUrl ?? '',
     );
     _coverController.addListener(_urlFieldsChanged);
     _thumbnailController.addListener(_urlFieldsChanged);
@@ -346,9 +328,6 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final variants = [
-      for (final edition in item.editions) ...edition.variants,
-    ];
     return AccentAlertDialog(
       title: Text('Covers: ${item.displayTitle}'),
       content: SizedBox(
@@ -425,41 +404,6 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
                   isError: !_checkMessage!.startsWith('URL is reachable'),
                 ),
               ],
-              const SizedBox(height: 12),
-              if (variants.isEmpty)
-                const Text('No variants attached to this item.')
-              else
-                for (final variant in variants)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          variant.name,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        SelectableText(
-                          [
-                            if (variant.physicalFormatLabel != null)
-                              'format: ${variant.physicalFormatLabel}',
-                            if (variant.coverImageUrl != null)
-                              'cover: ${variant.coverImageUrl}',
-                            if (variant.thumbnailImageUrl != null)
-                              'thumb: ${variant.thumbnailImageUrl}',
-                            if (variant.coverImageUrl == null &&
-                                variant.thumbnailImageUrl == null)
-                              'no cover URLs',
-                            'status: ${variant.coverStatus}',
-                            if (variant.coverStorage != null)
-                              'storage: ${variant.coverStorage}',
-                            if (variant.coverPolicy != null)
-                              'policy: ${variant.coverPolicy}',
-                          ].join('\n'),
-                        ),
-                      ],
-                    ),
-                  ),
             ],
           ),
         ),
@@ -530,128 +474,6 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
     if (mounted) {
       setState(() {});
     }
-  }
-}
-
-class _AdminItemVariantSummary extends StatelessWidget {
-  const _AdminItemVariantSummary({required this.item});
-
-  final AdminMetadataItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    final variants = [
-      for (final edition in item.editions)
-        for (final variant in edition.variants)
-          _EditionVariantPair(edition: edition, variant: variant),
-    ];
-    if (variants.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Variants and cover status',
-          style: Theme.of(context).textTheme.labelLarge,
-        ),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final pair in variants.take(6))
-              _VariantStatusCard(edition: pair.edition, variant: pair.variant),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _EditionVariantPair {
-  const _EditionVariantPair({required this.edition, required this.variant});
-
-  final AdminEdition edition;
-  final AdminVariant variant;
-}
-
-class _VariantStatusCard extends StatelessWidget {
-  const _VariantStatusCard({
-    required this.edition,
-    required this.variant,
-  });
-
-  final AdminEdition edition;
-  final AdminVariant variant;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final hasCover = variant.coverImageUrl != null ||
-        variant.thumbnailImageUrl != null ||
-        variant.coverStatus != 'missing';
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 360, minWidth: 240),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colorScheme.surface.withValues(alpha: 0.72),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: colorScheme.outlineVariant),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    hasCover ? Icons.image_outlined : Icons.hide_image_outlined,
-                    size: 18,
-                    color: hasCover ? colorScheme.primary : colorScheme.error,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      variant.name.isEmpty ? edition.title : variant.name,
-                      style: Theme.of(context).textTheme.labelLarge,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  _MiniChip(label: variant.coverStatus),
-                  if (variant.coverStorage != null)
-                    _MiniChip(label: variant.coverStorage!),
-                  if (variant.coverPolicy != null)
-                    _MiniChip(label: variant.coverPolicy!),
-                  if (variant.physicalFormatLabel != null)
-                    _MiniChip(label: variant.physicalFormatLabel!),
-                  if (variant.barcode != null)
-                    _MiniChip(label: variant.barcode!),
-                ],
-              ),
-              if (variant.coverSourceUrl != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  variant.coverSourceUrl!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
 

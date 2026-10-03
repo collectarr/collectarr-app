@@ -36,23 +36,17 @@ class MangaAdminContributor implements LibraryAdminContributor {
         ),
         adminCorrectionFieldValueOverride(
           key: 'edition_title',
-          read: (item) =>
-              item.primaryEdition?.title ??
-              item.canonicalFieldValues['edition_title'],
+          read: (item) => item.canonicalFieldValues['edition_title'],
         ),
         adminCorrectionFieldValueOverride(
           key: 'release_date',
           read: (item) =>
-              item.primaryEdition?.releaseDateParts ??
-              item.primaryEdition?.releaseDate ??
               item.canonicalFieldValues['cover_date'] ??
               item.canonicalFieldValues['release_date'],
         ),
         adminCorrectionFieldValueOverride(
           key: 'publisher',
-          read: (item) =>
-              item.primaryEdition?.publisher ??
-              item.canonicalFieldValues['publisher'],
+          read: (item) => item.canonicalFieldValues['publisher'],
         ),
         adminCorrectionFieldValueOverride(
           key: 'imprint',
@@ -68,15 +62,11 @@ class MangaAdminContributor implements LibraryAdminContributor {
         ),
         adminCorrectionFieldValueOverride(
           key: 'barcode',
-          read: (item) =>
-              item.primaryVariant?.barcode ??
-              item.canonicalFieldValues['barcode'],
+          read: (item) => item.canonicalFieldValues['barcode'],
         ),
         adminCorrectionFieldValueOverride(
           key: 'variant_name',
-          read: (item) =>
-              item.primaryVariant?.name ??
-              item.canonicalFieldValues['variant_name'],
+          read: (item) => item.canonicalFieldValues['variant_name'],
         ),
         adminCorrectionFieldValueOverride(
           key: 'page_count',
@@ -96,22 +86,17 @@ class MangaAdminContributor implements LibraryAdminContributor {
         ),
         adminCorrectionFieldValueOverride(
           key: 'cover_image_url',
-          read: (item) =>
-              item.primaryVariant?.coverImageUrl ??
-              item.canonicalFieldValues['cover_image_url'],
+          read: (item) => item.canonicalFieldValues['cover_image_url'],
         ),
         adminCorrectionFieldValueOverride(
           key: 'thumbnail_image_url',
-          read: (item) =>
-              item.primaryVariant?.thumbnailImageUrl ??
-              item.canonicalFieldValues['thumbnail_image_url'],
+          read: (item) => item.canonicalFieldValues['thumbnail_image_url'],
         ),
         adminPhysicalFormatCorrectionField(
           key: 'physical_format',
           read: (item) =>
-              item.primaryEdition?.physicalFormat ??
-              item.primaryEdition?.physicalFormatLabel ??
-              item.canonicalFieldValues['physical_format'],
+              item.canonicalFieldValues['physical_format'] ??
+              item.canonicalFieldValues['physical_format_label'],
         ),
         adminRelatedListCorrectionField(
           key: 'series_tags',
