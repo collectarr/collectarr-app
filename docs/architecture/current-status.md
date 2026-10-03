@@ -69,8 +69,11 @@ claim completion of every cleanup item or literal CLZ parity.
 - Anime's workspace, transport codec, identifier lookup, manual Add, and
   episode hierarchy use `AnimeMetadata` directly. The obsolete Anime
   media/release models and media-parent episode model are gone; the old mixed
-  repository is now only a user-created episode store. Anime's custom Edit
-  field controllers remain active. TV workspace, transport, lookup, Add,
+  repository is now only a user-created episode store. Anime scalar Edit fields
+  use the shared session field registry; Cast/Crew edits write typed creator
+  values back while preserving source identities and sequence. The remaining
+  kind controller holds credit and user-link editing state. TV workspace,
+  transport, lookup, Add,
   hierarchy, season tracking, episode ratings, and media Edit tabs use
   `TvMetadata` and its contained typed values. The TV Work/Release model graph,
   repository, mapper, empty local mapper, and release-named Add draft are gone;

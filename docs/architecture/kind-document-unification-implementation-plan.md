@@ -326,6 +326,12 @@ slice. This is progress, not completion of this plan:
   inspection, and CSV projections consume those typed values; `rawPayload` and
   its field aliases have been removed from the Board Game kind. This keeps the
   existing provisional Board Game field set and does not establish CLZ parity.
+- Anime scalar metadata fields in Edit now use the shared session field
+  registry rather than a second set of kind-controller text fields. Cast and
+  Crew edits are written back to typed `AnimeMetadata` while retaining source
+  person IDs, role IDs, and existing sequence values. The kind controller now
+  owns only credit and user-link editing state; kind-specific personal detail
+  fields remain in the entry draft.
 - Manga's Catalog Item transport now decodes the kind-owned `MangaMetadata`
   model instead of the parallel `MangaMedia` projection. Removed the unused
   standalone Manga media edit dialog/schema and its work/publication wrappers;
@@ -350,9 +356,10 @@ typed drafts and moving remaining validation/serialization adapters out of the
 shared personal editor; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
 form organization. Anime's workspace, lookup, catalog transport, manual Add,
-and episode hierarchy now use the flattened typed document. Its current Edit
-UI still has a custom controller with duplicate field controllers to move into
-the shared typed form infrastructure. TV workspace, manual Add, hierarchy,
+and episode hierarchy now use the flattened typed document. Its scalar Edit
+fields use the shared form registry, and its Cast/Crew tabs persist to the
+typed root document. Credit and user-link editing buffers remain kind-owned.
+TV workspace, manual Add, hierarchy,
 tracking, and Edit tabs now consume `TvMetadata` and its contained typed
 values; custom episodes and watch history remain separate local personal
 records.
