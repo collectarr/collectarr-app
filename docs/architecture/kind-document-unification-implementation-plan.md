@@ -245,6 +245,8 @@ slice. This is progress, not completion of this plan:
   manual Add and canonical Edit update typed Manga metadata, and catalog,
   workspace, and inspector projections read it. The remaining field ownership
   differences are still under review against Manga's provisional Core ledger.
+  The unreachable empty Manga local mapper and unused per-kind domain ID shell
+  were removed; the typed entry repository remains the active local store.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
