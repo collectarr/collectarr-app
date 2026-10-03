@@ -126,11 +126,10 @@ class AnimeRelation {
 
   factory AnimeRelation.fromJson(Map<String, dynamic> json) {
     return AnimeRelation(
-      relationType: AnimeRelationType.fromString(
-          json['relation_type'] as String? ?? json['type'] as String?),
-      targetTitle:
-          (json['target_title'] as String? ?? json['title'] as String?) ?? '',
-      targetId: json['target_id'] as String? ?? json['id'] as String?,
+      relationType:
+          AnimeRelationType.fromString(json['relation_type'] as String?),
+      targetTitle: (json['target_title'] as String?) ?? '',
+      targetId: json['target_id'] as String?,
     );
   }
 }
@@ -522,7 +521,7 @@ class AnimeMetadata implements JsonEncodable {
               ? CatalogSeriesDetailsDto(seriesTitle: resolvedSeriesTitle)
               : null),
       seriesTitle: resolvedSeriesTitle,
-      itemNumber: (json['item_number'] ?? json['issue_number']) as String?,
+      itemNumber: json['item_number'] as String?,
       editionTitle: json['edition_title'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
