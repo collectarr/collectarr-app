@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -13,9 +12,8 @@ import 'package:collectarr_app/features/library/kinds/manga/entries/manga_gradin
 import 'package:collectarr_app/features/library/kinds/manga/entries/manga_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_entry_repository.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 
 final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaLibraryEntry>(
   kind: CatalogMediaKind.manga,
@@ -691,44 +689,52 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
     ];
 
-List<MangaLibraryEntry> mangaSeedLibraryEntries(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.manga, 15))
-        MangaLibraryEntry(
-          id: LibraryEntryId('seed-entry-$itemId'),
-          sourceCatalogRef:
-              seedCatalogRef(CatalogMediaKind.manga, itemId).toCatalogItemRef(),
-          createdAt: now.subtract(const Duration(days: 210)),
-          updatedAt: now,
-          isDigital: false,
-          condition: 'Mint',
-          details: const MangaEntryDetails(
-            grading: MangaGradingDetails(
-              rawOrSlabbed: 'Slabbed',
-              gradingCompany: 'CGC',
-              graderNotes: 'White pages; clean spine and corners.',
-              labelType: 'Modern',
-              customLabel: 'Deluxe creator edition',
-              pageQuality: 'White pages',
-              certificationNumber: 'CGC-MANGA-0001',
-            ),
-            signature: MangaSignatureDetails(signedBy: 'Takehiko Inoue'),
-            obiStripPresent: true,
-            slipcoverPresent: true,
-            dustJacketPresent: true,
-            dustJacketCondition: 'Excellent',
-            boxSetOuterCondition: 'Very good',
-            insertsPresent: true,
-            printing: '1st Print',
-            localizedEdition: 'VIZ Media',
+List<MangaLibraryEntry> mangaSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in mangaSeedCatalogItems())
+      item.id: MangaMetadata.fromJson(item.kindData),
+  };
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.manga, 15))
+      MangaLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId] ??
+            (throw StateError('Missing Manga seed catalog item: $itemId')),
+        sourceCatalogRef:
+            seedCatalogRef(CatalogMediaKind.manga, itemId).toCatalogItemRef(),
+        createdAt: now.subtract(const Duration(days: 210)),
+        updatedAt: now,
+        isDigital: false,
+        condition: 'Mint',
+        details: const MangaEntryDetails(
+          grading: MangaGradingDetails(
+            rawOrSlabbed: 'Slabbed',
+            gradingCompany: 'CGC',
+            graderNotes: 'White pages; clean spine and corners.',
+            labelType: 'Modern',
+            customLabel: 'Deluxe creator edition',
+            pageQuality: 'White pages',
+            certificationNumber: 'CGC-MANGA-0001',
           ),
-          purchaseDate: DateTime.utc(2022, 9, 1),
-          pricePaidCents: 1999,
-          currency: 'USD',
-          personalNotes: 'Physical volume with dust jacket.',
-          purchaseStore: 'Barnes & Noble',
-          collectionStatus: 'collected',
+          signature: MangaSignatureDetails(signedBy: 'Takehiko Inoue'),
+          obiStripPresent: true,
+          slipcoverPresent: true,
+          dustJacketPresent: true,
+          dustJacketCondition: 'Excellent',
+          boxSetOuterCondition: 'Very good',
+          insertsPresent: true,
+          printing: '1st Print',
+          localizedEdition: 'VIZ Media',
         ),
-    ];
+        purchaseDate: DateTime.utc(2022, 9, 1),
+        pricePaidCents: 1999,
+        currency: 'USD',
+        personalNotes: 'Physical volume with dust jacket.',
+        purchaseStore: 'Barnes & Noble',
+        collectionStatus: 'collected',
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> mangaSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
