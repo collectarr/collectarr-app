@@ -10,6 +10,7 @@
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `audience_rating` | `audience_rating` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `barcode` | `barcode` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `catalog_number` | `catalog_number` |
+| Unverified; Edit-form capture required | Unverified; capture required | partial date | Catalog Item | No | `cover_date` | `cover_date` |
 | Unverified; Edit-form capture required | Unverified; capture required | array of object | Catalog Item | Yes | `character_details` | `character_details` |
 | Unverified; Edit-form capture required | Unverified; capture required | array of string or object | Catalog Item | Yes | `characters` | `characters` |
 | Unverified; Edit-form capture required | Unverified; capture required | array of string or object | Catalog Item | Yes | `contributors` | `contributors` |
@@ -28,6 +29,7 @@
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `issue_number` | `issue_number` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `item_number` | `item_number` |
 | Unverified; Edit-form capture required | Unverified; capture required | boolean | Catalog Item | No | `key_comic` | `key_comic` |
+| Unverified; Edit-form capture required | Unverified; capture required | array of typed object | Catalog Item | Yes | `key_events` | `key_events` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `key_reason` | `key_reason` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `language` | `language` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `localized_title` | `localized_title` |
@@ -52,7 +54,10 @@
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `title` | `title` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `title_extension` | `title_extension` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `variant_name` | `variant_name` |
+| Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `variant_description` | `variant_description` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `volume_name` | `volume_name` |
+| Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `volume_number` | `volume_number` |
+| Unverified; Edit-form capture required | Unverified; capture required | integer | Catalog Item | No | `volume_start_year` | `volume_start_year` |
 
 ## Ownership boundary
 

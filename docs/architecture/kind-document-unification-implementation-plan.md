@@ -99,6 +99,15 @@ slice. This is progress, not completion of this plan:
   existing subjects, back-cover image, original-language/publication details,
   edition details, binding, dimensions, and audiobook length. The Book ledger
   remains provisional because its saved Edit-form capture is unavailable.
+- Comic's Core item schema now retains its existing form values for cover date,
+  variant description, key events, volume number, and volume start year. Comic
+  response schemas type creators, characters, links, story arcs, identifiers,
+  and key events instead of exposing arbitrary object maps. The App now writes
+  cover date, variant description, and key events to the pinned contract, and
+  its date form preserves partial cover dates when another field is edited.
+  The Comic metadata model still contains generic nested DTOs and raw payload
+  storage; removing those remains outstanding work. Its CLZ field ledger stays
+  provisional until a saved Edit-form capture is reviewed.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.
