@@ -25,10 +25,6 @@ final class TvCatalogTransportCodec
       TvSeries.fromJson(catalogTransportPayloadFor(item));
 
   @override
-  Future<void> upsert(LocalDatabase db, TvSeries item) =>
-      CatalogItemCacheRepository(db).upsert(_projection(item));
-
-  @override
   CatalogDisplaySummary summarize(String catalogItemId, TvSeries item) =>
       CatalogDisplaySummary.root(
         kind: kind,
@@ -122,17 +118,6 @@ final class TvCatalogTransportCodec
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
-}
-
-CatalogItemDto _projection(TvSeries item) {
-  return CatalogItemDto.raw(
-    id: item.id,
-    mediaKind: CatalogMediaKind.tv,
-    kindData: item.toJson(),
-  );
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }

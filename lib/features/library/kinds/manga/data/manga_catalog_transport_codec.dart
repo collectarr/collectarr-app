@@ -25,11 +25,6 @@ final class MangaCatalogTransportCodec
       MangaMedia.fromJson(catalogTransportPayloadFor(item));
 
   @override
-  Future<void> upsert(LocalDatabase db, MangaMedia item) {
-    return CatalogItemCacheRepository(db).upsert(_projection(item));
-  }
-
-  @override
   CatalogDisplaySummary summarize(String catalogItemId, MangaMedia item) =>
       CatalogDisplaySummary.root(
         kind: kind,
@@ -123,18 +118,6 @@ final class MangaCatalogTransportCodec
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
-}
-
-CatalogItemDto _projection(MangaMedia item) {
-  final payload = Map<String, dynamic>.from(item.rawPayload);
-  payload['id'] ??= item.id;
-  payload['kind'] ??= 'manga';
-  payload['title'] ??= item.title;
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindData(MangaMedia.fromJson(projection.payload));
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }

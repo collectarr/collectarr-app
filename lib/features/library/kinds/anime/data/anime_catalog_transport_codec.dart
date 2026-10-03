@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 
@@ -24,11 +23,6 @@ final class AnimeCatalogTransportCodec
   @override
   AnimeMedia decode(CatalogItemDto item) =>
       AnimeMedia.fromJson(catalogTransportPayloadFor(item));
-
-  @override
-  Future<void> upsert(LocalDatabase db, AnimeMedia item) {
-    return AnimeRepository(db).updateMedia(item);
-  }
 
   @override
   CatalogDisplaySummary summarize(String catalogItemId, AnimeMedia item) =>
@@ -121,9 +115,6 @@ final class AnimeCatalogTransportCodec
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }

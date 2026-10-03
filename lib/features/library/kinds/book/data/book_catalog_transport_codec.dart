@@ -25,22 +25,6 @@ final class BookCatalogTransportCodec
       BookCatalogMetadata.fromJson(catalogTransportPayloadFor(item));
 
   @override
-  Future<void> upsert(LocalDatabase db, BookCatalogMetadata item) {
-    final payload = Map<String, dynamic>.from(item.toJson());
-    final id = payload.remove('id')?.toString().trim() ?? '';
-    if (id.isEmpty) {
-      throw StateError('Cannot cache a Book Catalog Item without an id');
-    }
-    return CatalogItemCacheRepository(db).upsert(
-      CatalogItemDto.raw(
-        id: id,
-        mediaKind: kind,
-        kindData: payload,
-      ),
-    );
-  }
-
-  @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
     BookCatalogMetadata item,

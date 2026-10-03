@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 
@@ -24,11 +23,6 @@ final class ComicCatalogTransportCodec
   @override
   ComicCatalogItem decode(CatalogItemDto item) =>
       ComicCatalogItem.fromJson(catalogTransportPayloadFor(item));
-
-  @override
-  Future<void> upsert(LocalDatabase db, ComicCatalogItem item) {
-    return ComicRepository(db).updateCatalogItem(item);
-  }
 
   @override
   CatalogDisplaySummary summarize(
@@ -119,11 +113,8 @@ final class ComicCatalogTransportCodec
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }
 
 CatalogDisplaySummary _comicSummary(

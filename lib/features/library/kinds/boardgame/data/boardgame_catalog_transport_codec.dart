@@ -25,11 +25,6 @@ final class BoardGameCatalogTransportCodec
       BoardGameCatalogMapper.mapMetadataItemToBoardGame(item);
 
   @override
-  Future<void> upsert(LocalDatabase db, BoardGameCatalogItem item) {
-    return CatalogItemCacheRepository(db).upsert(_projection(item));
-  }
-
-  @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
     BoardGameCatalogItem item,
@@ -126,12 +121,6 @@ final class BoardGameCatalogTransportCodec
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }
-
-CatalogItemDto _projection(BoardGameCatalogItem item) =>
-    item.toCatalogItemDto();

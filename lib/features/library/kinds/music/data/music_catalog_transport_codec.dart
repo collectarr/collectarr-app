@@ -30,11 +30,6 @@ final class MusicCatalogTransportCodec
       MusicCatalogMapper.mapMetadataItemToMusic(item);
 
   @override
-  Future<void> upsert(LocalDatabase db, MusicAlbum item) {
-    return CatalogItemCacheRepository(db).upsert(_projection(item));
-  }
-
-  @override
   CatalogDisplaySummary summarize(String catalogItemId, MusicAlbum item) =>
       CatalogDisplaySummary.root(
         kind: kind,
@@ -143,24 +138,6 @@ final class MusicCatalogTransportCodec
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
-}
-
-CatalogItemDto _projection(MusicAlbum item) {
-  // The local repository stores discs and tracks in child tables. Rebuild the
-  // complete concrete item payload when catalog features need a typed view.
-  final payload = Map<String, dynamic>.from(item.toJson())
-    ..['id'] = item.id.value
-    ..['kind'] = 'music'
-    ..['title'] = item.title;
-  payload.putIfAbsent(
-    'thumbnail_image_url',
-    () => item.coverImageUrl,
-  );
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindData(item);
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }

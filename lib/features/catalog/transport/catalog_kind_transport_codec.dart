@@ -65,9 +65,6 @@ abstract interface class CatalogKindTransportCodec<TCatalog>
     TCatalog item,
   );
 
-  /// Persists a value that has already been decoded by this kind.
-  Future<void> upsert(LocalDatabase db, TCatalog item);
-
   /// Projects a concrete kind value for mixed/global read models.
   CatalogDisplaySummary summarize(String catalogItemId, TCatalog item);
 

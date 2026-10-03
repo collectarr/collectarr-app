@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
@@ -22,19 +21,7 @@ final class MovieCatalogTransportCodec
 
   @override
   MovieCatalogMetadata decode(CatalogItemDto item) =>
-      MovieCatalogMetadata.fromJson(catalogTransportPayloadFor(item));
-
-  @override
-  Future<void> upsert(LocalDatabase db, MovieCatalogMetadata item) {
-    final payload = item.toJson();
-    final id = payload['id']?.toString().trim() ?? '';
-    if (id.isEmpty) {
-      throw StateError('Cannot cache a Movie Catalog Item without an id');
-    }
-    return CatalogItemCacheRepository(db).upsert(
-      CatalogItemDto.fromJson({...payload, 'id': id, 'kind': kind.apiValue}),
-    );
-  }
+      MovieCatalogMetadata.fromJson(item.kindData);
 
   @override
   CatalogDisplaySummary summarize(
@@ -132,7 +119,6 @@ final class MovieCatalogTransportCodec
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  return null;
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }
