@@ -91,6 +91,15 @@ slice. This is progress, not completion of this plan:
   positive media number. The Movie decoder now reads root media fields instead
   of the nested `video` shape and no longer reads `issue_number`, `sort_title`,
   or the duplicate root `discs` payload.
+- Movie metadata no longer retains a raw payload map or the shared generic
+  series/publishing DTO. The direct `physical_format` field is the single
+  stored format value; its human-readable label is derived from the kind-owned
+  format vocabulary in forms and projections. Obsolete raw `series` and
+  `publishing` fallbacks were removed from Movie Add, and format statistics no
+  longer count the same format twice. The Movie ledger is still provisional:
+  some current App fields and person-role collections have
+  not yet been reconciled with the pinned Core field set, and the saved CLZ
+  Edit-form capture is unavailable.
 - Book workspace, Add preview, links, CSV, author spotlight, statistics, and
   editing now consume `BookCatalogMetadata` directly. The duplicate
   `BookCatalogItem` snapshot and mapper were removed. Printings, credits,
@@ -127,8 +136,8 @@ slice. This is progress, not completion of this plan:
   implementation and docs are complete, as requested.
 
 Still outstanding: removing business-field semantics and the remaining fallback
-aliases from shared transport and the other kind codecs; completing Movie's
-remaining raw transport payload and provisional fields against its pinned
+aliases from shared transport and the other kind codecs; reconciling Movie's
+remaining App-only fields and person-role collections against its pinned
 ledger; replacing the universal
 `PersonalStateDraft` and shared edit-section field assumptions with kind-owned
 bindings; removing active edition/media projections and duplicated shared DTO
