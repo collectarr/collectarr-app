@@ -359,12 +359,26 @@ slice. This is progress, not completion of this plan:
   pass targeted static analysis. Automated tests remain deferred until
   implementation and docs are complete, as requested.
 
-Still outstanding: completing field ownership and typed schema organization
-across all kinds; replacing the universal `PersonalStateDraft` with kind-owned
-typed drafts and moving remaining validation/serialization adapters out of the
-shared personal editor; removing active edition/media projections and duplicated shared DTO
-graphs from the remaining kinds; and finishing kind-owned field, schema, and
-form organization. Anime's workspace, lookup, catalog transport, manual Add,
+### Current implementation update — 2026-10-04
+
+- Music now represents Core's `box_set` as one string in `MusicAlbum`, its form,
+  and its inspector. The unused reference and sequence fields and their model
+  were removed because they were absent from the pinned Core contract and the
+  saved CLZ form.
+- The Music form keeps one canonical `format` value; it no longer fills that
+  value from a derived medium label. Music decoding also stopped accepting the
+  obsolete `label_info`, `trailer_urls`, `box_set_title`, `box_set_id`, and
+  other alternate relationship shapes.
+- The Music contract checker now compares the pinned schema's root, disc, and
+  track property sets with the active mapper allowlists. Its previous DTO path
+  pointed to a deleted file.
+
+Still outstanding: replacing the universal `PersonalStateDraft` with
+kind-owned edit drafts/bindings and moving validation/serialization out of the
+shared personal editor; completing field, schema, and form ownership across
+all kinds; and auditing generic display projections and transport envelopes to
+remove any remaining duplicated kind semantics. Anime's workspace, lookup,
+catalog transport, manual Add,
 and episode hierarchy now use the flattened typed document. Its scalar Edit
 fields use the shared form registry, and its Cast/Crew tabs persist to the
 typed root document. Credit and user-link editing buffers remain kind-owned.

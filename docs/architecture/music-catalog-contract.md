@@ -4,7 +4,7 @@ Core exposes one `CatalogMusicItemResponse` for each concrete album edition at `
 
 Core response models in `app/schemas/catalog_music_item.py` define the wire schema. `scripts/export_contract_bundle.py` exports them as `contracts/music-catalog-v1.json` and pins the artifact hash in the contract manifest. App copies the bundle with `tool/update_core_contracts.ps1`; the pinned file is `tool/core_contracts/music-catalog-v1.json`.
 
-Music owns its transport types in `lib/features/library/kinds/music/data/remote/catalog_music_item_dto.dart`. Shared API transport retains routing identity and the untouched response JSON; it does not extract title, dates, synopsis, cover, or other catalog values into a shared object. Mixed-kind UI receives only a transient `CatalogDisplaySummary` projected by the owning kind codec. Run the contract check after refreshing the Core bundle:
+Music owns the typed `MusicAlbum`, `MusicMedium`, and `MusicTrack` models under `lib/features/library/kinds/music/domain/`. The same metadata model is used at the Core boundary where the shapes agree; `MusicCatalogMapper` translates the remaining Core names and the contained `discs` list. Shared API transport retains only routing identity and the kind document. Mixed-kind UI receives a transient `CatalogDisplaySummary` projected by the owning kind codec. Run the contract check after refreshing the Core bundle:
 
 ```powershell
 dart run tool/check_music_catalog_contract.dart
@@ -12,12 +12,12 @@ dart run tool/check_music_catalog_contract.dart
 
 The pinned metadata-field schema assigns Music corrections to `catalog_item`. Music Admin reads artist, label, format, dates, identifiers, and images directly from the flat item response; the kind-owned contributor edits its contained disc tracks without following a Release Group or Release reference.
 
-The check verifies the pinned hash and that each item, disc, and track contract field is represented and decoded by its kind-owned DTO. Updating Core does not silently update App's pinned input; copying the new bundle is an explicit App change.
+The check verifies the pinned hash and exact root, disc, and track field sets accepted by the Music mapper against Core's exported schemas. Updating Core does not silently update App's pinned input; copying the new bundle is an explicit App change. This check does not replace Dart static analysis of the typed model and mapper.
 
 ## Ownership
 
 - Core owns canonical album edition fields, disc and track content, credits, identifiers, and catalog links.
-- App and Sync own collection-item details, condition, storage, personal images, listening history, and other personal state.
+- App stores one local Music entry with `MusicAlbum` metadata and `MusicPersonalData`; the values stay distinct inside that record. App owns condition, storage, personal images, listening history, and other personal state. Sync mirrors the complete local entry, and Core receives catalog metadata only.
 - Music has no synopsis field. Synopsis remains available for kinds that define it.
 - Each concrete edition has its own catalog identity, including editions with the same title.
 

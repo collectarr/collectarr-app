@@ -1,17 +1,19 @@
-# Music Catalog Item and Collection Item Field Ledger
+# Music Catalog and Personal Entry Field Ledger
 
-This ledger is grounded in the saved CLZ Music edit form, `C:\Users\saita\Desktop\tmp\My Albums - CLZ Music Web.html`. It defines the Music v1 field boundary for the flattened Catalog Item model. Core owns shared catalog facts; App owns each user's copies, activity, and personal images.
+This ledger is grounded in the saved CLZ Music edit form, `C:\Users\saita\Desktop\tmp\My Albums - CLZ Music Web.html`. It defines the Music v1 field boundary for the flattened Catalog Item model. Core owns canonical catalog facts; App stores one complete local entry containing typed metadata and personal data, along with activity and personal images.
 
 ## Ownership and multiplicity
 
 | Target | Meaning |
 | --- | --- |
-| `CatalogItem` | One concrete album edition/release. Each former Core release becomes one root item. Album metadata is copied from its former release group; release-specific identifiers and disc/track contents stay with that item. |
-| `CollectionItem` | One distinguishable physical or digital copy. Copy status, condition, purchase/value data, owner, location, notes, tags, rating, and personal images never apply to another copy. |
+| `CatalogItem` | One concrete album edition. Discs, tracks, identifiers, and canonical edition fields are part of this root document. |
+| `LibraryEntry` | One independently editable local album record containing `MusicAlbum` metadata and `MusicPersonalData`. A second owned copy is represented by duplicating the complete entry with a new local ID. `sourceCatalogRef` records optional Core provenance; it is not a parent relationship. |
 | `MusicDisc` and `MusicTrack` | Ordered catalog children of one Music Catalog Item. A disc contains ordered tracks; neither is a generic Work or Release. |
-| `MusicListeningEvent` | App activity. It references a Music Catalog Item and may reference the particular Collection Item used. A history entry is not a catalog field or a copy attribute. |
+| `MusicListeningEvent` | App activity attached to the local Music entry. It is not a catalog field. |
 
-An exact CLZ form field is identified by the displayed label and tab below. “CLZ field set” does not include implementation IDs, storage keys, derived counts, or fields that appear only in the old Collectarr model. `Quantity` is derived from the number of Collection Items; each new collection-item row represents one copy.
+The local entry keeps metadata and personal values in distinct typed fields, but they share one record identity. There is no separate Collection Item entity or Quantity field. Core proposals contain only the `MusicAlbum` metadata.
+
+An exact CLZ form field is identified by the displayed label and tab below. “CLZ field set” does not include implementation IDs, storage keys, derived counts, or fields that appear only in the old Collectarr model. Each local entry represents one owned item; duplicating the entry creates another item. Quantity is not stored.
 
 ## Catalog Item fields
 
@@ -39,7 +41,7 @@ An exact CLZ form field is identified by the displayed label and tab below. “C
 | Details | RPM | integer | `rpm` | Rotational speed when applicable. |
 | Details | Extra | string | `extra` | CLZ catalog field; do not conflate it with App annotations. |
 | Details | SPARS | string | `spars` | Catalog Item production code. |
-| Details | Box Set | string/reference | `box_set` | A source-neutral Catalog Item grouping label/reference. It is shared catalog organization, not per-copy condition or purchase data. |
+| Details | Box Set | string | `box_set` | One canonical text value shared by the Core contract and App model; there is no separate reference or position field. |
 | Classical | Composer | ordered person list | `composers[]` | Classical credit. |
 | Classical | Conductor | ordered person list | `conductors[]` | Classical credit. |
 | Classical | Chorus | ordered name list | `choruses[]` | Classical credit. |
@@ -59,7 +61,7 @@ An exact CLZ form field is identified by the displayed label and tab below. “C
 | Covers | Back Cover | image asset | `back_cover_image_url` | Core-owned Catalog Item artwork. |
 | Links | Links | ordered external-link list | `external_links[]` | Source-neutral links belong to the Catalog Item and may be proposed with its other catalog fields. |
 
-## Collection Item fields
+## Personal entry fields
 
 | CLZ tab | Displayed label | Type / repeats | v1 field | Decision |
 | --- | --- | --- | --- | --- |
@@ -81,14 +83,14 @@ An exact CLZ form field is identified by the displayed label and tab below. “C
 | Tracks | Storage Device | string/reference per disc | `disc_details[].storage_device` | App-owned storage placement for the physical copy. |
 | Tracks | Slot | string per disc | `disc_details[].slot` | App-owned position within the selected storage device. |
 | My Images | User images, maximum five | image list with description and image type | `personal_images[]` | App-owned images attached to this copy; local paths remain device cache data. |
-| Personal | Played History | ordered activity list | `MusicListeningEvent[]` | Activity targets the Catalog Item and optionally this copy; do not collapse history into one mutable copy field. |
-| Any | Custom Fields | user-defined values | `custom_field_values[]` | App-owned values target either a Catalog Item or one Collection Item according to the field definition. |
+| Personal | Played History | ordered activity list | `MusicListeningEvent[]` | Activity targets the local entry; preserve each listen as a separate event. |
+| Any | Custom Fields | user-defined values | `custom_field_values[]` | App-owned values attach to the local entry and follow the field definition's metadata or personal ownership. |
 
 ## Reset and legacy-only fields
 
 - The flattened v1 baseline starts from a fresh App database. Old Work/Release Music databases and backups are unsupported; the App must not decode them or include a compatibility conversion path.
-- Every Music Collection Item targets exactly one concrete Music Catalog Item. It does not target a separate release child or require a second pressing identity.
-- Medium condition moves to the matching Collection Item's disc details. Storage Device and Slot are also copy-specific. Matrix numbers remain shared catalog pressing identifiers.
+- Each local Music entry represents one owned item and contains its own complete metadata and personal values. Duplicating it creates another independently editable owned item.
+- Medium condition, Storage Device, and Slot belong to the local entry's personal data. Matrix numbers remain catalog fields on the matching disc.
 - `physical_format` is derived from the Catalog Item format and its ordered discs; do not persist a duplicate label.
 - Music `synopsis`, provider/source IDs (including MusicBrainz recording IDs), and Release Group/Release identities are not part of the v1 catalog contract. Track hashes, local file offsets, bitrates, file sizes, and device paths are local media/cache data only and must not be included in Core Catalog Item payloads.
 - The saved CLZ track list has Title, Artist, and Length. Collectarr's former `is_header`, `indent_level`, and `parent_header_id` fields are not part of that form and are excluded from the v1 canonical Music track contract. If a local playback/import feature still requires them, keep them outside the shared catalog contract.
