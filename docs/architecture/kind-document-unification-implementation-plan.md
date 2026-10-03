@@ -37,7 +37,9 @@ slice. This is progress, not completion of this plan:
 - The App's duplicate `CatalogMusicItemDto`/disc/track transport graph has been
   removed. `MusicAlbum`, `MusicMedium`, and `MusicTrack` are the typed Music
   models at the Core transport boundary; the mapper translates only actual
-  wire/domain naming differences and preserves contained fields.
+  wire/domain naming differences. It excludes App-local track headers and
+  playback fields, along with disc TOC/count/device details, from the Core
+  payload; the canonical disc/track fields match the saved Music ledger.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
@@ -92,13 +94,10 @@ fields while applying the shared architecture.
 Important Music discrepancies to resolve include old `MusicAlbum` fields
 outside the current Core contract, generic track/disc DTOs, credits represented
 both as role lists and contributions, partial/full date duplication, matrix
-data represented in both catalog discs and personal medium details, and
-remaining differences between credits represented as role lists and
-contributions, partial/full date duplication, and matrix data represented in
-both catalog discs and personal medium details. Track header fields are now
-part of the Core track schema. Keep supported header functionality and give
-canonical structure fields a single kind-owned schema; do not silently drop
-them through a mapper.
+data represented in both catalog discs and personal medium details. Core now
+limits Music discs and tracks to the fields recorded in the ledger. Track
+headers and playback/file metadata remain App-local where still used; they are
+not part of Core's canonical contract.
 
 ## Phase 2 — Core root document persistence for all kinds
 

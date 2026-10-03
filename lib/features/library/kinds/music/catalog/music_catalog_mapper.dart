@@ -58,13 +58,7 @@ final class MusicCatalogMapper {
       if (album.studios.isNotEmpty) 'studios': album.studios,
       if (album.countryCode != null) 'country': album.countryCode,
       if (album.isLive != null) 'is_live': album.isLive,
-      if (album.soundTypes.isNotEmpty ||
-          album.mediums.any((medium) => medium.soundType != null))
-        'sound_types': {
-          ...album.soundTypes,
-          for (final medium in album.mediums)
-            if (medium.soundType case final value?) value,
-        }.toList(),
+      if (album.soundTypes.isNotEmpty) 'sound_types': album.soundTypes,
       if (album.vinylColor != null) 'vinyl_color': album.vinylColor,
       if (album.vinylWeight != null) 'vinyl_weight': album.vinylWeight,
       if (album.rpm != null) 'rpm': album.rpm,
@@ -104,32 +98,14 @@ final class MusicCatalogMapper {
               'id': medium.id.value,
               'disc_number': medium.mediumNumber,
               if (medium.title != null) 'title': medium.title,
-              if (medium.mediumType != null) 'medium_type': medium.mediumType,
-              if (medium.trackCount != null) 'track_count': medium.trackCount,
-              if (medium.expectedTrackCount != null)
-                'expected_track_count': medium.expectedTrackCount,
-              if (medium.missingTrackCount != null)
-                'missing_track_count': medium.missingTrackCount,
-              if (medium.missingTrackPositions.isNotEmpty)
-                'missing_track_positions': medium.missingTrackPositions,
-              if (medium.toc != null) 'toc': medium.toc,
-              if (medium.cddbId != null) 'cddb_id': medium.cddbId,
-              if (medium.leadoutOffset != null)
-                'leadout_offset': medium.leadoutOffset,
-              if (medium.bpDiscId != null) 'bp_disc_id': medium.bpDiscId,
               if (medium.matrixNumberSideA != null)
                 'matrix_number_side_a': medium.matrixNumberSideA,
               if (medium.matrixNumberSideB != null)
                 'matrix_number_side_b': medium.matrixNumberSideB,
-              if (medium.soundType != null) 'sound_type': medium.soundType,
-              if (medium.vinylColor != null) 'vinyl_color': medium.vinylColor,
-              if (medium.vinylWeight != null)
-                'vinyl_weight': medium.vinylWeight,
-              if (medium.rpm != null) 'rpm': medium.rpm,
-              if (medium.spars != null) 'spars': medium.spars,
               'tracks': [
                 for (var index = 0; index < medium.tracks.length; index++)
-                  _trackToCatalogData(medium.tracks[index], index),
+                  if (!medium.tracks[index].isHeader)
+                    _trackToCatalogData(medium.tracks[index], index),
               ],
             },
         ],
@@ -151,17 +127,7 @@ final class MusicCatalogMapper {
             track.positionOrder ?? int.tryParse(track.position) ?? index + 1,
         'title': track.title,
         if (track.artist != null) 'artist': track.artist,
-        if (track.composition != null) 'composition': track.composition,
         if (track.durationMs != null) 'duration_ms': track.durationMs,
-        if (track.offsetMs != null) 'offset_ms': track.offsetMs,
-        if (track.bitrateKbps != null) 'bitrate_kbps': track.bitrateKbps,
-        if (track.fileSizeBytes != null) 'file_size_bytes': track.fileSizeBytes,
-        if (track.trackHash != null) 'track_hash': track.trackHash,
-        if (track.instrument != null) 'instrument': track.instrument,
-        'is_header': track.isHeader,
-        'indent_level': track.indentLevel,
-        if (track.parentHeaderId != null)
-          'parent_header_id': track.parentHeaderId,
       };
 
   static MusicAlbum mapDtoToMusic(CatalogItemDto dto) =>
@@ -242,6 +208,42 @@ final class MusicCatalogMapper {
       throw FormatException('Expected a Music Catalog Item, received $kind.');
     }
     final discs = _maps(catalogPayload['discs']);
+    const discFields = <String>{
+      'id',
+      'disc_number',
+      'title',
+      'matrix_number_side_a',
+      'matrix_number_side_b',
+      'tracks',
+    };
+    const trackFields = <String>{
+      'id',
+      'position',
+      'position_order',
+      'title',
+      'artist',
+      'duration_ms',
+    };
+    for (final disc in discs) {
+      final unsupportedDiscFields = disc.keys.where(
+        (key) => !discFields.contains(key),
+      );
+      if (unsupportedDiscFields.isNotEmpty) {
+        throw FormatException(
+          'Unrecognized Music disc field "${unsupportedDiscFields.first}".',
+        );
+      }
+      for (final track in _maps(disc['tracks'])) {
+        final unsupportedTrackFields = track.keys.where(
+          (key) => !trackFields.contains(key),
+        );
+        if (unsupportedTrackFields.isNotEmpty) {
+          throw FormatException(
+            'Unrecognized Music track field "${unsupportedTrackFields.first}".',
+          );
+        }
+      }
+    }
     final contributionRows = <Map<String, dynamic>>[];
     for (final role in const [
       'composers',

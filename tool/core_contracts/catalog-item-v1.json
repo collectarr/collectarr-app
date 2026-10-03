@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "b16540b3bed0924394ed931b9860b1cfa4e68dfb",
+  "coreCommit": "2aea2c47574b125c26c35d3142e73224e7da6d77",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-03T02:49:55.371084Z",
+  "generatedAt": "2026-10-03T03:11:00.337502Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -7003,53 +7003,13 @@
               "items": {
                 "additionalProperties": false,
                 "properties": {
-                  "bp_disc_id": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "cddb_id": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
                   "disc_number": {
                     "type": "integer"
-                  },
-                  "expected_track_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
                   },
                   "id": {
                     "anyOf": [
                       {
                         "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "leadout_offset": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
                       },
                       {
                         "type": "null"
@@ -7076,93 +7036,10 @@
                       }
                     ]
                   },
-                  "medium_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "missing_track_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "missing_track_positions": {
-                    "anyOf": [
-                      {
-                        "items": {
-                          "type": "string"
-                        },
-                        "type": "array"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "rpm": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sound_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "spars": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
                   "title": {
                     "anyOf": [
                       {
                         "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "toc": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "track_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
                       },
                       {
                         "type": "null"
@@ -7185,26 +7062,6 @@
                                 }
                               ]
                             },
-                            "bitrate_kbps": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "composition": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
                             "duration_ms": {
                               "anyOf": [
                                 {
@@ -7215,53 +7072,7 @@
                                 }
                               ]
                             },
-                            "file_size_bytes": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
                             "id": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "indent_level": {
-                              "type": "integer"
-                            },
-                            "instrument": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "is_header": {
-                              "type": "boolean"
-                            },
-                            "offset_ms": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "parent_header_id": {
                               "anyOf": [
                                 {
                                   "type": "string"
@@ -7301,16 +7112,6 @@
                             "title": {
                               "minLength": 1,
                               "type": "string"
-                            },
-                            "track_hash": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
                             }
                           },
                           "required": [
@@ -7319,26 +7120,6 @@
                           "type": "object"
                         },
                         "type": "array"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "vinyl_color": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "vinyl_weight": {
-                    "anyOf": [
-                      {
-                        "type": "string"
                       },
                       {
                         "type": "null"

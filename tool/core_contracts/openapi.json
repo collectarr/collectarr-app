@@ -6805,61 +6805,15 @@
       },
       "CatalogMusicDiscResponse": {
         "properties": {
-          "bp_disc_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Bp Disc Id"
-          },
-          "cddb_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Cddb Id"
-          },
           "disc_number": {
             "minimum": 1.0,
             "title": "Disc Number",
             "type": "integer"
           },
-          "expected_track_count": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Expected Track Count"
-          },
           "id": {
             "format": "uuid",
             "title": "Id",
             "type": "string"
-          },
-          "leadout_offset": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Leadout Offset"
           },
           "matrix_number_side_a": {
             "anyOf": [
@@ -6883,70 +6837,6 @@
             ],
             "title": "Matrix Number Side B"
           },
-          "medium_type": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Medium Type"
-          },
-          "missing_track_count": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Missing Track Count"
-          },
-          "missing_track_positions": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Missing Track Positions",
-            "type": "array"
-          },
-          "rpm": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Rpm"
-          },
-          "sound_type": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Sound Type"
-          },
-          "spars": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Spars"
-          },
           "title": {
             "anyOf": [
               {
@@ -6958,57 +6848,12 @@
             ],
             "title": "Title"
           },
-          "toc": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Toc"
-          },
-          "track_count": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Track Count"
-          },
           "tracks": {
             "items": {
               "$ref": "#/components/schemas/CatalogMusicTrackResponse"
             },
             "title": "Tracks",
             "type": "array"
-          },
-          "vinyl_color": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Vinyl Color"
-          },
-          "vinyl_weight": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Vinyl Weight"
           }
         },
         "required": [
@@ -7485,29 +7330,6 @@
             ],
             "title": "Artist"
           },
-          "bitrate_kbps": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Bitrate Kbps"
-          },
-          "composition": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Composition"
-          },
           "duration_ms": {
             "anyOf": [
               {
@@ -7520,68 +7342,10 @@
             ],
             "title": "Duration Ms"
           },
-          "file_size_bytes": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "File Size Bytes"
-          },
           "id": {
             "format": "uuid",
             "title": "Id",
             "type": "string"
-          },
-          "indent_level": {
-            "default": 0,
-            "minimum": 0.0,
-            "title": "Indent Level",
-            "type": "integer"
-          },
-          "instrument": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Instrument"
-          },
-          "is_header": {
-            "default": false,
-            "title": "Is Header",
-            "type": "boolean"
-          },
-          "offset_ms": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Offset Ms"
-          },
-          "parent_header_id": {
-            "anyOf": [
-              {
-                "format": "uuid",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Parent Header Id"
           },
           "position": {
             "maxLength": 16,
@@ -7599,17 +7363,6 @@
             "minLength": 1,
             "title": "Title",
             "type": "string"
-          },
-          "track_hash": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Track Hash"
           }
         },
         "required": [
