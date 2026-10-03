@@ -2,20 +2,21 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_entry_repository.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/entries/entry_kind_contributor.dart';
 
-final boardGameEntryContributor = TypedEntryKindContributor<BoardGameLibraryEntry>(
+final boardGameEntryContributor =
+    TypedEntryKindContributor<BoardGameLibraryEntry>(
   kind: CatalogMediaKind.boardgame,
   findById: (database, id) =>
       BoardGameEntryRepository(database).findById(LibraryEntryId(id)),
   upsert: (database, item) => BoardGameEntryRepository(database).upsert(item),
   listActive: (database) => BoardGameEntryRepository(database).listActive(),
-  createItem: ({
+  createItemWithCatalog: ({
     required payload,
+    required sourceCatalogItem,
     required id,
     required createdAt,
     required existingIsDigital,
@@ -27,6 +28,7 @@ final boardGameEntryContributor = TypedEntryKindContributor<BoardGameLibraryEntr
     }
     return payload.toLibraryEntry(
       id: id,
+      sourceCatalogItem: sourceCatalogItem,
       createdAt: createdAt,
       existingIsDigital: existingIsDigital,
       ownerUserId: ownerUserId,

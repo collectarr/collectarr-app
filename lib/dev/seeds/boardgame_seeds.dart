@@ -10,9 +10,8 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_entry_repository.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
 
@@ -534,44 +533,53 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
     ];
 
-List<BoardGameLibraryEntry> boardgameSeedLibraryEntries(DateTime now) => [
-      for (var i = 1; i <= 15; i++)
-        BoardGameLibraryEntry(
-          // Keep a deterministic first ID so repeated seed runs remain
-          // idempotent.
-          id: LibraryEntryId(
-            i == 1 ? 'seed-entry-bg-01' : 'seed-entry-bg-${seedOrdinal2(i)}',
-          ),
-          sourceCatalogRef: seedCatalogRef(
-            CatalogMediaKind.boardgame,
-            'seed-boardgame-${seedOrdinal2(i)}',
-          ).toCatalogItemRef(),
-          createdAt: now.subtract(Duration(days: 600 - (i * 25))),
-          updatedAt: now,
-          isDigital: false,
-          condition: i.isEven ? 'Near Mint' : 'Very Good',
-          details: BoardgameEntryDetails(
-            editionLanguage: 'English',
-            editionRegion: 'US',
-            componentCondition: i.isEven ? 'Near Mint' : 'Very Good',
-            componentCompleteness:
-                i == 1 ? 'Complete' : 'Complete with inserts',
-            missingPiecesNotes: i == 1 ? null : 'No missing components',
-            isSleeved: i.isOdd,
-            hasCustomInsert: i == 1,
-            hasPaintedMiniatures: i <= 4,
-            storageNotes: i == 1 ? 'Dedicated board-game cabinet' : null,
-          ),
-          purchaseDate: DateTime.utc(2017 + i, i % 12 + 1, 1),
-          pricePaidCents: i == 1 ? 14000 : 4500 + (i * 250),
-          currency: 'USD',
-          personalNotes: i == 1
-              ? 'All characters unlocked.'
-              : 'Complete retail copy with rulebook and components.',
-          purchaseStore: i.isEven ? 'Local Game Store' : 'Miniature Market',
-          collectionStatus: 'collected',
+List<BoardGameLibraryEntry> boardgameSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in boardgameSeedCatalogItems())
+      item.id: BoardGameMetadata.fromJson(item.kindData),
+  };
+  return [
+    for (var i = 1; i <= 15; i++)
+      BoardGameLibraryEntry(
+        // Keep a deterministic first ID so repeated seed runs remain
+        // idempotent.
+        id: LibraryEntryId(
+          i == 1 ? 'seed-entry-bg-01' : 'seed-entry-bg-${seedOrdinal2(i)}',
         ),
-    ];
+        metadata: metadataById['seed-boardgame-${seedOrdinal2(i)}'] ??
+            (throw StateError(
+              'Missing Board Game seed catalog item: ${seedOrdinal2(i)}',
+            )),
+        sourceCatalogRef: seedCatalogRef(
+          CatalogMediaKind.boardgame,
+          'seed-boardgame-${seedOrdinal2(i)}',
+        ).toCatalogItemRef(),
+        createdAt: now.subtract(Duration(days: 600 - (i * 25))),
+        updatedAt: now,
+        isDigital: false,
+        condition: i.isEven ? 'Near Mint' : 'Very Good',
+        details: BoardgameEntryDetails(
+          editionLanguage: 'English',
+          editionRegion: 'US',
+          componentCondition: i.isEven ? 'Near Mint' : 'Very Good',
+          componentCompleteness: i == 1 ? 'Complete' : 'Complete with inserts',
+          missingPiecesNotes: i == 1 ? null : 'No missing components',
+          isSleeved: i.isOdd,
+          hasCustomInsert: i == 1,
+          hasPaintedMiniatures: i <= 4,
+          storageNotes: i == 1 ? 'Dedicated board-game cabinet' : null,
+        ),
+        purchaseDate: DateTime.utc(2017 + i, i % 12 + 1, 1),
+        pricePaidCents: i == 1 ? 14000 : 4500 + (i * 250),
+        currency: 'USD',
+        personalNotes: i == 1
+            ? 'All characters unlocked.'
+            : 'Complete retail copy with rulebook and components.',
+        purchaseStore: i.isEven ? 'Local Game Store' : 'Miniature Market',
+        collectionStatus: 'collected',
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> boardgameSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
