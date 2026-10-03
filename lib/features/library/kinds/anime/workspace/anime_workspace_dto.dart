@@ -39,8 +39,7 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
       _firstString(media.rawPayload['studios']) ??
       metadata?.studios.firstOrNull;
   String? get publisher => metadata?.publisher ?? studio;
-  String? get seriesTitle =>
-      metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
+  String? get seriesTitle => metadata?.seriesTitle;
   String? get itemNumber => metadata?.itemNumber;
   DateTime? get releaseDate =>
       metadata?.startDate ?? media.originalAirDate ?? common.releaseDate;

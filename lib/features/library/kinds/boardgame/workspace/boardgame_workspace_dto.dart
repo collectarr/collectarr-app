@@ -28,8 +28,7 @@ final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
   String? get synopsis => common.synopsis;
   String? get currency => common.currency;
   String? get publisher => boardgame.publisher;
-  String? get seriesTitle =>
-      metadata.seriesTitle ?? metadata.series?.seriesTitle;
+  String? get seriesTitle => metadata.seriesTitle;
   String? get itemNumber => boardgame.itemNumber;
   DateTime? get releaseDate => boardgame.releaseDate ?? common.releaseDate;
   String? get country => boardgame.country;

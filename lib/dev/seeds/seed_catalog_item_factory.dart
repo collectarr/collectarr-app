@@ -85,11 +85,11 @@ CatalogItemDto seedCatalogItem({
     if (characters != null) 'characters': characters,
     if (storyArcs != null) 'story_arcs': storyArcs,
     if (resolvedCreators != null) 'creators': resolvedCreators,
-    if (series != null) 'series': series.toJson(),
-    if (video != null) 'video': _encodeSeedDetails(video),
-    if (music != null) 'music': _encodeSeedDetails(music),
-    if (game != null) 'game': _encodeSeedDetails(game),
-    if (resolvedPublishing != null) 'publishing': resolvedPublishing.toJson(),
+    if (series != null) ...series.toJson(),
+    if (video != null) ..._encodeSeedDetails(video),
+    if (music != null) ..._encodeSeedDetails(music),
+    if (game != null) ..._encodeSeedDetails(game),
+    if (resolvedPublishing != null) ...resolvedPublishing.toJson(),
     if (payload != null) ...payload,
   };
   final kindData = <String, dynamic>{
@@ -118,7 +118,7 @@ CatalogItemDto seedCatalogItem({
   );
 }
 
-Object _encodeSeedDetails(Object value) {
+Map<String, dynamic> _encodeSeedDetails(Object value) {
   return switch (value) {
     VideoCatalogDetailsDto details => details.toJson(),
     MusicSeedCatalogDetails details => details.toJson(),

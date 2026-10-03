@@ -39,8 +39,7 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
       metadata?.streamingService;
   String? get network => streamingService;
   String? get publisher => metadata?.publisher ?? streamingService;
-  String? get seriesTitle =>
-      metadata?.seriesTitle ?? metadata?.series?.seriesTitle ?? series.title;
+  String? get seriesTitle => metadata?.seriesTitle ?? series.title;
   String? get itemNumber => metadata?.itemNumber;
   DateTime? get releaseDate => common.releaseDate;
   String? get country => metadata?.country;

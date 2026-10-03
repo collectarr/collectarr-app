@@ -249,7 +249,6 @@ class TvSeriesMetadata implements JsonEncodable {
     this.crew = const [],
     this.seasons = const [],
     this.media = const [],
-    this.series,
     this.seriesTitle,
     this.seasonNumber,
     this.episodeNumber,
@@ -305,7 +304,6 @@ class TvSeriesMetadata implements JsonEncodable {
   final List<TvPersonCredit> crew;
   final List<TvSeasonMetadata> seasons;
   final List<TvMediaMetadata> media;
-  final CatalogSeriesDetailsDto? series;
   final String? seriesTitle;
   final int? seasonNumber;
   final int? episodeNumber;
@@ -373,7 +371,6 @@ class TvSeriesMetadata implements JsonEncodable {
         if (seasonNumber != null) 'season_number': seasonNumber,
         if (episodeNumber != null) 'episode_number': episodeNumber,
         if (itemNumber != null) 'item_number': itemNumber,
-        if (series != null) 'series': series!.toJson(),
         if (physicalFormat != null) 'physical_format': physicalFormat,
         if (physicalFormatLabel != null)
           'physical_format_label': physicalFormatLabel,
@@ -433,7 +430,6 @@ class TvSeriesMetadata implements JsonEncodable {
     List<TvPersonCredit>? crew,
     List<TvSeasonMetadata>? seasons,
     List<TvMediaMetadata>? media,
-    CatalogSeriesDetailsDto? series,
     String? seriesTitle,
     int? seasonNumber,
     int? episodeNumber,
@@ -486,7 +482,6 @@ class TvSeriesMetadata implements JsonEncodable {
       crew: crew ?? this.crew,
       seasons: seasons ?? this.seasons,
       media: media ?? this.media,
-      series: series ?? this.series,
       seriesTitle: seriesTitle ?? this.seriesTitle,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
@@ -510,11 +505,8 @@ class TvSeriesMetadata implements JsonEncodable {
   factory TvSeriesMetadata.fromJson(Map<String, dynamic> json) {
     final rawPayload = Map<String, dynamic>.from(json)
       ..remove('editions')
-      ..remove('releases');
-    final seriesRaw = json['series'];
-    final series = seriesRaw is Map
-        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
-        : null;
+      ..remove('releases')
+      ..remove('series');
 
     final rawCreators = (json['creators'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
@@ -535,12 +527,9 @@ class TvSeriesMetadata implements JsonEncodable {
           const <TrailerLinkDto>[]),
     ];
 
-    final resolvedSeasonNumber =
-        (json['season_number'] as num?)?.toInt() ?? series?.seasonNumber;
-    final resolvedEpisodeNumber =
-        (json['episode_number'] as num?)?.toInt() ?? series?.episodeNumber;
-    final resolvedSeriesTitle =
-        (json['series_title'] ?? series?.seriesTitle) as String?;
+    final resolvedSeasonNumber = (json['season_number'] as num?)?.toInt();
+    final resolvedEpisodeNumber = (json['episode_number'] as num?)?.toInt();
+    final resolvedSeriesTitle = json['series_title'] as String?;
 
     return TvSeriesMetadata(
       rawPayload: rawPayload,
@@ -602,14 +591,6 @@ class TvSeriesMetadata implements JsonEncodable {
               ?.map((e) => TvMediaMetadata.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      series: series ??
-          (resolvedSeriesTitle != null || resolvedSeasonNumber != null
-              ? CatalogSeriesDetailsDto(
-                  seriesTitle: resolvedSeriesTitle,
-                  seasonNumber: resolvedSeasonNumber,
-                  episodeNumber: resolvedEpisodeNumber,
-                )
-              : null),
       seriesTitle: resolvedSeriesTitle,
       seasonNumber: resolvedSeasonNumber,
       episodeNumber: resolvedEpisodeNumber,

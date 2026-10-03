@@ -536,7 +536,6 @@ class BoardGameEditDraft
       final bggRatingCount = _intValue(bggRatingCountController);
       final bggRank = _intValue(bggRankController);
       final seriesTitle = _nullableText(seriesTitleController);
-      final series = _updatedSeries(meta.series, seriesTitle);
       final itemNumber = _nullableText(itemNumberController);
       final physicalFormat = _nullableText(physicalFormatController);
       final barcode = _nullableText(barcodeController);
@@ -598,7 +597,6 @@ class BoardGameEditDraft
         bggRating: bggRating,
         bggRatingCount: bggRatingCount,
         bggRank: bggRank,
-        series: series,
         seriesTitle: seriesTitle,
         itemNumber: itemNumber,
         physicalFormat: physicalFormat,
@@ -655,23 +653,6 @@ List<String> _splitValues(
       .toSet()
       .toList();
   return values.isEmpty ? fallback : values;
-}
-
-CatalogSeriesDetailsDto? _updatedSeries(
-  CatalogSeriesDetailsDto? original,
-  String? seriesTitle,
-) {
-  if (original == null && seriesTitle == null) return null;
-  return CatalogSeriesDetailsDto(
-    seriesId: original?.seriesId,
-    seriesTitle: seriesTitle,
-    volumeName: original?.volumeName,
-    volumeNumber: original?.volumeNumber,
-    volumeStartYear: original?.volumeStartYear,
-    seasonNumber: original?.seasonNumber,
-    episodeNumber: original?.episodeNumber,
-    tags: original?.tags,
-  );
 }
 
 Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {

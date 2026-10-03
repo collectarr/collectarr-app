@@ -10,136 +10,6 @@
     "anime": {
       "tables": [
         {
-          "name": "AnimeLibraryEntriesRows",
-          "source": "lib/features/library/kinds/anime/data/local/anime_local_tables.dart",
-          "columns": [
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "itemId",
-              "sqlName": "item_id"
-            },
-            {
-              "property": "createdAt",
-              "sqlName": "created_at"
-            },
-            {
-              "property": "isDigital",
-              "sqlName": "is_digital"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
-            },
-            {
-              "property": "condition",
-              "sqlName": "condition"
-            },
-            {
-              "property": "grade",
-              "sqlName": "grade"
-            },
-            {
-              "property": "purchaseDate",
-              "sqlName": "purchase_date"
-            },
-            {
-              "property": "pricePaidCents",
-              "sqlName": "price_paid_cents"
-            },
-            {
-              "property": "currency",
-              "sqlName": "currency"
-            },
-            {
-              "property": "personalNotes",
-              "sqlName": "personal_notes"
-            },
-            {
-              "property": "indexNumber",
-              "sqlName": "index_number"
-            },
-            {
-              "property": "tags",
-              "sqlName": "tags"
-            },
-            {
-              "property": "updatedAt",
-              "sqlName": "updated_at"
-            },
-            {
-              "property": "deletedAt",
-              "sqlName": "deleted_at"
-            },
-            {
-              "property": "soldAt",
-              "sqlName": "sold_at"
-            },
-            {
-              "property": "sellPriceCents",
-              "sqlName": "sell_price_cents"
-            },
-            {
-              "property": "soldTo",
-              "sqlName": "sold_to"
-            },
-            {
-              "property": "ownerUserId",
-              "sqlName": "owner_user_id"
-            },
-            {
-              "property": "ownerLabel",
-              "sqlName": "owner_label"
-            },
-            {
-              "property": "locationId",
-              "sqlName": "location_id"
-            },
-            {
-              "property": "purchaseStore",
-              "sqlName": "purchase_store"
-            },
-            {
-              "property": "collectionStatus",
-              "sqlName": "collection_status"
-            },
-            {
-              "property": "marketValueCents",
-              "sqlName": "market_value_cents"
-            },
-            {
-              "property": "features",
-              "sqlName": "features"
-            },
-            {
-              "property": "hdrFormatsJson",
-              "sqlName": "hdr_formats_json"
-            },
-            {
-              "property": "boxSetId",
-              "sqlName": "box_set_id"
-            },
-            {
-              "property": "boxSetName",
-              "sqlName": "box_set_name"
-            },
-            {
-              "property": "region",
-              "sqlName": "region"
-            },
-            {
-              "property": "packaging",
-              "sqlName": "packaging"
-            },
-            {
-              "property": "distributor",
-              "sqlName": "distributor"
-            }
-          ]
-        },
-        {
           "name": "AnimeTrackingRows",
           "source": "lib/features/library/kinds/anime/data/local/anime_local_tables.dart",
           "columns": [
@@ -148,24 +18,8 @@
               "sqlName": "id"
             },
             {
-              "property": "entryType",
-              "sqlName": "entry_type"
-            },
-            {
-              "property": "catalogRefJson",
-              "sqlName": "catalog_ref_json"
-            },
-            {
               "property": "libraryEntryRefKey",
               "sqlName": "library_entry_ref_key"
-            },
-            {
-              "property": "mediaId",
-              "sqlName": "media_id"
-            },
-            {
-              "property": "episodeId",
-              "sqlName": "episode_id"
             },
             {
               "property": "status",
@@ -234,10 +88,6 @@
               "sqlName": "id"
             },
             {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
-            },
-            {
               "property": "trackingEntryId",
               "sqlName": "tracking_entry_id"
             },
@@ -276,16 +126,16 @@
               "sqlName": "id"
             },
             {
-              "property": "seriesId",
-              "sqlName": "series_id"
+              "property": "libraryEntryId",
+              "sqlName": "library_entry_id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
             },
             {
               "property": "episodeId",
               "sqlName": "episode_id"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
             },
             {
               "property": "trackingEntryId",
@@ -338,8 +188,8 @@
               "sqlName": "id"
             },
             {
-              "property": "seriesId",
-              "sqlName": "series_id"
+              "property": "libraryEntryId",
+              "sqlName": "library_entry_id"
             },
             {
               "property": "seasonNumber",
@@ -391,9 +241,7 @@
       "workspaceIdSources": [
         "lib/features/library/kinds/anime/workspace/anime_ids.dart"
       ],
-      "mapperSources": [
-        "lib/features/library/kinds/anime/data/local/anime_local_mapper.dart"
-      ],
+      "mapperSources": [],
       "fields": {
         "addedAt": {
           "symbols": [
@@ -446,87 +294,6 @@
             "anime.barcode"
           ]
         },
-        "boxSetId": {
-          "symbols": [
-            "boxSetId",
-            "box_set_id"
-          ],
-          "databaseColumns": [
-            "boxSetId"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "box_set_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "boxSetName": {
-          "symbols": [
-            "boxSetName",
-            "box_set_name"
-          ],
-          "databaseColumns": [
-            "boxSetName"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "box_set_name"
-          ],
-          "workspaceFieldIds": []
-        },
-        "catalogRefJson": {
-          "symbols": [
-            "catalogRefJson",
-            "catalog_ref_json"
-          ],
-          "databaseColumns": [
-            "catalogRefJson"
-          ],
-          "databaseTables": [
-            "AnimeTrackingRows"
-          ],
-          "sqlNames": [
-            "catalog_ref_json"
-          ],
-          "workspaceFieldIds": []
-        },
-        "libraryEntryRefKey": {
-          "symbols": [
-            "libraryEntryRefKey",
-            "library_entry_ref_key"
-          ],
-          "databaseColumns": [
-            "libraryEntryRefKey"
-          ],
-          "databaseTables": [
-            "AnimeTrackingRows",
-            "AnimeTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "library_entry_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
-        "collectionStatus": {
-          "symbols": [
-            "collectionStatus",
-            "collection_status"
-          ],
-          "databaseColumns": [
-            "collectionStatus"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "collection_status"
-          ],
-          "workspaceFieldIds": []
-        },
         "completedAt": {
           "symbols": [
             "completedAt",
@@ -547,15 +314,9 @@
           "symbols": [
             "condition"
           ],
-          "databaseColumns": [
-            "condition"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "condition"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "anime.condition"
           ]
@@ -571,37 +332,6 @@
             "anime.cover"
           ]
         },
-        "createdAt": {
-          "symbols": [
-            "createdAt",
-            "created_at"
-          ],
-          "databaseColumns": [
-            "createdAt"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "created_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "currency": {
-          "symbols": [
-            "currency"
-          ],
-          "databaseColumns": [
-            "currency"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "currency"
-          ],
-          "workspaceFieldIds": []
-        },
         "deletedAt": {
           "symbols": [
             "deletedAt",
@@ -611,7 +341,6 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "AnimeLibraryEntriesRows",
             "AnimeCustomEpisodeRows",
             "AnimeTrackingRows",
             "AnimeTrackingUnitRows",
@@ -637,21 +366,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "distributor": {
-          "symbols": [
-            "distributor"
-          ],
-          "databaseColumns": [
-            "distributor"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "distributor"
-          ],
-          "workspaceFieldIds": []
-        },
         "englishTitle": {
           "symbols": [
             "englishTitle",
@@ -663,22 +377,6 @@
           "workspaceFieldIds": [
             "anime.english_title"
           ]
-        },
-        "entryType": {
-          "symbols": [
-            "entryType",
-            "entry_type"
-          ],
-          "databaseColumns": [
-            "entryType"
-          ],
-          "databaseTables": [
-            "AnimeTrackingRows"
-          ],
-          "sqlNames": [
-            "entry_type"
-          ],
-          "workspaceFieldIds": []
         },
         "episodeCount": {
           "symbols": [
@@ -701,7 +399,6 @@
             "episodeId"
           ],
           "databaseTables": [
-            "AnimeTrackingRows",
             "AnimeWatchSessionRows"
           ],
           "sqlNames": [
@@ -758,21 +455,6 @@
             "anime.episode_runtime_minutes"
           ]
         },
-        "features": {
-          "symbols": [
-            "features"
-          ],
-          "databaseColumns": [
-            "features"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "features"
-          ],
-          "workspaceFieldIds": []
-        },
         "finishedAt": {
           "symbols": [
             "finishedAt",
@@ -800,39 +482,6 @@
             "anime.format"
           ]
         },
-        "grade": {
-          "symbols": [
-            "grade"
-          ],
-          "databaseColumns": [
-            "grade"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grade"
-          ],
-          "workspaceFieldIds": []
-        },
-        "hdrFormats": {
-          "symbols": [
-            "hdrFormats",
-            "hdrFormatsJson",
-            "hdr_formats",
-            "hdr_formats_json"
-          ],
-          "databaseColumns": [
-            "hdrFormatsJson"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "hdr_formats_json"
-          ],
-          "workspaceFieldIds": []
-        },
         "id": {
           "symbols": [
             "id"
@@ -841,7 +490,6 @@
             "id"
           ],
           "databaseTables": [
-            "AnimeLibraryEntriesRows",
             "AnimeCustomEpisodeRows",
             "AnimeTrackingRows",
             "AnimeTrackingUnitRows",
@@ -852,51 +500,38 @@
           ],
           "workspaceFieldIds": []
         },
-        "indexNumber": {
+        "libraryEntryId": {
           "symbols": [
-            "indexNumber",
-            "index_number"
+            "libraryEntryId",
+            "library_entry_id"
           ],
           "databaseColumns": [
-            "indexNumber"
+            "libraryEntryId"
           ],
           "databaseTables": [
-            "AnimeLibraryEntriesRows"
+            "AnimeCustomEpisodeRows",
+            "AnimeWatchSessionRows"
           ],
           "sqlNames": [
-            "index_number"
+            "library_entry_id"
           ],
           "workspaceFieldIds": []
         },
-        "isDigital": {
+        "libraryEntryRefKey": {
           "symbols": [
-            "isDigital",
-            "is_digital"
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
           ],
           "databaseColumns": [
-            "isDigital"
+            "libraryEntryRefKey"
           ],
           "databaseTables": [
-            "AnimeLibraryEntriesRows"
+            "AnimeTrackingRows",
+            "AnimeTrackingUnitRows",
+            "AnimeWatchSessionRows"
           ],
           "sqlNames": [
-            "is_digital"
-          ],
-          "workspaceFieldIds": []
-        },
-        "itemId": {
-          "symbols": [
-            "itemId",
-            "item_id"
-          ],
-          "databaseColumns": [
-            "itemId"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "item_id"
+            "library_entry_ref_key"
           ],
           "workspaceFieldIds": []
         },
@@ -927,54 +562,6 @@
             "anime.location"
           ]
         },
-        "locationId": {
-          "symbols": [
-            "locationId",
-            "location_id"
-          ],
-          "databaseColumns": [
-            "locationId"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "location_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "marketValueCents": {
-          "symbols": [
-            "marketValueCents",
-            "market_value_cents"
-          ],
-          "databaseColumns": [
-            "marketValueCents"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "market_value_cents"
-          ],
-          "workspaceFieldIds": []
-        },
-        "mediaId": {
-          "symbols": [
-            "mediaId",
-            "media_id"
-          ],
-          "databaseColumns": [
-            "mediaId"
-          ],
-          "databaseTables": [
-            "AnimeTrackingRows"
-          ],
-          "sqlNames": [
-            "media_id"
-          ],
-          "workspaceFieldIds": []
-        },
         "nativeTitle": {
           "symbols": [
             "nativeTitle",
@@ -1003,69 +590,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "ownerLabel": {
-          "symbols": [
-            "ownerLabel",
-            "owner_label"
-          ],
-          "databaseColumns": [
-            "ownerLabel"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_label"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownerUserId": {
-          "symbols": [
-            "ownerUserId",
-            "owner_user_id"
-          ],
-          "databaseColumns": [
-            "ownerUserId"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_user_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "packaging": {
-          "symbols": [
-            "packaging"
-          ],
-          "databaseColumns": [
-            "packaging"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "packaging"
-          ],
-          "workspaceFieldIds": []
-        },
-        "personalNotes": {
-          "symbols": [
-            "personalNotes",
-            "personal_notes"
-          ],
-          "databaseColumns": [
-            "personalNotes"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "personal_notes"
-          ],
-          "workspaceFieldIds": []
-        },
         "pricePaid": {
           "symbols": [
             "pricePaid",
@@ -1077,22 +601,6 @@
           "workspaceFieldIds": [
             "anime.price_paid"
           ]
-        },
-        "pricePaidCents": {
-          "symbols": [
-            "pricePaidCents",
-            "price_paid_cents"
-          ],
-          "databaseColumns": [
-            "pricePaidCents"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "price_paid_cents"
-          ],
-          "workspaceFieldIds": []
         },
         "progressCurrent": {
           "symbols": [
@@ -1137,38 +645,6 @@
             "anime.publisher"
           ]
         },
-        "purchaseDate": {
-          "symbols": [
-            "purchaseDate",
-            "purchase_date"
-          ],
-          "databaseColumns": [
-            "purchaseDate"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_date"
-          ],
-          "workspaceFieldIds": []
-        },
-        "purchaseStore": {
-          "symbols": [
-            "purchaseStore",
-            "purchase_store"
-          ],
-          "databaseColumns": [
-            "purchaseStore"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
         "rating": {
           "symbols": [
             "rating"
@@ -1186,21 +662,6 @@
           "workspaceFieldIds": [
             "anime.rating"
           ]
-        },
-        "region": {
-          "symbols": [
-            "region"
-          ],
-          "databaseColumns": [
-            "region"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "region"
-          ],
-          "workspaceFieldIds": []
         },
         "releaseDate": {
           "symbols": [
@@ -1312,71 +773,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "sellPriceCents": {
-          "symbols": [
-            "sellPriceCents",
-            "sell_price_cents"
-          ],
-          "databaseColumns": [
-            "sellPriceCents"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sell_price_cents"
-          ],
-          "workspaceFieldIds": []
-        },
-        "seriesId": {
-          "symbols": [
-            "seriesId",
-            "series_id"
-          ],
-          "databaseColumns": [
-            "seriesId"
-          ],
-          "databaseTables": [
-            "AnimeCustomEpisodeRows",
-            "AnimeWatchSessionRows"
-          ],
-          "sqlNames": [
-            "series_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldAt": {
-          "symbols": [
-            "soldAt",
-            "sold_at"
-          ],
-          "databaseColumns": [
-            "soldAt"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldTo": {
-          "symbols": [
-            "soldTo",
-            "sold_to"
-          ],
-          "databaseColumns": [
-            "soldTo"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_to"
-          ],
-          "workspaceFieldIds": []
-        },
         "sourceMaterial": {
           "symbols": [
             "sourceMaterial",
@@ -1466,39 +862,6 @@
             "anime.studio"
           ]
         },
-        "tags": {
-          "symbols": [
-            "tags"
-          ],
-          "databaseColumns": [
-            "tags"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "tags"
-          ],
-          "workspaceFieldIds": []
-        },
-        "targetRefJson": {
-          "symbols": [
-            "targetRefJson",
-            "target_ref_json"
-          ],
-          "databaseColumns": [
-            "targetRefJson"
-          ],
-          "databaseTables": [
-            "AnimeLibraryEntriesRows",
-            "AnimeTrackingUnitRows",
-            "AnimeWatchSessionRows"
-          ],
-          "sqlNames": [
-            "target_ref_json"
-          ],
-          "workspaceFieldIds": []
-        },
         "thumbnailImageUrl": {
           "symbols": [
             "thumbnailImageUrl",
@@ -1574,7 +937,6 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "AnimeLibraryEntriesRows",
             "AnimeCustomEpisodeRows",
             "AnimeTrackingRows",
             "AnimeTrackingUnitRows",
@@ -1631,140 +993,6 @@
     "boardgame": {
       "tables": [
         {
-          "name": "BoardGameLibraryEntriesRows",
-          "source": "lib/features/library/kinds/boardgame/data/local/boardgame_local_tables.dart",
-          "columns": [
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "itemId",
-              "sqlName": "item_id"
-            },
-            {
-              "property": "createdAt",
-              "sqlName": "created_at"
-            },
-            {
-              "property": "isDigital",
-              "sqlName": "is_digital"
-            },
-            {
-              "property": "condition",
-              "sqlName": "condition"
-            },
-            {
-              "property": "grade",
-              "sqlName": "grade"
-            },
-            {
-              "property": "purchaseDate",
-              "sqlName": "purchase_date"
-            },
-            {
-              "property": "pricePaidCents",
-              "sqlName": "price_paid_cents"
-            },
-            {
-              "property": "currency",
-              "sqlName": "currency"
-            },
-            {
-              "property": "personalNotes",
-              "sqlName": "personal_notes"
-            },
-            {
-              "property": "indexNumber",
-              "sqlName": "index_number"
-            },
-            {
-              "property": "tags",
-              "sqlName": "tags"
-            },
-            {
-              "property": "updatedAt",
-              "sqlName": "updated_at"
-            },
-            {
-              "property": "deletedAt",
-              "sqlName": "deleted_at"
-            },
-            {
-              "property": "soldAt",
-              "sqlName": "sold_at"
-            },
-            {
-              "property": "sellPriceCents",
-              "sqlName": "sell_price_cents"
-            },
-            {
-              "property": "soldTo",
-              "sqlName": "sold_to"
-            },
-            {
-              "property": "ownerUserId",
-              "sqlName": "owner_user_id"
-            },
-            {
-              "property": "ownerLabel",
-              "sqlName": "owner_label"
-            },
-            {
-              "property": "locationId",
-              "sqlName": "location_id"
-            },
-            {
-              "property": "purchaseStore",
-              "sqlName": "purchase_store"
-            },
-            {
-              "property": "collectionStatus",
-              "sqlName": "collection_status"
-            },
-            {
-              "property": "marketValueCents",
-              "sqlName": "market_value_cents"
-            },
-            {
-              "property": "editionLanguage",
-              "sqlName": "edition_language"
-            },
-            {
-              "property": "editionRegion",
-              "sqlName": "edition_region"
-            },
-            {
-              "property": "componentCondition",
-              "sqlName": "component_condition"
-            },
-            {
-              "property": "componentCompleteness",
-              "sqlName": "component_completeness"
-            },
-            {
-              "property": "missingPiecesNotes",
-              "sqlName": "missing_pieces_notes"
-            },
-            {
-              "property": "isSleeved",
-              "sqlName": "is_sleeved"
-            },
-            {
-              "property": "hasCustomInsert",
-              "sqlName": "has_custom_insert"
-            },
-            {
-              "property": "hasPaintedMiniatures",
-              "sqlName": "has_painted_miniatures"
-            },
-            {
-              "property": "storageNotes",
-              "sqlName": "storage_notes"
-            }
-          ]
-        },
-        {
           "name": "BoardGamePlaySessionsRows",
           "source": "lib/features/library/kinds/boardgame/data/local/boardgame_local_tables.dart",
           "columns": [
@@ -1813,10 +1041,6 @@
             {
               "property": "id",
               "sqlName": "id"
-            },
-            {
-              "property": "catalogRefJson",
-              "sqlName": "catalog_ref_json"
             },
             {
               "property": "libraryEntryRefKey",
@@ -1951,54 +1175,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "catalogRefJson": {
-          "symbols": [
-            "catalogRefJson",
-            "catalog_ref_json"
-          ],
-          "databaseColumns": [
-            "catalogRefJson"
-          ],
-          "databaseTables": [
-            "BoardGameTrackingRows"
-          ],
-          "sqlNames": [
-            "catalog_ref_json"
-          ],
-          "workspaceFieldIds": []
-        },
-        "libraryEntryRefKey": {
-          "symbols": [
-            "libraryEntryRefKey",
-            "library_entry_ref_key"
-          ],
-          "databaseColumns": [
-            "libraryEntryRefKey"
-          ],
-          "databaseTables": [
-            "BoardGameTrackingRows"
-          ],
-          "sqlNames": [
-            "library_entry_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
-        "collectionStatus": {
-          "symbols": [
-            "collectionStatus",
-            "collection_status"
-          ],
-          "databaseColumns": [
-            "collectionStatus"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "collection_status"
-          ],
-          "workspaceFieldIds": []
-        },
         "complexityWeight": {
           "symbols": [
             "complexityWeight",
@@ -2011,51 +1187,13 @@
             "boardgame.complexity_weight"
           ]
         },
-        "componentCompleteness": {
-          "symbols": [
-            "componentCompleteness",
-            "component_completeness"
-          ],
-          "databaseColumns": [
-            "componentCompleteness"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "component_completeness"
-          ],
-          "workspaceFieldIds": []
-        },
-        "componentCondition": {
-          "symbols": [
-            "componentCondition",
-            "component_condition"
-          ],
-          "databaseColumns": [
-            "componentCondition"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "component_condition"
-          ],
-          "workspaceFieldIds": []
-        },
         "condition": {
           "symbols": [
             "condition"
           ],
-          "databaseColumns": [
-            "condition"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "condition"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "boardgame.condition"
           ]
@@ -2070,37 +1208,6 @@
           "workspaceFieldIds": [
             "boardgame.cover"
           ]
-        },
-        "createdAt": {
-          "symbols": [
-            "createdAt",
-            "created_at"
-          ],
-          "databaseColumns": [
-            "createdAt"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "created_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "currency": {
-          "symbols": [
-            "currency"
-          ],
-          "databaseColumns": [
-            "currency"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "currency"
-          ],
-          "workspaceFieldIds": []
         },
         "date": {
           "symbols": [
@@ -2126,7 +1233,6 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "BoardGameLibraryEntriesRows",
             "BoardGameTrackingRows"
           ],
           "sqlNames": [
@@ -2161,38 +1267,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "editionLanguage": {
-          "symbols": [
-            "editionLanguage",
-            "edition_language"
-          ],
-          "databaseColumns": [
-            "editionLanguage"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "edition_language"
-          ],
-          "workspaceFieldIds": []
-        },
-        "editionRegion": {
-          "symbols": [
-            "editionRegion",
-            "edition_region"
-          ],
-          "databaseColumns": [
-            "editionRegion"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "edition_region"
-          ],
-          "workspaceFieldIds": []
-        },
         "expansionFor": {
           "symbols": [
             "expansionFor",
@@ -2221,53 +1295,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "grade": {
-          "symbols": [
-            "grade"
-          ],
-          "databaseColumns": [
-            "grade"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grade"
-          ],
-          "workspaceFieldIds": []
-        },
-        "hasCustomInsert": {
-          "symbols": [
-            "hasCustomInsert",
-            "has_custom_insert"
-          ],
-          "databaseColumns": [
-            "hasCustomInsert"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "has_custom_insert"
-          ],
-          "workspaceFieldIds": []
-        },
-        "hasPaintedMiniatures": {
-          "symbols": [
-            "hasPaintedMiniatures",
-            "has_painted_miniatures"
-          ],
-          "databaseColumns": [
-            "hasPaintedMiniatures"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "has_painted_miniatures"
-          ],
-          "workspaceFieldIds": []
-        },
         "id": {
           "symbols": [
             "id"
@@ -2276,7 +1303,6 @@
             "id"
           ],
           "databaseTables": [
-            "BoardGameLibraryEntriesRows",
             "BoardGamePlaySessionsRows",
             "BoardGameTrackingRows"
           ],
@@ -2285,67 +1311,19 @@
           ],
           "workspaceFieldIds": []
         },
-        "indexNumber": {
+        "libraryEntryRefKey": {
           "symbols": [
-            "indexNumber",
-            "index_number"
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
           ],
           "databaseColumns": [
-            "indexNumber"
+            "libraryEntryRefKey"
           ],
           "databaseTables": [
-            "BoardGameLibraryEntriesRows"
+            "BoardGameTrackingRows"
           ],
           "sqlNames": [
-            "index_number"
-          ],
-          "workspaceFieldIds": []
-        },
-        "isDigital": {
-          "symbols": [
-            "isDigital",
-            "is_digital"
-          ],
-          "databaseColumns": [
-            "isDigital"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "is_digital"
-          ],
-          "workspaceFieldIds": []
-        },
-        "isSleeved": {
-          "symbols": [
-            "isSleeved",
-            "is_sleeved"
-          ],
-          "databaseColumns": [
-            "isSleeved"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "is_sleeved"
-          ],
-          "workspaceFieldIds": []
-        },
-        "itemId": {
-          "symbols": [
-            "itemId",
-            "item_id"
-          ],
-          "databaseColumns": [
-            "itemId"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "item_id"
+            "library_entry_ref_key"
           ],
           "workspaceFieldIds": []
         },
@@ -2365,38 +1343,6 @@
           "workspaceFieldIds": [
             "boardgame.location"
           ]
-        },
-        "locationId": {
-          "symbols": [
-            "locationId",
-            "location_id"
-          ],
-          "databaseColumns": [
-            "locationId"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "location_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "marketValueCents": {
-          "symbols": [
-            "marketValueCents",
-            "market_value_cents"
-          ],
-          "databaseColumns": [
-            "marketValueCents"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "market_value_cents"
-          ],
-          "workspaceFieldIds": []
         },
         "maxPlayers": {
           "symbols": [
@@ -2458,22 +1404,6 @@
             "boardgame.min_playtime_minutes"
           ]
         },
-        "missingPiecesNotes": {
-          "symbols": [
-            "missingPiecesNotes",
-            "missing_pieces_notes"
-          ],
-          "databaseColumns": [
-            "missingPiecesNotes"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "missing_pieces_notes"
-          ],
-          "workspaceFieldIds": []
-        },
         "notes": {
           "symbols": [
             "notes"
@@ -2487,54 +1417,6 @@
           ],
           "sqlNames": [
             "notes"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownerLabel": {
-          "symbols": [
-            "ownerLabel",
-            "owner_label"
-          ],
-          "databaseColumns": [
-            "ownerLabel"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_label"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownerUserId": {
-          "symbols": [
-            "ownerUserId",
-            "owner_user_id"
-          ],
-          "databaseColumns": [
-            "ownerUserId"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_user_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "personalNotes": {
-          "symbols": [
-            "personalNotes",
-            "personal_notes"
-          ],
-          "databaseColumns": [
-            "personalNotes"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "personal_notes"
           ],
           "workspaceFieldIds": []
         },
@@ -2591,22 +1473,6 @@
             "boardgame.price_paid"
           ]
         },
-        "pricePaidCents": {
-          "symbols": [
-            "pricePaidCents",
-            "price_paid_cents"
-          ],
-          "databaseColumns": [
-            "pricePaidCents"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "price_paid_cents"
-          ],
-          "workspaceFieldIds": []
-        },
         "progressCurrent": {
           "symbols": [
             "progressCurrent",
@@ -2649,38 +1515,6 @@
           "workspaceFieldIds": [
             "boardgame.publisher"
           ]
-        },
-        "purchaseDate": {
-          "symbols": [
-            "purchaseDate",
-            "purchase_date"
-          ],
-          "databaseColumns": [
-            "purchaseDate"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_date"
-          ],
-          "workspaceFieldIds": []
-        },
-        "purchaseStore": {
-          "symbols": [
-            "purchaseStore",
-            "purchase_store"
-          ],
-          "databaseColumns": [
-            "purchaseStore"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_store"
-          ],
-          "workspaceFieldIds": []
         },
         "rating": {
           "symbols": [
@@ -2740,54 +1574,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "sellPriceCents": {
-          "symbols": [
-            "sellPriceCents",
-            "sell_price_cents"
-          ],
-          "databaseColumns": [
-            "sellPriceCents"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sell_price_cents"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldAt": {
-          "symbols": [
-            "soldAt",
-            "sold_at"
-          ],
-          "databaseColumns": [
-            "soldAt"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldTo": {
-          "symbols": [
-            "soldTo",
-            "sold_to"
-          ],
-          "databaseColumns": [
-            "soldTo"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_to"
-          ],
-          "workspaceFieldIds": []
-        },
         "sourceType": {
           "symbols": [
             "sourceType",
@@ -2837,37 +1623,6 @@
             "boardgame.status"
           ]
         },
-        "storageNotes": {
-          "symbols": [
-            "storageNotes",
-            "storage_notes"
-          ],
-          "databaseColumns": [
-            "storageNotes"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "storage_notes"
-          ],
-          "workspaceFieldIds": []
-        },
-        "tags": {
-          "symbols": [
-            "tags"
-          ],
-          "databaseColumns": [
-            "tags"
-          ],
-          "databaseTables": [
-            "BoardGameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "tags"
-          ],
-          "workspaceFieldIds": []
-        },
         "timesCompleted": {
           "symbols": [
             "timesCompleted",
@@ -2904,7 +1659,6 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "BoardGameLibraryEntriesRows",
             "BoardGameTrackingRows"
           ],
           "sqlNames": [
@@ -2945,130 +1699,12 @@
     "book": {
       "tables": [
         {
-          "name": "BookLibraryEntriesRows",
-          "source": "lib/features/library/kinds/book/data/local/book_local_tables.dart",
-          "columns": [
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "itemId",
-              "sqlName": "item_id"
-            },
-            {
-              "property": "createdAt",
-              "sqlName": "created_at"
-            },
-            {
-              "property": "isDigital",
-              "sqlName": "is_digital"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
-            },
-            {
-              "property": "condition",
-              "sqlName": "condition"
-            },
-            {
-              "property": "grade",
-              "sqlName": "grade"
-            },
-            {
-              "property": "purchaseDate",
-              "sqlName": "purchase_date"
-            },
-            {
-              "property": "pricePaidCents",
-              "sqlName": "price_paid_cents"
-            },
-            {
-              "property": "currency",
-              "sqlName": "currency"
-            },
-            {
-              "property": "personalNotes",
-              "sqlName": "personal_notes"
-            },
-            {
-              "property": "indexNumber",
-              "sqlName": "index_number"
-            },
-            {
-              "property": "tags",
-              "sqlName": "tags"
-            },
-            {
-              "property": "updatedAt",
-              "sqlName": "updated_at"
-            },
-            {
-              "property": "deletedAt",
-              "sqlName": "deleted_at"
-            },
-            {
-              "property": "soldAt",
-              "sqlName": "sold_at"
-            },
-            {
-              "property": "sellPriceCents",
-              "sqlName": "sell_price_cents"
-            },
-            {
-              "property": "soldTo",
-              "sqlName": "sold_to"
-            },
-            {
-              "property": "ownerUserId",
-              "sqlName": "owner_user_id"
-            },
-            {
-              "property": "ownerLabel",
-              "sqlName": "owner_label"
-            },
-            {
-              "property": "locationId",
-              "sqlName": "location_id"
-            },
-            {
-              "property": "purchaseStore",
-              "sqlName": "purchase_store"
-            },
-            {
-              "property": "collectionStatus",
-              "sqlName": "collection_status"
-            },
-            {
-              "property": "marketValueCents",
-              "sqlName": "market_value_cents"
-            },
-            {
-              "property": "signedBy",
-              "sqlName": "signed_by"
-            },
-            {
-              "property": "dustJacketPresent",
-              "sqlName": "dust_jacket_present"
-            },
-            {
-              "property": "dustJacketCondition",
-              "sqlName": "dust_jacket_condition"
-            }
-          ]
-        },
-        {
           "name": "BookTrackingUnitRows",
           "source": "lib/features/library/kinds/book/data/local/book_local_tables.dart",
           "columns": [
             {
               "property": "id",
               "sqlName": "id"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
             },
             {
               "property": "trackingEntryId",
@@ -3107,10 +1743,6 @@
             {
               "property": "id",
               "sqlName": "id"
-            },
-            {
-              "property": "catalogRefJson",
-              "sqlName": "catalog_ref_json"
             },
             {
               "property": "libraryEntryRefKey",
@@ -3166,9 +1798,7 @@
       "workspaceIdSources": [
         "lib/features/library/kinds/book/workspace/book_ids.dart"
       ],
-      "mapperSources": [
-        "lib/features/library/kinds/book/data/local/book_library_entry_local_mapper.dart"
-      ],
+      "mapperSources": [],
       "fields": {
         "addedAt": {
           "symbols": [
@@ -3193,22 +1823,6 @@
             "book.author"
           ]
         },
-        "catalogRefJson": {
-          "symbols": [
-            "catalogRefJson",
-            "catalog_ref_json"
-          ],
-          "databaseColumns": [
-            "catalogRefJson"
-          ],
-          "databaseTables": [
-            "BookTrackingRows"
-          ],
-          "sqlNames": [
-            "catalog_ref_json"
-          ],
-          "workspaceFieldIds": []
-        },
         "chapterNumber": {
           "symbols": [
             "chapterNumber",
@@ -3222,39 +1836,6 @@
           ],
           "sqlNames": [
             "chapter_number"
-          ],
-          "workspaceFieldIds": []
-        },
-        "libraryEntryRefKey": {
-          "symbols": [
-            "libraryEntryRefKey",
-            "library_entry_ref_key"
-          ],
-          "databaseColumns": [
-            "libraryEntryRefKey"
-          ],
-          "databaseTables": [
-            "BookTrackingRows",
-            "BookTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "library_entry_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
-        "collectionStatus": {
-          "symbols": [
-            "collectionStatus",
-            "collection_status"
-          ],
-          "databaseColumns": [
-            "collectionStatus"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "collection_status"
           ],
           "workspaceFieldIds": []
         },
@@ -3278,15 +1859,9 @@
           "symbols": [
             "condition"
           ],
-          "databaseColumns": [
-            "condition"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "condition"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "book.condition"
           ]
@@ -3314,37 +1889,6 @@
             "book.cover_artist"
           ]
         },
-        "createdAt": {
-          "symbols": [
-            "createdAt",
-            "created_at"
-          ],
-          "databaseColumns": [
-            "createdAt"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "created_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "currency": {
-          "symbols": [
-            "currency"
-          ],
-          "databaseColumns": [
-            "currency"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "currency"
-          ],
-          "workspaceFieldIds": []
-        },
         "deletedAt": {
           "symbols": [
             "deletedAt",
@@ -3354,44 +1898,11 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "BookLibraryEntriesRows",
             "BookTrackingRows",
             "BookTrackingUnitRows"
           ],
           "sqlNames": [
             "deleted_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "dustJacketCondition": {
-          "symbols": [
-            "dustJacketCondition",
-            "dust_jacket_condition"
-          ],
-          "databaseColumns": [
-            "dustJacketCondition"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "dust_jacket_condition"
-          ],
-          "workspaceFieldIds": []
-        },
-        "dustJacketPresent": {
-          "symbols": [
-            "dustJacketPresent",
-            "dust_jacket_present"
-          ],
-          "databaseColumns": [
-            "dustJacketPresent"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "dust_jacket_present"
           ],
           "workspaceFieldIds": []
         },
@@ -3433,21 +1944,6 @@
             "book.format"
           ]
         },
-        "grade": {
-          "symbols": [
-            "grade"
-          ],
-          "databaseColumns": [
-            "grade"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grade"
-          ],
-          "workspaceFieldIds": []
-        },
         "id": {
           "symbols": [
             "id"
@@ -3456,7 +1952,6 @@
             "id"
           ],
           "databaseTables": [
-            "BookLibraryEntriesRows",
             "BookTrackingRows",
             "BookTrackingUnitRows"
           ],
@@ -3476,38 +1971,6 @@
             "book.illustrator"
           ]
         },
-        "indexNumber": {
-          "symbols": [
-            "indexNumber",
-            "index_number"
-          ],
-          "databaseColumns": [
-            "indexNumber"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "index_number"
-          ],
-          "workspaceFieldIds": []
-        },
-        "isDigital": {
-          "symbols": [
-            "isDigital",
-            "is_digital"
-          ],
-          "databaseColumns": [
-            "isDigital"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "is_digital"
-          ],
-          "workspaceFieldIds": []
-        },
         "isbn": {
           "symbols": [
             "isbn"
@@ -3519,19 +1982,20 @@
             "book.isbn"
           ]
         },
-        "itemId": {
+        "libraryEntryRefKey": {
           "symbols": [
-            "itemId",
-            "item_id"
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
           ],
           "databaseColumns": [
-            "itemId"
+            "libraryEntryRefKey"
           ],
           "databaseTables": [
-            "BookLibraryEntriesRows"
+            "BookTrackingRows",
+            "BookTrackingUnitRows"
           ],
           "sqlNames": [
-            "item_id"
+            "library_entry_ref_key"
           ],
           "workspaceFieldIds": []
         },
@@ -3545,38 +2009,6 @@
           "workspaceFieldIds": [
             "book.location"
           ]
-        },
-        "locationId": {
-          "symbols": [
-            "locationId",
-            "location_id"
-          ],
-          "databaseColumns": [
-            "locationId"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "location_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "marketValueCents": {
-          "symbols": [
-            "marketValueCents",
-            "market_value_cents"
-          ],
-          "databaseColumns": [
-            "marketValueCents"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "market_value_cents"
-          ],
-          "workspaceFieldIds": []
         },
         "notes": {
           "symbols": [
@@ -3593,38 +2025,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "ownerLabel": {
-          "symbols": [
-            "ownerLabel",
-            "owner_label"
-          ],
-          "databaseColumns": [
-            "ownerLabel"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_label"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownerUserId": {
-          "symbols": [
-            "ownerUserId",
-            "owner_user_id"
-          ],
-          "databaseColumns": [
-            "ownerUserId"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_user_id"
-          ],
-          "workspaceFieldIds": []
-        },
         "pageCount": {
           "symbols": [
             "pageCount",
@@ -3637,22 +2037,6 @@
             "book.page_count"
           ]
         },
-        "personalNotes": {
-          "symbols": [
-            "personalNotes",
-            "personal_notes"
-          ],
-          "databaseColumns": [
-            "personalNotes"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "personal_notes"
-          ],
-          "workspaceFieldIds": []
-        },
         "pricePaid": {
           "symbols": [
             "pricePaid",
@@ -3664,22 +2048,6 @@
           "workspaceFieldIds": [
             "book.price_paid"
           ]
-        },
-        "pricePaidCents": {
-          "symbols": [
-            "pricePaidCents",
-            "price_paid_cents"
-          ],
-          "databaseColumns": [
-            "pricePaidCents"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "price_paid_cents"
-          ],
-          "workspaceFieldIds": []
         },
         "progressCurrent": {
           "symbols": [
@@ -3724,38 +2092,6 @@
             "book.publisher"
           ]
         },
-        "purchaseDate": {
-          "symbols": [
-            "purchaseDate",
-            "purchase_date"
-          ],
-          "databaseColumns": [
-            "purchaseDate"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_date"
-          ],
-          "workspaceFieldIds": []
-        },
-        "purchaseStore": {
-          "symbols": [
-            "purchaseStore",
-            "purchase_store"
-          ],
-          "databaseColumns": [
-            "purchaseStore"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
         "rating": {
           "symbols": [
             "rating"
@@ -3797,22 +2133,6 @@
             "book.release_date"
           ]
         },
-        "sellPriceCents": {
-          "symbols": [
-            "sellPriceCents",
-            "sell_price_cents"
-          ],
-          "databaseColumns": [
-            "sellPriceCents"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sell_price_cents"
-          ],
-          "workspaceFieldIds": []
-        },
         "series": {
           "symbols": [
             "series"
@@ -3829,50 +2149,12 @@
             "signedBy",
             "signed_by"
           ],
-          "databaseColumns": [
-            "signedBy"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "signed_by"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "book.signed_by"
           ]
-        },
-        "soldAt": {
-          "symbols": [
-            "soldAt",
-            "sold_at"
-          ],
-          "databaseColumns": [
-            "soldAt"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldTo": {
-          "symbols": [
-            "soldTo",
-            "sold_to"
-          ],
-          "databaseColumns": [
-            "soldTo"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_to"
-          ],
-          "workspaceFieldIds": []
         },
         "sourceType": {
           "symbols": [
@@ -3933,38 +2215,6 @@
           "workspaceFieldIds": [
             "book.subtitle"
           ]
-        },
-        "tags": {
-          "symbols": [
-            "tags"
-          ],
-          "databaseColumns": [
-            "tags"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "tags"
-          ],
-          "workspaceFieldIds": []
-        },
-        "targetRefJson": {
-          "symbols": [
-            "targetRefJson",
-            "target_ref_json"
-          ],
-          "databaseColumns": [
-            "targetRefJson"
-          ],
-          "databaseTables": [
-            "BookLibraryEntriesRows",
-            "BookTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "target_ref_json"
-          ],
-          "workspaceFieldIds": []
         },
         "timesCompleted": {
           "symbols": [
@@ -4029,7 +2279,6 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "BookLibraryEntriesRows",
             "BookTrackingRows",
             "BookTrackingUnitRows"
           ],
@@ -4072,164 +2321,6 @@
     "comic": {
       "tables": [
         {
-          "name": "ComicLibraryEntriesRows",
-          "source": "lib/features/library/kinds/comic/data/local/comic_local_tables.dart",
-          "columns": [
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "itemId",
-              "sqlName": "item_id"
-            },
-            {
-              "property": "createdAt",
-              "sqlName": "created_at"
-            },
-            {
-              "property": "isDigital",
-              "sqlName": "is_digital"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
-            },
-            {
-              "property": "condition",
-              "sqlName": "condition"
-            },
-            {
-              "property": "grade",
-              "sqlName": "grade"
-            },
-            {
-              "property": "purchaseDate",
-              "sqlName": "purchase_date"
-            },
-            {
-              "property": "pricePaidCents",
-              "sqlName": "price_paid_cents"
-            },
-            {
-              "property": "currency",
-              "sqlName": "currency"
-            },
-            {
-              "property": "personalNotes",
-              "sqlName": "personal_notes"
-            },
-            {
-              "property": "indexNumber",
-              "sqlName": "index_number"
-            },
-            {
-              "property": "tags",
-              "sqlName": "tags"
-            },
-            {
-              "property": "updatedAt",
-              "sqlName": "updated_at"
-            },
-            {
-              "property": "deletedAt",
-              "sqlName": "deleted_at"
-            },
-            {
-              "property": "soldAt",
-              "sqlName": "sold_at"
-            },
-            {
-              "property": "sellPriceCents",
-              "sqlName": "sell_price_cents"
-            },
-            {
-              "property": "soldTo",
-              "sqlName": "sold_to"
-            },
-            {
-              "property": "ownerUserId",
-              "sqlName": "owner_user_id"
-            },
-            {
-              "property": "ownerLabel",
-              "sqlName": "owner_label"
-            },
-            {
-              "property": "locationId",
-              "sqlName": "location_id"
-            },
-            {
-              "property": "purchaseStore",
-              "sqlName": "purchase_store"
-            },
-            {
-              "property": "collectionStatus",
-              "sqlName": "collection_status"
-            },
-            {
-              "property": "marketValueCents",
-              "sqlName": "market_value_cents"
-            },
-            {
-              "property": "rawOrSlabbed",
-              "sqlName": "raw_or_slabbed"
-            },
-            {
-              "property": "gradingCompany",
-              "sqlName": "grading_company"
-            },
-            {
-              "property": "graderNotes",
-              "sqlName": "grader_notes"
-            },
-            {
-              "property": "labelType",
-              "sqlName": "label_type"
-            },
-            {
-              "property": "customLabel",
-              "sqlName": "custom_label"
-            },
-            {
-              "property": "pageQuality",
-              "sqlName": "page_quality"
-            },
-            {
-              "property": "certificationNumber",
-              "sqlName": "certification_number"
-            },
-            {
-              "property": "signedBy",
-              "sqlName": "signed_by"
-            },
-            {
-              "property": "keyComic",
-              "sqlName": "key_comic"
-            },
-            {
-              "property": "keyReason",
-              "sqlName": "key_reason"
-            },
-            {
-              "property": "keyCategory",
-              "sqlName": "key_category"
-            },
-            {
-              "property": "keySeverity",
-              "sqlName": "key_severity"
-            },
-            {
-              "property": "coverPriceCents",
-              "sqlName": "cover_price_cents"
-            },
-            {
-              "property": "lastBagBoardDate",
-              "sqlName": "last_bag_board_date"
-            }
-          ]
-        },
-        {
           "name": "ComicReadingRows",
           "source": "lib/features/library/kinds/comic/data/local/comic_local_tables.dart",
           "columns": [
@@ -4264,10 +2355,6 @@
               "sqlName": "id"
             },
             {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
-            },
-            {
               "property": "trackingEntryId",
               "sqlName": "tracking_entry_id"
             },
@@ -4300,10 +2387,6 @@
             {
               "property": "id",
               "sqlName": "id"
-            },
-            {
-              "property": "catalogRefJson",
-              "sqlName": "catalog_ref_json"
             },
             {
               "property": "libraryEntryRefKey",
@@ -4397,73 +2480,17 @@
             "comic.barcode"
           ]
         },
-        "catalogRefJson": {
-          "symbols": [
-            "catalogRefJson",
-            "catalog_ref_json"
-          ],
-          "databaseColumns": [
-            "catalogRefJson"
-          ],
-          "databaseTables": [
-            "ComicTrackingRows"
-          ],
-          "sqlNames": [
-            "catalog_ref_json"
-          ],
-          "workspaceFieldIds": []
-        },
         "certificationNumber": {
           "symbols": [
             "certificationNumber",
             "certification_number"
           ],
-          "databaseColumns": [
-            "certificationNumber"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "certification_number"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.certification_number"
           ]
-        },
-        "libraryEntryRefKey": {
-          "symbols": [
-            "libraryEntryRefKey",
-            "library_entry_ref_key"
-          ],
-          "databaseColumns": [
-            "libraryEntryRefKey"
-          ],
-          "databaseTables": [
-            "ComicReadingRows",
-            "ComicTrackingRows",
-            "ComicTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "library_entry_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
-        "collectionStatus": {
-          "symbols": [
-            "collectionStatus",
-            "collection_status"
-          ],
-          "databaseColumns": [
-            "collectionStatus"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "collection_status"
-          ],
-          "workspaceFieldIds": []
         },
         "completedAt": {
           "symbols": [
@@ -4485,15 +2512,9 @@
           "symbols": [
             "condition"
           ],
-          "databaseColumns": [
-            "condition"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "condition"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.condition"
           ]
@@ -4533,67 +2554,14 @@
             "comic.cover_price"
           ]
         },
-        "coverPriceCents": {
-          "symbols": [
-            "coverPriceCents",
-            "cover_price_cents"
-          ],
-          "databaseColumns": [
-            "coverPriceCents"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "cover_price_cents"
-          ],
-          "workspaceFieldIds": []
-        },
-        "createdAt": {
-          "symbols": [
-            "createdAt",
-            "created_at"
-          ],
-          "databaseColumns": [
-            "createdAt"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "created_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "currency": {
-          "symbols": [
-            "currency"
-          ],
-          "databaseColumns": [
-            "currency"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "currency"
-          ],
-          "workspaceFieldIds": []
-        },
         "customLabel": {
           "symbols": [
             "customLabel",
             "custom_label"
           ],
-          "databaseColumns": [
-            "customLabel"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "custom_label"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.custom_label"
           ]
@@ -4607,7 +2575,6 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "ComicLibraryEntriesRows",
             "ComicTrackingRows",
             "ComicTrackingUnitRows"
           ],
@@ -4637,15 +2604,9 @@
           "symbols": [
             "grade"
           ],
-          "databaseColumns": [
-            "grade"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grade"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.grade"
           ]
@@ -4655,15 +2616,9 @@
             "graderNotes",
             "grader_notes"
           ],
-          "databaseColumns": [
-            "graderNotes"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grader_notes"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.grader_notes"
           ]
@@ -4673,15 +2628,9 @@
             "gradingCompany",
             "grading_company"
           ],
-          "databaseColumns": [
-            "gradingCompany"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grading_company"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.grading_company"
           ]
@@ -4694,7 +2643,6 @@
             "id"
           ],
           "databaseTables": [
-            "ComicLibraryEntriesRows",
             "ComicTrackingRows",
             "ComicTrackingUnitRows"
           ],
@@ -4714,38 +2662,6 @@
             "comic.imprint"
           ]
         },
-        "indexNumber": {
-          "symbols": [
-            "indexNumber",
-            "index_number"
-          ],
-          "databaseColumns": [
-            "indexNumber"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "index_number"
-          ],
-          "workspaceFieldIds": []
-        },
-        "isDigital": {
-          "symbols": [
-            "isDigital",
-            "is_digital"
-          ],
-          "databaseColumns": [
-            "isDigital"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "is_digital"
-          ],
-          "workspaceFieldIds": []
-        },
         "issueNumber": {
           "symbols": [
             "issueNumber",
@@ -4764,36 +2680,14 @@
             "comic.issue_number"
           ]
         },
-        "itemId": {
-          "symbols": [
-            "itemId",
-            "item_id"
-          ],
-          "databaseColumns": [
-            "itemId"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "item_id"
-          ],
-          "workspaceFieldIds": []
-        },
         "keyCategory": {
           "symbols": [
             "keyCategory",
             "key_category"
           ],
-          "databaseColumns": [
-            "keyCategory"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "key_category"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.key_category"
           ]
@@ -4803,15 +2697,9 @@
             "keyComic",
             "key_comic"
           ],
-          "databaseColumns": [
-            "keyComic"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "key_comic"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.key_comic"
           ]
@@ -4821,15 +2709,9 @@
             "keyReason",
             "key_reason"
           ],
-          "databaseColumns": [
-            "keyReason"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "key_reason"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.key_reason"
           ]
@@ -4839,15 +2721,9 @@
             "keySeverity",
             "key_severity"
           ],
-          "databaseColumns": [
-            "keySeverity"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "key_severity"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.key_severity"
           ]
@@ -4857,15 +2733,9 @@
             "labelType",
             "label_type"
           ],
-          "databaseColumns": [
-            "labelType"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "label_type"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.label_type"
           ]
@@ -4875,18 +2745,30 @@
             "lastBagBoardDate",
             "last_bag_board_date"
           ],
-          "databaseColumns": [
-            "lastBagBoardDate"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "last_bag_board_date"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.last_bag_board_date"
           ]
+        },
+        "libraryEntryRefKey": {
+          "symbols": [
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
+          ],
+          "databaseColumns": [
+            "libraryEntryRefKey"
+          ],
+          "databaseTables": [
+            "ComicReadingRows",
+            "ComicTrackingRows",
+            "ComicTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "library_entry_ref_key"
+          ],
+          "workspaceFieldIds": []
         },
         "location": {
           "symbols": [
@@ -4898,38 +2780,6 @@
           "workspaceFieldIds": [
             "comic.location"
           ]
-        },
-        "locationId": {
-          "symbols": [
-            "locationId",
-            "location_id"
-          ],
-          "databaseColumns": [
-            "locationId"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "location_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "marketValueCents": {
-          "symbols": [
-            "marketValueCents",
-            "market_value_cents"
-          ],
-          "databaseColumns": [
-            "marketValueCents"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "market_value_cents"
-          ],
-          "workspaceFieldIds": []
         },
         "notes": {
           "symbols": [
@@ -4943,38 +2793,6 @@
           ],
           "sqlNames": [
             "notes"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownerLabel": {
-          "symbols": [
-            "ownerLabel",
-            "owner_label"
-          ],
-          "databaseColumns": [
-            "ownerLabel"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_label"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownerUserId": {
-          "symbols": [
-            "ownerUserId",
-            "owner_user_id"
-          ],
-          "databaseColumns": [
-            "ownerUserId"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_user_id"
           ],
           "workspaceFieldIds": []
         },
@@ -4995,34 +2813,12 @@
             "pageQuality",
             "page_quality"
           ],
-          "databaseColumns": [
-            "pageQuality"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "page_quality"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.page_quality"
           ]
-        },
-        "personalNotes": {
-          "symbols": [
-            "personalNotes",
-            "personal_notes"
-          ],
-          "databaseColumns": [
-            "personalNotes"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "personal_notes"
-          ],
-          "workspaceFieldIds": []
         },
         "pricePaid": {
           "symbols": [
@@ -5035,22 +2831,6 @@
           "workspaceFieldIds": [
             "comic.price_paid"
           ]
-        },
-        "pricePaidCents": {
-          "symbols": [
-            "pricePaidCents",
-            "price_paid_cents"
-          ],
-          "databaseColumns": [
-            "pricePaidCents"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "price_paid_cents"
-          ],
-          "workspaceFieldIds": []
         },
         "progressCurrent": {
           "symbols": [
@@ -5095,38 +2875,6 @@
             "comic.publisher"
           ]
         },
-        "purchaseDate": {
-          "symbols": [
-            "purchaseDate",
-            "purchase_date"
-          ],
-          "databaseColumns": [
-            "purchaseDate"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_date"
-          ],
-          "workspaceFieldIds": []
-        },
-        "purchaseStore": {
-          "symbols": [
-            "purchaseStore",
-            "purchase_store"
-          ],
-          "databaseColumns": [
-            "purchaseStore"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
         "rating": {
           "symbols": [
             "rating"
@@ -5150,15 +2898,9 @@
             "rawOrSlabbed",
             "raw_or_slabbed"
           ],
-          "databaseColumns": [
-            "rawOrSlabbed"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "raw_or_slabbed"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.raw_or_slabbed"
           ]
@@ -5187,22 +2929,6 @@
             "comic.release_date"
           ]
         },
-        "sellPriceCents": {
-          "symbols": [
-            "sellPriceCents",
-            "sell_price_cents"
-          ],
-          "databaseColumns": [
-            "sellPriceCents"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sell_price_cents"
-          ],
-          "workspaceFieldIds": []
-        },
         "series": {
           "symbols": [
             "series"
@@ -5219,50 +2945,12 @@
             "signedBy",
             "signed_by"
           ],
-          "databaseColumns": [
-            "signedBy"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "signed_by"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "comic.signed_by"
           ]
-        },
-        "soldAt": {
-          "symbols": [
-            "soldAt",
-            "sold_at"
-          ],
-          "databaseColumns": [
-            "soldAt"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldTo": {
-          "symbols": [
-            "soldTo",
-            "sold_to"
-          ],
-          "databaseColumns": [
-            "soldTo"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_to"
-          ],
-          "workspaceFieldIds": []
         },
         "sourceType": {
           "symbols": [
@@ -5314,38 +3002,6 @@
           "workspaceFieldIds": [
             "comic.status"
           ]
-        },
-        "tags": {
-          "symbols": [
-            "tags"
-          ],
-          "databaseColumns": [
-            "tags"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "tags"
-          ],
-          "workspaceFieldIds": []
-        },
-        "targetRefJson": {
-          "symbols": [
-            "targetRefJson",
-            "target_ref_json"
-          ],
-          "databaseColumns": [
-            "targetRefJson"
-          ],
-          "databaseTables": [
-            "ComicLibraryEntriesRows",
-            "ComicTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "target_ref_json"
-          ],
-          "workspaceFieldIds": []
         },
         "timesCompleted": {
           "symbols": [
@@ -5399,7 +3055,6 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "ComicLibraryEntriesRows",
             "ComicTrackingRows",
             "ComicTrackingUnitRows"
           ],
@@ -5448,138 +3103,12 @@
     "game": {
       "tables": [
         {
-          "name": "GameLibraryEntriesRows",
-          "source": "lib/features/library/kinds/game/data/local/game_local_tables.dart",
-          "columns": [
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "itemId",
-              "sqlName": "item_id"
-            },
-            {
-              "property": "createdAt",
-              "sqlName": "created_at"
-            },
-            {
-              "property": "isDigital",
-              "sqlName": "is_digital"
-            },
-            {
-              "property": "condition",
-              "sqlName": "condition"
-            },
-            {
-              "property": "grade",
-              "sqlName": "grade"
-            },
-            {
-              "property": "purchaseDate",
-              "sqlName": "purchase_date"
-            },
-            {
-              "property": "pricePaidCents",
-              "sqlName": "price_paid_cents"
-            },
-            {
-              "property": "currency",
-              "sqlName": "currency"
-            },
-            {
-              "property": "personalNotes",
-              "sqlName": "personal_notes"
-            },
-            {
-              "property": "indexNumber",
-              "sqlName": "index_number"
-            },
-            {
-              "property": "tags",
-              "sqlName": "tags"
-            },
-            {
-              "property": "updatedAt",
-              "sqlName": "updated_at"
-            },
-            {
-              "property": "deletedAt",
-              "sqlName": "deleted_at"
-            },
-            {
-              "property": "soldAt",
-              "sqlName": "sold_at"
-            },
-            {
-              "property": "sellPriceCents",
-              "sqlName": "sell_price_cents"
-            },
-            {
-              "property": "soldTo",
-              "sqlName": "sold_to"
-            },
-            {
-              "property": "ownerUserId",
-              "sqlName": "owner_user_id"
-            },
-            {
-              "property": "ownerLabel",
-              "sqlName": "owner_label"
-            },
-            {
-              "property": "locationId",
-              "sqlName": "location_id"
-            },
-            {
-              "property": "purchaseStore",
-              "sqlName": "purchase_store"
-            },
-            {
-              "property": "collectionStatus",
-              "sqlName": "collection_status"
-            },
-            {
-              "property": "marketValueCents",
-              "sqlName": "market_value_cents"
-            },
-            {
-              "property": "completeness",
-              "sqlName": "completeness"
-            },
-            {
-              "property": "hasBox",
-              "sqlName": "has_box"
-            },
-            {
-              "property": "hasManual",
-              "sqlName": "has_manual"
-            },
-            {
-              "property": "priceChartingId",
-              "sqlName": "price_charting_id"
-            },
-            {
-              "property": "coreRegion",
-              "sqlName": "core_region"
-            },
-            {
-              "property": "valueIsLocked",
-              "sqlName": "value_is_locked"
-            }
-          ]
-        },
-        {
           "name": "GameTrackingRows",
           "source": "lib/features/library/kinds/game/data/local/game_local_tables.dart",
           "columns": [
             {
               "property": "id",
               "sqlName": "id"
-            },
-            {
-              "property": "catalogRefJson",
-              "sqlName": "catalog_ref_json"
             },
             {
               "property": "libraryEntryRefKey",
@@ -5686,22 +3215,6 @@
             "game.box_only_price"
           ]
         },
-        "catalogRefJson": {
-          "symbols": [
-            "catalogRefJson",
-            "catalog_ref_json"
-          ],
-          "databaseColumns": [
-            "catalogRefJson"
-          ],
-          "databaseTables": [
-            "GameTrackingRows"
-          ],
-          "sqlNames": [
-            "catalog_ref_json"
-          ],
-          "workspaceFieldIds": []
-        },
         "cibPrice": {
           "symbols": [
             "cibPrice",
@@ -5714,51 +3227,13 @@
             "game.cib_price"
           ]
         },
-        "libraryEntryRefKey": {
-          "symbols": [
-            "libraryEntryRefKey",
-            "library_entry_ref_key"
-          ],
-          "databaseColumns": [
-            "libraryEntryRefKey"
-          ],
-          "databaseTables": [
-            "GameTrackingRows"
-          ],
-          "sqlNames": [
-            "library_entry_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
-        "collectionStatus": {
-          "symbols": [
-            "collectionStatus",
-            "collection_status"
-          ],
-          "databaseColumns": [
-            "collectionStatus"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "collection_status"
-          ],
-          "workspaceFieldIds": []
-        },
         "completeness": {
           "symbols": [
             "completeness"
           ],
-          "databaseColumns": [
-            "completeness"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "completeness"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "game.completeness"
           ]
@@ -5779,15 +3254,9 @@
           "symbols": [
             "condition"
           ],
-          "databaseColumns": [
-            "condition"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "condition"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "game.condition"
           ]
@@ -5797,15 +3266,9 @@
             "coreRegion",
             "core_region"
           ],
-          "databaseColumns": [
-            "coreRegion"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "core_region"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "game.core_region"
           ]
@@ -5821,37 +3284,6 @@
             "game.cover"
           ]
         },
-        "createdAt": {
-          "symbols": [
-            "createdAt",
-            "created_at"
-          ],
-          "databaseColumns": [
-            "createdAt"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "created_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "currency": {
-          "symbols": [
-            "currency"
-          ],
-          "databaseColumns": [
-            "currency"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "currency"
-          ],
-          "workspaceFieldIds": []
-        },
         "deletedAt": {
           "symbols": [
             "deletedAt",
@@ -5861,7 +3293,6 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "GameLibraryEntriesRows",
             "GameTrackingRows"
           ],
           "sqlNames": [
@@ -5918,21 +3349,6 @@
             "game.franchise"
           ]
         },
-        "grade": {
-          "symbols": [
-            "grade"
-          ],
-          "databaseColumns": [
-            "grade"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grade"
-          ],
-          "workspaceFieldIds": []
-        },
         "gradedPrice": {
           "symbols": [
             "gradedPrice",
@@ -5950,15 +3366,9 @@
             "hasBox",
             "has_box"
           ],
-          "databaseColumns": [
-            "hasBox"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "has_box"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "game.has_box"
           ]
@@ -5968,15 +3378,9 @@
             "hasManual",
             "has_manual"
           ],
-          "databaseColumns": [
-            "hasManual"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "has_manual"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "game.has_manual"
           ]
@@ -5989,7 +3393,6 @@
             "id"
           ],
           "databaseTables": [
-            "GameLibraryEntriesRows",
             "GameTrackingRows"
           ],
           "sqlNames": [
@@ -5997,51 +3400,19 @@
           ],
           "workspaceFieldIds": []
         },
-        "indexNumber": {
+        "libraryEntryRefKey": {
           "symbols": [
-            "indexNumber",
-            "index_number"
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
           ],
           "databaseColumns": [
-            "indexNumber"
+            "libraryEntryRefKey"
           ],
           "databaseTables": [
-            "GameLibraryEntriesRows"
+            "GameTrackingRows"
           ],
           "sqlNames": [
-            "index_number"
-          ],
-          "workspaceFieldIds": []
-        },
-        "isDigital": {
-          "symbols": [
-            "isDigital",
-            "is_digital"
-          ],
-          "databaseColumns": [
-            "isDigital"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "is_digital"
-          ],
-          "workspaceFieldIds": []
-        },
-        "itemId": {
-          "symbols": [
-            "itemId",
-            "item_id"
-          ],
-          "databaseColumns": [
-            "itemId"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "item_id"
+            "library_entry_ref_key"
           ],
           "workspaceFieldIds": []
         },
@@ -6055,22 +3426,6 @@
           "workspaceFieldIds": [
             "game.location"
           ]
-        },
-        "locationId": {
-          "symbols": [
-            "locationId",
-            "location_id"
-          ],
-          "databaseColumns": [
-            "locationId"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "location_id"
-          ],
-          "workspaceFieldIds": []
         },
         "loosePrice": {
           "symbols": [
@@ -6095,22 +3450,6 @@
           "workspaceFieldIds": [
             "game.manual_only_price"
           ]
-        },
-        "marketValueCents": {
-          "symbols": [
-            "marketValueCents",
-            "market_value_cents"
-          ],
-          "databaseColumns": [
-            "marketValueCents"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "market_value_cents"
-          ],
-          "workspaceFieldIds": []
         },
         "newPrice": {
           "symbols": [
@@ -6139,54 +3478,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "ownerLabel": {
-          "symbols": [
-            "ownerLabel",
-            "owner_label"
-          ],
-          "databaseColumns": [
-            "ownerLabel"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_label"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownerUserId": {
-          "symbols": [
-            "ownerUserId",
-            "owner_user_id"
-          ],
-          "databaseColumns": [
-            "ownerUserId"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_user_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "personalNotes": {
-          "symbols": [
-            "personalNotes",
-            "personal_notes"
-          ],
-          "databaseColumns": [
-            "personalNotes"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "personal_notes"
-          ],
-          "workspaceFieldIds": []
-        },
         "platform": {
           "symbols": [
             "platform"
@@ -6196,26 +3487,6 @@
           "sqlNames": [],
           "workspaceFieldIds": [
             "game.platform"
-          ]
-        },
-        "priceChartingId": {
-          "symbols": [
-            "priceChartingId",
-            "price_charting_id",
-            "pricechartingId",
-            "pricecharting_id"
-          ],
-          "databaseColumns": [
-            "priceChartingId"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "price_charting_id"
-          ],
-          "workspaceFieldIds": [
-            "game.pricecharting_id"
           ]
         },
         "pricePaid": {
@@ -6230,21 +3501,17 @@
             "game.price_paid"
           ]
         },
-        "pricePaidCents": {
+        "pricechartingId": {
           "symbols": [
-            "pricePaidCents",
-            "price_paid_cents"
+            "pricechartingId",
+            "pricecharting_id"
           ],
-          "databaseColumns": [
-            "pricePaidCents"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "price_paid_cents"
-          ],
-          "workspaceFieldIds": []
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.pricecharting_id"
+          ]
         },
         "progressCurrent": {
           "symbols": [
@@ -6289,38 +3556,6 @@
             "game.publisher"
           ]
         },
-        "purchaseDate": {
-          "symbols": [
-            "purchaseDate",
-            "purchase_date"
-          ],
-          "databaseColumns": [
-            "purchaseDate"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_date"
-          ],
-          "workspaceFieldIds": []
-        },
-        "purchaseStore": {
-          "symbols": [
-            "purchaseStore",
-            "purchase_store"
-          ],
-          "databaseColumns": [
-            "purchaseStore"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
         "rating": {
           "symbols": [
             "rating"
@@ -6350,22 +3585,6 @@
             "game.release_date"
           ]
         },
-        "sellPriceCents": {
-          "symbols": [
-            "sellPriceCents",
-            "sell_price_cents"
-          ],
-          "databaseColumns": [
-            "sellPriceCents"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sell_price_cents"
-          ],
-          "workspaceFieldIds": []
-        },
         "series": {
           "symbols": [
             "series"
@@ -6376,38 +3595,6 @@
           "workspaceFieldIds": [
             "game.series"
           ]
-        },
-        "soldAt": {
-          "symbols": [
-            "soldAt",
-            "sold_at"
-          ],
-          "databaseColumns": [
-            "soldAt"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldTo": {
-          "symbols": [
-            "soldTo",
-            "sold_to"
-          ],
-          "databaseColumns": [
-            "soldTo"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_to"
-          ],
-          "workspaceFieldIds": []
         },
         "sourceType": {
           "symbols": [
@@ -6458,21 +3645,6 @@
             "game.status"
           ]
         },
-        "tags": {
-          "symbols": [
-            "tags"
-          ],
-          "databaseColumns": [
-            "tags"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "tags"
-          ],
-          "workspaceFieldIds": []
-        },
         "timesCompleted": {
           "symbols": [
             "timesCompleted",
@@ -6509,7 +3681,6 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "GameLibraryEntriesRows",
             "GameTrackingRows"
           ],
           "sqlNames": [
@@ -6518,22 +3689,6 @@
           "workspaceFieldIds": [
             "game.updated_at"
           ]
-        },
-        "valueIsLocked": {
-          "symbols": [
-            "valueIsLocked",
-            "value_is_locked"
-          ],
-          "databaseColumns": [
-            "valueIsLocked"
-          ],
-          "databaseTables": [
-            "GameLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "value_is_locked"
-          ],
-          "workspaceFieldIds": []
         },
         "valueLocked": {
           "symbols": [
@@ -6563,182 +3718,12 @@
     "manga": {
       "tables": [
         {
-          "name": "MangaLibraryEntriesRows",
-          "source": "lib/features/library/kinds/manga/data/local/manga_local_tables.dart",
-          "columns": [
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "itemId",
-              "sqlName": "item_id"
-            },
-            {
-              "property": "createdAt",
-              "sqlName": "created_at"
-            },
-            {
-              "property": "isDigital",
-              "sqlName": "is_digital"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
-            },
-            {
-              "property": "condition",
-              "sqlName": "condition"
-            },
-            {
-              "property": "grade",
-              "sqlName": "grade"
-            },
-            {
-              "property": "purchaseDate",
-              "sqlName": "purchase_date"
-            },
-            {
-              "property": "pricePaidCents",
-              "sqlName": "price_paid_cents"
-            },
-            {
-              "property": "currency",
-              "sqlName": "currency"
-            },
-            {
-              "property": "personalNotes",
-              "sqlName": "personal_notes"
-            },
-            {
-              "property": "indexNumber",
-              "sqlName": "index_number"
-            },
-            {
-              "property": "tags",
-              "sqlName": "tags"
-            },
-            {
-              "property": "updatedAt",
-              "sqlName": "updated_at"
-            },
-            {
-              "property": "deletedAt",
-              "sqlName": "deleted_at"
-            },
-            {
-              "property": "soldAt",
-              "sqlName": "sold_at"
-            },
-            {
-              "property": "sellPriceCents",
-              "sqlName": "sell_price_cents"
-            },
-            {
-              "property": "soldTo",
-              "sqlName": "sold_to"
-            },
-            {
-              "property": "ownerUserId",
-              "sqlName": "owner_user_id"
-            },
-            {
-              "property": "ownerLabel",
-              "sqlName": "owner_label"
-            },
-            {
-              "property": "locationId",
-              "sqlName": "location_id"
-            },
-            {
-              "property": "purchaseStore",
-              "sqlName": "purchase_store"
-            },
-            {
-              "property": "collectionStatus",
-              "sqlName": "collection_status"
-            },
-            {
-              "property": "marketValueCents",
-              "sqlName": "market_value_cents"
-            },
-            {
-              "property": "rawOrSlabbed",
-              "sqlName": "raw_or_slabbed"
-            },
-            {
-              "property": "gradingCompany",
-              "sqlName": "grading_company"
-            },
-            {
-              "property": "graderNotes",
-              "sqlName": "grader_notes"
-            },
-            {
-              "property": "labelType",
-              "sqlName": "label_type"
-            },
-            {
-              "property": "customLabel",
-              "sqlName": "custom_label"
-            },
-            {
-              "property": "pageQuality",
-              "sqlName": "page_quality"
-            },
-            {
-              "property": "certificationNumber",
-              "sqlName": "certification_number"
-            },
-            {
-              "property": "signedBy",
-              "sqlName": "signed_by"
-            },
-            {
-              "property": "obiStripPresent",
-              "sqlName": "obi_strip_present"
-            },
-            {
-              "property": "slipcoverPresent",
-              "sqlName": "slipcover_present"
-            },
-            {
-              "property": "dustJacketPresent",
-              "sqlName": "dust_jacket_present"
-            },
-            {
-              "property": "dustJacketCondition",
-              "sqlName": "dust_jacket_condition"
-            },
-            {
-              "property": "boxSetOuterCondition",
-              "sqlName": "box_set_outer_condition"
-            },
-            {
-              "property": "insertsPresent",
-              "sqlName": "inserts_present"
-            },
-            {
-              "property": "printing",
-              "sqlName": "printing"
-            },
-            {
-              "property": "localizedEdition",
-              "sqlName": "localized_edition"
-            }
-          ]
-        },
-        {
           "name": "MangaTrackingUnitRows",
           "source": "lib/features/library/kinds/manga/data/local/manga_local_tables.dart",
           "columns": [
             {
               "property": "id",
               "sqlName": "id"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
             },
             {
               "property": "trackingEntryId",
@@ -6777,10 +3762,6 @@
             {
               "property": "id",
               "sqlName": "id"
-            },
-            {
-              "property": "catalogRefJson",
-              "sqlName": "catalog_ref_json"
             },
             {
               "property": "libraryEntryRefKey",
@@ -6868,50 +3849,12 @@
             "boxSetOuterCondition",
             "box_set_outer_condition"
           ],
-          "databaseColumns": [
-            "boxSetOuterCondition"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "box_set_outer_condition"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "manga.box_set_outer_condition"
           ]
-        },
-        "catalogRefJson": {
-          "symbols": [
-            "catalogRefJson",
-            "catalog_ref_json"
-          ],
-          "databaseColumns": [
-            "catalogRefJson"
-          ],
-          "databaseTables": [
-            "MangaTrackingRows"
-          ],
-          "sqlNames": [
-            "catalog_ref_json"
-          ],
-          "workspaceFieldIds": []
-        },
-        "certificationNumber": {
-          "symbols": [
-            "certificationNumber",
-            "certification_number"
-          ],
-          "databaseColumns": [
-            "certificationNumber"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "certification_number"
-          ],
-          "workspaceFieldIds": []
         },
         "chapterCount": {
           "symbols": [
@@ -6941,39 +3884,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "libraryEntryRefKey": {
-          "symbols": [
-            "libraryEntryRefKey",
-            "library_entry_ref_key"
-          ],
-          "databaseColumns": [
-            "libraryEntryRefKey"
-          ],
-          "databaseTables": [
-            "MangaTrackingRows",
-            "MangaTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "library_entry_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
-        "collectionStatus": {
-          "symbols": [
-            "collectionStatus",
-            "collection_status"
-          ],
-          "databaseColumns": [
-            "collectionStatus"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "collection_status"
-          ],
-          "workspaceFieldIds": []
-        },
         "completedAt": {
           "symbols": [
             "completedAt",
@@ -6994,15 +3904,9 @@
           "symbols": [
             "condition"
           ],
-          "databaseColumns": [
-            "condition"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "condition"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "manga.condition"
           ]
@@ -7018,53 +3922,6 @@
             "manga.cover"
           ]
         },
-        "createdAt": {
-          "symbols": [
-            "createdAt",
-            "created_at"
-          ],
-          "databaseColumns": [
-            "createdAt"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "created_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "currency": {
-          "symbols": [
-            "currency"
-          ],
-          "databaseColumns": [
-            "currency"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "currency"
-          ],
-          "workspaceFieldIds": []
-        },
-        "customLabel": {
-          "symbols": [
-            "customLabel",
-            "custom_label"
-          ],
-          "databaseColumns": [
-            "customLabel"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "custom_label"
-          ],
-          "workspaceFieldIds": []
-        },
         "deletedAt": {
           "symbols": [
             "deletedAt",
@@ -7074,7 +3931,6 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "MangaLibraryEntriesRows",
             "MangaTrackingRows",
             "MangaTrackingUnitRows"
           ],
@@ -7099,15 +3955,9 @@
             "dustJacketCondition",
             "dust_jacket_condition"
           ],
-          "databaseColumns": [
-            "dustJacketCondition"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "dust_jacket_condition"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "manga.dust_jacket_condition"
           ]
@@ -7117,15 +3967,9 @@
             "dustJacketPresent",
             "dust_jacket_present"
           ],
-          "databaseColumns": [
-            "dustJacketPresent"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "dust_jacket_present"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "manga.dust_jacket_present"
           ]
@@ -7170,53 +4014,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "grade": {
-          "symbols": [
-            "grade"
-          ],
-          "databaseColumns": [
-            "grade"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grade"
-          ],
-          "workspaceFieldIds": []
-        },
-        "graderNotes": {
-          "symbols": [
-            "graderNotes",
-            "grader_notes"
-          ],
-          "databaseColumns": [
-            "graderNotes"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grader_notes"
-          ],
-          "workspaceFieldIds": []
-        },
-        "gradingCompany": {
-          "symbols": [
-            "gradingCompany",
-            "grading_company"
-          ],
-          "databaseColumns": [
-            "gradingCompany"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grading_company"
-          ],
-          "workspaceFieldIds": []
-        },
         "id": {
           "symbols": [
             "id"
@@ -7225,7 +4022,6 @@
             "id"
           ],
           "databaseTables": [
-            "MangaLibraryEntriesRows",
             "MangaTrackingRows",
             "MangaTrackingUnitRows"
           ],
@@ -7234,85 +4030,32 @@
           ],
           "workspaceFieldIds": []
         },
-        "indexNumber": {
-          "symbols": [
-            "indexNumber",
-            "index_number"
-          ],
-          "databaseColumns": [
-            "indexNumber"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "index_number"
-          ],
-          "workspaceFieldIds": []
-        },
         "insertsPresent": {
           "symbols": [
             "insertsPresent",
             "inserts_present"
           ],
-          "databaseColumns": [
-            "insertsPresent"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "inserts_present"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "manga.inserts_present"
           ]
         },
-        "isDigital": {
+        "libraryEntryRefKey": {
           "symbols": [
-            "isDigital",
-            "is_digital"
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
           ],
           "databaseColumns": [
-            "isDigital"
+            "libraryEntryRefKey"
           ],
           "databaseTables": [
-            "MangaLibraryEntriesRows"
+            "MangaTrackingRows",
+            "MangaTrackingUnitRows"
           ],
           "sqlNames": [
-            "is_digital"
-          ],
-          "workspaceFieldIds": []
-        },
-        "itemId": {
-          "symbols": [
-            "itemId",
-            "item_id"
-          ],
-          "databaseColumns": [
-            "itemId"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "item_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "labelType": {
-          "symbols": [
-            "labelType",
-            "label_type"
-          ],
-          "databaseColumns": [
-            "labelType"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "label_type"
+            "library_entry_ref_key"
           ],
           "workspaceFieldIds": []
         },
@@ -7321,15 +4064,9 @@
             "localizedEdition",
             "localized_edition"
           ],
-          "databaseColumns": [
-            "localizedEdition"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "localized_edition"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "manga.localized_edition"
           ]
@@ -7356,38 +4093,6 @@
           "workspaceFieldIds": [
             "manga.location"
           ]
-        },
-        "locationId": {
-          "symbols": [
-            "locationId",
-            "location_id"
-          ],
-          "databaseColumns": [
-            "locationId"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "location_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "marketValueCents": {
-          "symbols": [
-            "marketValueCents",
-            "market_value_cents"
-          ],
-          "databaseColumns": [
-            "marketValueCents"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "market_value_cents"
-          ],
-          "workspaceFieldIds": []
         },
         "nativeTitle": {
           "symbols": [
@@ -7421,15 +4126,9 @@
             "obiStripPresent",
             "obi_strip_present"
           ],
-          "databaseColumns": [
-            "obiStripPresent"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "obi_strip_present"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "manga.obi_strip_present"
           ]
@@ -7446,70 +4145,6 @@
             "manga.original_publisher"
           ]
         },
-        "ownerLabel": {
-          "symbols": [
-            "ownerLabel",
-            "owner_label"
-          ],
-          "databaseColumns": [
-            "ownerLabel"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_label"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownerUserId": {
-          "symbols": [
-            "ownerUserId",
-            "owner_user_id"
-          ],
-          "databaseColumns": [
-            "ownerUserId"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_user_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "pageQuality": {
-          "symbols": [
-            "pageQuality",
-            "page_quality"
-          ],
-          "databaseColumns": [
-            "pageQuality"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "page_quality"
-          ],
-          "workspaceFieldIds": []
-        },
-        "personalNotes": {
-          "symbols": [
-            "personalNotes",
-            "personal_notes"
-          ],
-          "databaseColumns": [
-            "personalNotes"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "personal_notes"
-          ],
-          "workspaceFieldIds": []
-        },
         "pricePaid": {
           "symbols": [
             "pricePaid",
@@ -7522,35 +4157,13 @@
             "manga.price_paid"
           ]
         },
-        "pricePaidCents": {
-          "symbols": [
-            "pricePaidCents",
-            "price_paid_cents"
-          ],
-          "databaseColumns": [
-            "pricePaidCents"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "price_paid_cents"
-          ],
-          "workspaceFieldIds": []
-        },
         "printing": {
           "symbols": [
             "printing"
           ],
-          "databaseColumns": [
-            "printing"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "printing"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "manga.printing"
           ]
@@ -7610,38 +4223,6 @@
             "manga.publisher"
           ]
         },
-        "purchaseDate": {
-          "symbols": [
-            "purchaseDate",
-            "purchase_date"
-          ],
-          "databaseColumns": [
-            "purchaseDate"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_date"
-          ],
-          "workspaceFieldIds": []
-        },
-        "purchaseStore": {
-          "symbols": [
-            "purchaseStore",
-            "purchase_store"
-          ],
-          "databaseColumns": [
-            "purchaseStore"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
         "rating": {
           "symbols": [
             "rating"
@@ -7658,22 +4239,6 @@
           "workspaceFieldIds": [
             "manga.rating"
           ]
-        },
-        "rawOrSlabbed": {
-          "symbols": [
-            "rawOrSlabbed",
-            "raw_or_slabbed"
-          ],
-          "databaseColumns": [
-            "rawOrSlabbed"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "raw_or_slabbed"
-          ],
-          "workspaceFieldIds": []
         },
         "readStatus": {
           "symbols": [
@@ -7723,22 +4288,6 @@
             "manga.romaji_title"
           ]
         },
-        "sellPriceCents": {
-          "symbols": [
-            "sellPriceCents",
-            "sell_price_cents"
-          ],
-          "databaseColumns": [
-            "sellPriceCents"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sell_price_cents"
-          ],
-          "workspaceFieldIds": []
-        },
         "serializationPlatform": {
           "symbols": [
             "serializationPlatform",
@@ -7767,15 +4316,9 @@
             "signedBy",
             "signed_by"
           ],
-          "databaseColumns": [
-            "signedBy"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "signed_by"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "manga.signed_by"
           ]
@@ -7785,50 +4328,12 @@
             "slipcoverPresent",
             "slipcover_present"
           ],
-          "databaseColumns": [
-            "slipcoverPresent"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "slipcover_present"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "manga.slipcover_present"
           ]
-        },
-        "soldAt": {
-          "symbols": [
-            "soldAt",
-            "sold_at"
-          ],
-          "databaseColumns": [
-            "soldAt"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldTo": {
-          "symbols": [
-            "soldTo",
-            "sold_to"
-          ],
-          "databaseColumns": [
-            "soldTo"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_to"
-          ],
-          "workspaceFieldIds": []
         },
         "sourceType": {
           "symbols": [
@@ -7878,38 +4383,6 @@
           "workspaceFieldIds": [
             "manga.status"
           ]
-        },
-        "tags": {
-          "symbols": [
-            "tags"
-          ],
-          "databaseColumns": [
-            "tags"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "tags"
-          ],
-          "workspaceFieldIds": []
-        },
-        "targetRefJson": {
-          "symbols": [
-            "targetRefJson",
-            "target_ref_json"
-          ],
-          "databaseColumns": [
-            "targetRefJson"
-          ],
-          "databaseTables": [
-            "MangaLibraryEntriesRows",
-            "MangaTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "target_ref_json"
-          ],
-          "workspaceFieldIds": []
         },
         "timesCompleted": {
           "symbols": [
@@ -7986,7 +4459,6 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "MangaLibraryEntriesRows",
             "MangaTrackingRows",
             "MangaTrackingUnitRows"
           ],
@@ -8031,142 +4503,12 @@
     "movie": {
       "tables": [
         {
-          "name": "MovieLibraryEntriesRows",
-          "source": "lib/features/library/kinds/movie/data/local/movie_local_tables.dart",
-          "columns": [
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "itemId",
-              "sqlName": "item_id"
-            },
-            {
-              "property": "createdAt",
-              "sqlName": "created_at"
-            },
-            {
-              "property": "isDigital",
-              "sqlName": "is_digital"
-            },
-            {
-              "property": "condition",
-              "sqlName": "condition"
-            },
-            {
-              "property": "grade",
-              "sqlName": "grade"
-            },
-            {
-              "property": "purchaseDate",
-              "sqlName": "purchase_date"
-            },
-            {
-              "property": "pricePaidCents",
-              "sqlName": "price_paid_cents"
-            },
-            {
-              "property": "currency",
-              "sqlName": "currency"
-            },
-            {
-              "property": "personalNotes",
-              "sqlName": "personal_notes"
-            },
-            {
-              "property": "indexNumber",
-              "sqlName": "index_number"
-            },
-            {
-              "property": "tags",
-              "sqlName": "tags"
-            },
-            {
-              "property": "updatedAt",
-              "sqlName": "updated_at"
-            },
-            {
-              "property": "deletedAt",
-              "sqlName": "deleted_at"
-            },
-            {
-              "property": "soldAt",
-              "sqlName": "sold_at"
-            },
-            {
-              "property": "sellPriceCents",
-              "sqlName": "sell_price_cents"
-            },
-            {
-              "property": "soldTo",
-              "sqlName": "sold_to"
-            },
-            {
-              "property": "ownerUserId",
-              "sqlName": "owner_user_id"
-            },
-            {
-              "property": "ownerLabel",
-              "sqlName": "owner_label"
-            },
-            {
-              "property": "locationId",
-              "sqlName": "location_id"
-            },
-            {
-              "property": "purchaseStore",
-              "sqlName": "purchase_store"
-            },
-            {
-              "property": "collectionStatus",
-              "sqlName": "collection_status"
-            },
-            {
-              "property": "marketValueCents",
-              "sqlName": "market_value_cents"
-            },
-            {
-              "property": "features",
-              "sqlName": "features"
-            },
-            {
-              "property": "hdrFormatsJson",
-              "sqlName": "hdr_formats_json"
-            },
-            {
-              "property": "boxSetId",
-              "sqlName": "box_set_id"
-            },
-            {
-              "property": "boxSetName",
-              "sqlName": "box_set_name"
-            },
-            {
-              "property": "region",
-              "sqlName": "region"
-            },
-            {
-              "property": "packaging",
-              "sqlName": "packaging"
-            },
-            {
-              "property": "distributor",
-              "sqlName": "distributor"
-            }
-          ]
-        },
-        {
           "name": "MovieTrackingRows",
           "source": "lib/features/library/kinds/movie/data/local/movie_local_tables.dart",
           "columns": [
             {
               "property": "id",
               "sqlName": "id"
-            },
-            {
-              "property": "catalogRefJson",
-              "sqlName": "catalog_ref_json"
             },
             {
               "property": "libraryEntryRefKey",
@@ -8222,9 +4564,7 @@
       "workspaceIdSources": [
         "lib/features/library/kinds/movie/workspace/movie_ids.dart"
       ],
-      "mapperSources": [
-        "lib/features/library/kinds/movie/data/local/movie_entry_local_mapper.dart"
-      ],
+      "mapperSources": [],
       "fields": {
         "addedAt": {
           "symbols": [
@@ -8285,99 +4625,13 @@
             "movie.barcode"
           ]
         },
-        "boxSetId": {
-          "symbols": [
-            "boxSetId",
-            "box_set_id"
-          ],
-          "databaseColumns": [
-            "boxSetId"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "box_set_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "boxSetName": {
-          "symbols": [
-            "boxSetName",
-            "box_set_name"
-          ],
-          "databaseColumns": [
-            "boxSetName"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "box_set_name"
-          ],
-          "workspaceFieldIds": []
-        },
-        "catalogRefJson": {
-          "symbols": [
-            "catalogRefJson",
-            "catalog_ref_json"
-          ],
-          "databaseColumns": [
-            "catalogRefJson"
-          ],
-          "databaseTables": [
-            "MovieTrackingRows"
-          ],
-          "sqlNames": [
-            "catalog_ref_json"
-          ],
-          "workspaceFieldIds": []
-        },
-        "libraryEntryRefKey": {
-          "symbols": [
-            "libraryEntryRefKey",
-            "library_entry_ref_key"
-          ],
-          "databaseColumns": [
-            "libraryEntryRefKey"
-          ],
-          "databaseTables": [
-            "MovieTrackingRows"
-          ],
-          "sqlNames": [
-            "library_entry_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
-        "collectionStatus": {
-          "symbols": [
-            "collectionStatus",
-            "collection_status"
-          ],
-          "databaseColumns": [
-            "collectionStatus"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "collection_status"
-          ],
-          "workspaceFieldIds": []
-        },
         "condition": {
           "symbols": [
             "condition"
           ],
-          "databaseColumns": [
-            "condition"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "condition"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "movie.condition"
           ]
@@ -8393,37 +4647,6 @@
             "movie.cover"
           ]
         },
-        "createdAt": {
-          "symbols": [
-            "createdAt",
-            "created_at"
-          ],
-          "databaseColumns": [
-            "createdAt"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "created_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "currency": {
-          "symbols": [
-            "currency"
-          ],
-          "databaseColumns": [
-            "currency"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "currency"
-          ],
-          "workspaceFieldIds": []
-        },
         "deletedAt": {
           "symbols": [
             "deletedAt",
@@ -8433,7 +4656,6 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "MovieLibraryEntriesRows",
             "MovieTrackingRows"
           ],
           "sqlNames": [
@@ -8451,21 +4673,6 @@
           "workspaceFieldIds": [
             "movie.director"
           ]
-        },
-        "distributor": {
-          "symbols": [
-            "distributor"
-          ],
-          "databaseColumns": [
-            "distributor"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "distributor"
-          ],
-          "workspaceFieldIds": []
         },
         "edition": {
           "symbols": [
@@ -8501,21 +4708,6 @@
           "workspaceFieldIds": [
             "movie.edition_release_date"
           ]
-        },
-        "features": {
-          "symbols": [
-            "features"
-          ],
-          "databaseColumns": [
-            "features"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "features"
-          ],
-          "workspaceFieldIds": []
         },
         "finishedAt": {
           "symbols": [
@@ -8555,39 +4747,6 @@
             "movie.genre"
           ]
         },
-        "grade": {
-          "symbols": [
-            "grade"
-          ],
-          "databaseColumns": [
-            "grade"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grade"
-          ],
-          "workspaceFieldIds": []
-        },
-        "hdrFormats": {
-          "symbols": [
-            "hdrFormats",
-            "hdrFormatsJson",
-            "hdr_formats",
-            "hdr_formats_json"
-          ],
-          "databaseColumns": [
-            "hdrFormatsJson"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "hdr_formats_json"
-          ],
-          "workspaceFieldIds": []
-        },
         "id": {
           "symbols": [
             "id"
@@ -8596,7 +4755,6 @@
             "id"
           ],
           "databaseTables": [
-            "MovieLibraryEntriesRows",
             "MovieTrackingRows"
           ],
           "sqlNames": [
@@ -8604,51 +4762,19 @@
           ],
           "workspaceFieldIds": []
         },
-        "indexNumber": {
+        "libraryEntryRefKey": {
           "symbols": [
-            "indexNumber",
-            "index_number"
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
           ],
           "databaseColumns": [
-            "indexNumber"
+            "libraryEntryRefKey"
           ],
           "databaseTables": [
-            "MovieLibraryEntriesRows"
+            "MovieTrackingRows"
           ],
           "sqlNames": [
-            "index_number"
-          ],
-          "workspaceFieldIds": []
-        },
-        "isDigital": {
-          "symbols": [
-            "isDigital",
-            "is_digital"
-          ],
-          "databaseColumns": [
-            "isDigital"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "is_digital"
-          ],
-          "workspaceFieldIds": []
-        },
-        "itemId": {
-          "symbols": [
-            "itemId",
-            "item_id"
-          ],
-          "databaseColumns": [
-            "itemId"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "item_id"
+            "library_entry_ref_key"
           ],
           "workspaceFieldIds": []
         },
@@ -8662,38 +4788,6 @@
           "workspaceFieldIds": [
             "movie.location"
           ]
-        },
-        "locationId": {
-          "symbols": [
-            "locationId",
-            "location_id"
-          ],
-          "databaseColumns": [
-            "locationId"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "location_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "marketValueCents": {
-          "symbols": [
-            "marketValueCents",
-            "market_value_cents"
-          ],
-          "databaseColumns": [
-            "marketValueCents"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "market_value_cents"
-          ],
-          "workspaceFieldIds": []
         },
         "movieOrTvSeries": {
           "symbols": [
@@ -8734,69 +4828,6 @@
             "movie.original_title"
           ]
         },
-        "ownerLabel": {
-          "symbols": [
-            "ownerLabel",
-            "owner_label"
-          ],
-          "databaseColumns": [
-            "ownerLabel"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_label"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownerUserId": {
-          "symbols": [
-            "ownerUserId",
-            "owner_user_id"
-          ],
-          "databaseColumns": [
-            "ownerUserId"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_user_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "packaging": {
-          "symbols": [
-            "packaging"
-          ],
-          "databaseColumns": [
-            "packaging"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "packaging"
-          ],
-          "workspaceFieldIds": []
-        },
-        "personalNotes": {
-          "symbols": [
-            "personalNotes",
-            "personal_notes"
-          ],
-          "databaseColumns": [
-            "personalNotes"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "personal_notes"
-          ],
-          "workspaceFieldIds": []
-        },
         "pricePaid": {
           "symbols": [
             "pricePaid",
@@ -8808,22 +4839,6 @@
           "workspaceFieldIds": [
             "movie.price_paid"
           ]
-        },
-        "pricePaidCents": {
-          "symbols": [
-            "pricePaidCents",
-            "price_paid_cents"
-          ],
-          "databaseColumns": [
-            "pricePaidCents"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "price_paid_cents"
-          ],
-          "workspaceFieldIds": []
         },
         "producer": {
           "symbols": [
@@ -8879,38 +4894,6 @@
             "movie.publisher"
           ]
         },
-        "purchaseDate": {
-          "symbols": [
-            "purchaseDate",
-            "purchase_date"
-          ],
-          "databaseColumns": [
-            "purchaseDate"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_date"
-          ],
-          "workspaceFieldIds": []
-        },
-        "purchaseStore": {
-          "symbols": [
-            "purchaseStore",
-            "purchase_store"
-          ],
-          "databaseColumns": [
-            "purchaseStore"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
         "rating": {
           "symbols": [
             "rating"
@@ -8927,21 +4910,6 @@
           "workspaceFieldIds": [
             "movie.rating"
           ]
-        },
-        "region": {
-          "symbols": [
-            "region"
-          ],
-          "databaseColumns": [
-            "region"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "region"
-          ],
-          "workspaceFieldIds": []
         },
         "releaseDate": {
           "symbols": [
@@ -8978,54 +4946,6 @@
           "workspaceFieldIds": [
             "movie.runtime_minutes"
           ]
-        },
-        "sellPriceCents": {
-          "symbols": [
-            "sellPriceCents",
-            "sell_price_cents"
-          ],
-          "databaseColumns": [
-            "sellPriceCents"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sell_price_cents"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldAt": {
-          "symbols": [
-            "soldAt",
-            "sold_at"
-          ],
-          "databaseColumns": [
-            "soldAt"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldTo": {
-          "symbols": [
-            "soldTo",
-            "sold_to"
-          ],
-          "databaseColumns": [
-            "soldTo"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_to"
-          ],
-          "workspaceFieldIds": []
         },
         "sourceType": {
           "symbols": [
@@ -9076,21 +4996,6 @@
             "movie.status"
           ]
         },
-        "tags": {
-          "symbols": [
-            "tags"
-          ],
-          "databaseColumns": [
-            "tags"
-          ],
-          "databaseTables": [
-            "MovieLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "tags"
-          ],
-          "workspaceFieldIds": []
-        },
         "timesCompleted": {
           "symbols": [
             "timesCompleted",
@@ -9127,7 +5032,6 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "MovieLibraryEntriesRows",
             "MovieTrackingRows"
           ],
           "sqlNames": [
@@ -9176,164 +5080,12 @@
     "music": {
       "tables": [
         {
-          "name": "MusicAlbumImagesRows",
-          "source": "lib/features/library/kinds/music/data/local/music_local_tables.dart",
-          "columns": [
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "albumId",
-              "sqlName": "album_id"
-            },
-            {
-              "property": "purpose",
-              "sqlName": "purpose"
-            },
-            {
-              "property": "imageType",
-              "sqlName": "image_type"
-            },
-            {
-              "property": "imageData",
-              "sqlName": "image_data"
-            },
-            {
-              "property": "description",
-              "sqlName": "description"
-            },
-            {
-              "property": "sortOrder",
-              "sqlName": "sort_order"
-            },
-            {
-              "property": "createdAt",
-              "sqlName": "created_at"
-            }
-          ]
-        },
-        {
-          "name": "MusicLibraryEntriesRows",
-          "source": "lib/features/library/kinds/music/data/local/music_local_tables.dart",
-          "columns": [
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "itemId",
-              "sqlName": "item_id"
-            },
-            {
-              "property": "createdAt",
-              "sqlName": "created_at"
-            },
-            {
-              "property": "isDigital",
-              "sqlName": "is_digital"
-            },
-            {
-              "property": "condition",
-              "sqlName": "condition"
-            },
-            {
-              "property": "grade",
-              "sqlName": "grade"
-            },
-            {
-              "property": "purchaseDate",
-              "sqlName": "purchase_date"
-            },
-            {
-              "property": "pricePaidCents",
-              "sqlName": "price_paid_cents"
-            },
-            {
-              "property": "currency",
-              "sqlName": "currency"
-            },
-            {
-              "property": "personalNotes",
-              "sqlName": "personal_notes"
-            },
-            {
-              "property": "indexNumber",
-              "sqlName": "index_number"
-            },
-            {
-              "property": "tags",
-              "sqlName": "tags"
-            },
-            {
-              "property": "updatedAt",
-              "sqlName": "updated_at"
-            },
-            {
-              "property": "deletedAt",
-              "sqlName": "deleted_at"
-            },
-            {
-              "property": "soldAt",
-              "sqlName": "sold_at"
-            },
-            {
-              "property": "sellPriceCents",
-              "sqlName": "sell_price_cents"
-            },
-            {
-              "property": "soldTo",
-              "sqlName": "sold_to"
-            },
-            {
-              "property": "ownerUserId",
-              "sqlName": "owner_user_id"
-            },
-            {
-              "property": "ownerLabel",
-              "sqlName": "owner_label"
-            },
-            {
-              "property": "locationId",
-              "sqlName": "location_id"
-            },
-            {
-              "property": "purchaseStore",
-              "sqlName": "purchase_store"
-            },
-            {
-              "property": "collectionStatus",
-              "sqlName": "collection_status"
-            },
-            {
-              "property": "marketValueCents",
-              "sqlName": "market_value_cents"
-            },
-            {
-              "property": "signedBy",
-              "sqlName": "signed_by"
-            },
-            {
-              "property": "lastCleanedDate",
-              "sqlName": "last_cleaned_date"
-            },
-            {
-              "property": "mediumDetailsJson",
-              "sqlName": "medium_details_json"
-            }
-          ]
-        },
-        {
           "name": "MusicTrackingRows",
           "source": "lib/features/library/kinds/music/data/local/music_local_tables.dart",
           "columns": [
             {
               "property": "id",
               "sqlName": "id"
-            },
-            {
-              "property": "catalogRefJson",
-              "sqlName": "catalog_ref_json"
             },
             {
               "property": "libraryEntryRefKey",
@@ -9394,12 +5146,8 @@
               "sqlName": "id"
             },
             {
-              "property": "catalogItemId",
-              "sqlName": "catalog_item_id"
-            },
-            {
-              "property": "libraryEntryId",
-              "sqlName": "library_entry_id"
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
             },
             {
               "property": "listenedAt",
@@ -9439,9 +5187,7 @@
       "workspaceIdSources": [
         "lib/features/library/kinds/music/workspace/music_ids.dart"
       ],
-      "mapperSources": [
-        "lib/features/library/kinds/music/data/local/music_entry_local_mapper.dart"
-      ],
+      "mapperSources": [],
       "fields": {
         "addedAt": {
           "symbols": [
@@ -9454,22 +5200,6 @@
           "workspaceFieldIds": [
             "music.added_at"
           ]
-        },
-        "albumId": {
-          "symbols": [
-            "albumId",
-            "album_id"
-          ],
-          "databaseColumns": [
-            "albumId"
-          ],
-          "databaseTables": [
-            "MusicAlbumImagesRows"
-          ],
-          "sqlNames": [
-            "album_id"
-          ],
-          "workspaceFieldIds": []
         },
         "artist": {
           "symbols": [
@@ -9505,22 +5235,6 @@
             "music.box_set"
           ]
         },
-        "catalogItemId": {
-          "symbols": [
-            "catalogItemId",
-            "catalog_item_id"
-          ],
-          "databaseColumns": [
-            "catalogItemId"
-          ],
-          "databaseTables": [
-            "MusicListenEventsRows"
-          ],
-          "sqlNames": [
-            "catalog_item_id"
-          ],
-          "workspaceFieldIds": []
-        },
         "catalogNumber": {
           "symbols": [
             "catalogNumber",
@@ -9533,83 +5247,13 @@
             "music.catalog_number"
           ]
         },
-        "catalogRefJson": {
-          "symbols": [
-            "catalogRefJson",
-            "catalog_ref_json"
-          ],
-          "databaseColumns": [
-            "catalogRefJson"
-          ],
-          "databaseTables": [
-            "MusicTrackingRows"
-          ],
-          "sqlNames": [
-            "catalog_ref_json"
-          ],
-          "workspaceFieldIds": []
-        },
-        "libraryEntryId": {
-          "symbols": [
-            "libraryEntryId",
-            "library_entry_id"
-          ],
-          "databaseColumns": [
-            "libraryEntryId"
-          ],
-          "databaseTables": [
-            "MusicListenEventsRows"
-          ],
-          "sqlNames": [
-            "library_entry_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "libraryEntryRefKey": {
-          "symbols": [
-            "libraryEntryRefKey",
-            "library_entry_ref_key"
-          ],
-          "databaseColumns": [
-            "libraryEntryRefKey"
-          ],
-          "databaseTables": [
-            "MusicTrackingRows"
-          ],
-          "sqlNames": [
-            "library_entry_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
-        "collectionStatus": {
-          "symbols": [
-            "collectionStatus",
-            "collection_status"
-          ],
-          "databaseColumns": [
-            "collectionStatus"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "collection_status"
-          ],
-          "workspaceFieldIds": []
-        },
         "condition": {
           "symbols": [
             "condition"
           ],
-          "databaseColumns": [
-            "condition"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "condition"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "music.condition"
           ]
@@ -9645,27 +5289,10 @@
             "createdAt"
           ],
           "databaseTables": [
-            "MusicAlbumImagesRows",
-            "MusicLibraryEntriesRows",
             "MusicListenEventsRows"
           ],
           "sqlNames": [
             "created_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "currency": {
-          "symbols": [
-            "currency"
-          ],
-          "databaseColumns": [
-            "currency"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "currency"
           ],
           "workspaceFieldIds": []
         },
@@ -9678,27 +5305,11 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "MusicLibraryEntriesRows",
             "MusicListenEventsRows",
             "MusicTrackingRows"
           ],
           "sqlNames": [
             "deleted_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "description": {
-          "symbols": [
-            "description"
-          ],
-          "databaseColumns": [
-            "description"
-          ],
-          "databaseTables": [
-            "MusicAlbumImagesRows"
-          ],
-          "sqlNames": [
-            "description"
           ],
           "workspaceFieldIds": []
         },
@@ -9757,15 +5368,9 @@
           "symbols": [
             "grade"
           ],
-          "databaseColumns": [
-            "grade"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grade"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "music.grade"
           ]
@@ -9778,8 +5383,6 @@
             "id"
           ],
           "databaseTables": [
-            "MusicAlbumImagesRows",
-            "MusicLibraryEntriesRows",
             "MusicListenEventsRows",
             "MusicTrackingRows"
           ],
@@ -9788,87 +5391,17 @@
           ],
           "workspaceFieldIds": []
         },
-        "imageData": {
-          "symbols": [
-            "imageData",
-            "image_data"
-          ],
-          "databaseColumns": [
-            "imageData"
-          ],
-          "databaseTables": [
-            "MusicAlbumImagesRows"
-          ],
-          "sqlNames": [
-            "image_data"
-          ],
-          "workspaceFieldIds": []
-        },
-        "imageType": {
-          "symbols": [
-            "imageType",
-            "image_type"
-          ],
-          "databaseColumns": [
-            "imageType"
-          ],
-          "databaseTables": [
-            "MusicAlbumImagesRows"
-          ],
-          "sqlNames": [
-            "image_type"
-          ],
-          "workspaceFieldIds": []
-        },
         "indexNumber": {
           "symbols": [
             "indexNumber",
             "index_number"
           ],
-          "databaseColumns": [
-            "indexNumber"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "index_number"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "music.index_number"
           ]
-        },
-        "isDigital": {
-          "symbols": [
-            "isDigital",
-            "is_digital"
-          ],
-          "databaseColumns": [
-            "isDigital"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "is_digital"
-          ],
-          "workspaceFieldIds": []
-        },
-        "itemId": {
-          "symbols": [
-            "itemId",
-            "item_id"
-          ],
-          "databaseColumns": [
-            "itemId"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "item_id"
-          ],
-          "workspaceFieldIds": []
         },
         "language": {
           "symbols": [
@@ -9893,22 +5426,6 @@
             "music.last_cleaned"
           ]
         },
-        "lastCleanedDate": {
-          "symbols": [
-            "lastCleanedDate",
-            "last_cleaned_date"
-          ],
-          "databaseColumns": [
-            "lastCleanedDate"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "last_cleaned_date"
-          ],
-          "workspaceFieldIds": []
-        },
         "lastListened": {
           "symbols": [
             "lastListened",
@@ -9920,6 +5437,23 @@
           "workspaceFieldIds": [
             "music.last_listened"
           ]
+        },
+        "libraryEntryRefKey": {
+          "symbols": [
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
+          ],
+          "databaseColumns": [
+            "libraryEntryRefKey"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows",
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "library_entry_ref_key"
+          ],
+          "workspaceFieldIds": []
         },
         "listenCount": {
           "symbols": [
@@ -9966,22 +5500,6 @@
             "music.location"
           ]
         },
-        "locationId": {
-          "symbols": [
-            "locationId",
-            "location_id"
-          ],
-          "databaseColumns": [
-            "locationId"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "location_id"
-          ],
-          "workspaceFieldIds": []
-        },
         "marketValue": {
           "symbols": [
             "marketValue",
@@ -9993,40 +5511,6 @@
           "workspaceFieldIds": [
             "music.market_value"
           ]
-        },
-        "marketValueCents": {
-          "symbols": [
-            "marketValueCents",
-            "market_value_cents"
-          ],
-          "databaseColumns": [
-            "marketValueCents"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "market_value_cents"
-          ],
-          "workspaceFieldIds": []
-        },
-        "mediumDetails": {
-          "symbols": [
-            "mediumDetails",
-            "mediumDetailsJson",
-            "medium_details",
-            "medium_details_json"
-          ],
-          "databaseColumns": [
-            "mediumDetailsJson"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "medium_details_json"
-          ],
-          "workspaceFieldIds": []
         },
         "notes": {
           "symbols": [
@@ -10044,38 +5528,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "ownerLabel": {
-          "symbols": [
-            "ownerLabel",
-            "owner_label"
-          ],
-          "databaseColumns": [
-            "ownerLabel"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_label"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownerUserId": {
-          "symbols": [
-            "ownerUserId",
-            "owner_user_id"
-          ],
-          "databaseColumns": [
-            "ownerUserId"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_user_id"
-          ],
-          "workspaceFieldIds": []
-        },
         "packaging": {
           "symbols": [
             "packaging"
@@ -10086,22 +5538,6 @@
           "workspaceFieldIds": [
             "music.packaging"
           ]
-        },
-        "personalNotes": {
-          "symbols": [
-            "personalNotes",
-            "personal_notes"
-          ],
-          "databaseColumns": [
-            "personalNotes"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "personal_notes"
-          ],
-          "workspaceFieldIds": []
         },
         "pricePaid": {
           "symbols": [
@@ -10114,22 +5550,6 @@
           "workspaceFieldIds": [
             "music.price_paid"
           ]
-        },
-        "pricePaidCents": {
-          "symbols": [
-            "pricePaidCents",
-            "price_paid_cents"
-          ],
-          "databaseColumns": [
-            "pricePaidCents"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "price_paid_cents"
-          ],
-          "workspaceFieldIds": []
         },
         "progressCurrent": {
           "symbols": [
@@ -10179,49 +5599,12 @@
             "purchaseDate",
             "purchase_date"
           ],
-          "databaseColumns": [
-            "purchaseDate"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_date"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "music.purchase_date"
           ]
-        },
-        "purchaseStore": {
-          "symbols": [
-            "purchaseStore",
-            "purchase_store"
-          ],
-          "databaseColumns": [
-            "purchaseStore"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
-        "purpose": {
-          "symbols": [
-            "purpose"
-          ],
-          "databaseColumns": [
-            "purpose"
-          ],
-          "databaseTables": [
-            "MusicAlbumImagesRows"
-          ],
-          "sqlNames": [
-            "purpose"
-          ],
-          "workspaceFieldIds": []
         },
         "rating": {
           "symbols": [
@@ -10276,87 +5659,17 @@
             "music.release_type"
           ]
         },
-        "sellPriceCents": {
-          "symbols": [
-            "sellPriceCents",
-            "sell_price_cents"
-          ],
-          "databaseColumns": [
-            "sellPriceCents"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sell_price_cents"
-          ],
-          "workspaceFieldIds": []
-        },
         "signedBy": {
           "symbols": [
             "signedBy",
             "signed_by"
           ],
-          "databaseColumns": [
-            "signedBy"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "signed_by"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "music.signed_by"
           ]
-        },
-        "soldAt": {
-          "symbols": [
-            "soldAt",
-            "sold_at"
-          ],
-          "databaseColumns": [
-            "soldAt"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldTo": {
-          "symbols": [
-            "soldTo",
-            "sold_to"
-          ],
-          "databaseColumns": [
-            "soldTo"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_to"
-          ],
-          "workspaceFieldIds": []
-        },
-        "sortOrder": {
-          "symbols": [
-            "sortOrder",
-            "sort_order"
-          ],
-          "databaseColumns": [
-            "sortOrder"
-          ],
-          "databaseTables": [
-            "MusicAlbumImagesRows"
-          ],
-          "sqlNames": [
-            "sort_order"
-          ],
-          "workspaceFieldIds": []
         },
         "sourceType": {
           "symbols": [
@@ -10419,21 +5732,6 @@
             "music.storage"
           ]
         },
-        "tags": {
-          "symbols": [
-            "tags"
-          ],
-          "databaseColumns": [
-            "tags"
-          ],
-          "databaseTables": [
-            "MusicLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "tags"
-          ],
-          "workspaceFieldIds": []
-        },
         "timesCompleted": {
           "symbols": [
             "timesCompleted",
@@ -10482,7 +5780,6 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "MusicLibraryEntriesRows",
             "MusicListenEventsRows",
             "MusicTrackingRows"
           ],
@@ -10509,136 +5806,6 @@
     "tv": {
       "tables": [
         {
-          "name": "TvLibraryEntriesRows",
-          "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
-          "columns": [
-            {
-              "property": "id",
-              "sqlName": "id"
-            },
-            {
-              "property": "itemId",
-              "sqlName": "item_id"
-            },
-            {
-              "property": "createdAt",
-              "sqlName": "created_at"
-            },
-            {
-              "property": "isDigital",
-              "sqlName": "is_digital"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
-            },
-            {
-              "property": "condition",
-              "sqlName": "condition"
-            },
-            {
-              "property": "grade",
-              "sqlName": "grade"
-            },
-            {
-              "property": "purchaseDate",
-              "sqlName": "purchase_date"
-            },
-            {
-              "property": "pricePaidCents",
-              "sqlName": "price_paid_cents"
-            },
-            {
-              "property": "currency",
-              "sqlName": "currency"
-            },
-            {
-              "property": "personalNotes",
-              "sqlName": "personal_notes"
-            },
-            {
-              "property": "indexNumber",
-              "sqlName": "index_number"
-            },
-            {
-              "property": "tags",
-              "sqlName": "tags"
-            },
-            {
-              "property": "updatedAt",
-              "sqlName": "updated_at"
-            },
-            {
-              "property": "deletedAt",
-              "sqlName": "deleted_at"
-            },
-            {
-              "property": "soldAt",
-              "sqlName": "sold_at"
-            },
-            {
-              "property": "sellPriceCents",
-              "sqlName": "sell_price_cents"
-            },
-            {
-              "property": "soldTo",
-              "sqlName": "sold_to"
-            },
-            {
-              "property": "ownerUserId",
-              "sqlName": "owner_user_id"
-            },
-            {
-              "property": "ownerLabel",
-              "sqlName": "owner_label"
-            },
-            {
-              "property": "locationId",
-              "sqlName": "location_id"
-            },
-            {
-              "property": "purchaseStore",
-              "sqlName": "purchase_store"
-            },
-            {
-              "property": "collectionStatus",
-              "sqlName": "collection_status"
-            },
-            {
-              "property": "marketValueCents",
-              "sqlName": "market_value_cents"
-            },
-            {
-              "property": "features",
-              "sqlName": "features"
-            },
-            {
-              "property": "hdrFormatsJson",
-              "sqlName": "hdr_formats_json"
-            },
-            {
-              "property": "boxSetId",
-              "sqlName": "box_set_id"
-            },
-            {
-              "property": "boxSetName",
-              "sqlName": "box_set_name"
-            },
-            {
-              "property": "region",
-              "sqlName": "region"
-            },
-            {
-              "property": "packaging",
-              "sqlName": "packaging"
-            },
-            {
-              "property": "distributor",
-              "sqlName": "distributor"
-            }
-          ]
-        },
-        {
           "name": "TvWatchSessionRows",
           "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
           "columns": [
@@ -10647,16 +5814,16 @@
               "sqlName": "id"
             },
             {
-              "property": "seriesId",
-              "sqlName": "series_id"
+              "property": "libraryEntryId",
+              "sqlName": "library_entry_id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
             },
             {
               "property": "episodeId",
               "sqlName": "episode_id"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
             },
             {
               "property": "trackingEntryId",
@@ -10701,64 +5868,6 @@
           ]
         },
         {
-          "name": "TvEpisodeProgressRows",
-          "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
-          "columns": [
-            {
-              "property": "seriesId",
-              "sqlName": "series_id"
-            },
-            {
-              "property": "seasonId",
-              "sqlName": "season_id"
-            },
-            {
-              "property": "episodeId",
-              "sqlName": "episode_id"
-            },
-            {
-              "property": "seasonNumber",
-              "sqlName": "season_number"
-            },
-            {
-              "property": "episodeNumber",
-              "sqlName": "episode_number"
-            },
-            {
-              "property": "watchedCount",
-              "sqlName": "watched_count"
-            },
-            {
-              "property": "completed",
-              "sqlName": "completed"
-            },
-            {
-              "property": "lastWatchedAt",
-              "sqlName": "last_watched_at"
-            },
-            {
-              "property": "rating",
-              "sqlName": "rating"
-            },
-            {
-              "property": "notes",
-              "sqlName": "notes"
-            },
-            {
-              "property": "updatedAt",
-              "sqlName": "updated_at"
-            },
-            {
-              "property": "deletedAt",
-              "sqlName": "deleted_at"
-            },
-            {
-              "property": "rawPayloadJson",
-              "sqlName": "raw_payload_json"
-            }
-          ]
-        },
-        {
           "name": "TvCustomEpisodeRows",
           "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
           "columns": [
@@ -10767,8 +5876,8 @@
               "sqlName": "id"
             },
             {
-              "property": "seriesId",
-              "sqlName": "series_id"
+              "property": "libraryEntryId",
+              "sqlName": "library_entry_id"
             },
             {
               "property": "seasonNumber",
@@ -10823,10 +5932,6 @@
             {
               "property": "id",
               "sqlName": "id"
-            },
-            {
-              "property": "catalogRefJson",
-              "sqlName": "catalog_ref_json"
             },
             {
               "property": "libraryEntryRefKey",
@@ -10897,10 +6002,6 @@
             {
               "property": "id",
               "sqlName": "id"
-            },
-            {
-              "property": "targetRefJson",
-              "sqlName": "target_ref_json"
             },
             {
               "property": "trackingEntryId",
@@ -10979,102 +6080,6 @@
             "tv.barcode"
           ]
         },
-        "boxSetId": {
-          "symbols": [
-            "boxSetId",
-            "box_set_id"
-          ],
-          "databaseColumns": [
-            "boxSetId"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "box_set_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "boxSetName": {
-          "symbols": [
-            "boxSetName",
-            "box_set_name"
-          ],
-          "databaseColumns": [
-            "boxSetName"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "box_set_name"
-          ],
-          "workspaceFieldIds": []
-        },
-        "catalogRefJson": {
-          "symbols": [
-            "catalogRefJson",
-            "catalog_ref_json"
-          ],
-          "databaseColumns": [
-            "catalogRefJson"
-          ],
-          "databaseTables": [
-            "TvTrackingRows"
-          ],
-          "sqlNames": [
-            "catalog_ref_json"
-          ],
-          "workspaceFieldIds": []
-        },
-        "libraryEntryRefKey": {
-          "symbols": [
-            "libraryEntryRefKey",
-            "library_entry_ref_key"
-          ],
-          "databaseColumns": [
-            "libraryEntryRefKey"
-          ],
-          "databaseTables": [
-            "TvTrackingRows",
-            "TvTrackingUnitRows"
-          ],
-          "sqlNames": [
-            "library_entry_ref_key"
-          ],
-          "workspaceFieldIds": []
-        },
-        "collectionStatus": {
-          "symbols": [
-            "collectionStatus",
-            "collection_status"
-          ],
-          "databaseColumns": [
-            "collectionStatus"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "collection_status"
-          ],
-          "workspaceFieldIds": []
-        },
-        "completed": {
-          "symbols": [
-            "completed"
-          ],
-          "databaseColumns": [
-            "completed"
-          ],
-          "databaseTables": [
-            "TvEpisodeProgressRows"
-          ],
-          "sqlNames": [
-            "completed"
-          ],
-          "workspaceFieldIds": []
-        },
         "completedAt": {
           "symbols": [
             "completedAt",
@@ -11095,15 +6100,9 @@
           "symbols": [
             "condition"
           ],
-          "databaseColumns": [
-            "condition"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "condition"
-          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
           "workspaceFieldIds": [
             "tv.condition"
           ]
@@ -11131,22 +6130,6 @@
             "tv.cover"
           ]
         },
-        "createdAt": {
-          "symbols": [
-            "createdAt",
-            "created_at"
-          ],
-          "databaseColumns": [
-            "createdAt"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "created_at"
-          ],
-          "workspaceFieldIds": []
-        },
         "creator": {
           "symbols": [
             "creator"
@@ -11158,21 +6141,6 @@
             "tv.creator"
           ]
         },
-        "currency": {
-          "symbols": [
-            "currency"
-          ],
-          "databaseColumns": [
-            "currency"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "currency"
-          ],
-          "workspaceFieldIds": []
-        },
         "deletedAt": {
           "symbols": [
             "deletedAt",
@@ -11182,9 +6150,7 @@
             "deletedAt"
           ],
           "databaseTables": [
-            "TvLibraryEntriesRows",
             "TvCustomEpisodeRows",
-            "TvEpisodeProgressRows",
             "TvTrackingRows",
             "TvTrackingUnitRows",
             "TvWatchSessionRows"
@@ -11209,21 +6175,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "distributor": {
-          "symbols": [
-            "distributor"
-          ],
-          "databaseColumns": [
-            "distributor"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "distributor"
-          ],
-          "workspaceFieldIds": []
-        },
         "episodeCount": {
           "symbols": [
             "episodeCount",
@@ -11245,7 +6196,6 @@
             "episodeId"
           ],
           "databaseTables": [
-            "TvEpisodeProgressRows",
             "TvWatchSessionRows"
           ],
           "sqlNames": [
@@ -11263,7 +6213,6 @@
           ],
           "databaseTables": [
             "TvCustomEpisodeRows",
-            "TvEpisodeProgressRows",
             "TvTrackingRows",
             "TvTrackingUnitRows",
             "TvWatchSessionRows"
@@ -11303,21 +6252,6 @@
             "tv.episode_runtime_minutes"
           ]
         },
-        "features": {
-          "symbols": [
-            "features"
-          ],
-          "databaseColumns": [
-            "features"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "features"
-          ],
-          "workspaceFieldIds": []
-        },
         "finishedAt": {
           "symbols": [
             "finishedAt",
@@ -11346,39 +6280,6 @@
             "tv.first_air_date"
           ]
         },
-        "grade": {
-          "symbols": [
-            "grade"
-          ],
-          "databaseColumns": [
-            "grade"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "grade"
-          ],
-          "workspaceFieldIds": []
-        },
-        "hdrFormats": {
-          "symbols": [
-            "hdrFormats",
-            "hdrFormatsJson",
-            "hdr_formats",
-            "hdr_formats_json"
-          ],
-          "databaseColumns": [
-            "hdrFormatsJson"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "hdr_formats_json"
-          ],
-          "workspaceFieldIds": []
-        },
         "id": {
           "symbols": [
             "id"
@@ -11387,7 +6288,6 @@
             "id"
           ],
           "databaseTables": [
-            "TvLibraryEntriesRows",
             "TvCustomEpisodeRows",
             "TvTrackingRows",
             "TvTrackingUnitRows",
@@ -11395,54 +6295,6 @@
           ],
           "sqlNames": [
             "id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "indexNumber": {
-          "symbols": [
-            "indexNumber",
-            "index_number"
-          ],
-          "databaseColumns": [
-            "indexNumber"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "index_number"
-          ],
-          "workspaceFieldIds": []
-        },
-        "isDigital": {
-          "symbols": [
-            "isDigital",
-            "is_digital"
-          ],
-          "databaseColumns": [
-            "isDigital"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "is_digital"
-          ],
-          "workspaceFieldIds": []
-        },
-        "itemId": {
-          "symbols": [
-            "itemId",
-            "item_id"
-          ],
-          "databaseColumns": [
-            "itemId"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "item_id"
           ],
           "workspaceFieldIds": []
         },
@@ -11458,19 +6310,38 @@
             "tv.last_air_date"
           ]
         },
-        "lastWatchedAt": {
+        "libraryEntryId": {
           "symbols": [
-            "lastWatchedAt",
-            "last_watched_at"
+            "libraryEntryId",
+            "library_entry_id"
           ],
           "databaseColumns": [
-            "lastWatchedAt"
+            "libraryEntryId"
           ],
           "databaseTables": [
-            "TvEpisodeProgressRows"
+            "TvCustomEpisodeRows",
+            "TvWatchSessionRows"
           ],
           "sqlNames": [
-            "last_watched_at"
+            "library_entry_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "libraryEntryRefKey": {
+          "symbols": [
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
+          ],
+          "databaseColumns": [
+            "libraryEntryRefKey"
+          ],
+          "databaseTables": [
+            "TvTrackingRows",
+            "TvTrackingUnitRows",
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "library_entry_ref_key"
           ],
           "workspaceFieldIds": []
         },
@@ -11501,38 +6372,6 @@
             "tv.location"
           ]
         },
-        "locationId": {
-          "symbols": [
-            "locationId",
-            "location_id"
-          ],
-          "databaseColumns": [
-            "locationId"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "location_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "marketValueCents": {
-          "symbols": [
-            "marketValueCents",
-            "market_value_cents"
-          ],
-          "databaseColumns": [
-            "marketValueCents"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "market_value_cents"
-          ],
-          "workspaceFieldIds": []
-        },
         "network": {
           "symbols": [
             "network"
@@ -11552,75 +6391,11 @@
             "notes"
           ],
           "databaseTables": [
-            "TvEpisodeProgressRows",
             "TvTrackingRows",
             "TvWatchSessionRows"
           ],
           "sqlNames": [
             "notes"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownerLabel": {
-          "symbols": [
-            "ownerLabel",
-            "owner_label"
-          ],
-          "databaseColumns": [
-            "ownerLabel"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_label"
-          ],
-          "workspaceFieldIds": []
-        },
-        "ownerUserId": {
-          "symbols": [
-            "ownerUserId",
-            "owner_user_id"
-          ],
-          "databaseColumns": [
-            "ownerUserId"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "owner_user_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "packaging": {
-          "symbols": [
-            "packaging"
-          ],
-          "databaseColumns": [
-            "packaging"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "packaging"
-          ],
-          "workspaceFieldIds": []
-        },
-        "personalNotes": {
-          "symbols": [
-            "personalNotes",
-            "personal_notes"
-          ],
-          "databaseColumns": [
-            "personalNotes"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "personal_notes"
           ],
           "workspaceFieldIds": []
         },
@@ -11635,22 +6410,6 @@
           "workspaceFieldIds": [
             "tv.price_paid"
           ]
-        },
-        "pricePaidCents": {
-          "symbols": [
-            "pricePaidCents",
-            "price_paid_cents"
-          ],
-          "databaseColumns": [
-            "pricePaidCents"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "price_paid_cents"
-          ],
-          "workspaceFieldIds": []
         },
         "progressCurrent": {
           "symbols": [
@@ -11684,38 +6443,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "purchaseDate": {
-          "symbols": [
-            "purchaseDate",
-            "purchase_date"
-          ],
-          "databaseColumns": [
-            "purchaseDate"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_date"
-          ],
-          "workspaceFieldIds": []
-        },
-        "purchaseStore": {
-          "symbols": [
-            "purchaseStore",
-            "purchase_store"
-          ],
-          "databaseColumns": [
-            "purchaseStore"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "purchase_store"
-          ],
-          "workspaceFieldIds": []
-        },
         "rating": {
           "symbols": [
             "rating"
@@ -11724,7 +6451,6 @@
             "rating"
           ],
           "databaseTables": [
-            "TvEpisodeProgressRows",
             "TvTrackingRows",
             "TvWatchSessionRows"
           ],
@@ -11734,37 +6460,6 @@
           "workspaceFieldIds": [
             "tv.rating"
           ]
-        },
-        "rawPayloadJson": {
-          "symbols": [
-            "rawPayloadJson",
-            "raw_payload_json"
-          ],
-          "databaseColumns": [
-            "rawPayloadJson"
-          ],
-          "databaseTables": [
-            "TvEpisodeProgressRows"
-          ],
-          "sqlNames": [
-            "raw_payload_json"
-          ],
-          "workspaceFieldIds": []
-        },
-        "region": {
-          "symbols": [
-            "region"
-          ],
-          "databaseColumns": [
-            "region"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "region"
-          ],
-          "workspaceFieldIds": []
         },
         "releaseDate": {
           "symbols": [
@@ -11818,22 +6513,6 @@
             "tv.season_count"
           ]
         },
-        "seasonId": {
-          "symbols": [
-            "seasonId",
-            "season_id"
-          ],
-          "databaseColumns": [
-            "seasonId"
-          ],
-          "databaseTables": [
-            "TvEpisodeProgressRows"
-          ],
-          "sqlNames": [
-            "season_id"
-          ],
-          "workspaceFieldIds": []
-        },
         "seasonNumber": {
           "symbols": [
             "seasonNumber",
@@ -11844,7 +6523,6 @@
           ],
           "databaseTables": [
             "TvCustomEpisodeRows",
-            "TvEpisodeProgressRows",
             "TvTrackingRows",
             "TvTrackingUnitRows",
             "TvWatchSessionRows"
@@ -11870,22 +6548,6 @@
           ],
           "workspaceFieldIds": []
         },
-        "sellPriceCents": {
-          "symbols": [
-            "sellPriceCents",
-            "sell_price_cents"
-          ],
-          "databaseColumns": [
-            "sellPriceCents"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sell_price_cents"
-          ],
-          "workspaceFieldIds": []
-        },
         "series": {
           "symbols": [
             "series"
@@ -11896,56 +6558,6 @@
           "workspaceFieldIds": [
             "tv.series"
           ]
-        },
-        "seriesId": {
-          "symbols": [
-            "seriesId",
-            "series_id"
-          ],
-          "databaseColumns": [
-            "seriesId"
-          ],
-          "databaseTables": [
-            "TvCustomEpisodeRows",
-            "TvEpisodeProgressRows",
-            "TvWatchSessionRows"
-          ],
-          "sqlNames": [
-            "series_id"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldAt": {
-          "symbols": [
-            "soldAt",
-            "sold_at"
-          ],
-          "databaseColumns": [
-            "soldAt"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "soldTo": {
-          "symbols": [
-            "soldTo",
-            "sold_to"
-          ],
-          "databaseColumns": [
-            "soldTo"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "sold_to"
-          ],
-          "workspaceFieldIds": []
         },
         "sourceType": {
           "symbols": [
@@ -12024,39 +6636,6 @@
           "workspaceFieldIds": [
             "tv.streaming_service"
           ]
-        },
-        "tags": {
-          "symbols": [
-            "tags"
-          ],
-          "databaseColumns": [
-            "tags"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows"
-          ],
-          "sqlNames": [
-            "tags"
-          ],
-          "workspaceFieldIds": []
-        },
-        "targetRefJson": {
-          "symbols": [
-            "targetRefJson",
-            "target_ref_json"
-          ],
-          "databaseColumns": [
-            "targetRefJson"
-          ],
-          "databaseTables": [
-            "TvLibraryEntriesRows",
-            "TvTrackingUnitRows",
-            "TvWatchSessionRows"
-          ],
-          "sqlNames": [
-            "target_ref_json"
-          ],
-          "workspaceFieldIds": []
         },
         "thumbnailImageUrl": {
           "symbols": [
@@ -12145,9 +6724,7 @@
             "updatedAt"
           ],
           "databaseTables": [
-            "TvLibraryEntriesRows",
             "TvCustomEpisodeRows",
-            "TvEpisodeProgressRows",
             "TvTrackingRows",
             "TvTrackingUnitRows",
             "TvWatchSessionRows"
@@ -12184,22 +6761,6 @@
           ],
           "sqlNames": [
             "watched_at"
-          ],
-          "workspaceFieldIds": []
-        },
-        "watchedCount": {
-          "symbols": [
-            "watchedCount",
-            "watched_count"
-          ],
-          "databaseColumns": [
-            "watchedCount"
-          ],
-          "databaseTables": [
-            "TvEpisodeProgressRows"
-          ],
-          "sqlNames": [
-            "watched_count"
           ],
           "workspaceFieldIds": []
         },

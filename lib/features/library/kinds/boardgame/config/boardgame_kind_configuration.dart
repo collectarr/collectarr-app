@@ -124,7 +124,6 @@ Iterable<String?> boardGameLinkedMetadataValues(
 ) =>
     [
       metadata.seriesTitle,
-      metadata.series?.seriesTitle,
       metadata.itemNumber,
       metadata.publisher,
       ...metadata.publishers,

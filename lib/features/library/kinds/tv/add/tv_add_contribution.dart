@@ -68,9 +68,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => TvSeriesMetadata.fromJson(transport.kindData));
-              return metadata is TvSeriesMetadata
-                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                  : const <Object?>[];
+              return [metadata.seriesTitle];
             },
           ),
           LibraryAddSearchRankField(

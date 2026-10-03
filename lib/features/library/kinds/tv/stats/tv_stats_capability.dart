@@ -80,8 +80,7 @@ class TvStatsCapability implements LibraryStatsCapability {
     for (final entry in entries) {
       if (!entry.isEntry) continue;
       final metadata = _metadata(entry);
-      final seriesTitle =
-          (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();
+      final seriesTitle = metadata?.seriesTitle?.trim();
       final number = numberFor(entry);
       if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
         continue;

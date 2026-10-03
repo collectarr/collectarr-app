@@ -247,7 +247,6 @@ class AnimeMetadata implements JsonEncodable {
     this.country = 'JP',
     this.language = 'ja',
     this.relations = const [],
-    this.series,
     this.seriesTitle,
     this.itemNumber,
     this.editionTitle,
@@ -300,7 +299,6 @@ class AnimeMetadata implements JsonEncodable {
   final String country;
   final String language;
   final List<AnimeRelation> relations;
-  final CatalogSeriesDetailsDto? series;
   final String? seriesTitle;
   final String? itemNumber;
   final String? editionTitle;
@@ -359,9 +357,6 @@ class AnimeMetadata implements JsonEncodable {
         if (relations.isNotEmpty)
           'relations': relations.map((e) => e.toJson()).toList(),
         if (seriesTitle != null) 'series_title': seriesTitle,
-        if (series != null && series!.hasData) ...{
-          'series': series!.toJson(),
-        },
         if (itemNumber != null) 'item_number': itemNumber,
         if (editionTitle != null) 'edition_title': editionTitle,
         if (physicalFormat != null) 'physical_format': physicalFormat,
@@ -421,7 +416,6 @@ class AnimeMetadata implements JsonEncodable {
     String? country,
     String? language,
     List<AnimeRelation>? relations,
-    CatalogSeriesDetailsDto? series,
     String? seriesTitle,
     String? itemNumber,
     String? editionTitle,
@@ -471,7 +465,6 @@ class AnimeMetadata implements JsonEncodable {
       country: country ?? this.country,
       language: language ?? this.language,
       relations: relations ?? this.relations,
-      series: series ?? this.series,
       seriesTitle: seriesTitle ?? this.seriesTitle,
       itemNumber: itemNumber ?? this.itemNumber,
       editionTitle: editionTitle ?? this.editionTitle,
@@ -487,14 +480,9 @@ class AnimeMetadata implements JsonEncodable {
   }
 
   factory AnimeMetadata.fromJson(Map<String, dynamic> json) {
-    final seriesRaw = json['series'];
-    final series = seriesRaw is Map
-        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
-        : null;
-    final resolvedSeriesTitle =
-        (json['series_title'] ?? series?.seriesTitle) as String?;
-
-    final rawPayload = Map<String, dynamic>.from(json)..remove('editions');
+    final rawPayload = Map<String, dynamic>.from(json)
+      ..remove('editions')
+      ..remove('series');
     final rawMedia = (json['media'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
             .map(AnimeMediaMetadata.fromJson)
@@ -590,11 +578,7 @@ class AnimeMetadata implements JsonEncodable {
               ?.map((e) => AnimeRelation.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      series: series ??
-          (resolvedSeriesTitle != null
-              ? CatalogSeriesDetailsDto(seriesTitle: resolvedSeriesTitle)
-              : null),
-      seriesTitle: resolvedSeriesTitle,
+      seriesTitle: json['series_title'] as String?,
       itemNumber: json['item_number'] as String?,
       editionTitle: json['edition_title'] as String?,
       physicalFormat: json['physical_format'] as String?,

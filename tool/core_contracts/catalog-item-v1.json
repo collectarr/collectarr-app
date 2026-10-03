@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "5415b1c89ad0c5665c821dfaaf4477ce0c3fa1f2",
+  "coreCommit": "35c8426c5857c4465212cea52bb4dc736a584403",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-03T11:35:12.762119Z",
+  "generatedAt": "2026-10-03T13:32:19.703057Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -1367,6 +1367,16 @@
             }
           ]
         },
+        "series_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "sort_key": {
           "anyOf": [
             {
@@ -2081,6 +2091,16 @@
                 "type": "string"
               },
               "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "series_title": {
+          "anyOf": [
+            {
+              "type": "string"
             },
             {
               "type": "null"
@@ -9749,6 +9769,16 @@
                 "type": "string"
               },
               "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "series_title": {
+          "anyOf": [
+            {
+              "type": "string"
             },
             {
               "type": "null"

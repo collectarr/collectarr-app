@@ -30,7 +30,6 @@ class BoardGameMetadata implements JsonEncodable {
     this.bggRating,
     this.bggRatingCount,
     this.bggRank,
-    this.series,
     this.seriesTitle,
     this.itemNumber,
     this.physicalFormat,
@@ -74,7 +73,6 @@ class BoardGameMetadata implements JsonEncodable {
   final double? bggRating;
   final int? bggRatingCount;
   final int? bggRank;
-  final CatalogSeriesDetailsDto? series;
   final String? seriesTitle;
   final String? itemNumber;
   final String? physicalFormat;
@@ -118,10 +116,6 @@ class BoardGameMetadata implements JsonEncodable {
         if (bggRatingCount != null) 'bgg_rating_count': bggRatingCount,
         if (bggRank != null) 'bgg_rank': bggRank,
         if (seriesTitle != null) 'series_title': seriesTitle,
-        if (series != null && series!.hasData) ...{
-          'series': series!.toJson(),
-          ...series!.toJson(),
-        },
         if (itemNumber != null) 'item_number': itemNumber,
         if (physicalFormat != null) 'physical_format': physicalFormat,
         if (physicalFormatLabel != null)
@@ -170,7 +164,6 @@ class BoardGameMetadata implements JsonEncodable {
     double? bggRating,
     int? bggRatingCount,
     int? bggRank,
-    CatalogSeriesDetailsDto? series,
     String? seriesTitle,
     String? itemNumber,
     String? physicalFormat,
@@ -208,7 +201,6 @@ class BoardGameMetadata implements JsonEncodable {
       bggRating: bggRating ?? this.bggRating,
       bggRatingCount: bggRatingCount ?? this.bggRatingCount,
       bggRank: bggRank ?? this.bggRank,
-      series: series ?? this.series,
       seriesTitle: seriesTitle ?? this.seriesTitle,
       itemNumber: itemNumber ?? this.itemNumber,
       physicalFormat: physicalFormat ?? this.physicalFormat,
@@ -222,13 +214,6 @@ class BoardGameMetadata implements JsonEncodable {
   }
 
   factory BoardGameMetadata.fromJson(Map<String, dynamic> json) {
-    final seriesRaw = json['series'];
-    final series = seriesRaw is Map
-        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
-        : null;
-    final resolvedSeriesTitle =
-        (json['series_title'] ?? series?.seriesTitle) as String?;
-
     final rawCreators = (json['creators'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
             .map((e) => Map<String, dynamic>.from(e))
@@ -249,7 +234,7 @@ class BoardGameMetadata implements JsonEncodable {
     ];
 
     return BoardGameMetadata(
-      rawPayload: Map<String, dynamic>.from(json),
+      rawPayload: Map<String, dynamic>.from(json)..remove('series'),
       title: (json['title'] as String?) ?? '',
       originalTitle: json['original_title'] as String?,
       synopsis: (json['synopsis'] ?? json['description']) as String?,
@@ -307,11 +292,7 @@ class BoardGameMetadata implements JsonEncodable {
           json['rating_count'] as int? ??
           json['users_rated'] as int?,
       bggRank: json['bgg_rank'] as int? ?? json['rank'] as int?,
-      series: series ??
-          (resolvedSeriesTitle != null
-              ? CatalogSeriesDetailsDto(seriesTitle: resolvedSeriesTitle)
-              : null),
-      seriesTitle: resolvedSeriesTitle,
+      seriesTitle: json['series_title'] as String?,
       itemNumber: (json['item_number'] ?? json['issue_number']) as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,

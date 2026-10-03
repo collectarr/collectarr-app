@@ -67,9 +67,7 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => AnimeMetadata.fromJson(transport.kindData));
-              return metadata is AnimeMetadata
-                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                  : const <Object?>[];
+              return [metadata.seriesTitle];
             },
           ),
           LibraryAddSearchRankField(

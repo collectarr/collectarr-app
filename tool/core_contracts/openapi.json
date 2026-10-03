@@ -2643,6 +2643,17 @@
             ],
             "title": "Series Tags"
           },
+          "series_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Series Title"
+          },
           "sort_key": {
             "anyOf": [
               {
@@ -3251,6 +3262,17 @@
               }
             ],
             "title": "Series Tags"
+          },
+          "series_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Series Title"
           },
           "sort_key": {
             "anyOf": [
@@ -8843,6 +8865,17 @@
               }
             ],
             "title": "Series Tags"
+          },
+          "series_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Series Title"
           },
           "sort_key": {
             "anyOf": [

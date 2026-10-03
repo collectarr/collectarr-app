@@ -40,7 +40,7 @@ BoardGameCatalogFormValues boardGameCatalogFormValuesFromMetadata(
     bggRating: metadata.bggRating,
     bggRatingCount: metadata.bggRatingCount,
     bggRank: metadata.bggRank,
-    seriesTitle: metadata.seriesTitle ?? metadata.series?.seriesTitle ?? '',
+    seriesTitle: metadata.seriesTitle ?? '',
     itemNumber: metadata.itemNumber ?? '',
     variant: metadata.variant ?? '',
     ageRating: _text(raw['age_rating']) ?? '',

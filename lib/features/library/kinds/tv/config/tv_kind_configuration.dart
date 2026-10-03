@@ -144,7 +144,6 @@ final tvTransferableFields = <TransferableField>[
 
 Iterable<String?> tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
       metadata.seriesTitle,
-      metadata.series?.seriesTitle,
       metadata.itemNumber,
       metadata.publisher,
       metadata.network,

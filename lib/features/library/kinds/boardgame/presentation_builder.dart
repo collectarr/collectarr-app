@@ -178,8 +178,6 @@ class BoardGameLibraryMediaPresentationBuilder
     final metadata = item.source.catalogData is BoardGameWorkspaceCatalogData
         ? (item.source.catalogData! as BoardGameWorkspaceCatalogData).metadata
         : null;
-    final series = metadata?.series;
-
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
@@ -188,11 +186,11 @@ class BoardGameLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
-        if (series?.seriesTitle != null)
+        if (metadata?.seriesTitle != null)
           LibraryDetailField(
               label: 'Series',
-              value: series!.seriesTitle!,
-              onTap: tapFor(series.seriesTitle)),
+              value: metadata!.seriesTitle!,
+              onTap: tapFor(metadata.seriesTitle)),
         LibraryDetailField(
             label: 'Edition',
             value: genericLibraryDash(itemNumber),

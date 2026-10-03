@@ -145,7 +145,6 @@ final animeTransferableFields = <TransferableField>[
 
 Iterable<String?> animeLinkedMetadataValues(AnimeMetadata metadata) => [
       metadata.seriesTitle,
-      metadata.series?.seriesTitle,
       metadata.itemNumber,
       metadata.publisher,
       ...metadata.studios,
