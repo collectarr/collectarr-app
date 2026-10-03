@@ -16,7 +16,7 @@ abstract final class MovieLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = MovieLibraryEntryProjection.fromDispatch(
           context.source.libraryEntryDispatch);
-      return entry is MovieLibraryEntry ? entry.condition : null;
+      return entry is MovieLibraryEntry ? entry.personal.condition : null;
     },
     entityScope: LibraryEntityScope.libraryEntry,
   );

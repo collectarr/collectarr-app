@@ -140,28 +140,36 @@ final class MovieCollectionCsvProjection
   String? entryCollectionValue(LibraryWorkspaceSource entry) {
     final personalState =
         MovieLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is MovieLibraryEntry ? personalState.grade : null;
+    return personalState is MovieLibraryEntry
+        ? personalState.personal.grade
+        : null;
   }
 
   @override
   String? entryCondition(LibraryWorkspaceSource entry) {
     final personalState =
         MovieLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is MovieLibraryEntry ? personalState.condition : null;
+    return personalState is MovieLibraryEntry
+        ? personalState.personal.condition
+        : null;
   }
 
   @override
   int? entryIndexNumber(LibraryWorkspaceSource entry) {
     final personalState =
         MovieLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is MovieLibraryEntry ? personalState.indexNumber : null;
+    return personalState is MovieLibraryEntry
+        ? personalState.personal.indexNumber
+        : null;
   }
 
   @override
   String? entryTags(LibraryWorkspaceSource entry) {
     final personalState =
         MovieLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is MovieLibraryEntry ? personalState.tags : null;
+    return personalState is MovieLibraryEntry
+        ? personalState.personal.tags
+        : null;
   }
 
   @override
