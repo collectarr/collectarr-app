@@ -42,7 +42,7 @@ slice. This is progress, not completion of this plan:
 - Music proposal normalization now supplies a stable position/order default
   when a manual track omits them; component IDs and list order are preserved.
 - The App's duplicate `CatalogMusicItemDto`/disc/track transport graph has been
-  removed. `MusicAlbum`, `MusicMedium`, and `MusicTrack` are the typed Music
+  removed. `MusicAlbum`, `MusicDisc`, and `MusicTrack` are the typed Music
   models at the Core transport boundary; the mapper translates only actual
   wire/domain naming differences. It excludes App-local track headers and
   playback fields, along with disc TOC/count/device details, from the Core

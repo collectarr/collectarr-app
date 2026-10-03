@@ -12,9 +12,9 @@ for the CLZ labels and v1 field names.
 | Credits | Catalog Item | People and classical credits for the album | Core catalog |
 | Discs, disc titles, matrix sides | Contained Catalog Item data | Ordered album content and pressing identifiers | Core catalog |
 | Tracks and track credits | Contained disc data | Ordered track list; not a separate workspace entity | Core catalog |
-| Status, condition, purchase/value data, location, notes, rating, tags | Collection Item | Personal facts for one distinguishable copy | App and Sync |
-| Storage device, slot, observed runouts, personal images | Collection Item | Physical details and images for one copy | App and Sync |
-| Listening events | Catalog Item, optional Collection Item | User activity for an album; copy is recorded only when known | App and Sync |
+| Status, condition, purchase/value data, location, notes, rating, tags | Library Entry | Personal facts for one distinguishable copy | App and Sync |
+| Storage device, slot, observed runouts, personal images | Library Entry | Physical details and images for one copy | App and Sync |
+| Listening events | Library Entry | User activity attached to one locally owned album entry | App and Sync |
 
 ## Boundaries
 
