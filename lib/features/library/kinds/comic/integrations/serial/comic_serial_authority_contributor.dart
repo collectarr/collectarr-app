@@ -18,8 +18,7 @@ final class ComicSerialAuthorityContributor
   ) sync* {
     for (final value in metadata) {
       if (value is! ComicCatalogItem) continue;
-      final title =
-          (value.seriesTitle ?? value.series?.seriesTitle ?? '').trim();
+      final title = (value.seriesTitle ?? '').trim();
       if (title.isEmpty) {
         final itemTitle = value.title.trim();
         if (itemTitle.isEmpty) continue;
@@ -34,7 +33,7 @@ final class ComicSerialAuthorityContributor
         mediaKind: kind,
         title: title,
         sortTitle: title,
-        coreSeriesId: value.series?.seriesId,
+        coreSeriesId: value.seriesId,
       );
     }
   }
@@ -51,7 +50,7 @@ final class ComicSerialAuthorityContributor
             itemId: id.value,
             title: item.title,
             seriesTitle: _seriesTitle(item),
-            coreSeriesId: item.series?.seriesId,
+            coreSeriesId: item.seriesId,
           ),
     ];
   }
@@ -89,7 +88,7 @@ final class ComicSerialAuthorityContributor
   }
 
   static String? _seriesTitle(ComicCatalogItem item) {
-    final value = (item.seriesTitle ?? item.series?.seriesTitle)?.trim();
+    final value = item.seriesTitle?.trim();
     return value == null || value.isEmpty ? null : value;
   }
 }

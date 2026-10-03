@@ -28,11 +28,11 @@ class ComicInfoXml {
         comic.seriesTitle ?? comic.title,
       );
       _optionalElement(builder, 'Number', comic.issueNumber);
-      if (comic.series?.volumeNumber != null) {
+      if (comic.volumeNumber != null) {
         _optionalElement(
           builder,
           'Volume',
-          comic.series!.volumeNumber.toString(),
+          comic.volumeNumber!,
         );
       }
       _optionalElement(builder, 'Summary', comic.synopsis);
@@ -42,7 +42,7 @@ class ComicInfoXml {
         _optionalElement(builder, 'Day', comic.releaseDate!.day.toString());
       }
       _optionalElement(builder, 'Publisher', comic.publisher);
-      _optionalElement(builder, 'Format', comic.physicalFormatLabel);
+      _optionalElement(builder, 'Format', comic.physicalFormat);
 
       // Personal fields from the typed Comic collection item.
       if (entry != null) {

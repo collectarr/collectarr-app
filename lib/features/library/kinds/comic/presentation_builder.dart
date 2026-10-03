@@ -41,7 +41,7 @@ class ComicLibraryCatalogItemPresentationBuilder
     final transport = item.kindCapability.mapTransport((value) => value);
     final badge = comicFormatBadge(
       transport.physicalFormat,
-      label: transport.physicalFormatLabel,
+      label: transport.physicalFormat,
     );
     if (badge != null && seen.add(badge.key)) result.add(badge);
     return result;
@@ -214,14 +214,7 @@ class ComicLibraryCatalogItemPresentationBuilder
     }
     final dto = workspace;
     final metadata = dto.comic;
-    final series = metadata.series;
-    final publishing = metadata.publishing;
-    final referenceFormat = metadata.physicalFormatLabel ??
-        metadata.physicalFormat ??
-        metadata.variant;
-    final hasVolume = series?.hasVolume ?? false;
-    final hasSeason = series?.hasSeason ?? false;
-    final hasEpisode = series?.hasEpisode ?? false;
+    final referenceFormat = metadata.physicalFormat ?? metadata.variant;
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
@@ -230,26 +223,15 @@ class ComicLibraryCatalogItemPresentationBuilder
           LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
           LibraryDetailField(label: 'Title', value: metadata.title),
         ],
-        if (series?.seriesTitle != null)
+        if (metadata.seriesTitle != null)
           LibraryDetailField(
               label: 'Series',
-              value: series!.seriesTitle!,
-              onTap: tapFor(series.seriesTitle)),
-        if (hasVolume && !hasSeason)
+              value: metadata.seriesTitle!,
+              onTap: tapFor(metadata.seriesTitle)),
+        if (metadata.volumeName != null || metadata.volumeNumber != null)
           LibraryDetailField(
               label: 'Volume',
-              value: series!.volumeName ?? (series.volumeNumber ?? '')),
-        if (hasSeason && hasEpisode)
-          LibraryDetailField(
-              label: 'Season / Episode',
-              value:
-                  'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}'),
-        if (hasSeason && !hasEpisode)
-          LibraryDetailField(
-              label: 'Season', value: 'Season ${series!.seasonNumber}'),
-        if (hasEpisode && !hasSeason)
-          LibraryDetailField(
-              label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
+              value: metadata.volumeName ?? metadata.volumeNumber ?? ''),
         LibraryDetailField(
             label: 'No. / Vol.',
             value: genericLibraryDash(metadata.issueNumber),
@@ -273,23 +255,23 @@ class ComicLibraryCatalogItemPresentationBuilder
               formatPresentationNullableDate(metadata.releaseDate) ??
                   metadata.releaseDate?.year.toString(),
             )),
-        if (publishing?.pageCount != null)
+        if (metadata.pageCount != null)
           LibraryDetailField(
-              label: 'Pages', value: publishing!.pageCount.toString()),
-        if (publishing?.coverPriceCents != null)
+              label: 'Pages', value: metadata.pageCount.toString()),
+        if (metadata.coverPriceCents != null)
           LibraryDetailField(
               label: 'Cover Price',
               value: formatPresentationMoney(
-                publishing!.coverPriceCents,
-                publishing.currency,
+                metadata.coverPriceCents,
+                metadata.currency,
               )),
-        if (publishing?.imprint != null)
+        if (metadata.imprint != null)
           LibraryDetailField(
               label: 'Imprint',
-              value: publishing!.imprint!,
-              onTap: tapFor(publishing.imprint)),
-        if (publishing?.subtitle != null)
-          LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
+              value: metadata.imprint!,
+              onTap: tapFor(metadata.imprint)),
+        if (metadata.subtitle != null)
+          LibraryDetailField(label: 'Subtitle', value: metadata.subtitle!),
         LibraryDetailField(label: 'Country', value: metadata.country),
         LibraryDetailField(label: 'Language', value: metadata.language),
         if (metadata.ageRating != null)
@@ -307,7 +289,7 @@ class ComicLibraryCatalogItemPresentationBuilder
       ],
       sections: {
         'creators': LibraryMetadataSection(
-          values: metadata.creators
+          values: [...metadata.contributors, ...metadata.creators]
               .map((creator) => creator.toJson())
               .toList(growable: false),
           placement: LibraryMetadataSectionPlacement.credits,
@@ -388,7 +370,7 @@ LibraryAddSearchResultDisplay _buildComicSearchResultDisplay(
       year.toString(),
     if (item.kindCapability
             .mapTransport((transport) => transport)
-            .physicalFormatLabel
+            .physicalFormat
             ?.trim()
         case final value? when value.isNotEmpty)
       value,

@@ -110,7 +110,6 @@ class ComicAdminContributor implements LibraryAdminContributor {
           key: 'physical_format',
           read: (item) =>
               item.primaryEdition?.physicalFormat ??
-              item.primaryEdition?.physicalFormatLabel ??
               item.canonicalFieldValues['physical_format'],
         ),
         adminRelatedListCorrectionField(

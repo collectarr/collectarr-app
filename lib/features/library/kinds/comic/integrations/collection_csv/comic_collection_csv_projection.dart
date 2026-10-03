@@ -126,7 +126,7 @@ final class ComicCollectionCsvProjection
       comic?.variantDescription ?? comic?.variant ?? '',
       comic?.editionTitle ?? '',
       comic?.physicalFormat ?? '',
-      comic?.physicalFormatLabel ?? '',
+      comic?.physicalFormat ?? '',
       comic?.publisher ?? '',
       _formatDate(comic?.releaseDate ?? comic?.coverDate),
       comic?.barcode ?? '',

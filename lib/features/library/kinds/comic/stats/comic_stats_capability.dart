@@ -27,9 +27,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     final catalog = entry.catalogData;
     final metadata = _comicMetadata(entry);
     if (catalog == null || metadata == null) return null;
-    final primary =
-        (metadata.seriesTitle ?? metadata.series?.seriesTitle ?? catalog.title)
-            .trim();
+    final primary = (metadata.seriesTitle ?? catalog.title).trim();
     final secondary = (metadata.publisher ?? metadata.imprint)?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup: primary,
@@ -78,7 +76,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
       state.entries,
       (entry) {
         final metadata = _comicMetadata(entry);
-        final rawVolume = metadata?.series?.volumeNumber;
+        final rawVolume = metadata?.volumeNumber;
         if (rawVolume == null) return null;
         final volume = double.tryParse(rawVolume);
         if (volume == null || volume % 1 != 0) {
@@ -157,10 +155,10 @@ class ComicStatsCapability implements LibraryStatsCapability {
     if (meta == null) {
       return const <String>[];
     }
-    if (meta.creatorCredits.isNotEmpty) {
-      return meta.creatorCredits.map((credit) => credit.name);
-    }
-    return meta.creators.map((credit) => credit.name ?? '');
+    return [
+      ...meta.contributors.map((credit) => credit.name ?? ''),
+      ...meta.creators.map((credit) => credit.name ?? ''),
+    ];
   }
 
   static Map<String, int> _countMany(
@@ -194,8 +192,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
         continue;
       }
       final metadata = _comicMetadata(entry);
-      final seriesTitle =
-          (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();
+      final seriesTitle = metadata?.seriesTitle?.trim();
       final issueNumber = _wholeIssueNumber(metadata?.issueNumber);
       if (seriesTitle == null || seriesTitle.isEmpty || issueNumber == null) {
         continue;
@@ -236,8 +233,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
         continue;
       }
       final metadata = _comicMetadata(entry);
-      final seriesTitle =
-          (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();
+      final seriesTitle = metadata?.seriesTitle?.trim();
       final number = numberFor(entry);
       if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
         continue;

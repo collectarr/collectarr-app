@@ -343,7 +343,7 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seriesId = _comicMetadata(request.item)?.series?.seriesId;
+    final seriesId = _comicMetadata(request.item)?.seriesId;
     if (seriesId == null || seriesId.trim().isEmpty) {
       return LibraryDetailSection(
         title: 'Series completeness',
@@ -381,7 +381,7 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
               fields: [
                 LibraryDetailField(
                     label: 'Series',
-                    value: _comicMetadata(request.item)?.series?.seriesTitle ??
+                    value: _comicMetadata(request.item)?.seriesTitle ??
                         _comicMetadata(request.item)?.title ??
                         request.item.dto.primaryLabel),
                 LibraryDetailField(
@@ -522,7 +522,7 @@ final _comicSeriesItemsProvider =
 List<LibraryDetailField> _detailFacts(LibraryProjectionView item) {
   final dto = item.dto;
   final adapter = dto is ComicWorkspaceDto ? dto : null;
-  final publishing = _comicMetadata(item)?.publishing;
+  final metadata = _comicMetadata(item);
   final rows = <LibraryDetailField>[];
   if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
@@ -536,35 +536,35 @@ List<LibraryDetailField> _detailFacts(LibraryProjectionView item) {
     rows.add(LibraryDetailField(
         label: 'Language', value: adapter!.language!.trim()));
   }
-  if (publishing?.pageCount != null) {
+  if (metadata?.pageCount != null) {
     rows.add(LibraryDetailField(
-        label: 'Pages', value: publishing!.pageCount.toString()));
+        label: 'Pages', value: metadata!.pageCount.toString()));
   }
   return rows;
 }
 
 List<LibraryDetailField> _seriesFacts(LibraryProjectionView item) {
-  final series = _comicMetadata(item)?.series;
+  final metadata = _comicMetadata(item);
   final rows = <LibraryDetailField>[];
-  if (series?.seriesTitle?.trim().isNotEmpty == true) {
+  if (metadata?.seriesTitle?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
-        label: 'Series', value: series!.seriesTitle!.trim()));
+        label: 'Series', value: metadata!.seriesTitle!.trim()));
   }
-  if (series?.seriesId?.trim().isNotEmpty == true) {
+  if (metadata?.seriesId?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
-        label: 'Series ID', value: series!.seriesId!.trim()));
+        label: 'Series ID', value: metadata!.seriesId!.trim()));
   }
-  if (series?.volumeName?.trim().isNotEmpty == true) {
-    rows.add(
-        LibraryDetailField(label: 'Volume', value: series!.volumeName!.trim()));
-  }
-  if (series?.volumeNumber != null) {
+  if (metadata?.volumeName?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
-        label: 'Volume no.', value: series!.volumeNumber!.toString()));
+        label: 'Volume', value: metadata!.volumeName!.trim()));
   }
-  if (series?.volumeStartYear != null) {
+  if (metadata?.volumeNumber != null) {
     rows.add(LibraryDetailField(
-        label: 'Start year', value: series!.volumeStartYear!.toString()));
+        label: 'Volume no.', value: metadata!.volumeNumber!));
+  }
+  if (metadata?.volumeStartYear != null) {
+    rows.add(LibraryDetailField(
+        label: 'Start year', value: metadata!.volumeStartYear!.toString()));
   }
   return rows;
 }

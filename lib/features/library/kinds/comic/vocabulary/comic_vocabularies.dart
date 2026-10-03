@@ -336,25 +336,21 @@ abstract final class ComicVocabularies {
 }
 
 Iterable<String?> _publisherCatalogValues(ComicCatalogItem metadata) sync* {
-  yield* vocabularyValues([
-    metadata.publisher,
-    metadata.publishing?.originalPublisher,
-  ]);
+  yield* vocabularyValues([metadata.publisher]);
 }
 
 Iterable<String?> _imprintCatalogValues(ComicCatalogItem metadata) {
-  return vocabularyValues([metadata.imprint, metadata.publishing?.imprint]);
+  return vocabularyValues([metadata.imprint]);
 }
 
 Iterable<String?> _seriesGroupCatalogValues(ComicCatalogItem metadata) {
-  return vocabularyValues([metadata.publishing?.seriesGroup]);
+  return vocabularyValues([metadata.seriesGroup]);
 }
 
 Iterable<String?> _physicalFormatCatalogValues(
   ComicCatalogItem metadata,
 ) sync* {
   yield* vocabularyValues([
-    metadata.physicalFormatLabel,
     metadata.physicalFormat,
   ]);
 }

@@ -71,15 +71,13 @@ final comicUniversalTransferableFields =
 
 Iterable<String?> comicLinkedMetadataValues(ComicCatalogItem metadata) => [
       metadata.seriesTitle,
-      metadata.series?.seriesTitle,
       metadata.issueNumber,
       metadata.publisher,
-      metadata.publishing?.originalPublisher,
       metadata.variant,
       metadata.imprint,
-      metadata.publishing?.imprint,
       metadata.country,
       metadata.language,
+      ...metadata.contributors.map((credit) => credit.name),
       ...metadata.creators.map((credit) => credit.name),
       ...metadata.genres,
     ];

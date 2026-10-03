@@ -109,10 +109,13 @@ slice. This is progress, not completion of this plan:
   by Comic-owned typed values through edit, lookup, workspace, and inspector
   projections; Core accepts the Comic character editor's `real_name` field.
   App-side Comic field filtering was removed so Core's kind-owned validator is
-  the only proposal allowlist. The Comic metadata model still contains generic
-  nested DTOs and raw payload storage; removing those remains outstanding
-  work. Its CLZ field ledger stays provisional until a saved Edit-form capture
-  is reviewed.
+  the only proposal allowlist. Comic's metadata aggregate now stores its
+  series, publishing, format, identifier, creator, character, story-arc, and
+  key-event data in Comic-owned typed fields; it no longer keeps generic nested
+  series/publishing DTOs or a raw payload map. Workspace, edit, inspector,
+  statistics, CSV, and ComicInfo projections read those typed fields. The
+  Comic Add/Edit adapter preserves typed fields it does not expose. Its CLZ
+  field ledger stays provisional until a saved Edit-form capture is reviewed.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.

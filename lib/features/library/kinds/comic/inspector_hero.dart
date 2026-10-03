@@ -86,8 +86,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             mediaType: (item.source.catalogData?.kind ?? request.type.kind)
                 .apiValue) ??
         request.type.identity.singularLabel.toUpperCase();
-    final seriesLabel = comic?.series?.seriesTitle?.trim().isNotEmpty == true
-        ? comic!.series!.seriesTitle!.trim()
+    final seriesLabel = comic?.seriesTitle?.trim().isNotEmpty == true
+        ? comic!.seriesTitle!.trim()
         : null;
     final editionLabel =
         adapter?.referenceFormatLabel?.trim().isNotEmpty == true
@@ -104,8 +104,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final publisherLabel = [
       if (comicDto?.publisher?.trim().isNotEmpty == true)
         comicDto!.publisher!.trim(),
-      if (comic?.publishing?.imprint?.trim().isNotEmpty == true)
-        comic!.publishing!.imprint!.trim(),
+      if (comic?.imprint?.trim().isNotEmpty == true) comic!.imprint!.trim(),
     ].join(' / ');
     final subtitleParts = <String>[
       if (comic?.crossover?.trim().isNotEmpty == true) comic!.crossover!.trim(),
@@ -113,8 +112,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
           comic.storyArcs.isNotEmpty &&
           comic.storyArcs.first.name?.trim().isNotEmpty == true)
         comic.storyArcs.first.name!.trim(),
-      if (comic?.publishing?.subtitle?.trim().isNotEmpty == true)
-        comic!.publishing!.subtitle!.trim(),
+      if (comic?.subtitle?.trim().isNotEmpty == true) comic!.subtitle!.trim(),
       if (adapter?.variant?.trim().isNotEmpty == true) adapter!.variant!.trim(),
     ];
     final subtitleLabel = subtitleParts.join(' • ');

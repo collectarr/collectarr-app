@@ -29,13 +29,12 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
   String? get currency => common.currency;
 
   // Domain convenience getters
-  String? get writer => comic.writers.firstOrNull;
-  String? get artist => comic.artists.firstOrNull;
-  String? get coverArtist => comic.coverArtists.firstOrNull;
-  String? get imprint => comic.imprint ?? comic.publishing?.imprint;
-  String? get publisher =>
-      comic.publisher ?? comic.publishing?.originalPublisher ?? imprint;
-  String? get seriesTitle => comic.seriesTitle ?? comic.series?.seriesTitle;
+  String? get writer => _creatorNameForRole('writer');
+  String? get artist => _creatorNameForRole('artist');
+  String? get coverArtist => _creatorNameForRole('coverartist');
+  String? get imprint => comic.imprint;
+  String? get publisher => comic.publisher ?? imprint;
+  String? get seriesTitle => comic.seriesTitle;
   String? get itemNumber => comic.issueNumber;
   DateTime? get releaseDate => common.releaseDate ?? comic.releaseDate;
   String? get country => comic.country;
@@ -44,10 +43,22 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
   String? get barcode => identifierCode;
   String? get variant => comic.variant;
 
-  String? get referenceFormatLabel =>
-      comic.physicalFormatLabel ?? comic.physicalFormat;
+  String? get referenceFormatLabel => comic.physicalFormat;
   String? get format => referenceFormatLabel;
-  int? get pageCount => comic.pageCount ?? comic.publishing?.pageCount;
+  int? get pageCount => comic.pageCount;
+
+  String? _creatorNameForRole(String expectedRole) => [
+        ...comic.contributors,
+        ...comic.creators,
+      ]
+          .where((creator) {
+            final role = (creator.roleId ?? creator.role ?? '')
+                .toLowerCase()
+                .replaceAll(RegExp('[^a-z]'), '');
+            return role == expectedRole;
+          })
+          .map((creator) => creator.name)
+          .firstOrNull;
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,

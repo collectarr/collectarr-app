@@ -77,19 +77,18 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
     if (issueNumber == null) {
       continue;
     }
-    final series = metadata.series;
-    final seriesKey = series?.seriesId?.trim().isNotEmpty == true
-        ? series!.seriesId!.trim()
-        : series?.seriesTitle?.trim().isNotEmpty == true
-            ? series!.seriesTitle!.trim()
+    final seriesKey = metadata.seriesId?.trim().isNotEmpty == true
+        ? metadata.seriesId!.trim()
+        : metadata.seriesTitle?.trim().isNotEmpty == true
+            ? metadata.seriesTitle!.trim()
             : metadata.title;
     final coverUrl = metadata.coverImageUrl;
     final accumulator = bySeries.putIfAbsent(
       seriesKey,
       () => _MissingComicSeriesAccumulator(
         seriesKey: seriesKey,
-        seriesTitle: series?.seriesTitle?.trim().isNotEmpty == true
-            ? series!.seriesTitle!.trim()
+        seriesTitle: metadata.seriesTitle?.trim().isNotEmpty == true
+            ? metadata.seriesTitle!.trim()
             : metadata.title,
         coverUrl: coverUrl,
         entryIssueNumbers: <int>{},
@@ -274,8 +273,8 @@ String _missingComicVariantLabel(ComicCatalogItem metadata) {
   if (variant != null && variant.isNotEmpty) {
     return variant;
   }
-  return metadata.physicalFormatLabel?.trim().isNotEmpty == true
-      ? metadata.physicalFormatLabel!.trim()
+  return metadata.physicalFormat?.trim().isNotEmpty == true
+      ? metadata.physicalFormat!.trim()
       : metadata.title;
 }
 

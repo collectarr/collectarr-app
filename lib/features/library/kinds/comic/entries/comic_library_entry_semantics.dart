@@ -12,8 +12,7 @@ LibraryEntryFormatHint resolveComicEntryFormatHint(
   final format = transport.physicalFormat;
   return (
     format: format,
-    label: transport.physicalFormatLabel ??
-        format ??
+    label: format ??
         (item.comicCatalogFields.titleExtension ?? transport.editionTitle)
             ?.trim(),
   );

@@ -66,9 +66,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => ComicCatalogItem.fromJson(transport.kindData));
-              return metadata is ComicCatalogItem
-                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                  : const [];
+              return [metadata.seriesTitle];
             },
           ),
           LibraryAddSearchRankField(
@@ -78,9 +76,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => ComicCatalogItem.fromJson(transport.kindData));
-              return metadata is ComicCatalogItem
-                  ? [metadata.issueNumber]
-                  : const [];
+              return [metadata.issueNumber];
             },
           ),
           LibraryAddSearchRankField(
@@ -90,9 +86,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => ComicCatalogItem.fromJson(transport.kindData));
-              return metadata is ComicCatalogItem
-                  ? [metadata.publisher, metadata.imprint]
-                  : const [];
+              return [metadata.publisher, metadata.imprint];
             },
           ),
           LibraryAddSearchRankField(
@@ -102,13 +96,11 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => ComicCatalogItem.fromJson(transport.kindData));
-              return metadata is ComicCatalogItem
-                  ? [
-                      metadata.releaseDate?.year,
-                      metadata.coverDate?.year,
-                      metadata.series?.volumeStartYear,
-                    ]
-                  : const <Object?>[];
+              return [
+                metadata.releaseDate?.year,
+                metadata.coverDate?.year,
+                metadata.volumeStartYear,
+              ];
             },
           ),
         ],

@@ -33,11 +33,24 @@ final comicLibraryFacetDefinitions =
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
     id: ComicFacetIds.writer,
     label: 'Writer',
-    extractValues: (dto) => dto.comic.writers,
+    extractValues: (dto) => _creatorNamesForRole(dto, 'writer'),
   ),
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
     id: ComicFacetIds.artist,
     label: 'Artist',
-    extractValues: (dto) => dto.comic.artists,
+    extractValues: (dto) => _creatorNamesForRole(dto, 'artist'),
   ),
 ];
+
+Iterable<String> _creatorNamesForRole(ComicWorkspaceDto dto, String role) => [
+      ...dto.comic.contributors,
+      ...dto.comic.creators,
+    ]
+        .where((creator) {
+          final value = (creator.roleId ?? creator.role ?? '')
+              .toLowerCase()
+              .replaceAll(RegExp('[^a-z]'), '');
+          return value == role;
+        })
+        .map((creator) => creator.name)
+        .whereType<String>();
