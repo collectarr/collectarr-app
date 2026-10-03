@@ -91,6 +91,14 @@ slice. This is progress, not completion of this plan:
   positive media number. The Movie decoder now reads root media fields instead
   of the nested `video` shape and no longer reads `issue_number`, `sort_title`,
   or the duplicate root `discs` payload.
+- Book workspace, Add preview, links, CSV, author spotlight, statistics, and
+  editing now consume `BookCatalogMetadata` directly. The duplicate
+  `BookCatalogItem` snapshot and mapper were removed. Printings, credits,
+  identifiers, series memberships, and characters remain typed values inside
+  the Book document. The pinned Core contract now includes the Book form's
+  existing subjects, back-cover image, original-language/publication details,
+  edition details, binding, dimensions, and audiobook length. The Book ledger
+  remains provisional because its saved Edit-form capture is unavailable.
 - The empty Music entry-local mapper and an unused track-duration helper were
   removed after checking the app, tests, and integration-test trees for callers.
   Music listening and tracking tables remain registered and in use.
