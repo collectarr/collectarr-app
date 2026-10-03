@@ -5,18 +5,14 @@
 /// contract.
 final class MusicSeedCatalogDetails {
   const MusicSeedCatalogDetails({
-    this.trackCount,
     this.tracks = const [],
     this.discs = const [],
     this.catalogNumber,
-    this.releaseStatus,
   });
 
-  final int? trackCount;
   final List<MusicSeedTrack> tracks;
   final List<MusicSeedDisc> discs;
   final String? catalogNumber;
-  final String? releaseStatus;
 
   Map<String, dynamic> toJson() {
     final tracksByDisc = <int, List<MusicSeedTrack>>{};
@@ -49,10 +45,8 @@ final class MusicSeedCatalogDetails {
     }
 
     return {
-      if (trackCount != null) 'track_count': trackCount,
       if (encodedDiscs.isNotEmpty) 'discs': encodedDiscs,
       if (catalogNumber != null) 'catalog_number': catalogNumber,
-      if (releaseStatus != null) 'release_status': releaseStatus,
     };
   }
 }

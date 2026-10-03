@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 /// Music-entry track presentation.
 ///
 /// The shared inspector track widget intentionally accepts only generic
-/// catalog tracks. Music must render its own ordered medium entries so header
+/// catalog tracks. Music must render its own ordered disc entries so header
 /// rows, hierarchy and track-level artist credits survive the projection.
 final class MusicInspectorTrackList extends StatelessWidget {
   const MusicInspectorTrackList({

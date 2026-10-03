@@ -8,7 +8,7 @@ class MusicEntryDetailsDraft implements JsonEncodable {
     this.lastCleanedDate,
   });
 
-  final List<MusicEntryMediumDetails> media;
+  final List<MusicEntryDiscDetails> media;
   final String? signedBy;
   final DateTime? lastCleanedDate;
 

@@ -15,7 +15,6 @@ abstract interface class MusicWorkspaceProjection
   String? get catalogNumber;
   String? get format;
   String? get referenceFormatLabel;
-  String? get releaseType;
   String? get packaging;
   String? get boxSet;
   String? get publisher;
@@ -24,12 +23,10 @@ abstract interface class MusicWorkspaceProjection
   String? get identifierCode;
   String? get barcode;
   String? get country;
-  String? get language;
   int? get listenCount;
   DateTime? get lastListened;
   int? get discCount;
   int? get trackCount;
-  String? get releaseStatus;
   bool? get isLive;
   List<String> get genres;
   List<Map<String, dynamic>> get credits;
@@ -89,14 +86,12 @@ abstract class MusicWorkspaceProjectionValues
   String? get catalogNumber => music.catalogNumber;
 
   @override
-  String? get format => music.physicalFormatLabel ?? music.releaseType;
+  String? get format => music.format;
 
   @override
   String? get referenceFormatLabel => format;
 
   @override
-  String? get releaseType => music.releaseType;
-
   @override
   String? get packaging => music.packaging;
 
@@ -113,7 +108,7 @@ abstract class MusicWorkspaceProjectionValues
   DateTime? get releaseDate => music.releaseDate;
 
   @override
-  String? get identifierCode => music.barcode ?? music.upc;
+  String? get identifierCode => music.barcode;
 
   @override
   String? get barcode => identifierCode;
@@ -122,8 +117,6 @@ abstract class MusicWorkspaceProjectionValues
   String? get country => music.countryCode;
 
   @override
-  String? get language => music.language;
-
   @override
   int? get listenCount => listeningSummary?.totalListenCount;
 
@@ -133,14 +126,12 @@ abstract class MusicWorkspaceProjectionValues
   String? get coverImageUrl => music.coverImageUrl ?? common.coverImageUrl;
 
   @override
-  int? get discCount => music.mediums.isEmpty ? null : music.mediums.length;
+  int? get discCount => music.discs.isEmpty ? null : music.discs.length;
 
   @override
   int? get trackCount => music.trackCount;
 
   @override
-  String? get releaseStatus => music.releaseStatus;
-
   @override
   bool? get isLive => music.isLive;
 

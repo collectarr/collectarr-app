@@ -6,7 +6,6 @@ import 'music_ids.dart';
 final class MusicTrack {
   MusicTrack({
     required this.id,
-    required this.mediumId,
     required this.position,
     required this.title,
     this.positionOrder,
@@ -29,7 +28,6 @@ final class MusicTrack {
             updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
   final MusicTrackId id;
-  final MusicMediumId mediumId;
   final String position;
   final String title;
 
@@ -62,7 +60,6 @@ final class MusicTrack {
 
   factory MusicTrack.fromJson(Map<String, dynamic> json) => MusicTrack(
         id: MusicTrackId(_text(json['id']) ?? ''),
-        mediumId: MusicMediumId(_text(json['medium_id']) ?? ''),
         position: _text(json['position']) ?? '',
         title: _text(json['title']) ?? 'Track',
         positionOrder: _int(json['position_order']),
@@ -83,8 +80,6 @@ final class MusicTrack {
 
   Map<String, dynamic> toJson() => {
         'id': id.value,
-        'kind': 'music',
-        'medium_id': mediumId.value,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
         'position': position,

@@ -16,13 +16,13 @@ final class MusicAlbumCreditsEditor {
   final MusicAlbumEditDraft _draft;
   final List<_CreditRow> _rows;
 
-  List<_CreditRow> rows(String role) => [
+  List<_CreditRow> _rowsFor(String role) => [
         for (final row in _rows)
           if (row.role.toLowerCase() == role.toLowerCase()) row
       ];
 
   void replace(String role, List<LibraryNamedValue> names) {
-    final old = {for (final row in rows(role)) row.id: row};
+    final old = {for (final row in _rowsFor(role)) row.id: row};
     final first =
         _rows.indexWhere((row) => row.role.toLowerCase() == role.toLowerCase());
     _rows.removeWhere((row) => row.role.toLowerCase() == role.toLowerCase());
@@ -83,7 +83,7 @@ class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
   Widget _role(String role) => LibraryOrderedNamesField(
         label: role,
         values: [
-          for (final row in widget.editor.rows(role))
+          for (final row in widget.editor._rowsFor(role))
             LibraryNamedValue(
                 id: row.id, name: row.name, sortName: row.sortName)
         ],

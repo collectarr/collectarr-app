@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:flutter/foundation.dart';
 
 import 'music_ids.dart';
-import 'music_medium.dart';
+import 'music_disc.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'music_external_link.dart';
 import 'music_album_relations.dart';
@@ -20,20 +20,15 @@ final class MusicAlbum implements JsonEncodable {
     this.sortTitle,
     this.subtitle,
     this.artist,
-    this.originalTitle,
     this.originalReleaseDateParts,
     this.recordingDateParts,
     List<String> studios = const [],
     this.isLive,
     List<String> genres = const [],
-    this.releaseType,
-    this.releaseStatus,
     this.releaseDateParts,
     this.publisher,
     this.countryCode,
-    this.language,
     this.barcode,
-    this.upc,
     this.catalogNumber,
     this.packaging,
     this.format,
@@ -54,9 +49,7 @@ final class MusicAlbum implements JsonEncodable {
     this.boxSet,
     this.contributions = const [],
     this.artistCredits = const [],
-    this.identifiers = const [],
-    this.mediums = const [],
-    this.mediumTypesSummary = const [],
+    this.discs = const [],
     this.revision = 1,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -73,22 +66,17 @@ final class MusicAlbum implements JsonEncodable {
   final String? sortTitle;
   final String? subtitle;
   final String? artist;
-  final String? originalTitle;
   final PartialDate? originalReleaseDateParts;
   final PartialDate? recordingDateParts;
   final List<String> studios;
   final bool? isLive;
   final List<String> genres;
-  final String? releaseType;
-  final String? releaseStatus;
 
   /// Preserves year/month precision from partial catalog dates.
   final PartialDate? releaseDateParts;
   final String? publisher;
   final String? countryCode;
-  final String? language;
   final String? barcode;
-  final String? upc;
   final String? catalogNumber;
   final String? packaging;
 
@@ -111,12 +99,7 @@ final class MusicAlbum implements JsonEncodable {
   final String? boxSet;
   final List<MusicAlbumContribution> contributions;
   final List<MusicArtistCredit> artistCredits;
-  final List<MusicAlbumIdentifier> identifiers;
-  final List<MusicMedium> mediums;
-
-  /// Medium types carried by release summaries when full medium rows are not
-  /// loaded. When [mediums] are present, their values take precedence.
-  final List<String> mediumTypesSummary;
+  final List<MusicDisc> discs;
   final int revision;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -125,52 +108,17 @@ final class MusicAlbum implements JsonEncodable {
   DateTime? get recordingDate => recordingDateParts?.asDateTime;
   DateTime? get releaseDate => releaseDateParts?.asDateTime;
 
-  List<String> get mediumTypes {
-    final source = mediums.isEmpty
-        ? mediumTypesSummary
-        : [
-            for (final medium in mediums)
-              if (medium.mediumType case final type?) type
-          ];
-    final seen = <String>{};
-    return [
-      for (final value in source)
-        if (value.trim().isNotEmpty && seen.add(value.trim().toLowerCase()))
-          value.trim(),
-    ];
-  }
-
-  String? get physicalFormat {
-    final value = mediumTypes.firstOrNull;
-    if (value == null) return null;
-    final normalized = value.trim().toLowerCase();
-    if (normalized.contains('vinyl') ||
-        normalized == 'lp' ||
-        normalized == 'record') {
-      return 'vinyl';
-    }
-    if (normalized == 'cd' || normalized.contains('compact disc')) return 'cd';
-    if (normalized.contains('cassette') || normalized == 'tape') {
-      return 'cassette';
-    }
-    if (normalized.contains('digital')) return 'digital-audio';
-    return value;
-  }
-
-  String? get physicalFormatLabel =>
-      mediumTypes.isEmpty ? null : mediumTypes.join(' + ');
-
-  int get trackCount => mediums.fold<int>(
-      0, (total, medium) => total + medium.effectiveTrackCount);
+  int get trackCount => discs.fold<int>(
+      0, (total, disc) => total + disc.effectiveTrackCount);
   List<MusicTrack> get tracks => [
-        for (final medium in mediums)
-          for (final track in medium.tracks)
+        for (final disc in discs)
+          for (final track in disc.tracks)
             if (!track.isHeader) track,
       ];
 
   factory MusicAlbum.fromJson(Map<String, dynamic> json) {
-    final mediums = _maps(json['mediums'])
-        .map(MusicMedium.fromJson)
+    final discs = _maps(json['discs'])
+        .map(MusicDisc.fromJson)
         .toList(growable: false);
     return MusicAlbum(
       id: MusicAlbumId(_text(json['id']) ?? ''),
@@ -178,7 +126,6 @@ final class MusicAlbum implements JsonEncodable {
       sortTitle: _text(json['sort_title']),
       subtitle: _text(json['subtitle']),
       artist: _text(json['artist']),
-      originalTitle: _text(json['original_title']),
       originalReleaseDateParts: _partialDate(
         json['original_release_date_parts'] ?? json['original_release_date'],
       ),
@@ -188,16 +135,12 @@ final class MusicAlbum implements JsonEncodable {
       studios: _strings(json['studios']),
       isLive: json['is_live'] as bool?,
       genres: _strings(json['genres']),
-      releaseType: _text(json['release_type']),
-      releaseStatus: _text(json['release_status']),
       releaseDateParts: _partialDate(
         json['release_date_parts'] ?? json['release_date'],
       ),
       publisher: _text(json['publisher']),
       countryCode: _text(json['country_code']),
-      language: _text(json['language']),
       barcode: _text(json['barcode']),
-      upc: _text(json['upc']),
       catalogNumber: _text(json['catalog_number']),
       packaging: _text(json['packaging']),
       format: _text(json['format']),
@@ -224,12 +167,7 @@ final class MusicAlbum implements JsonEncodable {
         for (final value in _maps(json['artist_credits']))
           MusicArtistCredit.fromJson(value),
       ],
-      identifiers: [
-        for (final value in _maps(json['identifiers']))
-          MusicAlbumIdentifier.fromJson(value),
-      ],
-      mediums: mediums,
-      mediumTypesSummary: _strings(json['medium_types']),
+      discs: discs,
       revision: _int(json['revision']) ?? 1,
       createdAt: _dateTime(json['created_at']),
       updatedAt: _dateTime(json['updated_at']),
@@ -247,7 +185,6 @@ final class MusicAlbum implements JsonEncodable {
         if (sortTitle != null) 'sort_title': sortTitle,
         if (subtitle != null) 'subtitle': subtitle,
         if (artist != null) 'artist': artist,
-        if (originalTitle != null) 'original_title': originalTitle,
         if (originalReleaseDateParts != null)
           'original_release_date': originalReleaseDateParts!.isoString,
         if (originalReleaseDateParts != null)
@@ -259,21 +196,16 @@ final class MusicAlbum implements JsonEncodable {
         if (studios.isNotEmpty) 'studios': studios,
         if (isLive != null) 'is_live': isLive,
         if (genres.isNotEmpty) 'genres': genres,
-        if (releaseType != null) 'release_type': releaseType,
-        if (releaseStatus != null) 'release_status': releaseStatus,
         if (releaseDateParts != null)
           'release_date': releaseDateParts!.isoString,
         if (releaseDateParts != null)
           'release_date_parts': releaseDateParts!.toJson(),
         if (publisher != null) 'publisher': publisher,
         if (countryCode != null) 'country_code': countryCode,
-        if (language != null) 'language': language,
         if (barcode != null) 'barcode': barcode,
-        if (upc != null) 'upc': upc,
         if (catalogNumber != null) 'catalog_number': catalogNumber,
         if (packaging != null) 'packaging': packaging,
         if (format != null) 'format': format,
-        if (mediumTypes.isNotEmpty) 'medium_types': mediumTypes,
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (coverImageKey != null) 'cover_image_key': coverImageKey,
         if (backCoverImageUrl != null)
@@ -300,9 +232,7 @@ final class MusicAlbum implements JsonEncodable {
         if (artistCredits.isNotEmpty)
           'artist_credits':
               artistCredits.map((value) => value.toJson()).toList(),
-        if (identifiers.isNotEmpty)
-          'identifiers': identifiers.map((value) => value.toJson()).toList(),
-        'mediums': mediums.map((medium) => medium.toJson()).toList(),
+        'discs': discs.map((disc) => disc.toJson()).toList(),
       };
 }
 

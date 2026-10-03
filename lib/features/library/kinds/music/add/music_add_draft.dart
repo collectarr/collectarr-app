@@ -13,7 +13,7 @@ final class MusicAddDraft extends LibraryAddKindDraft {
   });
 
   final String? grade;
-  final List<MusicEntryMediumDetails> media;
+  final List<MusicEntryDiscDetails> media;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;

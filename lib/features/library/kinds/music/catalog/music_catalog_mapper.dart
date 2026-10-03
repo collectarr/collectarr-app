@@ -48,9 +48,8 @@ final class MusicCatalogMapper {
       } else if (album.releaseDate != null)
         'release_date': album.releaseDate!.toIso8601String(),
       if (album.publisher != null) 'label': album.publisher,
-      if (album.format ?? album.mediumTypes.firstOrNull case final format?)
-        'format': format,
-      if (album.barcode ?? album.upc case final barcode?) 'barcode': barcode,
+      if (album.format case final format?) 'format': format,
+      if (album.barcode case final barcode?) 'barcode': barcode,
       if (album.catalogNumber != null) 'catalog_number': album.catalogNumber,
       if (album.genres.isNotEmpty) 'genres': album.genres,
       if (album.packaging != null) 'packaging': album.packaging,
@@ -90,21 +89,21 @@ final class MusicCatalogMapper {
         'back_cover_image_url': album.backCoverImageUrl,
       if (album.thumbnailImageUrl != null)
         'thumbnail_image_url': album.thumbnailImageUrl,
-      if (album.mediums.isNotEmpty)
+      if (album.discs.isNotEmpty)
         'discs': [
-          for (final medium in album.mediums)
+          for (final disc in album.discs)
             {
-              'id': medium.id.value,
-              'disc_number': medium.mediumNumber,
-              if (medium.title != null) 'title': medium.title,
-              if (medium.matrixNumberSideA != null)
-                'matrix_number_side_a': medium.matrixNumberSideA,
-              if (medium.matrixNumberSideB != null)
-                'matrix_number_side_b': medium.matrixNumberSideB,
+              'id': disc.id.value,
+              'disc_number': disc.discNumber,
+              if (disc.title != null) 'title': disc.title,
+              if (disc.matrixNumberSideA != null)
+                'matrix_number_side_a': disc.matrixNumberSideA,
+              if (disc.matrixNumberSideB != null)
+                'matrix_number_side_b': disc.matrixNumberSideB,
               'tracks': [
-                for (var index = 0; index < medium.tracks.length; index++)
-                  if (!medium.tracks[index].isHeader)
-                    _trackToCatalogData(medium.tracks[index], index),
+                for (var index = 0; index < disc.tracks.length; index++)
+                  if (!disc.tracks[index].isHeader)
+                    _trackToCatalogData(disc.tracks[index], index),
               ],
             },
         ],
@@ -136,14 +135,9 @@ final class MusicCatalogMapper {
       fromCatalogPayload(catalogTransportPayloadFor(item));
 
   /// Decodes the flat Core Music item or the domain's own serialized shape.
-  /// `discs` → `mediums` is the only structural API/domain translation.
+  /// `discs` → `discs` is the only structural API/domain translation.
   static MusicAlbum fromCatalogPayload(Map<String, dynamic> payload) {
-    if (payload['mediums'] is List) {
-      return MusicAlbum.fromJson(payload);
-    }
-
-    final catalogPayload = Map<String, dynamic>.from(payload)
-      ..remove('snapshot_version');
+    final catalogPayload = Map<String, dynamic>.from(payload);
     const coreFields = <String>{
       'id',
       'kind',
@@ -270,7 +264,6 @@ final class MusicCatalogMapper {
         contributionRows.add({
           'id': _text(person['contribution_id'] ?? person['id']) ??
               '$id:$role:$sequence',
-          'album_id': id,
           'person_id': artistId ?? name,
           'role': _text(person['role']) ?? normalizedRole,
           'sequence': sequence,
@@ -287,18 +280,13 @@ final class MusicCatalogMapper {
       ...catalogPayload,
       'country_code': catalogPayload['country'],
       'publisher': catalogPayload['label'],
-      'medium_types': catalogPayload['format'] == null
-          ? const <String>[]
-          : [catalogPayload['format']],
       'contributions': contributionRows,
-      'mediums': [
+      'discs': [
         for (final disc in discs)
           {
             ...disc,
             'id': _text(disc['id']) ?? '$id:disc:${disc['disc_number']}',
-            'album_id': id,
-            'medium_number': disc['medium_number'] ?? disc['disc_number'],
-            'medium_type': disc['medium_type'] ?? payload['format'],
+            'disc_number': disc['disc_number'],
             'tracks': _tracksForDisc(disc, id),
           },
       ],
@@ -352,8 +340,7 @@ List<Map<String, dynamic>> _tracksForDisc(
   Map<String, dynamic> disc,
   String albumId,
 ) {
-  final discNumber = _int(disc['disc_number'] ?? disc['medium_number']) ?? 1;
-  final discId = _text(disc['id']) ?? '$albumId:disc:$discNumber';
+  final discNumber = _int(disc['disc_number']) ?? 1;
   final tracks = _maps(disc['tracks']);
   return [
     for (var index = 0; index < tracks.length; index++)
@@ -361,7 +348,6 @@ List<Map<String, dynamic>> _tracksForDisc(
         ...tracks[index],
         'id': _text(tracks[index]['id']) ??
             '$albumId:disc:$discNumber:track:${index + 1}',
-        'medium_id': discId,
         'position_order': _int(tracks[index]['position_order']) ?? index + 1,
       },
   ];

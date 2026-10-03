@@ -31,7 +31,7 @@ final class MusicCatalogLookup implements CatalogKindLookup {
       kind: kind,
     )) {
       final item = MusicCatalogMapper.mapMetadataItemToMusic(dto);
-      if (_same(item.barcode, normalized) || _same(item.upc, normalized)) {
+      if (_same(item.barcode, normalized)) {
         return _hit(item);
       }
     }

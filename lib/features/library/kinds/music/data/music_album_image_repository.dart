@@ -50,12 +50,15 @@ final class MusicAlbumImageRepository {
 
   Future<void> replaceForAlbum(
       String albumId, List<MusicAlbumImage> images) async {
-    if (images.any((image) => image.albumId != albumId))
+    if (images.any((image) => image.albumId != albumId)) {
       throw StateError('Image batch belongs to another entry.');
+    }
     if (images
             .where((image) => image.purpose == MusicAlbumImagePurpose.personal)
             .length >
-        5) throw StateError('Maximum five personal images.');
+        5) {
+      throw StateError('Maximum five personal images.');
+    }
     await _db.transaction(() async {
       await ItemImageRepository(_db).deleteAllForLibraryEntryRef(_ref(albumId));
       for (final image in images) {

@@ -21,15 +21,15 @@ List<LibraryDetailField> buildMusicPersonalDetailFields({
     return const [];
   }
   final discNumbers = <String, int>{};
-  for (final medium in entry.metadata.mediums) {
-    discNumbers[medium.id.value] = medium.mediumNumber;
+  for (final disc in entry.metadata.discs) {
+    discNumbers[disc.id.value] = disc.discNumber;
   }
   final storage = [
-    for (final medium in details.media) ...[
-      if (medium.storageDevice?.trim().isNotEmpty == true)
-        'Disc ${discNumbers[medium.mediumId] ?? '?'}: ${medium.storageDevice!.trim()}',
-      if (medium.storageSlot?.trim().isNotEmpty == true)
-        'Disc ${discNumbers[medium.mediumId] ?? '?'}: ${medium.storageSlot!.trim()}',
+    for (final disc in details.media) ...[
+      if (disc.storageDevice?.trim().isNotEmpty == true)
+        'Disc ${discNumbers[disc.discId] ?? '?'}: ${disc.storageDevice!.trim()}',
+      if (disc.storageSlot?.trim().isNotEmpty == true)
+        'Disc ${discNumbers[disc.discId] ?? '?'}: ${disc.storageSlot!.trim()}',
     ],
   ];
   return [

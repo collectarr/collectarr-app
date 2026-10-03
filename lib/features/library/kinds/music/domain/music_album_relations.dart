@@ -43,7 +43,7 @@ final class MusicArtistCredit implements JsonEncodable {
       };
 }
 
-/// A release credit row matching Core's music_album_contributions table.
+/// A contribution value contained by a Music album document.
 ///
 /// The canonical relation is identified by [personId]; display data is kept
 /// in explicit fields so it can be persisted without an untyped payload.
@@ -107,58 +107,6 @@ final class MusicAlbumContribution implements JsonEncodable {
         if (displayName != null) 'name': displayName,
         if (sortName != null) 'sort_name': sortName,
         if (imageUrl != null) 'image_url': imageUrl,
-      };
-}
-
-/// A release identifier row matching Core's music_album_identifiers table.
-@immutable
-final class MusicAlbumIdentifier implements JsonEncodable {
-  MusicAlbumIdentifier({
-    required this.id,
-    required this.albumId,
-    required this.identifierType,
-    required this.value,
-    this.normalizedValue,
-    this.isPrimary = false,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  })  : createdAt =
-            createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-        updatedAt =
-            updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-
-  final MusicAlbumIdentifierId id;
-  final MusicAlbumId albumId;
-  final String identifierType;
-  final String value;
-  final String? normalizedValue;
-  final bool isPrimary;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
-  factory MusicAlbumIdentifier.fromJson(Map<String, dynamic> json) {
-    return MusicAlbumIdentifier(
-      id: MusicAlbumIdentifierId(_text(json['id']) ?? ''),
-      albumId: MusicAlbumId(_text(json['album_id']) ?? ''),
-      identifierType: _text(json['identifier_type']) ?? 'unknown',
-      value: _text(json['value']) ?? '',
-      normalizedValue: _text(json['normalized_value']),
-      isPrimary: json['is_primary'] as bool? ?? false,
-      createdAt: _dateTime(json['created_at']),
-      updatedAt: _dateTime(json['updated_at']),
-    );
-  }
-
-  @override
-  Map<String, dynamic> toJson() => {
-        'id': id.value,
-        'album_id': albumId.value,
-        'identifier_type': identifierType,
-        'value': value,
-        'created_at': createdAt.toIso8601String(),
-        'updated_at': updatedAt.toIso8601String(),
-        if (normalizedValue != null) 'normalized_value': normalizedValue,
-        'is_primary': isPrimary,
       };
 }
 

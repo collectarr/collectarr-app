@@ -87,12 +87,6 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
           );
         }),
       ),
-      _text<TDraft>(
-        id: 'original_title',
-        label: 'Original title',
-        read: (draft) => values(draft).originalTitle,
-        write: (draft, value) => values(draft).originalTitle = value,
-      ),
       LibraryPartialDateFieldSpec<TDraft>(
         id: 'original_release_date',
         label: 'Original Release Date',
@@ -150,21 +144,6 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         pickListKey: MusicVocabularyIds.format.value,
         onManage: onManageFormat == null ? null : (_) => onManageFormat(),
       ),
-      LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'release_type',
-        label: 'Release type',
-        value: (draft) => _nullable(values(draft).releaseType),
-        setValue: (draft, value) => values(draft).releaseType = value ?? '',
-        options:
-            _options(const ['Album', 'EP', 'Single', 'Compilation', 'Live']),
-      ),
-      LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'release_status',
-        label: 'Release status',
-        value: (draft) => _nullable(values(draft).releaseStatus),
-        setValue: (draft, value) => values(draft).releaseStatus = value ?? '',
-        options: _options(const ['Official', 'Promotional', 'Bootleg']),
-      ),
       LibraryPartialDateFieldSpec<TDraft>(
         id: 'release_date',
         label: 'Release Date',
@@ -194,12 +173,6 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         label: 'Barcode',
         read: (draft) => values(draft).barcode,
         write: (draft, value) => values(draft).barcode = value,
-      ),
-      _text<TDraft>(
-        id: 'upc',
-        label: 'UPC',
-        read: (draft) => values(draft).upc,
-        write: (draft, value) => values(draft).upc = value,
       ),
       _text<TDraft>(
         id: 'cover_image_url',
@@ -277,12 +250,6 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         ),
         pickListKey: MusicVocabularyIds.country.value,
         onManage: onManageCountry == null ? null : (_) => onManageCountry(),
-      ),
-      _text<TDraft>(
-        id: 'language',
-        label: 'Language',
-        read: (draft) => values(draft).language,
-        write: (draft, value) => values(draft).language = value,
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'packaging',

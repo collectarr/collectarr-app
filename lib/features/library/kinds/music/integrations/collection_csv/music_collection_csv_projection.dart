@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 
 /// Music's semantic contribution to the generic collection CSV host.
 ///
-/// Music exports release-level values. Track hierarchy and listening state
+/// Music exports album-level values. Track hierarchy and listening state
 /// remain personalState by Music and are intentionally not flattened into the
 /// generic collection row.
 final class MusicCollectionCsvProjection
@@ -104,12 +104,10 @@ final class MusicCollectionCsvProjection
       'id': cells[0],
       'kind': kind.apiValue,
       'title': cells[2],
-      if (cells[3].trim().isNotEmpty) 'item_number': cells[3],
-      if (cells[4].trim().isNotEmpty) 'variant': cells[4],
-      if (cells[5].trim().isNotEmpty) 'edition_title': cells[5],
-      if (cells[6].trim().isNotEmpty) 'physical_format': cells[6],
-      if (cells[7].trim().isNotEmpty) 'physical_format_label': cells[7],
-      if (cells[8].trim().isNotEmpty) 'publisher': cells[8],
+      if (cells[3].trim().isNotEmpty) 'catalog_number': cells[3],
+      if (cells[5].trim().isNotEmpty) 'subtitle': cells[5],
+      if (cells[6].trim().isNotEmpty) 'format': cells[6],
+      if (cells[8].trim().isNotEmpty) 'label': cells[8],
       if (cells[9].trim().isNotEmpty) 'release_date': cells[9],
       if (cells[10].trim().isNotEmpty) 'barcode': cells[10],
     });
@@ -120,17 +118,16 @@ final class MusicCollectionCsvProjection
     final catalog = entry.catalogData;
     final music = catalog is MusicWorkspaceCatalogData ? catalog.music : null;
     final release = catalog is MusicWorkspaceCatalogData ? catalog.music : null;
-    final physicalFormat = release?.physicalFormat ?? release?.packaging ?? '';
-    final physicalFormatLabel = release?.physicalFormatLabel ?? physicalFormat;
+    final format = release?.format ?? '';
     return [
       entry.itemId,
       CatalogMediaKind.music.apiValue,
       music?.title ?? entry.title,
       release?.catalogNumber ?? '',
-      release?.releaseType ?? '',
-      release?.title ?? '',
-      physicalFormat.toString(),
-      physicalFormatLabel.toString(),
+      '',
+      release?.subtitle ?? '',
+      format,
+      format,
       release?.publisher ?? music?.studios.join(', ') ?? '',
       _formatDate(
         music?.originalReleaseDate ??
@@ -138,7 +135,7 @@ final class MusicCollectionCsvProjection
             music?.releaseDate ??
             entry.catalogData?.releaseDate,
       ),
-      release?.barcode ?? release?.upc ?? '',
+      release?.barcode ?? '',
     ];
   }
 

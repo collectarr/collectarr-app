@@ -6,11 +6,10 @@ final class MusicAlbumId extends LibraryEntityId {
   const MusicAlbumId(super.value);
 }
 
-/// A physical disc, tape, vinyl record, or digital medium belonging to a
-/// concrete [MusicAlbum].
+/// A disc contained by a concrete [MusicAlbum].
 @immutable
-final class MusicMediumId extends LibraryEntityId {
-  const MusicMediumId(super.value);
+final class MusicDiscId extends LibraryEntityId {
+  const MusicDiscId(super.value);
 }
 
 @immutable
@@ -21,9 +20,4 @@ final class MusicTrackId extends LibraryEntityId {
 @immutable
 final class MusicAlbumContributionId extends LibraryEntityId {
   const MusicAlbumContributionId(super.value);
-}
-
-@immutable
-final class MusicAlbumIdentifierId extends LibraryEntityId {
-  const MusicAlbumIdentifierId(super.value);
 }

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 
 /// Catalog fields consumed by the Music kind.
 final class MusicCatalogFields {
@@ -10,14 +11,8 @@ final class MusicCatalogFields {
 
   MusicAlbum? get metadata => _metadata;
   String get title => _metadata?.title ?? _candidate.summary.primaryLabel;
-  String? get originalTitle => _metadata?.originalTitle;
   String? get titleExtension => _metadata?.subtitle;
-  List<String> get searchAliases => [
-        if (_metadata?.originalTitle case final title?
-            when title.trim().isNotEmpty &&
-                title.trim().toLowerCase() != _metadata?.title.toLowerCase())
-          title.trim(),
-      ];
+  List<String> get searchAliases => const [];
   String? get sortKey => _metadata?.sortTitle;
   String? get coverImageUrl =>
       _metadata?.coverImageUrl ?? _candidate.summary.imageUrl;
@@ -36,7 +31,7 @@ extension MusicCatalogCandidateFields on CatalogSearchCandidate {
       final item = kindCapability.mapTransport((item) => item);
       return MusicCatalogFields._(
         this,
-        MusicAlbum.fromJson({...item.kindData, 'id': item.id}),
+        MusicCatalogMapper.mapMetadataItemToMusic(item),
       );
     } on StateError {
       return MusicCatalogFields._(this, null);

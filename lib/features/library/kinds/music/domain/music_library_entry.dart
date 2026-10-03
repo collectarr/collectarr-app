@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 import 'package:flutter/foundation.dart';
 
@@ -72,7 +71,7 @@ final class MusicLibraryEntry implements JsonEncodable {
     }
     final item = MusicLibraryEntry(
       id: id,
-      metadata: MusicCatalogMapper.fromCatalogPayload({
+      metadata: MusicAlbum.fromJson({
         ...Map<String, dynamic>.from(rawCatalogData),
         'id': id.value,
         'kind': CatalogMediaKind.music.apiValue,

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 final class MusicInspectorViewModel {
   const MusicInspectorViewModel({
     required this.music,
-    required this.mediums,
+    required this.discs,
     required this.tracks,
     this.entry,
   });
@@ -28,25 +28,25 @@ final class MusicInspectorViewModel {
 
     final music = catalog.music;
     final detailReleases = [music];
-    final mediums = <MusicMedium>[
-      for (final entry in detailReleases) ...entry.mediums,
+    final discs = <MusicDisc>[
+      for (final entry in detailReleases) ...entry.discs,
     ];
     final tracks = <MusicTrackListEntry>[
       for (final releaseEntry in detailReleases)
-        for (final medium in releaseEntry.mediums)
-          for (final track in medium.tracks)
+        for (final disc in releaseEntry.discs)
+          for (final track in disc.tracks)
             MusicTrackListEntry(
-              mediumNumber: medium.mediumNumber,
+              discNumber: disc.discNumber,
               track: track,
               albumId: releaseEntry.id.value,
-              releaseTitle: releaseEntry.title,
+              albumTitle: releaseEntry.title,
               catalogNumber: releaseEntry.catalogNumber,
             ),
     ];
 
     return MusicInspectorViewModel(
       music: music,
-      mediums: List<MusicMedium>.unmodifiable(mediums),
+      discs: List<MusicDisc>.unmodifiable(discs),
       tracks: List<MusicTrackListEntry>.unmodifiable(tracks),
       entry: MusicLibraryEntryProjection.fromDispatch(
           item.source.libraryEntryDispatch),
@@ -54,26 +54,26 @@ final class MusicInspectorViewModel {
   }
 
   final MusicAlbum music;
-  final List<MusicMedium> mediums;
+  final List<MusicDisc> discs;
   final List<MusicTrackListEntry> tracks;
   final MusicLibraryEntry? entry;
 
-  MusicEntryMediumStorageView storageForMedium(int mediumNumber) {
+  MusicEntryDiscStorageView storageForDisc(int discNumber) {
     final entryDetails = entry?.personal.details;
-    final mediumId = mediums
-        .where((medium) => medium.mediumNumber == mediumNumber)
+    final discId = discs
+        .where((disc) => disc.discNumber == discNumber)
         .firstOrNull
         ?.id
         .value;
-    final scoped = mediumId == null ? null : entryDetails?.medium(mediumId);
+    final scoped = discId == null ? null : entryDetails?.disc(discId);
     if (scoped != null) {
-      return MusicEntryMediumStorageView(
-        mediumNumber: mediumNumber,
+      return MusicEntryDiscStorageView(
+        discNumber: discNumber,
         storageDevice: scoped.storageDevice,
         storageSlot: scoped.storageSlot,
       );
     }
-    return MusicEntryMediumStorageView(mediumNumber: mediumNumber);
+    return MusicEntryDiscStorageView(discNumber: discNumber);
   }
 }
 
@@ -100,14 +100,14 @@ MusicWorkspaceCatalogData _fallbackMusicCatalog(
   );
 }
 
-final class MusicEntryMediumStorageView {
-  const MusicEntryMediumStorageView({
-    required this.mediumNumber,
+final class MusicEntryDiscStorageView {
+  const MusicEntryDiscStorageView({
+    required this.discNumber,
     this.storageDevice,
     this.storageSlot,
   });
 
-  final int mediumNumber;
+  final int discNumber;
   final String? storageDevice;
   final String? storageSlot;
 

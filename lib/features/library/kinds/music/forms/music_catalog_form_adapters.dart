@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
@@ -9,7 +9,7 @@ abstract final class MusicAlbumFormAdapter {
   static MusicAlbum create(
     MusicAlbumFormValues values, {
     required MusicAlbumId id,
-    List<MusicMedium> mediums = const [],
+    List<MusicDisc> discs = const [],
   }) =>
       MusicAlbum(
         id: id,
@@ -18,20 +18,15 @@ abstract final class MusicAlbumFormAdapter {
         subtitle: _text(values.subtitle),
         artist: _text(values.artist),
         artistCredits: List.unmodifiable(values.artistCredits),
-        originalTitle: _text(values.originalTitle),
         originalReleaseDateParts: values.originalReleaseDateParts,
         recordingDateParts: values.recordingDateParts,
         studios: List.unmodifiable(values.studios),
         isLive: values.isLive,
         genres: List.unmodifiable(values.genres),
-        releaseType: _text(values.releaseType),
-        releaseStatus: _text(values.releaseStatus),
         releaseDateParts: values.releaseDateParts,
         publisher: _text(values.publisher),
         countryCode: _text(values.countryCode),
-        language: _text(values.language),
         barcode: _text(values.barcode),
-        upc: _text(values.upc),
         catalogNumber: _text(values.catalogNumber),
         packaging: _text(values.packaging),
         format: _formFormat(values),
@@ -44,13 +39,13 @@ abstract final class MusicAlbumFormAdapter {
         boxSet: _text(values.boxSet),
         coverImageUrl: _text(values.coverImageUrl),
         backCoverImageUrl: _text(values.backCoverImageUrl),
-        mediums: List.unmodifiable(mediums),
+        discs: List.unmodifiable(discs),
       );
 
   static MusicAlbum update(
     MusicAlbum original,
     MusicAlbumFormValues values, {
-    List<MusicMedium>? mediums,
+    List<MusicDisc>? discs,
     List<MusicExternalLink>? externalLinks,
     List<MusicAlbumContribution>? contributions,
   }) =>
@@ -60,20 +55,15 @@ abstract final class MusicAlbumFormAdapter {
         sortTitle: _text(values.sortTitle),
         subtitle: _text(values.subtitle),
         artist: _text(values.artist),
-        originalTitle: _text(values.originalTitle),
         originalReleaseDateParts: values.originalReleaseDateParts,
         recordingDateParts: values.recordingDateParts,
         studios: List.unmodifiable(values.studios),
         isLive: values.isLive,
         genres: List.unmodifiable(values.genres),
-        releaseType: _text(values.releaseType),
-        releaseStatus: _text(values.releaseStatus),
         releaseDateParts: values.releaseDateParts,
         publisher: _text(values.publisher),
         countryCode: _text(values.countryCode),
-        language: _text(values.language),
         barcode: _text(values.barcode),
-        upc: _text(values.upc),
         catalogNumber: _text(values.catalogNumber),
         packaging: _text(values.packaging),
         format: _formFormat(values),
@@ -99,8 +89,7 @@ abstract final class MusicAlbumFormAdapter {
         contributions:
             List.unmodifiable(contributions ?? original.contributions),
         artistCredits: List.unmodifiable(values.artistCredits),
-        identifiers: original.identifiers,
-        mediums: List.unmodifiable(mediums ?? original.mediums),
+        discs: List.unmodifiable(discs ?? original.discs),
       );
 }
 

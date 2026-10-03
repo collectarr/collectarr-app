@@ -126,10 +126,11 @@ class MusicListeningDraftSection extends StatelessWidget {
               ],
             ));
     notes.dispose();
-    if (value != null)
+    if (value != null) {
       draft.save(
           existing: existing,
           date: date,
           notes: value.trim().isEmpty ? null : value.trim());
+    }
   }
 }

@@ -3,19 +3,19 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 
 const Object _musicDetailsUnset = Object();
 
-/// Physical details for one medium in an entry Music copy.
+/// Physical details for one disc in an entry Music copy.
 ///
 /// Personal media condition and storage details live here. Matrix/runout
-/// identifiers describe the catalog medium and are stored on [MusicMedium].
+/// identifiers describe the catalog disc and are stored on [MusicDisc].
 @immutable
-final class MusicEntryMediumDetails implements JsonEncodable {
-  const MusicEntryMediumDetails({
-    required this.mediumId,
+final class MusicEntryDiscDetails implements JsonEncodable {
+  const MusicEntryDiscDetails({
+    required this.discId,
     this.storageDevice,
     this.storageSlot,
   });
 
-  final String mediumId;
+  final String discId;
   final String? storageDevice;
   final String? storageSlot;
 
@@ -25,21 +25,21 @@ final class MusicEntryMediumDetails implements JsonEncodable {
 
   @override
   Map<String, dynamic> toJson() => {
-        'medium_id': mediumId,
+        'disc_id': discId,
         if (storageDevice?.trim().isNotEmpty == true)
           'storage_device': storageDevice,
         if (storageSlot?.trim().isNotEmpty == true) 'storage_slot': storageSlot,
       };
 
-  factory MusicEntryMediumDetails.fromJson(Map<String, dynamic> json) {
-    final mediumId = json['medium_id'];
-    if (mediumId is! String || mediumId.trim().isEmpty) {
+  factory MusicEntryDiscDetails.fromJson(Map<String, dynamic> json) {
+    final discId = json['disc_id'];
+    if (discId is! String || discId.trim().isEmpty) {
       throw const FormatException(
-        'Music entry medium details require a stable medium_id.',
+        'Music entry disc details require a stable disc_id.',
       );
     }
-    return MusicEntryMediumDetails(
-      mediumId: mediumId,
+    return MusicEntryDiscDetails(
+      discId: discId,
       storageDevice: _text(json['storage_device']),
       storageSlot: _text(json['storage_slot']),
     );
@@ -48,14 +48,14 @@ final class MusicEntryMediumDetails implements JsonEncodable {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MusicEntryMediumDetails &&
-          mediumId == other.mediumId &&
+      other is MusicEntryDiscDetails &&
+          discId == other.discId &&
           storageDevice == other.storageDevice &&
           storageSlot == other.storageSlot;
 
   @override
   int get hashCode => Object.hash(
-        mediumId,
+        discId,
         storageDevice,
         storageSlot,
       );
@@ -69,7 +69,7 @@ final class MusicEntryDetails implements JsonEncodable {
     this.lastCleanedDate,
   });
 
-  final List<MusicEntryMediumDetails> media;
+  final List<MusicEntryDiscDetails> media;
   final String? signedBy;
   final DateTime? lastCleanedDate;
 
@@ -92,18 +92,18 @@ final class MusicEntryDetails implements JsonEncodable {
           ? [
               for (final value in rawMedia)
                 if (value is Map)
-                  MusicEntryMediumDetails.fromJson(
+                  MusicEntryDiscDetails.fromJson(
                     Map<String, dynamic>.from(value),
                   ),
             ]
-          : const <MusicEntryMediumDetails>[],
+          : const <MusicEntryDiscDetails>[],
       signedBy: _text(json['signed_by']),
       lastCleanedDate: _date(json['last_cleaned_date']),
     );
   }
 
   MusicEntryDetails copyWith({
-    List<MusicEntryMediumDetails>? media,
+    List<MusicEntryDiscDetails>? media,
     Object? signedBy = _musicDetailsUnset,
     Object? lastCleanedDate = _musicDetailsUnset,
   }) {
@@ -133,9 +133,9 @@ final class MusicEntryDetails implements JsonEncodable {
         lastCleanedDate,
       );
 
-  MusicEntryMediumDetails? medium(String mediumId) {
+  MusicEntryDiscDetails? disc(String discId) {
     for (final entry in media) {
-      if (entry.mediumId == mediumId) return entry;
+      if (entry.discId == discId) return entry;
     }
     return null;
   }

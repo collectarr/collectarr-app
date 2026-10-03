@@ -1,9 +1,8 @@
 export 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
-export 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
+export 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-export 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';

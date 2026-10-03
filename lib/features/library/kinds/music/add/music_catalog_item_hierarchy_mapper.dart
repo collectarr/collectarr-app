@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 
 /// Projects a Music catalog item and its contained discs/tracks into the
@@ -9,12 +9,12 @@ final class MusicCatalogItemHierarchyMapper {
   const MusicCatalogItemHierarchyMapper._();
 
   static List<LibraryHierarchyNode> toLibraryNodes(MusicAlbum item) {
-    final discs = [...item.mediums]
-      ..sort((left, right) => left.mediumNumber.compareTo(right.mediumNumber));
+    final discs = [...item.discs]
+      ..sort((left, right) => left.discNumber.compareTo(right.discNumber));
     return [for (final disc in discs) _discNode(item, disc)];
   }
 
-  static LibraryHierarchyNode _discNode(MusicAlbum item, MusicMedium disc) {
+  static LibraryHierarchyNode _discNode(MusicAlbum item, MusicDisc disc) {
     final tracks = [...disc.tracks]..sort((left, right) {
         final order =
             (left.positionOrder ?? 0).compareTo(right.positionOrder ?? 0);
@@ -28,7 +28,7 @@ final class MusicCatalogItemHierarchyMapper {
     return LibraryHierarchyNode(
       id: disc.id.value,
       label:
-          title == null || title.isEmpty ? 'Disc ${disc.mediumNumber}' : title,
+          title == null || title.isEmpty ? 'Disc ${disc.discNumber}' : title,
       secondaryLabel: details,
       level: tracks.isEmpty
           ? LibraryHierarchyLevel.leaf
@@ -40,14 +40,14 @@ final class MusicCatalogItemHierarchyMapper {
         'kind': 'music_item_disc',
         'catalogItemId': item.id.value,
         'discId': disc.id.value,
-        'discNumber': disc.mediumNumber,
+        'discNumber': disc.discNumber,
       },
     );
   }
 
   static LibraryHierarchyNode _trackNode(
     MusicAlbum item,
-    MusicMedium disc,
+    MusicDisc disc,
     MusicTrack track,
   ) {
     final position = track.position.trim();

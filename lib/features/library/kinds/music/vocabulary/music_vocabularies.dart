@@ -13,7 +13,6 @@ abstract final class MusicVocabularyIds {
   static const packaging = VocabularyId<String>('music.packaging');
   static const recordLabel = VocabularyId<String>('music.record_label');
   static const genre = VocabularyId<String>('music.genre');
-  static const mediaType = VocabularyId<String>('music.media_type');
   static const creditRole = VocabularyId<String>('music.credit_role');
   static const country = VocabularyId<String>('music.country');
   static const studio = VocabularyId<String>('music.studio');
@@ -219,19 +218,6 @@ abstract final class MusicVocabularies {
     ],
   );
 
-  static const mediaType = VocabularyDefinition<String>(
-    id: MusicVocabularyIds.mediaType,
-    label: 'Media Type',
-    valuesFrom: TypedVocabularyProjector<MusicAlbum>(_mediaTypeValues),
-    builtIns: [
-      'Vinyl',
-      'CD',
-      'Cassette',
-      'SACD',
-      'Digital',
-    ],
-  );
-
   static const creditRole = VocabularyDefinition<String>(
     id: MusicVocabularyIds.creditRole,
     label: 'Credit Role',
@@ -284,7 +270,6 @@ abstract final class MusicVocabularies {
     packaging,
     recordLabel,
     genre,
-    mediaType,
     creditRole,
     country,
     studio,
@@ -294,10 +279,7 @@ abstract final class MusicVocabularies {
 }
 
 Iterable<String?> _formatCatalogValues(MusicAlbum item) sync* {
-  yield* vocabularyValues([
-    for (final medium in item.mediums) medium.mediumType,
-    item.releaseType,
-  ]);
+  yield* vocabularyValues([item.format]);
 }
 
 Iterable<String?> _packagingCatalogValues(MusicAlbum item) {
@@ -313,17 +295,10 @@ Iterable<String?> _studioValues(MusicAlbum item) =>
 
 Iterable<String?> _soundTypeValues(MusicAlbum item) => vocabularyValues([
       item.soundTypes,
-      for (final medium in item.mediums) medium.soundType,
     ]);
 
 Iterable<String?> _genreValues(MusicAlbum item) {
   return vocabularyValues([item.genres]);
-}
-
-Iterable<String?> _mediaTypeValues(MusicAlbum item) {
-  return vocabularyValues([
-    for (final medium in item.mediums) medium.mediumType,
-  ]);
 }
 
 Iterable<String?> _creditRoleValues(MusicAlbum item) {
@@ -337,8 +312,5 @@ Iterable<String?> _countryValues(MusicAlbum item) {
 }
 
 Iterable<String?> _vinylColorValues(MusicAlbum item) sync* {
-  yield* vocabularyValues([
-    item.vinylColor,
-    for (final medium in item.mediums) medium.vinylColor,
-  ]);
+  yield* vocabularyValues([item.vinylColor]);
 }

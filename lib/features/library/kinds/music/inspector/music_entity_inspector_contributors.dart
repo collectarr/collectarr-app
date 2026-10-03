@@ -79,12 +79,12 @@ List<Widget> buildMusicCopyInspectorSections(
       ),
   ];
   final model = MusicInspectorViewModel.from(request.item);
-  for (final medium in model.mediums) {
-    final storage = model.storageForMedium(medium.mediumNumber);
+  for (final disc in model.discs) {
+    final storage = model.storageForDisc(disc.discNumber);
     if (storage.label != '-') {
       facts.add(
         LibraryDetailField(
-          label: 'Disc ${medium.mediumNumber} storage',
+          label: 'Disc ${disc.discNumber} storage',
           value: storage.label,
         ),
       );

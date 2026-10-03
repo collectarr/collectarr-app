@@ -2,28 +2,27 @@ import 'package:flutter/foundation.dart';
 
 import 'music_track.dart';
 
-/// A typed Music track together with the medium it is displayed under.
+/// A typed Music track together with the disc it is displayed under.
 ///
-/// The medium number is presentation context, not a second track identity.
+/// The disc number is presentation context, not a second track identity.
 /// Keeping this adapter inside Music prevents the inspector from rebuilding
 /// tracks into the generic catalog track DTO and losing Music fields.
 @immutable
 final class MusicTrackListEntry {
   const MusicTrackListEntry({
-    required this.mediumNumber,
+    required this.discNumber,
     required this.track,
     this.albumId,
-    this.releaseTitle,
+    this.albumTitle,
     this.catalogNumber,
   });
 
-  final int mediumNumber;
+  final int discNumber;
   final MusicTrack track;
   final String? albumId;
-  final String? releaseTitle;
+  final String? albumTitle;
   final String? catalogNumber;
 
-  int get discNumber => mediumNumber;
   String get position => track.position;
   String get title => track.title;
   String? get artist => track.artist;

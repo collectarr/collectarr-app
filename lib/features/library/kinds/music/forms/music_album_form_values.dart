@@ -10,20 +10,15 @@ final class MusicAlbumFormValues {
     this.subtitle = '',
     this.artist = '',
     this.artistCredits = const [],
-    this.originalTitle = '',
     this.originalReleaseDateParts,
     this.recordingDateParts,
     List<String> studios = const [],
     this.isLive,
     List<String> genres = const [],
-    this.releaseType = '',
-    this.releaseStatus = '',
     this.releaseDateParts,
     this.publisher = '',
     this.countryCode = '',
-    this.language = '',
     this.barcode = '',
-    this.upc = '',
     this.catalogNumber = '',
     this.packaging = '',
     this.format = '',
@@ -47,20 +42,15 @@ final class MusicAlbumFormValues {
         subtitle: album.subtitle ?? '',
         artist: album.artist ?? '',
         artistCredits: List.of(album.artistCredits),
-        originalTitle: album.originalTitle ?? '',
         originalReleaseDateParts: album.originalReleaseDateParts,
         recordingDateParts: album.recordingDateParts,
         studios: album.studios,
         isLive: album.isLive,
         genres: album.genres,
-        releaseType: album.releaseType ?? '',
-        releaseStatus: album.releaseStatus ?? '',
         releaseDateParts: album.releaseDateParts,
         publisher: album.publisher ?? '',
         countryCode: album.countryCode ?? '',
-        language: album.language ?? '',
         barcode: album.barcode ?? '',
-        upc: album.upc ?? '',
         catalogNumber: album.catalogNumber ?? '',
         packaging: album.packaging ?? '',
         format: album.format ?? '',
@@ -80,20 +70,15 @@ final class MusicAlbumFormValues {
   String subtitle;
   String artist;
   List<MusicArtistCredit> artistCredits;
-  String originalTitle;
   PartialDate? originalReleaseDateParts;
   PartialDate? recordingDateParts;
   List<String> studios;
   bool? isLive;
   List<String> genres;
-  String releaseType;
-  String releaseStatus;
   PartialDate? releaseDateParts;
   String publisher;
   String countryCode;
-  String language;
   String barcode;
-  String upc;
   String catalogNumber;
   String packaging;
   String format;

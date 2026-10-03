@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
@@ -111,20 +110,12 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
-    id: 'language',
-    label: 'Language',
-    anyLabel: 'Any language',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).language
-        : null,
-  ),
-  LibraryFilterDefinition<Object?>(
     id: 'format',
     label: 'Format',
     anyLabel: 'Any format',
-    value: (item) => _musicMediaFor(item)
-        .map((medium) => medium.mediumType)
-        .whereType<String>(),
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).format
+        : null,
   ),
   LibraryFilterDefinition<Object?>(
     id: 'packaging',
@@ -132,14 +123,6 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     anyLabel: 'Any packaging',
     value: (item) => _musicAlbumsFor(item)
         .map((release) => release.packaging)
-        .whereType<String>(),
-  ),
-  LibraryFilterDefinition<Object?>(
-    id: 'release_type',
-    label: 'Release type',
-    anyLabel: 'Any release type',
-    value: (item) => _musicAlbumsFor(item)
-        .map((release) => release.releaseType)
         .whereType<String>(),
   ),
   LibraryFilterDefinition<Object?>(
@@ -172,32 +155,33 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'sound',
     label: 'Sound',
     anyLabel: 'Any sound type',
-    value: (item) => _musicMediaFor(item)
-        .map((medium) => medium.soundType)
-        .whereType<String>(),
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).music.soundTypes
+        : const <String>[],
   ),
   LibraryFilterDefinition<Object?>(
     id: 'spars',
     label: 'SPARS',
     anyLabel: 'Any SPARS code',
-    value: (item) =>
-        _musicMediaFor(item).map((medium) => medium.spars).whereType<String>(),
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).music.spars
+        : null,
   ),
   LibraryFilterDefinition<Object?>(
     id: 'vinyl_color',
     label: 'Vinyl color',
     anyLabel: 'Any vinyl color',
-    value: (item) => _musicMediaFor(item)
-        .map((medium) => medium.vinylColor)
-        .whereType<String>(),
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).music.vinylColor
+        : null,
   ),
   LibraryFilterDefinition<Object?>(
     id: 'rpm',
     label: 'RPM',
     anyLabel: 'Any RPM',
-    value: (item) => _musicMediaFor(item)
-        .map((medium) => medium.rpm?.toString())
-        .whereType<String>(),
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).music.rpm?.toString()
+        : null,
   ),
   LibraryFilterDefinition<Object?>(
     id: 'recording_year',
@@ -230,10 +214,6 @@ List<MusicAlbum> _musicAlbumsFor(LibraryProjectionView item) {
   if (dto is! MusicWorkspaceProjection) return const <MusicAlbum>[];
   return [dto.music];
 }
-
-List<MusicMedium> _musicMediaFor(LibraryProjectionView item) => [
-      for (final release in _musicAlbumsFor(item)) ...release.mediums,
-    ];
 
 String musicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   return defaultLibraryBucketLabel(

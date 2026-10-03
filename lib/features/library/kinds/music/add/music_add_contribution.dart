@@ -10,7 +10,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   manualDraftBuilder: MusicAddManualDraft.new,
   manualCandidateBuilder: buildMusicManualCandidate,
   manualProposalBuilder: buildMusicManualProposalData,
-  manualCandidateValidationMessage: 'Enter a valid music release',
+  manualCandidateValidationMessage: 'Enter a valid music album',
   entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MusicLibraryEntryCreatePayload(
     details: details as MusicEntryDetailsDraft,
@@ -37,8 +37,8 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   search: LibraryAddSearchCapability(
     input: LibraryAddSearchInputCapability(
       initialAdvancedFilters: {
-        musicAddMediumFilterId:
-            LibraryAddOptionFilterValue(MusicAddMediumFilter.all.value),
+        musicAddDiscFilterId:
+            LibraryAddOptionFilterValue(MusicAddDiscFilter.all.value),
       },
       advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
       searchInputPredicate: musicAddHasSearchInput,
@@ -47,7 +47,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
       inputBuilder: buildMusicCoreSearchInput,
       resultFilter: (items, context) => [
         for (final item in items)
-          if (musicAddCoreCandidateMatchesMedium(item, context)) item,
+          if (musicAddCoreCandidateMatchesDisc(item, context)) item,
       ],
       ranking: buildLibraryAddSearchRanking(
         fields: [

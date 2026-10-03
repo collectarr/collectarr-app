@@ -42,26 +42,9 @@ void enrichMusicSeedPayload(
   CatalogItemDto item,
   Map<String, dynamic> payload,
 ) {
-  final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
-  final musicMap = payload['music'] is Map
-      ? Map<String, dynamic>.from(payload['music'] as Map)
-      : const <String, dynamic>{};
   payload
-    ..remove('music')
-    ..addAll(musicMap)
-    ..addAll({
-      'artist': _seedMusicArtist(item),
-      'label': album.publisher,
-      'format': album.format ?? 'Digital',
-      'barcode': album.barcode,
-      'catalog_number': musicMap['catalog_number'] ?? 'SEED-${item.id}',
-      'release_date': album.releaseDate?.toUtc().toIso8601String(),
-      'original_release_date': album.originalReleaseDate?.toUtc().toIso8601String(),
-      'recording_date': album.recordingDate?.toUtc().toIso8601String(),
-      'country': item.kindData['country']?.toString(),
-      'genres': item.kindData['genres'] ?? const <String>[],
-      'is_live': false,
-    });
+    ..clear()
+    ..addAll(_canonicalMusicSeedPayload(item));
 }
 
 List<String> validateMusicSeedCatalog(CatalogItemDto item) {
@@ -69,7 +52,7 @@ List<String> validateMusicSeedCatalog(CatalogItemDto item) {
   final prefix = '${item.kind}/${item.id}';
   final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
   seedRequireText(issues, prefix, 'catalog_number', album.catalogNumber);
-  if (album.mediums.isEmpty) {
+  if (album.discs.isEmpty) {
     issues.add('$prefix: discs must contain at least one disc');
   }
   return issues;
@@ -79,14 +62,14 @@ List<String> validateMusicSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
-  for (var discIndex = 0; discIndex < album.mediums.length; discIndex++) {
-    final disc = album.mediums[discIndex];
+  for (var discIndex = 0; discIndex < album.discs.length; discIndex++) {
+    final disc = album.discs[discIndex];
     seedRequireText(issues, prefix, 'discs[$discIndex].id', disc.id.value);
     seedRequirePositiveNumber(
       issues,
       prefix,
       'discs[$discIndex].disc_number',
-      disc.mediumNumber,
+      disc.discNumber,
     );
     if (disc.tracks.isEmpty) {
       issues.add('$prefix: discs[$discIndex].tracks must not be empty');
@@ -123,82 +106,116 @@ List<String> validateMusicSeedEntry(MusicLibraryEntry item) {
   if (details.media.isEmpty) {
     issues.add('$prefix: music.media must not be empty');
   }
-  for (final medium in details.media) {
+  for (final disc in details.media) {
     seedRequireText(
       issues,
       prefix,
-      'music.media[${medium.mediumId}].storage_device',
-      medium.storageDevice,
+      'music.media[${disc.discId}].storage_device',
+      disc.storageDevice,
     );
     seedRequireText(
       issues,
       prefix,
-      'music.media[${medium.mediumId}].storage_slot',
-      medium.storageSlot,
+      'music.media[${disc.discId}].storage_slot',
+      disc.storageSlot,
     );
   }
   return issues;
 }
 
 CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
-  final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
-  final source = Map<String, dynamic>.from(item.kindData);
-  final rawTracks = source['tracks'] is Iterable
-      ? (source['tracks'] as Iterable).toList(growable: false)
-      : const <Object?>[];
-  final rawDiscs = source['discs'] is Iterable
-      ? (source['discs'] as Iterable).toList(growable: false)
-      : const <Object?>[];
-  final discCount = rawDiscs.isEmpty ? 1 : rawDiscs.length;
-  final discs = <Map<String, dynamic>>[];
-  for (var discIndex = 0; discIndex < discCount; discIndex++) {
-    final rawDisc = rawDiscs.isEmpty ? null : rawDiscs[discIndex];
-    final disc = rawDisc is Map
-        ? Map<String, dynamic>.from(rawDisc)
-        : const <String, dynamic>{};
-    final discNumber =
-        disc['disc_number'] is int ? disc['disc_number'] as int : discIndex + 1;
-    final discId = '${item.id}:disc:$discNumber';
-    final sourceTracks = disc['tracks'] is Iterable
-        ? (disc['tracks'] as Iterable).toList(growable: false)
-        : rawTracks.where((track) {
-            if (track is! Map) return discIndex == 0;
-            final number = track['disc_number'];
-            return number == null ? discIndex == 0 : number == discNumber;
-          }).toList(growable: false);
-    final tracks = [
-      for (var index = 0; index < sourceTracks.length; index++)
-        _musicSeedTrack(sourceTracks[index], item, discId, index),
-    ];
-    discs.add({
-      'id': discId,
-      'disc_number': discNumber,
-      if (disc['name'] is String) 'title': disc['name'],
-      'matrix_number_side_a':
-          disc['matrix_number_side_a'] ?? 'SEED-${item.id.toUpperCase()}-A',
-      'matrix_number_side_b':
-          disc['matrix_number_side_b'] ?? 'SEED-${item.id.toUpperCase()}-B',
-      'tracks': tracks,
-    });
-  }
-  return withSeedPayload(item, {
-    ...source,
-    'artist': _seedMusicArtist(item),
-    'label': album.publisher,
-    'format': album.format ?? 'Digital',
-    'barcode': album.barcode,
-    'catalog_number': source['catalog_number'] ?? 'SEED-${item.id}',
-    'release_date': album.releaseDate?.toUtc().toIso8601String(),
-    'original_release_date': album.originalReleaseDate?.toUtc().toIso8601String(),
-    'recording_date': album.recordingDate?.toUtc().toIso8601String(),
-    'country': item.kindData['country']?.toString(),
-    'genres': item.kindData['genres'] ?? const <String>[],
-    'is_live': false,
-    'discs': discs,
-  });
+  final payload = _canonicalMusicSeedPayload(item);
+  payload.remove('id');
+  payload.remove('kind');
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.music,
+    kindData: payload,
+  );
+}
+
+Map<String, dynamic> _canonicalMusicSeedPayload(CatalogItemDto item) {
+  final source = item.kindData;
+  final rawDiscs = _maps(source['discs']);
+  final discs = [
+    for (var discIndex = 0; discIndex < rawDiscs.length; discIndex++)
+      _canonicalMusicSeedDisc(item, rawDiscs[discIndex], discIndex),
+  ];
+  final releaseDate = _seedText(source['release_date']);
+  final sortTitle = _seedText(source['sort_title']);
+  final subtitle = _seedText(source['subtitle'] ?? source['edition_title']);
+  final format = _seedText(source['format'] ?? source['physical_format']);
+  final label = _seedText(source['label'] ?? source['publisher']);
+  return {
+    'id': item.id,
+    'kind': CatalogMediaKind.music.apiValue,
+    'title': _seedText(source['title']) ?? 'Untitled album',
+    if (sortTitle != null) 'sort_title': sortTitle,
+    if (subtitle != null) 'subtitle': subtitle,
+    if (_seedMusicArtist(item) case final artist?) 'artist': artist,
+    if (releaseDate != null) 'release_date': releaseDate,
+    if (label != null) 'label': label,
+    if (format != null) 'format': format,
+    if (_seedText(source['barcode']) case final barcode?) 'barcode': barcode,
+    if (_seedText(source['catalog_number']) case final catalogNumber?)
+      'catalog_number': catalogNumber,
+    if (_seedText(source['country']) case final country?) 'country': country,
+    if (source['genres'] is Iterable)
+      'genres': List<String>.from(source['genres'] as Iterable),
+    if (_seedText(source['cover_image_url']) case final cover?)
+      'cover_image_url': cover,
+    if (_seedText(source['thumbnail_image_url']) case final thumbnail?)
+      'thumbnail_image_url': thumbnail,
+    'is_live': source['is_live'] == true,
+    if (discs.isNotEmpty) 'discs': discs,
+  };
+}
+
+Map<String, dynamic> _canonicalMusicSeedDisc(
+  CatalogItemDto item,
+  Map<String, dynamic> source,
+  int index,
+) {
+  final discNumber = _seedInt(source['disc_number']) ?? index + 1;
+  final discId = '${item.id}:disc:$discNumber';
+  final tracks = _maps(source['tracks']);
+  return {
+    'id': discId,
+    'disc_number': discNumber,
+    if (_seedText(source['title'] ?? source['name']) case final title?)
+      'title': title,
+    if (_seedText(source['matrix_number_side_a']) case final sideA?)
+      'matrix_number_side_a': sideA,
+    if (_seedText(source['matrix_number_side_b']) case final sideB?)
+      'matrix_number_side_b': sideB,
+    'tracks': [
+      for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++)
+        _canonicalMusicSeedTrack(tracks[trackIndex], discId, trackIndex),
+    ],
+  };
+}
+
+Map<String, dynamic> _canonicalMusicSeedTrack(
+  Map<String, dynamic> source,
+  String discId,
+  int index,
+) {
+  final durationMs = _seedInt(source['duration_ms']) ??
+      (_seedInt(source['duration_seconds'])?.toInt() ?? 0) * 1000;
+  return {
+    'id': '$discId:track:${index + 1}',
+    'position':
+        (source['position'] ?? source['track_number'] ?? index + 1).toString(),
+    'position_order': _seedInt(source['position_order']) ?? index + 1,
+    'title': _seedText(source['title']) ?? 'Track ${index + 1}',
+    if (_seedText(source['artist']) case final artist?) 'artist': artist,
+    if (durationMs > 0) 'duration_ms': durationMs,
+  };
 }
 
 String? _seedMusicArtist(CatalogItemDto item) {
+  final explicitArtist = _seedText(item.kindData['artist']);
+  if (explicitArtist != null) return explicitArtist;
   final rawCreators = item.payload['creators'];
   final creators = rawCreators is Iterable
       ? rawCreators
@@ -209,31 +226,23 @@ String? _seedMusicArtist(CatalogItemDto item) {
     final name = creator['name']?.toString().trim();
     if (name != null && name.isNotEmpty) return name;
   }
-  return MusicCatalogMapper.mapMetadataItemToMusic(item).publisher;
+  return null;
 }
 
-Map<String, dynamic> _musicSeedTrack(
-  Object? raw,
-  CatalogItemDto item,
-  String discId,
-  int index,
-) {
-  final source =
-      raw is Map ? Map<String, dynamic>.from(raw) : const <String, dynamic>{};
-  final durationSeconds = source['duration_seconds'];
-  final trackNumber = (index + 1).toString().padLeft(2, '0');
-  return {
-    'id': '$discId-track-$trackNumber',
-    'position':
-        (source['position'] ?? source['track_number'] ?? index + 1).toString(),
-    'title': source['title'] ??
-        '${MusicCatalogMapper.mapMetadataItemToMusic(item).title} - Track ${index + 1}',
-    if (source['artist'] is String) 'artist': source['artist'],
-    if (source['duration_ms'] is int) 'duration_ms': source['duration_ms'],
-    if (durationSeconds is num && source['duration_ms'] == null)
-      'duration_ms': durationSeconds.toInt() * 1000,
-  };
+List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
+    ? [
+        for (final entry in value)
+          if (entry is Map) Map<String, dynamic>.from(entry),
+      ]
+    : const <Map<String, dynamic>>[];
+
+String? _seedText(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
 }
+
+int? _seedInt(Object? value) =>
+    value is num ? value.toInt() : int.tryParse(value?.toString().trim() ?? '');
 
 List<CatalogItemDto> musicSeedCatalogItems() => [
       seedCatalogItem(
@@ -241,8 +250,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'The Dark Side of the Moon',
         displayTitle: 'Pink Floyd - The Dark Side of the Moon (1973)',
-        synopsis:
-            'The eighth studio album by the English rock band Pink Floyd, released on 1 March 1973. A concept album that explores themes such as conflict, greed, time, death, and mental illness.',
         publisher: 'Harvest Records / EMI',
         releaseYear: 1973,
         releaseDate: DateTime.utc(1973, 3, 1),
@@ -256,7 +263,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         barcode: '0190295996901',
         variant: '180g Gatefold Vinyl',
         country: 'GB',
-        language: 'en',
         sortKey: 'pink-floyd-0001',
         creators: [
           {'name': 'Pink Floyd', 'role': 'artist'},
@@ -268,9 +274,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['progressive rock', 'psychedelic rock', 'art rock'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 10,
           catalogNumber: 'SHVL 804',
-          releaseStatus: 'Official',
           discs: [
             MusicSeedDisc(discNumber: 1, name: 'Vinyl LP (Side 1 & 2)'),
           ],
@@ -333,8 +337,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Rumours',
         displayTitle: 'Fleetwood Mac - Rumours (1977)',
-        synopsis:
-            'The eleventh studio album by British-American rock band Fleetwood Mac, recorded amidst the romantic unraveling of all four band members.',
         publisher: 'Warner Bros. Records',
         releaseYear: 1977,
         releaseDate: DateTime.utc(1977, 2, 4),
@@ -346,7 +348,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '081227970901',
         country: 'US',
-        language: 'en',
         sortKey: 'fleetwood-mac-0001',
         creators: [
           {'name': 'Fleetwood Mac', 'role': 'artist'},
@@ -358,9 +359,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['soft rock', 'pop rock', 'classic rock'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 11,
           catalogNumber: 'BSK 3010',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1',
@@ -404,8 +403,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Kind of Blue',
         displayTitle: 'Miles Davis - Kind of Blue (1959)',
-        synopsis:
-            'Recorded at Columbia\'s 30th Street Studio in New York City, Kind of Blue is widely regarded as the greatest and most influential jazz album of all time.',
         publisher: 'Columbia Records',
         releaseYear: 1959,
         releaseDate: DateTime.utc(1959, 8, 17),
@@ -417,7 +414,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '886973355213',
         country: 'US',
-        language: 'en',
         sortKey: 'miles-davis-0001',
         creators: [
           {'name': 'Miles Davis', 'role': 'trumpet & bandleader'},
@@ -429,9 +425,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['modal jazz', 'cool jazz'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 5,
           catalogNumber: 'CL 1355',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1', title: 'So What', durationSeconds: 562),
@@ -455,8 +449,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Thriller',
         displayTitle: 'Michael Jackson - Thriller (1982)',
-        synopsis:
-            'The sixth studio album by American singer Michael Jackson, produced by Quincy Jones. It became the best-selling album of all time worldwide.',
         publisher: 'Epic Records',
         releaseYear: 1982,
         releaseDate: DateTime.utc(1982, 11, 30),
@@ -468,7 +460,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'SACD',
         barcode: '196587345624',
         country: 'US',
-        language: 'en',
         sortKey: 'michael-jackson-0001',
         creators: [
           {'name': 'Michael Jackson', 'role': 'vocals & songwriter'},
@@ -478,9 +469,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['pop', 'post-disco', 'funk', 'rock'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 9,
           catalogNumber: 'QE 38112',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1',
@@ -516,8 +505,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Nevermind',
         displayTitle: 'Nirvana - Nevermind (1991)',
-        synopsis:
-            'Produced by Butch Vig, Nevermind brought Pacific Northwest grunge rock to mainstream global popularity and altered the landscape of modern rock.',
         publisher: 'DGC Records / Geffen',
         releaseYear: 1991,
         releaseDate: DateTime.utc(1991, 9, 24),
@@ -529,7 +516,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '602438517558',
         country: 'US',
-        language: 'en',
         sortKey: 'nirvana-0001',
         creators: [
           {'name': 'Nirvana', 'role': 'artist'},
@@ -540,9 +526,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['grunge', 'alternative rock'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 12,
           catalogNumber: 'DGC-24425',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1',
@@ -584,8 +568,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Random Access Memories',
         displayTitle: 'Daft Punk - Random Access Memories (2013)',
-        synopsis:
-            'The fourth and final studio album by French electronic duo Daft Punk, celebrating late 1970s and early 1980s American music through live instrumentation and analog recording.',
         publisher: 'Daft Life / Columbia Records',
         releaseYear: 2013,
         releaseDate: DateTime.utc(2013, 5, 17),
@@ -597,7 +579,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '196587737313',
         country: 'FR',
-        language: 'en',
         sortKey: 'daft-punk-0001',
         creators: [
           {'name': 'Daft Punk', 'role': 'artist & producer'},
@@ -609,9 +590,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['disco', 'electronic', 'funk', 'synth-pop'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 13,
           catalogNumber: '88883716861',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1',
@@ -665,8 +644,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'OK Computer',
         displayTitle: 'Radiohead - OK Computer (1997)',
-        synopsis:
-            'Radiohead\'s third studio album, depicting a world beset by rampant consumerism, social alienation, emotional isolation, and political malaise.',
         publisher: 'Parlophone / Capitol',
         releaseYear: 1997,
         releaseDate: DateTime.utc(1997, 5, 21),
@@ -678,7 +655,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '634904086817',
         country: 'GB',
-        language: 'en',
         sortKey: 'radiohead-0001',
         creators: [
           {'name': 'Radiohead', 'role': 'artist'},
@@ -688,9 +664,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['alternative rock', 'art rock', 'experimental rock'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 12,
           catalogNumber: 'NODATA 02',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1', title: 'Airbag', durationSeconds: 284),
@@ -736,8 +710,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'To Pimp a Butterfly',
         displayTitle: 'Kendrick Lamar - To Pimp a Butterfly (2015)',
-        synopsis:
-            'The third studio album by American rapper Kendrick Lamar, incorporating musical styles such as jazz, funk, soul, and spoken word into a searing exploration of race and personal identity.',
         publisher: 'Top Dawg Entertainment / Aftermath / Interscope',
         releaseYear: 2015,
         releaseDate: DateTime.utc(2015, 3, 15),
@@ -749,7 +721,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '0602547311009',
         country: 'US',
-        language: 'en',
         sortKey: 'kendrick-lamar-0001',
         creators: [
           {'name': 'Kendrick Lamar', 'role': 'lead artist & vocals'},
@@ -759,9 +730,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['conscious hip hop', 'jazz rap', 'funk', 'neo-soul'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 16,
           catalogNumber: 'B0022956-01',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1',
@@ -819,8 +788,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Abbey Road',
         displayTitle: 'The Beatles - Abbey Road (1969)',
-        synopsis:
-            'The eleventh studio album by the English rock band the Beatles, featuring the iconic side-two medley and famous zebra crossing cover photograph.',
         publisher: 'Apple Records / EMI',
         releaseYear: 1969,
         releaseDate: DateTime.utc(1969, 9, 26),
@@ -832,7 +799,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '0602577915123',
         country: 'GB',
-        language: 'en',
         sortKey: 'beatles-0001',
         creators: [
           {'name': 'The Beatles', 'role': 'artist'},
@@ -844,9 +810,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['rock', 'pop rock', 'psychedelic rock'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 17,
           catalogNumber: 'PCS 7088',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1', title: 'Come Together', durationSeconds: 259),
@@ -908,8 +872,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Led Zeppelin IV',
         displayTitle: 'Led Zeppelin - Untitled (Led Zeppelin IV) (1971)',
-        synopsis:
-            'The untitled fourth studio album by English rock band Led Zeppelin, commonly known as Led Zeppelin IV, featuring the landmark song "Stairway to Heaven".',
         publisher: 'Atlantic Records',
         releaseYear: 1971,
         releaseDate: DateTime.utc(1971, 11, 8),
@@ -921,7 +883,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '081227965778',
         country: 'GB',
-        language: 'en',
         sortKey: 'led-zeppelin-0001',
         creators: [
           {'name': 'Led Zeppelin', 'role': 'artist'},
@@ -932,9 +893,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['hard rock', 'heavy metal', 'folk rock'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 8,
           catalogNumber: 'SD 7208',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1', title: 'Black Dog', durationSeconds: 296),
@@ -971,8 +930,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         title: 'The Rise and Fall of Ziggy Stardust',
         displayTitle:
             'David Bowie - The Rise and Fall of Ziggy Stardust (1972)',
-        synopsis:
-            'David Bowie\'s groundbreaking glam rock concept album telling the story of Ziggy Stardust, an androgynous alien rock star acting as a messenger for human salvation.',
         publisher: 'RCA Records / Parlophone',
         releaseYear: 1972,
         releaseDate: DateTime.utc(1972, 6, 16),
@@ -984,7 +941,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '0190296726804',
         country: 'GB',
-        language: 'en',
         sortKey: 'david-bowie-0001',
         creators: [
           {'name': 'David Bowie', 'role': 'lead vocals & acoustic guitar'},
@@ -993,9 +949,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['glam rock', 'proto-punk', 'art rock'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 11,
           catalogNumber: 'SF 8287',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1', title: 'Five Years', durationSeconds: 282),
@@ -1039,8 +993,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'A Night at the Opera',
         displayTitle: 'Queen - A Night at the Opera (1975)',
-        synopsis:
-            'The fourth studio album by British rock band Queen, named after the Marx Brothers\' film and featuring the operatic multi-tracked epic "Bohemian Rhapsody".',
         publisher: 'EMI / Hollywood Records',
         releaseYear: 1975,
         releaseDate: DateTime.utc(1975, 11, 21),
@@ -1052,7 +1004,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '0050087332211',
         country: 'GB',
-        language: 'en',
         sortKey: 'queen-0001',
         creators: [
           {'name': 'Queen', 'role': 'artist'},
@@ -1062,9 +1013,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['progressive rock', 'hard rock', 'glam rock', 'opera rock'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 12,
           catalogNumber: 'EMTC 103',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1',
@@ -1116,8 +1065,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Mezzanine',
         displayTitle: 'Massive Attack - Mezzanine (1998)',
-        synopsis:
-            'The third studio album by English electronic music group Massive Attack, known for its dark, brooding sound palette blending trip hop with dub, electronica, and post-punk.',
         publisher: 'Circa / Virgin Records',
         releaseYear: 1998,
         releaseDate: DateTime.utc(1998, 4, 20),
@@ -1129,7 +1076,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '0602567479703',
         country: 'GB',
-        language: 'en',
         sortKey: 'massive-attack-0001',
         creators: [
           {'name': 'Massive Attack', 'role': 'artist'},
@@ -1139,9 +1085,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['trip hop', 'downtempo', 'electronica', 'dark ambient'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 11,
           catalogNumber: 'WBRLP4',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1', title: 'Angel', durationSeconds: 379),
@@ -1177,8 +1121,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Dummy',
         displayTitle: 'Portishead - Dummy (1994)',
-        synopsis:
-            'The debut studio album by English band Portishead, which won the 1995 Mercury Music Prize and defined the Bristol sound of 1990s trip hop.',
         publisher: 'Go! Beat Records',
         releaseYear: 1994,
         releaseDate: DateTime.utc(1994, 8, 22),
@@ -1190,7 +1132,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '042282855312',
         country: 'GB',
-        language: 'en',
         sortKey: 'portishead-0001',
         creators: [
           {'name': 'Portishead', 'role': 'artist'},
@@ -1200,9 +1141,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['trip hop', 'lo-fi', 'electronica'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 11,
           catalogNumber: '828 553-1',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1', title: 'Mysterons', durationSeconds: 302),
@@ -1238,8 +1177,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'London Calling',
         displayTitle: 'The Clash - London Calling (1979)',
-        synopsis:
-            'The third studio album by English rock band the Clash, blending punk rock with reggae, ska, rockabilly, and soul, and featuring Pennie Smith\'s iconic bass-smashing cover photograph.',
         publisher: 'CBS Records',
         releaseYear: 1979,
         releaseDate: DateTime.utc(1979, 12, 14),
@@ -1251,7 +1188,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '888751127012',
         country: 'GB',
-        language: 'en',
         sortKey: 'the-clash-0001',
         creators: [
           {'name': 'The Clash', 'role': 'artist'},
@@ -1263,9 +1199,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         ],
         genres: ['punk rock', 'post-punk', 'ska', 'reggae rock'],
         music: const MusicSeedCatalogDetails(
-          trackCount: 19,
           catalogNumber: 'CBS CLASH 3',
-          releaseStatus: 'Official',
           tracks: [
             MusicSeedTrack(
                 trackNumber: '1',
@@ -1358,8 +1292,8 @@ List<MusicLibraryEntry> musicSeedLibraryEntries(DateTime now) {
           condition: 'Mint',
           details: MusicEntryDetails(
             media: [
-              MusicEntryMediumDetails(
-                mediumId: '$itemId:disc:1',
+              MusicEntryDiscDetails(
+                discId: '$itemId:disc:1',
                 storageDevice: 'Vinyl shelf',
                 storageSlot: 'M-${itemId.substring(itemId.length - 2)}',
               ),

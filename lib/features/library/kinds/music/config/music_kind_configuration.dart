@@ -107,7 +107,6 @@ Iterable<String?> musicLinkedMetadataValues(MusicAlbum music) => [
       music.artist,
       music.publisher,
       music.countryCode,
-      music.language,
       ...music.contributions.map((credit) => credit.displayName),
       ...music.genres,
     ];
@@ -124,7 +123,7 @@ MetadataSearchQuery musicMetadataSearchQuery({
   final metadata = musicLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
-    barcode: metadata?.barcode ?? metadata?.upc,
+    barcode: metadata?.barcode,
     publisher: metadata?.publisher,
     year: metadata?.originalReleaseDate?.year,
     limit: 5,

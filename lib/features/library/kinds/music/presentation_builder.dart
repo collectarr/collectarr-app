@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/music/inspector/music_insp
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
@@ -51,7 +52,7 @@ class MusicLibraryMediaPresentationBuilder
     if (catalog is! MusicWorkspaceCatalogData) return const [];
     final item = catalog.music;
     final identifier = normalizeLibraryDuplicateIdentifier(
-      item.barcode ?? item.upc,
+      item.barcode,
     );
     if (identifier == null) return const [];
     return [
@@ -78,19 +79,11 @@ class MusicLibraryMediaPresentationBuilder
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
       hydrated.kindCapability.mapTransport((transport) {
-        final metadata = MusicAlbum.fromJson({
-          ...transport.kindData,
-          'id': transport.id,
-          'kind': transport.kind,
-        });
-        final updated = MusicAlbum.fromJson({
-          ...applyJsonFieldPatch(metadata, {
-            'cover_image_url': coverImageUrl,
-            'thumbnail_image_url': thumbnailImageUrl,
-          }),
-          'id': transport.id,
-          'kind': transport.kind,
-        });
+        final metadata = MusicCatalogMapper.mapMetadataItemToMusic(transport);
+        final updated = MusicAlbum.fromJson(applyJsonFieldPatch(metadata, {
+          'cover_image_url': coverImageUrl,
+          'thumbnail_image_url': thumbnailImageUrl,
+        }));
         return transport.replacingKindData(updated);
       }),
     );
@@ -112,7 +105,7 @@ class MusicLibraryMediaPresentationBuilder
     final album = musicCatalogItemFromCandidate(item);
     final artist = album.artist?.trim();
     final format = album.format?.trim();
-    final trackCount = album.mediums.isEmpty ? null : album.trackCount;
+    final trackCount = album.discs.isEmpty ? null : album.trackCount;
     final country = album.countryCode?.trim();
     final label = album.publisher?.trim();
     final catalogNumber = album.catalogNumber?.trim();
@@ -159,7 +152,7 @@ class MusicLibraryMediaPresentationBuilder
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
         album.barcode,
       ),
-      if (album.mediums.isNotEmpty)
+      if (album.discs.isNotEmpty)
         (
           'Tracks',
           album.trackCount.toString(),
@@ -176,13 +169,12 @@ class MusicLibraryMediaPresentationBuilder
   }) {
     final dto = item.dto;
     final album = _musicCatalogItem(item);
-    final medium = album?.mediums.firstOrNull;
     final artist = album?.artist;
-    final barcode = album?.barcode ?? album?.upc;
+    final barcode = album?.barcode;
     final publisher = album?.publisher;
     final releaseDate = album?.releaseDate;
     final country = musicCountryName(album?.countryCode);
-    final language = album?.language;
+    final format = album?.format;
 
     return LibraryMetadataPresentation(
       labels: metadataLabels,
@@ -195,15 +187,9 @@ class MusicLibraryMediaPresentationBuilder
         if (artist != null)
           LibraryDetailField(
               label: 'Artist', value: artist, onTap: tapFor(artist)),
-        if (medium != null)
+        if (format != null)
           LibraryDetailField(
-              label: 'Disc',
-              value: medium.title ?? 'Medium ${medium.mediumNumber}'),
-        if (medium?.mediumType != null)
-          LibraryDetailField(
-              label: 'Format / Edition',
-              value: medium!.mediumType!,
-              onTap: tapFor(medium.mediumType!)),
+              label: 'Format', value: format, onTap: tapFor(format)),
         if (barcode != null)
           LibraryDetailField(label: 'Barcode', value: barcode),
         if (album?.catalogNumber != null)
@@ -226,27 +212,22 @@ class MusicLibraryMediaPresentationBuilder
               formatPresentationNullableDate(releaseDate) ??
                   releaseDate?.year.toString(),
             )),
-        if (album?.trackCount != null)
+        if (album != null && album.trackCount > 0)
           LibraryDetailField(
-              label: 'Tracks', value: album!.trackCount.toString()),
-        if (album?.mediums.isNotEmpty == true)
+              label: 'Tracks', value: album.trackCount.toString()),
+        if (album?.discs.isNotEmpty == true)
           LibraryDetailField(
-              label: 'Disc count', value: album!.mediums.length.toString()),
+              label: 'Disc count', value: album!.discs.length.toString()),
         if (album?.catalogNumber != null)
           LibraryDetailField(label: 'Catalog #', value: album!.catalogNumber!),
-        if (album?.releaseStatus != null)
-          LibraryDetailField(
-              label: 'Release Status', value: album!.releaseStatus!),
         if (country != null)
           LibraryDetailField(label: 'Country', value: country),
-        if (language != null)
-          LibraryDetailField(label: 'Language', value: language),
         if (album?.tracks.isNotEmpty == true)
           LibraryDetailField(label: 'Length', value: _musicDuration(album!)),
-        if (medium?.vinylColor != null)
-          LibraryDetailField(label: 'Vinyl color', value: medium!.vinylColor!),
-        if (medium?.rpm != null)
-          LibraryDetailField(label: 'RPM', value: medium!.rpm.toString()),
+        if (album?.vinylColor != null)
+          LibraryDetailField(label: 'Vinyl color', value: album!.vinylColor!),
+        if (album?.rpm != null)
+          LibraryDetailField(label: 'RPM', value: album!.rpm.toString()),
         LibraryDetailField(
             label: 'Cover',
             value: dto.imageUrl == null || dto.imageUrl!.isEmpty

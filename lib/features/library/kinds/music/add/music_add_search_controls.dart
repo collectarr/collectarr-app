@@ -23,8 +23,8 @@ class MusicAddSearchControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final medium = musicAddMediumFilterFromValue(
-      request.advancedFilterState[musicAddMediumFilterId],
+    final disc = musicAddDiscFilterFromValue(
+      request.advancedFilterState[musicAddDiscFilterId],
     );
     final palette = appPalette(context);
     return Padding(
@@ -34,7 +34,7 @@ class MusicAddSearchControls extends StatelessWidget {
         child: Row(
           children: [
             Text(
-              'Medium',
+              'Disc',
               style: TextStyle(
                 color: palette.textMuted,
                 fontSize: 12,
@@ -42,15 +42,15 @@ class MusicAddSearchControls extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 6),
-            _MusicChoiceStrip<MusicAddMediumFilter>(
+            _MusicChoiceStrip<MusicAddDiscFilter>(
               accent: request.accent,
-              selected: medium,
+              selected: disc,
               values: [
-                for (final value in MusicAddMediumFilter.values)
+                for (final value in MusicAddDiscFilter.values)
                   (value, value.label),
               ],
               onSelected: (value) =>
-                  _update(musicAddMediumFilterId, value.value),
+                  _update(musicAddDiscFilterId, value.value),
             ),
           ],
         ),

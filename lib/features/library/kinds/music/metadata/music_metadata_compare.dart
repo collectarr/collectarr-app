@@ -28,10 +28,10 @@ List<Widget> buildMusicMetadataComparePanels(
       emptyText: 'No contributions available.',
     ),
     MetadataDiffPanel(
-      title: 'Mediums (Local vs Server)',
-      entries: _mediumEntries(localPayload, serverPayload),
+      title: 'Discs (Local vs Server)',
+      entries: _discEntries(localPayload, serverPayload),
       showOnlyDifferences: false,
-      emptyText: 'No mediums available.',
+      emptyText: 'No discs available.',
     ),
   ];
 }
@@ -45,8 +45,6 @@ List<MetadataDiffEntry> _musicMetadataEntries(
   return [
     _entry('Title', localItem['title'], serverItem['title']),
     _entry('Sort title', localItem['sort_title'], serverItem['sort_title']),
-    _entry('Original title', localItem['original_title'],
-        serverItem['original_title']),
     _entry('Artist', localItem['artist'], serverItem['artist']),
     _listEntry('Studio', localItem['studios'], serverItem['studios']),
     _dateEntry('Original release date', localItem['original_release_date'],
@@ -54,25 +52,26 @@ List<MetadataDiffEntry> _musicMetadataEntries(
     _dateEntry('Recording date', localItem['recording_date'],
         serverItem['recording_date']),
     _entry('Subtitle', localItem['subtitle'], serverItem['subtitle']),
-    _entry(
-        'Release type', localItem['release_type'], serverItem['release_type']),
-    _entry('Release status', localItem['release_status'],
-        serverItem['release_status']),
     _dateEntry(
         'Release date', localItem['release_date'], serverItem['release_date']),
-    _entry('Record label', localItem['publisher'], serverItem['publisher']),
-    _entry('Country', musicCountryName(localItem['country_code']?.toString()),
-        musicCountryName(serverItem['country_code']?.toString())),
-    _entry('Language', localItem['language'], serverItem['language']),
+    _entry('Record label', localItem['label'] ?? localItem['publisher'],
+        serverItem['label']),
+    _entry('Format', localItem['format'], serverItem['format']),
+    _entry(
+      'Country',
+      musicCountryName(
+        (localItem['country'] ?? localItem['country_code'])?.toString(),
+      ),
+      musicCountryName(serverItem['country']?.toString()),
+    ),
     _entry('Barcode', localItem['barcode'], serverItem['barcode']),
-    _entry('UPC', localItem['upc'], serverItem['upc']),
     _entry('Catalog number', localItem['catalog_number'],
         serverItem['catalog_number']),
     _entry('Packaging', localItem['packaging'], serverItem['packaging']),
     _listEntry('Genres', localItem['genres'], serverItem['genres']),
     _entry('Live recording', localItem['is_live'] == true ? 'Yes' : 'No',
         serverItem['is_live'] == true ? 'Yes' : 'No'),
-    _entry('Disc count', _mediums(local).length, _mediums(server).length),
+    _entry('Disc count', _discs(local).length, _discs(server).length),
     _entry('Track count', _trackCount(local), _trackCount(server)),
   ];
 }
@@ -127,41 +126,39 @@ String _contributionText(Map<String, dynamic>? value) {
   return role == null ? name : '$role - $name';
 }
 
-List<MetadataDiffEntry> _mediumEntries(
+List<MetadataDiffEntry> _discEntries(
   Map<String, dynamic> local,
   Map<String, dynamic> server,
 ) {
-  final localValues = _mediums(local);
-  final serverValues = _mediums(server);
+  final localValues = _discs(local);
+  final serverValues = _discs(server);
   final localByNumber = <int, Map<String, dynamic>>{
-    for (final medium in localValues)
-      _int(medium['medium_number']) ?? 0: medium,
+    for (final disc in localValues)
+      _int(disc['disc_number']) ?? 0: disc,
   };
   final serverByNumber = <int, Map<String, dynamic>>{
-    for (final medium in serverValues)
-      _int(medium['medium_number']) ?? 0: medium,
+    for (final disc in serverValues)
+      _int(disc['disc_number']) ?? 0: disc,
   };
   final numbers = <int>{...localByNumber.keys, ...serverByNumber.keys}.toList()
     ..sort();
   return [
     for (final number in numbers)
       MetadataDiffEntry(
-        label: 'Medium #$number',
-        localValue: _mediumText(localByNumber[number]),
-        serverValue: _mediumText(serverByNumber[number]),
+        label: 'Disc #$number',
+        localValue: _discText(localByNumber[number]),
+        serverValue: _discText(serverByNumber[number]),
       ),
   ];
 }
 
-String _mediumText(Map<String, dynamic>? value) {
+String _discText(Map<String, dynamic>? value) {
   if (value == null) return '—';
   final lines = <String>[];
   final title = _text(value['title']);
-  final type = _text(value['medium_type']);
   final tracks = _maps(value['tracks']);
   if (title != null) lines.add('Title: $title');
-  if (type != null) lines.add('Type: $type');
-  lines.add('Tracks: ${_int(value['track_count']) ?? tracks.length}');
+  lines.add('Tracks: ${tracks.length}');
   return lines.join('\n');
 }
 
@@ -170,15 +167,14 @@ Map<String, dynamic> _musicItem(Map<String, dynamic> value) {
   return nested is Map ? Map<String, dynamic>.from(nested) : value;
 }
 
-List<Map<String, dynamic>> _mediums(Map<String, dynamic> value) =>
-    _maps(_musicItem(value)['mediums']);
+List<Map<String, dynamic>> _discs(Map<String, dynamic> value) =>
+    _maps(_musicItem(value)['discs']);
 
 int _trackCount(Map<String, dynamic> group) {
-  final mediums = _mediums(group);
-  return mediums.fold<int>(
+  final discs = _discs(group);
+  return discs.fold<int>(
     0,
-    (total, medium) =>
-        total + (_int(medium['track_count']) ?? _maps(medium['tracks']).length),
+    (total, disc) => total + _maps(disc['tracks']).length,
   );
 }
 

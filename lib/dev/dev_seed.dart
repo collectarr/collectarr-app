@@ -78,7 +78,7 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'anime.episode_data': 30,
   'anime.release_data': 15,
   'music.item': 15,
-  'music.medium': 15,
+  'music.disc': 15,
   'music.track': 15,
 };
 
@@ -227,9 +227,9 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
       },
     ),
     'music.item': musicCatalogItems.length,
-    'music.medium': musicAlbums.fold<int>(
+    'music.disc': musicAlbums.fold<int>(
       0,
-      (count, album) => count + album.mediums.length,
+      (count, album) => count + album.discs.length,
     ),
     'music.track': musicAlbums.fold<int>(
       0,
@@ -386,20 +386,9 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
   );
   for (final item in musicCatalogItems.where((item) => isSeed(item.id))) {
     final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
-    for (final medium in album.mediums) {
-      if (medium.albumId.value != item.id) {
-        issues.add(
-          'music disc ${medium.id.value} has mismatched album '
-          '${medium.albumId.value}, expected ${item.id}',
-        );
-      }
-      for (final track in medium.tracks) {
-        if (track.mediumId != medium.id) {
-          issues.add(
-            'music track ${track.id.value} has mismatched disc '
-            '${track.mediumId.value}, expected ${medium.id.value}',
-          );
-        }
+    for (final disc in album.discs) {
+      if (disc.discNumber < 1) {
+        issues.add('music disc ${disc.id.value} has an invalid disc number');
       }
     }
   }
@@ -952,18 +941,16 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   );
   final musicTracks = [
     for (final item in musicItems.where((item) => item.id.startsWith('seed-')))
-      for (final medium
-          in MusicCatalogMapper.mapMetadataItemToMusic(item).mediums)
-        for (final track in medium.tracks)
+      for (final disc
+          in MusicCatalogMapper.mapMetadataItemToMusic(item).discs)
+        for (final track in disc.tracks)
           if (track.id.value.startsWith('seed-')) track,
   ];
   require(
     musicTracks.every(
-      (track) =>
-          track.mediumId.value.startsWith('seed-music-') &&
-          track.durationMs != null,
+      (track) => track.durationMs != null,
     ),
-    'music seed tracks are missing medium/duration metadata',
+    'music seed tracks are missing disc/duration metadata',
   );
 
   final seedImages = imageRows

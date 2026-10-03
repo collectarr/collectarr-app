@@ -9,11 +9,6 @@ abstract final class MusicFieldIds {
       LibraryFieldId<MusicKind, String?>('music.publisher');
   static const genre = LibraryFieldId<MusicKind, String?>('music.genre');
   static const format = LibraryFieldId<MusicKind, String?>('music.format');
-  static const releaseType =
-      LibraryFieldId<MusicKind, String?>('music.release_type');
-  static const releaseStatus =
-      LibraryFieldId<MusicKind, String?>('music.release_status');
-  static const language = LibraryFieldId<MusicKind, String?>('music.language');
   static const packaging =
       LibraryFieldId<MusicKind, String?>('music.packaging');
   static const boxSet = LibraryFieldId<MusicKind, String?>('music.box_set');

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
@@ -13,116 +13,84 @@ final class MusicAlbumEditDraft {
   )   : original = album,
         values = MusicAlbumFormValues.fromAlbum(album),
         contributions = List.of(album.contributions),
-        mediums = [
-          for (final medium in album.mediums) _copyMedium(medium),
+        discs = [
+          for (final disc in album.discs) _copyDisc(disc),
         ],
         externalLinks = List.of(album.externalLinks);
 
   final MusicAlbum original;
   final MusicAlbumFormValues values;
   List<MusicAlbumContribution> contributions;
-  final List<MusicMedium> mediums;
+  final List<MusicDisc> discs;
   List<MusicExternalLink> externalLinks;
   bool hasIncompleteContributions = false;
 
-  void addMedium() {
-    final nextNumber = mediums.fold<int>(
+  void addDisc() {
+    final nextNumber = discs.fold<int>(
           0,
-          (largest, medium) =>
-              medium.mediumNumber > largest ? medium.mediumNumber : largest,
+          (largest, disc) =>
+              disc.discNumber > largest ? disc.discNumber : largest,
         ) +
         1;
-    mediums.add(
-      MusicMedium(
-        id: MusicMediumId(
-          '${original.id.value}:medium:${DateTime.now().microsecondsSinceEpoch}',
+    discs.add(
+      MusicDisc(
+        id: MusicDiscId(
+          '${original.id.value}:disc:${DateTime.now().microsecondsSinceEpoch}',
         ),
-        albumId: original.id,
-        mediumNumber: nextNumber,
-        mediumType: original.mediumTypes.firstOrNull,
+        discNumber: nextNumber,
         tracks: const [],
       ),
     );
   }
 
-  void removeMedium(MusicMediumId mediumId) {
-    final index = mediums.indexWhere((medium) => medium.id == mediumId);
+  void removeDisc(MusicDiscId discId) {
+    final index = discs.indexWhere((disc) => disc.id == discId);
     if (index < 0) return;
-    mediums.removeAt(index);
-    _renumberMediums();
+    discs.removeAt(index);
+    _renumberDiscs();
   }
 
-  void reorderMedium(int oldIndex, int newIndex) {
-    if (oldIndex < 0 || oldIndex >= mediums.length) return;
+  void reorderDisc(int oldIndex, int newIndex) {
+    if (oldIndex < 0 || oldIndex >= discs.length) return;
     if (newIndex > oldIndex) newIndex--;
-    if (newIndex < 0 || newIndex >= mediums.length || newIndex == oldIndex) {
+    if (newIndex < 0 || newIndex >= discs.length || newIndex == oldIndex) {
       return;
     }
-    final medium = mediums.removeAt(oldIndex);
-    mediums.insert(newIndex, medium);
-    _renumberMediums();
+    final disc = discs.removeAt(oldIndex);
+    discs.insert(newIndex, disc);
+    _renumberDiscs();
   }
 
-  void _renumberMediums() {
-    for (var index = 0; index < mediums.length; index++) {
-      mediums[index] = _copyMedium(
-        mediums[index],
-        mediumNumber: index + 1,
+  void _renumberDiscs() {
+    for (var index = 0; index < discs.length; index++) {
+      discs[index] = _copyDisc(
+        discs[index],
+        discNumber: index + 1,
       );
     }
   }
 
-  void updateMediumType(MusicMediumId mediumId, String value) {
-    final index = mediums.indexWhere((medium) => medium.id == mediumId);
+  void updateDiscTitle(MusicDiscId discId, String title) {
+    final index = discs.indexWhere((disc) => disc.id == discId);
     if (index < 0) return;
-    mediums[index] = _copyMedium(
-      mediums[index],
-      mediumType: _text(value),
-      replaceMediumType: true,
-    );
-  }
-
-  void updateMediumTitle(MusicMediumId mediumId, String title) {
-    final index = mediums.indexWhere((medium) => medium.id == mediumId);
-    if (index < 0) return;
-    mediums[index] = _copyMedium(
-      mediums[index],
+    discs[index] = _copyDisc(
+      discs[index],
       title: _text(title),
       replaceTitle: true,
     );
   }
 
-  void updateMediumTechnicalDetails(
-    MusicMediumId mediumId, {
-    String? soundType,
-    bool replaceSoundType = false,
-    String? vinylColor,
-    bool replaceVinylColor = false,
-    String? vinylWeight,
-    bool replaceVinylWeight = false,
-    int? rpm,
-    bool replaceRpm = false,
-    String? spars,
-    bool replaceSpars = false,
+  void updateDiscTechnicalDetails(
+    MusicDiscId discId, {
     String? matrixNumberSideA,
     bool replaceMatrixNumberSideA = false,
     String? matrixNumberSideB,
     bool replaceMatrixNumberSideB = false,
   }) {
-    final index = mediums.indexWhere((medium) => medium.id == mediumId);
+    final index = discs.indexWhere((disc) => disc.id == discId);
     if (index < 0) return;
-    mediums[index] = _copyMedium(
-      mediums[index],
-      soundType: soundType,
-      replaceSoundType: replaceSoundType,
-      vinylColor: vinylColor,
-      replaceVinylColor: replaceVinylColor,
-      vinylWeight: vinylWeight,
-      replaceVinylWeight: replaceVinylWeight,
-      rpm: rpm,
-      replaceRpm: replaceRpm,
-      spars: spars,
-      replaceSpars: replaceSpars,
+    discs[index] = _copyDisc(
+      discs[index],
       matrixNumberSideA: matrixNumberSideA,
       replaceMatrixNumberSideA: replaceMatrixNumberSideA,
       matrixNumberSideB: matrixNumberSideB,
@@ -131,28 +99,28 @@ final class MusicAlbumEditDraft {
   }
 
   void replaceTrack(
-    MusicMediumId mediumId,
+    MusicDiscId discId,
     int index,
     MusicTrack track,
   ) {
-    final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
-    if (mediumIndex < 0) return;
-    final medium = mediums[mediumIndex];
-    if (index < 0 || index >= medium.tracks.length) return;
-    final tracks = List<MusicTrack>.of(medium.tracks);
+    final discIndex = discs.indexWhere((disc) => disc.id == discId);
+    if (discIndex < 0) return;
+    final disc = discs[discIndex];
+    if (index < 0 || index >= disc.tracks.length) return;
+    final tracks = List<MusicTrack>.of(disc.tracks);
     tracks[index] = track;
-    mediums[mediumIndex] = _copyMedium(medium, tracks: tracks);
+    discs[discIndex] = _copyDisc(disc, tracks: tracks);
   }
 
-  void addTrack(MusicMediumId mediumId, {required bool header}) {
-    final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
-    if (mediumIndex < 0) return;
-    final medium = mediums[mediumIndex];
+  void addTrack(MusicDiscId discId, {required bool header}) {
+    final discIndex = discs.indexWhere((disc) => disc.id == discId);
+    if (discIndex < 0) return;
+    final disc = discs[discIndex];
     final nextPosition =
-        medium.tracks.where((track) => !track.isHeader).length + 1;
+        disc.tracks.where((track) => !track.isHeader).length + 1;
     MusicTrack? parentHeader;
     if (!header) {
-      for (final existing in medium.tracks.reversed) {
+      for (final existing in disc.tracks.reversed) {
         if (existing.isHeader) {
           parentHeader = existing;
           break;
@@ -161,9 +129,8 @@ final class MusicAlbumEditDraft {
     }
     final track = MusicTrack(
       id: MusicTrackId(
-        '${medium.id.value}:track:${DateTime.now().microsecondsSinceEpoch}',
+        '${disc.id.value}:track:${DateTime.now().microsecondsSinceEpoch}',
       ),
-      mediumId: medium.id,
       position: header ? '' : nextPosition.toString(),
       title: header ? 'New section' : 'New track',
       isHeader: header,
@@ -172,52 +139,52 @@ final class MusicAlbumEditDraft {
           : (parentHeader == null ? 0 : parentHeader.indentLevel + 1),
       parentHeaderId: parentHeader?.id.value,
     );
-    mediums[mediumIndex] = _copyMedium(
-      medium,
-      tracks: _renumberTracks([...medium.tracks, track]),
+    discs[discIndex] = _copyDisc(
+      disc,
+      tracks: _renumberTracks([...disc.tracks, track]),
     );
   }
 
-  void removeTrack(MusicMediumId mediumId, int index) {
-    final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
-    if (mediumIndex < 0) return;
-    final medium = mediums[mediumIndex];
-    if (index < 0 || index >= medium.tracks.length) return;
-    removeTracks(mediumId, {medium.tracks[index].id.value});
+  void removeTrack(MusicDiscId discId, int index) {
+    final discIndex = discs.indexWhere((disc) => disc.id == discId);
+    if (discIndex < 0) return;
+    final disc = discs[discIndex];
+    if (index < 0 || index >= disc.tracks.length) return;
+    removeTracks(discId, {disc.tracks[index].id.value});
   }
 
-  void reorderTrack(MusicMediumId mediumId, int oldIndex, int newIndex) {
-    final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
-    if (mediumIndex < 0) return;
-    final medium = mediums[mediumIndex];
-    if (oldIndex < 0 || oldIndex >= medium.tracks.length) return;
+  void reorderTrack(MusicDiscId discId, int oldIndex, int newIndex) {
+    final discIndex = discs.indexWhere((disc) => disc.id == discId);
+    if (discIndex < 0) return;
+    final disc = discs[discIndex];
+    if (oldIndex < 0 || oldIndex >= disc.tracks.length) return;
     if (newIndex > oldIndex) newIndex--;
-    if (newIndex < 0 || newIndex >= medium.tracks.length) return;
-    final tracks = List<MusicTrack>.of(medium.tracks);
+    if (newIndex < 0 || newIndex >= disc.tracks.length) return;
+    final tracks = List<MusicTrack>.of(disc.tracks);
     final track = tracks.removeAt(oldIndex);
     tracks.insert(newIndex, track);
-    mediums[mediumIndex] = _copyMedium(
-      medium,
+    discs[discIndex] = _copyDisc(
+      disc,
       tracks: _linkHeaderParents(_renumberTracks(tracks)),
     );
   }
 
   void assignTrackToHeader(
-    MusicMediumId mediumId, {
+    MusicDiscId discId, {
     required String trackId,
     required String headerId,
   }) {
-    final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
-    if (mediumIndex < 0) return;
-    final medium = mediums[mediumIndex];
+    final discIndex = discs.indexWhere((disc) => disc.id == discId);
+    if (discIndex < 0) return;
+    final disc = discs[discIndex];
     final sourceIndex =
-        medium.tracks.indexWhere((track) => track.id.value == trackId);
-    if (sourceIndex < 0 || medium.tracks[sourceIndex].isHeader) return;
+        disc.tracks.indexWhere((track) => track.id.value == trackId);
+    if (sourceIndex < 0 || disc.tracks[sourceIndex].isHeader) return;
     final headerIndex =
-        medium.tracks.indexWhere((track) => track.id.value == headerId);
-    if (headerIndex < 0 || !medium.tracks[headerIndex].isHeader) return;
+        disc.tracks.indexWhere((track) => track.id.value == headerId);
+    if (headerIndex < 0 || !disc.tracks[headerIndex].isHeader) return;
 
-    final tracks = List<MusicTrack>.of(medium.tracks);
+    final tracks = List<MusicTrack>.of(disc.tracks);
     final moved = tracks.removeAt(sourceIndex);
     final targetIndex =
         tracks.indexWhere((track) => track.id.value == headerId);
@@ -248,26 +215,26 @@ final class MusicAlbumEditDraft {
         replaceParentHeaderId: true,
       ),
     );
-    mediums[mediumIndex] = _copyMedium(
-      medium,
+    discs[discIndex] = _copyDisc(
+      disc,
       tracks: _renumberTracks(tracks),
     );
   }
 
   void setTrackIndent(
-    MusicMediumId mediumId,
+    MusicDiscId discId,
     int index,
     int indentLevel,
   ) {
-    final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
-    if (mediumIndex < 0) return;
-    final medium = mediums[mediumIndex];
-    if (index < 0 || index >= medium.tracks.length) return;
-    final track = medium.tracks[index];
+    final discIndex = discs.indexWhere((disc) => disc.id == discId);
+    if (discIndex < 0) return;
+    final disc = discs[discIndex];
+    if (index < 0 || index >= disc.tracks.length) return;
+    final track = disc.tracks[index];
     MusicTrack? parentHeader;
     if (indentLevel > 0) {
       for (var previous = index - 1; previous >= 0; previous--) {
-        final candidate = medium.tracks[previous];
+        final candidate = disc.tracks[previous];
         if (candidate.isHeader && candidate.indentLevel < indentLevel) {
           parentHeader = candidate;
           break;
@@ -281,7 +248,7 @@ final class MusicAlbumEditDraft {
             : indentLevel;
     final effectiveIndent =
         requestedIndent > 0 && parentHeader == null ? 0 : requestedIndent;
-    final tracks = List<MusicTrack>.of(medium.tracks);
+    final tracks = List<MusicTrack>.of(disc.tracks);
     tracks[index] = musicTrackWithEdits(
       track,
       title: track.title,
@@ -292,19 +259,19 @@ final class MusicAlbumEditDraft {
       parentHeaderId: parentHeader?.id.value,
       replaceParentHeaderId: true,
     );
-    mediums[mediumIndex] = _copyMedium(
-      medium,
+    discs[discIndex] = _copyDisc(
+      disc,
       tracks: _linkHeaderParents(tracks),
     );
   }
 
-  void autocapTracks(MusicMediumId mediumId, Set<String> trackIds) {
+  void autocapTracks(MusicDiscId discId, Set<String> trackIds) {
     if (trackIds.isEmpty) return;
-    final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
-    if (mediumIndex < 0) return;
-    final medium = mediums[mediumIndex];
+    final discIndex = discs.indexWhere((disc) => disc.id == discId);
+    if (discIndex < 0) return;
+    final disc = discs[discIndex];
     final tracks = [
-      for (final track in medium.tracks)
+      for (final track in disc.tracks)
         if (trackIds.contains(track.id.value) && !track.isHeader)
           musicTrackWithEdits(
             track,
@@ -316,15 +283,15 @@ final class MusicAlbumEditDraft {
         else
           track,
     ];
-    mediums[mediumIndex] = _copyMedium(medium, tracks: tracks);
+    discs[discIndex] = _copyDisc(disc, tracks: tracks);
   }
 
-  void removeTracks(MusicMediumId mediumId, Set<String> trackIds) {
+  void removeTracks(MusicDiscId discId, Set<String> trackIds) {
     if (trackIds.isEmpty) return;
-    final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
-    if (mediumIndex < 0) return;
-    final medium = mediums[mediumIndex];
-    final remaining = medium.tracks
+    final discIndex = discs.indexWhere((disc) => disc.id == discId);
+    if (discIndex < 0) return;
+    final disc = discs[discIndex];
+    final remaining = disc.tracks
         .where((track) => !trackIds.contains(track.id.value))
         .map(
           (track) => track.parentHeaderId != null &&
@@ -340,25 +307,25 @@ final class MusicAlbumEditDraft {
               : track,
         )
         .toList(growable: false);
-    mediums[mediumIndex] = _copyMedium(
-      medium,
+    discs[discIndex] = _copyDisc(
+      disc,
       tracks: _linkHeaderParents(_renumberTracks(remaining)),
     );
   }
 
-  void moveTracksToMedium({
-    required MusicMediumId sourceId,
-    required MusicMediumId destinationId,
+  void moveTracksToDisc({
+    required MusicDiscId sourceId,
+    required MusicDiscId destinationId,
     required Set<String> trackIds,
   }) {
     if (trackIds.isEmpty || sourceId == destinationId) return;
-    final sourceIndex = mediums.indexWhere((medium) => medium.id == sourceId);
+    final sourceIndex = discs.indexWhere((disc) => disc.id == sourceId);
     final destinationIndex =
-        mediums.indexWhere((medium) => medium.id == destinationId);
+        discs.indexWhere((disc) => disc.id == destinationId);
     if (sourceIndex < 0 || destinationIndex < 0) return;
 
-    final source = mediums[sourceIndex];
-    final destination = mediums[destinationIndex];
+    final source = discs[sourceIndex];
+    final destination = discs[destinationIndex];
     final moving = source.tracks
         .where((track) => trackIds.contains(track.id.value))
         .toList(growable: false);
@@ -390,17 +357,16 @@ final class MusicAlbumEditDraft {
           position: track.position,
           artist: track.artist ?? '',
           durationMs: track.durationMs,
-          mediumId: destination.id,
           clearParentHeaderId: track.parentHeaderId != null &&
               !movingIds.contains(track.parentHeaderId) &&
               !destinationTrackIds.contains(track.parentHeaderId),
         ),
     ];
-    mediums[sourceIndex] = _copyMedium(
+    discs[sourceIndex] = _copyDisc(
       source,
       tracks: _linkHeaderParents(_renumberTracks(sourceTracks)),
     );
-    mediums[destinationIndex] = _copyMedium(
+    discs[destinationIndex] = _copyDisc(
       destination,
       tracks: _linkHeaderParents(
         _renumberTracks([...destination.tracks, ...movedTracks]),
@@ -411,7 +377,7 @@ final class MusicAlbumEditDraft {
   MusicAlbum toAlbum() => MusicAlbumFormAdapter.update(
         original,
         values,
-        mediums: mediums,
+        discs: discs,
         externalLinks: externalLinks
             .where((link) => link.url.trim().isNotEmpty)
             .toList(growable: false),
@@ -427,14 +393,12 @@ MusicTrack musicTrackWithEdits(
   required int? durationMs,
   int? positionOrder,
   int? indentLevel,
-  MusicMediumId? mediumId,
   bool clearParentHeaderId = false,
   String? parentHeaderId,
   bool replaceParentHeaderId = false,
 }) {
   return MusicTrack(
     id: source.id,
-    mediumId: mediumId ?? source.mediumId,
     position: position.trim(),
     positionOrder: positionOrder ?? source.positionOrder,
     title: title.trim().isEmpty ? 'Untitled track' : title.trim(),
@@ -458,60 +422,28 @@ MusicTrack musicTrackWithEdits(
   );
 }
 
-MusicMedium _copyMedium(
-  MusicMedium medium, {
-  int? mediumNumber,
+MusicDisc _copyDisc(
+  MusicDisc disc, {
+  int? discNumber,
   String? title,
   bool replaceTitle = false,
-  String? mediumType,
-  bool replaceMediumType = false,
-  String? soundType,
-  bool replaceSoundType = false,
-  String? vinylColor,
-  bool replaceVinylColor = false,
-  String? vinylWeight,
-  bool replaceVinylWeight = false,
-  int? rpm,
-  bool replaceRpm = false,
-  String? spars,
-  bool replaceSpars = false,
   String? matrixNumberSideA,
   bool replaceMatrixNumberSideA = false,
   String? matrixNumberSideB,
   bool replaceMatrixNumberSideB = false,
   List<MusicTrack>? tracks,
 }) {
-  return MusicMedium(
-    id: medium.id,
-    albumId: medium.albumId,
-    mediumNumber: mediumNumber ?? medium.mediumNumber,
-    mediumType:
-        replaceMediumType ? mediumType : mediumType ?? medium.mediumType,
-    title: replaceTitle ? title : title ?? medium.title,
-    trackCount: tracks != null && tracks.isEmpty ? 0 : medium.trackCount,
-    expectedTrackCount: medium.expectedTrackCount,
-    missingTrackCount: medium.missingTrackCount,
-    missingTrackPositions: medium.missingTrackPositions,
-    toc: medium.toc,
-    cddbId: medium.cddbId,
-    leadoutOffset: medium.leadoutOffset,
-    bpDiscId: medium.bpDiscId,
+  return MusicDisc(
+    id: disc.id,
+    discNumber: discNumber ?? disc.discNumber,
+    title: replaceTitle ? title : title ?? disc.title,
     matrixNumberSideA: replaceMatrixNumberSideA
         ? matrixNumberSideA
-        : matrixNumberSideA ?? medium.matrixNumberSideA,
+        : matrixNumberSideA ?? disc.matrixNumberSideA,
     matrixNumberSideB: replaceMatrixNumberSideB
         ? matrixNumberSideB
-        : matrixNumberSideB ?? medium.matrixNumberSideB,
-    soundType: replaceSoundType ? soundType : soundType ?? medium.soundType,
-    vinylColor:
-        replaceVinylColor ? vinylColor : vinylColor ?? medium.vinylColor,
-    vinylWeight:
-        replaceVinylWeight ? vinylWeight : vinylWeight ?? medium.vinylWeight,
-    rpm: replaceRpm ? rpm : rpm ?? medium.rpm,
-    spars: replaceSpars ? spars : spars ?? medium.spars,
-    tracks: tracks ?? medium.tracks,
-    createdAt: medium.createdAt,
-    updatedAt: medium.updatedAt,
+        : matrixNumberSideB ?? disc.matrixNumberSideB,
+    tracks: tracks ?? disc.tracks,
   );
 }
 

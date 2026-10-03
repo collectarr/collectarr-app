@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
@@ -469,8 +469,7 @@ class _MusicInspectorMain extends ConsumerWidget {
             image.purpose == MusicAlbumImagePurpose.cover &&
             image.imageType == 'back_cover')
         .firstOrNull;
-    final formatLabel =
-        release.mediums.firstOrNull?.mediumType ?? release.packaging ?? '-';
+    final formatLabel = release.format ?? release.packaging ?? '-';
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -637,7 +636,7 @@ class _MusicInspectorTracks extends StatelessWidget {
           children: [
             Text(
               '${tracks.where((track) => !track.isHeader).length} ${tracks.where((track) => !track.isHeader).length == 1 ? 'track' : 'tracks'}',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w800,
                   ),
@@ -681,100 +680,63 @@ class _MusicDiscDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = _musicModel(inspector.item);
-    final expectedTrackCount = model.mediums.fold<int>(
+    final trackCount = model.discs.fold<int>(
       0,
-      (total, medium) =>
-          total +
-          (medium.expectedTrackCount ??
-              medium.trackCount ??
-              medium.effectiveTrackCount),
-    );
-    final availableTrackCount = model.mediums.fold<int>(
-      0,
-      (total, medium) => total + medium.effectiveTrackCount,
-    );
-    final missingTrackCount = model.mediums.fold<int>(
-      0,
-      (total, medium) {
-        final derived =
-            (medium.expectedTrackCount ?? medium.effectiveTrackCount) -
-                medium.effectiveTrackCount;
-        return total +
-            (medium.missingTrackCount ?? (derived > 0 ? derived : 0));
-      },
+      (total, disc) => total + disc.effectiveTrackCount,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         LibraryDetailFieldTable(
           fields: [
-            if (model.mediums.isNotEmpty)
+            if (model.discs.isNotEmpty)
               LibraryDetailField(
-                label: 'Media',
-                value: '${model.mediums.length}',
+                label: 'Discs',
+                value: '${model.discs.length}',
               ),
-            if (model.mediums.isNotEmpty)
+            if (model.discs.isNotEmpty)
               LibraryDetailField(
                 label: 'Tracks',
-                value: '$availableTrackCount / $expectedTrackCount',
-              ),
-            if (missingTrackCount > 0)
-              LibraryDetailField(
-                label: 'Missing tracks',
-                value: missingTrackCount.toString(),
+                value: trackCount.toString(),
               ),
           ],
         ),
-        if (model.mediums.isNotEmpty) const SizedBox(height: 10),
-        for (var index = 0; index < model.mediums.length; index++) ...[
-          _MusicMediumDetailsCard(
-            medium: model.mediums[index],
-            storage: model.storageForMedium(model.mediums[index].mediumNumber),
+        if (model.discs.isNotEmpty) const SizedBox(height: 10),
+        for (var index = 0; index < model.discs.length; index++) ...[
+          _MusicDiscDetailsCard(
+            disc: model.discs[index],
+            storage: model.storageForDisc(model.discs[index].discNumber),
             showEntryDetails: model.entry != null,
           ),
-          if (index < model.mediums.length - 1) const SizedBox(height: 8),
+          if (index < model.discs.length - 1) const SizedBox(height: 8),
         ],
       ],
     );
   }
 }
 
-class _MusicMediumDetailsCard extends StatelessWidget {
-  const _MusicMediumDetailsCard({
-    required this.medium,
+class _MusicDiscDetailsCard extends StatelessWidget {
+  const _MusicDiscDetailsCard({
+    required this.disc,
     required this.storage,
     required this.showEntryDetails,
   });
 
-  final MusicMedium medium;
-  final MusicEntryMediumStorageView storage;
+  final MusicDisc disc;
+  final MusicEntryDiscStorageView storage;
   final bool showEntryDetails;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final playableTracks = medium.effectiveTrackCount;
-    final expectedTracks =
-        medium.expectedTrackCount ?? medium.trackCount ?? playableTracks;
+    final playableTracks = disc.effectiveTrackCount;
     final rows = <(String, String)>[
-      ('Tracks', '$playableTracks / $expectedTracks'),
-      if (medium.mediumType?.trim().isNotEmpty == true)
-        ('Medium type', medium.mediumType!.trim()),
-      if (medium.title?.trim().isNotEmpty == true)
-        ('Title', medium.title!.trim()),
-      if (medium.soundType?.trim().isNotEmpty == true)
-        ('Sound', medium.soundType!.trim()),
-      if (medium.spars?.trim().isNotEmpty == true)
-        ('SPARS', medium.spars!.trim()),
-      if (medium.rpm != null) ('RPM', medium.rpm.toString()),
-      if (medium.vinylColor?.trim().isNotEmpty == true)
-        ('Vinyl color', medium.vinylColor!.trim()),
-      if (medium.vinylWeight?.trim().isNotEmpty == true)
-        ('Vinyl weight', medium.vinylWeight!.trim()),
-      if (medium.matrixNumberSideA?.trim().isNotEmpty == true)
-        ('Matrix side A', medium.matrixNumberSideA!.trim()),
-      if (medium.matrixNumberSideB?.trim().isNotEmpty == true)
-        ('Matrix side B', medium.matrixNumberSideB!.trim()),
+      ('Tracks', playableTracks.toString()),
+      if (disc.title?.trim().isNotEmpty == true) ('Title', disc.title!.trim()),
+      if (disc.matrixNumberSideA?.trim().isNotEmpty == true)
+        ('Matrix side A', disc.matrixNumberSideA!.trim()),
+      if (disc.matrixNumberSideB?.trim().isNotEmpty == true)
+        ('Matrix side B', disc.matrixNumberSideB!.trim()),
       if (showEntryDetails && storage.label != '-') ('Storage', storage.label),
     ];
     return DecoratedBox(
@@ -789,7 +751,7 @@ class _MusicMediumDetailsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Medium #${medium.mediumNumber}',
+              'Disc #${disc.discNumber}',
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w800,
@@ -971,36 +933,31 @@ class _MusicProductDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = _musicModel(inspector.item);
     final release = model.music;
-    final medium = release.mediums.firstOrNull;
     final rows = <(String, String)>[
       if (release.subtitle?.trim().isNotEmpty == true)
         ('Edition', release.subtitle!),
-      if (release.releaseType?.trim().isNotEmpty == true)
-        ('Release type', release.releaseType!),
       if (release.publisher?.trim().isNotEmpty == true)
         ('Label', release.publisher!),
       if (release.catalogNumber?.trim().isNotEmpty == true)
         ('Catalog number', release.catalogNumber!),
-      if (release.upc?.trim().isNotEmpty == true) ('UPC', release.upc!),
       if (release.barcode?.trim().isNotEmpty == true)
         ('Barcode', release.barcode!),
-      if (medium?.mediumType?.trim().isNotEmpty == true)
-        ('Format', medium!.mediumType!),
-      if (release.releaseStatus?.trim().isNotEmpty == true)
-        ('Release status', release.releaseStatus!),
+      if (release.format?.trim().isNotEmpty == true)
+        ('Format', release.format!),
+      if (release.packaging?.trim().isNotEmpty == true)
+        ('Packaging', release.packaging!),
       if (musicCountryName(release.countryCode) case final country?)
         ('Country', country),
-      if (release.language?.trim().isNotEmpty == true)
-        ('Language', release.language!),
       if (release.boxSet?.trim().isNotEmpty == true)
         ('Box Set', release.boxSet!),
-      if (medium?.rpm != null) ('RPM', medium!.rpm.toString()),
-      if (medium?.soundType?.trim().isNotEmpty == true)
-        ('Sound', medium!.soundType!),
-      if (medium?.vinylColor?.trim().isNotEmpty == true)
-        ('Vinyl color', medium!.vinylColor!),
-      if (medium?.vinylWeight?.trim().isNotEmpty == true)
-        ('Vinyl weight', medium!.vinylWeight!),
+      if (release.soundTypes.isNotEmpty)
+        ('Sound', release.soundTypes.join(', ')),
+      if (release.spars?.trim().isNotEmpty == true) ('SPARS', release.spars!),
+      if (release.rpm != null) ('RPM', release.rpm.toString()),
+      if (release.vinylColor?.trim().isNotEmpty == true)
+        ('Vinyl color', release.vinylColor!),
+      if (release.vinylWeight?.trim().isNotEmpty == true)
+        ('Vinyl weight', release.vinylWeight!),
       if (release.localCoverImagePath?.trim().isNotEmpty == true)
         ('Local cover', release.localCoverImagePath!),
       if (release.localBackImagePath?.trim().isNotEmpty == true)
@@ -1221,7 +1178,7 @@ class _MusicTrackRow extends StatelessWidget {
                 children: [
                   Text(
                     track.title,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: track.isHeader
                               ? palette.accent
                               : palette.textPrimary,
@@ -1299,7 +1256,7 @@ Future<void> _copyTracks(
       [
         item.artist ?? '',
         item.title,
-        track.releaseTitle ?? '',
+        track.albumTitle ?? '',
         track.discNumber.toString(),
         track.isHeader ? track.title : '',
         track.position,
@@ -1345,7 +1302,7 @@ Future<void> _printTracks(
       [
         item.artist ?? '',
         item.title,
-        track.releaseTitle ?? '',
+        track.albumTitle ?? '',
         track.discNumber.toString(),
         track.isHeader ? track.title : '',
         track.position,
@@ -1640,7 +1597,7 @@ Uri? _ebayUri(LibraryProjectionView item) {
   final model = _musicModel(item);
   final music = model.music;
   final release = music;
-  final barcode = (release.barcode ?? release.upc)?.trim();
+  final barcode = release.barcode?.trim();
   if (barcode == null || barcode.isEmpty) {
     return null;
   }

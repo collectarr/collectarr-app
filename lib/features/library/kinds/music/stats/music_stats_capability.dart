@@ -32,9 +32,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
       secondaryGroup: secondary,
       hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
-          music.mediums.any(
-            (medium) => medium.mediumType?.trim().isNotEmpty == true,
-          ),
+          music.format?.trim().isNotEmpty == true,
       hasReleaseDate:
           music.originalReleaseDate != null || catalog.releaseDate != null,
     );
@@ -203,7 +201,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   static int totalMedia(Iterable<LibraryWorkspaceSource> entries) {
     return entries.fold<int>(
       0,
-      (total, entry) => total + (_music(entry)?.mediums.length ?? 0),
+      (total, entry) => total + (_music(entry)?.discs.length ?? 0),
     );
   }
 
@@ -240,11 +238,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
       Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(
       entries,
-      (music) => [
-        if (music.releaseType != null) music.releaseType!,
-        for (final medium in music.mediums)
-          if (medium.mediumType != null) medium.mediumType!,
-      ],
+      (music) => [if (music.format != null) music.format!],
     );
   }
 

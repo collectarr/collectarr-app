@@ -149,11 +149,11 @@ abstract final class MusicLibraryEntryWorkspaceFields {
       );
       if (entry is! MusicLibraryEntry) return null;
       final values = [
-        for (final medium in entry.personal.details.media) ...[
-          if (medium.storageDevice?.trim().isNotEmpty == true)
-            medium.storageDevice!.trim(),
-          if (medium.storageSlot?.trim().isNotEmpty == true)
-            medium.storageSlot!.trim(),
+        for (final disc in entry.personal.details.media) ...[
+          if (disc.storageDevice?.trim().isNotEmpty == true)
+            disc.storageDevice!.trim(),
+          if (disc.storageSlot?.trim().isNotEmpty == true)
+            disc.storageSlot!.trim(),
         ],
       ];
       return values.isEmpty ? null : values.join(' / ');

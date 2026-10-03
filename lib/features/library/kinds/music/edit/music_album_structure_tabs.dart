@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
@@ -11,9 +11,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Music-entry release structure editor.
 ///
-/// The draft owns the mutable medium/track graph. This tab deliberately does
+/// The draft owns the mutable disc/track graph. This tab deliberately does
 /// not route track edits through a generic catalog DTO, so headers, nesting,
-/// artist credits and medium boundaries survive the save round-trip.
+/// artist credits and disc boundaries survive the save round-trip.
 final class MusicAlbumStructureTab extends ConsumerStatefulWidget {
   const MusicAlbumStructureTab({
     super.key,
@@ -31,7 +31,7 @@ final class MusicAlbumStructureTab extends ConsumerStatefulWidget {
 
 final class _MusicAlbumStructureTabState
     extends ConsumerState<MusicAlbumStructureTab> {
-  MusicMediumId? _activeMediumId;
+  MusicDiscId? _activeDiscId;
   final Set<String> _selectedTrackIds = <String>{};
 
   MusicAlbumEditDraft get draft => widget.draft;
@@ -42,7 +42,7 @@ final class _MusicAlbumStructureTabState
   }
 
   List<Widget> _trackSections() {
-    if (draft.mediums.isEmpty) {
+    if (draft.discs.isEmpty) {
       return [
         const Text('This release does not have any discs yet.'),
         const SizedBox(height: 10),
@@ -50,8 +50,8 @@ final class _MusicAlbumStructureTabState
           alignment: Alignment.centerLeft,
           child: OutlinedButton.icon(
             onPressed: () => setState(() {
-              draft.addMedium();
-              _activeMediumId = draft.mediums.last.id;
+              draft.addDisc();
+              _activeDiscId = draft.discs.last.id;
             }),
             icon: const Icon(Icons.add),
             label: const Text('Add Disc'),
@@ -59,8 +59,8 @@ final class _MusicAlbumStructureTabState
         ),
       ];
     }
-    final medium = _activeMedium();
-    if (medium == null) return const [];
+    final disc = _activeDisc();
+    if (disc == null) return const [];
     return [
       Row(
         children: [
@@ -72,31 +72,31 @@ final class _MusicAlbumStructureTabState
               child: ReorderableListView.builder(
                 scrollDirection: Axis.horizontal,
                 buildDefaultDragHandles: false,
-                itemCount: draft.mediums.length,
+                itemCount: draft.discs.length,
                 onReorderItem: (oldIndex, newIndex) => setState(() {
-                  draft.reorderMedium(oldIndex, newIndex);
+                  draft.reorderDisc(oldIndex, newIndex);
                   _selectedTrackIds.clear();
                 }),
                 itemBuilder: (context, index) {
-                  final disc = draft.mediums[index];
+                  final disc = draft.discs[index];
                   return Padding(
-                    key: ValueKey('music-medium-${disc.id.value}'),
+                    key: ValueKey('music-disc-${disc.id.value}'),
                     padding: const EdgeInsets.only(right: 6),
                     child: ReorderableDragStartListener(
                       index: index,
                       child: ChoiceChip(
                         label: Text(
-                          'Disc ${disc.mediumNumber} - '
+                          'Disc ${disc.discNumber} - '
                           '${disc.effectiveTrackCount} tracks',
                         ),
-                        selected: disc.id == medium.id,
+                        selected: disc.id == disc.id,
                         onSelected: (_) => setState(() {
-                          _activeMediumId = disc.id;
+                          _activeDiscId = disc.id;
                           _selectedTrackIds.clear();
                         }),
                         selectedColor: widget.accent.withValues(alpha: 0.16),
                         side: BorderSide(
-                          color: disc.id == medium.id
+                          color: disc.id == disc.id
                               ? widget.accent
                               : Theme.of(context).dividerColor,
                         ),
@@ -109,16 +109,16 @@ final class _MusicAlbumStructureTabState
             ),
           ),
           IconButton(
-            tooltip: 'Remove disc ${medium.mediumNumber}',
+            tooltip: 'Remove disc ${disc.discNumber}',
             visualDensity: VisualDensity.compact,
-            onPressed: () => _removeMedium(medium),
+            onPressed: () => _removeDisc(disc),
             icon: const Icon(Icons.delete_outline, size: 18),
           ),
           const SizedBox(width: 8),
           OutlinedButton.icon(
             onPressed: () => setState(() {
-              draft.addMedium();
-              _activeMediumId = draft.mediums.last.id;
+              draft.addDisc();
+              _activeDiscId = draft.discs.last.id;
               _selectedTrackIds.clear();
             }),
             icon: const Icon(Icons.add, size: 16),
@@ -128,20 +128,20 @@ final class _MusicAlbumStructureTabState
       ),
       const SizedBox(height: 8),
       EditSection(
-        title: 'Disc ${medium.mediumNumber}',
+        title: 'Disc ${disc.discNumber}',
         accent: widget.accent,
-        child: _mediumTrackEditor(medium),
+        child: _discTrackEditor(disc),
       ),
     ];
   }
 
-  Future<void> _removeMedium(MusicMedium medium) async {
+  Future<void> _removeDisc(MusicDisc disc) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AccentAlertDialog(
-        title: Text('Remove Disc ${medium.mediumNumber}?'),
+        title: Text('Remove Disc ${disc.discNumber}?'),
         content: Text(
-          'This removes ${medium.tracks.length} track entries from the release. '
+          'This removes ${disc.tracks.length} track entries from the release. '
           'Storage, slot, and matrix details for this disc will also be removed when you save.',
         ),
         actions: [
@@ -161,31 +161,31 @@ final class _MusicAlbumStructureTabState
       final entry = LibraryEntryEditScope.maybeOf(context);
       if (entry != null) {
         final details = _discDetails(entry);
-        details.removeWhere((row) => row['medium_id'] == medium.id.value);
+        details.removeWhere((row) => row['disc_id'] == disc.id.value);
         entry.set('media', details);
       }
-      draft.removeMedium(medium.id);
-      _activeMediumId = draft.mediums.isEmpty ? null : draft.mediums.first.id;
+      draft.removeDisc(disc.id);
+      _activeDiscId = draft.discs.isEmpty ? null : draft.discs.first.id;
       _selectedTrackIds.clear();
     });
   }
 
-  MusicMedium? _activeMedium() {
-    for (final medium in draft.mediums) {
-      if (medium.id == _activeMediumId) return medium;
+  MusicDisc? _activeDisc() {
+    for (final disc in draft.discs) {
+      if (disc.id == _activeDiscId) return disc;
     }
-    if (draft.mediums.isEmpty) return null;
-    return draft.mediums.first;
+    if (draft.discs.isEmpty) return null;
+    return draft.discs.first;
   }
 
-  Widget _mediumTrackEditor(MusicMedium medium) {
+  Widget _discTrackEditor(MusicDisc disc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _discFields(medium),
+        _discFields(disc),
         const SizedBox(height: 12),
-        if (_selectedTrackIds.isNotEmpty) _selectionToolbar(medium),
-        _trackTable(medium),
+        if (_selectedTrackIds.isNotEmpty) _selectionToolbar(disc),
+        _trackTable(disc),
         const SizedBox(height: 8),
         Align(
           alignment: Alignment.centerRight,
@@ -195,14 +195,14 @@ final class _MusicAlbumStructureTabState
             children: [
               OutlinedButton.icon(
                 onPressed: () => setState(
-                  () => draft.addTrack(medium.id, header: true),
+                  () => draft.addTrack(disc.id, header: true),
                 ),
                 icon: const Icon(Icons.folder_outlined, size: 16),
                 label: const Text('Add Header'),
               ),
               OutlinedButton.icon(
                 onPressed: () => setState(
-                  () => draft.addTrack(medium.id, header: false),
+                  () => draft.addTrack(disc.id, header: false),
                 ),
                 icon: const Icon(Icons.add, size: 16),
                 label: const Text('Add Track'),
@@ -219,33 +219,33 @@ final class _MusicAlbumStructureTabState
     return raw is List
         ? [
             for (final row in raw)
-              if (row is Map && row['medium_id'] is String)
+              if (row is Map && row['disc_id'] is String)
                 Map<String, dynamic>.from(row),
           ]
         : <Map<String, dynamic>>[];
   }
 
-  Widget _discPersonalField(MusicMedium medium, String label, String key) {
+  Widget _discPersonalField(MusicDisc disc, String label, String key) {
     final entry = LibraryEntryEditScope.maybeOf(context);
     final rows = entry == null ? <Map<String, dynamic>>[] : _discDetails(entry);
     final row =
-        rows.where((row) => row['medium_id'] == medium.id.value).firstOrNull;
+        rows.where((row) => row['disc_id'] == disc.id.value).firstOrNull;
     return LibraryFormField(
         label: label,
         child: TextFormField(
-          key: ValueKey('${medium.id.value}:$key'),
+          key: ValueKey('${disc.id.value}:$key'),
           initialValue: row?[key]?.toString() ?? '',
           enabled: entry != null,
           onChanged: (value) {
             final next = _discDetails(entry!);
             final details = next
-                .where((row) => row['medium_id'] == medium.id.value)
+                .where((row) => row['disc_id'] == disc.id.value)
                 .firstOrNull;
             if (details != null) {
               details[key] = value.trim().isEmpty ? null : value.trim();
             } else {
               next.add({
-                'medium_id': medium.id.value,
+                'disc_id': disc.id.value,
                 key: value.trim().isEmpty ? null : value.trim(),
               });
             }
@@ -254,7 +254,7 @@ final class _MusicAlbumStructureTabState
         ));
   }
 
-  Widget _discFields(MusicMedium medium) =>
+  Widget _discFields(MusicDisc disc) =>
       LayoutBuilder(builder: (context, constraints) {
         final wide = constraints.maxWidth >= 680;
         final half =
@@ -266,27 +266,27 @@ final class _MusicAlbumStructureTabState
               child: LibraryFormField(
                   label: 'Disc Title',
                   child: TextFormField(
-                    key: ValueKey('music-medium-title-${medium.id.value}'),
-                    initialValue: medium.title ?? '',
+                    key: ValueKey('music-disc-title-${disc.id.value}'),
+                    initialValue: disc.title ?? '',
                     onChanged: (value) =>
-                        draft.updateMediumTitle(medium.id, value),
+                        draft.updateDiscTitle(disc.id, value),
                   ))),
           SizedBox(
               width: quarter,
               child: _discPersonalField(
-                  medium, 'Storage Device', 'storage_device')),
+                  disc, 'Storage Device', 'storage_device')),
           SizedBox(
               width: quarter,
-              child: _discPersonalField(medium, 'Slot', 'storage_slot')),
+              child: _discPersonalField(disc, 'Slot', 'storage_slot')),
           SizedBox(
               width: half,
               child: LibraryFormField(
                   label: 'Matrix Nr Side A',
                   child: TextFormField(
-                    key: ValueKey('music-medium-matrix-a-${medium.id.value}'),
-                    initialValue: medium.matrixNumberSideA ?? '',
-                    onChanged: (value) => draft.updateMediumTechnicalDetails(
-                        medium.id,
+                    key: ValueKey('music-disc-matrix-a-${disc.id.value}'),
+                    initialValue: disc.matrixNumberSideA ?? '',
+                    onChanged: (value) => draft.updateDiscTechnicalDetails(
+                        disc.id,
                         matrixNumberSideA: value,
                         replaceMatrixNumberSideA: true),
                   ))),
@@ -295,19 +295,19 @@ final class _MusicAlbumStructureTabState
               child: LibraryFormField(
                   label: 'Matrix Nr Side B',
                   child: TextFormField(
-                    key: ValueKey('music-medium-matrix-b-${medium.id.value}'),
-                    initialValue: medium.matrixNumberSideB ?? '',
-                    onChanged: (value) => draft.updateMediumTechnicalDetails(
-                        medium.id,
+                    key: ValueKey('music-disc-matrix-b-${disc.id.value}'),
+                    initialValue: disc.matrixNumberSideB ?? '',
+                    onChanged: (value) => draft.updateDiscTechnicalDetails(
+                        disc.id,
                         matrixNumberSideB: value,
                         replaceMatrixNumberSideB: true),
                   ))),
         ]);
       });
 
-  Widget _selectionToolbar(MusicMedium medium) {
-    final destinations = draft.mediums
-        .where((candidate) => candidate.id != medium.id)
+  Widget _selectionToolbar(MusicDisc disc) {
+    final destinations = draft.discs
+        .where((candidate) => candidate.id != disc.id)
         .toList(growable: false);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -324,7 +324,7 @@ final class _MusicAlbumStructureTabState
         runSpacing: 4,
         children: [
           Text(
-            '${_selectedTrackIds.length} of ${medium.tracks.length} selected',
+            '${_selectedTrackIds.length} of ${disc.tracks.length} selected',
           ),
           TextButton.icon(
             onPressed: () => setState(_selectedTrackIds.clear),
@@ -335,7 +335,7 @@ final class _MusicAlbumStructureTabState
             onPressed: () => setState(() {
               _selectedTrackIds
                 ..clear()
-                ..addAll(medium.tracks.map((track) => track.id.value));
+                ..addAll(disc.tracks.map((track) => track.id.value));
             }),
             icon: const Icon(Icons.check_box_outlined, size: 16),
             label: const Text('All'),
@@ -343,7 +343,7 @@ final class _MusicAlbumStructureTabState
           TextButton.icon(
             onPressed: () => setState(
               () => draft.autocapTracks(
-                medium.id,
+                disc.id,
                 Set.of(_selectedTrackIds),
               ),
             ),
@@ -351,12 +351,12 @@ final class _MusicAlbumStructureTabState
             label: const Text('Autocap'),
           ),
           if (destinations.isNotEmpty)
-            PopupMenuButton<MusicMediumId>(
+            PopupMenuButton<MusicDiscId>(
               tooltip: 'Move selected tracks to another disc',
               onSelected: (destinationId) {
                 setState(() {
-                  draft.moveTracksToMedium(
-                    sourceId: medium.id,
+                  draft.moveTracksToDisc(
+                    sourceId: disc.id,
                     destinationId: destinationId,
                     trackIds: Set.of(_selectedTrackIds),
                   );
@@ -367,7 +367,7 @@ final class _MusicAlbumStructureTabState
                 for (final destination in destinations)
                   PopupMenuItem(
                     value: destination.id,
-                    child: Text('Disc ${destination.mediumNumber}'),
+                    child: Text('Disc ${destination.discNumber}'),
                   ),
               ],
               child: Padding(
@@ -385,7 +385,7 @@ final class _MusicAlbumStructureTabState
             ),
           TextButton.icon(
             onPressed: () => setState(() {
-              draft.removeTracks(medium.id, Set.of(_selectedTrackIds));
+              draft.removeTracks(disc.id, Set.of(_selectedTrackIds));
               _selectedTrackIds.clear();
             }),
             icon: const Icon(Icons.delete_outline, size: 16),
@@ -396,7 +396,7 @@ final class _MusicAlbumStructureTabState
     );
   }
 
-  Widget _trackTable(MusicMedium medium) {
+  Widget _trackTable(MusicDisc disc) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final tableWidth =
@@ -409,8 +409,8 @@ final class _MusicAlbumStructureTabState
             width: tableWidth,
             child: Column(
               children: [
-                _trackTableHeader(medium),
-                if (medium.tracks.isEmpty)
+                _trackTableHeader(disc),
+                if (disc.tracks.isEmpty)
                   const Padding(
                     padding: EdgeInsets.all(18),
                     child: Text('No tracks on this disc yet.'),
@@ -421,17 +421,17 @@ final class _MusicAlbumStructureTabState
                     primary: false,
                     physics: const NeverScrollableScrollPhysics(),
                     buildDefaultDragHandles: false,
-                    itemCount: medium.tracks.length,
+                    itemCount: disc.tracks.length,
                     onReorderItem: (oldIndex, newIndex) => setState(
                       () => draft.reorderTrack(
-                        medium.id,
+                        disc.id,
                         oldIndex,
                         newIndex,
                       ),
                     ),
                     itemBuilder: (context, index) => _trackEditorRow(
-                      medium,
-                      medium.tracks[index],
+                      disc,
+                      disc.tracks[index],
                       index,
                     ),
                   ),
@@ -443,7 +443,7 @@ final class _MusicAlbumStructureTabState
     );
   }
 
-  Widget _trackTableHeader(MusicMedium medium) {
+  Widget _trackTableHeader(MusicDisc disc) {
     final style = Theme.of(context).textTheme.labelSmall?.copyWith(
           color: Theme.of(context).hintColor,
           fontWeight: FontWeight.w700,
@@ -461,12 +461,12 @@ final class _MusicAlbumStructureTabState
             width: 34,
             child: Checkbox(
               tristate: true,
-              value: _headerSelectionValue(medium),
+              value: _headerSelectionValue(disc),
               visualDensity: VisualDensity.compact,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              onChanged: medium.tracks.isEmpty
+              onChanged: disc.tracks.isEmpty
                   ? null
-                  : (_) => setState(() => _toggleAllTracks(medium)),
+                  : (_) => setState(() => _toggleAllTracks(disc)),
             ),
           ),
           const SizedBox(width: 30),
@@ -482,25 +482,25 @@ final class _MusicAlbumStructureTabState
     );
   }
 
-  bool? _headerSelectionValue(MusicMedium medium) {
-    if (medium.tracks.isEmpty) return false;
-    final selectedCount = medium.tracks
+  bool? _headerSelectionValue(MusicDisc disc) {
+    if (disc.tracks.isEmpty) return false;
+    final selectedCount = disc.tracks
         .where((track) => _selectedTrackIds.contains(track.id.value))
         .length;
     if (selectedCount == 0) return false;
-    if (selectedCount == medium.tracks.length) return true;
+    if (selectedCount == disc.tracks.length) return true;
     return null;
   }
 
-  void _toggleAllTracks(MusicMedium medium) {
-    final allSelected = _headerSelectionValue(medium) == true;
+  void _toggleAllTracks(MusicDisc disc) {
+    final allSelected = _headerSelectionValue(disc) == true;
     _selectedTrackIds.clear();
     if (!allSelected) {
-      _selectedTrackIds.addAll(medium.tracks.map((track) => track.id.value));
+      _selectedTrackIds.addAll(disc.tracks.map((track) => track.id.value));
     }
   }
 
-  Widget _trackEditorRow(MusicMedium medium, MusicTrack track, int index) {
+  Widget _trackEditorRow(MusicDisc disc, MusicTrack track, int index) {
     final isHeader = track.isHeader;
     final rowColor = isHeader
         ? widget.accent.withValues(alpha: 0.07)
@@ -580,7 +580,7 @@ final class _MusicAlbumStructureTabState
                     fontWeight: isHeader ? FontWeight.w700 : FontWeight.normal,
                   ),
                   onChanged: (value) => _replaceTrack(
-                    medium,
+                    disc,
                     index,
                     musicTrackWithEdits(
                       track,
@@ -610,7 +610,7 @@ final class _MusicAlbumStructureTabState
                             EdgeInsets.symmetric(horizontal: 8, vertical: 9),
                       ),
                       onChanged: (value) => _replaceTrack(
-                        medium,
+                        disc,
                         index,
                         musicTrackWithEdits(
                           track,
@@ -643,7 +643,7 @@ final class _MusicAlbumStructureTabState
                         final parsed = _durationMs(value);
                         if (value.trim().isNotEmpty && parsed == null) return;
                         _replaceTrack(
-                          medium,
+                          disc,
                           index,
                           musicTrackWithEdits(
                             track,
@@ -692,7 +692,7 @@ final class _MusicAlbumStructureTabState
                     tooltip: isHeader ? 'Remove header' : 'Remove track',
                     visualDensity: VisualDensity.compact,
                     onPressed: () => setState(() {
-                      draft.removeTrack(medium.id, index);
+                      draft.removeTrack(disc.id, index);
                       _selectedTrackIds.remove(track.id.value);
                     }),
                     icon: const Icon(Icons.delete_outline, size: 17),
@@ -710,7 +710,7 @@ final class _MusicAlbumStructureTabState
       onWillAcceptWithDetails: (details) => details.data != track.id.value,
       onAcceptWithDetails: (details) => setState(
         () => draft.assignTrackToHeader(
-          medium.id,
+          disc.id,
           trackId: details.data,
           headerId: track.id.value,
         ),
@@ -727,14 +727,14 @@ final class _MusicAlbumStructureTabState
   }
 
   void _replaceTrack(
-    MusicMedium medium,
+    MusicDisc disc,
     int index,
     MusicTrack updatedTrack, {
     required MusicTrack previousTrack,
     bool rebuild = true,
   }) {
-    if (index < 0 || index >= medium.tracks.length) return;
-    final currentTrack = medium.tracks[index];
+    if (index < 0 || index >= disc.tracks.length) return;
+    final currentTrack = disc.tracks[index];
     final mergedTrack = musicTrackWithEdits(
       currentTrack,
       title: updatedTrack.title != previousTrack.title
@@ -753,7 +753,7 @@ final class _MusicAlbumStructureTabState
           ? updatedTrack.indentLevel
           : currentTrack.indentLevel,
     );
-    draft.replaceTrack(medium.id, index, mergedTrack);
+    draft.replaceTrack(disc.id, index, mergedTrack);
     if (rebuild) setState(() {});
   }
 }

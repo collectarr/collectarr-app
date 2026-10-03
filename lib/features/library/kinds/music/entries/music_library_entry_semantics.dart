@@ -9,10 +9,10 @@ LibraryEntryFormatHint resolveMusicEntryFormatHint(
   CatalogSearchCandidate item,
 ) {
   final album = item.musicCatalogFields.metadata;
-  final format = album?.physicalFormat;
+  final format = album?.format;
   return (
     format: format,
-    label: album?.physicalFormatLabel ?? format,
+    label: format,
   );
 }
 
