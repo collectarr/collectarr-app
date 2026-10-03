@@ -70,8 +70,7 @@ final class ComicCatalogLookup implements CatalogKindLookup {
         _same(media.upc, normalized) ||
         _same(media.isbn, normalized) ||
         media.identifiers.any(
-          (identifier) =>
-              _same(identifier['value']?.toString(), normalized),
+          (identifier) => _same(identifier.value, normalized),
         );
   }
 

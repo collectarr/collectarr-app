@@ -166,21 +166,17 @@ ComicCatalogItem comicCatalogItemFromFormValues({
   );
 }
 
-List<Map<String, dynamic>> _replaceComicIdentifiers(
-  List<Map<String, dynamic>> original, {
+List<ComicIdentifier> _replaceComicIdentifiers(
+  List<ComicIdentifier> original, {
   required String? isbn,
   required String? upc,
 }) =>
     [
       for (final identifier in original)
-        if (!{'isbn', 'upc'}.contains(
-          identifier['identifier_type']?.toString().toLowerCase(),
-        ))
+        if (!{'isbn', 'upc'}.contains(identifier.identifierType.toLowerCase()))
           identifier,
-      if (isbn != null)
-        {'identifier_type': 'isbn', 'value': isbn, 'is_primary': false},
-      if (upc != null)
-        {'identifier_type': 'upc', 'value': upc, 'is_primary': false},
+      if (isbn != null) ComicIdentifier(identifierType: 'isbn', value: isbn),
+      if (upc != null) ComicIdentifier(identifierType: 'upc', value: upc),
     ];
 
 String? _nullable(String value) {

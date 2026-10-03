@@ -16,6 +16,61 @@ enum ComicKeyEventType {
 }
 
 @immutable
+final class ComicIdentifier implements JsonEncodable {
+  const ComicIdentifier({
+    required this.identifierType,
+    required this.value,
+    this.id,
+    this.normalizedValue,
+    this.isPrimary = false,
+  });
+
+  final String identifierType;
+  final String value;
+  final String? id;
+  final String? normalizedValue;
+  final bool isPrimary;
+
+  factory ComicIdentifier.fromValue(Object value) {
+    if (value is String) {
+      return ComicIdentifier(identifierType: 'other', value: value);
+    }
+    if (value is! Map) {
+      throw const FormatException(
+        'Comic identifiers must be strings or objects.',
+      );
+    }
+    final json = Map<String, dynamic>.from(value);
+    final type = json['identifier_type'];
+    final identifier = json['value'];
+    if (type is! String ||
+        type.trim().isEmpty ||
+        identifier is! String ||
+        identifier.trim().isEmpty) {
+      throw const FormatException(
+        'Comic identifier objects require identifier_type and value.',
+      );
+    }
+    return ComicIdentifier(
+      identifierType: type,
+      value: identifier,
+      id: json['id'] as String?,
+      normalizedValue: json['normalized_value'] as String?,
+      isPrimary: json['is_primary'] as bool? ?? false,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'identifier_type': identifierType,
+        'value': value,
+        if (id != null) 'id': id,
+        if (normalizedValue != null) 'normalized_value': normalizedValue,
+        'is_primary': isPrimary,
+      };
+}
+
+@immutable
 class ComicKeyEvent {
   const ComicKeyEvent({
     required this.type,
@@ -166,7 +221,7 @@ class ComicCatalogItem implements JsonEncodable {
   final String? titleExtension;
   final String? physicalFormat;
   final String? physicalFormatLabel;
-  final List<Map<String, dynamic>> identifiers;
+  final List<ComicIdentifier> identifiers;
   final List<ComicLink> links;
   final Map<String, dynamic> rawPayload;
 
@@ -178,12 +233,11 @@ class ComicCatalogItem implements JsonEncodable {
 
   String? identifierValue(String identifierType) {
     for (final identifier in identifiers) {
-      if (identifier['identifier_type']?.toString().toLowerCase() !=
+      if (identifier.identifierType.toLowerCase() !=
           identifierType.toLowerCase()) {
         continue;
       }
-      final value = _comicText(identifier['value']);
-      if (value != null) return value;
+      if (identifier.value.trim().isNotEmpty) return identifier.value;
     }
     return null;
   }
@@ -246,7 +300,10 @@ class ComicCatalogItem implements JsonEncodable {
       if (titleExtension != null) 'title_extension': titleExtension,
       if (physicalFormat != null || physicalFormatLabel != null)
         'physical_format': physicalFormat ?? physicalFormatLabel,
-      if (identifiers.isNotEmpty) 'identifiers': identifiers,
+      if (identifiers.isNotEmpty)
+        'identifiers': [
+          for (final identifier in identifiers) identifier.toJson()
+        ],
       if (externalLinks.isNotEmpty) 'external_links': externalLinks,
       if (series?.tags?.isNotEmpty == true) 'series_tags': series!.tags,
       if (series?.volumeName != null) 'volume_name': series!.volumeName,
@@ -305,7 +362,7 @@ class ComicCatalogItem implements JsonEncodable {
     String? titleExtension,
     String? physicalFormat,
     String? physicalFormatLabel,
-    List<Map<String, dynamic>>? identifiers,
+    List<ComicIdentifier>? identifiers,
     List<ComicLink>? links,
   }) {
     return ComicCatalogItem(
@@ -491,15 +548,17 @@ class ComicCatalogItem implements JsonEncodable {
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
       identifiers: (json['identifiers'] as List<dynamic>?)
-              ?.map((value) => value is Map
-                  ? Map<String, dynamic>.from(value)
-                  : <String, dynamic>{
-                      'identifier_type': 'other',
-                      'value': value?.toString() ?? '',
-                    })
-              .where((identifier) => _comicText(identifier['value']) != null)
+              ?.map<ComicIdentifier>((value) {
+                if (value is! Map && value is! String) {
+                  throw const FormatException(
+                    'Comic identifiers must be strings or objects.',
+                  );
+                }
+                return ComicIdentifier.fromValue(value as Object);
+              })
+              .where((identifier) => identifier.value.trim().isNotEmpty)
               .toList(growable: false) ??
-          const <Map<String, dynamic>>[],
+          const <ComicIdentifier>[],
       links: rawLinks,
     );
   }
