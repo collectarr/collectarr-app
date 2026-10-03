@@ -207,7 +207,9 @@ slice. This is progress, not completion of this plan:
   active model and editor remain the only production owners of track data.
 - Generic Core API DTOs for publishing, series, video, and game detail objects
   have been removed. Development fixtures now use seed-only typed values, and
-  the seed factory no longer accepts `Object` or arbitrary JSON detail maps.
+  the seed factory no longer accepts `Object`-typed detail values.
+- The unused Catalog Item target-ref adapter was removed after a repository-wide
+  production call-site search found no consumers.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
