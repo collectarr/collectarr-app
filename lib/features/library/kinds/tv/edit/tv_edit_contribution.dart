@@ -9,7 +9,7 @@ final tvKindEditCapabilities = LibraryEditCapabilitySet(
     ),
     LibraryEntityEditContributor(
       scope: LibraryEntityScope.libraryEntry,
-      builder: buildTvMediaLibraryEditDialog,
+      builder: buildTvLibraryEditDialog,
     ),
   ]),
   vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
