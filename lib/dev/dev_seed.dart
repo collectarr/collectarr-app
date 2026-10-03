@@ -249,7 +249,7 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     kind: CatalogMediaKind.comic,
   );
   for (final item in comicItems.where((item) => isSeed(item.id))) {
-    if (item.title.trim().isEmpty) {
+    if (seedTitle(item).trim().isEmpty) {
       issues.add('Comic Catalog Item ${item.id} has an empty title');
     }
   }
@@ -266,7 +266,7 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
   final bookItems =
       await CatalogItemCacheRepository(db).findAll(kind: CatalogMediaKind.book);
   for (final item in bookItems.where((item) => isSeed(item.id))) {
-    if (item.title.trim().isEmpty) {
+    if (seedTitle(item).trim().isEmpty) {
       issues.add('Book Catalog Item ${item.id} has an empty title');
     }
   }
@@ -274,7 +274,7 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
   final gameItems =
       await CatalogItemCacheRepository(db).findAll(kind: CatalogMediaKind.game);
   for (final item in gameItems.where((item) => isSeed(item.id))) {
-    if (item.title.trim().isEmpty) {
+    if (seedTitle(item).trim().isEmpty) {
       issues.add('Game Catalog Item ${item.id} has an empty title');
     }
   }
@@ -284,7 +284,7 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
   );
   for (final item in boardGameItems.where((item) => isSeed(item.id))) {
     final editions = item.payload['editions'];
-    if (item.title.trim().isEmpty) {
+    if (seedTitle(item).trim().isEmpty) {
       issues.add('BoardGame Catalog Item ${item.id} has an empty title');
     }
     if (editions is! Iterable || editions.isEmpty) {
@@ -310,7 +310,7 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     if (item.id.trim().isEmpty) {
       issues.add('seed Movie Catalog Item has an empty id');
     }
-    if (item.title.trim().isEmpty) {
+    if (seedTitle(item).trim().isEmpty) {
       issues.add('Movie Catalog Item ${item.id} has an empty title');
     }
   }
@@ -363,7 +363,7 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     kind: CatalogMediaKind.anime,
   );
   for (final item in animeItems.where((item) => isSeed(item.id))) {
-    if (item.title.trim().isEmpty) {
+    if (seedTitle(item).trim().isEmpty) {
       issues.add('Anime Catalog Item ${item.id} has an empty title');
     }
     for (final entry in item.payload['episodes'] is Iterable
@@ -761,15 +761,14 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   };
   for (final row in seededCatalogRows) {
     final kind = catalogMediaKindFromApiValue(row.kind);
-    require(row.title.trim().isNotEmpty, 'catalog ${row.id} has no title');
+    require(seedTitle(row).trim().isNotEmpty, 'catalog ${row.id} has no title');
     require(
         kind != CatalogMediaKind.unknown, 'catalog ${row.id} has unknown kind');
     require(
-      row.coverImageUrl?.trim().isNotEmpty == true &&
-          row.thumbnailImageUrl?.trim().isNotEmpty == true,
+      seedCoverImageUrl(row)?.trim().isNotEmpty == true,
       'catalog ${row.id} is missing cover image URLs',
     );
-    final barcode = row.barcode;
+    final barcode = seedBarcode(row);
     require(barcode != null && barcode.trim().isNotEmpty,
         'catalog ${row.id} is missing a barcode');
     if (barcode != null && barcode.trim().isNotEmpty) {
@@ -911,7 +910,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
       .where((item) => item.id.startsWith('seed-'));
   require(
     bookItems.every(
-        (item) => item.id.trim().isNotEmpty && item.title.trim().isNotEmpty),
+        (item) => item.id.trim().isNotEmpty && seedTitle(item).trim().isNotEmpty),
     'Book seed Catalog Items are missing canonical identity fields',
   );
   final boardGameItems = (await CatalogItemCacheRepository(db)
@@ -1329,10 +1328,10 @@ void _validateSeedFixtures({
   final catalogByRef = <String, CatalogItemDto>{};
   String catalogKey(CatalogMediaKind kind, String id) => '${kind.apiValue}/$id';
   for (final item in catalogItems) {
-    if (item.id.trim().isEmpty || item.title.trim().isEmpty) {
+    if (item.id.trim().isEmpty || seedTitle(item).trim().isEmpty) {
       throw StateError(
         'Seed catalog item must have a non-empty id and title '
-        '(id="${item.id}", kind="${item.kind}", title="${item.title}")',
+        '(id="${item.id}", kind="${item.kind}", title="${seedTitle(item)}")',
       );
     }
     final kind = catalogMediaKindFromApiValue(item.kind);

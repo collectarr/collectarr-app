@@ -97,6 +97,7 @@ List<String> validateMovieSeedEntry(MovieLibraryEntry item) {
 CatalogItemDto enrichMovieSeedItem(CatalogItemDto item) => item;
 
 List<Map<String, dynamic>> _movieSeedMedia(CatalogItemDto item) {
+  final metadata = MovieCatalogMetadata.fromJson(item.kindData);
   final rawMedia = item.payload['media'];
   if (rawMedia is List) {
     return [
@@ -117,8 +118,8 @@ List<Map<String, dynamic>> _movieSeedMedia(CatalogItemDto item) {
     {
       'id': '${item.id}-media-01',
       'media_number': 1,
-      'media_type': item.physicalFormat,
-      'title': item.editionTitle ?? item.title,
+      'media_type': metadata.physicalFormat,
+      'title': metadata.editionTitle ?? metadata.title,
       'num_discs': videoPayload['nr_discs'] ?? item.payload['nr_discs'] ?? 1,
       'screen_ratio': videoPayload['screen_ratio'],
       'color': videoPayload['color'],

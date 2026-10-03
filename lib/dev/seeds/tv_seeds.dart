@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+﻿import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
@@ -205,6 +205,7 @@ int? _seedTvInt(Object? value) {
 }
 
 CatalogItemDto enrichTvSeedItem(CatalogItemDto item) {
+  final metadata = TvSeriesMetadata.fromJson(item.kindData);
   final seasonId = '${item.id}-season-01';
   final episodes = [
     for (var number = 1; number <= 2; number++)
@@ -212,14 +213,14 @@ CatalogItemDto enrichTvSeedItem(CatalogItemDto item) {
         'id': '${item.id}-episode-${number.toString().padLeft(2, '0')}',
         'season_number': 1,
         'episode_number': number,
-        'episode_title': '${item.title} — Episode $number',
-        'description': 'Seed episode $number for ${item.title}.',
-        'air_date': item.releaseDate
+        'episode_title': '${metadata.title} â€” Episode $number',
+        'description': 'Seed episode $number for ${metadata.title}.',
+        'air_date': metadata.releaseDate
             ?.add(Duration(days: number * 7))
             .toUtc()
             .toIso8601String(),
         'runtime_minutes': item.payload['runtime_minutes'] ?? 42,
-        'cover_image_url': item.coverImageUrl,
+        'cover_image_url': metadata.coverImageUrl,
       },
   ];
   final rawMedia = item.kindData['media'];
@@ -237,8 +238,8 @@ CatalogItemDto enrichTvSeedItem(CatalogItemDto item) {
             'id': '${item.id}-media-01',
             'position': 1,
             'media_number': 1,
-            'media_type': item.physicalFormat ?? 'Digital',
-            'title': item.editionTitle ?? item.title,
+            'media_type': metadata.physicalFormat ?? 'Digital',
+            'title': metadata.editionTitle ?? metadata.title,
             'episode_count': episodes.length,
             'runtime_minutes': item.payload['runtime_minutes'] ?? 42,
             'region_code': item.payload['country'] ?? 'US',
@@ -546,9 +547,9 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
           {'name': 'Craig Mazin', 'role': 'creator'},
           {'name': 'Johan Renck', 'role': 'director'},
           {'name': 'Jared Harris', 'role': 'actor'},
-          {'name': 'Stellan Skarsgård', 'role': 'actor'},
+          {'name': 'Stellan SkarsgÃ¥rd', 'role': 'actor'},
           {'name': 'Emily Watson', 'role': 'actor'},
-          {'name': 'Hildur Guðnadóttir', 'role': 'composer'},
+          {'name': 'Hildur GuÃ°nadÃ³ttir', 'role': 'composer'},
         ],
         characters: [
           'Valery Legasov',

@@ -42,6 +42,7 @@ void enrichMusicSeedPayload(
   CatalogItemDto item,
   Map<String, dynamic> payload,
 ) {
+  final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
   final musicMap = payload['music'] is Map
       ? Map<String, dynamic>.from(payload['music'] as Map)
       : const <String, dynamic>{};
@@ -50,13 +51,13 @@ void enrichMusicSeedPayload(
     ..addAll(musicMap)
     ..addAll({
       'artist': _seedMusicArtist(item),
-      'label': item.publisher,
-      'format': item.physicalFormat ?? 'Digital',
-      'barcode': item.barcode,
+      'label': album.publisher,
+      'format': album.format ?? 'Digital',
+      'barcode': album.barcode,
       'catalog_number': musicMap['catalog_number'] ?? 'SEED-${item.id}',
-      'release_date': item.releaseDate?.toUtc().toIso8601String(),
-      'original_release_date': item.releaseDate?.toUtc().toIso8601String(),
-      'recording_date': item.releaseDate?.toUtc().toIso8601String(),
+      'release_date': album.releaseDate?.toUtc().toIso8601String(),
+      'original_release_date': album.originalReleaseDate?.toUtc().toIso8601String(),
+      'recording_date': album.recordingDate?.toUtc().toIso8601String(),
       'country': item.kindData['country']?.toString(),
       'genres': item.kindData['genres'] ?? const <String>[],
       'is_live': false,
@@ -140,6 +141,7 @@ List<String> validateMusicSeedEntry(MusicLibraryEntry item) {
 }
 
 CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
+  final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
   final source = Map<String, dynamic>.from(item.kindData);
   final rawTracks = source['tracks'] is Iterable
       ? (source['tracks'] as Iterable).toList(growable: false)
@@ -182,13 +184,13 @@ CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
   return withSeedPayload(item, {
     ...source,
     'artist': _seedMusicArtist(item),
-    'label': item.publisher,
-    'format': item.physicalFormat ?? 'Digital',
-    'barcode': item.barcode,
+    'label': album.publisher,
+    'format': album.format ?? 'Digital',
+    'barcode': album.barcode,
     'catalog_number': source['catalog_number'] ?? 'SEED-${item.id}',
-    'release_date': item.releaseDate?.toUtc().toIso8601String(),
-    'original_release_date': item.releaseDate?.toUtc().toIso8601String(),
-    'recording_date': item.releaseDate?.toUtc().toIso8601String(),
+    'release_date': album.releaseDate?.toUtc().toIso8601String(),
+    'original_release_date': album.originalReleaseDate?.toUtc().toIso8601String(),
+    'recording_date': album.recordingDate?.toUtc().toIso8601String(),
     'country': item.kindData['country']?.toString(),
     'genres': item.kindData['genres'] ?? const <String>[],
     'is_live': false,
@@ -207,7 +209,7 @@ String? _seedMusicArtist(CatalogItemDto item) {
     final name = creator['name']?.toString().trim();
     if (name != null && name.isNotEmpty) return name;
   }
-  return item.publisher;
+  return MusicCatalogMapper.mapMetadataItemToMusic(item).publisher;
 }
 
 Map<String, dynamic> _musicSeedTrack(
@@ -224,7 +226,8 @@ Map<String, dynamic> _musicSeedTrack(
     'id': '$discId-track-$trackNumber',
     'position':
         (source['position'] ?? source['track_number'] ?? index + 1).toString(),
-    'title': source['title'] ?? '${item.title} - Track ${index + 1}',
+    'title': source['title'] ??
+        '${MusicCatalogMapper.mapMetadataItemToMusic(item).title} - Track ${index + 1}',
     if (source['artist'] is String) 'artist': source['artist'],
     if (source['duration_ms'] is int) 'duration_ms': source['duration_ms'],
     if (durationSeconds is num && source['duration_ms'] == null)

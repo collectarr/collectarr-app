@@ -65,7 +65,12 @@ List<String> validateComicSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   seedRequirePublishingQuality(issues, prefix, item);
-  seedRequireText(issues, prefix, 'publisher', item.publisher);
+  seedRequireText(
+    issues,
+    prefix,
+    'publisher',
+    ComicCatalogItem.fromJson(item.kindData).publisher,
+  );
   return issues;
 }
 

@@ -155,20 +155,21 @@ int? _seedAnimeInt(Object? value) {
 }
 
 CatalogItemDto enrichAnimeSeedItem(CatalogItemDto item) {
+  final metadata = AnimeMetadata.fromJson(item.kindData);
   final episodes = [
     for (var number = 1; number <= 2; number++)
       {
         'id': '${item.id}-episode-${number.toString().padLeft(2, '0')}',
         'season_number': 1,
         'episode_number': number,
-        'title': '${item.title} — Episode $number',
-        'description': 'Seed episode $number for ${item.title}.',
-        'air_date': item.releaseDate
+        'title': '${metadata.title} — Episode $number',
+        'description': 'Seed episode $number for ${metadata.title}.',
+        'air_date': metadata.releaseDate
             ?.add(Duration(days: number * 7))
             .toUtc()
             .toIso8601String(),
         'runtime_minutes': item.payload['runtime_minutes'] ?? 24,
-        'cover_image_url': item.coverImageUrl,
+        'cover_image_url': metadata.coverImageUrl,
       },
   ];
   final rawMedia = item.kindData['media'];
@@ -185,8 +186,8 @@ CatalogItemDto enrichAnimeSeedItem(CatalogItemDto item) {
           {
             'position': 1,
             'media_number': 1,
-            'media_type': item.physicalFormat ?? 'Digital',
-            'title': item.editionTitle ?? item.title,
+            'media_type': metadata.physicalFormat ?? 'Digital',
+            'title': metadata.editionTitle ?? metadata.title,
             'episode_count': item.payload['episode_count'] ?? 1,
             'runtime_minutes': item.payload['runtime_minutes'] ?? 24,
             'region_code': item.payload['country'] ?? 'JP',

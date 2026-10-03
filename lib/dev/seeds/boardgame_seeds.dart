@@ -95,7 +95,11 @@ void enrichBoardgameSeedPayload(
   payload.putIfAbsent('play_count', () => 5);
   payload.putIfAbsent(
     'last_played',
-    () => item.releaseDate?.toUtc().toIso8601String(),
+    () => BoardGameMetadata.fromJson(item.kindData)
+        .releaseDate
+        ?.asDateTime
+        ?.toUtc()
+        ?.toIso8601String(),
   );
   payload.putIfAbsent('favorite_player_count', () => 4);
   payload.putIfAbsent('min_players', () => 1);
