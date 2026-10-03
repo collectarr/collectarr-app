@@ -45,7 +45,8 @@ final comicTransferableFields = <ComicTransferableField>[
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
     read: (item) => item.grade,
-    write: (item, value) => item.copyWith(grade: value),
+    write: (item, value) =>
+        item.copyWith(personal: item.personal.copyWith(grade: value)),
   ),
   ComicTransferableField(
     key: 'rawOrSlabbed',
@@ -54,8 +55,9 @@ final comicTransferableFields = <ComicTransferableField>[
     type: TransferableFieldType.text,
     read: (item) => item.details.rawOrSlabbed,
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(rawOrSlabbed: value),
-    ),
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(rawOrSlabbed: value),
+    )),
   ),
   ComicTransferableField(
     key: 'gradingCompany',
@@ -64,8 +66,9 @@ final comicTransferableFields = <ComicTransferableField>[
     type: TransferableFieldType.text,
     read: (item) => item.details.gradingCompany,
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(gradingCompany: value),
-    ),
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(gradingCompany: value),
+    )),
   ),
   ComicTransferableField(
     key: 'graderNotes',
@@ -74,8 +77,9 @@ final comicTransferableFields = <ComicTransferableField>[
     type: TransferableFieldType.text,
     read: (item) => item.details.graderNotes,
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(graderNotes: value),
-    ),
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(graderNotes: value),
+    )),
   ),
   ComicTransferableField(
     key: 'signedBy',
@@ -84,8 +88,9 @@ final comicTransferableFields = <ComicTransferableField>[
     type: TransferableFieldType.text,
     read: (item) => item.details.signedBy,
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(signedBy: value),
-    ),
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(signedBy: value),
+    )),
   ),
   ComicTransferableField(
     key: 'keyReason',
@@ -94,8 +99,9 @@ final comicTransferableFields = <ComicTransferableField>[
     type: TransferableFieldType.text,
     read: (item) => item.details.keyReason,
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(keyReason: value),
-    ),
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(keyReason: value),
+    )),
   ),
   ComicTransferableField(
     key: 'keyComic',
@@ -104,8 +110,9 @@ final comicTransferableFields = <ComicTransferableField>[
     type: TransferableFieldType.boolean,
     read: (item) => item.details.keyComic ? 'true' : null,
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(keyComic: value == 'true'),
-    ),
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(keyComic: value == 'true'),
+    )),
   ),
   ComicTransferableField(
     key: 'coverPriceCents',
@@ -115,10 +122,11 @@ final comicTransferableFields = <ComicTransferableField>[
     scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.details.coverPriceCents?.toString(),
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(
         coverPriceCents: value != null ? int.tryParse(value) : null,
       ),
-    ),
+    )),
   ),
 ];
 
