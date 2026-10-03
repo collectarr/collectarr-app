@@ -63,5 +63,5 @@ final boardGameEntryContributor =
   markDeleted: (item, deletedAt) =>
       item.copyWith(deletedAt: deletedAt, updatedAt: deletedAt),
   updateItemLocation: (item, locationId) =>
-      item.copyWith(locationId: locationId),
+      item.copyWith(personal: item.personal.copyWith(locationId: locationId)),
 );
