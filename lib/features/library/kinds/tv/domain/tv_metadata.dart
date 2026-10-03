@@ -16,19 +16,84 @@ class TvPersonCredit {
     this.role,
     this.character,
     this.imageUrl,
+    this.id,
+    this.personId,
+    this.artistId,
+    this.roleId,
+    this.sequence,
+    this.creditedName,
+    this.joinPhrase,
+    this.sortName,
+    this.instrument,
+    this.stringValue = false,
   });
 
   final String name;
   final String? role;
   final String? character;
   final String? imageUrl;
+  final String? id;
+  final String? personId;
+  final String? artistId;
+  final String? roleId;
+  final int? sequence;
+  final String? creditedName;
+  final String? joinPhrase;
+  final String? sortName;
+  final String? instrument;
+  final bool stringValue;
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        if (role != null) 'role': role,
-        if (character != null) 'character': character,
-        if (imageUrl != null) 'image_url': imageUrl,
-      };
+  Object toJsonValue() => stringValue
+      ? name
+      : <String, dynamic>{
+          if (id != null) 'id': id,
+          if (personId != null) 'person_id': personId,
+          if (artistId != null) 'artist_id': artistId,
+          'name': name,
+          if (role != null) 'role': role,
+          if (roleId != null) 'role_id': roleId,
+          if (sequence != null) 'sequence': sequence,
+          if (creditedName != null) 'credited_name': creditedName,
+          if (joinPhrase != null) 'join_phrase': joinPhrase,
+          if (imageUrl != null) 'image_url': imageUrl,
+          if (sortName != null) 'sort_name': sortName,
+          if (instrument != null) 'instrument': instrument,
+          if (character != null) 'character': character,
+        };
+
+  Map<String, dynamic> toJson() =>
+      Map<String, dynamic>.from(toJsonValue() as Map);
+
+  TvPersonCredit withEditedIdentity({
+    required String name,
+    required String? role,
+  }) =>
+      TvPersonCredit(
+        name: name,
+        role: role,
+        character: character,
+        imageUrl: imageUrl,
+        id: id,
+        personId: personId,
+        artistId: artistId,
+        roleId: roleId,
+        sequence: sequence,
+        creditedName: creditedName,
+        joinPhrase: joinPhrase,
+        sortName: sortName,
+        instrument: instrument,
+        stringValue: false,
+      );
+
+  factory TvPersonCredit.fromJsonValue(Object value) {
+    if (value is String) {
+      return TvPersonCredit(name: value, stringValue: true);
+    }
+    if (value is! Map<String, dynamic>) {
+      throw const FormatException('TV person must be a string or object.');
+    }
+    return TvPersonCredit.fromJson(value);
+  }
 
   factory TvPersonCredit.fromJson(Map<String, dynamic> json) {
     return TvPersonCredit(
@@ -36,47 +101,187 @@ class TvPersonCredit {
       role: json['role'] as String?,
       character: json['character'] as String?,
       imageUrl: json['image_url'] as String?,
+      id: json['id'] as String?,
+      personId: json['person_id'] as String?,
+      artistId: json['artist_id'] as String?,
+      roleId: json['role_id'] as String?,
+      sequence: _asInt(json['sequence']),
+      creditedName: json['credited_name'] as String?,
+      joinPhrase: json['join_phrase'] as String?,
+      sortName: json['sort_name'] as String?,
+      instrument: json['instrument'] as String?,
     );
   }
 }
 
 @immutable
-class TvEpisodeMetadata {
-  const TvEpisodeMetadata({
-    required this.number,
-    required this.title,
-    this.synopsis,
-    this.airDate,
-    this.runtimeMinutes,
-    this.stillUrl,
+class TvCharacterMetadata {
+  const TvCharacterMetadata({
+    required this.name,
+    this.id,
+    this.characterId,
+    this.aliases = const [],
+    this.role,
+    this.description,
+    this.imageUrl,
+    this.stringValue = false,
   });
 
-  final int number;
-  final String title;
-  final String? synopsis;
-  final DateTime? airDate;
+  final String name;
+  final String? id;
+  final String? characterId;
+  final List<String> aliases;
+  final String? role;
+  final String? description;
+  final String? imageUrl;
+  final bool stringValue;
+
+  factory TvCharacterMetadata.fromJsonValue(Object value) {
+    if (value is String) {
+      return TvCharacterMetadata(name: value, stringValue: true);
+    }
+    if (value is! Map<String, dynamic>) {
+      throw const FormatException('TV character must be a string or object.');
+    }
+    return TvCharacterMetadata.fromJson(value);
+  }
+
+  factory TvCharacterMetadata.fromJson(Map<String, dynamic> value) {
+    return TvCharacterMetadata(
+      name: value['name'] as String? ?? '',
+      id: value['id'] as String?,
+      characterId: value['character_id'] as String?,
+      aliases: _stringValues(value['aliases'], 'TV character aliases'),
+      role: value['role'] as String?,
+      description: value['description'] as String?,
+      imageUrl: value['image_url'] as String?,
+    );
+  }
+
+  Object toJsonValue() => stringValue
+      ? name
+      : <String, dynamic>{
+          if (id != null) 'id': id,
+          if (characterId != null) 'character_id': characterId,
+          'name': name,
+          if (aliases.isNotEmpty) 'aliases': aliases,
+          if (role != null) 'role': role,
+          if (description != null) 'description': description,
+          if (imageUrl != null) 'image_url': imageUrl,
+        };
+}
+
+@immutable
+class TvIdentifierMetadata {
+  const TvIdentifierMetadata({
+    required this.value,
+    this.id,
+    this.identifierType,
+    this.normalizedValue,
+    this.isPrimary,
+    this.stringValue = false,
+  });
+
+  final String value;
+  final String? id;
+  final String? identifierType;
+  final String? normalizedValue;
+  final bool? isPrimary;
+  final bool stringValue;
+
+  factory TvIdentifierMetadata.fromJsonValue(Object value) {
+    if (value is String) {
+      return TvIdentifierMetadata(value: value, stringValue: true);
+    }
+    if (value is! Map<String, dynamic>) {
+      throw const FormatException('TV identifier must be a string or object.');
+    }
+    return TvIdentifierMetadata(
+      value: value['value'] as String? ?? '',
+      id: value['id'] as String?,
+      identifierType: value['identifier_type'] as String?,
+      normalizedValue: value['normalized_value'] as String?,
+      isPrimary: value['is_primary'] as bool?,
+    );
+  }
+
+  Object toJsonValue() => stringValue
+      ? value
+      : <String, dynamic>{
+          if (id != null) 'id': id,
+          if (identifierType != null) 'identifier_type': identifierType,
+          'value': value,
+          if (normalizedValue != null) 'normalized_value': normalizedValue,
+          if (isPrimary != null) 'is_primary': isPrimary,
+        };
+}
+
+@immutable
+class TvEpisodeMetadata {
+  const TvEpisodeMetadata({
+    required this.position,
+    this.id,
+    this.seasonNumber,
+    this.episodeNumber,
+    this.episodeTitle,
+    this.title,
+    this.description,
+    this.overview,
+    this.airDate,
+    this.originalAirDate,
+    this.runtimeMinutes,
+    this.pageCount,
+  });
+
+  final int position;
+  final String? id;
+  final int? seasonNumber;
+  final int? episodeNumber;
+  final String? episodeTitle;
+  final String? title;
+  final String? description;
+  final String? overview;
+  final PartialDate? airDate;
+  final PartialDate? originalAirDate;
   final int? runtimeMinutes;
-  final String? stillUrl;
+  final int? pageCount;
+
+  int get number => episodeNumber ?? position;
 
   Map<String, dynamic> toJson() => {
-        'number': number,
-        'title': title,
-        if (synopsis != null) 'synopsis': synopsis,
-        if (airDate != null) 'air_date': airDate!.toIso8601String(),
+        if (id != null) 'id': id,
+        if (seasonNumber != null) 'season_number': seasonNumber,
+        if (episodeNumber != null) 'episode_number': episodeNumber,
+        if (episodeTitle != null) 'episode_title': episodeTitle,
+        if (title != null) 'title': title,
+        if (description != null) 'description': description,
+        if (overview != null) 'overview': overview,
+        if (airDate != null) 'air_date': airDate!.toJson(),
+        if (originalAirDate != null)
+          'original_air_date': originalAirDate!.toJson(),
         if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
-        if (stillUrl != null) 'still_url': stillUrl,
+        if (pageCount != null) 'page_count': pageCount,
+        'position': position,
       };
 
   factory TvEpisodeMetadata.fromJson(Map<String, dynamic> json) {
+    final position = _asInt(json['position']);
+    if (position == null || position < 0) {
+      throw const FormatException('TV episode requires a position.');
+    }
     return TvEpisodeMetadata(
-      number: _asInt(json['number']) ?? _asInt(json['episode_number']) ?? 1,
-      title: (json['title'] as String?) ?? '',
-      synopsis: json['synopsis'] as String?,
-      airDate: json['air_date'] != null
-          ? DateTime.tryParse(json['air_date'] as String)
-          : null,
+      position: position,
+      id: json['id'] as String?,
+      seasonNumber: _asInt(json['season_number']),
+      episodeNumber: _asInt(json['episode_number']),
+      episodeTitle: json['episode_title'] as String?,
+      title: json['title'] as String?,
+      description: json['description'] as String?,
+      overview: json['overview'] as String?,
+      airDate: PartialDate.tryParse(json['air_date']),
+      originalAirDate: PartialDate.tryParse(json['original_air_date']),
       runtimeMinutes: _asInt(json['runtime_minutes']),
-      stillUrl: json['still_url'] as String?,
+      pageCount: _asInt(json['page_count']),
     );
   }
 }
@@ -85,40 +290,52 @@ class TvEpisodeMetadata {
 class TvSeasonMetadata {
   const TvSeasonMetadata({
     required this.seasonNumber,
+    this.id,
     this.title,
+    this.description,
     this.airDate,
+    this.releaseDate,
     this.episodeCount,
     this.episodes = const [],
   });
 
   final int seasonNumber;
+  final String? id;
   final String? title;
-  final DateTime? airDate;
+  final String? description;
+  final PartialDate? airDate;
+  final PartialDate? releaseDate;
   final int? episodeCount;
   final List<TvEpisodeMetadata> episodes;
 
   Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
         'season_number': seasonNumber,
         if (title != null) 'title': title,
-        if (airDate != null) 'air_date': airDate!.toIso8601String(),
+        if (description != null) 'description': description,
+        if (airDate != null) 'air_date': airDate!.toJson(),
+        if (releaseDate != null) 'release_date': releaseDate!.toJson(),
         if (episodeCount != null) 'episode_count': episodeCount,
         if (episodes.isNotEmpty)
           'episodes': episodes.map((e) => e.toJson()).toList(),
       };
 
   factory TvSeasonMetadata.fromJson(Map<String, dynamic> json) {
+    final seasonNumber = _asInt(json['season_number']);
+    if (seasonNumber == null || seasonNumber < 0) {
+      throw const FormatException('TV season requires a number.');
+    }
     return TvSeasonMetadata(
-      seasonNumber: _asInt(json['season_number']) ?? 1,
+      seasonNumber: seasonNumber,
       title: json['title'] as String?,
-      airDate: json['air_date'] != null
-          ? DateTime.tryParse(json['air_date'] as String)
-          : null,
+      id: json['id'] as String?,
+      description: json['description'] as String?,
+      airDate: PartialDate.tryParse(json['air_date']),
+      releaseDate: PartialDate.tryParse(json['release_date']),
       episodeCount: _asInt(json['episode_count']),
-      episodes: (json['episodes'] as List<dynamic>?)
-              ?.map(
-                  (e) => TvEpisodeMetadata.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      episodes: _tvObjectList(json['episodes'], 'TV season episodes')
+          .map(TvEpisodeMetadata.fromJson)
+          .toList(growable: false),
     );
   }
 }
@@ -167,8 +384,8 @@ class TvMediaMetadata implements JsonEncodable {
 
   factory TvMediaMetadata.fromJson(Map<String, dynamic> json) {
     final position = _asInt(json['position']);
-    if (position == null || position < 1) {
-      throw const FormatException('TV media requires a positive position.');
+    if (position == null || position < 0) {
+      throw const FormatException('TV media requires a non-negative position.');
     }
     return TvMediaMetadata(
       position: position,
@@ -230,6 +447,7 @@ class TvSeriesMetadata implements JsonEncodable {
     this.thumbnailImageUrl,
     this.coverImageData,
     this.synopsis,
+    this.description,
     this.catalogNumber,
     this.color,
     this.layers,
@@ -254,10 +472,13 @@ class TvSeriesMetadata implements JsonEncodable {
     this.seasonCount,
     this.episodeCount,
     this.episodeRuntimeMinutes,
-    this.cast = const [],
-    this.crew = const [],
     this.seasons = const [],
     this.media = const [],
+    this.episodes = const [],
+    this.contributors = const [],
+    this.characters = const [],
+    this.characterDetails = const [],
+    this.identifiers = const [],
     this.seriesTitle,
     this.seasonNumber,
     this.episodeNumber,
@@ -275,7 +496,6 @@ class TvSeriesMetadata implements JsonEncodable {
     this.variant,
     this.creators = const [],
     this.links = const [],
-    this.rawPayload = const <String, dynamic>{},
   });
 
   CatalogMediaKind get mediaKind => CatalogMediaKind.tv;
@@ -294,6 +514,7 @@ class TvSeriesMetadata implements JsonEncodable {
   final String? thumbnailImageUrl;
   final String? coverImageData;
   final String? synopsis;
+  final String? description;
   final String? catalogNumber;
   final String? color;
   final String? layers;
@@ -318,10 +539,13 @@ class TvSeriesMetadata implements JsonEncodable {
   final int? seasonCount;
   final int? episodeCount;
   final int? episodeRuntimeMinutes;
-  final List<TvPersonCredit> cast;
-  final List<TvPersonCredit> crew;
   final List<TvSeasonMetadata> seasons;
   final List<TvMediaMetadata> media;
+  final List<TvEpisodeMetadata> episodes;
+  final List<TvPersonCredit> contributors;
+  final List<TvCharacterMetadata> characters;
+  final List<TvCharacterMetadata> characterDetails;
+  final List<TvIdentifierMetadata> identifiers;
   final String? seriesTitle;
   final int? seasonNumber;
   final int? episodeNumber;
@@ -337,15 +561,19 @@ class TvSeriesMetadata implements JsonEncodable {
   final String? subtitles;
   final String? barcode;
   final String? variant;
-  final List<Map<String, dynamic>> creators;
+  final List<TvPersonCredit> creators;
   final List<TrailerLinkDto> links;
-  final Map<String, dynamic> rawPayload;
+
+  List<TvPersonCredit> get cast =>
+      creators.where((credit) => _isTvCastRole(credit.role)).toList();
+
+  List<TvPersonCredit> get crew =>
+      creators.where((credit) => !_isTvCastRole(credit.role)).toList();
 
   DateTime? get releaseDate => releaseDateParts?.asDateTime;
 
   @override
   Map<String, dynamic> toJson() => {
-        ...rawPayload,
         'title': title,
         if (displayTitle != null) 'display_title': displayTitle,
         if (originalTitle != null) 'original_title': originalTitle,
@@ -358,6 +586,7 @@ class TvSeriesMetadata implements JsonEncodable {
         if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
         if (coverImageData != null) 'cover_image_data': coverImageData,
         if (synopsis != null) 'synopsis': synopsis,
+        if (description != null) 'description': description,
         if (catalogNumber != null) 'catalog_number': catalogNumber,
         if (color != null) 'color': color,
         if (layers != null) 'layers': layers,
@@ -389,11 +618,20 @@ class TvSeriesMetadata implements JsonEncodable {
         if (episodeCount != null) 'episode_count': episodeCount,
         if (episodeRuntimeMinutes != null)
           'episode_runtime_minutes': episodeRuntimeMinutes,
-        if (cast.isNotEmpty) 'cast': cast.map((e) => e.toJson()).toList(),
-        if (crew.isNotEmpty) 'crew': crew.map((e) => e.toJson()).toList(),
         if (seasons.isNotEmpty)
           'seasons': seasons.map((e) => e.toJson()).toList(),
         if (media.isNotEmpty) 'media': media.map((e) => e.toJson()).toList(),
+        if (episodes.isNotEmpty)
+          'episodes': episodes.map((e) => e.toJson()).toList(),
+        if (contributors.isNotEmpty)
+          'contributors': contributors.map((e) => e.toJsonValue()).toList(),
+        if (characters.isNotEmpty)
+          'characters': characters.map((e) => e.toJsonValue()).toList(),
+        if (characterDetails.isNotEmpty)
+          'character_details':
+              characterDetails.map((e) => e.toJsonValue()).toList(),
+        if (identifiers.isNotEmpty)
+          'identifiers': identifiers.map((e) => e.toJsonValue()).toList(),
         if (seriesTitle != null) 'series_title': seriesTitle,
         if (seasonNumber != null) 'season_number': seasonNumber,
         if (episodeNumber != null) 'episode_number': episodeNumber,
@@ -410,7 +648,8 @@ class TvSeriesMetadata implements JsonEncodable {
         if (subtitles != null) 'subtitles': subtitles,
         if (barcode != null) 'barcode': barcode,
         if (variant != null) 'variant_name': variant,
-        if (creators.isNotEmpty) 'creators': creators,
+        if (creators.isNotEmpty)
+          'creators': creators.map((e) => e.toJsonValue()).toList(),
         if (links.isNotEmpty) ...{
           if (links.any((l) => l.isTrailerLink))
             'trailer_urls': links
@@ -438,6 +677,7 @@ class TvSeriesMetadata implements JsonEncodable {
     String? thumbnailImageUrl,
     String? coverImageData,
     String? synopsis,
+    String? description,
     String? catalogNumber,
     String? color,
     String? layers,
@@ -466,6 +706,11 @@ class TvSeriesMetadata implements JsonEncodable {
     List<TvPersonCredit>? crew,
     List<TvSeasonMetadata>? seasons,
     List<TvMediaMetadata>? media,
+    List<TvEpisodeMetadata>? episodes,
+    List<TvPersonCredit>? contributors,
+    List<TvCharacterMetadata>? characters,
+    List<TvCharacterMetadata>? characterDetails,
+    List<TvIdentifierMetadata>? identifiers,
     String? seriesTitle,
     int? seasonNumber,
     int? episodeNumber,
@@ -481,12 +726,15 @@ class TvSeriesMetadata implements JsonEncodable {
     String? subtitles,
     String? barcode,
     String? variant,
-    List<Map<String, dynamic>>? creators,
+    List<TvPersonCredit>? creators,
     List<TrailerLinkDto>? links,
   }) {
+    final updatedCreators = creators ??
+        (cast == null && crew == null
+            ? this.creators
+            : [...cast ?? this.cast, ...crew ?? this.crew]);
     return TvSeriesMetadata(
       title: title ?? this.title,
-      rawPayload: rawPayload,
       displayTitle: displayTitle ?? this.displayTitle,
       originalTitle: originalTitle ?? this.originalTitle,
       localizedTitle: localizedTitle ?? this.localizedTitle,
@@ -498,6 +746,7 @@ class TvSeriesMetadata implements JsonEncodable {
       thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
       coverImageData: coverImageData ?? this.coverImageData,
       synopsis: synopsis ?? this.synopsis,
+      description: description ?? this.description,
       catalogNumber: catalogNumber ?? this.catalogNumber,
       color: color ?? this.color,
       layers: layers ?? this.layers,
@@ -523,10 +772,13 @@ class TvSeriesMetadata implements JsonEncodable {
       episodeCount: episodeCount ?? this.episodeCount,
       episodeRuntimeMinutes:
           episodeRuntimeMinutes ?? this.episodeRuntimeMinutes,
-      cast: cast ?? this.cast,
-      crew: crew ?? this.crew,
       seasons: seasons ?? this.seasons,
       media: media ?? this.media,
+      episodes: episodes ?? this.episodes,
+      contributors: contributors ?? this.contributors,
+      characters: characters ?? this.characters,
+      characterDetails: characterDetails ?? this.characterDetails,
+      identifiers: identifiers ?? this.identifiers,
       seriesTitle: seriesTitle ?? this.seriesTitle,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
@@ -542,86 +794,12 @@ class TvSeriesMetadata implements JsonEncodable {
       subtitles: subtitles ?? this.subtitles,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
-      creators: creators ?? this.creators,
+      creators: updatedCreators,
       links: links ?? this.links,
     );
   }
 
   factory TvSeriesMetadata.fromJson(Map<String, dynamic> json) {
-    final rawPayload = Map<String, dynamic>.from(json)
-      ..remove('id')
-      ..remove('kind')
-      ..remove('snapshot_version')
-      ..remove('editions')
-      ..remove('releases')
-      ..remove('series')
-      ..remove('discs')
-      ..remove('title')
-      ..remove('display_title')
-      ..remove('original_title')
-      ..remove('localized_title')
-      ..remove('title_extension')
-      ..remove('edition_title')
-      ..remove('sort_key')
-      ..remove('search_aliases')
-      ..remove('cover_image_url')
-      ..remove('thumbnail_image_url')
-      ..remove('cover_image_data')
-      ..remove('synopsis')
-      ..remove('catalog_number')
-      ..remove('color')
-      ..remove('layers')
-      ..remove('nr_discs')
-      ..remove('plot_description')
-      ..remove('plot_summary')
-      ..remove('release_status')
-      ..remove('subtitle')
-      ..remove('series_tags')
-      ..remove('first_air_date')
-      ..remove('last_air_date')
-      ..remove('release_date')
-      ..remove('release_date_parts')
-      ..remove('release_year')
-      ..remove('status')
-      ..remove('network')
-      ..remove('streaming_service')
-      ..remove('production_companies')
-      ..remove('country')
-      ..remove('original_language')
-      ..remove('genres')
-      ..remove('age_rating')
-      ..remove('season_count')
-      ..remove('episode_count')
-      ..remove('episode_runtime_minutes')
-      ..remove('cast')
-      ..remove('crew')
-      ..remove('seasons')
-      ..remove('media')
-      ..remove('series_title')
-      ..remove('season_number')
-      ..remove('episode_number')
-      ..remove('item_number')
-      ..remove('physical_format')
-      ..remove('physical_format_label')
-      ..remove('publisher')
-      ..remove('region')
-      ..remove('packaging')
-      ..remove('distributor')
-      ..remove('screen_ratio')
-      ..remove('audio_tracks')
-      ..remove('subtitles')
-      ..remove('barcode')
-      ..remove('variant_name')
-      ..remove('creators')
-      ..remove('trailer_urls')
-      ..remove('external_links');
-
-    final rawCreators = (json['creators'] as List<dynamic>?)
-            ?.whereType<Map<String, dynamic>>()
-            .map((e) => Map<String, dynamic>.from(e))
-            .toList() ??
-        const <Map<String, dynamic>>[];
-
     final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
@@ -640,7 +818,6 @@ class TvSeriesMetadata implements JsonEncodable {
     final resolvedSeriesTitle = json['series_title'] as String?;
 
     return TvSeriesMetadata(
-      rawPayload: rawPayload,
       title: (json['title'] as String?) ?? '',
       displayTitle: json['display_title'] as String?,
       originalTitle: json['original_title'] as String?,
@@ -656,6 +833,7 @@ class TvSeriesMetadata implements JsonEncodable {
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       coverImageData: json['cover_image_data'] as String?,
       synopsis: json['synopsis'] as String?,
+      description: json['description'] as String?,
       catalogNumber: json['catalog_number'] as String?,
       color: json['color'] as String?,
       layers: json['layers'] as String?,
@@ -694,22 +872,34 @@ class TvSeriesMetadata implements JsonEncodable {
       seasonCount: _asInt(json['season_count']),
       episodeCount: _asInt(json['episode_count']),
       episodeRuntimeMinutes: _asInt(json['episode_runtime_minutes']),
-      cast: (json['cast'] as List<dynamic>?)
-              ?.map((e) => TvPersonCredit.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      crew: (json['crew'] as List<dynamic>?)
-              ?.map((e) => TvPersonCredit.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      seasons: (json['seasons'] as List<dynamic>?)
-              ?.map((e) => TvSeasonMetadata.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      media: (json['media'] as List<dynamic>?)
-              ?.map((e) => TvMediaMetadata.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      seasons: _tvObjectList(json['seasons'], 'TV seasons')
+          .map(TvSeasonMetadata.fromJson)
+          .toList(growable: false),
+      media: _tvObjectList(json['media'], 'TV media')
+          .map(TvMediaMetadata.fromJson)
+          .toList(growable: false),
+      episodes: _tvObjectList(json['episodes'], 'TV episodes')
+          .map(TvEpisodeMetadata.fromJson)
+          .toList(growable: false),
+      contributors: _tvTypedValues(
+        json['contributors'],
+        'TV contributors',
+        TvPersonCredit.fromJsonValue,
+      ),
+      characters: _tvTypedValues(
+        json['characters'],
+        'TV characters',
+        TvCharacterMetadata.fromJsonValue,
+      ),
+      characterDetails: _tvObjectList(
+        json['character_details'],
+        'TV character details',
+      ).map(TvCharacterMetadata.fromJson).toList(growable: false),
+      identifiers: _tvTypedValues(
+        json['identifiers'],
+        'TV identifiers',
+        TvIdentifierMetadata.fromJsonValue,
+      ),
       seriesTitle: resolvedSeriesTitle,
       seasonNumber: resolvedSeasonNumber,
       episodeNumber: resolvedEpisodeNumber,
@@ -725,8 +915,56 @@ class TvSeriesMetadata implements JsonEncodable {
       subtitles: json['subtitles'] as String?,
       barcode: json['barcode'] as String?,
       variant: json['variant_name'] as String?,
-      creators: rawCreators,
+      creators: _tvTypedValues(
+        json['creators'],
+        'TV creators',
+        TvPersonCredit.fromJsonValue,
+      ),
       links: rawLinks,
     );
   }
+}
+
+List<String> _stringValues(Object? value, String label) {
+  if (value == null) return const [];
+  if (value is! List) throw FormatException('$label must be a list.');
+  return value.map((entry) {
+    if (entry is! String) throw FormatException('$label must contain strings.');
+    return entry;
+  }).toList(growable: false);
+}
+
+List<Map<String, dynamic>> _tvObjectList(Object? value, String label) {
+  if (value == null) return const [];
+  if (value is! List) throw FormatException('$label must be a list.');
+  return value.map((entry) {
+    if (entry is! Map) throw FormatException('$label entries must be objects.');
+    return Map<String, dynamic>.from(entry);
+  }).toList(growable: false);
+}
+
+List<T> _tvTypedValues<T>(
+  Object? value,
+  String label,
+  T Function(Object) decode,
+) {
+  if (value == null) return const [];
+  if (value is! List) throw FormatException('$label must be a list.');
+  return value.map<T>((entry) {
+    if (entry == null) throw FormatException('$label values cannot be null.');
+    return decode(entry as Object);
+  }).toList(growable: false);
+}
+
+bool _isTvCastRole(String? role) {
+  final normalized = role?.trim().toLowerCase();
+  if (normalized == null || normalized.isEmpty) return true;
+  return const [
+    'actor',
+    'voice',
+    'guest star',
+    'cameo',
+    'narrator',
+    'cast',
+  ].any(normalized.contains);
 }

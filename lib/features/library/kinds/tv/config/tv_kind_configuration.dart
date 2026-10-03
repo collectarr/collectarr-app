@@ -151,7 +151,7 @@ Iterable<String?> tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
       metadata.variant,
       metadata.country,
       metadata.originalLanguage,
-      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      ...metadata.creators.map((credit) => credit.name),
       ...metadata.genres,
     ];
 

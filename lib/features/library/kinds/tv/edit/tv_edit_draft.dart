@@ -343,17 +343,11 @@ class TvEditDraft
                   int.tryParse(tvEdit.runtimeController.text),
               genres: parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
               cast: tvEdit.castCredits
-                  .map((credit) => TvPersonCredit(
-                        name: credit.nameController.text.trim(),
-                        role: emptyToNull(credit.roleController.text.trim()),
-                      ))
+                  .map(_editedTvCredit)
                   .where((credit) => credit.name.isNotEmpty)
                   .toList(),
               crew: tvEdit.crewCredits
-                  .map((credit) => TvPersonCredit(
-                        name: credit.nameController.text.trim(),
-                        role: emptyToNull(credit.roleController.text.trim()),
-                      ))
+                  .map(_editedTvCredit)
                   .where((credit) => credit.name.isNotEmpty)
                   .toList(),
               contentRating: emptyToNull(tvEdit.ageRatingController.text),
@@ -451,9 +445,9 @@ LibraryEditSessionBundle createTvEditDraft({
     initialCreators: [
       for (final creator in tv.creators)
         TvCreditInput(
-          name: creator['name']?.toString() ?? '',
-          role: creator['role']?.toString() ?? creator['job']?.toString(),
-          sourceType: creator['source_type']?.toString() ?? 'provider',
+          name: creator.name,
+          role: creator.role,
+          originalCredit: creator,
         ),
     ],
     initialTrailerLinks: tv.links,
@@ -494,4 +488,11 @@ LibraryEditSessionBundle createTvEditDraft({
     entrySession: draft,
     disposeSession: draft.dispose,
   );
+}
+
+TvPersonCredit _editedTvCredit(EditableTvCredit credit) {
+  final name = credit.nameController.text.trim();
+  final role = emptyToNull(credit.roleController.text.trim());
+  return credit.originalCredit?.withEditedIdentity(name: name, role: role) ??
+      TvPersonCredit(name: name, role: role);
 }

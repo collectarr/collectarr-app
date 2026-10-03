@@ -41,9 +41,7 @@ final class TvWorkspaceMapper {
         ],
       if (basePayload['contributions'] == null)
         'contributions': [
-          ...metadata.cast.map((credit) => _creditPayload(credit, 'cast')),
-          ...metadata.crew.map((credit) => _creditPayload(credit, 'crew')),
-          ...metadata.creators,
+          ...metadata.creators.map((credit) => _creditPayload(credit)),
         ],
     };
 
@@ -72,13 +70,9 @@ final class TvWorkspaceMapper {
     };
   }
 
-  static Map<String, dynamic> _creditPayload(
-    TvPersonCredit credit,
-    String fallbackRole,
-  ) =>
-      {
+  static Map<String, dynamic> _creditPayload(TvPersonCredit credit) => {
         'name': credit.name,
-        'role': credit.role ?? fallbackRole,
+        if (credit.role != null) 'role': credit.role,
         if (credit.character != null) 'character_name': credit.character,
         if (credit.imageUrl != null) 'image_url': credit.imageUrl,
       };

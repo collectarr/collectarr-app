@@ -1,26 +1,23 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/editable_user_external_link.dart';
 
 enum TvCreditKind { cast, crew }
 
-/// Structural credit input shared by the video editor host.
-///
-/// Movie, TV, and Anime own the mapping from their provider/domain credit
-/// shapes into this editor value. The editor itself never carries a generic
-/// metadata map that could become a second video domain model.
+/// Editable values derived from the TV kind's typed catalog credits.
 @immutable
 class TvCreditInput {
   const TvCreditInput({
     required this.name,
     this.role,
-    this.sourceType = 'provider',
+    this.originalCredit,
   });
 
   final String name;
   final String? role;
-  final String sourceType;
+  final TvPersonCredit? originalCredit;
 }
 
 const _videoCastRoleTags = <String>{
@@ -36,18 +33,16 @@ class EditableTvCredit {
   EditableTvCredit({
     required this.nameController,
     required this.roleController,
-    this.sourceType = 'custom',
+    this.originalCredit,
   });
 
   factory EditableTvCredit.custom({
     String name = '',
     String role = '',
-    String sourceType = 'custom',
   }) {
     return EditableTvCredit(
       nameController: TextEditingController(text: name),
       roleController: TextEditingController(text: role),
-      sourceType: sourceType,
     );
   }
 
@@ -57,13 +52,13 @@ class EditableTvCredit {
       roleController: TextEditingController(
         text: input.role ?? '',
       ),
-      sourceType: input.sourceType,
+      originalCredit: input.originalCredit,
     );
   }
 
   final TextEditingController nameController;
   final TextEditingController roleController;
-  final String sourceType;
+  final TvPersonCredit? originalCredit;
 
   TvCreditInput toInput() {
     return TvCreditInput(
@@ -71,7 +66,7 @@ class EditableTvCredit {
       role: roleController.text.trim().isEmpty
           ? null
           : roleController.text.trim(),
-      sourceType: sourceType,
+      originalCredit: originalCredit,
     );
   }
 

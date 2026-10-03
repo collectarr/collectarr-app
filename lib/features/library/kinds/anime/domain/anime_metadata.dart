@@ -121,8 +121,10 @@ class AnimeMediaMetadata implements JsonEncodable {
 
   factory AnimeMediaMetadata.fromJson(Map<String, dynamic> json) {
     final position = (json['position'] as num?)?.toInt();
-    if (position == null || position < 1) {
-      throw const FormatException('Anime media requires a positive position.');
+    if (position == null || position < 0) {
+      throw const FormatException(
+        'Anime media requires a non-negative position.',
+      );
     }
     return AnimeMediaMetadata(
       position: position,

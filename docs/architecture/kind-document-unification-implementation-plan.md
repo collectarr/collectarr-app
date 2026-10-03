@@ -177,9 +177,10 @@ slice. This is progress, not completion of this plan:
   use Anime-owned value types matching Core's child schemas. The `rawPayload`
   map has been removed from `AnimeMetadata`; unsupported Anime relation aliases
   were removed after a production call-site audit found no consumers.
-- `TvSeriesMetadata` now owns the corresponding catalog-number, video, plot,
-  release-status, subtitle, and series-tag fields as typed values. Like Anime,
-  TV removes typed root fields from its raw map; untyped contained values remain.
+- `TvSeriesMetadata` owns its recognized catalog fields and contained seasons,
+  media, episodes, credits, characters, and identifiers as typed values. Its
+  raw metadata payload has been removed. The separate legacy `TvSeries`
+  workspace projection still has raw maps and remains to be migrated.
 - Removed the unreferenced Anime media edit dialog and the separate Anime
   media/release schema exports. The current Add field specs remain in use; the
   reachable media/release repository paths still need migration.
@@ -291,7 +292,9 @@ bindings; removing active edition/media projections and duplicated shared DTO
 graphs from the remaining kinds; and finishing kind-owned field, schema, and
 form organization. The legacy `AnimeMedia` repository and workspace projections
 remain active alongside the flattened Anime document and still need migration.
-TV metadata and contained legacy TV projections still retain raw payload maps.
+The legacy TV workspace projection and its contained projection models still
+retain raw payload maps; the active root `TvSeriesMetadata` model no longer
+does.
 Manga's root map has been removed, but App/Core field ownership differences
 remain under review against its provisional ledger. Game's
 PriceCharting identifier and valuation snapshots still need an ownership
