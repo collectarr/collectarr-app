@@ -71,7 +71,7 @@ class TvEpisodeMetadata {
     return TvEpisodeMetadata(
       number: _asInt(json['number']) ?? _asInt(json['episode_number']) ?? 1,
       title: (json['title'] as String?) ?? '',
-      synopsis: (json['synopsis'] ?? json['overview']) as String?,
+      synopsis: json['synopsis'] as String?,
       airDate: json['air_date'] != null
           ? DateTime.tryParse(json['air_date'] as String)
           : null,
@@ -340,7 +340,7 @@ class TvSeriesMetadata implements JsonEncodable {
         'country': country,
         'original_language': originalLanguage,
         if (genres.isNotEmpty) 'genres': genres,
-        if (contentRating != null) 'content_rating': contentRating,
+        if (contentRating != null) 'age_rating': contentRating,
         if (seasonCount != null) 'season_count': seasonCount,
         if (episodeCount != null) 'episode_count': episodeCount,
         if (episodeRuntimeMinutes != null)
@@ -495,9 +495,6 @@ class TvSeriesMetadata implements JsonEncodable {
 
   factory TvSeriesMetadata.fromJson(Map<String, dynamic> json) {
     final rawPayload = Map<String, dynamic>.from(json);
-    final videoRaw = json['video'] is Map
-        ? Map<String, dynamic>.from(json['video'] as Map)
-        : const <String, dynamic>{};
     final seriesRaw = json['series'];
     final series = seriesRaw is Map
         ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
@@ -545,7 +542,7 @@ class TvSeriesMetadata implements JsonEncodable {
       coverImageUrl: json['cover_image_url'] as String?,
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       coverImageData: json['cover_image_data'] as String?,
-      synopsis: (json['synopsis'] ?? json['overview']) as String?,
+      synopsis: json['synopsis'] as String?,
       firstAirDate: json['first_air_date'] != null
           ? DateTime.tryParse(json['first_air_date'] as String)
           : null,
@@ -569,7 +566,7 @@ class TvSeriesMetadata implements JsonEncodable {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      contentRating: (json['content_rating'] ?? json['age_rating']) as String?,
+      contentRating: json['age_rating'] as String?,
       seasonCount: _asInt(json['season_count']),
       episodeCount: _asInt(json['episode_count']),
       episodeRuntimeMinutes: _asInt(json['episode_runtime_minutes']),
@@ -601,19 +598,16 @@ class TvSeriesMetadata implements JsonEncodable {
       seriesTitle: resolvedSeriesTitle,
       seasonNumber: resolvedSeasonNumber,
       episodeNumber: resolvedEpisodeNumber,
-      itemNumber: (json['item_number'] ?? json['issue_number']) as String?,
+      itemNumber: json['item_number'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
-      publisher:
-          (json['publisher'] ?? json['network'] ?? json['studio']) as String?,
-      region: (json['region'] ?? videoRaw['region']) as String?,
-      packaging: (json['packaging'] ?? videoRaw['packaging']) as String?,
-      distributor: (json['distributor'] ?? videoRaw['distributor']) as String?,
-      screenRatio:
-          (json['screen_ratio'] ?? videoRaw['screen_ratio']) as String?,
-      audioTracks:
-          (json['audio_tracks'] ?? videoRaw['audio_tracks']) as String?,
-      subtitles: (json['subtitles'] ?? videoRaw['subtitles']) as String?,
+      publisher: json['publisher'] as String?,
+      region: json['region'] as String?,
+      packaging: json['packaging'] as String?,
+      distributor: json['distributor'] as String?,
+      screenRatio: json['screen_ratio'] as String?,
+      audioTracks: json['audio_tracks'] as String?,
+      subtitles: json['subtitles'] as String?,
       barcode: json['barcode'] as String?,
       variant: json['variant_name'] as String?,
       creators: rawCreators,
