@@ -198,7 +198,7 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         minimum: 0,
       ),
       _number<TDraft>(
-        id: 'minimum_age',
+        id: 'min_age',
         label: 'Minimum age',
         read: (draft) => values(draft).minimumAge,
         write: (draft, value) => values(draft).minimumAge = value,

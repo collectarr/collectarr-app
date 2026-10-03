@@ -100,7 +100,7 @@ class BoardGameMetadata implements JsonEncodable {
           'min_playtime_minutes': minPlaytimeMinutes,
         if (maxPlaytimeMinutes != null)
           'max_playtime_minutes': maxPlaytimeMinutes,
-        if (minimumAge != null) 'minimum_age': minimumAge,
+        if (minimumAge != null) 'min_age': minimumAge,
         if (complexityWeight != null) 'complexity_weight': complexityWeight,
         if (designers.isNotEmpty) 'designers': designers,
         if (artists.isNotEmpty) 'artists': artists,
@@ -234,19 +234,22 @@ class BoardGameMetadata implements JsonEncodable {
     ];
 
     return BoardGameMetadata(
-      rawPayload: Map<String, dynamic>.from(json)..remove('series'),
+      rawPayload: Map<String, dynamic>.from(json)
+        ..remove('series')
+        ..remove('release_year')
+        ..remove('minimum_age')
+        ..remove('issue_number'),
       title: (json['title'] as String?) ?? '',
       originalTitle: json['original_title'] as String?,
       synopsis: (json['synopsis'] ?? json['description']) as String?,
-      yearPublished:
-          json['year_published'] as int? ?? json['release_year'] as int?,
+      yearPublished: json['year_published'] as int?,
       minPlayers: json['min_players'] as int?,
       maxPlayers: json['max_players'] as int?,
       recommendedPlayers: json['recommended_players'] as String?,
       bestPlayers: json['best_players'] as String?,
       minPlaytimeMinutes: json['min_playtime_minutes'] as int?,
       maxPlaytimeMinutes: json['max_playtime_minutes'] as int?,
-      minimumAge: json['minimum_age'] as int? ?? json['min_age'] as int?,
+      minimumAge: json['min_age'] as int?,
       complexityWeight: (json['complexity_weight'] as num?)?.toDouble() ??
           (json['weight'] as num?)?.toDouble(),
       designers: (json['designers'] as List<dynamic>?)
@@ -293,7 +296,7 @@ class BoardGameMetadata implements JsonEncodable {
           json['users_rated'] as int?,
       bggRank: json['bgg_rank'] as int? ?? json['rank'] as int?,
       seriesTitle: json['series_title'] as String?,
-      itemNumber: (json['item_number'] ?? json['issue_number']) as String?,
+      itemNumber: json['item_number'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
       publisher: (json['publisher'] ??

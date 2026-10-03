@@ -370,7 +370,7 @@ class BoardGameEditDraft
         maxPlaytimeController
       ),
       ('playing_time_minutes', 'Playing time (minutes)', playingTimeController),
-      ('minimum_age', 'Minimum age', minimumAgeController),
+      ('min_age', 'Minimum age', minimumAgeController),
       ('complexity_weight', 'Complexity weight', complexityWeightController),
       ('mechanics', 'Mechanics', mechanicsController),
       ('categories', 'Categories', categoriesController),
@@ -498,13 +498,7 @@ class BoardGameEditDraft
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.kindItem.kindCapability.mapTransport(
-                (transport) => BoardGameMetadata.fromJson(transport.kindData))
-            is BoardGameMetadata
-        ? (selection.kindItem.kindCapability.mapTransport(
-                (transport) => BoardGameMetadata.fromJson(transport.kindData))
-            as BoardGameMetadata)
-        : null;
+    final meta = _boardGameMetadataFor(selection.kindItem);
     if (meta != null) {
       final transport =
           selection.kindItem.kindCapability.mapTransport((item) => item);
@@ -620,6 +614,13 @@ class BoardGameEditDraft
   }
 }
 
+BoardGameMetadata? _boardGameMetadataFor(CatalogSearchCandidate item) {
+  if (item.reference.kind != CatalogMediaKind.boardgame) return null;
+  return item.kindCapability.mapTransport(
+    (transport) => BoardGameMetadata.fromJson(transport.kindData),
+  );
+}
+
 CatalogItemDto _withBoardGameSortKey(CatalogItemDto item, String? sortKey) {
   final kindData = Map<String, dynamic>.from(item.kindData)
     ..remove('sort_title');
@@ -728,13 +729,7 @@ LibraryEditSessionBundle createBoardGameEditDraft({
   final entry =
       BoardGameLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
   final bg = entry?.personal.details;
-  final meta = item.kindCapability.mapTransport(
-              (transport) => BoardGameMetadata.fromJson(transport.kindData))
-          is BoardGameMetadata
-      ? item.kindCapability.mapTransport(
-              (transport) => BoardGameMetadata.fromJson(transport.kindData))
-          as BoardGameMetadata
-      : null;
+  final meta = _boardGameMetadataFor(item);
   final draft = BoardGameEditDraft(
     libraryEntry: entry,
     editionLanguage: bg?.editionLanguage,

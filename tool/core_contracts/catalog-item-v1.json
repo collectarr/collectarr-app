@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "88960a5ebc03c47bb58db42583fb33f2c0ba96ad",
+  "coreCommit": "97c2788879a63ab77a3a70e6c94fd2f81df2a87e",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-03T13:43:09.199736Z",
+  "generatedAt": "2026-10-03T14:17:35.770064Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -1531,6 +1531,19 @@
             }
           ]
         },
+        "artists": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "audience_rating": {
           "anyOf": [
             {
@@ -1545,6 +1558,46 @@
           "anyOf": [
             {
               "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "best_players": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bgg_rank": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bgg_rating": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bgg_rating_count": {
+          "anyOf": [
+            {
+              "type": "integer"
             },
             {
               "type": "null"
@@ -1568,6 +1621,84 @@
                 "type": "string"
               },
               "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "characters": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "aliases": {
+                        "anyOf": [
+                          {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "character_id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "image_url": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "role": {
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "complexity_weight": {
+          "anyOf": [
+            {
+              "type": "number"
             },
             {
               "type": "null"
@@ -1691,7 +1822,30 @@
             }
           ]
         },
+        "designers": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "edition_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expansion_for": {
           "anyOf": [
             {
               "type": "string"
@@ -1885,6 +2039,19 @@
             }
           ]
         },
+        "languages": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "localized_title": {
           "anyOf": [
             {
@@ -1896,6 +2063,16 @@
           ]
         },
         "max_players": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "max_playtime_minutes": {
           "anyOf": [
             {
               "type": "integer"
@@ -1938,6 +2115,26 @@
             }
           ]
         },
+        "min_playtime_minutes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "original_language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "original_title": {
           "anyOf": [
             {
@@ -1949,6 +2146,16 @@
           ]
         },
         "physical_format": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "physical_format_label": {
           "anyOf": [
             {
               "type": "string"
@@ -2011,6 +2218,19 @@
             }
           ]
         },
+        "publishers": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "rankings": {
           "anyOf": [
             {
@@ -2018,6 +2238,16 @@
                 "type": "string"
               },
               "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recommended_players": {
+          "anyOf": [
+            {
+              "type": "string"
             },
             {
               "type": "null"
@@ -2131,6 +2361,19 @@
           "anyOf": [
             {
               "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "themes": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
             },
             {
               "type": "null"

@@ -107,7 +107,7 @@ BoardGameMetadata boardGameMetadataFromManualFormValues({
       'min_playtime_minutes': values.minPlaytimeMinutes,
     if (values.maxPlaytimeMinutes != null)
       'max_playtime_minutes': values.maxPlaytimeMinutes,
-    if (values.minimumAge != null) 'minimum_age': values.minimumAge,
+    if (values.minimumAge != null) 'min_age': values.minimumAge,
     if (values.complexityWeight != null)
       'complexity_weight': values.complexityWeight,
     if (values.bggRating != null) 'bgg_rating': values.bggRating,
@@ -119,10 +119,9 @@ BoardGameMetadata boardGameMetadataFromManualFormValues({
     if (_optional(values.format) case final value?) ...{
       'physical_format': value,
       'physical_format_label': value,
-      'format': value,
     },
     if (_optional(values.barcode) case final value?) 'barcode': value,
-    if (_optional(values.variant) case final value?) 'variant': value,
+    if (_optional(values.variant) case final value?) 'variant_name': value,
     if (_optional(values.ageRating) case final value?) 'age_rating': value,
     if (_optional(values.audienceRating) case final value?)
       'audience_rating': value,
