@@ -195,6 +195,8 @@ slice. This is progress, not completion of this plan:
   corrections. The development seed factory flattens its detail inputs into
   the item document instead of writing `series`, `video`, `game`, `music`, or
   `publishing` wrapper objects.
+- The unused shared `BoardGameStatsDetailsDto` was removed after a full App
+  source and fixture reference search found no callers.
 - Core schema and OpenAPI artifacts were regenerated and their pinned copies
   synced into App. Sync already accepts the complete `library_entry` envelope
   and personal-only activity entities, so this slice did not change Sync code.
