@@ -105,6 +105,9 @@ slice. This is progress, not completion of this plan:
   and key events instead of exposing arbitrary object maps. The App now writes
   cover date, variant description, and key events to the pinned contract, and
   its date form preserves partial cover dates when another field is edited.
+  Comic identifiers, story arcs, creators, and characters are now represented
+  by Comic-owned typed values through edit, lookup, workspace, and inspector
+  projections; Core accepts the Comic character editor's `real_name` field.
   App-side Comic field filtering was removed so Core's kind-owned validator is
   the only proposal allowlist. The Comic metadata model still contains generic
   nested DTOs and raw payload storage; removing those remains outstanding

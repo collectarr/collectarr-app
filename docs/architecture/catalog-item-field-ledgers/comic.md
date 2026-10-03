@@ -11,8 +11,8 @@
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `barcode` | `barcode` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `catalog_number` | `catalog_number` |
 | Unverified; Edit-form capture required | Unverified; capture required | partial date | Catalog Item | No | `cover_date` | `cover_date` |
-| Unverified; Edit-form capture required | Unverified; capture required | array of object | Catalog Item | Yes | `character_details` | `character_details` |
-| Unverified; Edit-form capture required | Unverified; capture required | array of string or object | Catalog Item | Yes | `characters` | `characters` |
+| Unverified; Edit-form capture required | Unverified; capture required | array of object; character details may contain `real_name` | Catalog Item | Yes | `character_details` | `character_details` |
+| Unverified; Edit-form capture required | Unverified; capture required | array of string or object; objects may contain `real_name` | Catalog Item | Yes | `characters` | `characters` |
 | Unverified; Edit-form capture required | Unverified; capture required | array of string or object | Catalog Item | Yes | `contributors` | `contributors` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `country` | `country` |
 | Unverified; Edit-form capture required | Unverified; capture required | string | Catalog Item | No | `cover_image_url` | `cover_image_url` |
