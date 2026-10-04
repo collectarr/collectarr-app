@@ -254,6 +254,8 @@ Completed implementation slices:
   the same built-in and selected-value choices.
 - Add and Edit Notes now use one multiline field with matching labels and line
   limits while keeping their existing controller and draft ownership.
+- Add and Edit Personal sections now share one responsive four/two/one-column
+  field grid, with long fields and history rendered across the full width.
 - Kind Add/Edit fields and metadata comparison views now use consistent title
   casing for common labels such as Sort Title, Original Title, Search Aliases,
   Release Date, Custom Fields, and My Images.

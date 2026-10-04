@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_p
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_notes_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_personal_fields_layout.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
@@ -180,66 +181,45 @@ class _LibraryEntryPersonalSectionState
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
         animation: _draft,
-        builder: (context, _) => LayoutBuilder(
-          builder: (context, constraints) {
-            final columns = constraints.maxWidth >= 720
-                ? 4
-                : constraints.maxWidth >= 480
-                    ? 2
-                    : 1;
-            final width = (constraints.maxWidth - 14 * (columns - 1)) / columns;
-            final fields = [
-              for (final field
-                  in _fieldsFor(PersonalLibraryFieldArea.personalFields))
-                _buildPersonalField(field),
-            ];
-            final ratingField = _fieldFor(
-              PersonalLibraryFieldArea.rating,
-              PersonalLibraryFieldEditor.rating,
-            );
-            final notesField = _fieldFor(
-              PersonalLibraryFieldArea.notes,
-              PersonalLibraryFieldEditor.notes,
-            );
-            fields.addAll(widget.kindSpecificFields);
+        builder: (context, _) {
+          final fields = [
+            for (final field
+                in _fieldsFor(PersonalLibraryFieldArea.personalFields))
+              _buildPersonalField(field),
+          ];
+          final ratingField = _fieldFor(
+            PersonalLibraryFieldArea.rating,
+            PersonalLibraryFieldEditor.rating,
+          );
+          final notesField = _fieldFor(
+            PersonalLibraryFieldArea.notes,
+            PersonalLibraryFieldEditor.notes,
+          );
+          fields.addAll(widget.kindSpecificFields);
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Wrap(
-                  spacing: 14,
-                  runSpacing: 12,
-                  children: [
-                    for (final field in fields)
-                      SizedBox(width: width, child: field),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                if (ratingField != null)
-                  LibraryFormField(
-                    label: ratingField.label,
-                    child: MediaRatingField(controller: _ratingController),
-                  ),
-                if (notesField != null) ...[
-                  const SizedBox(height: 12),
-                  LibraryNotesField(
-                    fieldKey: ValueKey('library-entry-${notesField.key}'),
-                    label: notesField.label,
-                    value: _draft.text(notesField.key),
-                    onChanged: (value) {
-                      _draft.set(notesField.key, value);
-                      widget.onNotesChanged?.call(value);
-                    },
-                  ),
-                ],
-                if (widget.history != null) ...[
-                  const SizedBox(height: 14),
-                  widget.history!,
-                ],
-              ],
-            );
-          },
-        ),
+          final fullWidthFields = <Widget>[
+            if (ratingField != null)
+              LibraryFormField(
+                label: ratingField.label,
+                child: MediaRatingField(controller: _ratingController),
+              ),
+            if (notesField != null)
+              LibraryNotesField(
+                fieldKey: ValueKey('library-entry-${notesField.key}'),
+                label: notesField.label,
+                value: _draft.text(notesField.key),
+                onChanged: (value) {
+                  _draft.set(notesField.key, value);
+                  widget.onNotesChanged?.call(value);
+                },
+              ),
+          ];
+          return LibraryPersonalFieldsLayout(
+            fields: fields,
+            fullWidthFields: fullWidthFields,
+            history: widget.history,
+          );
+        },
       );
 
   Widget _buildPersonalField(PersonalLibraryFieldSpec field) {

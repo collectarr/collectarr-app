@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_p
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_notes_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_personal_fields_layout.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
@@ -161,27 +162,15 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
       ),
     ];
 
+    final gridFields = fields.take(fields.length - 2).toList(growable: false);
+    final fullWidthFields =
+        fields.skip(fields.length - 2).toList(growable: false);
     return EditSection(
       title: 'Personal',
       accent: request.accent,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth >= 680
-              ? (constraints.maxWidth - 12) / 2
-              : constraints.maxWidth;
-          return Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              for (var index = 0; index < fields.length; index++)
-                SizedBox(
-                  width:
-                      index >= fields.length - 2 ? constraints.maxWidth : width,
-                  child: fields[index],
-                ),
-            ],
-          );
-        },
+      child: LibraryPersonalFieldsLayout(
+        fields: gridFields,
+        fullWidthFields: fullWidthFields,
       ),
     );
   }
