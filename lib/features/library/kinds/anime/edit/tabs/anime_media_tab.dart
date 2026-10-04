@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
@@ -10,10 +11,14 @@ class AnimeEditMediaTab extends StatelessWidget {
     super.key,
     required this.draft,
     required this.accent,
+    required this.animeEdit,
+    required this.markDirty,
   });
 
   final LibraryEditShellState draft;
   final Color accent;
+  final AnimeEditController animeEdit;
+  final VoidCallback markDirty;
 
   @override
   Widget build(BuildContext context) {
@@ -126,6 +131,16 @@ class AnimeEditMediaTab extends StatelessWidget {
                 ],
               ),
             ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        EditSection(
+          title: 'Characters',
+          accent: accent,
+          child: LibraryEditTextField(
+            controller: animeEdit.charactersController,
+            label: 'Characters',
+            onChanged: (_) => markDirty(),
           ),
         ),
       ],

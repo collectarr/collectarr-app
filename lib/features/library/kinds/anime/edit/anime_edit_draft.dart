@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata_children.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
@@ -218,6 +219,12 @@ class AnimeEditDraft
         .map((value) => value.trim())
         .where((value) => value.isNotEmpty)
         .toList(growable: false);
+    final characters = _editedAnimeCharacters(
+      animeEdit.charactersController.text,
+      selection.kindItem.kindCapability.mapTransport(
+        (transport) => AnimeMetadata.fromJson(transport.kindData).characters,
+      ),
+    );
     return selection.copyWith(
       kindItem: CatalogSearchCandidate.fromItem(
           selection.kindItem.kindCapability.mapTransport((transport) {
@@ -281,6 +288,7 @@ class AnimeEditDraft
             fields.controller(AnimeCanonicalEditField.audienceRating).text,
           ),
           creators: animeEdit.buildUpdatedCreators(),
+          characters: characters,
           links: animeEdit.buildUpdatedTrailerUrls(metadata.links),
         );
         final updated = AnimeMetadata.fromJson(applyJsonFieldPatch(edited, {
@@ -310,6 +318,8 @@ class AnimeEditDraft
             fields.controller(AnimeCanonicalEditField.episodeRuntime).text,
           ),
           'genres': genres,
+          'characters':
+              characters.map((character) => character.toJsonValue()).toList(),
           'edition_title': emptyToNull(
             fields.controller(AnimeCanonicalEditField.editionTitle).text,
           ),
@@ -548,6 +558,8 @@ LibraryEditSessionBundle createAnimeEditDraft({
   final animeEdit = AnimeEditController(
     itemId: item.reference.id,
     catalogRef: item.reference,
+    initialCharacters:
+        metadata.characters.map((character) => character.name).join(', '),
     initialCreators: [
       for (var index = 0; index < metadata.creators.length; index++)
         AnimeCreditInput(
@@ -591,4 +603,33 @@ LibraryEditSessionBundle createAnimeEditDraft({
     entrySession: draft,
     disposeSession: draft.dispose,
   );
+}
+
+List<AnimeCharacterMetadata> _editedAnimeCharacters(
+  String value,
+  List<AnimeCharacterMetadata> original,
+) {
+  final previousByName = {
+    for (final character in original)
+      character.name.trim().toLowerCase(): character,
+  };
+  final edited = <AnimeCharacterMetadata>[];
+  for (final rawName in value.split(RegExp(r'[,\r\n]+'))) {
+    final name = rawName.trim();
+    if (name.isEmpty) continue;
+    final previous = previousByName.remove(name.toLowerCase());
+    edited.add(
+      AnimeCharacterMetadata(
+        name: name,
+        id: previous?.id,
+        characterId: previous?.characterId,
+        aliases: previous?.aliases ?? const [],
+        role: previous?.role,
+        description: previous?.description,
+        imageUrl: previous?.imageUrl,
+        stringValue: previous?.stringValue ?? false,
+      ),
+    );
+  }
+  return edited;
 }

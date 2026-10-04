@@ -61,6 +61,8 @@ Widget? buildAnimeMediaCustomTabView({
     'media' => AnimeEditMediaTab(
         draft: draft,
         accent: accent,
+        animeEdit: animeEdit,
+        markDirty: markDirty,
       ),
     _ => null,
   };

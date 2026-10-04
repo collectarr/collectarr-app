@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata_children.dart';
@@ -16,6 +17,7 @@ class AnimeEditController {
     this.ref,
     required this.itemId,
     required this.catalogRef,
+    this.initialCharacters = '',
     this.initialCreators = const <AnimeCreditInput>[],
     this.initialTrailerLinks = const <TrailerLinkDto>[],
   });
@@ -23,6 +25,7 @@ class AnimeEditController {
   final WidgetRef? ref;
   final String itemId;
   final CatalogEntityRef catalogRef;
+  final String initialCharacters;
   LibraryEntryRef get libraryEntryRef => LibraryEntryRef(
         kind: catalogRef.kind,
         id: LibraryEntryId(itemId),
@@ -30,6 +33,8 @@ class AnimeEditController {
   final List<AnimeCreditInput> initialCreators;
   final List<TrailerLinkDto> initialTrailerLinks;
 
+  late final TextEditingController charactersController =
+      TextEditingController(text: initialCharacters);
   final List<EditableAnimeCredit> castCredits = [];
   final List<EditableAnimeCredit> crewCredits = [];
   final List<EditableUserExternalLink> userLinkEdits = [];
@@ -108,6 +113,7 @@ class AnimeEditController {
   }
 
   void dispose() {
+    charactersController.dispose();
     for (final credit in castCredits) {
       credit.dispose();
     }
