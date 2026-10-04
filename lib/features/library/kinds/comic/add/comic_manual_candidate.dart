@@ -22,6 +22,10 @@ CatalogSearchCandidate? buildComicManualCandidate(
       title: title.trim(),
     ),
     values: values,
+    externalLinks: [
+      for (final link in draft.externalLinks)
+        if (link.urlController.text.trim().isNotEmpty) link.toModel(),
+    ],
   );
   return CatalogSearchCandidate.fromItem(
     CatalogItemDto(

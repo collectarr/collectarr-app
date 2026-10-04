@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/physical_media_formats.da
 import 'package:collectarr_app/features/library/serial/serial_authority_dialog.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
@@ -291,6 +292,16 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           content: buildFields(
             const {'cover_image_url'},
             'Cover',
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'links',
+          label: 'Links',
+          icon: Icons.public,
+          content: ComicAddLinksTab(
+            draft: comicDraft,
+            accent: request.accent,
+            onChanged: request.onManualDraftChanged,
           ),
         ),
       ],

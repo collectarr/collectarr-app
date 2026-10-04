@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 
 ComicCatalogItemFormValues comicCatalogItemFormValuesFrom(
@@ -37,6 +38,7 @@ ComicCatalogItemFormValues comicCatalogItemFormValuesFrom(
 ComicCatalogItem comicCatalogItemFromFormValues({
   required ComicCatalogItem original,
   required ComicCatalogItemFormValues values,
+  List<ComicLink>? externalLinks,
 }) {
   final seriesTitle = _nullable(values.seriesTitle);
   final publisher = _nullable(values.publisher);
@@ -101,7 +103,7 @@ ComicCatalogItem comicCatalogItemFromFormValues({
       isbn: _nullable(values.isbn),
       upc: _nullable(values.upc),
     ),
-    links: original.links,
+    links: externalLinks ?? original.links,
   );
 }
 
