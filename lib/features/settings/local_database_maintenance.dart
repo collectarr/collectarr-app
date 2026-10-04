@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/collection/providers/local_cover_image_p
 import 'package:collectarr_app/features/collection/repositories/location_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state_provider.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_providers.dart';
@@ -80,6 +79,6 @@ void invalidateLocalDatabaseProjections(WidgetRef ref) {
   ref.invalidate(musicAlbumImagesProvider);
   ref.invalidate(overdueLoanLibraryEntryIdsProvider);
   ref.invalidate(libraryCustomFieldCacheProvider);
-  ref.invalidate(tvTrackingStateBySeriesIdProvider);
+  ref.invalidate(tvTrackingStateByCatalogItemIdProvider);
   ref.invalidate(tvCustomEpisodesByLibraryEntryRefProvider);
 }
