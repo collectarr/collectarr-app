@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
@@ -205,7 +205,7 @@ int? _seedTvInt(Object? value) {
 }
 
 CatalogItemDto enrichTvSeedItem(CatalogItemDto item) {
-  final metadata = TvSeriesMetadata.fromJson(item.kindData);
+  final metadata = TvMetadata.fromJson(item.kindData);
   final seasonId = '${item.id}-season-01';
   final episodes = [
     for (var number = 1; number <= 2; number++)
@@ -1034,7 +1034,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
 List<TvLibraryEntry> tvSeedLibraryEntries(DateTime now) {
   final metadataById = {
     for (final item in tvSeedCatalogItems())
-      item.id: TvSeriesMetadata.fromJson(item.kindData),
+      item.id: TvMetadata.fromJson(item.kindData),
   };
   return [
     for (final itemId in seedIds(CatalogMediaKind.tv, 15))
