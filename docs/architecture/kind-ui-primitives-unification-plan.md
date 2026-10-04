@@ -90,6 +90,9 @@ Completed implementation slices:
 - Schema fields and custom Edit fields now delegate responsive geometry to one
   configurable field layout. Existing breakpoints, column counts, spans,
   full-width placement, and right alignment remain caller configuration.
+- Embedded Add schema layout no longer determines selection behavior: callers
+  can configure the field control mode independently. Existing forms retain the
+  full Edit-style pick-list interaction by default.
 - Legacy multi-vocabulary fields now use the shared chip field, and single
   vocabulary fields share the labelled dropdown control. Managed vocabulary
   buttons remain separate from choosing or typing a value.
@@ -238,8 +241,10 @@ Text controls now use the common external-label primitive. Add select fields
 also receive an external label, while specialized date, image, and selection
 controls may render their own label. Some legacy custom editors still build raw
 `TextFormField`s; migrate those when unifying their Add/Edit definitions.
-Embedded Add currently selects Edit-mode selection interactions, so picker mode
-still needs review independently from lifecycle mode.
+Embedded Add selection behavior is now an explicit control-mode option,
+independent of the embedded layout/lifecycle. Existing panes preserve their
+full pick-list interaction through the default Edit control mode; review this
+choice separately if a kind needs Add-style inline selection.
 
 ### 3.3 Remaining custom controls and dead layout helper
 
