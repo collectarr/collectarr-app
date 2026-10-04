@@ -382,39 +382,45 @@ class MangaEditDraft
     final status = emptyToNull(statusController.text);
     final serialization = emptyToNull(serializationController.text);
 
-    final updatedMetadata = meta.copyWith(
-      pageCount: count ?? meta.pageCount,
-      volumeNumber: volumeNumber ?? meta.volumeNumber,
-      editionTitle: editionTitle ?? meta.editionTitle,
-      variant: variant ?? meta.variant,
-      imprint: impr ?? meta.imprint,
-      publisher: pub ?? meta.publisher,
-      originalPublisher: originalPublisher ?? meta.originalPublisher,
-      localizedPublisher: localizedPublisher ?? meta.localizedPublisher,
-      barcode: barcode ?? meta.barcode,
-      isbn: barcode ?? meta.isbn,
-      physicalFormatLabel: format ?? meta.physicalFormatLabel,
-      physicalFormat: format ?? meta.physicalFormat,
-      editionFormat: format == null
-          ? meta.editionFormat
-          : MangaEditionFormat.fromString(format),
-      language: language ?? meta.language,
-      country: country ?? meta.country,
-      genres: _splitValues(genresController.text),
-      themes: _splitValues(themesController.text),
-      authors: _splitValues(authorsController.text),
-      artists: _splitValues(artistsController.text),
-      demographic: demographic == null
-          ? meta.demographic
-          : MangaDemographic.fromString(demographic),
-      publicationStatus: status == null
-          ? meta.publicationStatus
-          : MangaPublicationStatus.fromString(status),
-      serializationPlatform: serialization ?? meta.serializationPlatform,
-      releaseDateParts:
-          _partialDateFromController(releaseDateController.text) ??
-              meta.releaseDateParts,
-    );
+    final releaseDateText = releaseDateController.text.trim();
+    final releaseYear = int.tryParse(releaseYearController.text.trim());
+    final releaseDate = releaseDateText.isEmpty
+        ? (releaseYear == null || releaseYear < 1
+            ? null
+            : PartialDate(year: releaseYear))
+        : PartialDate.tryParse(releaseDateText);
+    final updatedMetadata = MangaMetadata.fromJson(applyJsonFieldPatch(meta, {
+      'page_count': count,
+      'volume_number': volumeNumber?.toString(),
+      'edition_title': editionTitle,
+      'variant_name': variant,
+      'imprint': impr,
+      'publisher': pub,
+      'original_publisher': originalPublisher,
+      'localized_publisher': localizedPublisher,
+      'barcode': barcode,
+      'isbn': barcode,
+      'physical_format_label': format,
+      'physical_format': format,
+      'edition_format': format == null
+          ? meta.editionFormat.name
+          : MangaEditionFormat.fromString(format).name,
+      'language': language ?? meta.language,
+      'country': country ?? meta.country,
+      'genres': _splitValues(genresController.text),
+      'themes': _splitValues(themesController.text),
+      'authors': _splitValues(authorsController.text),
+      'artists': _splitValues(artistsController.text),
+      'demographic': demographic == null
+          ? meta.demographic.name
+          : MangaDemographic.fromString(demographic).name,
+      'publication_status': status == null
+          ? meta.publicationStatus.name
+          : MangaPublicationStatus.fromString(status).name,
+      'serialization_platform': serialization,
+      'release_date': null,
+      'release_date_parts': releaseDate?.toJson(),
+    }));
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
@@ -552,8 +558,3 @@ List<String> _splitValues(String value) => value
     .where((entry) => entry.isNotEmpty)
     .toSet()
     .toList();
-
-PartialDate? _partialDateFromController(String value) {
-  final parsed = parseDate(value);
-  return parsed == null ? null : PartialDate.fromDateTime(parsed);
-}
