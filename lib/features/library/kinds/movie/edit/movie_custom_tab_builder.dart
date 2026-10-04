@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/domain/library_entity_scope.dart
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft_contract.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_crew_tab.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_discs_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_edition_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_catalog_item_tab.dart';
@@ -51,10 +50,6 @@ Widget? buildMovieCustomTabView({
     'crew' => MovieEditCrewTab(
         movieEdit: movieEdit,
         markDirty: markDirty,
-      ),
-    'discs' => MovieEditDiscsTab(
-        item: item,
-        accent: accent,
       ),
     'links' => MovieEditLinksTab(
         item: item,
