@@ -24,10 +24,10 @@ enum LibraryFieldSpecControlMode { add, edit }
 
 /// Builds the controls described by a field spec for both Add and Edit forms.
 ///
-/// The two form renderers still own their layout and submission lifecycle.
-/// This builder centralizes the input behavior while keeping the different
-/// single-select interactions explicit: Add uses an inline searchable menu;
-/// Edit uses the full pick-list dialog.
+/// The owning Add or Edit shell manages submission and draft lifecycle. This
+/// builder centralizes input behavior while keeping the different single-
+/// select interactions explicit: Add uses an inline searchable menu; Edit
+/// uses the full pick-list dialog.
 final class LibraryFieldSpecControlBuilder<TDraft>
     implements LibraryFieldSpecVisitor<TDraft, Widget> {
   const LibraryFieldSpecControlBuilder({
@@ -35,7 +35,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     required this.draft,
     required this.mode,
     required this.controllerFor,
-    required this.onChanged,
+    this.onChanged,
     this.onVocabularyValueChanged,
     this.onVocabularyValuesChanged,
     this.mediaKind,
@@ -47,7 +47,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
   final LibraryFieldSpecControlMode mode;
   final TextEditingController Function(String id, String initialValue)
       controllerFor;
-  final VoidCallback onChanged;
+  final VoidCallback? onChanged;
   final LibraryVocabularyValueChanged? onVocabularyValueChanged;
   final LibraryVocabularyValuesChanged? onVocabularyValuesChanged;
   final String? mediaKind;
@@ -105,7 +105,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       ),
       onChanged: (value) {
         field.setValue(draft, value);
-        onChanged();
+        onChanged?.call();
       },
     );
   }
@@ -128,7 +128,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       ),
       onChanged: (value) {
         field.setValue(draft, _parseNumber(value));
-        onChanged();
+        onChanged?.call();
       },
     );
   }
@@ -153,7 +153,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
           );
         }
         field.setValue(draft, selected);
-        onChanged();
+        onChanged?.call();
       },
     );
   }
@@ -165,7 +165,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       focusNode: _focusNode(field.id),
       onChanged: (value) {
         field.updateValue(draft, value);
-        onChanged();
+        onChanged?.call();
       },
     );
   }
@@ -190,7 +190,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       ),
       onChanged: (value) {
         field.setCents(draft, _parseMoneyCents(value));
-        onChanged();
+        onChanged?.call();
       },
     );
   }
@@ -203,7 +203,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         errorText: field.validate(draft),
         onChanged: (value) {
           field.setValue(draft, value);
-          onChanged();
+          onChanged?.call();
         },
       );
 
@@ -256,7 +256,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
                   final selected = await field.select!(draft);
                   if (!context.mounted) return;
                   field.updateValue(draft, selected);
-                  onChanged();
+                  onChanged?.call();
                 },
                 icon: const Icon(Icons.image_outlined, size: 16),
                 label: const Text('Choose'),
@@ -304,7 +304,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
                     tooltip: 'Manage ${field.label}',
                     onPressed: () async {
                       await onManage(draft);
-                      if (context.mounted) onChanged();
+                      if (context.mounted) onChanged?.call();
                     },
                     icon: const Icon(Icons.tune),
                   ),
@@ -320,7 +320,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         ],
         onChanged: (value) {
           field.updateValue(draft, value);
-          onChanged();
+          onChanged?.call();
         },
       );
     }
@@ -383,7 +383,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
               ? textValue
               : null,
         );
-        onChanged();
+        onChanged?.call();
       },
     );
   }
@@ -465,7 +465,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
             },
           );
         }
-        onChanged();
+        onChanged?.call();
       },
       onOpenPicker: (
           {required label,

@@ -370,11 +370,14 @@ Still outstanding:
   person editors, but personal state, tracking, image, and link lifecycles are
   still composed separately; the other kinds also have separate catalog/entry
   compositions.
-- The Add and Edit renderers still own separate submission/error lifecycles and
-  controller registries. Validation policy for fields in unmounted tabs still
-  needs to be made explicit. Schema-backed invalid fields now focus after tab
-  navigation; a kind-owned custom tab must still provide its own focused
-  validation behavior.
+- The Add shell and Edit renderer still own separate submission/error
+  lifecycles and controller registries. Validation policy for fields in
+  unmounted tabs still needs to be made explicit. Schema-backed invalid fields
+  now focus after tab navigation; a kind-owned custom tab must still provide
+  its own focused validation behavior.
+- `AddSchemaRenderer` is now embedded-only: its unused standalone Save/Cancel,
+  validation, error, fixed-height, and inner-scroll path was removed. The
+  dialog shell owns submission and the single vertical viewport.
 - Legacy custom tabs and kind-specific tab composition still have divergent
   implementations. Responsive field geometry and the basic vocabulary/text
   controls are now shared. Book Authors/Translators and Movie Cast/Crew share
