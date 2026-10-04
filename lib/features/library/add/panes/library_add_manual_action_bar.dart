@@ -11,16 +11,21 @@ class LibraryAddManualActionBar extends StatelessWidget {
     super.key,
     required this.request,
     required this.formKey,
+    this.validateAdditionalFields,
   });
 
   final LibraryAddManualPaneRequest request;
   final GlobalKey<FormState> formKey;
+  final String? Function(BuildContext context)? validateAdditionalFields;
 
-  VoidCallback? _validatedAction(VoidCallback action) => request.isAdding
-      ? null
-      : () {
-          if (formKey.currentState?.validate() ?? true) action();
-        };
+  VoidCallback? _validatedAction(BuildContext context, VoidCallback action) =>
+      request.isAdding
+          ? null
+          : () {
+              if (validateAdditionalFields?.call(context) != null) return;
+              if (!(formKey.currentState?.validate() ?? true)) return;
+              action();
+            };
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +35,7 @@ class LibraryAddManualActionBar extends StatelessWidget {
         final buttons = [
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: _validatedAction(request.onPropose),
+              onPressed: _validatedAction(context, request.onPropose),
               style: OutlinedButton.styleFrom(
                 foregroundColor: request.accent,
                 visualDensity: VisualDensity.compact,
@@ -42,7 +47,7 @@ class LibraryAddManualActionBar extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: _validatedAction(request.onAddTrack),
+              onPressed: _validatedAction(context, request.onAddTrack),
               style: OutlinedButton.styleFrom(
                 foregroundColor: palette.textPrimary,
                 visualDensity: VisualDensity.compact,
@@ -61,7 +66,7 @@ class LibraryAddManualActionBar extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: _validatedAction(request.onAddWishlist),
+              onPressed: _validatedAction(context, request.onAddWishlist),
               style: OutlinedButton.styleFrom(
                 foregroundColor: palette.textPrimary,
                 visualDensity: VisualDensity.compact,
@@ -80,7 +85,7 @@ class LibraryAddManualActionBar extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: FilledButton.icon(
-              onPressed: _validatedAction(request.onAddEntry),
+              onPressed: _validatedAction(context, request.onAddEntry),
               style: libraryAddFilledButtonStyle(request.accent),
               icon: request.isAdding
                   ? const SizedBox.square(

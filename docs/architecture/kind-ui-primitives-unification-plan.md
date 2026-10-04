@@ -38,6 +38,13 @@ Completed implementation slices:
   every kind unless the kind already provides one.
 - Embedded Edit schema tabs use an explicit embedded constructor instead of
   empty Save/Cancel callbacks. The parent dialog remains the save owner.
+- All nine Manual Add panes now register schema-backed validation metadata for
+  their tabs. Before any Add, Wishlist, Track, or Propose action, the shell
+  checks fields from mounted and unmounted tabs using the shared draft and raw
+  text-controller store. It switches to the first invalid tab, shows its
+  validation message, and focuses/scrolls to a field when the issue identifies
+  one. Kind-owned custom tabs can contribute their own validator through the
+  same tab contract.
 - Shared edit text fields and Add schema text/select controls use external
   labels and the common control height. Schema validators are registered with
   the active Form; numeric minimum, maximum, and decimal-place constraints are
@@ -375,10 +382,12 @@ Still outstanding:
   still composed separately; the other kinds also have separate catalog/entry
   compositions.
 - The Add shell and Edit renderer still own separate submission/error
-  lifecycles and controller registries. Validation policy for fields in
-  unmounted tabs still needs to be made explicit. Schema-backed invalid fields
-  now focus after tab navigation; a kind-owned custom tab must still provide
-  its own focused validation behavior.
+  lifecycles. Add and Edit schema controllers now share the dialog scaffold's
+  store, but submission and error handling have not yet been consolidated.
+  Schema-backed Add validation covers unmounted tabs and routes focus by stable
+  tab and field IDs. Custom editors with validation requirements must register
+  a tab validator; custom editors without field validators remain responsible
+  for their own validation behavior.
 - `LibraryFieldSpecRenderer` is now embedded-only: its unused standalone Save/Cancel,
   validation, error, fixed-height, and inner-scroll path was removed. The
   dialog shell owns submission and the single vertical viewport.

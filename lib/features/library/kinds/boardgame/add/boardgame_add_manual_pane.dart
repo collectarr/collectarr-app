@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_schema.dart';
@@ -15,66 +15,74 @@ class BoardgameAddManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final draft = request.manualDraftAs<BoardgameAddManualDraft>();
-    Widget buildFields(
+    LibraryFormSchema<BoardgameAddManualDraft> schemaFor(
       Set<String> fieldIds, {
       required String sectionLabel,
     }) =>
-        LibraryFieldSpecRenderer<BoardgameAddManualDraft>.embedded(
-          schema: boardGameAddSchemaFor(
-            fieldIds: fieldIds,
-            sectionLabels: {'catalog_item': sectionLabel},
-          ),
+        boardGameAddSchemaFor(
+          fieldIds: fieldIds,
+          sectionLabels: {'catalog_item': sectionLabel},
+        );
+
+    LibraryAddManualPaneTab schemaTab({
+      required String id,
+      required String label,
+      required IconData icon,
+      required Set<String> fieldIds,
+      required String sectionLabel,
+      bool validateSchema = false,
+    }) =>
+        LibraryAddManualPaneTab.fromSchema<BoardgameAddManualDraft>(
+          id: id,
+          label: label,
+          icon: icon,
+          schema: schemaFor(fieldIds, sectionLabel: sectionLabel),
           draft: draft,
           mediaKind: request.kind.apiValue,
           onVocabularyValueChanged: request.onVocabularyValueChanged,
           onVocabularyValuesChanged: request.onVocabularyValuesChanged,
           onChanged: request.onManualDraftChanged,
+          validateSchema: validateSchema,
         );
 
     return LibraryAddManualPaneShell(
       request: request,
       tabs: [
-        LibraryAddManualPaneTab.main(
-          content: buildFields(
-            boardGameMainFieldIds,
-            sectionLabel: 'Main',
-          ),
+        schemaTab(
+          id: 'main',
+          label: 'Main',
+          icon: Icons.edit_note_outlined,
+          fieldIds: boardGameMainFieldIds,
+          sectionLabel: 'Main',
+          validateSchema: true,
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'edition',
           label: 'Edition Details',
           icon: Icons.inventory_2_outlined,
-          content: buildFields(
-            boardGameEditionFieldIds,
-            sectionLabel: 'Edition',
-          ),
+          fieldIds: boardGameEditionFieldIds,
+          sectionLabel: 'Edition',
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'gameplay',
           label: 'Gameplay & Ratings',
           icon: Icons.casino_outlined,
-          content: buildFields(
-            boardGamePlayFieldIds,
-            sectionLabel: 'Gameplay and ratings',
-          ),
+          fieldIds: boardGamePlayFieldIds,
+          sectionLabel: 'Gameplay and ratings',
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'description',
           label: 'Description',
           icon: Icons.description_outlined,
-          content: buildFields(
-            boardGameDescriptionFieldIds,
-            sectionLabel: 'Description',
-          ),
+          fieldIds: boardGameDescriptionFieldIds,
+          sectionLabel: 'Description',
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'covers',
           label: 'Covers',
           icon: Icons.camera_alt_outlined,
-          content: buildFields(
-            boardGameCoverFieldIds,
-            sectionLabel: 'Cover',
-          ),
+          fieldIds: boardGameCoverFieldIds,
+          sectionLabel: 'Cover',
         ),
         LibraryAddManualPaneTab(
           id: 'links',

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
@@ -15,96 +15,89 @@ class AnimeAddManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final draft = request.manualDraftAs<AnimeAddManualDraft>();
+    LibraryAddManualPaneTab schemaTab({
+      required String id,
+      required String label,
+      required IconData icon,
+      required LibraryFormSchema<AnimeAddManualDraft> schema,
+      bool validateSchema = false,
+      bool vocabularies = false,
+    }) =>
+        LibraryAddManualPaneTab.fromSchema<AnimeAddManualDraft>(
+          id: id,
+          label: label,
+          icon: icon,
+          schema: schema,
+          draft: draft,
+          mediaKind: request.kind.apiValue,
+          onVocabularyValueChanged:
+              vocabularies ? request.onVocabularyValueChanged : null,
+          onVocabularyValuesChanged:
+              vocabularies ? request.onVocabularyValuesChanged : null,
+          onChanged: request.onManualDraftChanged,
+          validateSchema: validateSchema,
+        );
+
     return LibraryAddManualPaneShell(
       request: request,
       tabs: [
-        LibraryAddManualPaneTab.main(
-          content: LibraryFieldSpecRenderer<AnimeAddManualDraft>.embedded(
-            schema: animeAddSchemaFor(
-              fieldIds: animeMainFieldIds,
-              sectionLabel: 'Main',
-            ),
-            draft: draft,
-            mediaKind: request.kind.apiValue,
-            onVocabularyValueChanged: request.onVocabularyValueChanged,
-            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-            onChanged: request.onManualDraftChanged,
+        schemaTab(
+          id: 'main',
+          label: 'Main',
+          icon: Icons.edit_note_outlined,
+          schema: animeAddSchemaFor(
+            fieldIds: animeMainFieldIds,
+            sectionLabel: 'Main',
           ),
+          validateSchema: true,
+          vocabularies: true,
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'media',
           label: 'Details',
           icon: Icons.article_outlined,
-          content: LibraryFieldSpecRenderer<AnimeAddManualDraft>.embedded(
-            schema: animeAddSchemaFor(
-              fieldIds: animeDetailsFieldIds,
-              sectionLabel: 'Details',
-            ),
-            draft: draft,
-            mediaKind: request.kind.apiValue,
-            onVocabularyValueChanged: request.onVocabularyValueChanged,
-            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-            onChanged: request.onManualDraftChanged,
+          schema: animeAddSchemaFor(
+            fieldIds: animeDetailsFieldIds,
+            sectionLabel: 'Details',
           ),
+          vocabularies: true,
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'edition',
           label: 'Edition',
           icon: Icons.inventory_2_outlined,
-          content: LibraryFieldSpecRenderer<AnimeAddManualDraft>.embedded(
-            schema: animeAddSchemaFor(
-              fieldIds: animeEditionFieldIds,
-              sectionLabel: 'Edition',
-            ),
-            draft: draft,
-            mediaKind: request.kind.apiValue,
-            onVocabularyValueChanged: request.onVocabularyValueChanged,
-            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-            onChanged: request.onManualDraftChanged,
+          schema: animeAddSchemaFor(
+            fieldIds: animeEditionFieldIds,
+            sectionLabel: 'Edition',
           ),
+          vocabularies: true,
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'specs',
           label: 'Specs',
           icon: Icons.tune_outlined,
-          content: LibraryFieldSpecRenderer<AnimeAddManualDraft>.embedded(
-            schema: animeAddSchemaFor(
-              fieldIds: animeSpecsFieldIds,
-              sectionLabel: 'Specs',
-            ),
-            draft: draft,
-            mediaKind: request.kind.apiValue,
-            onVocabularyValueChanged: request.onVocabularyValueChanged,
-            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-            onChanged: request.onManualDraftChanged,
+          schema: animeAddSchemaFor(
+            fieldIds: animeSpecsFieldIds,
+            sectionLabel: 'Specs',
           ),
+          vocabularies: true,
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'cover',
           label: 'Cover',
           icon: Icons.camera_alt_outlined,
-          content: LibraryFieldSpecRenderer<AnimeAddManualDraft>.embedded(
-            schema: animeAddSchemaFor(
-              fieldIds: const {'cover_image_url'},
-              sectionLabel: 'Cover',
-            ),
-            draft: draft,
-            mediaKind: request.kind.apiValue,
-            onChanged: request.onManualDraftChanged,
+          schema: animeAddSchemaFor(
+            fieldIds: const {'cover_image_url'},
+            sectionLabel: 'Cover',
           ),
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'synopsis',
           label: 'Synopsis',
           icon: Icons.description_outlined,
-          content: LibraryFieldSpecRenderer<AnimeAddManualDraft>.embedded(
-            schema: animeAddSchemaFor(
-              fieldIds: const {'synopsis'},
-              sectionLabel: 'Synopsis',
-            ),
-            draft: draft,
-            mediaKind: request.kind.apiValue,
-            onChanged: request.onManualDraftChanged,
+          schema: animeAddSchemaFor(
+            fieldIds: const {'synopsis'},
+            sectionLabel: 'Synopsis',
           ),
         ),
         LibraryAddManualPaneTab(

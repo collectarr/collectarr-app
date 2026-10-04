@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
 import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/serial/library_series_selector_field.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
@@ -161,14 +160,25 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           includeTitle: false,
         );
 
-    Widget buildFields(Set<String> fieldIds, String sectionLabel) =>
-        LibraryFieldSpecRenderer<ComicAddManualDraft>.embedded(
+    LibraryAddManualPaneTab schemaTab({
+      required String id,
+      required String label,
+      required IconData icon,
+      required Set<String> fieldIds,
+      required String sectionLabel,
+      bool validateSchema = false,
+    }) =>
+        LibraryAddManualPaneTab.fromSchema<ComicAddManualDraft>(
+          id: id,
+          label: label,
+          icon: icon,
           schema: schemaFor(fieldIds, sectionLabel),
           draft: comicDraft,
           mediaKind: request.kind.apiValue,
           onVocabularyValueChanged: request.onVocabularyValueChanged,
           onVocabularyValuesChanged: request.onVocabularyValuesChanged,
           onChanged: request.onManualDraftChanged,
+          validateSchema: validateSchema,
         );
     return LibraryAddManualPaneShell(
       request: request,
@@ -185,52 +195,47 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
         },
       ),
       tabs: [
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'main',
           label: 'Main',
           icon: Icons.article_outlined,
-          content: buildFields(
-            const {'catalog_title', 'issue_number'},
-            'Main',
-          ),
+          fieldIds: const {'catalog_title', 'issue_number'},
+          sectionLabel: 'Main',
+          validateSchema: true,
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'edition',
           label: 'Edition Details',
           icon: Icons.inventory_2_outlined,
-          content: buildFields(
-            const {
-              'variant',
-              'edition_title',
-              'barcode',
-              'isbn',
-              'upc',
-              'physical_format',
-              'cover_date',
-              'release_date',
-            },
-            'Edition details',
-          ),
+          fieldIds: const {
+            'variant',
+            'edition_title',
+            'barcode',
+            'isbn',
+            'upc',
+            'physical_format',
+            'cover_date',
+            'release_date',
+          },
+          sectionLabel: 'Edition details',
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'details',
           label: 'Details',
           icon: Icons.info_outline,
-          content: buildFields(
-            const {
-              'publisher',
-              'imprint',
-              'series_group',
-              'page_count',
-              'age_rating',
-              'genres',
-              'language',
-              'country',
-              'crossover',
-              'story_arcs',
-            },
-            'Publication details',
-          ),
+          fieldIds: const {
+            'publisher',
+            'imprint',
+            'series_group',
+            'page_count',
+            'age_rating',
+            'genres',
+            'language',
+            'country',
+            'crossover',
+            'story_arcs',
+          },
+          sectionLabel: 'Publication details',
         ),
         LibraryAddManualPaneTab(
           id: 'creators',
@@ -273,14 +278,12 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
             onChanged: request.onManualDraftChanged ?? () {},
           ),
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'covers',
           label: 'Covers',
           icon: Icons.camera_alt_outlined,
-          content: buildFields(
-            const {'cover_image_url'},
-            'Cover',
-          ),
+          fieldIds: const {'cover_image_url'},
+          sectionLabel: 'Cover',
         ),
         LibraryAddManualPaneTab(
           id: 'links',

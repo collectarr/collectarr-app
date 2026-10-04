@@ -6,6 +6,10 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema_validation.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
 import 'package:flutter/material.dart';
 
 /// Shared visual structure for kind-entry manual Add forms.
@@ -36,6 +40,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
     with SingleTickerProviderStateMixin {
   late final GlobalKey<FormState> _formKey;
   late TabController _tabController;
+  final Map<String, FocusNode> _fieldFocusNodes = {};
 
   @override
   void initState() {
@@ -113,9 +118,51 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
 
   int _tabCount(LibraryAddManualPaneShell shell) => _tabsFor(shell).length;
 
+  String? _validateAllTabs(BuildContext validationContext) {
+    final controllers = LibrarySchemaTextControllerScope.maybeOf(
+      validationContext,
+    );
+    if (controllers == null) {
+      throw StateError(
+          'Manual Add validation requires the dialog controller scope.');
+    }
+    final tabs = _tabsFor(widget);
+    for (var index = 0; index < tabs.length; index++) {
+      final issue = tabs[index].validate?.call(controllers);
+      if (issue == null) continue;
+      if (_tabController.index != index) _tabController.index = index;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _tabController.index == index) {
+          _formKey.currentState?.validate();
+          final fieldId = issue.fieldId;
+          if (fieldId != null) {
+            final node = _fieldFocusNodes['${tabs[index].id}::$fieldId'];
+            node?.requestFocus();
+            final targetContext = node?.context;
+            if (targetContext != null) {
+              Scrollable.ensureVisible(
+                targetContext,
+                alignment: 0.25,
+                duration: Duration.zero,
+              );
+            }
+          }
+        }
+      });
+      ScaffoldMessenger.of(validationContext).showSnackBar(
+        SnackBar(content: Text(issue.message)),
+      );
+      return issue.message;
+    }
+    return null;
+  }
+
   @override
   void dispose() {
     _tabController.dispose();
+    for (final node in _fieldFocusNodes.values) {
+      node.dispose();
+    }
     super.dispose();
   }
 
@@ -150,12 +197,20 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
         for (var index = 0; index < tabs.length; index++)
           EditTabShell(
             children: [
-              if (index == 0 && widget.identityDetails != null) ...[
-                widget.identityDetails!,
-              ],
-              if (index == 0 && widget.identityDetails != null)
-                const SizedBox(height: 12),
-              tabs[index].content,
+              LibrarySchemaFieldFocusScope(
+                tabId: tabs[index].id,
+                nodes: _fieldFocusNodes,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (index == 0 && widget.identityDetails != null) ...[
+                      widget.identityDetails!,
+                      const SizedBox(height: 12),
+                    ],
+                    tabs[index].content,
+                  ],
+                ),
+              ),
             ],
           ),
       ],
@@ -167,6 +222,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
       footerOverride: LibraryAddManualActionBar(
         request: request,
         formKey: _formKey,
+        validateAdditionalFields: _validateAllTabs,
       ),
     );
   }
@@ -181,7 +237,59 @@ final class LibraryAddManualPaneTab {
     required this.label,
     required this.icon,
     required this.content,
+    this.validate,
   });
+
+  static LibraryAddManualPaneTab fromForm<TDraft>({
+    required String id,
+    required String label,
+    required IconData icon,
+    required LibraryFormSchema<TDraft> schema,
+    required TDraft draft,
+    required Widget content,
+    bool validateSchema = false,
+  }) =>
+      LibraryAddManualPaneTab(
+        id: id,
+        label: label,
+        icon: icon,
+        content: content,
+        validate: (controllers) => firstLibraryFormValidationIssue(
+          schema: schema,
+          draft: draft,
+          controllers: controllers,
+          validateSchema: validateSchema,
+        ),
+      );
+
+  static LibraryAddManualPaneTab fromSchema<TDraft>({
+    required String id,
+    required String label,
+    required IconData icon,
+    required LibraryFormSchema<TDraft> schema,
+    required TDraft draft,
+    required String mediaKind,
+    LibraryVocabularyValueChanged? onVocabularyValueChanged,
+    LibraryVocabularyValuesChanged? onVocabularyValuesChanged,
+    VoidCallback? onChanged,
+    bool validateSchema = false,
+  }) =>
+      LibraryAddManualPaneTab.fromForm(
+        id: id,
+        label: label,
+        icon: icon,
+        schema: schema,
+        draft: draft,
+        validateSchema: validateSchema,
+        content: LibraryFieldSpecRenderer<TDraft>.embedded(
+          schema: schema,
+          draft: draft,
+          mediaKind: mediaKind,
+          onVocabularyValueChanged: onVocabularyValueChanged,
+          onVocabularyValuesChanged: onVocabularyValuesChanged,
+          onChanged: onChanged,
+        ),
+      );
 
   factory LibraryAddManualPaneTab.main({required Widget content}) =>
       LibraryAddManualPaneTab(
@@ -195,4 +303,7 @@ final class LibraryAddManualPaneTab {
   final String label;
   final IconData icon;
   final Widget content;
+  final LibraryFormValidationIssue? Function(
+    LibrarySchemaTextControllerStore controllers,
+  )? validate;
 }

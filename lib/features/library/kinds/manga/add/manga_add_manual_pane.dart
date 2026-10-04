@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/serial/library_series_selector_field.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_schema.dart';
@@ -97,35 +97,50 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
   Widget build(BuildContext context) {
     final draft = widget.request.manualDraftAs<MangaAddManualDraft>();
     final request = widget.request;
-    Widget buildFields(Set<String> fieldIds, String sectionLabel) {
-      final schema = mangaAddSchemaFor(
-        fieldIds: fieldIds,
-        sectionLabels: {
-          'volume': sectionLabel,
-          'publication': sectionLabel,
-        },
-        publisherOptions: _publisherOptions.isEmpty
-            ? MangaVocabularies.publisher.builtIns
-            : _publisherOptions,
-        imprintOptions: _imprintOptions.isEmpty
-            ? MangaVocabularies.imprint.builtIns
-            : _imprintOptions,
-        formatOptions: _formatOptions.isEmpty
-            ? MangaVocabularies.format.builtIns
-            : _formatOptions,
-        onManagePublisher: _managePublishers,
-        onManageImprint: _manageImprints,
-        onManageFormat: _manageFormats,
-      );
-      return LibraryFieldSpecRenderer<MangaAddManualDraft>.embedded(
-        schema: schema,
-        draft: draft,
-        mediaKind: request.kind.apiValue,
-        onVocabularyValueChanged: request.onVocabularyValueChanged,
-        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-        onChanged: request.onManualDraftChanged,
-      );
-    }
+    LibraryFormSchema<MangaAddManualDraft> schemaFor(
+      Set<String> fieldIds,
+      String sectionLabel,
+    ) =>
+        mangaAddSchemaFor(
+          fieldIds: fieldIds,
+          sectionLabels: {
+            'volume': sectionLabel,
+            'publication': sectionLabel,
+          },
+          publisherOptions: _publisherOptions.isEmpty
+              ? MangaVocabularies.publisher.builtIns
+              : _publisherOptions,
+          imprintOptions: _imprintOptions.isEmpty
+              ? MangaVocabularies.imprint.builtIns
+              : _imprintOptions,
+          formatOptions: _formatOptions.isEmpty
+              ? MangaVocabularies.format.builtIns
+              : _formatOptions,
+          onManagePublisher: _managePublishers,
+          onManageImprint: _manageImprints,
+          onManageFormat: _manageFormats,
+        );
+
+    LibraryAddManualPaneTab schemaTab({
+      required String id,
+      required String label,
+      required IconData icon,
+      required Set<String> fieldIds,
+      required String sectionLabel,
+      bool validateSchema = false,
+    }) =>
+        LibraryAddManualPaneTab.fromSchema<MangaAddManualDraft>(
+          id: id,
+          label: label,
+          icon: icon,
+          schema: schemaFor(fieldIds, sectionLabel),
+          draft: draft,
+          mediaKind: request.kind.apiValue,
+          onVocabularyValueChanged: request.onVocabularyValueChanged,
+          onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          onChanged: request.onManualDraftChanged,
+          validateSchema: validateSchema,
+        );
 
     return LibraryAddManualPaneShell(
       request: request,
@@ -143,75 +158,66 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
         },
       ),
       tabs: [
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'main',
           label: 'Main',
           icon: Icons.menu_book_outlined,
-          content: buildFields(
-            const {'catalog_title', 'volume_number', 'series_group'},
-            'Main',
-          ),
+          fieldIds: const {'catalog_title', 'volume_number', 'series_group'},
+          sectionLabel: 'Main',
+          validateSchema: true,
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'edition',
           label: 'Edition Details',
           icon: Icons.inventory_2_outlined,
-          content: buildFields(
-            const {
-              'release_title',
-              'variant',
-              'format',
-              'binding',
-              'publisher',
-              'imprint',
-              'isbn',
-              'barcode',
-              'language',
-              'release_date',
-              'page_count',
-              'publication_year',
-              'release_description',
-            },
-            'Edition details',
-          ),
+          fieldIds: const {
+            'release_title',
+            'variant',
+            'format',
+            'binding',
+            'publisher',
+            'imprint',
+            'isbn',
+            'barcode',
+            'language',
+            'release_date',
+            'page_count',
+            'publication_year',
+            'release_description',
+          },
+          sectionLabel: 'Edition details',
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'details',
           label: 'Details',
           icon: Icons.info_outline,
-          content: buildFields(
-            const {
-              'authors',
-              'artists',
-              'characters',
-              'genres',
-              'themes',
-              'age_rating',
-              'country',
-              'demographic',
-              'publication_status',
-              'serialization_platform',
-            },
-            'Details',
-          ),
+          fieldIds: const {
+            'authors',
+            'artists',
+            'characters',
+            'genres',
+            'themes',
+            'age_rating',
+            'country',
+            'demographic',
+            'publication_status',
+            'serialization_platform',
+          },
+          sectionLabel: 'Details',
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'plot',
           label: 'Plot',
           icon: Icons.notes_outlined,
-          content: buildFields(
-            const {'synopsis'},
-            'Plot',
-          ),
+          fieldIds: const {'synopsis'},
+          sectionLabel: 'Plot',
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'covers',
           label: 'Covers',
           icon: Icons.camera_alt_outlined,
-          content: buildFields(
-            const {'cover_image_url', 'back_cover_image_url'},
-            'Covers',
-          ),
+          fieldIds: const {'cover_image_url', 'back_cover_image_url'},
+          sectionLabel: 'Covers',
         ),
       ],
     );

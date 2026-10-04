@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_draft.dart';
@@ -15,62 +14,66 @@ class GameAddManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final draft = request.manualDraftAs<GameAddManualDraft>();
-    Widget buildFields(
-      Set<String> fieldIds, {
+    LibraryAddManualPaneTab schemaTab({
+      required String id,
+      required String label,
+      required IconData icon,
+      required Set<String> fieldIds,
       Map<String, String> sectionLabels = const {},
-    }) =>
-        LibraryFieldSpecRenderer<GameCatalogFormDraft>.embedded(
-          schema: gameAddSchemaFor<GameCatalogFormDraft>(
-            fieldIds: fieldIds,
-            sectionLabels: sectionLabels,
-          ),
-          draft: draft,
-          mediaKind: request.kind.apiValue,
-          onVocabularyValueChanged: request.onVocabularyValueChanged,
-          onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-          onChanged: request.onManualDraftChanged,
-        );
+      bool validateSchema = false,
+    }) {
+      final schema = gameAddSchemaFor<GameCatalogFormDraft>(
+        fieldIds: fieldIds,
+        sectionLabels: sectionLabels,
+      );
+      return LibraryAddManualPaneTab.fromSchema<GameCatalogFormDraft>(
+        id: id,
+        label: label,
+        icon: icon,
+        schema: schema,
+        draft: draft,
+        mediaKind: request.kind.apiValue,
+        onVocabularyValueChanged: request.onVocabularyValueChanged,
+        onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+        onChanged: request.onManualDraftChanged,
+        validateSchema: validateSchema,
+      );
+    }
 
     return LibraryAddManualPaneShell(
       request: request,
       tabs: [
-        LibraryAddManualPaneTab.main(
-          content: buildFields(
-            gameMainFieldIds,
-            sectionLabels: const {
-              'catalog_item': 'Main',
-              'game_details': 'Game details',
-            },
-          ),
+        schemaTab(
+          id: 'main',
+          label: 'Main',
+          icon: Icons.edit_note_outlined,
+          fieldIds: gameMainFieldIds,
+          validateSchema: true,
+          sectionLabels: const {
+            'catalog_item': 'Main',
+            'game_details': 'Game details',
+          },
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'edition',
           label: 'Edition details',
           icon: Icons.inventory_2_outlined,
-          content: buildFields(
-            gameEditionFieldIds,
-            sectionLabels: const {'catalog_item': 'Edition'},
-          ),
+          fieldIds: gameEditionFieldIds,
+          sectionLabels: const {'catalog_item': 'Edition'},
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'synopsis',
           label: 'Description',
           icon: Icons.description_outlined,
-          content: buildFields(
-            gameDescriptionFieldIds,
-            sectionLabels: const {'game_details': 'Description'},
-          ),
+          fieldIds: gameDescriptionFieldIds,
+          sectionLabels: const {'game_details': 'Description'},
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'cover',
           label: 'Covers',
           icon: Icons.camera_alt_outlined,
-          content: buildFields(
-            gameCoverFieldIds,
-            sectionLabels: const {
-              'catalog_item': 'Front and back covers',
-            },
-          ),
+          fieldIds: gameCoverFieldIds,
+          sectionLabels: const {'catalog_item': 'Front and back covers'},
         ),
       ],
     );

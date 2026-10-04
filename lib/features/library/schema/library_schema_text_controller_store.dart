@@ -44,3 +44,30 @@ final class LibrarySchemaTextControllerScope extends InheritedWidget {
   bool updateShouldNotify(LibrarySchemaTextControllerScope oldWidget) =>
       !identical(store, oldWidget.store);
 }
+
+/// Provides stable field focus nodes across schema tabs in one dialog.
+final class LibrarySchemaFieldFocusScope extends InheritedWidget {
+  const LibrarySchemaFieldFocusScope({
+    super.key,
+    required this.tabId,
+    required this.nodes,
+    required super.child,
+  });
+
+  final String tabId;
+  final Map<String, FocusNode> nodes;
+
+  static FocusNode? nodeFor(BuildContext context, String fieldId) {
+    final scope = context
+        .dependOnInheritedWidgetOfExactType<LibrarySchemaFieldFocusScope>();
+    if (scope == null) return null;
+    return scope.nodes.putIfAbsent(
+      '${scope.tabId}::$fieldId',
+      FocusNode.new,
+    );
+  }
+
+  @override
+  bool updateShouldNotify(LibrarySchemaFieldFocusScope oldWidget) =>
+      tabId != oldWidget.tabId || !identical(nodes, oldWidget.nodes);
+}

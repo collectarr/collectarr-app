@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_personal_tab.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
 import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_credits_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_covers_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
@@ -86,31 +85,28 @@ class MusicAddManualPane extends StatelessWidget {
     return LibraryAddManualPaneShell(
       request: request,
       tabs: [
-        LibraryAddManualPaneTab(
+        LibraryAddManualPaneTab.fromSchema<MusicAddManualDraft>(
           id: 'main',
           label: 'Main',
           icon: Icons.music_note_outlined,
-          content: LibraryFieldSpecRenderer<MusicAddManualDraft>.embedded(
-            schema: mainSchema,
-            draft: draft,
-            mediaKind: request.kind.apiValue,
-            onVocabularyValueChanged: request.onVocabularyValueChanged,
-            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-            onChanged: request.onManualDraftChanged,
-          ),
+          schema: mainSchema,
+          draft: draft,
+          mediaKind: request.kind.apiValue,
+          onVocabularyValueChanged: request.onVocabularyValueChanged,
+          onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          onChanged: request.onManualDraftChanged,
+          validateSchema: true,
         ),
-        LibraryAddManualPaneTab(
+        LibraryAddManualPaneTab.fromSchema<MusicAddManualDraft>(
           id: 'details',
           label: 'Details',
           icon: Icons.info_outline,
-          content: LibraryFieldSpecRenderer<MusicAddManualDraft>.embedded(
-            schema: detailsSchema,
-            draft: draft,
-            mediaKind: request.kind.apiValue,
-            onVocabularyValueChanged: request.onVocabularyValueChanged,
-            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-            onChanged: request.onManualDraftChanged,
-          ),
+          schema: detailsSchema,
+          draft: draft,
+          mediaKind: request.kind.apiValue,
+          onVocabularyValueChanged: request.onVocabularyValueChanged,
+          onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          onChanged: request.onManualDraftChanged,
         ),
         LibraryAddManualPaneTab(
           id: 'classical',

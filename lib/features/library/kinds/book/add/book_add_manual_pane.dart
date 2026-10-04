@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dial
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
@@ -92,89 +92,97 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
     final draft = widget.request.manualDraftAs<BookAddManualDraft>();
     final request = widget.request;
 
-    Widget buildFields(
+    LibraryFormSchema<BookCatalogFormDraft> schemaFor(
       Set<String> fieldIds, {
       Map<String, String> sectionLabels = const {},
     }) =>
-        LibraryFieldSpecRenderer<BookCatalogFormDraft>.embedded(
-          schema: bookAddSchemaFor(
-            fieldIds: fieldIds,
-            sectionLabels: sectionLabels,
-            publisherOptions: _publisherOptions.isEmpty
-                ? BookVocabularies.publisher.builtIns
-                : _publisherOptions,
-            formatOptions: _physicalFormatOptions.isEmpty
-                ? BookVocabularies.format.builtIns
-                : _physicalFormatOptions,
-            onManagePublisher: () => _manageSingleValuePickList(
-              listName: BookVocabularyIds.publisher.value,
-              label: 'Publishers',
-            ),
-            onManageFormat: () => _manageSingleValuePickList(
-              listName: BookVocabularyIds.format.value,
-              label: 'Physical Formats',
-              builtInValues: [
-                for (final format in _currentPhysicalFormats()) format.label,
-              ],
-            ),
+        bookAddSchemaFor(
+          fieldIds: fieldIds,
+          sectionLabels: sectionLabels,
+          publisherOptions: _publisherOptions.isEmpty
+              ? BookVocabularies.publisher.builtIns
+              : _publisherOptions,
+          formatOptions: _physicalFormatOptions.isEmpty
+              ? BookVocabularies.format.builtIns
+              : _physicalFormatOptions,
+          onManagePublisher: () => _manageSingleValuePickList(
+            listName: BookVocabularyIds.publisher.value,
+            label: 'Publishers',
           ),
+          onManageFormat: () => _manageSingleValuePickList(
+            listName: BookVocabularyIds.format.value,
+            label: 'Physical Formats',
+            builtInValues: [
+              for (final format in _currentPhysicalFormats()) format.label,
+            ],
+          ),
+        );
+
+    LibraryAddManualPaneTab schemaTab({
+      required String id,
+      required String label,
+      required IconData icon,
+      required Set<String> fieldIds,
+      Map<String, String> sectionLabels = const {},
+      bool validateSchema = false,
+    }) =>
+        LibraryAddManualPaneTab.fromSchema<BookCatalogFormDraft>(
+          id: id,
+          label: label,
+          icon: icon,
+          schema: schemaFor(fieldIds, sectionLabels: sectionLabels),
           draft: draft,
           mediaKind: request.kind.apiValue,
           onVocabularyValueChanged: request.onVocabularyValueChanged,
           onVocabularyValuesChanged: request.onVocabularyValuesChanged,
           onChanged: request.onManualDraftChanged,
+          validateSchema: validateSchema,
         );
 
     return LibraryAddManualPaneShell(
       request: request,
       tabs: [
-        LibraryAddManualPaneTab.main(
-          content: buildFields(
-            bookMainFieldIds,
-            sectionLabels: const {
-              'edition': 'Edition',
-              'publication': 'Publication',
-            },
-          ),
+        schemaTab(
+          id: 'main',
+          label: 'Main',
+          icon: Icons.edit_note_outlined,
+          fieldIds: bookMainFieldIds,
+          validateSchema: true,
+          sectionLabels: const {
+            'edition': 'Edition',
+            'publication': 'Publication',
+          },
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'credits',
           label: 'Credits',
           icon: Icons.groups_2_outlined,
-          content: buildFields(
-            bookCreditFieldIds,
-            sectionLabels: const {'publication': 'Credits'},
-          ),
+          fieldIds: bookCreditFieldIds,
+          sectionLabels: const {'publication': 'Credits'},
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'links',
           label: 'Links',
           icon: Icons.public,
-          content: buildFields(
-            bookLinkFieldIds,
-            sectionLabels: const {'edition': 'Identifiers'},
-          ),
+          fieldIds: bookLinkFieldIds,
+          sectionLabels: const {'edition': 'Identifiers'},
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'covers',
           label: 'Covers',
           icon: Icons.photo_camera_outlined,
-          content: buildFields(
-            bookCoverFieldIds,
-            sectionLabels: const {
-              'edition': 'Front cover',
-              'publication': 'Back cover',
-            },
-          ),
+          fieldIds: bookCoverFieldIds,
+          sectionLabels: const {
+            'edition': 'Front cover',
+            'publication': 'Back cover',
+          },
         ),
-        LibraryAddManualPaneTab(
+        schemaTab(
           id: 'plot',
           label: 'Plot',
           icon: Icons.description_outlined,
-          content: buildFields(
-            bookPlotFieldIds,
-            sectionLabels: const {'publication': 'Plot'},
-          ),
+          fieldIds: bookPlotFieldIds,
+          sectionLabels: const {'publication': 'Plot'},
         ),
       ],
     );

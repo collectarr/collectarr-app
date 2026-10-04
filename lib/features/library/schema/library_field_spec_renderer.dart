@@ -116,7 +116,8 @@ class _LibraryFieldSpecRendererState<TDraft>
         draft: widget.draft,
         mode: widget.controlMode,
         controllerFor: _controllerFor,
-        focusNodeFor: widget.focusNodeFor,
+        focusNodeFor: widget.focusNodeFor ??
+            (fieldId) => LibrarySchemaFieldFocusScope.nodeFor(context, fieldId),
         mediaKind: widget.mediaKind,
         onVocabularyValueChanged: widget.onVocabularyValueChanged,
         onVocabularyValuesChanged: widget.onVocabularyValuesChanged,
