@@ -73,10 +73,11 @@ Completed implementation slices:
   Translators. Add stores typed credits instead of a comma-separated string;
   Edit's Credits tab now renders those same editors, preserves credit metadata,
   and writes the visible order back to the credit sequence.
-- Movie, TV, and Anime now render their shared physical-media Specs tab through
-  one video-kind component. It preserves managed multi-value Audio/Subtitles
-  vocabularies for Movie and TV, and text input for Anime, while sharing the
-  Layers, Color, Discs fields and responsive layout.
+- TV and Anime render their shared physical-media Specs tab through one
+  video-kind component. Movie now renders the same Audio, Subtitles, Screen
+  ratio, Layers, Color, and Discs values through its shared Add/Edit catalog
+  schema; Movie and TV retain managed Audio/Subtitles vocabularies, while Anime
+  keeps text input.
 - Movie Manual Add now includes Audio tracks, Subtitles, Screen ratio, Layers,
   Color, and Discs in its kind-owned fields and serializes them into the Movie
   catalog document. Audio and subtitle choices use the existing Movie
@@ -85,6 +86,14 @@ Completed implementation slices:
   Edition details, Plot, and Specs tabs alongside Covers, Cast, and Crew.
   Characters use the same editor in Add and Edit under Cast; user images and
   personal fields remain supplied by the common dialog shell.
+- Movie scalar catalog metadata now uses `MovieCatalogFormValues` and one
+  `movieCatalogItemFields` definition in both Add and Edit. Title, Main,
+  Edition, Specs, Plot, and Cover tabs use the same schema renderer and field
+  IDs. Edit no longer creates a second set of scalar metadata controllers;
+  catalog persistence reads the shared values and keeps nullable clears and
+  partial release dates. The catalog-only Edit tab also exposes Specs, and the
+  duplicate scalar Edit tab widgets were removed. Cast/Crew rows remain in the
+  kind-owned Edit controller, while Characters share the form values draft.
 - TV Manual Add now uses the shared multi-vocabulary controls and TV vocabulary
   IDs for Audio tracks and Subtitles, matching its Edit Specs controls while
   retaining the existing comma-separated catalog representation.
@@ -178,9 +187,9 @@ Completed implementation slices:
   because the Manga model requires non-null values for them.
 - Game edit fields use stable draft-owned controllers and configured physical
   format/platform vocabularies. Comic edit host access requires the registered
-  typed draft, with temporary controller fallbacks removed. Movie/TV/Anime
-  custom tab builders also require their typed drafts; the current specs tabs
-  read draft-owned controllers rather than shared dummy controllers.
+  typed draft, with temporary controller fallbacks removed. Movie, TV, and
+  Anime custom tab builders require their typed drafts; Movie scalar fields
+  use `MovieCatalogFormValues`, and TV/Anime Specs use their own draft values.
 - The eight kinds using `LibraryEditRenderer` now pass the edit request to the
   renderer instead of constructing `LibraryEditShellState` in their dialog
   widget's `build()` method. The renderer creates the request-backed draft in
@@ -237,9 +246,10 @@ Completed implementation slices:
 Still outstanding:
 
 - Add and Edit do not yet use one complete kind-owned field definition for all
-  nine kinds. Movie now shares typed Cast/Crew row editors, but scalar Add and
-  Edit fields remain separate; other kinds also have separate catalog/entry
-  compositions.
+  nine kinds. Movie now shares scalar catalog field definitions and typed
+  Cast/Crew editors, but personal state, tracking, image, and link lifecycles
+  are still composed separately; the other kinds also have separate
+  catalog/entry compositions.
 - The Add and Edit renderers still own separate submission/error lifecycles and
   controller registries. Validation policy for fields in unmounted tabs still
   needs to be made explicit. Schema-backed invalid fields now focus after tab
@@ -287,7 +297,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | Kind | Manual Add composition | Edit composition / identified divergence |
 | --- | --- | --- |
 | Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Registered edit route uses the typed album schema dialog; Add credits/tracks/links/covers still have independent widgets and bindings. No separate entry edit dialog or caller remains in the current source. |
-| Movies | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic session/presentation renderer; separate catalog/entry tab lists and custom tabs. The request-backed edit draft is initialized by the shared renderer state; Movie shares its Specs tab with TV and Anime. User links now use the shared entry-local draft. Remaining custom child-editor controller ownership still needs review. |
+| Movies | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic session/presentation renderer; catalog scalars now use the same typed field specs, values model, and embedded schema renderer as Add. Catalog and entry scopes share those metadata tabs; personal state, tracking, image, and link lifecycles remain separate. |
 | TV | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic editor plus a typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/Anime, Cast/Crew use the same row editor in Add/Edit, Characters are editable in both, and user links use the shared entry-local draft. Custom episode dialog is another surface to audit. |
 | Anime | Main, Details, Edition details, Specs, Cover, Synopsis, Cast, Crew | Registered edit routes use a typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, Cast/Crew use the same row editor in Add/Edit, Characters are editable in both, and user links use the shared entry-local draft. |
 | Books | Main, Credits, Links, Covers, Plot | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab uses the same typed ordered-name editors as Add. |
@@ -412,6 +422,11 @@ Evidence: `kinds/movie/add/movie_add_manual_pane.dart`,
   and Edit, including aliases, role, description, and image URL.
 - Movie Add and Edit now expose `Cover Image URL` in a dedicated Covers tab,
   using the same labelled text control and the same draft value.
+- Movie Main, Edition, Specs, Plot, and Cover now filter the same kind-owned
+  field-spec list in Add and Edit. Title is stored in `MovieCatalogFormValues`
+  in both modes, and Edit persistence no longer reads duplicate scalar text
+  controllers. Partial release year/month data is preserved when the date
+  input is left untouched; choosing a full date updates the matching year.
 - The local-entry profile now extends the same Movie metadata tabs used by the
   catalog profile, so those fields remain editable when changing an entry.
 - Empty option lists are no longer passed to Movie/TV/Anime fields as if they
@@ -486,10 +501,11 @@ tab placement, and metadata/personal classification.
 2. Create a field coverage ledger for all kinds: canonical path/type,
    Add presence/control, Edit presence/control, save binding, and inspector
    reader. Include supported fields currently absent from one form.
-3. The Movie/TV/Anime specs tabs now use typed draft-owned state, and all eight
-   generic edit launchers pass requests to the shared renderer, which creates
-   and disposes request-backed drafts in `initState`/`dispose`. The unused
-   prebuilt-draft constructor and Game/Board Game wrapper parameters are gone.
+3. Movie Edit now reads scalar catalog values from its typed shared form draft;
+   TV/Anime Specs use typed draft-owned state. All eight generic edit launchers
+   pass requests to the shared renderer, which creates and disposes
+   request-backed drafts in `initState`/`dispose`. The unused prebuilt-draft
+   constructor and Game/Board Game wrapper parameters are gone.
    Music already manages its own draft in state. Continue auditing controllers
    owned by custom fields and child editors, including Games and the Comic
    host adapter.

@@ -12,8 +12,9 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_credit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_format_value.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
@@ -24,16 +25,19 @@ import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft_contract.dart';
 
-enum MovieCanonicalEditField {
-  title,
-  displayTitle,
-  sortTitle,
-  originalTitle,
-  localizedTitle,
-  searchAliases,
-  synopsis,
-  coverImage,
-  thumbnailImage
+List<String> _splitValues(String value) => value
+    .split(RegExp(r'[,;\r\n]+'))
+    .map((entry) => entry.trim())
+    .where((entry) => entry.isNotEmpty)
+    .toSet()
+    .toList(growable: false);
+
+String? _joinValues(List<String> values) {
+  final normalized = values
+      .map((entry) => entry.trim())
+      .where((entry) => entry.isNotEmpty)
+      .toList(growable: false);
+  return normalized.isEmpty ? null : normalized.join(', ');
 }
 
 class MovieEditDraft
@@ -43,17 +47,12 @@ class MovieEditDraft
     implements MovieEditDraftContract, LibraryEntryExternalLinksSource {
   MovieEditDraft({
     this.libraryEntry,
+    required this.catalogValues,
     required this.featuresController,
     required this.boxSetNameController,
     required this.regionController,
     required this.packagingController,
     required this.distributorController,
-    required this.screenRatioController,
-    required this.audioTracksController,
-    required this.subtitlesController,
-    required this.layersController,
-    required this.colorController,
-    required this.nrDiscsController,
     required this.hdrFormats,
     required this.movieEdit,
   });
@@ -61,29 +60,14 @@ class MovieEditDraft
   final MovieLibraryEntry? libraryEntry;
 
   @override
-  final TextEditingController featuresController;
-  @override
-  final TextEditingController boxSetNameController;
-  @override
-  final TextEditingController regionController;
-  @override
-  final TextEditingController packagingController;
-  @override
-  final TextEditingController distributorController;
-  @override
-  final TextEditingController screenRatioController;
-  @override
-  final TextEditingController audioTracksController;
-  @override
-  final TextEditingController subtitlesController;
-  @override
-  final TextEditingController layersController;
-  @override
-  final TextEditingController colorController;
-  @override
-  final TextEditingController nrDiscsController;
+  final MovieCatalogFormValues catalogValues;
 
-  @override
+  final TextEditingController featuresController;
+  final TextEditingController boxSetNameController;
+  final TextEditingController regionController;
+  final TextEditingController packagingController;
+  final TextEditingController distributorController;
+
   List<String> hdrFormats;
   @override
   final MovieEditController movieEdit;
@@ -189,250 +173,122 @@ class MovieEditDraft
   LibraryEditSelection applyCanonicalEdits(
     LibraryEditSelection selection,
     LibraryEditFormFields fields,
-  ) {
-    final aliases = fields
-        .controller(MovieCanonicalEditField.searchAliases)
-        .text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((entry) => entry.trim())
-        .where((entry) => entry.isNotEmpty)
-        .toList();
-    return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.kindCapability.mapTransport((transport) {
-        final metadata = MovieCatalogMetadata.fromJson(transport.kindData);
-        final edited = metadata.copyWith(
-          title: fields.controller(MovieCanonicalEditField.title).text.trim(),
-          displayTitle: emptyToNull(
-              fields.controller(MovieCanonicalEditField.displayTitle).text),
-          originalTitle: emptyToNull(
-              fields.controller(MovieCanonicalEditField.originalTitle).text),
-          localizedTitle: emptyToNull(
-              fields.controller(MovieCanonicalEditField.localizedTitle).text),
-          searchAliases: aliases.isEmpty ? null : aliases,
-          synopsis: emptyToNull(
-              fields.controller(MovieCanonicalEditField.synopsis).text),
-          coverImageUrl: emptyToNull(
-              fields.controller(MovieCanonicalEditField.coverImage).text),
-          thumbnailImageUrl: emptyToNull(
-              fields.controller(MovieCanonicalEditField.thumbnailImage).text),
-          sortTitle: emptyToNull(
-            fields.controller(MovieCanonicalEditField.sortTitle).text,
-          ),
-        );
-        final updated = MovieCatalogMetadata.fromJson(applyJsonFieldPatch(
-          edited,
-          {
-            'display_title': emptyToNull(
-              fields.controller(MovieCanonicalEditField.displayTitle).text,
-            ),
-            'original_title': emptyToNull(
-              fields.controller(MovieCanonicalEditField.originalTitle).text,
-            ),
-            'localized_title': emptyToNull(
-              fields.controller(MovieCanonicalEditField.localizedTitle).text,
-            ),
-            'search_aliases': aliases,
-            'synopsis': emptyToNull(
-              fields.controller(MovieCanonicalEditField.synopsis).text,
-            ),
-            'cover_image_url': emptyToNull(
-              fields.controller(MovieCanonicalEditField.coverImage).text,
-            ),
-            'thumbnail_image_url': emptyToNull(
-              fields.controller(MovieCanonicalEditField.thumbnailImage).text,
-            ),
-            'sort_key': emptyToNull(
-              fields.controller(MovieCanonicalEditField.sortTitle).text,
-            ),
-          },
-        ));
-        return transport.replacingKindData(updated);
-      })),
-    );
-  }
+  ) =>
+      selection;
 
   @override
   LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
-  ) {
-    final metadata = item.movieCatalogFields;
-    fields.create(MovieCanonicalEditField.title, initialValue: metadata.title);
-    fields.create(MovieCanonicalEditField.displayTitle,
-        initialValue: metadata.displayTitle ?? '');
-    fields.create(MovieCanonicalEditField.sortTitle,
-        initialValue: metadata.sortKey ?? '');
-    fields.create(MovieCanonicalEditField.originalTitle,
-        initialValue: metadata.originalTitle ?? '');
-    fields.create(MovieCanonicalEditField.localizedTitle,
-        initialValue: metadata.localizedTitle ?? '');
-    fields.create(MovieCanonicalEditField.searchAliases,
-        initialValue: metadata.searchAliases.join(', '));
-    fields.create(MovieCanonicalEditField.synopsis,
-        initialValue: metadata.synopsis ?? '');
-    fields.create(MovieCanonicalEditField.coverImage,
-        initialValue: metadata.coverImageUrl ?? '');
-    fields.create(MovieCanonicalEditField.thumbnailImage,
-        initialValue: metadata.thumbnailImageUrl ?? '');
-    return LibraryEditFormSchema(
-      fields: [
-        LibraryEditFormFieldSpec(
-          id: MovieCanonicalEditField.title,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(MovieCanonicalEditField.title),
-          label: 'Title',
-          required: true,
-        ),
-        LibraryEditFormFieldSpec(
-          id: MovieCanonicalEditField.sortTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(MovieCanonicalEditField.sortTitle),
-          label: 'Sort Title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: MovieCanonicalEditField.originalTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(MovieCanonicalEditField.originalTitle),
-          label: 'Original Title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: MovieCanonicalEditField.localizedTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(MovieCanonicalEditField.localizedTitle),
-          label: 'Localized title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: MovieCanonicalEditField.displayTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(MovieCanonicalEditField.displayTitle),
-          label: 'Display Title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: MovieCanonicalEditField.searchAliases,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(MovieCanonicalEditField.searchAliases),
-          label: 'Search Aliases',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: MovieCanonicalEditField.thumbnailImage,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(MovieCanonicalEditField.thumbnailImage),
-          label: 'Thumbnail image URL',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: MovieCanonicalEditField.coverImage,
-          section: LibraryEditFormSection.artwork,
-          controller: fields.controller(MovieCanonicalEditField.coverImage),
-          label: 'Cover Image URL',
-        ),
-        LibraryEditFormFieldSpec(
-          id: MovieCanonicalEditField.synopsis,
-          section: LibraryEditFormSection.description,
-          controller: fields.controller(MovieCanonicalEditField.synopsis),
-          label: 'Synopsis',
-          maxLines: 8,
-        ),
-      ],
-      sectionTitles: const {
-        LibraryEditFormSection.details: 'Details',
-        LibraryEditFormSection.artwork: 'Cover Image',
-        LibraryEditFormSection.description: 'Synopsis',
-      },
-    );
-  }
+  ) =>
+      LibraryEditFormSchema.empty;
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    var result = selection;
-    final meta = result.kindItem.kindCapability.mapTransport(
+    final meta = selection.kindItem.kindCapability.mapTransport(
         (transport) => MovieCatalogMetadata.fromJson(transport.kindData));
-    final parsedGenres = movieEdit.genresEditController.text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toList();
+    final values = catalogValues;
+    final releaseDateParts = values.releaseDateParts;
+    final aliases = _splitValues(values.searchAliases);
+    final contributors = [
+      for (final credit in [
+        ...movieEdit.castCredits,
+        ...movieEdit.crewCredits,
+      ])
+        if (credit.nameController.text.trim().isNotEmpty)
+          MoviePersonCredit(
+            name: credit.nameController.text.trim(),
+            role: emptyToNull(credit.roleController.text.trim()),
+          ),
+    ];
+    final format = moviePhysicalFormatId(values.format);
     final updatedMeta = MovieCatalogMetadata.fromJson(applyJsonFieldPatch(
       meta.copyWith(
-        runtimeMinutes: int.tryParse(movieEdit.runtimeController.text),
-        characters: List<MovieCharacter>.unmodifiable(movieEdit.characters),
+        title: values.title.trim(),
+        displayTitle: emptyToNull(values.displayTitle),
+        sortTitle: emptyToNull(values.sortTitle),
+        originalTitle: emptyToNull(values.originalTitle),
+        localizedTitle: emptyToNull(values.localizedTitle),
+        searchAliases: aliases,
+        synopsis: emptyToNull(values.synopsis),
+        coverImageUrl: emptyToNull(values.coverImageUrl),
+        genres: List<String>.unmodifiable(values.genres),
+        runtimeMinutes: values.runtimeMinutes,
+        ageRating: emptyToNull(values.ageRating),
+        audienceRating: emptyToNull(values.audienceRating),
+        country: emptyToNull(values.region),
+        originalLanguage: emptyToNull(values.originalLanguage),
+        language: emptyToNull(values.language),
+        releaseDate: releaseDateParts?.asDateTime,
+        releaseDateParts: releaseDateParts,
+        subtitle: emptyToNull(values.subtitle),
+        editionTitle: emptyToNull(values.editionTitle),
+        barcode: emptyToNull(values.barcode),
+        physicalFormat: format,
+        publisher: emptyToNull(values.distributor),
+        studio: emptyToNull(values.distributor),
+        variant: emptyToNull(values.variant),
+        itemNumber: emptyToNull(values.itemNumber),
+        audioTracks: _joinValues(values.audioTracks),
+        subtitles: _joinValues(values.subtitles),
+        color: emptyToNull(values.color),
+        nrDiscs: values.nrDiscs,
+        screenRatio: emptyToNull(values.screenRatio),
+        layers: emptyToNull(values.layers),
+        characters: List<MovieCharacter>.unmodifiable(values.characters),
         creators: const [],
-        contributors: [
-          for (final credit in [
-            ...movieEdit.castCredits,
-            ...movieEdit.crewCredits,
-          ])
-            if (credit.nameController.text.trim().isNotEmpty)
-              MoviePersonCredit(
-                name: credit.nameController.text.trim(),
-                role: emptyToNull(credit.roleController.text.trim()),
-              ),
-        ],
-        ageRating: emptyToNull(movieEdit.ageRatingController.text),
-        audienceRating: emptyToNull(movieEdit.audienceRatingController.text),
-        editionTitle: emptyToNull(movieEdit.editionTitleController.text),
-        variant: emptyToNull(movieEdit.variantController.text),
-        barcode: emptyToNull(movieEdit.barcodeController.text),
-        physicalFormat: movieEdit.physicalFormatId,
-        publisher: emptyToNull(movieEdit.publisherController.text),
-        releaseDate: parseDate(movieEdit.releaseDateController.text),
+        contributors: contributors,
         links: movieEdit.buildUpdatedTrailerUrls(
           meta.links,
           preserveManualLinks: libraryEntry == null,
         ),
-        screenRatio: emptyToNull(screenRatioController.text),
-        audioTracks: emptyToNull(audioTracksController.text),
-        subtitles: emptyToNull(subtitlesController.text),
-        layers: emptyToNull(layersController.text),
-        color: emptyToNull(colorController.text),
-        nrDiscs: int.tryParse(nrDiscsController.text),
       ),
       {
-        'runtime_minutes': int.tryParse(movieEdit.runtimeController.text),
+        'title': values.title.trim(),
+        'display_title': emptyToNull(values.displayTitle),
+        'sort_key': emptyToNull(values.sortTitle),
+        'original_title': emptyToNull(values.originalTitle),
+        'localized_title': emptyToNull(values.localizedTitle),
+        'search_aliases': aliases,
+        'synopsis': emptyToNull(values.synopsis),
+        'cover_image_url': emptyToNull(values.coverImageUrl),
+        'genres': List<String>.of(values.genres),
+        'runtime_minutes': values.runtimeMinutes,
+        'age_rating': emptyToNull(values.ageRating),
+        'audience_rating': emptyToNull(values.audienceRating),
+        'country': emptyToNull(values.region),
+        'original_language': emptyToNull(values.originalLanguage),
+        'language': emptyToNull(values.language),
+        'release_date': releaseDateParts?.isoString,
+        'release_date_parts': releaseDateParts?.toJson(),
+        'subtitle': emptyToNull(values.subtitle),
+        'edition_title': emptyToNull(values.editionTitle),
+        'barcode': emptyToNull(values.barcode),
+        'physical_format': format,
+        'publisher': emptyToNull(values.distributor),
+        'studio': emptyToNull(values.distributor),
+        'variant_name': emptyToNull(values.variant),
+        'item_number': emptyToNull(values.itemNumber),
+        'audio_tracks': _joinValues(values.audioTracks),
+        'subtitles': _joinValues(values.subtitles),
+        'color': emptyToNull(values.color),
+        'nr_discs': values.nrDiscs,
+        'screen_ratio': emptyToNull(values.screenRatio),
+        'layers': emptyToNull(values.layers),
         'characters': [
-          for (final character in movieEdit.characters)
+          for (final character in values.characters)
             if (character.name.trim().isNotEmpty) character.toJsonValue(),
         ],
-        'genres': parsedGenres,
-        'age_rating': emptyToNull(movieEdit.ageRatingController.text),
-        'audience_rating': emptyToNull(movieEdit.audienceRatingController.text),
-        'edition_title': emptyToNull(movieEdit.editionTitleController.text),
-        'variant': emptyToNull(movieEdit.variantController.text),
-        'barcode': emptyToNull(movieEdit.barcodeController.text),
-        'physical_format': movieEdit.physicalFormatId,
-        'publisher': emptyToNull(movieEdit.publisherController.text),
-        'country': emptyToNull(movieEdit.countryController.text),
-        'language': emptyToNull(movieEdit.languageController.text),
-        'release_date':
-            parseDate(movieEdit.releaseDateController.text)?.toIso8601String(),
-        'release_date_parts': null,
-        'screen_ratio': emptyToNull(screenRatioController.text),
-        'audio_tracks': emptyToNull(audioTracksController.text),
-        'subtitles': emptyToNull(subtitlesController.text),
-        'layers': emptyToNull(layersController.text),
-        'color': emptyToNull(colorController.text),
-        'nr_discs': int.tryParse(nrDiscsController.text),
       },
     ));
-    result = result.copyWith(
-      kindItem: result.kindItem.kindCapability.mapTransport(
+    return selection.copyWith(
+      kindItem: selection.kindItem.kindCapability.mapTransport(
         (transport) => CatalogSearchCandidate.fromItem(
           transport.replacingKindData(updatedMeta),
         ),
       ),
     );
-    return result;
   }
-
-  @override
-  TextEditingController get releaseDateController =>
-      movieEdit.releaseDateController;
-
-  @override
-  TextEditingController get releaseYearController =>
-      movieEdit.releaseYearController;
 
   void dispose() {
     movieEdit.dispose();
@@ -450,29 +306,14 @@ LibraryEditSessionBundle createMovieEditDraft({
   final metadata = item.kindCapability.mapTransport(
       (transport) => MovieCatalogMetadata.fromJson(transport.kindData));
   final movie = metadata;
-  final movieEdit = MovieEditController(
-    initialRuntime: movie.runtimeMinutes?.toString() ?? '',
-    initialAgeRating: movie.ageRating ?? '',
-    initialAudienceRating: movie.audienceRating ?? '',
-    initialGenres: movie.genres.join(', '),
-    initialEditionTitle: movie.editionTitle ??
-        (item.movieCatalogFields.titleExtension ??
+  final catalogValues = MovieCatalogFormValues.fromMetadata(movie);
+  if (catalogValues.editionTitle.trim().isEmpty) {
+    catalogValues.editionTitle = (item.movieCatalogFields.titleExtension ??
                 item.movieCatalogFields.metadata?.editionTitle)
             ?.trim() ??
-        '',
-    initialVariant: movie.variant ?? '',
-    initialBarcode: movie.barcode ?? '',
-    initialPhysicalFormatLabel:
-        moviePhysicalMediaFormatLabel(movie.physicalFormat) ??
-            movie.variant ??
-            '',
-    initialPhysicalFormatId: movie.physicalFormat,
-    initialPublisher: movie.publisher ?? movie.studio ?? '',
-    initialCountry: movie.country ?? '',
-    initialLanguage: movie.language ?? movie.originalLanguage ?? '',
-    initialReleaseDate:
-        movie.releaseDate == null ? '' : formatDate(movie.releaseDate!),
-    initialReleaseYear: movie.releaseDate?.year.toString() ?? '',
+        '';
+  }
+  final movieEdit = MovieEditController(
     initialCreators: [
       for (final creator in movie.allPeople)
         MovieCreditInput(
@@ -480,29 +321,18 @@ LibraryEditSessionBundle createMovieEditDraft({
           role: creator.role,
         ),
     ],
-    initialCharacters: metadata.characters,
     initialTrailerLinks: movie.links,
   );
-  movieEdit.initializeMovieEditors();
-  movieEdit.characters.addAll(movieEdit.initialCharacters);
 
   final draft = MovieEditDraft(
     libraryEntry: entry,
+    catalogValues: catalogValues,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
     regionController: textControllers.create(text: video?.region ?? ''),
     packagingController: textControllers.create(text: video?.packaging ?? ''),
     distributorController:
         textControllers.create(text: video?.distributor ?? ''),
-    screenRatioController:
-        textControllers.create(text: movie.screenRatio ?? ''),
-    audioTracksController:
-        textControllers.create(text: movie.audioTracks ?? ''),
-    subtitlesController: textControllers.create(text: movie.subtitles ?? ''),
-    layersController: textControllers.create(text: movie.layers ?? ''),
-    colorController: textControllers.create(text: movie.color ?? ''),
-    nrDiscsController:
-        textControllers.create(text: movie.nrDiscs?.toString() ?? ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
     movieEdit: movieEdit,
   );

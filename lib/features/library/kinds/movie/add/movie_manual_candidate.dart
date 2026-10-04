@@ -1,10 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_schema.dart';
-import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_format_value.dart';
 
 CatalogSearchCandidate? buildMovieManualCandidate(
   LibraryKindAddDraft draft, {
@@ -17,7 +16,7 @@ CatalogSearchCandidate? buildMovieManualCandidate(
   final movieDraft = draft;
   final values = movieDraft.values;
   final editionTitle = _text(values.editionTitle);
-  final releaseDateParts = _releaseDateParts(values);
+  final releaseDateParts = values.releaseDateParts;
   final credits = [
     ...movieDraft.castCredits,
     ...movieDraft.crewCredits,
@@ -54,7 +53,8 @@ CatalogSearchCandidate? buildMovieManualCandidate(
       if (values.nrDiscs case final value?) 'nr_discs': value,
       if (_text(values.originalLanguage) case final value?)
         'original_language': value,
-      if (_text(values.format) case final value?) 'physical_format': value,
+      if (moviePhysicalFormatId(values.format) case final value?)
+        'physical_format': value,
       if (_text(values.region) case final value?) 'country': value,
       if (_text(values.distributor) case final value?) 'publisher': value,
       if (_text(values.language) case final value?) 'language': value,
@@ -101,18 +101,6 @@ Map<String, Object?>? buildMovieManualProposalData(
 String? _text(String value) {
   final normalized = value.trim();
   return normalized.isEmpty ? null : normalized;
-}
-
-PartialDate? _releaseDateParts(MovieCatalogFormValues values) {
-  final date = values.releaseDate;
-  final year = values.releaseYear;
-  if (date == null && (year == null || year < 1)) return null;
-  if (date == null) return PartialDate(year: year);
-  return PartialDate(
-    year: year != null && year > 0 ? year : date.year,
-    month: date.month,
-    day: date.day,
-  );
 }
 
 List<String> _split(String value) => value

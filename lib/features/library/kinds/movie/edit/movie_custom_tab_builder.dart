@@ -1,13 +1,11 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft_contract.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_field_specs.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_edit_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_crew_tab.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_edition_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_links_tab.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_catalog_item_tab.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_specs_tab.dart';
-import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -29,22 +27,25 @@ Widget? buildMovieCustomTabView({
   final movieEdit = catalogDraft.movieEdit;
 
   return switch (tabId) {
-    'edition' => MovieEditEditionTab(
-        movieEdit: movieEdit,
-        accent: accent,
-        physicalFormats: draft.physicalFormats,
+    'edition' => MovieCatalogFormEditTab(
+        state: draft,
+        values: catalogDraft.catalogValues,
+        itemId: item.reference.id,
+        fieldIds: movieEditionFieldIds,
+        sectionLabel: 'Edition',
+        markDirty: markDirty,
       ),
-    'specs' => MovieEditSpecsTab(
-        movieDraft: catalogDraft,
-        accent: accent,
-        audioTrackOptions:
-            draft.kindVocabularies[MovieVocabularyIds.audio.value] ?? const [],
-        subtitleOptions:
-            draft.kindVocabularies[MovieVocabularyIds.subtitles.value] ??
-                const [],
+    'specs' => MovieCatalogFormEditTab(
+        state: draft,
+        values: catalogDraft.catalogValues,
+        itemId: item.reference.id,
+        fieldIds: movieSpecsFieldIds,
+        sectionLabel: 'Specs',
+        markDirty: markDirty,
       ),
     'cast' => MovieEditCastTab(
         movieEdit: movieEdit,
+        catalogValues: catalogDraft.catalogValues,
         accent: accent,
         markDirty: markDirty,
       ),
@@ -61,12 +62,29 @@ Widget? buildMovieCustomTabView({
             draft.libraryEntry != null || draft.libraryEntryDispatch != null,
         markDirty: markDirty,
       ),
-    'catalog_item' => MovieEditCatalogItemTab(
-        draft: draft,
-        movieEdit: movieEdit,
-        accent: accent,
-        genreOptions: draft.kindVocabularies[MovieVocabularyIds.genre.value] ??
-            MovieVocabularies.genre.builtIns,
+    'catalog_item' => MovieCatalogFormEditTab(
+        state: draft,
+        values: catalogDraft.catalogValues,
+        itemId: item.reference.id,
+        fieldIds: movieMainFieldIds,
+        sectionLabel: 'Main',
+        markDirty: markDirty,
+      ),
+    'synopsis' => MovieCatalogFormEditTab(
+        state: draft,
+        values: catalogDraft.catalogValues,
+        itemId: item.reference.id,
+        fieldIds: const {'synopsis'},
+        sectionLabel: 'Plot',
+        markDirty: markDirty,
+      ),
+    'cover' => MovieCatalogFormEditTab(
+        state: draft,
+        values: catalogDraft.catalogValues,
+        itemId: item.reference.id,
+        fieldIds: const {movieCoverImageUrlFieldId},
+        sectionLabel: 'Covers',
+        markDirty: markDirty,
       ),
     _ => null,
   };

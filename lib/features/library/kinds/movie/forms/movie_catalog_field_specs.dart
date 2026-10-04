@@ -8,6 +8,52 @@ import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_voc
 typedef MovieFormValuesReader<TDraft> = MovieCatalogFormValues Function(
     TDraft draft);
 
+const movieMainFieldIds = <String>{
+  'catalog_title',
+  'sort_key',
+  'original_title',
+  'localized_title',
+  'display_title',
+  'search_aliases',
+  'genres',
+  'original_language',
+  'language',
+  'age_rating',
+  'audience_rating',
+  'runtime_minutes',
+  'country',
+  'publisher',
+};
+
+const movieEditionFieldIds = <String>{
+  'subtitle',
+  'edition_title',
+  'physical_format',
+  'release_year',
+  'release_date',
+  'barcode',
+  'item_number',
+  'variant_name',
+};
+
+const movieSpecsFieldIds = <String>{
+  'audio_tracks',
+  'subtitles',
+  'screen_ratio',
+  'layers',
+  'color',
+  'nr_discs',
+};
+
+const movieAllFieldIds = <String>{
+  ...movieMainFieldIds,
+  ...movieEditionFieldIds,
+  ...movieSpecsFieldIds,
+  'synopsis',
+  'cover_image_url',
+  'characters',
+};
+
 /// Fields stored directly on one concrete Movie Catalog Item.
 ///
 /// This Add schema intentionally has no separate Work or Release section.
@@ -24,6 +70,14 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
   FutureOr<void> Function()? onManageDistributor,
 }) =>
     [
+      LibraryTextFieldSpec<TDraft>(
+        id: 'catalog_title',
+        label: 'Title',
+        value: (draft) => values(draft).title,
+        setValue: (draft, value) => values(draft).title = value,
+        validator: (draft) =>
+            values(draft).title.trim().isEmpty ? 'Enter a title' : null,
+      ),
       LibraryTextFieldSpec<TDraft>(
         id: 'display_title',
         label: 'Display Title',
@@ -161,6 +215,7 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         label: 'Discs',
         value: (draft) => values(draft).nrDiscs,
         setValue: (draft, value) => values(draft).nrDiscs = value?.toInt(),
+        minimum: 1,
       ),
       LibraryCustomFieldSpec<TDraft>(
         id: 'characters',
@@ -184,6 +239,7 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         options: _options(
           formatOptions ?? MovieVocabularies.physicalFormat.builtIns,
         ),
+        pickListKey: MovieVocabularyIds.physicalFormat.value,
         onManage: onManageFormat == null ? null : (_) => onManageFormat(),
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
@@ -192,6 +248,7 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         value: (draft) => _nullableText(values(draft).region),
         setValue: (draft, value) => values(draft).region = value ?? '',
         options: _options(regionOptions ?? MovieVocabularies.region.builtIns),
+        pickListKey: MovieVocabularyIds.region.value,
         onManage: onManageRegion == null ? null : (_) => onManageRegion(),
       ),
       LibraryNumberFieldSpec<TDraft>(
@@ -205,7 +262,13 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         id: 'release_date',
         label: 'Release Date',
         value: (draft) => values(draft).releaseDate,
-        setValue: (draft, value) => values(draft).releaseDate = value,
+        setValue: (draft, value) {
+          final form = values(draft);
+          form.releaseDate = value;
+          form.releaseMonth = value?.month;
+          form.releaseDay = value?.day;
+          if (value != null) form.releaseYear = value.year;
+        },
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'publisher',
@@ -215,6 +278,7 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         options: _options(
           distributorOptions ?? MovieVocabularies.distributor.builtIns,
         ),
+        pickListKey: MovieVocabularyIds.distributor.value,
         onManage:
             onManageDistributor == null ? null : (_) => onManageDistributor(),
       ),

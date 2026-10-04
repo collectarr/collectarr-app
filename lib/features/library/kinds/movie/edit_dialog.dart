@@ -37,6 +37,12 @@ const _movieCatalogItemTabs = [
     sectionIds: ['crew_list'],
   ),
   LibraryEditTabSpec(
+    id: 'specs',
+    icon: Icons.tune_outlined,
+    label: 'Specs',
+    sectionIds: ['video_specs', 'hdr', 'audio_subtitles', 'features'],
+  ),
+  LibraryEditTabSpec(
     id: 'read_history',
     icon: Icons.auto_stories_outlined,
     label: 'Tracking',
@@ -84,12 +90,6 @@ const _movieLibraryEntryTabs = [
     icon: Icons.edit_note,
     label: 'User Defined',
     sectionIds: ['custom_fields'],
-  ),
-  LibraryEditTabSpec(
-    id: 'specs',
-    icon: Icons.tune_outlined,
-    label: 'Specs',
-    sectionIds: ['video_specs', 'hdr', 'audio_subtitles', 'features'],
   ),
 ];
 

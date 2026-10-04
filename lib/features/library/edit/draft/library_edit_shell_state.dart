@@ -114,6 +114,9 @@ class LibraryEditShellState {
     required bool allowCustomValues,
     String? mediaKind,
   }) {
+    pendingVocabularyValues.removeWhere(
+      (key, _) => key == fieldId || key.startsWith('$fieldId::'),
+    );
     final normalized = value?.trim();
     final isKnownValue = normalized != null &&
         options.any(
@@ -132,6 +135,36 @@ class LibraryEditShellState {
       value: normalized,
       mediaKind: mediaKind,
     );
+  }
+
+  void recordPendingVocabularyValues({
+    required String fieldId,
+    required String? listName,
+    required Iterable<String> values,
+    required Iterable<String> options,
+    required bool allowCustomValues,
+    String? mediaKind,
+  }) {
+    final prefix = '$fieldId::';
+    pendingVocabularyValues.removeWhere(
+      (key, _) => key == fieldId || key.startsWith(prefix),
+    );
+    if (!allowCustomValues || listName == null) return;
+
+    final knownValues =
+        options.map((value) => value.trim().toLowerCase()).toSet();
+    for (final value in values) {
+      final normalized = value.trim();
+      if (normalized.isEmpty ||
+          knownValues.contains(normalized.toLowerCase())) {
+        continue;
+      }
+      pendingVocabularyValues['$prefix${normalized.toLowerCase()}'] = (
+        listName: listName,
+        value: normalized,
+        mediaKind: mediaKind,
+      );
+    }
   }
 
   void markClean() => _isDirty = false;
