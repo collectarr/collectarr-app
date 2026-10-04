@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/edit/contracts/library_vocabular
 import 'package:collectarr_app/features/library/edit/contracts/library_external_links_edit_session.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
@@ -405,6 +406,19 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   static String? _requiredValidator(String? v) =>
       (v == null || v.trim().isEmpty) ? 'Required' : null;
 
+  String _personalFieldLabel(String key) {
+    final field = personalFieldContributorFor(widget.type.kind)
+        .fields
+        .where((candidate) => candidate.key == key)
+        .firstOrNull;
+    if (field == null) {
+      throw StateError(
+        'The ${widget.type.kind.apiValue} kind has no personal field "$key".',
+      );
+    }
+    return field.label;
+  }
+
   List<String> _kindVocabularyOptions({
     required String suffix,
     required List<String> fallback,
@@ -774,20 +788,20 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       fields.addAll([
         _buildPersonalVocabularyField(
           suffix: 'condition',
-          label: 'Condition',
+          label: _personalFieldLabel('condition'),
           controller: _draft.personal.conditionController,
           fallback: _editCapability.conditions,
         ),
         _buildPersonalVocabularyField(
           suffix: 'grade',
-          label: 'Grade',
+          label: _personalFieldLabel('grade'),
           controller: _draft.personal.gradeController,
           fallback: _editCapability.collectionValueOptions,
         ),
         _buildLocationPickerField(),
         _buildUniversalVocabularyField(
           listName: UniversalVocabularies.owners.key,
-          label: 'Owner',
+          label: _personalFieldLabel('owner_label'),
           controller: _draft.personal.ownerLabelController,
           options: _draft.ownerOptions,
         ),
@@ -797,12 +811,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       LibraryVocabularyField(
         controller: _draft.personal.tagsController,
         options: _draft.tagOptions,
-        label: 'Tags',
+        label: _personalFieldLabel('tags'),
         multiSelect: true,
         onChanged: (_) => _markDirty(),
       ),
       LibraryNotesField(
-        label: 'Notes',
+        label: _personalFieldLabel('personal_notes'),
         controller: _draft.personal.notesController,
         onChanged: (_) => _markDirty(),
       ),
@@ -830,7 +844,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           child: LibraryPersonalFieldsLayout(
             fields: [
               LibraryMoneyAmountField(
-                label: 'Purchase Price',
+                label: _personalFieldLabel('price_paid_cents'),
                 amountMinorUnits: parseMoneyCents(
                   _draft.personal.priceController.text,
                 ),
@@ -843,7 +857,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 onChanged: (_) => _markDirty(),
               ),
               LibraryMoneyAmountField(
-                label: 'Market Value',
+                label: _personalFieldLabel('market_value_cents'),
                 amountMinorUnits: parseMoneyCents(
                   _draft.personal.marketValueController.text,
                 ),
@@ -854,11 +868,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               _buildUniversalVocabularyField(
                 listName: UniversalVocabularies.purchaseStore.key,
                 controller: _draft.personal.purchaseStoreController,
-                label: 'Purchase Store',
+                label: _personalFieldLabel('purchase_store'),
                 options: _draft.purchaseStoreOptions,
               ),
               LibraryDateFieldButton(
-                label: 'Purchase Date',
+                label: _personalFieldLabel('purchase_date'),
                 value: _draft.personal.purchaseDateController.text.isEmpty
                     ? null
                     : DateTime.tryParse(
@@ -888,18 +902,18 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               LibraryEditResponsiveRow(children: [
                 LibraryEditTextField(
                   controller: _draft.personal.sellPriceController,
-                  label: 'Sale Price',
+                  label: _personalFieldLabel('sell_price_cents'),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                 ),
                 LibraryEditTextField(
                   controller: _draft.personal.soldToController,
-                  label: 'Sold To',
+                  label: _personalFieldLabel('sold_to'),
                 ),
               ]),
               const SizedBox(height: 10),
               LibraryDateFieldButton(
-                label: 'Sale Date',
+                label: _personalFieldLabel('sold_at'),
                 value: _draft.personal.soldAt,
                 onChanged: (date) =>
                     setState(() => _draft.personal.soldAt = date),
@@ -922,7 +936,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             children: [
               LibraryEditResponsiveRow(children: [
                 MediaTrackingStatusField(
-                  label: 'Tracking status',
+                  label: _personalFieldLabel('read_status'),
                   value: _draft.tracking.trackingController.text.isEmpty
                       ? null
                       : _draft.tracking.trackingController.text,
@@ -934,12 +948,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 ),
                 MediaRatingField(
                   controller: _draft.tracking.ratingController,
+                  label: _personalFieldLabel('rating'),
                 ),
               ]),
               const SizedBox(height: 10),
               LibraryEditTextField(
                 controller: _draft.tracking.trackingNotesController,
-                label: 'Progress / Tracking Notes',
+                label: _personalFieldLabel('notes'),
                 maxLines: 3,
               ),
             ],
@@ -1048,7 +1063,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         }
       },
       child: LibraryFormField(
-        label: 'Location',
+        label: _personalFieldLabel('location_id'),
         child: InputDecorator(
           decoration: const InputDecoration(
             constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),

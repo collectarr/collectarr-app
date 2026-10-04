@@ -459,6 +459,10 @@ Still outstanding:
   and vocabulary keys from the active kind's `PersonalLibraryFieldSpec`
   contributor. Common Add controls bind those declared fields to the typed
   common draft; kind-specific controls remain contributed by their kind pane.
+- Generic Edit Personal, Purchase & Value, Sold, and Tracking controls now
+  read their displayed labels from the same kind-owned personal field
+  contributor used by Manual Add, including Location. Their data adapters and
+  tab composition remain separate for now.
 - The controller audit now disposes Comic lookup-search, Music listening-note,
   user-folder prompt, image-detail prompt, and ordered-name sort prompt
   controllers in `finally` blocks.
