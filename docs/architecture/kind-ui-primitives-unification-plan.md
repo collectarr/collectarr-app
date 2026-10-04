@@ -60,6 +60,10 @@ Completed implementation slices:
   Main, edition details, plot, Cast, Crew, Links, tracking, covers, and images
   alongside its Personal, Custom Fields, and Specs tabs. The shared metadata
   tab is labelled `Main` in both scopes.
+- Movie, TV, and Anime user links now live in the shared local-entry edit
+  draft, load and save by the actual `LibraryEntryRef`, and are committed with
+  the entry edit. Manual links found in the old catalog payload are retained
+  for catalog-only edits and moved into the local entry on its next save.
 - TV and Anime Manual Add now have separate Cast and Crew tabs backed by
   kind-owned editable credit rows. Their candidate builders serialize typed
   person models rather than flattening creators into a comma-separated field.
@@ -281,9 +285,9 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | Kind | Manual Add composition | Edit composition / identified divergence |
 | --- | --- | --- |
 | Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Registered edit route uses the typed album schema dialog; Add credits/tracks/links/covers still have independent widgets and bindings. No separate entry edit dialog or caller remains in the current source. |
-| Movies | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic session/presentation renderer; separate catalog/entry tab lists and custom tabs. The request-backed edit draft is initialized by the shared renderer state; Movie shares its Specs tab with TV and Anime. Remaining custom child-editor controller ownership still needs review. |
-| TV | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic editor plus a typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/Anime, Cast/Crew use the same row editor in Add/Edit, and Characters are editable in both. Custom episode dialog is another surface to audit. |
-| Anime | Main, Details, Edition details, Specs, Cover, Synopsis, Cast, Crew | Registered edit routes use a typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, Cast/Crew use the same row editor in Add/Edit, and Characters are now editable in both. |
+| Movies | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic session/presentation renderer; separate catalog/entry tab lists and custom tabs. The request-backed edit draft is initialized by the shared renderer state; Movie shares its Specs tab with TV and Anime. User links now use the shared entry-local draft. Remaining custom child-editor controller ownership still needs review. |
+| TV | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic editor plus a typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/Anime, Cast/Crew use the same row editor in Add/Edit, Characters are editable in both, and user links use the shared entry-local draft. Custom episode dialog is another surface to audit. |
+| Anime | Main, Details, Edition details, Specs, Cover, Synopsis, Cast, Crew | Registered edit routes use a typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, Cast/Crew use the same row editor in Add/Edit, Characters are editable in both, and user links use the shared entry-local draft. |
 | Books | Main, Credits, Links, Covers, Plot | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab uses the same typed ordered-name editors as Add. |
 | Comics | Main, Edition details, Details, Creators, Characters, Covers, Links, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. Add/Edit share the Comic people row models; advanced metadata parity remains to review. |
 | Manga | Main, Edition details, Details, Plot, Covers, plus Series identity control | Registered routes use the shared Edit shell with typed Edition Details and Details schemas; Add/Edit expose modeled metadata in matching areas and keep distinct ISBN/Barcode and Format/Binding values. Genres/Themes share the chip picker; Format/Publisher/Imprint share Manga vocabulary definitions. Identifiers, publication dates, series group, and back cover persist independently. Managed series selection logic still overlaps Comics/Books. |
@@ -427,11 +431,15 @@ The same explicit-clear behavior now applies to TV genres and Comic genres,
 story arcs, creators, and characters. Empty edited lists no longer fall back
 to the catalog values that were loaded when the dialog opened.
 
-`MovieEditController.buildUpdatedTrailerUrls()` only retains automatic links;
-user links are loaded/saved separately by CatalogEntityRef. Trace the current
-commit calls and move entry-local editable links to the complete entry draft,
-consistent with the document plan. Two locally duplicated entries must not
-share editable links accidentally through a Core source identity.
+Movie, TV, and Anime previously held user-link loader/saver methods that no
+active caller invoked; their controllers also derived the entry ID from the
+Core catalog reference. A shared local-entry draft now loads these links using
+the dispatched `LibraryEntryRef` and includes a local edit change in the normal
+save transaction. The save then queues the updated personal snapshot. Link
+edits are therefore isolated between locally duplicated entries. Legacy
+manual links in kind metadata are used as fallback draft values for an owned
+entry and are moved to its local link list on save; catalog-only edits preserve
+them. Runtime verification is still pending.
 
 ## 5. Target structure
 
