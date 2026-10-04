@@ -69,6 +69,9 @@ Completed implementation slices:
   rows, empty states, and adding a row. Their kind-owned credit objects and
   default roles remain in their own drafts; the shared UI only receives row
   controller pairs and callbacks.
+- The Movie, TV, and Anime edit-tab helper files no longer carry unused
+  responsive-field wrappers. TV/Anime credit tabs adapt their typed controller
+  rows directly to the shared editor; Add credit-field parity remains open.
 - Manga Edit now uses explicit kind-data patches for Genres, Themes, Authors,
   Artists, nullable publication fields, and partial release dates. Empty lists
   and blank nullable values clear stored data instead of restoring the previous
