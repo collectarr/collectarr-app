@@ -9,7 +9,7 @@ const _movieCatalogItemTabs = [
   LibraryEditTabSpec(
     id: 'catalog_item',
     icon: Icons.movie,
-    label: 'Catalog Item',
+    label: 'Main',
     sectionIds: ['catalog_snapshot'],
   ),
   LibraryEditTabSpec(
@@ -63,12 +63,7 @@ const _movieCatalogItemTabs = [
 ];
 
 const _movieLibraryEntryTabs = [
-  LibraryEditTabSpec(
-    id: 'edition',
-    icon: Icons.info_outline,
-    label: 'Edition Details',
-    sectionIds: ['release_details', 'entries_reference', 'box_set'],
-  ),
+  ..._movieCatalogItemTabs,
   LibraryEditTabSpec(
     id: 'personal',
     icon: Icons.person,
@@ -85,12 +80,6 @@ const _movieLibraryEntryTabs = [
     ],
   ),
   LibraryEditTabSpec(
-    id: 'read_history',
-    icon: Icons.auto_stories_outlined,
-    label: 'Tracking',
-    sectionIds: ['tracking_context', 'tracking_personal'],
-  ),
-  LibraryEditTabSpec(
     id: 'custom',
     icon: Icons.edit_note,
     label: 'User Defined',
@@ -101,18 +90,6 @@ const _movieLibraryEntryTabs = [
     icon: Icons.tune_outlined,
     label: 'Specs',
     sectionIds: ['video_specs', 'hdr', 'audio_subtitles', 'features'],
-  ),
-  LibraryEditTabSpec(
-    id: 'cover',
-    icon: Icons.camera_alt,
-    label: 'Covers',
-    sectionIds: ['cover_images'],
-  ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.image,
-    label: 'Images',
-    sectionIds: ['photos'],
   ),
 ];
 
