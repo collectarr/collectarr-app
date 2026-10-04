@@ -74,13 +74,22 @@ enum SettingsSection {
   final IconData icon;
 }
 
+SettingsSection? settingsSectionFromRouteValue(String? value) {
+  for (final section in SettingsSection.values) {
+    if (section.name == value) return section;
+  }
+  return null;
+}
+
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({
     super.key,
     this.showWebSyncWarning = kIsWeb,
+    this.initialSection,
   });
 
   final bool showWebSyncWarning;
+  final SettingsSection? initialSection;
 
   @override
   ConsumerState<SettingsPage> createState() => _SettingsPageState();
@@ -101,6 +110,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   void initState() {
     super.initState();
+    _selectedSection = widget.initialSection ?? SettingsSection.connection;
+  }
+
+  @override
+  void didUpdateWidget(covariant SettingsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialSection != widget.initialSection &&
+        widget.initialSection != null) {
+      _selectedSection = widget.initialSection!;
+    }
   }
 
   @override
@@ -266,6 +285,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return Theme(
       data: buildLibraryAccentTheme(Theme.of(context), accent),
       child: DefaultTabController(
+        key: ValueKey(_selectedSection),
+        initialIndex: SettingsSection.values.indexOf(_selectedSection),
         length: SettingsSection.values.length,
         child: Scaffold(
           appBar: AppBar(

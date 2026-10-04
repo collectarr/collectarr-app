@@ -33,9 +33,13 @@ class CollectionPage extends ConsumerStatefulWidget {
   const CollectionPage({
     super.key,
     this.showOverdueOnly = false,
+    this.initialWizardIndex,
+    this.wizardRequest,
   });
 
   final bool showOverdueOnly;
+  final int? initialWizardIndex;
+  final String? wizardRequest;
 
   @override
   ConsumerState<CollectionPage> createState() => _CollectionPageState();
@@ -43,11 +47,51 @@ class CollectionPage extends ConsumerStatefulWidget {
 
 class _CollectionPageState extends ConsumerState<CollectionPage> {
   late _ShelfFilter filter;
+  String? _handledWizardRequest;
+  int _wizardGeneration = 0;
 
   @override
   void initState() {
     super.initState();
     filter = widget.showOverdueOnly ? _ShelfFilter.overdue : _ShelfFilter.all;
+    _scheduleRequestedWizard();
+  }
+
+  @override
+  void didUpdateWidget(covariant CollectionPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.wizardRequest != widget.wizardRequest) {
+      _scheduleRequestedWizard();
+    }
+  }
+
+  void _scheduleRequestedWizard() {
+    final request = widget.wizardRequest;
+    final initialIndex = widget.initialWizardIndex;
+    if (request == null ||
+        initialIndex == null ||
+        request == _handledWizardRequest) {
+      return;
+    }
+    _handledWizardRequest = request;
+    final generation = ++_wizardGeneration;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _openRequestedWizard(initialIndex, generation);
+    });
+  }
+
+  Future<void> _openRequestedWizard(int initialIndex, int generation) async {
+    if (!mounted || generation != _wizardGeneration) return;
+    try {
+      final state = await ref.read(shelfProvider.future);
+      if (!mounted || generation != _wizardGeneration) return;
+      await _showImportExportWizard(state.entries, initialIndex: initialIndex);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not open import / export: $error')),
+      );
+    }
   }
 
   @override
@@ -96,7 +140,8 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
       ),
       body: shelf.when(
         data: (state) {
-          final entries = _filteredEntries(state.entries, overdueLibraryEntryRefs);
+          final entries =
+              _filteredEntries(state.entries, overdueLibraryEntryRefs);
           return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(

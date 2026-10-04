@@ -95,6 +95,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) => CollectionPage(
                   showOverdueOnly:
                       state.uri.queryParameters['filter'] == 'overdue',
+                  initialWizardIndex: int.tryParse(
+                    state.uri.queryParameters['wizard'] ?? '',
+                  ),
+                  wizardRequest: state.uri.queryParameters['request'],
                 ),
               ),
             ],
@@ -127,7 +131,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.settings,
-                builder: (context, state) => const SettingsPage(),
+                builder: (context, state) => SettingsPage(
+                  initialSection: settingsSectionFromRouteValue(
+                    state.uri.queryParameters['section'],
+                  ),
+                ),
               ),
             ],
           ),
