@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_edit_contributors.dart';
@@ -56,7 +55,10 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     final external = field is LibraryTextFieldSpec<TDraft> ||
         field is LibraryNumberFieldSpec<TDraft> ||
         field is LibraryMoneyFieldSpec<TDraft> ||
-        field is LibraryPartialDateFieldSpec<TDraft>;
+        field is LibraryPartialDateFieldSpec<TDraft> ||
+        (mode == LibraryFieldSpecControlMode.add &&
+            (field is LibrarySelectFieldSpec<TDraft, Object?> ||
+                field is LibraryVocabularyFieldSpec<TDraft, Object?>));
     return external ? LibraryFormField(label: field.label, child: child) : child;
   }
 
@@ -465,30 +467,6 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       },
     );
   }
-}
-
-String? _partialDateError(String value) =>
-    value.isEmpty || _parsePartialDate(value) != null
-        ? null
-        : 'Use YYYY, YYYY-MM, or YYYY-MM-DD';
-
-PartialDate? _parsePartialDate(String value) {
-  final match =
-      RegExp(r'^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$').firstMatch(value.trim());
-  if (match == null) return null;
-  final year = int.tryParse(match.group(1)!);
-  final month = int.tryParse(match.group(2) ?? '');
-  final day = int.tryParse(match.group(3) ?? '');
-  if (year == null || year < 1 || year > 9999) return null;
-  if (match.group(2) != null && (month == null || month < 1 || month > 12)) {
-    return null;
-  }
-  if (match.group(3) != null) {
-    if (month == null || day == null || day < 1) return null;
-    final lastDay = DateTime(year, month + 1, 0).day;
-    if (day > lastDay) return null;
-  }
-  return PartialDate(year: year, month: month, day: day);
 }
 
 num? _parseNumber(String value) {
