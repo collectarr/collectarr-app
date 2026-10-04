@@ -924,6 +924,12 @@ classification; Add/Edit map titles and descriptions independently. Targeted
 analysis for Comic Add/catalog Edit/forms passed; tests and runtime screenshot
 review remain deferred.
 
+Implementation note (2026-10-04): Music Add and Edit now use
+`LibraryExternalLinksDraftEditor` for link row creation, removal, reordering,
+and controller disposal. Each mode retains its own mapping into the album
+draft. Targeted analysis of both Music link tabs passed; tests and runtime
+screenshot review remain deferred.
+
 Implementation note (2026-10-04): Manga Add and Edit now expose the typed
 catalog external links through the shared draft editor. Edit preserves each
 link's identity and auxiliary fields while applying removals and reordered
