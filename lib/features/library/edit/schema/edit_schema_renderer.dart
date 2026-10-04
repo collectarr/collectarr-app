@@ -6,7 +6,7 @@ import 'dart:math' as math;
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_control_builder.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_layout.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -384,43 +384,20 @@ class EditSchemaRendererState<TModel, TDraft>
     final sections = tab.sections
         .where((section) => section.isVisible(widget.draft))
         .toList(growable: false);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final section in sections) ...[
-          if (section.label.trim().isNotEmpty) ...[
-            Text(section.label, style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 8),
-          ],
-          LibraryFieldSpecLayout<TDraft>(
-            fields: section.fields,
-            draft: widget.draft,
-            buildField: (field) => _buildField(tab.id, field),
-            maxColumns: section.maxColumns,
-            fullWidthFieldIds: section.fullWidthFieldIds,
-            fieldColumnSpans: section.fieldColumnSpans,
-            rightAlignedFieldIds: section.rightAlignedFieldIds,
-          ),
-          const SizedBox(height: 18),
-        ],
-      ],
+    return LibraryFieldSpecRenderer<TDraft>.embedded(
+      schema: LibraryFormSchema<TDraft>(sections: sections),
+      draft: widget.draft,
+      emptyMessage: null,
+      mediaKind: widget.mediaKind,
+      controllerFor: _controllerFor,
+      focusNodeFor: (fieldId) => _fieldFocusNode(tab.id, fieldId),
+      onChanged: () {
+        if (mounted) setState(() => _validationError = null);
+      },
+      onVocabularyValueChanged: _rememberVocabularyValue,
+      onVocabularyValuesChanged: _rememberVocabularyValues,
     );
   }
-
-  Widget _buildField(String tabId, LibraryFieldSpec<TDraft> field) =>
-      LibraryFieldSpecControlBuilder<TDraft>(
-        context: context,
-        draft: widget.draft,
-        mode: LibraryFieldSpecControlMode.edit,
-        controllerFor: _controllerFor,
-        mediaKind: widget.mediaKind,
-        focusNodeFor: (fieldId) => _fieldFocusNode(tabId, fieldId),
-        onChanged: () {
-          if (mounted) setState(() => _validationError = null);
-        },
-        onVocabularyValueChanged: _rememberVocabularyValue,
-        onVocabularyValuesChanged: _rememberVocabularyValues,
-      ).build(field);
 
   FocusNode _fieldFocusNode(String tabId, String fieldId) {
     final key = '$tabId::$fieldId';

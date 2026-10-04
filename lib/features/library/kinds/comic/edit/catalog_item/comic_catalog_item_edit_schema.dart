@@ -20,7 +20,7 @@ final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
       label: 'Main',
       icon: Icons.article,
       sections: [
-        EditSectionSpec<ComicCatalogItemFormValues>(
+        LibraryFormSectionSpec<ComicCatalogItemFormValues>(
           id: 'catalog_snapshot',
           label: 'Issue',
           fields: comicCatalogItemIdentityFields(
@@ -34,7 +34,7 @@ final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
       label: 'Details',
       icon: Icons.search,
       sections: [
-        EditSectionSpec<ComicCatalogItemFormValues>(
+        LibraryFormSectionSpec<ComicCatalogItemFormValues>(
           id: 'catalog_details',
           label: 'Publication details',
           fields: comicCatalogItemPublicationFields(
@@ -105,7 +105,7 @@ EditTabSpec<ComicCatalogItemFormValues> _customTab({
       label: label,
       icon: icon,
       sections: [
-        EditSectionSpec<ComicCatalogItemFormValues>(
+        LibraryFormSectionSpec<ComicCatalogItemFormValues>(
           id: sectionId,
           label: sectionLabel,
           fields: [

@@ -21,7 +21,7 @@ final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
       label: 'Main',
       icon: Icons.music_note_outlined,
       sections: [
-        EditSectionSpec<MusicAlbumEditDraft>(
+        LibraryFormSectionSpec<MusicAlbumEditDraft>(
           id: 'catalog_item',
           label: '',
           maxColumns: 4,
@@ -56,7 +56,7 @@ final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
       label: 'Details',
       icon: Icons.info_outline,
       sections: [
-        EditSectionSpec<MusicAlbumEditDraft>(
+        LibraryFormSectionSpec<MusicAlbumEditDraft>(
           id: 'details_layout',
           label: '',
           maxColumns: 1,

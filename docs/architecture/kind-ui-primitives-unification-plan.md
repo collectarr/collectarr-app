@@ -387,6 +387,10 @@ Still outstanding:
 - Shared form definitions now use `LibraryFormSchema` and
   `LibraryFormSectionSpec` under `library/schema/`. The required catalog title
   field helper remains Add-specific under `add/schema/`.
+- Edit schema tabs now use the same `LibraryFormSectionSpec` as Add. The Edit
+  renderer delegates section layout and control construction to
+  `LibraryFieldSpecRenderer`, while retaining its stable controller registry,
+  focus nodes, validation routing, and save state across tab switches.
 - Legacy custom tabs and kind-specific tab composition still have divergent
   implementations. Responsive field geometry and the basic vocabulary/text
   controls are now shared. Book Authors/Translators and Movie Cast/Crew share

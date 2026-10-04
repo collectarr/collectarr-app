@@ -11,7 +11,7 @@ final EditSchema<MovieEntryDetails, MovieEntryEditDraft> movieEntryEditSchema =
       id: 'entry',
       label: 'Entry',
       sections: [
-        EditSectionSpec<MovieEntryEditDraft>(
+        LibraryFormSectionSpec<MovieEntryEditDraft>(
           id: 'physical',
           label: 'Media Details',
           fields: [

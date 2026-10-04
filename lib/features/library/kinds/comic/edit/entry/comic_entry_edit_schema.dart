@@ -19,7 +19,7 @@ final EditSchema<ComicEntryDetails, ComicEntryEditDraft> comicEntryEditSchema =
       label: 'Entry',
       icon: Icons.inventory_2,
       sections: [
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'collector',
           label: 'Collector',
           fields: [
@@ -73,7 +73,7 @@ final EditSchema<ComicEntryDetails, ComicEntryEditDraft> comicEntryEditSchema =
             ),
           ],
         ),
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'signature',
           label: 'Signature',
           fields: [
@@ -85,7 +85,7 @@ final EditSchema<ComicEntryDetails, ComicEntryEditDraft> comicEntryEditSchema =
             ),
           ],
         ),
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'key_comic',
           label: 'Key comic',
           fields: [
@@ -119,7 +119,7 @@ final EditSchema<ComicEntryDetails, ComicEntryEditDraft> comicEntryEditSchema =
             ),
           ],
         ),
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'preservation',
           label: 'Preservation and value',
           fields: [

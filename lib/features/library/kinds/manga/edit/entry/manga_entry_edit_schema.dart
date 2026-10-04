@@ -12,7 +12,7 @@ final EditSchema<MangaEntryDetails, MangaEditDraft> mangaEntryEditSchema =
       label: 'Entry',
       icon: Icons.inventory_2,
       sections: [
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'grading',
           label: 'Grading',
           fields: [
@@ -70,7 +70,7 @@ final EditSchema<MangaEntryDetails, MangaEditDraft> mangaEntryEditSchema =
             ),
           ],
         ),
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'signature',
           label: 'Signature',
           fields: [
@@ -82,7 +82,7 @@ final EditSchema<MangaEntryDetails, MangaEditDraft> mangaEntryEditSchema =
             ),
           ],
         ),
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'edition_details',
           label: 'Edition details',
           fields: [

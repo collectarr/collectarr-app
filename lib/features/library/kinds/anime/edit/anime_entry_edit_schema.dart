@@ -11,7 +11,7 @@ final EditSchema<AnimeEntryDetails, AnimeEntryEditDraft> animeEntryEditSchema =
       id: 'entry',
       label: 'Entry',
       sections: [
-        EditSectionSpec<AnimeEntryEditDraft>(
+        LibraryFormSectionSpec<AnimeEntryEditDraft>(
           id: 'physical',
           label: 'Media Details',
           fields: [

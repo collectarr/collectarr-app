@@ -12,7 +12,7 @@ final EditSchema<MangaEditDraft, MangaEditDraft> mangaCatalogEditionEditSchema =
       label: 'Edition Details',
       icon: Icons.inventory_2_outlined,
       sections: [
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'edition_details',
           label: 'Edition details',
           fields: [
@@ -159,7 +159,7 @@ final EditSchema<MangaEditDraft, MangaEditDraft> mangaCatalogDetailsEditSchema =
       label: 'Details',
       icon: Icons.info_outline,
       sections: [
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'catalog_details',
           label: 'Series and metadata',
           fields: [

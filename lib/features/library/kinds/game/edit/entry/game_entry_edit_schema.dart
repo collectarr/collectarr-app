@@ -13,7 +13,7 @@ final EditSchema<GameEntryDetails, GameEditDraft> gameEntryEditSchema =
       label: 'Entry',
       icon: Icons.inventory_2,
       sections: [
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'completeness',
           label: 'Completeness',
           fields: [
@@ -38,7 +38,7 @@ final EditSchema<GameEntryDetails, GameEditDraft> gameEntryEditSchema =
             ),
           ],
         ),
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'valuation',
           label: 'Valuation',
           fields: [

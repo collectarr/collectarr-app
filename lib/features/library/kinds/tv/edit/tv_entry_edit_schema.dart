@@ -18,7 +18,7 @@ final EditSchema<TvEntryDetails, TvEntryEditDraft> tvEntryEditSchema =
       id: 'entry',
       label: 'Entry',
       sections: [
-        EditSectionSpec<TvEntryEditDraft>(
+        LibraryFormSectionSpec<TvEntryEditDraft>(
           id: 'physical',
           label: 'Media Details',
           fields: [

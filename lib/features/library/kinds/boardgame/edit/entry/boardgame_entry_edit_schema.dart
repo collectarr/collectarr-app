@@ -12,7 +12,7 @@ final EditSchema<BoardgameEntryDetails, BoardGameEditDraft>
       label: 'Entry',
       icon: Icons.inventory_2,
       sections: [
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'edition',
           label: 'Edition details',
           fields: [
@@ -30,7 +30,7 @@ final EditSchema<BoardgameEntryDetails, BoardGameEditDraft>
             ),
           ],
         ),
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'condition',
           label: 'Condition and completeness',
           fields: [
@@ -57,7 +57,7 @@ final EditSchema<BoardgameEntryDetails, BoardGameEditDraft>
             ),
           ],
         ),
-        EditSectionSpec(
+        LibraryFormSectionSpec(
           id: 'customization',
           label: 'Customization and storage',
           fields: [

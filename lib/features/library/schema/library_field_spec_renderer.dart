@@ -15,20 +15,32 @@ class LibraryFieldSpecRenderer<TDraft> extends StatefulWidget {
     required this.schema,
     required this.draft,
     this.title,
+    this.emptyMessage = 'No add fields',
     this.mediaKind,
     this.onVocabularyValueChanged,
     this.onVocabularyValuesChanged,
     this.onChanged,
+    this.controllerFor,
+    this.focusNodeFor,
     this.controlMode = LibraryFieldSpecControlMode.edit,
   });
 
   final LibraryFormSchema<TDraft> schema;
   final TDraft draft;
   final String? title;
+  final String? emptyMessage;
   final String? mediaKind;
   final LibraryVocabularyValueChanged? onVocabularyValueChanged;
   final LibraryVocabularyValuesChanged? onVocabularyValuesChanged;
   final VoidCallback? onChanged;
+
+  /// Supplies a parent-owned controller registry when fields must survive
+  /// conditional tab unmounts. Otherwise this renderer owns its controllers.
+  final TextEditingController Function(String id, String initialValue)?
+      controllerFor;
+
+  /// Lets a parent route focus and scrolling to a field after validation.
+  final FocusNode? Function(String fieldId)? focusNodeFor;
   final LibraryFieldSpecControlMode controlMode;
 
   @override
@@ -52,7 +64,10 @@ class _LibraryFieldSpecRendererState<TDraft>
         .where((section) => section.isVisible(widget.draft))
         .toList(growable: false);
     if (visibleSections.isEmpty) {
-      return const Center(child: Text('No add fields'));
+      final message = widget.emptyMessage;
+      return message == null
+          ? const SizedBox.shrink()
+          : Center(child: Text(message));
     }
 
     return Column(
@@ -101,6 +116,7 @@ class _LibraryFieldSpecRendererState<TDraft>
         draft: widget.draft,
         mode: widget.controlMode,
         controllerFor: _controllerFor,
+        focusNodeFor: widget.focusNodeFor,
         mediaKind: widget.mediaKind,
         onVocabularyValueChanged: widget.onVocabularyValueChanged,
         onVocabularyValuesChanged: widget.onVocabularyValuesChanged,
@@ -108,6 +124,7 @@ class _LibraryFieldSpecRendererState<TDraft>
       ).build(field);
 
   TextEditingController _controllerFor(String id, String initialValue) {
-    return _textControllers.controllerFor(id, initialValue);
+    return widget.controllerFor?.call(id, initialValue) ??
+        _textControllers.controllerFor(id, initialValue);
   }
 }
