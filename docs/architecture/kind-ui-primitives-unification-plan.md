@@ -161,6 +161,9 @@ Completed implementation slices:
   catalog model and transport mapping. Add and Edit Links now use the same
   reorderable table with editable Name, URL, and Description columns. Track,
   image, and personal submission lifecycles remain separate.
+- Music Manual Add now validates nonempty track lengths before Add, Wishlist,
+  Track, or Propose. Invalid duration text is no longer silently omitted from
+  the generated catalog payload; users can correct it or clear the field.
 - Book now uses one kind-owned schema for the Main, Links, Covers, and Plot
   fields in Add and Edit. The shared schema edits typed Book form values,
   including identifiers, publication details, and partial dates; Edit no

@@ -135,6 +135,7 @@ class MusicAddManualPane extends StatelessWidget {
           id: 'tracks',
           label: 'Tracks',
           icon: Icons.format_list_numbered,
+          validate: (_) => _validateTrackDurations(draft),
           content: MusicAddManualTracksTab(
             draft: draft,
             accent: request.accent,
@@ -226,6 +227,21 @@ LibraryFormValidationIssue? _validateCredits(
     return const LibraryFormValidationIssue(
       'Complete or remove each unfinished music credit',
     );
+  }
+  return null;
+}
+
+LibraryFormValidationIssue? _validateTrackDurations(
+  MusicAddManualDraft draft,
+) {
+  for (final disc in draft.discs) {
+    for (final track in disc.tracks) {
+      if (track.duration.trim().isNotEmpty && track.durationMs == null) {
+        return const LibraryFormValidationIssue(
+          'Enter a valid track length in seconds, MM:SS, or HH:MM:SS.',
+        );
+      }
+    }
   }
   return null;
 }
