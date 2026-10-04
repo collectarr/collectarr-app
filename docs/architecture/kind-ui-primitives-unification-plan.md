@@ -292,6 +292,9 @@ Completed implementation slices:
   row identity, ordering, and kind-owned values.
 - Removed the unused `FooterTextField` helper after confirming it had no
   production or test call sites.
+- Multi-value chip entry and pick-list search/custom-entry inputs now use the
+  common text control while retaining their inline and dialog-specific sizing,
+  keyboard actions, and callbacks.
 - Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
   storage details now use the same input primitive and minimum control height.
 - Music Add and Edit track title, artist, and duration fields now share one

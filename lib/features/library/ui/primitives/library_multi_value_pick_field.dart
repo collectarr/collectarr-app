@@ -185,16 +185,18 @@ class _LibraryMultiValuePickFieldState<TValue>
                         if (widget.allowCustomValueEntry && TValue == String)
                           SizedBox(
                             width: 150,
-                            child: TextField(
+                            child: LibraryTextFormControl(
                               controller: _entryController,
                               focusNode: _entryFocusNode,
                               enabled: widget.enabled,
+                              minimumHeight: 0,
                               decoration: InputDecoration.collapsed(
                                 hintText: widget.hintText ??
                                     'Add ${widget.label.toLowerCase()}...',
                               ),
                               textInputAction: TextInputAction.done,
-                              onSubmitted: _addTypedValue,
+                              onFieldSubmitted: (_) =>
+                                  _addTypedValue(_entryController.text),
                             ),
                           )
                         else if (_value.isEmpty)

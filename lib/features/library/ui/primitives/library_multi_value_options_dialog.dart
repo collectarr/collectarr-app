@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
@@ -108,7 +109,7 @@ class _LibraryMultiValueOptionsDialogState<TValue>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
+                LibraryTextFormControl(
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: widget.searchHint ??
@@ -148,13 +149,14 @@ class _LibraryMultiValueOptionsDialogState<TValue>
                   Row(
                     children: [
                       Expanded(
-                        child: TextField(
+                        child: LibraryTextFormControl(
                           controller: _customController,
                           decoration: InputDecoration(
                             labelText: widget.customValueHint,
                             isDense: true,
                           ),
-                          onSubmitted: (_) => _addCustomValue(),
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _addCustomValue(),
                         ),
                       ),
                       const SizedBox(width: 8),

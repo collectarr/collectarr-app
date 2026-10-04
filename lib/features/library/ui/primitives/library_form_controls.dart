@@ -54,6 +54,7 @@ class LibraryTextFormControl extends StatelessWidget {
     this.focusNode,
     this.style,
     this.textCapitalization = TextCapitalization.none,
+    this.textInputAction,
     this.onFieldSubmitted,
   }) : assert(controller == null || initialValue == null);
 
@@ -74,6 +75,7 @@ class LibraryTextFormControl extends StatelessWidget {
   final FocusNode? focusNode;
   final TextStyle? style;
   final TextCapitalization textCapitalization;
+  final TextInputAction? textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
 
   @override
@@ -94,6 +96,7 @@ class LibraryTextFormControl extends StatelessWidget {
         readOnly: readOnly,
         style: style,
         textCapitalization: textCapitalization,
+        textInputAction: textInputAction,
         decoration: (decoration ?? const InputDecoration()).copyWith(
           constraints: BoxConstraints(minHeight: minimumHeight),
         ),
