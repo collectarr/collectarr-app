@@ -46,6 +46,10 @@ Completed implementation slices:
   one. Kind-owned custom tabs can contribute their own validator through the
   same tab contract. Music Manual Add now uses this path for unfinished
   Classical and People credit rows, matching Edit's validation rule.
+- Add and Edit now use one shared first-invalid-tab coordinator. It reports a
+  stable tab ID, source index, and field issue; Edit validates in the visible
+  reordered tab sequence, including extra tabs, before navigating to the first
+  invalid field.
 - Add and Edit now use the same schema field-validation routine, including raw
   number validation and section/field visibility checks. Edit retains its
   schema-level and extra-tab validators and its existing save/error lifecycle.

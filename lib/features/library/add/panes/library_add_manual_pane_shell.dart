@@ -138,45 +138,48 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
             for (final id in navigation.orderedTabIds)
               if (tabsById[id] case final tab?) tab,
           ];
-    for (final tab in orderedTabs) {
-      final issue = tab.validate?.call(controllers);
-      if (issue == null) continue;
-      if (navigation != null) {
-        navigation.selectTabId(tab.id);
-      } else {
-        final sourceIndex = tabs.indexOf(tab);
-        if (_tabController.index != sourceIndex) {
-          _tabController.index = sourceIndex;
+    final failure = firstLibraryFormTabValidationFailure([
+      for (final tab in orderedTabs)
+        LibraryFormValidationTab(
+          id: tab.id,
+          index: tabs.indexOf(tab),
+          validate: () => tab.validate?.call(controllers),
+        ),
+    ]);
+    if (failure == null) return null;
+
+    if (navigation != null) {
+      navigation.selectTabId(failure.tabId);
+    } else if (_tabController.index != failure.tabIndex) {
+      _tabController.index = failure.tabIndex;
+    }
+    final issue = failure.issue;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final visibleIndex = _tabController.index;
+      final selectedTabId = navigation?.selectedTabId() ??
+          (visibleIndex >= 0 && visibleIndex < tabs.length
+              ? tabs[visibleIndex].id
+              : null);
+      if (!mounted || selectedTabId != failure.tabId) return;
+      _formKey.currentState?.validate();
+      final fieldId = issue.fieldId;
+      if (fieldId != null) {
+        final node = _fieldFocusNodes['${failure.tabId}::$fieldId'];
+        node?.requestFocus();
+        final targetContext = node?.context;
+        if (targetContext != null) {
+          Scrollable.ensureVisible(
+            targetContext,
+            alignment: 0.25,
+            duration: Duration.zero,
+          );
         }
       }
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final visibleIndex = _tabController.index;
-        final selectedTabId = navigation?.selectedTabId() ??
-            (visibleIndex >= 0 && visibleIndex < tabs.length
-                ? tabs[visibleIndex].id
-                : null);
-        if (!mounted || selectedTabId != tab.id) return;
-        _formKey.currentState?.validate();
-        final fieldId = issue.fieldId;
-        if (fieldId != null) {
-          final node = _fieldFocusNodes['${tab.id}::$fieldId'];
-          node?.requestFocus();
-          final targetContext = node?.context;
-          if (targetContext != null) {
-            Scrollable.ensureVisible(
-              targetContext,
-              alignment: 0.25,
-              duration: Duration.zero,
-            );
-          }
-        }
-      });
-      ScaffoldMessenger.of(validationContext).showSnackBar(
-        SnackBar(content: Text(issue.message)),
-      );
-      return issue.message;
-    }
-    return null;
+    });
+    ScaffoldMessenger.of(validationContext).showSnackBar(
+      SnackBar(content: Text(issue.message)),
+    );
+    return issue.message;
   }
 
   @override

@@ -744,37 +744,41 @@ class EditSchemaRendererState<TModel, TDraft>
   ({int tabIndex, String error, String? focusKey})? _firstFieldIssue() {
     final controllers =
         LibrarySchemaTextControllerScope.readOf(context) ?? _textControllers;
-    for (var tabIndex = 0; tabIndex < widget.schema.tabs.length; tabIndex++) {
-      final tab = widget.schema.tabs[tabIndex];
-      if (!tab.isVisible(widget.draft)) continue;
-      final issue = firstLibraryFormValidationIssue(
-        schema: LibraryFormSchema<TDraft>(sections: tab.sections),
-        draft: widget.draft,
-        controllers: controllers,
-        validateSchema: false,
-      );
-      if (issue != null) {
-        return (
-          tabIndex: tabIndex,
-          error: issue.message,
-          focusKey:
-              issue.fieldId == null ? null : '${tab.id}::${issue.fieldId}',
-        );
-      }
-    }
-    for (var extraIndex = 0;
-        extraIndex < widget.extraTabs.length;
-        extraIndex++) {
-      final error = widget.extraTabs[extraIndex].validate?.call();
-      if (error != null) {
-        return (
-          tabIndex: widget.schema.tabs.length + extraIndex,
-          error: error,
-          focusKey: null,
-        );
-      }
-    }
-    return null;
+    final failure = firstLibraryFormTabValidationFailure([
+      for (final sourceIndex in _orderedVisibleTabIndexes())
+        if (sourceIndex < widget.schema.tabs.length)
+          LibraryFormValidationTab(
+            id: widget.schema.tabs[sourceIndex].id,
+            index: sourceIndex,
+            validate: () => firstLibraryFormValidationIssue(
+              schema: LibraryFormSchema<TDraft>(
+                sections: widget.schema.tabs[sourceIndex].sections,
+              ),
+              draft: widget.draft,
+              controllers: controllers,
+              validateSchema: false,
+            ),
+          )
+        else
+          LibraryFormValidationTab(
+            id: widget.extraTabs[sourceIndex - widget.schema.tabs.length].id,
+            index: sourceIndex,
+            validate: () {
+              final error = widget
+                  .extraTabs[sourceIndex - widget.schema.tabs.length].validate
+                  ?.call();
+              return error == null ? null : LibraryFormValidationIssue(error);
+            },
+          ),
+    ]);
+    if (failure == null) return null;
+    return (
+      tabIndex: failure.tabIndex,
+      error: failure.issue.message,
+      focusKey: failure.issue.fieldId == null
+          ? null
+          : '${failure.tabId}::${failure.issue.fieldId}',
+    );
   }
 
   TextEditingController _controllerFor(String id, String initialValue) {

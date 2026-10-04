@@ -9,6 +9,48 @@ final class LibraryFormValidationIssue {
   final String? fieldId;
 }
 
+/// A validation callback contributed by one stable form tab.
+final class LibraryFormValidationTab {
+  const LibraryFormValidationTab({
+    required this.id,
+    required this.index,
+    required this.validate,
+  });
+
+  final String id;
+  final int index;
+  final LibraryFormValidationIssue? Function() validate;
+}
+
+/// Identifies the first invalid tab in the order supplied by the host.
+final class LibraryFormTabValidationFailure {
+  const LibraryFormTabValidationFailure({
+    required this.tabId,
+    required this.tabIndex,
+    required this.issue,
+  });
+
+  final String tabId;
+  final int tabIndex;
+  final LibraryFormValidationIssue issue;
+}
+
+LibraryFormTabValidationFailure? firstLibraryFormTabValidationFailure(
+  Iterable<LibraryFormValidationTab> tabs,
+) {
+  for (final tab in tabs) {
+    final issue = tab.validate();
+    if (issue != null) {
+      return LibraryFormTabValidationFailure(
+        tabId: tab.id,
+        tabIndex: tab.index,
+        issue: issue,
+      );
+    }
+  }
+  return null;
+}
+
 LibraryFormValidationIssue? firstLibraryFormValidationIssue<TDraft>({
   required LibraryFormSchema<TDraft> schema,
   required TDraft draft,
