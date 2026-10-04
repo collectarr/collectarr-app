@@ -192,6 +192,7 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
     this.tabController,
     this.selectedIndex = 0,
     this.allowReorder = true,
+    this.enabled = true,
     this.onReorderItem,
     this.onSelect,
   }) : assert(
@@ -204,6 +205,7 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
   final TabController? tabController;
   final int selectedIndex;
   final bool allowReorder;
+  final bool enabled;
   final void Function(int oldIndex, int newIndex)? onReorderItem;
   final ValueChanged<int>? onSelect;
 
@@ -230,7 +232,7 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               for (var index = 0; index < tabs.length; index++)
-                allowReorder && onReorderItem != null
+                enabled && allowReorder && onReorderItem != null
                     ? DragTarget<_LibraryEditTabDrag>(
                         key: tabs[index].key ??
                             ValueKey<String>('library-edit-tab-$index'),
@@ -275,6 +277,7 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
                               index: index,
                               currentIndex: currentIndex,
                               highlighted: candidateData.isNotEmpty,
+                              enabled: enabled,
                             ),
                           );
                         },
@@ -283,6 +286,7 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
                         index: index,
                         currentIndex: currentIndex,
                         highlighted: false,
+                        enabled: enabled,
                       ),
             ],
           ),
@@ -295,20 +299,24 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
     required int index,
     required int currentIndex,
     required bool highlighted,
+    required bool enabled,
   }) {
     return _LibraryEditTabButton(
       tab: tabs[index],
       accent: accent,
       selected: currentIndex == index,
       highlighted: highlighted,
-      onTap: () {
-        final controller = tabController;
-        if (controller != null) {
-          controller.animateTo(index);
-        } else {
-          onSelect!(index);
-        }
-      },
+      enabled: enabled,
+      onTap: enabled
+          ? () {
+              final controller = tabController;
+              if (controller != null) {
+                controller.animateTo(index);
+              } else {
+                onSelect!(index);
+              }
+            }
+          : null,
     );
   }
 }
@@ -401,6 +409,7 @@ class _LibraryEditTabButton extends StatefulWidget {
     required this.accent,
     required this.selected,
     required this.highlighted,
+    required this.enabled,
     required this.onTap,
   });
 
@@ -408,7 +417,8 @@ class _LibraryEditTabButton extends StatefulWidget {
   final Color accent;
   final bool selected;
   final bool highlighted;
-  final VoidCallback onTap;
+  final bool enabled;
+  final VoidCallback? onTap;
 
   @override
   State<_LibraryEditTabButton> createState() => _LibraryEditTabButtonState();
@@ -420,9 +430,10 @@ class _LibraryEditTabButtonState extends State<_LibraryEditTabButton> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
+      cursor:
+          widget.enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      onEnter: widget.enabled ? (_) => setState(() => _hovered = true) : null,
+      onExit: widget.enabled ? (_) => setState(() => _hovered = false) : null,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: widget.onTap,
@@ -430,7 +441,9 @@ class _LibraryEditTabButtonState extends State<_LibraryEditTabButton> {
           tab: widget.tab,
           accent: widget.accent,
           selected: widget.selected,
-          highlighted: !widget.selected && (widget.highlighted || _hovered),
+          highlighted: widget.enabled &&
+              !widget.selected &&
+              (widget.highlighted || _hovered),
         ),
       ),
     );

@@ -312,6 +312,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                           accent: widget.accent,
                           allowReorder:
                               widget.allowTabReorder && !widget.isBusy,
+                          enabled: !widget.isBusy,
                           onReorderItem: _onReorderItem,
                         ),
                       ),

@@ -215,6 +215,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
         for (final tab in tabs) EditTab(icon: tab.icon, label: tab.label),
       ],
       tabIds: [for (final tab in tabs) tab.id],
+      isBusy: request.isAdding,
       views: [
         for (var index = 0; index < tabs.length; index++)
           EditTabShell(

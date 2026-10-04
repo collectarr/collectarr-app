@@ -397,6 +397,9 @@ Completed implementation slices:
   does not expose a field identity.
 - Music's incomplete credit rows now validate on their owning People or
   Classical tab, so Edit switches to the section that needs correction.
+- Add and both Edit scaffolds disable tab selection and reordering while a
+  submission is in progress, keeping the active form view stable until the
+  action completes.
 - The shared multi-value picker now follows the pick-list dialog behavior:
   top alignment, explicit Close, and no outside-click dismissal.
 - Unused generic title, release-identity, date, and contribution edit groups
@@ -546,10 +549,10 @@ Evidence: `add/panes/library_add_manual_pane_shell.dart`.
 - Personal is appended automatically when a kind has not supplied its own
   tab. Custom Fields are added when definitions exist, and My Images is always
   added. Those sections return content, not another `EditTabShell`.
-- The shell currently owns the generic Personal field list (condition,
-  location, purchase details, owner, tags, and notes). Move those semantic
-  definitions and defaults to kind-owned personal schemas; keep shared widgets
-  responsible for rendering contributed fields.
+- The shell composes the Personal tab from the active kind's registered
+  `PersonalLibraryFieldSpec` values. Common widgets own input mechanics and
+  bind the shared draft fields; kinds own the declared labels, ordering,
+  vocabulary lists, and kind-specific personal values.
 - A reorderable image strip and horizontally scrolling tag chips have their
   own bounded horizontal scrolling; they do not create a second vertical tab
   viewport. Audit any new kind-contributed tab before adding nested vertical
@@ -576,12 +579,14 @@ distinguish blank from invalid values where a kind requires that distinction.
 
 Text controls now use the common external-label primitive. Add select fields
 also receive an external label, while specialized date, image, and selection
-controls may render their own label. Some legacy custom editors still build raw
-`TextFormField`s; migrate those when unifying their Add/Edit definitions.
-Embedded Add selection behavior is now an explicit control-mode option,
-independent of the embedded layout/lifecycle. Existing panes preserve their
-full pick-list interaction through the default Edit control mode; review this
-choice separately if a kind needs Add-style inline selection.
+controls may render their own label. A source scan found no direct
+`TextField`/`TextFormField` construction in the nine kind Add/Edit forms; the
+remaining direct text controls belong to the Add mode bar's search and
+advanced-filter inputs, outside the form lifecycle. Embedded Add selection
+behavior is an explicit control-mode option, independent of the embedded
+layout/lifecycle. Existing panes preserve their full pick-list interaction
+through the default Edit control mode; review this choice separately if a kind
+needs Add-style inline selection.
 
 ### 3.3 Remaining custom controls and dead layout helper
 
@@ -589,12 +594,14 @@ Evidence: `edit/fields/edit_dialog_widgets.dart`,
 `ui/primitives/library_selection_fields.dart`, and the schema control builder.
 
 `LibraryEditTextField` now composes `LibraryFormField` and the common
-`LibraryTextFormControl`. Music's structured track and cover editors, plus
-small search/lookup dialogs, still contain raw text controls. `LibraryVocabularyField` renders
-multi-value vocabularies with the shared chip field and single-value
-vocabularies with the labelled dropdown control. The old tag-pick-list widget
-had no application caller and its implementation and barrel export have been
-removed; its golden fixture remains for the final test cleanup.
+`LibraryTextFormControl`. Music's structured track and cover editors, image
+editor, and small search/lookup dialogs use that same text primitive. Remaining
+direct text controls are outside kind forms, in Add search/filter inputs.
+`LibraryVocabularyField` renders multi-value vocabularies with the shared chip
+field and single-value vocabularies with the labelled dropdown control. The old
+tag-pick-list widget had no application caller and its implementation and
+barrel export have been removed; its golden fixture remains for the final test
+cleanup.
 
 The Add shell and Edit schema renderer still have separate lifecycle and tab
 orchestration, but both delegate field geometry to shared layout primitives.

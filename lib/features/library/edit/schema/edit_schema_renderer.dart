@@ -49,6 +49,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     int initialTabIndex = 0,
     bool showTabBar = true,
     bool showFooter = true,
+    bool tabNavigationEnabled = true,
     Color? tabAccent,
     String? tabOrderKey,
     List<EditSchemaExtraTab> extraTabs = const [],
@@ -66,6 +67,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
         initialTabIndex: initialTabIndex,
         showTabBar: showTabBar,
         showFooter: showFooter,
+        tabNavigationEnabled: tabNavigationEnabled,
         tabAccent: tabAccent,
         tabOrderKey: tabOrderKey,
         extraTabs: extraTabs,
@@ -81,6 +83,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     this.showTitle = true,
     this.initialTabIndex = 0,
     this.showTabBar = true,
+    this.tabNavigationEnabled = true,
     this.tabAccent,
     this.tabOrderKey,
     this.extraTabs = const [],
@@ -101,6 +104,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     required this.initialTabIndex,
     required this.showTabBar,
     required this.showFooter,
+    required this.tabNavigationEnabled,
     required this.tabAccent,
     required this.tabOrderKey,
     required this.extraTabs,
@@ -117,6 +121,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
   final int initialTabIndex;
   final bool showTabBar;
   final bool showFooter;
+  final bool tabNavigationEnabled;
   final Color? tabAccent;
   final String? tabOrderKey;
   final List<EditSchemaExtraTab> extraTabs;
@@ -459,7 +464,8 @@ class EditSchemaRendererState<TModel, TDraft>
           _selectedTabId = _tabIdForVisibleIndex(tabIndexes, index);
           _rememberSelectedTab();
         }),
-        allowReorder: true,
+        allowReorder: widget.tabNavigationEnabled,
+        enabled: widget.tabNavigationEnabled,
         onReorderItem: (oldIndex, newIndex) =>
             _onReorderTab(oldIndex, newIndex, tabIndexes),
       ),
