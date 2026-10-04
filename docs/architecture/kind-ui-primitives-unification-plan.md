@@ -50,6 +50,14 @@ Completed implementation slices:
   typed draft, with temporary controller fallbacks removed. Movie/TV/Anime
   custom tab builders also require their typed drafts; the current specs tabs
   read draft-owned controllers rather than shared dummy controllers.
+- Schema fields and custom Edit fields now delegate responsive geometry to one
+  configurable field layout. Existing breakpoints, column counts, spans,
+  full-width placement, and right alignment remain caller configuration.
+- Legacy multi-vocabulary fields now use the shared chip field, and single
+  vocabulary fields share the labelled dropdown control. Managed vocabulary
+  buttons remain separate from choosing or typing a value.
+- Schema text, number, and money inputs and custom Edit text inputs share the
+  same base text-form control and common minimum height.
 
 Still outstanding:
 
@@ -59,10 +67,11 @@ Still outstanding:
 - The Add and Edit renderers still own separate submission/error lifecycles and
   controller registries. Validation policy for fields in unmounted tabs still
   needs to be made explicit.
-- Legacy custom tabs, responsive row helpers, selection controls, managed
-  vocabulary loading, and kind-specific tab composition still have divergent
-  implementations. Runtime screenshots at matching size and text scale have
-  not been reviewed.
+- Legacy custom tabs and kind-specific tab composition still have divergent
+  implementations. Responsive field geometry and the basic vocabulary/text
+  controls are now shared, but date, image, ordered-list, credit, and selection
+  flows still have separate behavior. Runtime screenshots at matching size and
+  text scale have not been reviewed.
 - Music tracks, credits, covers, links, images, and personal fields have not
   yet converged on one complete Add/Edit draft lifecycle.
 
