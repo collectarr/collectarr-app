@@ -232,7 +232,7 @@ final class _MusicAlbumStructureTabState
         rows.where((row) => row['disc_id'] == disc.id.value).firstOrNull;
     return LibraryFormField(
         label: label,
-        child: TextFormField(
+        child: LibraryTextFormControl(
           key: ValueKey('${disc.id.value}:$key'),
           initialValue: row?[key]?.toString() ?? '',
           enabled: entry != null,
@@ -265,7 +265,7 @@ final class _MusicAlbumStructureTabState
               width: half,
               child: LibraryFormField(
                   label: 'Disc Title',
-                  child: TextFormField(
+                  child: LibraryTextFormControl(
                     key: ValueKey('music-disc-title-${disc.id.value}'),
                     initialValue: disc.title ?? '',
                     onChanged: (value) => draft.updateDiscTitle(disc.id, value),
@@ -281,7 +281,7 @@ final class _MusicAlbumStructureTabState
               width: half,
               child: LibraryFormField(
                   label: 'Matrix Nr Side A',
-                  child: TextFormField(
+                  child: LibraryTextFormControl(
                     key: ValueKey('music-disc-matrix-a-${disc.id.value}'),
                     initialValue: disc.matrixNumberSideA ?? '',
                     onChanged: (value) => draft.updateDiscTechnicalDetails(
@@ -293,7 +293,7 @@ final class _MusicAlbumStructureTabState
               width: half,
               child: LibraryFormField(
                   label: 'Matrix Nr Side B',
-                  child: TextFormField(
+                  child: LibraryTextFormControl(
                     key: ValueKey('music-disc-matrix-b-${disc.id.value}'),
                     initialValue: disc.matrixNumberSideB ?? '',
                     onChanged: (value) => draft.updateDiscTechnicalDetails(
@@ -566,7 +566,7 @@ final class _MusicAlbumStructureTabState
               flex: 5,
               child: Padding(
                 padding: EdgeInsets.only(left: track.indentLevel * 14.0),
-                child: TextFormField(
+                child: LibraryTextFormControl(
                   key: ValueKey('music-track-title-${track.id.value}'),
                   initialValue: track.title,
                   decoration: InputDecoration(
@@ -599,7 +599,7 @@ final class _MusicAlbumStructureTabState
               flex: 3,
               child: isHeader
                   ? const SizedBox.shrink()
-                  : TextFormField(
+                  : LibraryTextFormControl(
                       key: ValueKey('music-track-artist-${track.id.value}'),
                       initialValue: track.artist ?? '',
                       decoration: const InputDecoration(
@@ -628,7 +628,7 @@ final class _MusicAlbumStructureTabState
               width: 92,
               child: isHeader
                   ? const SizedBox.shrink()
-                  : TextFormField(
+                  : LibraryTextFormControl(
                       key: ValueKey('music-track-duration-${track.id.value}'),
                       initialValue: _durationLabel(track.durationMs),
                       keyboardType: TextInputType.datetime,

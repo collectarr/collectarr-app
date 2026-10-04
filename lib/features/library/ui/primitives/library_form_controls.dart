@@ -49,6 +49,7 @@ class LibraryTextFormControl extends StatelessWidget {
     this.obscureText = false,
     this.enabled = true,
     this.focusNode,
+    this.style,
   }) : assert(controller == null || initialValue == null);
 
   final TextEditingController? controller;
@@ -63,6 +64,7 @@ class LibraryTextFormControl extends StatelessWidget {
   final bool obscureText;
   final bool enabled;
   final FocusNode? focusNode;
+  final TextStyle? style;
 
   @override
   Widget build(BuildContext context) => TextFormField(
@@ -77,6 +79,7 @@ class LibraryTextFormControl extends StatelessWidget {
         expands: expands,
         obscureText: obscureText,
         enabled: enabled,
+        style: style,
         decoration: (decoration ?? const InputDecoration()).copyWith(
           constraints: const BoxConstraints(
             minHeight: kLibraryFormControlHeight,

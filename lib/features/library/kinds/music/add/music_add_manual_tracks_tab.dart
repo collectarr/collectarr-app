@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -205,7 +206,7 @@ final class _MusicAddManualTracksTabState
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final titleField = TextFormField(
+                      final titleField = LibraryTextFormControl(
                         key: ValueKey('${track.id}-title'),
                         initialValue: track.title,
                         decoration: const InputDecoration(
@@ -214,7 +215,7 @@ final class _MusicAddManualTracksTabState
                         ),
                         onChanged: (value) => track.title = value,
                       );
-                      final artistField = TextFormField(
+                      final artistField = LibraryTextFormControl(
                         key: ValueKey('${track.id}-artist'),
                         initialValue: track.artist,
                         decoration: const InputDecoration(
@@ -223,7 +224,7 @@ final class _MusicAddManualTracksTabState
                         ),
                         onChanged: (value) => track.artist = value,
                       );
-                      final durationField = TextFormField(
+                      final durationField = LibraryTextFormControl(
                         key: ValueKey('${track.id}-duration'),
                         initialValue: track.duration,
                         decoration: const InputDecoration(
@@ -315,12 +316,14 @@ final class _MusicAddManualTracksTabState
     required String initialValue,
     required ValueChanged<String> onChanged,
   }) =>
-      TextFormField(
-        key: ValueKey('${disc.id}-$label'),
-        initialValue: initialValue,
-        decoration: InputDecoration(labelText: label, isDense: true),
-        onChanged: onChanged,
-      );
+      LibraryFormField(
+          label: label,
+          child: LibraryTextFormControl(
+            key: ValueKey('${disc.id}-$label'),
+            initialValue: initialValue,
+            decoration: const InputDecoration(isDense: true),
+            onChanged: onChanged,
+          ));
 
   void _addDisc() {
     final disc = MusicAddManualDisc();

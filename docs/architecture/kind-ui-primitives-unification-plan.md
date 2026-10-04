@@ -267,6 +267,8 @@ Completed implementation slices:
   layouts. Movie character details, Comic's remaining multiline catalog and
   personal inputs, and the TV custom episode dialog use it instead of raw
   per-kind text controls.
+- Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
+  storage details now use the same input primitive and minimum control height.
 - Add and Edit Personal sections now share one responsive four/two/one-column
   field grid, with long fields and history rendered across the full width.
 - Kind Add/Edit fields and metadata comparison views now use consistent title
