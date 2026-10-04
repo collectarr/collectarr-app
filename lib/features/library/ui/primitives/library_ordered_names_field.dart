@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -53,7 +54,7 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
             )),
         child: widget.values.isEmpty
             ? SizedBox(
-                height: 34,
+                height: kLibraryFormControlHeight,
                 child: OutlinedButton(
                     onPressed: _add, child: const SizedBox.expand()))
             : ReorderableListView.builder(
