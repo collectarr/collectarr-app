@@ -179,15 +179,13 @@ final class MusicCatalogListeningTab extends ConsumerWidget {
         context: context,
         builder: (dialogContext) => AccentAlertDialog(
           title: Text(title),
-          content: TextField(
+          content: LibraryEditTextField(
             controller: controller,
+            label: 'Notes',
+            hint: 'Optional listening notes',
             autofocus: true,
             minLines: 1,
             maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Notes',
-              hintText: 'Optional listening notes',
-            ),
           ),
           actions: [
             TextButton(

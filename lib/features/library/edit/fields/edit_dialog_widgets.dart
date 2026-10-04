@@ -359,6 +359,7 @@ class LibraryEditTextField extends StatelessWidget {
     this.minLines,
     this.expands = false,
     this.keyboardType,
+    this.autofocus = false,
   });
 
   final TextEditingController controller;
@@ -370,6 +371,7 @@ class LibraryEditTextField extends StatelessWidget {
   final int? minLines;
   final bool expands;
   final TextInputType? keyboardType;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
@@ -383,6 +385,7 @@ class LibraryEditTextField extends StatelessWidget {
         maxLines: maxLines,
         expands: expands,
         keyboardType: keyboardType,
+        autofocus: autofocus,
         decoration: InputDecoration(
           hintText: hint,
         ),

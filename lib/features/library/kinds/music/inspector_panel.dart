@@ -6,6 +6,8 @@ import 'package:collectarr_app/features/library/details/library_inspector_title_
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
+    show LibraryEditTextField;
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -227,13 +229,11 @@ class _MusicListeningSection extends ConsumerWidget {
         context: context,
         builder: (dialogContext) => AccentAlertDialog(
           title: const Text('Log listen'),
-          content: TextField(
+          content: LibraryEditTextField(
             controller: notesController,
+            label: 'Notes',
+            hint: 'Optional listening notes',
             autofocus: true,
-            decoration: const InputDecoration(
-              labelText: 'Notes',
-              hintText: 'Optional listening notes',
-            ),
             minLines: 1,
             maxLines: 3,
           ),
@@ -342,12 +342,12 @@ class _MusicListenEventTile extends ConsumerWidget {
         context: context,
         builder: (dialogContext) => AccentAlertDialog(
           title: const Text('Edit listen'),
-          content: TextField(
+          content: LibraryEditTextField(
             controller: notesController,
+            label: 'Notes',
             autofocus: true,
             minLines: 1,
             maxLines: 4,
-            decoration: const InputDecoration(labelText: 'Notes'),
           ),
           actions: [
             TextButton(

@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
+    show LibraryEditTextField;
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -24,13 +26,11 @@ Future<void> runMusicLogListenAction(
       context: action.buildContext,
       builder: (dialogContext) => AccentAlertDialog(
         title: const Text('Log listen'),
-        content: TextField(
+        content: LibraryEditTextField(
           controller: notesController,
+          label: 'Notes',
+          hint: 'Optional listening notes',
           autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Notes',
-            hintText: 'Optional listening notes',
-          ),
           minLines: 1,
           maxLines: 3,
         ),
