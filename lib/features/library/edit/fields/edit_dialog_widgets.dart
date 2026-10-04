@@ -447,38 +447,6 @@ class LibraryEditDenseFields extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Two-column grid for form fields
-// ---------------------------------------------------------------------------
-
-class EditGrid extends StatelessWidget {
-  const EditGrid({super.key, required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final rows = <Widget>[];
-    for (var i = 0; i < children.length; i += 2) {
-      rows.add(
-        Row(
-          children: [
-            children[i],
-            if (i + 1 < children.length) ...[
-              const SizedBox(width: 6),
-              children[i + 1],
-            ],
-          ],
-        ),
-      );
-      if (i + 2 < children.length) {
-        rows.add(const SizedBox(height: 6));
-      }
-    }
-    return Column(children: rows);
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Small badge pill
 // ---------------------------------------------------------------------------
 
