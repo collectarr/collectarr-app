@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -59,7 +60,20 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         (mode == LibraryFieldSpecControlMode.add &&
             (field is LibrarySelectFieldSpec<TDraft, Object?> ||
                 field is LibraryVocabularyFieldSpec<TDraft, Object?>));
-    return external ? LibraryFormField(label: field.label, child: child) : child;
+    final labelled = external
+        ? LibraryFormField(label: field.label, child: child)
+        : child;
+    if (field.validator == null ||
+        field is LibraryTextFieldSpec<TDraft> ||
+        field is LibraryNumberFieldSpec<TDraft> ||
+        field is LibraryMoneyFieldSpec<TDraft>) {
+      return labelled;
+    }
+    return FormField<void>(
+      key: ValueKey<String>('library-field-validator-${field.id}'),
+      validator: (_) => field.validate(draft),
+      builder: (_) => labelled,
+    );
   }
 
   @override
@@ -69,6 +83,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       controller: controller,
       maxLines: field.maxLines,
       obscureText: field.obscureText,
+      validator: (_) => field.validate(draft),
       decoration: _controlDecoration(
         InputDecoration(
           labelText: field.label,
@@ -91,10 +106,11 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     return TextFormField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      validator: (_) => _numberError(field, controller.text, draft),
       decoration: _controlDecoration(
         InputDecoration(
           labelText: field.label,
-          errorText: field.validate(draft),
+          errorText: _numberError(field, controller.text, draft),
         ),
       ),
       onChanged: (value) {
@@ -149,6 +165,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     return TextFormField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      validator: (_) => field.validate(draft),
       decoration: _controlDecoration(
         InputDecoration(
           labelText: field.label,
@@ -468,8 +485,37 @@ final class LibraryFieldSpecControlBuilder<TDraft>
   }
 }
 
+String? _numberError<TDraft>(
+  LibraryNumberFieldSpec<TDraft> field,
+  String raw,
+  TDraft draft,
+) {
+  final normalized = raw.trim().replaceAll(',', '.');
+  if (normalized.isEmpty) return field.validate(draft);
+  final value = num.tryParse(normalized);
+  if (value == null) return 'Enter a valid number';
+  final minimum = field.minimum;
+  if (minimum != null && value < minimum) {
+    return 'Must be at least $minimum';
+  }
+  final maximum = field.maximum;
+  if (maximum != null && value > maximum) {
+    return 'Must be at most $maximum';
+  }
+  final places = field.decimalPlaces;
+  if (places != null && places >= 0) {
+    final scale = math.pow(10, places).toDouble();
+    if ((value * scale - (value * scale).round()).abs() > 1e-8) {
+      return places == 0
+          ? 'Enter a whole number'
+          : 'Use at most $places decimal places';
+    }
+  }
+  return field.validate(draft);
+}
+
 num? _parseNumber(String value) {
-  final normalized = value.trim();
+  final normalized = value.trim().replaceAll(',', '.');
   if (normalized.isEmpty) return null;
   return num.tryParse(normalized);
 }
