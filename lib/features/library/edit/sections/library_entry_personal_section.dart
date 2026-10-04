@@ -295,19 +295,16 @@ class _LibraryEntryPersonalSectionState
               _setMultiVocabulary(field, values.toList(growable: false)),
         );
       case PersonalLibraryFieldEditor.currency:
-        return LibraryFormField(
+        return LibraryDropdownPickField<String>(
           label: field.label,
-          child: LibraryDropdownPickField<String>(
-            label: field.label,
-            value: _draft.text(field.key).trim().isEmpty
-                ? 'USD'
-                : _draft.text(field.key).trim().toUpperCase(),
-            options: [
-              for (final code in kLibraryCurrencyCodes)
-                LibraryFieldOption(value: code, label: code),
-            ],
-            onChanged: (value) => _draft.set(field.key, value),
-          ),
+          value: _draft.text(field.key).trim().isEmpty
+              ? 'USD'
+              : _draft.text(field.key).trim().toUpperCase(),
+          options: [
+            for (final code in kLibraryCurrencyCodes)
+              LibraryFieldOption(value: code, label: code),
+          ],
+          onChanged: (value) => _draft.set(field.key, value),
         );
       case PersonalLibraryFieldEditor.rating:
       case PersonalLibraryFieldEditor.notes:
