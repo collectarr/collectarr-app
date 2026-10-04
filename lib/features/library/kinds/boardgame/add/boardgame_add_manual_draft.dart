@@ -11,7 +11,4 @@ final class BoardgameAddManualDraft implements LibraryKindAddDraft {
   final BoardGameCatalogFormValues values;
   @override
   String catalogTitle;
-
-  @override
-  void dispose() {}
 }

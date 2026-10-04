@@ -4,6 +4,14 @@ abstract interface class LibraryKindAddDraft {
   String get catalogTitle;
 
   set catalogTitle(String value);
+}
 
+/// A kind Add draft that owns resources such as text controllers.
+abstract interface class LibraryKindAddDraftWithResources
+    implements LibraryKindAddDraft {
   void dispose();
+}
+
+void disposeLibraryKindAddDraft(LibraryKindAddDraft draft) {
+  if (draft is LibraryKindAddDraftWithResources) draft.dispose();
 }

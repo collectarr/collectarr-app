@@ -11,7 +11,4 @@ final class MangaAddManualDraft implements LibraryKindAddDraft {
   final MangaCatalogFormValues values;
   @override
   String catalogTitle;
-
-  @override
-  void dispose() {}
 }

@@ -232,9 +232,6 @@ class _EmptyKindAddDraft implements LibraryKindAddDraft {
 
   @override
   String catalogTitle = '';
-
-  @override
-  void dispose() {}
 }
 
 class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>

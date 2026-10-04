@@ -50,6 +50,6 @@ class LibraryAddManualDraft {
     soldDateController.dispose();
     ownerLabelController.dispose();
     linksController.dispose();
-    kindDraft.dispose();
+    disposeLibraryKindAddDraft(kindDraft);
   }
 }

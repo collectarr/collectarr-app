@@ -10,7 +10,4 @@ final class ComicAddManualDraft implements LibraryKindAddDraft {
   final ComicCatalogItemFormValues values;
   @override
   String catalogTitle;
-
-  @override
-  void dispose() {}
 }

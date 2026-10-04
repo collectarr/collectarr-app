@@ -99,7 +99,4 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
   List<MusicArtistCredit> artistCredits;
   final List<MusicAddManualDisc> discs;
   final List<MusicAddManualExternalLink> externalLinks;
-
-  @override
-  void dispose() {}
 }

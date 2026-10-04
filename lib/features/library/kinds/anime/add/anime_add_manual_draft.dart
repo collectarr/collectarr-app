@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/add/models/library_kind_add_draf
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
 
-final class AnimeAddManualDraft implements LibraryKindAddDraft {
+final class AnimeAddManualDraft implements LibraryKindAddDraftWithResources {
   AnimeAddManualDraft({
     AnimeMetadata? metadata,
     this.catalogTitle = '',

@@ -11,7 +11,4 @@ final class BookAddManualDraft implements LibraryKindAddDraft {
   final BookCatalogFormValues values;
   @override
   String catalogTitle;
-
-  @override
-  void dispose() {}
 }
