@@ -42,7 +42,6 @@ class LibraryAddManualPaneRequest {
     required this.sellPriceController,
     required this.soldDateController,
     required this.ownerLabelController,
-    required this.linksController,
     required this.isAdding,
     required this.defaultCondition,
     this.conditions = const [],
@@ -87,7 +86,6 @@ class LibraryAddManualPaneRequest {
   final TextEditingController sellPriceController;
   final TextEditingController soldDateController;
   final TextEditingController ownerLabelController;
-  final TextEditingController linksController;
   final bool isAdding;
   final String defaultCondition;
   final List<String> conditions;

@@ -375,7 +375,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       sellPriceController: _manualDraft.sellPriceController,
       soldDateController: _manualDraft.soldDateController,
       ownerLabelController: _manualDraft.ownerLabelController,
-      linksController: _manualDraft.linksController,
       isAdding: state.isAdding || state.submitState.isLoading,
       defaultCondition: state.defaultCondition,
       conditions: _conditionOptions,

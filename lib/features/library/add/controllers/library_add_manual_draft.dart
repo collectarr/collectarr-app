@@ -32,7 +32,6 @@ class LibraryAddManualDraft {
   final sellPriceController = TextEditingController();
   final soldDateController = TextEditingController();
   final ownerLabelController = TextEditingController();
-  final linksController = TextEditingController();
 
   Map<String, String?> customFieldValues;
   List<ItemImageDraft> itemImages;
@@ -49,7 +48,6 @@ class LibraryAddManualDraft {
     sellPriceController.dispose();
     soldDateController.dispose();
     ownerLabelController.dispose();
-    linksController.dispose();
     disposeLibraryKindAddDraft(kindDraft);
   }
 }

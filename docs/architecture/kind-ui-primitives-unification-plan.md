@@ -946,3 +946,8 @@ Implementation note (2026-10-04): Removed the unused Anime and TV
 `Editable*Link` controller models. Their active local-entry links tabs already
 use the shared entry-local link draft; repository-wide reference searches found
 no imports or consumers of the obsolete model files.
+
+Implementation note (2026-10-04): Removed an unconsumed generic Add `links`
+controller after a repository-wide read audit found no field or pane reading
+it. Kind link values continue to be owned by their kind drafts or the shared
+entry-local links draft.
