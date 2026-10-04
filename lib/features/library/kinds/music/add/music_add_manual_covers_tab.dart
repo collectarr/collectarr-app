@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -83,15 +84,15 @@ final class MusicAddManualCoversTab extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          TextFormField(
-            key: ValueKey('music-add-cover-$label'),
-            initialValue: value,
-            decoration: InputDecoration(
-              labelText: '$label URL',
-              isDense: true,
+          LibraryFormField(
+            label: '$label URL',
+            child: LibraryTextFormControl(
+              key: ValueKey('music-add-cover-$label'),
+              initialValue: value,
+              keyboardType: TextInputType.url,
+              decoration: const InputDecoration(isDense: true),
+              onChanged: onChanged,
             ),
-            keyboardType: TextInputType.url,
-            onChanged: onChanged,
           ),
         ],
       );

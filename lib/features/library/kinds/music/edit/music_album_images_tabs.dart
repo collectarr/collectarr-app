@@ -683,9 +683,9 @@ final class _PersonalImageRowState extends State<_PersonalImageRow> {
                     },
                   ),
                   const SizedBox(height: 8),
-                  TextField(
+                  LibraryEditTextField(
                     controller: _description,
-                    decoration: const InputDecoration(labelText: 'Description'),
+                    label: 'Description',
                     onChanged: (value) => widget.onChanged(
                       widget.image.copyWith(
                         description: _nullable(value),
