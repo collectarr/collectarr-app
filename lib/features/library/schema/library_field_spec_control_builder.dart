@@ -446,9 +446,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       value: selected,
       options: field.options,
       errorText: field.validate(draft),
-      allowCustomValueEntry: field.allowCustomValues &&
-          field.pickListKey != null &&
-          TValue == String,
+      allowCustomValueEntry: field.allowCustomValues && TValue == String,
       onChanged: (next) {
         field.updateValues(draft, next);
         final listName = field.pickListKey;

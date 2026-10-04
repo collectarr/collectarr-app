@@ -131,12 +131,14 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
               write: (draft, value) =>
                   _writeNullable(draft, 'age_rating', _nullable(value)),
             ),
-            _text(
+            LibraryMultiVocabularyFieldSpec<TvAddManualDraft, String>(
               id: 'genres',
               label: 'Genres',
-              read: (metadata) => metadata.genres.join(', '),
-              write: (draft, value) => draft.metadata =
-                  draft.metadata.copyWith(genres: _split(value)),
+              values: (draft) => draft.metadata.genres.toSet(),
+              setValues: (draft, values) => draft.metadata =
+                  draft.metadata.copyWith(genres: values.toList()),
+              options: const [],
+              allowCustomValues: true,
             ),
             _text(
               id: 'barcode',

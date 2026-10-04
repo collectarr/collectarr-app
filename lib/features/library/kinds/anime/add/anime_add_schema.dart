@@ -126,12 +126,14 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
               write: (draft, value) =>
                   draft.metadata = draft.metadata.copyWith(language: value),
             ),
-            _text(
+            LibraryMultiVocabularyFieldSpec<AnimeAddManualDraft, String>(
               id: 'genres',
               label: 'Genres',
-              read: (metadata) => metadata.genres.join(', '),
-              write: (draft, value) => draft.metadata =
-                  draft.metadata.copyWith(genres: _split(value)),
+              values: (draft) => draft.metadata.genres.toSet(),
+              setValues: (draft, values) => draft.metadata =
+                  draft.metadata.copyWith(genres: values.toList()),
+              options: const [],
+              allowCustomValues: true,
             ),
             _text(
               id: 'themes',

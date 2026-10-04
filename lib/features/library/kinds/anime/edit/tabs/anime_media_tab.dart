@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
 class AnimeEditMediaTab extends StatelessWidget {
@@ -68,10 +69,12 @@ class AnimeEditMediaTab extends StatelessWidget {
                     label: 'Runtime (min)',
                     validator: optionalIntValidator,
                   ),
-                  LibraryEditTextField(
+                  LibraryVocabularyField(
                     controller: draft.formFields
                         .controller(AnimeCanonicalEditField.genres),
+                    options: const [],
                     label: 'Genres',
+                    multiSelect: true,
                   ),
                 ],
               ),

@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
 class TvEditMediaTab extends StatelessWidget {
@@ -69,9 +70,11 @@ class TvEditMediaTab extends StatelessWidget {
                     label: 'Runtime (min)',
                     validator: optionalIntValidator,
                   ),
-                  LibraryEditTextField(
+                  LibraryVocabularyField(
                     controller: tvEdit.genresEditController,
+                    options: const [],
                     label: 'Genres',
+                    multiSelect: true,
                   ),
                 ],
               ),
