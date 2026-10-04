@@ -340,10 +340,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         ),
       ...field.options,
     ];
-    final vocabulary = _vocabularyForField(
-      field,
-      explicitKey: vocabularyKey,
-    );
+    final vocabulary = _vocabularyForField(vocabularyKey);
     final pickListName = vocabulary?.key;
     return LibraryDropdownPickField<TValue>(
       label: field.label,
@@ -403,10 +400,8 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         ),
       );
 
-  VocabularyDefinition<dynamic>? _vocabularyForField<TValue>(
-    LibrarySingleValueField<TDraft, TValue> field, {
-    String? explicitKey,
-  }) {
+  VocabularyDefinition<dynamic>? _vocabularyForField(String? vocabularyKey) {
+    if (vocabularyKey == null || vocabularyKey.isEmpty) return null;
     final apiValue = mediaKind;
     if (apiValue == null) return null;
     final kind = catalogMediaKindFromApiValue(apiValue);
@@ -415,32 +410,10 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         .presentationCapability
         .vocabularies;
     if (vocabularies == null) return null;
-    if (explicitKey != null) {
-      for (final definition in vocabularies.definitions) {
-        if (definition.key == explicitKey) return definition;
-      }
-    }
-    final suffixMatch = vocabularies.definitionForSuffix(field.id);
-    if (suffixMatch != null) return suffixMatch;
-
-    // Some field IDs differ from their vocabulary suffix. Match the complete
-    // built-in option set only when exactly one vocabulary owns it.
-    final optionValues = field.options.map((option) => option.value).toList();
-    if (optionValues.isEmpty || optionValues.any((value) => value is! String)) {
-      return null;
-    }
-    final optionSet = optionValues.cast<String>().toSet();
-    final matches = <VocabularyDefinition<dynamic>>[];
     for (final definition in vocabularies.definitions) {
-      final builtIns = definition.builtIns.whereType<String>().toSet();
-      if (builtIns.isNotEmpty &&
-          builtIns.length == definition.builtIns.length &&
-          builtIns.length == optionSet.length &&
-          builtIns.containsAll(optionSet)) {
-        matches.add(definition);
-      }
+      if (definition.key == vocabularyKey) return definition;
     }
-    return matches.length == 1 ? matches.single : null;
+    return null;
   }
 
   Widget _buildMultiSelectField<TValue>(

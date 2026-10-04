@@ -41,6 +41,7 @@ final EditSchema<BookEntryDetails, BookEditDraft> bookEntryEditSchema =
               value: (draft) => _emptyToNull(draft.dustJacketCondition ?? ''),
               setValue: (draft, value) => draft.dustJacketCondition = value,
               options: _options(BookVocabularies.condition.builtIns),
+              pickListKey: BookVocabularyIds.condition.value,
               visibleWhen: (draft) => draft.dustJacketPresent,
             ),
           ],

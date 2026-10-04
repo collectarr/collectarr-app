@@ -23,6 +23,7 @@ final EditSchema<GameEntryDetails, GameEditDraft> gameEntryEditSchema =
               value: (draft) => draft.gameCompleteness,
               setValue: (draft, value) => draft.gameCompleteness = value,
               options: _options(GameVocabularies.condition.builtIns),
+              pickListKey: GameVocabularyIds.condition.value,
             ),
             LibraryToggleFieldSpec<GameEditDraft>(
               id: 'has_box',
@@ -55,6 +56,7 @@ final EditSchema<GameEntryDetails, GameEditDraft> gameEntryEditSchema =
               value: (draft) => draft.gameCoreRegion,
               setValue: (draft, value) => draft.gameCoreRegion = value,
               options: _options(GameVocabularies.region.builtIns),
+              pickListKey: GameVocabularyIds.region.value,
             ),
             LibraryToggleFieldSpec<GameEditDraft>(
               id: 'value_locked',

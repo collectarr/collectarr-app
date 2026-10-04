@@ -28,6 +28,7 @@ final EditSchema<MovieEntryDetails, MovieEntryEditDraft> movieEntryEditSchema =
                   draft.hdrFormats = values.toList(growable: false),
               label: 'HDR formats',
               options: _options(MovieVocabularies.hdr.builtIns),
+              pickListKey: MovieVocabularyIds.hdr.value,
             ),
             _text(
               id: 'box_set_id',
@@ -47,6 +48,7 @@ final EditSchema<MovieEntryDetails, MovieEntryEditDraft> movieEntryEditSchema =
               value: (draft) => draft.region,
               setValue: (draft, value) => draft.region = value,
               options: _options(MovieVocabularies.region.builtIns),
+              pickListKey: MovieVocabularyIds.region.value,
             ),
             LibraryVocabularyFieldSpec<MovieEntryEditDraft, String>(
               id: 'packaging',
@@ -54,6 +56,7 @@ final EditSchema<MovieEntryDetails, MovieEntryEditDraft> movieEntryEditSchema =
               value: (draft) => draft.packaging,
               setValue: (draft, value) => draft.packaging = value,
               options: _options(MovieVocabularies.packaging.builtIns),
+              pickListKey: MovieVocabularyIds.packaging.value,
             ),
             LibraryVocabularyFieldSpec<MovieEntryEditDraft, String>(
               id: 'distributor',
@@ -61,6 +64,7 @@ final EditSchema<MovieEntryDetails, MovieEntryEditDraft> movieEntryEditSchema =
               value: (draft) => draft.distributor,
               setValue: (draft, value) => draft.distributor = value,
               options: _options(MovieVocabularies.distributor.builtIns),
+              pickListKey: MovieVocabularyIds.distributor.value,
             ),
           ],
         ),

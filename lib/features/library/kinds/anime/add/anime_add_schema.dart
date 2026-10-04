@@ -9,7 +9,8 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadat
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 
-final LibraryFormSchema<AnimeAddManualDraft> animeAddSchema = animeAddSchemaFor();
+final LibraryFormSchema<AnimeAddManualDraft> animeAddSchema =
+    animeAddSchemaFor();
 
 const animeMainFieldIds = {
   'catalog_title',
@@ -69,7 +70,8 @@ const animeSpecsFieldIds = {
 const animeCoverFieldIds = {'cover_image_url'};
 const animeSynopsisFieldIds = {'synopsis'};
 
-LibraryFormSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
+LibraryFormSchema<TDraft> animeAddSchemaFor<
+        TDraft extends AnimeCatalogFormDraft>({
   Set<String>? fieldIds,
   String? sectionLabel,
   Iterable<String>? formatOptions,
@@ -187,6 +189,7 @@ LibraryFormSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft
                 format: AnimeFormat.fromString(value),
               ),
               options: formatOptions ?? AnimeVocabularies.format.builtIns,
+              pickListKey: AnimeVocabularyIds.format.value,
               onManage: onManageFormat,
             ),
             _vocabulary<TDraft>(
@@ -199,6 +202,7 @@ LibraryFormSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft
                 _animeSeason(value)?.name,
               ),
               options: seasonOptions ?? AnimeVocabularies.season.builtIns,
+              pickListKey: AnimeVocabularyIds.season.value,
               onManage: onManageSeason,
             ),
             _vocabulary<TDraft>(
@@ -364,6 +368,7 @@ LibraryFormSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft
               }),
               options: physicalFormatOptions ??
                   AnimeVocabularies.physicalFormat.builtIns,
+              pickListKey: AnimeVocabularyIds.physicalFormat.value,
               onManage: onManagePhysicalFormat,
             ),
             _text<TDraft>(
@@ -457,6 +462,7 @@ LibraryFormSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft
               write: (draft, value) =>
                   draft.metadata = _withRegion(draft.metadata, value),
               options: regionOptions ?? AnimeVocabularies.region.builtIns,
+              pickListKey: AnimeVocabularyIds.region.value,
               onManage: onManageRegion,
             ),
           ],
@@ -582,6 +588,7 @@ LibraryVocabularyFieldSpec<TDraft, String>
   required String Function(AnimeMetadata metadata) read,
   required void Function(TDraft draft, String? value) write,
   required Iterable<String> options,
+  String? pickListKey,
   FutureOr<void> Function()? onManage,
 }) =>
         LibraryVocabularyFieldSpec<TDraft, String>(
@@ -593,6 +600,7 @@ LibraryVocabularyFieldSpec<TDraft, String>
             for (final value in options)
               LibraryFieldOption(value: value, label: value),
           ],
+          pickListKey: pickListKey,
           onManage: onManage == null ? null : (_) => onManage(),
         );
 

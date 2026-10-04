@@ -54,6 +54,7 @@ final EditSchema<TvEntryDetails, TvEntryEditDraft> tvEntryEditSchema =
               value: (draft) => draft.region,
               setValue: (draft, value) => draft.region = value,
               options: _options(TvVocabularies.region.builtIns),
+              pickListKey: TvVocabularyIds.region.value,
             ),
             LibraryVocabularyFieldSpec<TvEntryEditDraft, String>(
               id: 'packaging',
@@ -61,6 +62,7 @@ final EditSchema<TvEntryDetails, TvEntryEditDraft> tvEntryEditSchema =
               value: (draft) => draft.packaging,
               setValue: (draft, value) => draft.packaging = value,
               options: _options(TvVocabularies.packaging.builtIns),
+              pickListKey: TvVocabularyIds.packaging.value,
             ),
             LibraryVocabularyFieldSpec<TvEntryEditDraft, String>(
               id: 'distributor',
@@ -68,6 +70,7 @@ final EditSchema<TvEntryDetails, TvEntryEditDraft> tvEntryEditSchema =
               value: (draft) => draft.distributor,
               setValue: (draft, value) => draft.distributor = value,
               options: _options(TvVocabularies.distributor.builtIns),
+              pickListKey: TvVocabularyIds.distributor.value,
             ),
           ],
         ),

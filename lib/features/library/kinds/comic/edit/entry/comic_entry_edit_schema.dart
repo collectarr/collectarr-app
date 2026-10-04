@@ -63,6 +63,7 @@ final EditSchema<ComicEntryDetails, ComicEntryEditDraft> comicEntryEditSchema =
               value: (draft) => draft.pageQuality,
               setValue: (draft, value) => draft.pageQuality = value,
               options: _options(ComicVocabularies.pageQuality.builtIns),
+              pickListKey: ComicVocabularyIds.pageQuality.value,
             ),
             LibraryTextFieldSpec<ComicEntryEditDraft>(
               id: 'grader_notes',
@@ -108,6 +109,7 @@ final EditSchema<ComicEntryDetails, ComicEntryEditDraft> comicEntryEditSchema =
               value: (draft) => draft.keyCategory,
               setValue: (draft, value) => draft.keyCategory = value,
               options: _options(ComicVocabularies.keyCategory.builtIns),
+              pickListKey: ComicVocabularyIds.keyCategory.value,
               visibleWhen: (draft) => draft.keyComic,
             ),
             LibraryTextFieldSpec<ComicEntryEditDraft>(

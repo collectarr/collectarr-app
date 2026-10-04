@@ -303,6 +303,10 @@ Completed implementation slices:
   with the entry save.
 - Add Location now uses the shared dropdown and supports an explicit no-location
   choice that remains distinct from the dialog's default location.
+- The shared Edit schema renderer now resolves managed vocabularies only by
+  each field's explicit vocabulary key. Movie, TV, Anime, Book, Game, and Comic
+  fields with managed vocabularies now declare that key in their form specs;
+  static enum choices and free multi-value fields remain unregistered.
 - Add Condition now uses the same labelled pick-field primitive as Edit, with
   the same built-in and selected-value choices.
 - Add and Edit Notes now use one multiline field with matching labels and line

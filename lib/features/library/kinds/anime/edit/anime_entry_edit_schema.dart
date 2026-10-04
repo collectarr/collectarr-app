@@ -28,6 +28,7 @@ final EditSchema<AnimeEntryDetails, AnimeEntryEditDraft> animeEntryEditSchema =
                   draft.hdrFormats = values.toList(growable: false),
               label: 'HDR formats',
               options: _options(AnimeVocabularies.hdr.builtIns),
+              pickListKey: AnimeVocabularyIds.hdr.value,
             ),
             _text(
               id: 'box_set_id',
@@ -47,6 +48,7 @@ final EditSchema<AnimeEntryDetails, AnimeEntryEditDraft> animeEntryEditSchema =
               value: (draft) => draft.region,
               setValue: (draft, value) => draft.region = value,
               options: _options(AnimeVocabularies.region.builtIns),
+              pickListKey: AnimeVocabularyIds.region.value,
             ),
             LibraryVocabularyFieldSpec<AnimeEntryEditDraft, String>(
               id: 'packaging',
@@ -54,6 +56,7 @@ final EditSchema<AnimeEntryDetails, AnimeEntryEditDraft> animeEntryEditSchema =
               value: (draft) => draft.packaging,
               setValue: (draft, value) => draft.packaging = value,
               options: _options(AnimeVocabularies.packaging.builtIns),
+              pickListKey: AnimeVocabularyIds.packaging.value,
             ),
             LibraryVocabularyFieldSpec<AnimeEntryEditDraft, String>(
               id: 'distributor',
@@ -61,6 +64,7 @@ final EditSchema<AnimeEntryDetails, AnimeEntryEditDraft> animeEntryEditSchema =
               value: (draft) => draft.distributor,
               setValue: (draft, value) => draft.distributor = value,
               options: _options(AnimeVocabularies.distributor.builtIns),
+              pickListKey: AnimeVocabularyIds.distributor.value,
             ),
           ],
         ),

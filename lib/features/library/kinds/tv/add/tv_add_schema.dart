@@ -168,6 +168,7 @@ LibraryFormSchema<TDraft> tvAddSchemaFor<TDraft extends TvCatalogFormDraft>({
                 });
               },
               options: formatOptions ?? TvVocabularies.physicalFormat.builtIns,
+              pickListKey: TvVocabularyIds.physicalFormat.value,
               onManage: onManageFormat,
             ),
             _text<TDraft>(
@@ -347,6 +348,7 @@ LibraryVocabularyFieldSpec<TDraft, String>
   required String Function(TvMetadata metadata) read,
   required void Function(TDraft draft, String? value) write,
   required Iterable<String> options,
+  String? pickListKey,
   FutureOr<void> Function()? onManage,
 }) =>
         LibraryVocabularyFieldSpec<TDraft, String>(
@@ -358,6 +360,7 @@ LibraryVocabularyFieldSpec<TDraft, String>
             for (final value in options)
               LibraryFieldOption(value: value, label: value),
           ],
+          pickListKey: pickListKey,
           onManage: onManage == null ? null : (_) => onManage(),
         );
 

@@ -80,6 +80,7 @@ List<LibraryFieldSpec<T>> comicCatalogItemIdentityFields<T>({
         options: _options(
           physicalFormatOptions ?? ComicVocabularies.physicalFormat.builtIns,
         ),
+        pickListKey: ComicVocabularyIds.physicalFormat.value,
         onManage: onManagePhysicalFormat == null
             ? null
             : (_) => onManagePhysicalFormat(),
@@ -118,6 +119,7 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         value: (draft) => values(draft).publisher,
         setValue: (draft, value) => values(draft).publisher = value ?? '',
         options: publisherOptions ?? ComicVocabularies.publisher.builtIns,
+        pickListKey: ComicVocabularyIds.publisher.value,
         onManage: onManagePublisher,
       ),
       _vocabulary<T>(
@@ -126,6 +128,7 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         value: (draft) => values(draft).imprint,
         setValue: (draft, value) => values(draft).imprint = value ?? '',
         options: imprintOptions ?? ComicVocabularies.imprint.builtIns,
+        pickListKey: ComicVocabularyIds.imprint.value,
         onManage: onManageImprint,
       ),
       _vocabulary<T>(
@@ -134,6 +137,7 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         value: (draft) => values(draft).seriesGroup,
         setValue: (draft, value) => values(draft).seriesGroup = value ?? '',
         options: seriesGroupOptions ?? ComicVocabularies.seriesGroup.builtIns,
+        pickListKey: ComicVocabularyIds.seriesGroup.value,
         onManage: onManageSeriesGroup,
       ),
       LibraryNumberFieldSpec<T>(
@@ -174,6 +178,7 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         values: (draft) => _split(values(draft).crossover).toSet(),
         setValues: (draft, next) => values(draft).crossover = next.join(', '),
         options: const [],
+        pickListKey: ComicVocabularyIds.crossover.value,
       ),
       LibraryMultiVocabularyFieldSpec<T, String>(
         id: 'story_arcs',
@@ -181,6 +186,7 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         values: (draft) => values(draft).storyArcs.toSet(),
         setValues: (draft, next) => values(draft).storyArcs = next.toList(),
         options: const [],
+        pickListKey: ComicVocabularyIds.storyArc.value,
       ),
       _text<T>(
         id: 'cover_image_url',
@@ -209,6 +215,7 @@ LibraryVocabularyFieldSpec<T, String> _vocabulary<T>({
   required String Function(T draft) value,
   required void Function(T draft, String?) setValue,
   required Iterable<String> options,
+  required String pickListKey,
   FutureOr<void> Function()? onManage,
 }) =>
     LibraryVocabularyFieldSpec<T, String>(
@@ -217,6 +224,7 @@ LibraryVocabularyFieldSpec<T, String> _vocabulary<T>({
       value: (draft) => _nullable(value(draft)),
       setValue: setValue,
       options: _options(options),
+      pickListKey: pickListKey,
       onManage: onManage == null ? null : (_) => onManage(),
     );
 
