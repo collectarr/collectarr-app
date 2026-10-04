@@ -5,6 +5,14 @@ import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 
+String? validateComicCatalogItem(ComicCatalogItemFormValues values) {
+  final pageCount = values.pageCount;
+  if (pageCount != null && pageCount < 0) {
+    return 'Page count cannot be negative';
+  }
+  return null;
+}
+
 List<LibraryFieldSpec<T>> comicCatalogItemIdentityFields<T>({
   required ComicCatalogItemValuesReader<T> values,
   Iterable<String>? physicalFormatOptions,

@@ -7,13 +7,7 @@ import 'package:flutter/material.dart';
 final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
     comicCatalogItemEditSchema = EditSchema(
   title: (_) => 'Edit comic',
-  validate: (_, values) {
-    final pageCount = values.pageCount;
-    if (pageCount != null && pageCount < 0) {
-      return 'Page count cannot be negative';
-    }
-    return null;
-  },
+  validate: (_, values) => validateComicCatalogItem(values),
   tabs: [
     EditTabSpec<ComicCatalogItemFormValues>(
       id: 'main',

@@ -6,7 +6,8 @@ import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 
-final LibraryFormSchema<ComicAddManualDraft> comicAddSchema = comicAddSchemaFor();
+final LibraryFormSchema<ComicAddManualDraft> comicAddSchema =
+    comicAddSchemaFor();
 
 LibraryFormSchema<ComicAddManualDraft> comicAddSchemaFor({
   Set<String>? fieldIds,
@@ -23,13 +24,7 @@ LibraryFormSchema<ComicAddManualDraft> comicAddSchemaFor({
 }) =>
     LibraryFormSchema<ComicAddManualDraft>(
       title: (_) => 'Manual comic issue',
-      validate: (draft) {
-        final pageCount = draft.values.pageCount;
-        if (pageCount != null && pageCount < 0) {
-          return 'Page count cannot be negative';
-        }
-        return null;
-      },
+      validate: (draft) => validateComicCatalogItem(draft.values),
       sections: filterLibraryFormSections(
         fieldIds: fieldIds,
         sectionLabels: sectionLabels,

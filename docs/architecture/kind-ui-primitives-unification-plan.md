@@ -53,6 +53,8 @@ Completed implementation slices:
   use the Edit schema renderer's scroll view as their only vertical scroll
   owner. Their shared tab surface can retain its border and padding without
   creating an inner scroll view.
+- Comic Add and catalog Edit now use one shared page-count validation rule
+  from the Comic catalog field definitions.
 - The controller audit found no kind-pane build path constructing a fresh
   controller on each rebuild. Advanced Add filters cache controllers by stable
   field ID; kind-specific row editors keep controllers in their draft/state and
