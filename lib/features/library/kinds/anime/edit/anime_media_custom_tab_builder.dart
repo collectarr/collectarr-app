@@ -4,9 +4,7 @@ import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draf
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_crew_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_discs_tab.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_edition_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_links_tab.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_media_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_catalog_form_edit_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_schema.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -30,11 +28,32 @@ Widget? buildAnimeMediaCustomTabView({
   final animeEdit = catalogDraft.animeEdit;
 
   return switch (tabId) {
-    'edition' => AnimeEditEditionTab(
-        draft: draft,
-        animeDraft: catalogDraft,
-        accent: accent,
-        physicalFormats: draft.physicalFormats,
+    'main' => AnimeCatalogFormEditTab(
+        state: draft,
+        draft: catalogDraft,
+        itemId: item.reference.id,
+        fieldIds: animeMainFieldIds,
+        sectionLabel: 'Main',
+        markDirty: markDirty,
+      ),
+    'media' => AnimeCatalogFormEditTab(
+        state: draft,
+        draft: catalogDraft,
+        itemId: item.reference.id,
+        fieldIds: animeDetailsFieldIds,
+        sectionLabel: 'Details',
+        markDirty: markDirty,
+      ),
+    'edition' => AnimeCatalogFormEditTab(
+        state: draft,
+        draft: catalogDraft,
+        itemId: item.reference.id,
+        fieldIds: animeEditionFieldIds,
+        sectionLabel: 'Edition',
+        physicalFormatOptions: [
+          for (final format in draft.physicalFormats) format.label,
+        ],
+        markDirty: markDirty,
       ),
     'specs' => AnimeCatalogFormEditTab(
         state: draft,
@@ -66,10 +85,20 @@ Widget? buildAnimeMediaCustomTabView({
             draft.libraryEntry != null || draft.libraryEntryDispatch != null,
         markDirty: markDirty,
       ),
-    'media' => AnimeEditMediaTab(
-        draft: draft,
-        accent: accent,
-        animeEdit: animeEdit,
+    'cover' => AnimeCatalogFormEditTab(
+        state: draft,
+        draft: catalogDraft,
+        itemId: item.reference.id,
+        fieldIds: animeCoverFieldIds,
+        sectionLabel: 'Cover',
+        markDirty: markDirty,
+      ),
+    'synopsis' => AnimeCatalogFormEditTab(
+        state: draft,
+        draft: catalogDraft,
+        itemId: item.reference.id,
+        fieldIds: animeSynopsisFieldIds,
+        sectionLabel: 'Synopsis',
         markDirty: markDirty,
       ),
     _ => null,

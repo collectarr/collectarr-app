@@ -1,22 +1,17 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata_children.dart';
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
 
 class AnimeEditController {
   AnimeEditController({
-    this.initialCharacters = '',
     this.initialCreators = const <AnimeCreditInput>[],
     this.initialTrailerLinks = const <TrailerLinkDto>[],
   });
 
-  final String initialCharacters;
   final List<AnimeCreditInput> initialCreators;
   final List<TrailerLinkDto> initialTrailerLinks;
 
-  late final TextEditingController charactersController =
-      TextEditingController(text: initialCharacters);
   final List<EditableAnimeCredit> castCredits = [];
   final List<EditableAnimeCredit> crewCredits = [];
 
@@ -59,7 +54,6 @@ class AnimeEditController {
   }
 
   void dispose() {
-    charactersController.dispose();
     for (final credit in castCredits) {
       credit.dispose();
     }

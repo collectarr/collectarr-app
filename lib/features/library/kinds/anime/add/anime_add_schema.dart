@@ -12,6 +12,10 @@ final AddSchema<AnimeAddManualDraft> animeAddSchema = animeAddSchemaFor();
 
 const animeMainFieldIds = {
   'catalog_title',
+  'display_title',
+  'original_title',
+  'localized_title',
+  'search_aliases',
   'sort_key',
   'format',
   'season',
@@ -26,6 +30,8 @@ const animeMainFieldIds = {
   'season_year',
   'episode_count',
   'episode_runtime_minutes',
+  'age_rating',
+  'audience_rating',
   'start_date',
   'end_date',
 };
@@ -58,6 +64,9 @@ const animeSpecsFieldIds = {
   'layers',
   'color',
 };
+
+const animeCoverFieldIds = {'cover_image_url'};
+const animeSynopsisFieldIds = {'synopsis'};
 
 AddSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
   Set<String>? fieldIds,
@@ -103,6 +112,44 @@ AddSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
           label: 'Catalog item',
           fields: [
             libraryAddCatalogTitleField<TDraft>(),
+            _text<TDraft>(
+              id: 'display_title',
+              label: 'Display Title',
+              read: (metadata) => metadata.displayTitle ?? '',
+              write: (draft, value) => _writeNullable(
+                draft,
+                'display_title',
+                _nullable(value),
+              ),
+            ),
+            _text<TDraft>(
+              id: 'original_title',
+              label: 'Original Title',
+              read: (metadata) => metadata.originalTitle ?? '',
+              write: (draft, value) => _writeNullable(
+                draft,
+                'original_title',
+                _nullable(value),
+              ),
+            ),
+            _text<TDraft>(
+              id: 'localized_title',
+              label: 'Localized Title',
+              read: (metadata) => metadata.localizedTitle ?? '',
+              write: (draft, value) => _writeNullable(
+                draft,
+                'localized_title',
+                _nullable(value),
+              ),
+            ),
+            _text<TDraft>(
+              id: 'search_aliases',
+              label: 'Search Aliases',
+              read: (metadata) => metadata.searchAliases.join(', '),
+              write: (draft, value) => draft.metadata = draft.metadata.copyWith(
+                searchAliases: _split(value),
+              ),
+            ),
             _text<TDraft>(
               id: 'sort_key',
               label: 'Sort Title',
@@ -250,6 +297,26 @@ AddSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
               read: (metadata) => metadata.episodeRuntimeMinutes,
               write: (draft, value) => draft.metadata = draft.metadata
                   .copyWith(episodeRuntimeMinutes: value?.toInt()),
+            ),
+            _text<TDraft>(
+              id: 'age_rating',
+              label: 'Age Rating',
+              read: (metadata) => metadata.ageRating ?? '',
+              write: (draft, value) => _writeNullable(
+                draft,
+                'age_rating',
+                _nullable(value),
+              ),
+            ),
+            _text<TDraft>(
+              id: 'audience_rating',
+              label: 'Audience Rating',
+              read: (metadata) => metadata.audienceRating ?? '',
+              write: (draft, value) => _writeNullable(
+                draft,
+                'audience_rating',
+                _nullable(value),
+              ),
             ),
             LibraryDateFieldSpec<TDraft>(
               id: 'start_date',
@@ -439,10 +506,10 @@ AddSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
                   .map((character) => character.name)
                   .join(', '),
               write: (draft, value) => draft.metadata = draft.metadata.copyWith(
-                characters: [
-                  for (final name in _split(value))
-                    AnimeCharacterMetadata(name: name),
-                ],
+                characters: _charactersFromNames(
+                  value,
+                  draft.characterBaseline,
+                ),
               ),
             ),
           ],
@@ -620,3 +687,32 @@ List<String> _split(String value) => value
     .where((entry) => entry.isNotEmpty)
     .toSet()
     .toList(growable: false);
+
+List<AnimeCharacterMetadata> _charactersFromNames(
+  String value,
+  List<AnimeCharacterMetadata> existing,
+) {
+  final byName = {
+    for (final character in existing)
+      character.name.trim().toLowerCase(): character,
+  };
+  final characters = <AnimeCharacterMetadata>[];
+  for (final name in _split(value)) {
+    final previous = byName.remove(name.toLowerCase());
+    characters.add(
+      previous == null
+          ? AnimeCharacterMetadata(name: name)
+          : AnimeCharacterMetadata(
+              name: name,
+              id: previous.id,
+              characterId: previous.characterId,
+              aliases: previous.aliases,
+              role: previous.role,
+              description: previous.description,
+              imageUrl: previous.imageUrl,
+              stringValue: previous.stringValue,
+            ),
+    );
+  }
+  return characters;
+}
