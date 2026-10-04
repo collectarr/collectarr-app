@@ -13,6 +13,30 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+const _bookMainFieldIds = {
+  'catalog_title',
+  'number',
+  'variant',
+  'title',
+  'format',
+  'release_date',
+  'publisher',
+  'imprint',
+  'language',
+  'publication_year',
+  'series_group',
+  'distributor',
+  'page_count',
+  'characters',
+  'genres',
+  'subjects',
+  'age_rating',
+  'country',
+};
+const _bookCreditFieldIds = {'authors', 'translators'};
+const _bookLinkFieldIds = {'barcode'};
+const _bookCoverFieldIds = {'cover_image_url', 'back_cover_image_url'};
+
 class BookAddManualPane extends ConsumerStatefulWidget {
   const BookAddManualPane({super.key, required this.request});
 
@@ -89,35 +113,89 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
   Widget build(BuildContext context) {
     final draft = widget.request.manualDraftAs<BookAddManualDraft>();
     final request = widget.request;
+
+    Widget buildFields(
+      Set<String> fieldIds, {
+      Map<String, String> sectionLabels = const {},
+    }) =>
+        AddSchemaRenderer<BookAddManualDraft>.embedded(
+          schema: bookAddSchemaFor(
+            fieldIds: fieldIds,
+            sectionLabels: sectionLabels,
+            publisherOptions: _publisherOptions.isEmpty
+                ? BookVocabularies.publisher.builtIns
+                : _publisherOptions,
+            formatOptions: _physicalFormatOptions.isEmpty
+                ? BookVocabularies.format.builtIns
+                : _physicalFormatOptions,
+            onManagePublisher: () => _manageSingleValuePickList(
+              listName: BookVocabularyIds.publisher.value,
+              label: 'Publishers',
+            ),
+            onManageFormat: () => _manageSingleValuePickList(
+              listName: BookVocabularyIds.format.value,
+              label: 'Physical Formats',
+              builtInValues: [
+                for (final format in _currentPhysicalFormats()) format.label,
+              ],
+            ),
+          ),
+          draft: draft,
+          mediaKind: request.kind.apiValue,
+          onVocabularyValueChanged: request.onVocabularyValueChanged,
+          onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          onChanged: request.onManualDraftChanged,
+        );
+
     return LibraryAddManualPaneShell(
       request: request,
       tabs: [
         LibraryAddManualPaneTab.main(
-          content: AddSchemaRenderer<BookAddManualDraft>.embedded(
-            schema: bookAddSchemaFor(
-              publisherOptions: _publisherOptions.isEmpty
-                  ? BookVocabularies.publisher.builtIns
-                  : _publisherOptions,
-              formatOptions: _physicalFormatOptions.isEmpty
-                  ? BookVocabularies.format.builtIns
-                  : _physicalFormatOptions,
-              onManagePublisher: () => _manageSingleValuePickList(
-                listName: BookVocabularyIds.publisher.value,
-                label: 'Publishers',
-              ),
-              onManageFormat: () => _manageSingleValuePickList(
-                listName: BookVocabularyIds.format.value,
-                label: 'Physical Formats',
-                builtInValues: [
-                  for (final format in _currentPhysicalFormats()) format.label,
-                ],
-              ),
-            ),
-            draft: draft,
-            mediaKind: request.kind.apiValue,
-            onVocabularyValueChanged: request.onVocabularyValueChanged,
-            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-            onChanged: request.onManualDraftChanged,
+          content: buildFields(
+            _bookMainFieldIds,
+            sectionLabels: const {
+              'edition': 'Edition',
+              'publication': 'Publication',
+            },
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'credits',
+          label: 'Credits',
+          icon: Icons.groups_2_outlined,
+          content: buildFields(
+            _bookCreditFieldIds,
+            sectionLabels: const {'publication': 'Credits'},
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'links',
+          label: 'Links',
+          icon: Icons.public,
+          content: buildFields(
+            _bookLinkFieldIds,
+            sectionLabels: const {'edition': 'Identifiers'},
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'covers',
+          label: 'Covers',
+          icon: Icons.photo_camera_outlined,
+          content: buildFields(
+            _bookCoverFieldIds,
+            sectionLabels: const {
+              'edition': 'Front cover',
+              'publication': 'Back cover',
+            },
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'plot',
+          label: 'Plot',
+          icon: Icons.description_outlined,
+          content: buildFields(
+            const {'description'},
+            sectionLabels: const {'publication': 'Plot'},
           ),
         ),
       ],

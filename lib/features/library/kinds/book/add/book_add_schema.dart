@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocab
 final AddSchema<BookAddManualDraft> bookAddSchema = bookAddSchemaFor();
 
 AddSchema<BookAddManualDraft> bookAddSchemaFor({
+  Set<String>? fieldIds,
+  Map<String, String> sectionLabels = const {},
   Iterable<String>? publisherOptions,
   Iterable<String>? formatOptions,
   FutureOr<void> Function()? onManagePublisher,
@@ -30,7 +32,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
       }
       return null;
     },
-    sections: [
+    sections: _filterSections(fieldIds, sectionLabels, [
       AddSectionSpec<BookAddManualDraft>(
         id: 'edition',
         label: 'Edition',
@@ -152,6 +154,33 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
           ),
         ],
       ),
-    ],
+    ]),
   );
+}
+
+List<AddSectionSpec<BookAddManualDraft>> _filterSections(
+  Set<String>? fieldIds,
+  Map<String, String> sectionLabels,
+  List<AddSectionSpec<BookAddManualDraft>> sections,
+) {
+  if (fieldIds == null && sectionLabels.isEmpty) return sections;
+  return [
+    for (final section in sections)
+      if (section.fields
+          .where((field) => fieldIds == null || fieldIds.contains(field.id))
+          .isNotEmpty)
+        AddSectionSpec<BookAddManualDraft>(
+          id: section.id,
+          label: sectionLabels[section.id] ?? section.label,
+          fields: [
+            for (final field in section.fields)
+              if (fieldIds == null || fieldIds.contains(field.id)) field,
+          ],
+          maxColumns: section.maxColumns,
+          fullWidthFieldIds: section.fullWidthFieldIds,
+          fieldColumnSpans: section.fieldColumnSpans,
+          rightAlignedFieldIds: section.rightAlignedFieldIds,
+          visibleWhen: section.visibleWhen,
+        ),
+  ];
 }
