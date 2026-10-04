@@ -85,7 +85,7 @@ class TvLibraryEditPresentationBuilder
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
-          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingSectionTitle: 'Digital Entry Details',
           entryDigitalTrackingHint:
               'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
           entryTabs: _tvAllTabs,
@@ -104,7 +104,7 @@ class TvLibraryMediaEditPresentationBuilder
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
-          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingSectionTitle: 'Digital Entry Details',
           entryDigitalTrackingHint:
               'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
           entryTabs: _tvMediaTabs,

@@ -152,7 +152,7 @@ class BoardGameLibraryCombinedEditPresentationBuilder
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Tracking edition',
-          entryDigitalTrackingSectionTitle: 'EntryPolicy details',
+          entryDigitalTrackingSectionTitle: 'Digital Entry Details',
           entryDigitalTrackingHint:
               'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
           entryTabs: _boardGameCombinedTabs,
