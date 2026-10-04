@@ -49,6 +49,11 @@ Completed implementation slices:
 - Add and Edit now use the same schema field-validation routine, including raw
   number validation and section/field visibility checks. Edit retains its
   schema-level and extra-tab validators and its existing save/error lifecycle.
+- The controller audit found no kind-pane build path constructing a fresh
+  controller on each rebuild. Advanced Add filters cache controllers by stable
+  field ID; kind-specific row editors keep controllers in their draft/state and
+  dispose removed rows or dialogs. Music Add now validates incomplete credit
+  rows on both credit tabs, matching Edit.
 - Shared edit text fields and Add schema text/select controls use external
   labels and the common control height. Schema validators are registered with
   the active Form; numeric minimum, maximum, and decimal-place constraints are
@@ -800,3 +805,7 @@ for other kinds. A common dialog mechanism does not require identical content.
 Do not add or run tests unless requested. Static analysis and manual runtime
 review can be performed during implementation; record what was actually checked.
 This audit itself did not run the application or execute tests.
+
+Implementation note (2026-10-04): targeted `dart analyze` passed for the shared
+Add/Edit schema-validation files and all nine Manual Add pane files. Tests and
+runtime screenshot review have not been run.
